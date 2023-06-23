@@ -10,6 +10,7 @@ import { NxtpLighthouseConfig } from "../../config";
 import { ProverContext } from "./context";
 import { enqueue, consume } from "./operations";
 import { bindHealthServer } from "./bindings";
+import { prefetch } from "./operations/publisher";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -17,6 +18,7 @@ export const getContext = () => context;
 export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   try {
     await makeProver(config, chainData);
+    await prefetch();
     await enqueue();
     if (context.config.healthUrls.prover) {
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);

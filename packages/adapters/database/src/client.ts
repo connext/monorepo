@@ -750,6 +750,7 @@ export const getUnProcessedMessages = async (
   origin_domain: string,
   limit = 100,
   offset = 0,
+  startIndex = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
@@ -757,7 +758,7 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain },
+      { processed: false, origin_domain, index: dc.gte(startIndex) },
       {
         limit,
         offset,

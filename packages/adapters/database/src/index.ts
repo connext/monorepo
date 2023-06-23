@@ -149,6 +149,7 @@ export type Database = {
     origin_domain: string,
     limit?: number,
     offset?: number,
+    startIndex?: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;

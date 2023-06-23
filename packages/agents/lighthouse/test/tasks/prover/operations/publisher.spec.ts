@@ -1,7 +1,12 @@
 import { expect, createRequestContext, mkBytes32 } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { enqueue, createBrokerMessage } from "../../../../src/tasks/prover/operations/publisher";
+import {
+  enqueue,
+  prefetch,
+  createBrokerMessage,
+  getUnProcessedMessagesByIndex,
+} from "../../../../src/tasks/prover/operations/publisher";
 import * as PublisherFns from "../../../../src/tasks/prover/operations/publisher";
 import { mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
 import { proverCtxMock } from "../../../globalTestHook";
@@ -21,11 +26,31 @@ const mockBrokerMesage: BrokerMessage = {
 
 const requestContext = createRequestContext("Publisher");
 describe("Operations: Publisher", () => {
+  describe("#prefetch", () => {
+    it("should prefetch messages", async () => {
+      (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
+      (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
+      (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
+      await prefetch();
+    });
+  });
+  describe("#getUnProcessedMessagesByIndex", () => {
+    it("should get unprocessed messages from the cache", async () => {
+      (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
+      (proverCtxMock.adapters.cache.messages.getPending as SinonStub).resolves([
+        mockXMessage1.leaf,
+        mockXMessage2.leaf,
+      ]);
+      (proverCtxMock.adapters.cache.messages.getMessage as SinonStub).resolves(mockXMessage1);
+      await getUnProcessedMessagesByIndex(mockXMessage1.originDomain, mockXMessage1.destinationDomain, 100);
+    });
+  });
   describe("#enqueue", () => {
     let createBrokerMessageStub: SinonStub;
 
     beforeEach(() => {
       createBrokerMessageStub = stub(PublisherFns, "createBrokerMessage").resolves();
+      stub(PublisherFns, "getUnProcessedMessagesByIndex").resolves([mockXMessage1, mockXMessage2]);
     });
 
     it("should enqueue a broker messages", async () => {
@@ -34,9 +59,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
       (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
       createBrokerMessageStub.resolves(mockBrokerMesage);
@@ -48,9 +70,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       createBrokerMessageStub.resolves(mockBrokerMesage);
       await enqueue();
     });
@@ -60,9 +79,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       await enqueue();
     });
     it("should catch error if no message root count", async () => {
@@ -71,9 +87,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       await enqueue();
     });
     it("should catch error if no message root index", async () => {
@@ -82,9 +95,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       await enqueue();
     });
     it("should catch error if no aggregate root count", async () => {
@@ -93,9 +103,6 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(undefined);
-      (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
-        .onFirstCall()
-        .resolves([mockXMessage1, mockXMessage2]);
       await enqueue();
     });
   });

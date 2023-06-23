@@ -1,13 +1,11 @@
 import { expect, createRequestContext, SparseMerkleTree, mkBytes32 } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { enqueue, createBrokerMessage } from "../../../../src/tasks/prover/operations/publisher";
-import * as PublisherFns from "../../../../src/tasks/prover/operations/publisher";
-import { mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
+import { mockXMessage1, mockXMessage2 } from "../../../mock";
 import { proverCtxMock } from "../../../globalTestHook";
 import { NoDestinationDomainForProof, NoMessageProof } from "../../../../src/errors";
 import { BrokerMessage } from "../../../../src/tasks/prover/operations/types";
-import { consume, processMessages } from "../../../../src/tasks/prover/operations";
+import { processMessages } from "../../../../src/tasks/prover/operations";
 
 const mockBrokerMesage: BrokerMessage = {
   messages: [mockXMessage1, mockXMessage2],

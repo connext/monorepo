@@ -5,6 +5,7 @@ import {
   SparseMerkleTree,
   GELATO_RELAYER_ADDRESS,
   RequestContext,
+  XMessage,
 } from "@connext/nxtp-utils";
 
 import {
@@ -22,7 +23,7 @@ import { BrokerMessage, ProofStruct } from "./types";
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader, database, databaseWriter },
+    adapters: { contracts, relayers, chainreader, database, databaseWriter, cache },
     config,
     chainData,
   } = getContext();
@@ -37,6 +38,13 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRoot,
     aggregateRootCount,
   } = brokerMessage;
+
+  // First step. Mark messages as attempted
+  for (const message of messages) {
+    await cache.messages.increaseAttempt(message.leaf);
+  }
+
+  const provenMessages: XMessage[] = [];
 
   const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, {
     reader: database,
@@ -100,6 +108,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       }
     }
     messageProofs.push(messageProof);
+    provenMessages.push(message);
   }
 
   if (messageProofs.length === 0) {
@@ -172,7 +181,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     ]);
 
     logger.debug("Proving and processing messages", requestContext, methodContext, {
-      messages,
+      provenMessages,
       proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
@@ -207,6 +216,13 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       requestContext,
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
+    if (taskId) {
+      await cache.messages.removePending(
+        originDomain,
+        destinationDomain,
+        provenMessages.map((it) => it.leaf),
+      );
+    }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
