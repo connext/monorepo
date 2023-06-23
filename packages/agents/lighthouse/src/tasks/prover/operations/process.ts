@@ -22,7 +22,7 @@ import { BrokerMessage, ProofStruct } from "./types";
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader, database, databaseWriter },
+    adapters: { contracts, relayers, chainreader, database, databaseWriter, cache },
     config,
     chainData,
   } = getContext();
@@ -207,7 +207,17 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       requestContext,
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
+    if (taskId) {
+      await cache.messages.removePending(
+        originDomain,
+        destinationDomain,
+        messages.map((it) => it.leaf),
+      );
+    }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+    for (const message of messages) {
+      await cache.messages.increaseAttempt(message.leaf);
+    }
   }
 };

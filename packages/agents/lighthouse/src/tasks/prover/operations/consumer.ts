@@ -12,7 +12,7 @@ export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
     logger,
-    adapters: { mqClient },
+    adapters: { mqClient, cache },
     config,
   } = getContext();
   const prefetchSize = config.messageQueue.prefetchSize ?? DEFAULT_PREFETCH_SIZE;
@@ -36,22 +36,18 @@ export const consume = async () => {
     PROVER_QUEUE,
     async (message) => {
       if (message) {
+        const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
         try {
-          const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
-          if (message.fields.redelivered) {
-            logger.info("Waiting for timeout to process a redelivered message", requestContext, methodContext, {
-              message: brokerMessage,
-              timeout: DEFAULT_REDELIVERY_TIMEOUT,
-            });
-            await new Promise((f) => setTimeout(f, DEFAULT_REDELIVERY_TIMEOUT));
-            logger.info("Processing an redilivered message", requestContext, methodContext, { message: brokerMessage });
-          }
           logger.info("Processing an unprocessed message", requestContext, methodContext, { message: brokerMessage });
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);
         } catch (err: unknown) {
           logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
-          channel.reject(message, true);
+          channel.reject(message, false);
+          const messages = brokerMessage.messages;
+          for (const message of messages) {
+            await cache.messages.increaseAttempt(message.leaf);
+          }
         }
       }
     },

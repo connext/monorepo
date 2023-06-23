@@ -7,6 +7,7 @@ import {
   ReceivedAggregateRoot,
   createRequestContext,
   RequestContext,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 
 import {
@@ -22,11 +23,88 @@ import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../conf
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
+const DEFAULT_REPLICA_SYNC_TIME = 300; // 5 min
+/**
+ * Pre fetches the unprocessed messages from the database and store them into the `messages` cache
+ */
+export const prefetch = async () => {
+  const { requestContext, methodContext } = createLoggingContext(prefetch.name);
+  const {
+    logger,
+    adapters: { database, cache },
+    config,
+  } = getContext();
+
+  // Only process configured chains.
+  const domains: string[] = Object.keys(config.chains);
+  for (const originDomain of domains) {
+    const cachedNonce = await cache.messages.getNonce(originDomain);
+    logger.info("Getting unprocessed messages from database", requestContext, methodContext, {
+      originDomain,
+      startIndex: cachedNonce + 1,
+    });
+
+    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, cachedNonce + 1);
+    const indexes = unprocessed.map((item: XMessage) => item.origin.index);
+    logger.info(
+      "Stored unprocessed messages in the cache",
+      requestContext,
+      methodContext,
+
+      {
+        originDomain,
+        startIndex: cachedNonce + 1,
+        nonces: indexes.sort((a, b) => a - b),
+      },
+    );
+
+    await cache.messages.storeMessages(unprocessed);
+    await cache.messages.setNonce(originDomain, Math.max(...indexes));
+  }
+};
+
+/**
+ * Gets unprocessed messages from the cache for a given domain pair.
+ * @param originDomain - The origin domain.
+ * @param destinationDomain - The destination domain.
+ * @param endIndex - The upper bound
+ */
+export const getUnProcessedMessagesByIndex = async (
+  originDomain: string,
+  destinationDomain: string,
+  endIndex: number,
+): Promise<XMessage[]> => {
+  const {
+    adapters: { cache },
+  } = getContext();
+  const pendingMessages: XMessage[] = [];
+  let offset = 0;
+  const limit = 1000;
+  let end = false;
+  while (!end) {
+    const leaves = await cache.messages.getPending(originDomain, destinationDomain, offset, limit);
+    for (const leaf of leaves) {
+      const message = await cache.messages.getMessage(leaf);
+      if (
+        message &&
+        getNtpTimeSeconds() - message.timestamp > DEFAULT_REPLICA_SYNC_TIME * 2 ** message.attempt &&
+        message.data.origin.index < endIndex
+      ) {
+        pendingMessages.push(message.data);
+      }
+    }
+    if (leaves.length == limit) offset += limit;
+    else end = true;
+  }
+
+  return pendingMessages;
+};
+
 export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database, mqClient, cache },
+    adapters: { database, mqClient },
     config,
   } = getContext();
   const channel = await mqClient.createChannel();
@@ -96,45 +174,26 @@ export const enqueue = async () => {
                 }
 
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const pendingMessages = await getUnProcessedMessagesByIndex(
+                  originDomain,
+                  destinationDomain,
+                  latestMessageRoot.count,
+                );
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
                 while (!end) {
-                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
-                  logger.info(
-                    "Getting unprocessed messages for origin and destination pair",
-                    requestContext,
-                    methodContext,
-
-                    {
-                      batchSize,
-                      offset,
-                      originDomain,
-                      destinationDomain,
-                      startIndex: cachedNonce + 1,
-                      endIndex: latestMessageRoot.count,
-                    },
-                  );
-
-                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
-                    originDomain,
-                    destinationDomain,
-                    cachedNonce + 1,
-                    latestMessageRoot.count,
-                    0,
-                    batchSize,
-                  );
+                  const unprocessed = pendingMessages.slice(offset, offset + batchSize);
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
                     `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
                   );
                   if (unprocessed.length > 0) {
                     logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                      unprocessed,
+                      unprocessed: unprocessed.map((message) => message.leaf),
                       originDomain,
                       destinationDomain,
-                      startIndex: cachedNonce + 1,
                       endIndex: latestMessageRoot.count,
                       offset,
                     });
@@ -164,15 +223,11 @@ export const enqueue = async () => {
                         {
                           originDomain,
                           destinationDomain,
-                          startIndex: cachedNonce + 1,
                           endIndex: latestMessageRoot.count,
                           offset,
                           brokerMessage,
                         },
                       );
-
-                      const indexes = unprocessed.map((item: XMessage) => item.origin.index);
-                      await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
                     }
 
                     offset += unprocessed.length;
