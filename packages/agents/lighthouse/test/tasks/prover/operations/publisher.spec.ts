@@ -1,7 +1,12 @@
 import { expect, createRequestContext, mkBytes32 } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { enqueue, prefetch, createBrokerMessage } from "../../../../src/tasks/prover/operations/publisher";
+import {
+  enqueue,
+  prefetch,
+  createBrokerMessage,
+  getUnProcessedMessagesByIndex,
+} from "../../../../src/tasks/prover/operations/publisher";
 import * as PublisherFns from "../../../../src/tasks/prover/operations/publisher";
 import { mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
 import { proverCtxMock } from "../../../globalTestHook";
@@ -27,6 +32,17 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
       (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
       await prefetch();
+    });
+  });
+  describe("#getUnProcessedMessagesByIndex", () => {
+    it("should get unprocessed messages from the cache", async () => {
+      (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
+      (proverCtxMock.adapters.cache.messages.getPending as SinonStub).resolves([
+        mockXMessage1.leaf,
+        mockXMessage2.leaf,
+      ]);
+      (proverCtxMock.adapters.cache.messages.getMessage as SinonStub).resolves(mockXMessage1);
+      await getUnProcessedMessagesByIndex(mockXMessage1.originDomain, mockXMessage1.destinationDomain, 100);
     });
   });
   describe("#enqueue", () => {
