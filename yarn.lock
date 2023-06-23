@@ -2714,6 +2714,7 @@ __metadata:
   resolution: "@connext/sdk@workspace:packages/agents/sdk-wrapper"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
+    "@connext/sdk-core": "workspace:*"
     "@types/cpx": 1
     "@types/isomorphic-fetch": 0.0.36
     cpx: 1.5.0
@@ -4341,10 +4342,10 @@ __metadata:
   linkType: hard
 
 "@graphql-mesh/http@npm:^0.94.2":
-  version: 0.94.2
-  resolution: "@graphql-mesh/http@npm:0.94.2"
+  version: 0.94.3
+  resolution: "@graphql-mesh/http@npm:0.94.3"
   dependencies:
-    "@whatwg-node/server": ^0.8.6
+    "@whatwg-node/server": ^0.9.0
     graphql-yoga: ^4.0.0
   peerDependencies:
     "@graphql-mesh/cross-helpers": ^0.4.0
@@ -4353,7 +4354,7 @@ __metadata:
     "@graphql-mesh/utils": ^0.94.0
     graphql: "*"
     tslib: ^2.4.0
-  checksum: 0642b5bcd7411dfdd9b66f070a0874852aad24bfbeb19356b6b4d808567c254d24917526bc7570a9ef7dbd786a99cfa186577ef1fac8c4ea8727566e4aec6e6a
+  checksum: 27a814454f4834d0d31ff6879cf7f8621d02eaff8f4a5930eb7ebe08bc7dd2d79100ac6994bf603e82afb2f4e52da876527bcadc45417552f1eaaa5eda9ab149
   languageName: node
   linkType: hard
 
@@ -7872,7 +7873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/fetch@npm:^0.9.0, @whatwg-node/fetch@npm:^0.9.6":
+"@whatwg-node/fetch@npm:^0.9.0, @whatwg-node/fetch@npm:^0.9.6, @whatwg-node/fetch@npm:^0.9.7":
   version: 0.9.7
   resolution: "@whatwg-node/fetch@npm:0.9.7"
   dependencies:
@@ -7931,13 +7932,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@whatwg-node/server@npm:^0.8.1, @whatwg-node/server@npm:^0.8.6":
+"@whatwg-node/server@npm:^0.8.1":
   version: 0.8.12
   resolution: "@whatwg-node/server@npm:0.8.12"
   dependencies:
     "@whatwg-node/fetch": ^0.9.6
     tslib: ^2.3.1
   checksum: 94f160a8047b4703efea469acade06018c51c11f2885daf280a4b701fd63d1d69a1d1e9461bff1c84c89c980c80a182bf616c54e4c4e26c7b778dfb68818ce26
+  languageName: node
+  linkType: hard
+
+"@whatwg-node/server@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@whatwg-node/server@npm:0.9.0"
+  dependencies:
+    "@whatwg-node/fetch": ^0.9.7
+    tslib: ^2.3.1
+  checksum: 6d5b8679482a07ce4e470bb8be07eda639e99ac39edf3b6e96355bf8104089de1b559f9d4b5c30d0de8a36d3a74107b486e4cb6f9e3287769e364f40a9ae4b31
   languageName: node
   linkType: hard
 
@@ -12970,9 +12981,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.431":
-  version: 1.4.438
-  resolution: "electron-to-chromium@npm:1.4.438"
-  checksum: 53d9292ca62351d71a505c6acacd0e391483e9489c659e7999285b81fd55fb70d55fd5a612cdfc8850b8c88c9c43de0fa0b59ee7492813bb13ee224b5327947c
+  version: 1.4.439
+  resolution: "electron-to-chromium@npm:1.4.439"
+  checksum: 77e2f06bd569071109a7bc249f66976d72cf7fc79b7334da5c51cbeb3592bbe21cc430914d9f545d5271adfccbb451cb4e9d80a4c381d33bca74380645efc8c5
   languageName: node
   linkType: hard
 
