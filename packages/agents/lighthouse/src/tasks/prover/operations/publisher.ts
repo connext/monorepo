@@ -46,21 +46,23 @@ export const prefetch = async () => {
 
     const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, cachedNonce + 1);
     const indexes = unprocessed.map((item: XMessage) => item.origin.index);
-    logger.info(
-      "Stored unprocessed messages in the cache",
-      requestContext,
-      methodContext,
+    if (indexes.length > 0) {
+      logger.info(
+        "Stored unprocessed messages in the cache",
+        requestContext,
+        methodContext,
 
-      {
-        originDomain,
-        startIndex: cachedNonce + 1,
-        min: Math.min(...indexes),
-        max: Math.max(...indexes),
-      },
-    );
+        {
+          originDomain,
+          startIndex: cachedNonce + 1,
+          min: Math.min(...indexes),
+          max: Math.max(...indexes),
+        },
+      );
 
-    await cache.messages.storeMessages(unprocessed);
-    await cache.messages.setNonce(originDomain, Math.max(...indexes));
+      await cache.messages.storeMessages(unprocessed);
+      await cache.messages.setNonce(originDomain, Math.max(...indexes));
+    }
   }
 };
 
