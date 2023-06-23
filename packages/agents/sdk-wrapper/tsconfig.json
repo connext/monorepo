@@ -4,5 +4,9 @@
     "types": ["node", "mocha", "chai"]
   },
   "exclude": [],
-  "references": []
+  "references": [
+    { "path": "../sdk/tsconfig.build.json" },
+    { "path": "../../adapters/txservice/tsconfig.build.json" },
+    { "path": "../../deployments/contracts/tsconfig.build.json" }
+  ]
 }
