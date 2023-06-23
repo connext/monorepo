@@ -16,6 +16,14 @@ import { SdkServerContext } from "./context";
 const context: SdkServerContext = {} as any;
 export const getContext = () => context;
 
+export interface RoutesOptions {
+  logger?: Logger;
+  cacheConfig?: {
+    enabled?: boolean;
+    expirationTime?: number;
+  };
+}
+
 export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<FastifyInstance> => {
   const { requestContext, methodContext } = createLoggingContext(makeSdkServer.name);
 
@@ -89,11 +97,15 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       reply.status(200).send(txRec);
     });
 
-    server.register(baseRoutes, { sdkBaseInstance: sdkBase, cacheConfig: context.config.redis });
-    server.register(poolRoutes, sdkPool);
+    server.register(baseRoutes, {
+      sdkBaseInstance: sdkBase,
+      logger: context.logger,
+      cacheConfig: context.config.redis,
+    });
+    server.register(poolRoutes, { sdkPoolInstance: sdkPool, logger: context.logger });
     server.register(utilsRoutes, { sdkUtilsInstance: sdkUtils, logger: context.logger });
-    server.register(routerRoutes, sdkRouter);
-    server.register(sharedRoutes, sdkShared);
+    server.register(routerRoutes, { sdkRouterInstance: sdkRouter, logger: context.logger });
+    server.register(sharedRoutes, { sdkSharedInstance: sdkShared, logger: context.logger });
 
     server.listen({ host: context.config.server.http.host, port: context.config.server.http.port }, (err, address) => {
       if (err) {
