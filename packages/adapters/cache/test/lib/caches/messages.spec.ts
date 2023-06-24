@@ -81,7 +81,10 @@ describe("MessagesCache", () => {
       const end = 10;
       await messagesCache.putNodes("1111", start, end, leafs);
       const result = await messagesCache.getNodes("1111", start, end);
-      expect(result).to.be.equal(leafs);
+      expect(result?.length).to.be.equal(leafs.length);
+      expect(result![0]).to.be.equal(leafs[0]);
+      expect(result![1]).to.be.equal(leafs[1]);
+      expect(result![2]).to.be.equal(leafs[2]);
     });
 
     it("should get undefined if not exist", async () => {
