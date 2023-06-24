@@ -59,6 +59,13 @@ export const mockCache = () => {
       getMessage: stub().resolves(),
       increaseAttempt: stub().resolves(),
       removePending: stub().resolves(),
+      getNode: stub().resolves(),
+      getNodes: stub().resolves(),
+      puNode: stub().resolves(),
+      putNodes: stub().resolves(),
+      getRoot: stub().resolves(),
+      putRoot: stub().resolves(),
+      clearDomain: stub().resolves(),
     },
   };
 };
