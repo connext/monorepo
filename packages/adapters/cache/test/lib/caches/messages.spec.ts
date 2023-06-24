@@ -62,5 +62,47 @@ describe("MessagesCache", () => {
       const message2 = await messagesCache.getMessage(mockXMessages[1].leaf);
       expect(message2?.data).to.be.deep.eq(mockXMessages[1]);
     });
+
+    it("should get leaf if exists", async () => {
+      const leaf = "0x1a1";
+      const index = 1;
+      await messagesCache.putNode("1111", index, leaf);
+      const result = await messagesCache.getNode("1111", index);
+      expect(result).to.be.equal(leaf);
+    });
+
+    it("should get undefined if not exist", async () => {
+      const result = await messagesCache.getNode("1111", 1);
+      expect(result).to.be.equal(undefined);
+    });
+    it("should get nodes if exists", async () => {
+      const leafs = ["0x1a1", "0x1a2", "0x1a3"];
+      const start = 1;
+      const end = 10;
+      await messagesCache.putNodes("1111", start, end, leafs);
+      const result = await messagesCache.getNodes("1111", start, end);
+      expect(result?.length).to.be.equal(leafs.length);
+      expect(result![0]).to.be.equal(leafs[0]);
+      expect(result![1]).to.be.equal(leafs[1]);
+      expect(result![2]).to.be.equal(leafs[2]);
+    });
+
+    it("should get undefined if not exist", async () => {
+      const result = await messagesCache.getNodes("1111", 1, 10);
+      expect(result).to.be.equal(undefined);
+    });
+
+    it("should get root if exists", async () => {
+      const root = "0x1a1";
+      const path = "000111000110";
+      await messagesCache.putRoot("1111", path, root);
+      const result = await messagesCache.getRoot("1111", path);
+      expect(result).to.be.equal(root);
+    });
+
+    it("should get undefined if not exist", async () => {
+      const result = await messagesCache.getRoot("1111", "");
+      expect(result).to.be.equal(undefined);
+    });
   });
 });

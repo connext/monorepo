@@ -46,16 +46,26 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
   const provenMessages: XMessage[] = [];
 
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, {
-    reader: database,
-    writer: databaseWriter,
-  });
+  const spokeStore = new SpokeDBHelper(
+    originDomain,
+    messageRootCount + 1,
+    {
+      reader: database,
+      writer: databaseWriter,
+    },
+    cache.messages,
+  );
   const spokeSMT = new SparseMerkleTree(spokeStore);
 
-  const hubStore = new HubDBHelper("hub", aggregateRootCount, {
-    reader: database,
-    writer: databaseWriter,
-  });
+  const hubStore = new HubDBHelper(
+    "hub",
+    aggregateRootCount,
+    {
+      reader: database,
+      writer: databaseWriter,
+    },
+    cache.messages,
+  );
   const hubSMT = new SparseMerkleTree(hubStore);
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;

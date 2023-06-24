@@ -1,4 +1,5 @@
 import { XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
+
 import { Cache } from "./cache";
 
 /**
@@ -122,5 +123,87 @@ export class MessagesCache extends Cache {
     }
     if (sum > 0) return true;
     else return false;
+  }
+
+  /**
+   * Stores leaf of a domain at index.
+   *
+   * @param domain - Domain.
+   * @param index - Index.
+   * @param node - Leaf string.
+   * @returns 1 if added, 0 if updated.
+   */
+  public async putNode(domain: string, index: number, node: string): Promise<number> {
+    return await this.data.hset(`${this.prefix}:${domain}`, index, node);
+  }
+
+  /**
+   * Retrieves leaf of a domain at index.
+   *
+   * @param domain - Domain.
+   * @param index - Index.
+   * @returns leaf if exists, undefined if not.
+   */
+  public async getNode(domain: string, index: number): Promise<string | undefined> {
+    return (await this.data.hget(`${this.prefix}:${domain}`, index.toString())) ?? undefined;
+  }
+
+  /**
+   * Stores leafs of a domain at in a range.
+   *
+   * @param domain - Domain.
+   * @param start - Range start.
+   * @param end - Range end.
+   * @param nodes - Leaf string array.
+   * @returns 1 if added, 0 if updated.
+   */
+  public async putNodes(domain: string, start: number, end: number, nodes: string[]): Promise<number> {
+    return await this.data.hset(`${this.prefix}:${domain}`, `${start}-${end}`, JSON.stringify(nodes));
+  }
+
+  /**
+   * Retrieves leafs of a domain in a range.
+   *
+   * @param domain - Domain.
+   * @param start - Range start.
+   * @param end - Range end.
+   * @returns leafs array if exists, undefined if not.
+   */
+  public async getNodes(domain: string, start: number, end: number): Promise<string[] | undefined> {
+    const result = await this.data.hget(`${this.prefix}:${domain}`, `${start}-${end}`);
+    return result ? (JSON.parse(result) as string[]) : undefined;
+  }
+
+  /**
+   * Stores root of a domain at path.
+   *
+   * @param domain - Domain.
+   * @param path - Path in the tree to the root.
+   * @param root - root string.
+   * @returns 1 if added, 0 if updated.
+   */
+  public async putRoot(domain: string, path: string, root: string): Promise<number> {
+    return await this.data.hset(`${this.prefix}:${domain}`, path, root);
+  }
+
+  /**
+   * Retrieves root of a domain at path.
+   *
+   * @param domain - Domain.
+   * @param path - Path in the tree to the root.
+   * @returns root if exists, undefined if not.
+   */
+  public async getRoot(domain: string, path: string): Promise<string | undefined> {
+    return (await this.data.hget(`${this.prefix}:${domain}`, path)) ?? undefined;
+  }
+
+  /**
+   * Clears all leaf and roots of a domain in the cache.
+   *
+   * @param domain - Domain.
+   * @returns 1 if removed, 0 if not.
+   */
+  public async clearDomain(domain: string): Promise<number> {
+    return await this.data.del(`${this.prefix}:${domain}`);
   }
 }
