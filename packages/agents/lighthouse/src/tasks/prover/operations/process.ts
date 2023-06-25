@@ -77,6 +77,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   const messageProofs: ProofStruct[] = [];
   let failCount = 0;
   for (const message of messages) {
+    // If message has been removed. Skip processing it.
+    if (!cache.messages.getMessage(message.leaf)) continue;
+
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
@@ -87,7 +90,10 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
       if (messageStatus == 0) messages.push(message);
-      else if (messageStatus == 2) continue;
+      else if (messageStatus == 2) {
+        await cache.messages.removePending(originDomain, destinationDomain, [message.leaf]);
+        continue;
+      }
     } catch (err: unknown) {
       logger.debug(
         "Failed to read the message status from onchain",
