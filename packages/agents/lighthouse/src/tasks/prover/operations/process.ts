@@ -75,7 +75,27 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
   // process messages
   const messageProofs: ProofStruct[] = [];
+  let failCount = 0;
   for (const message of messages) {
+    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    try {
+      const messageResultData = await chainreader.readTx({
+        domain: +destinationDomain,
+        to: destinationSpokeConnector,
+        data: messageEncodedData,
+      });
+
+      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      if (messageStatus == 0) messages.push(message);
+      else if (messageStatus == 2) continue;
+    } catch (err: unknown) {
+      logger.debug(
+        "Failed to read the message status from onchain",
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+    }
     const messageProof: ProofStruct = {
       message: message.origin.message,
       path: await spokeSMT.getProof(message.origin.index),
@@ -116,6 +136,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       //   // Do not process message if proof verification fails.
       //   continue;
       // }
+      failCount += 1;
       continue;
     }
     messageProofs.push(messageProof);
@@ -123,7 +144,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
 
   if (messageProofs.length === 0) {
-    if (messages.length > 0) {
+    if (messages.length > 0 && failCount == messages.length) {
       logger.info("All messages in the batch failed verification. Clear cache.", requestContext, methodContext, {
         originDomain,
         destinationDomain,
