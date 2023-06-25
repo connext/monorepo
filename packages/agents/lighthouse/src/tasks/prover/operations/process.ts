@@ -39,7 +39,10 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
   } = brokerMessage;
 
-  // First step. Mark messages as attempted
+  // Dedup the batch
+  messages.splice(0, messages.length, ...messages.filter((elem, index) => messages.indexOf(elem) === index));
+
+  // Mark messages as attempted
   for (const message of messages) {
     await cache.messages.increaseAttempt(message.leaf);
   }
