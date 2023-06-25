@@ -40,7 +40,11 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   } = brokerMessage;
 
   // Dedup the batch
-  messages.splice(0, messages.length, ...messages.filter((elem, index) => messages.indexOf(elem) === index));
+  messages.splice(
+    0,
+    messages.length,
+    ...messages.filter((_m, idx) => idx === messages.findIndex((__m) => __m.leaf === _m.leaf)),
+  );
 
   // Mark messages as attempted
   for (const message of messages) {
