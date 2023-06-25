@@ -95,33 +95,42 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       });
     } else {
       // Delete db and application caches
-      spokeStore.clearCache();
+      // spokeStore.clearCache();
 
-      // Try again
-      const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
-      if (messageVerification && messageVerification.verified) {
-        logger.info("Message Verified successfully after clearCache", requestContext, methodContext, {
-          messageIndex: message.origin.index,
-          leaf: message.leaf,
-          messageRoot,
-          messageVerification,
-        });
-      } else {
-        logger.info("Message verification failed after clearCache", requestContext, methodContext, {
-          messageIndex: message.origin.index,
-          leaf: message.leaf,
-          messageRoot,
-          messageVerification,
-        });
-        // Do not process message if proof verification fails.
-        continue;
-      }
+      // // Try again
+      // const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
+      // if (messageVerification && messageVerification.verified) {
+      //   logger.info("Message Verified successfully after clearCache", requestContext, methodContext, {
+      //     messageIndex: message.origin.index,
+      //     leaf: message.leaf,
+      //     messageRoot,
+      //     messageVerification,
+      //   });
+      // } else {
+      //   logger.info("Message verification failed after clearCache", requestContext, methodContext, {
+      //     messageIndex: message.origin.index,
+      //     leaf: message.leaf,
+      //     messageRoot,
+      //     messageVerification,
+      //   });
+      //   // Do not process message if proof verification fails.
+      //   continue;
+      // }
+      continue;
     }
     messageProofs.push(messageProof);
     provenMessages.push(message);
   }
 
   if (messageProofs.length === 0) {
+    if (messages.length > 0) {
+      logger.info("All messages in the batch failed verification. Clear cache.", requestContext, methodContext, {
+        originDomain,
+        destinationDomain,
+        messages,
+      });
+      spokeStore.clearCache();
+    }
     logger.info("Empty message proofs", requestContext, methodContext, {
       originDomain,
       destinationDomain,
