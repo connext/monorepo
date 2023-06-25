@@ -2,7 +2,7 @@
 import { AlphaRouter } from "@uniswap/smart-order-router";
 import { ethers } from "ethers";
 import { CurrencyAmount, Token, TradeType } from "@uniswap/sdk-core";
-import { Route, Trade, TokenAmount, Token as _Token, Pair } from "@uniswap/sdk";
+import { Route, Trade, TokenAmount, Token as _Token, Pair, Fetcher } from "@uniswap/sdk";
 
 type SwapPathCallBackArgs = {
   fromTokenContractAddress: string;
@@ -50,7 +50,6 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
     const { fromTokenContractAddress, toTokenContractAddress, chainId, rpc, fromTokenDecimal, toTokenDecimal, amount } =
       _args;
     const provider = new ethers.providers.JsonRpcProvider(rpc);
-
     const tokenIn = new Token(chainId, fromTokenContractAddress, fromTokenDecimal ?? 18);
     const tokenOut = new Token(chainId, toTokenContractAddress, toTokenDecimal ?? 18);
     const amountIn = CurrencyAmount.fromRawAmount(tokenIn, +amount);
@@ -68,7 +67,7 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
     return {
       quote: routes.quote,
       tokenPath: routes.route[0].tokenPath,
-      route: routes.route[0].route,
+      route: routes.route[0].route.protocol,
     };
   } catch (err: unknown) {
     throw Error(`getSwapPathForUniV3: Failed to get paths ${(err as Error).message}`);
@@ -83,45 +82,21 @@ export const getSwapPathForUniV2 = async (_args: SwapPathCallBackArgs) => {
     const { fromTokenContractAddress, toTokenContractAddress, chainId, rpc, fromTokenDecimal, toTokenDecimal, amount } =
       _args;
 
+    const provider = new ethers.providers.JsonRpcProvider(rpc);
+
     const tokenIn = new _Token(chainId, fromTokenContractAddress, fromTokenDecimal ?? 18);
     const tokenOut = new _Token(chainId, toTokenContractAddress, toTokenDecimal ?? 18);
+    const amountIn = new TokenAmount(tokenIn, ethers.utils.parseUnits(amount, fromTokenDecimal).toString());
 
-    const pair = new Pair(new TokenAmount(tokenIn, amount), new TokenAmount(tokenOut, amount));
-
+    const pair = await Fetcher.fetchPairData(tokenIn, tokenOut, provider);
     const route = new Route([pair], tokenIn);
-    const trade = new Trade(route, new TokenAmount(tokenIn, amount), TradeType.EXACT_INPUT);
-
-    console.log(route.path);
-    console.log(trade.outputAmount);
+    const trade = new Trade(route, amountIn, TradeType.EXACT_INPUT);
 
     return {
-      quote: trade.outputAmount,
+      quote: trade.outputAmount.toSignificant(),
       tokenPath: route.path,
       route: "V2",
     };
-
-    // const usdcAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"; // USDC token address on Ethereum mainnet
-    // const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"; // DAI token address on Ethereum mainnet
-    // const dai = await Fetcher.fetchTokenData(chainId, daiAddress);
-    // console.log(dai, "dai");
-    // const usdc = await Fetcher.fetchTokenData(chainId, usdcAddress);
-
-    // // Specify the amount you want to swap (in USDC decimals)
-    // const amountIn = "1000000"; // 1 USDC (6 decimal places)
-
-    // const startToken = usdc;
-    // const endToken = dai;
-
-    // // Fetch pair data
-    // const pair = await Fetcher.fetchPairData(startToken, endToken);
-
-    // // Construct route
-    // const route = new Route([pair], startToken);
-
-    // // Construct trade
-    // const trade = new Trade(route, new TokenAmount(startToken, amountIn), TradeType.EXACT_INPUT);
-
-    // console.log(route.path);
   } catch (err) {
     console.log(err);
     throw Error(err as string);
