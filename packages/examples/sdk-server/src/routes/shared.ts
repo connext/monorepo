@@ -43,10 +43,23 @@ import {
   SdkGetCanonicalTokenIdParams,
   Options,
 } from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
+import { RoutesOptions } from "../server";
 
-export const sharedRoutes = async (server: FastifyInstance, sdkSharedInstance: SdkShared): Promise<any> => {
+interface SharedRoutesOptions extends RoutesOptions {
+  sdkSharedInstance: SdkShared;
+}
+
+export const sharedRoutes = async (server: FastifyInstance, options: SharedRoutesOptions): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkSharedInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(sharedRoutes.name);
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.get<{ Params: SdkGetConversionRateParams }>(
     "/getConversionRate/:chainId",
