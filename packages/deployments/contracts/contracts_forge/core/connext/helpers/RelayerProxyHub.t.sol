@@ -145,7 +145,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     assertEq(proxy.hubConnectors(123), address(123));
   }
 
-  function test_RelayerProxyHub_propagateWorkable_isFalseIfRootIsSame() public {
+  function test_RelayerProxyHub__propagateWorkable_isFalseIfRootIsSame() public {
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.dequeue.selector),
@@ -161,7 +161,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     assertEq(proxy.propagateWorkable(), false);
   }
 
-  function test_RelayerProxyHub_propagateWorkable_isTrue() public {
+  function test_RelayerProxyHub__propagateWorkable_isTrue() public {
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.dequeue.selector),
@@ -177,14 +177,14 @@ contract RelayerProxyHubTest is ForgeHelper {
     assertEq(proxy.propagateWorkable(), true);
   }
 
-  function test_RelayerProxyHub_propagate_failsIfNotGelatoRelayer(address sender) public {
+  function test_RelayerProxyHub__propagate_failsIfNotGelatoRelayer(address sender) public {
     vm.assume(sender != _gelatoRelayer);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__onlyRelayer_notRelayer.selector, sender));
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 
-  function test_RelayerProxyHub_propagate_works() public {
+  function test_RelayerProxyHub__propagate_works() public {
     vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.propagate.selector), abi.encode());
     vm.prank(_gelatoRelayer);
     vm.expectEmit(true, true, true, true);
@@ -192,5 +192,12 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit FundsDeducted(123, 1 ether - 123);
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
+  }
+
+  function test_RelayerProxyHub__propagateKeep3r_failsIfNotPriority(address sender) public {
+    vm.assume(sender != _autonolasPriority);
+    vm.prank(sender);
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__onlyPriority_notPriority.selector, sender));
+    proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 }
