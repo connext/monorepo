@@ -108,7 +108,7 @@ jobs:
             "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
             "packages/adapters/cache:@connext/nxtp-adapters-cache"
             "packages/agents/sdk-wrapper:@connext/sdk"
-        )
+          )
 
           for entry in "${workspaces[@]}"; do
             IFS=":"; read -ra split_entry <<< "$entry"
