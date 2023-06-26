@@ -178,6 +178,7 @@ contract AxelarSpokeConnectorTest is ConnectorHelper {
       .checked_write(100);
     assertEq(axelarSpokeConnector.pendingAggregateRoots(message.root), 100);
 
+    // should revert because that is not current aggregate root
     vm.expectRevert(bytes("invalid inboundRoot"));
 
     axelarSpokeConnector.proveAndProcess(message.proofs, message.root, message.path, message.index);
@@ -186,7 +187,11 @@ contract AxelarSpokeConnectorTest is ConnectorHelper {
   function test_AxelarSpokeConnector_processMessage_successIfAggregateRootIsCorrect() public {
     // use last aggregated root at block number 29350893
     // https://bscscan.com/tx/0x2590a525a2ab011ea1d1bd7c2e0c8b1b33deb47b7cb191bd87be9d1036273deb
+    // ^^ tx is the `proveAndProcess` tx at 29351315 block.
     utils_setupBNBFork(29351314);
+
+    // use `proveAndProcess` params which used above tx.
+    // So if this connector received the latest aggregate root from rootManager, it should process properly
     MessageForProcess memory message = utils_readMessageFromJson(messagesJson, 1);
 
     bytes32 messageHash = keccak256(message.proofs[0].message);
@@ -194,7 +199,7 @@ contract AxelarSpokeConnectorTest is ConnectorHelper {
     bytes32 _calculatedAggregateRoot = utils_calculateMessageRoot(_messageRoot, message.path, message.index);
     assertEq(message.root, _calculatedAggregateRoot);
 
-    // try to prove on axelar connector again
+    // try to prove on axelar connector
     // manually write aggregated root
     stdstore
       .target(address(axelarSpokeConnector))
@@ -209,5 +214,7 @@ contract AxelarSpokeConnectorTest is ConnectorHelper {
     BridgeFacet(BNB_CONNEXT).setXAppConnectionManager(address(axelarSpokeConnector));
 
     axelarSpokeConnector.proveAndProcess(message.proofs, message.root, message.path, message.index);
+
+    assertEq(uint(axelarSpokeConnector.messages(messageHash)), uint(SpokeConnector.MessageStatus.Processed));
   }
 }
