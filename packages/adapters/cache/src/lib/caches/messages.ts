@@ -1,7 +1,6 @@
-import { XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { ExecStatus, XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
-
 /**
  * Redis Store Details:
  * Message Nonce:
@@ -48,9 +47,13 @@ export class MessagesCache extends Cache {
    * Gets a message for a given leaf
    * @param leaf - The given leaf
    */
-  public async getMessage(leaf: string): Promise<{ data: XMessage; attempt: number; timestamp: number } | undefined> {
+  public async getMessage(
+    leaf: string,
+  ): Promise<{ data: XMessage; status: ExecStatus; attempt: number; timestamp: number } | undefined> {
     const result = await this.data.hget(`${this.prefix}:data`, leaf);
-    return result ? (JSON.parse(result) as { data: XMessage; attempt: number; timestamp: number }) : undefined;
+    return result
+      ? (JSON.parse(result) as { data: XMessage; status: ExecStatus; attempt: number; timestamp: number })
+      : undefined;
   }
 
   /**
@@ -58,17 +61,30 @@ export class MessagesCache extends Cache {
    * @param message - The target message to store
    * @param attempt - The retry count
    */
-  private async storeMessage(message: XMessage, attempt?: number): Promise<number> {
+  private async storeMessage(message: XMessage, status?: ExecStatus, attempt?: number): Promise<number> {
     await this.addPending(message.originDomain, message.destinationDomain, message.leaf);
     return await this.data.hset(
       `${this.prefix}:data`,
       message.leaf,
       JSON.stringify({
+        status: status ?? ExecStatus.None,
         data: message,
         attempt: attempt ?? 0,
         timestamp: getNtpTimeSeconds(),
       }),
     );
+  }
+
+  /**
+   * Updates the message status to prevent the duplication for a given leaf.
+   */
+  public async setStatus(values: { leaf: string; status: ExecStatus }[]): Promise<void> {
+    for (const value of values) {
+      const message = await this.getMessage(value.leaf);
+      if (message) {
+        await this.storeMessage(message.data, value.status, message.attempt);
+      }
+    }
   }
 
   /**
@@ -78,7 +94,7 @@ export class MessagesCache extends Cache {
   public async increaseAttempt(leaf: string): Promise<void> {
     const message = await this.getMessage(leaf);
     if (message) {
-      await this.storeMessage(message.data, message.attempt + 1);
+      await this.storeMessage(message.data, message.status, message.attempt + 1);
     }
   }
 

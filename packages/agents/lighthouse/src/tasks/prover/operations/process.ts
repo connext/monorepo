@@ -6,6 +6,7 @@ import {
   GELATO_RELAYER_ADDRESS,
   RequestContext,
   XMessage,
+  ExecStatus,
 } from "@connext/nxtp-utils";
 
 import {
@@ -279,5 +280,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+    const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
+    await cache.messages.setStatus(statuses);
   }
 };

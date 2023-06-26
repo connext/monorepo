@@ -8,6 +8,7 @@ import {
   createRequestContext,
   RequestContext,
   getNtpTimeSeconds,
+  ExecStatus,
 } from "@connext/nxtp-utils";
 
 import {
@@ -93,7 +94,8 @@ export const getUnProcessedMessagesByIndex = async (
       if (
         message &&
         getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
-        message.data.origin.index < endIndex
+        message.data.origin.index < endIndex &&
+        message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
       }
@@ -109,7 +111,7 @@ export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
   const {
     logger,
-    adapters: { database, mqClient },
+    adapters: { database, mqClient, cache },
     config,
   } = getContext();
   const channel = await mqClient.createChannel();
@@ -215,6 +217,11 @@ export const enqueue = async () => {
                       subContext,
                     );
                     if (brokerMessage) {
+                      const statuses = brokerMessage.messages.map((it) => ({
+                        leaf: it.leaf,
+                        status: ExecStatus.Enqueued,
+                      }));
+                      await cache.messages.setStatus(statuses);
                       channel.publish(
                         config.messageQueue.exchange.name,
                         PROVER_QUEUE,
