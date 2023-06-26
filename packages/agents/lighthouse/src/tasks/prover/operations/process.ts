@@ -128,30 +128,29 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         messageVerification,
       });
     } else {
-      // Delete db and application caches
-      // spokeStore.clearCache();
+      // Delete local application caches
+      spokeStore.clearLocalCache();
 
-      // // Try again
-      // const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
-      // if (messageVerification && messageVerification.verified) {
-      //   logger.info("Message Verified successfully after clearCache", requestContext, methodContext, {
-      //     messageIndex: message.origin.index,
-      //     leaf: message.leaf,
-      //     messageRoot,
-      //     messageVerification,
-      //   });
-      // } else {
-      //   logger.info("Message verification failed after clearCache", requestContext, methodContext, {
-      //     messageIndex: message.origin.index,
-      //     leaf: message.leaf,
-      //     messageRoot,
-      //     messageVerification,
-      //   });
-      //   // Do not process message if proof verification fails.
-      //   continue;
-      // }
-      failCount += 1;
-      continue;
+      // Try again
+      const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
+      if (messageVerification && messageVerification.verified) {
+        logger.info("Message Verified successfully after clearLocalCache", requestContext, methodContext, {
+          messageIndex: message.origin.index,
+          leaf: message.leaf,
+          messageRoot,
+          messageVerification,
+        });
+      } else {
+        logger.info("Message verification failed after clearLocalCache", requestContext, methodContext, {
+          messageIndex: message.origin.index,
+          leaf: message.leaf,
+          messageRoot,
+          messageVerification,
+        });
+        // Do not process message if proof verification fails.
+        failCount += 1;
+        continue;
+      }
     }
     messageProofs.push(messageProof);
     provenMessages.push(message);
@@ -164,6 +163,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         destinationDomain,
         messages,
       });
+      // Clear global tree cache
       spokeStore.clearCache();
     }
     logger.info("Empty message proofs", requestContext, methodContext, {

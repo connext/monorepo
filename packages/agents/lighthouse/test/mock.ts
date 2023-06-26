@@ -61,7 +61,7 @@ export const mockCache = () => {
       removePending: stub().resolves(),
       getNode: stub().resolves(),
       getNodes: stub().resolves(),
-      puNode: stub().resolves(),
+      putNode: stub().resolves(),
       putNodes: stub().resolves(),
       getRoot: stub().resolves(),
       putRoot: stub().resolves(),

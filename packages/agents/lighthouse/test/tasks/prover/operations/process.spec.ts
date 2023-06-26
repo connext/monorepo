@@ -72,5 +72,19 @@ describe("Operations: Process", () => {
       (proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub).returns("0x");
       await processMessages(mockBrokerMesage, requestContext);
     });
+    it("should do nothing if already processed", async () => {
+      getProofStub.resolves(["0x"]);
+      verifyStub.resolves({ verified: false });
+      (proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([2]);
+      await processMessages(mockBrokerMesage, requestContext);
+    });
+    it("should do nothing if status unused", async () => {
+      getProofStub.resolves(["0x"]);
+      verifyStub.resolves({ verified: false });
+      (proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([1]);
+      await processMessages(mockBrokerMesage, requestContext);
+    });
   });
 });

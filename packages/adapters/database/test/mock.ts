@@ -72,5 +72,6 @@ export const mockDatabase = (): Database => {
         adoptedAsset: mkAddress("0xb"),
       }),
     ]),
+    deleteCache: stub().resolves(),
   };
 };
