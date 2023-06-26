@@ -89,14 +89,17 @@ export const getCoingeckoIDs = async (tokenAddresses: string[]) => {
   }
 };
 
-export const getTokenVSusdPrice = async (coingeckoId: string, amount: BigNumberish, decimal: number) => {
+export const getTokenPricesInUsd = async (coingeckoIds: string[], amounts: BigNumberish[], decimals: number[]) => {
   try {
     const response = await axiosGet("https://api.coingecko.com/api/v3/simple/price", {
-      params: { ids: coingeckoId, vs_currencies: "usd" },
+      params: { ids: coingeckoIds.join(","), vs_currencies: "usd" },
     });
-    const priceInUSD: number = response.data[coingeckoId].usd;
-    const _amount = parseFloat(ethers.utils.formatUnits(amount.toString(), decimal));
-    return priceInUSD * _amount;
+
+    return coingeckoIds.map((coingeckoId, index) => {
+      const priceInUSD: number = response.data[coingeckoId].usd;
+      const _amount = parseFloat(ethers.utils.formatUnits(amounts[index].toString(), decimals[index]));
+      return priceInUSD * _amount;
+    });
   } catch (err: unknown) {
     throw Error(`Failed to get fetch the USD price ${(err as Error).message}`);
   }
