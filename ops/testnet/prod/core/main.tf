@@ -224,7 +224,7 @@ module "sequencer_publisher_auto_scaling" {
   ecs_service_name = module.sequencer_publisher.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
   min_capacity     = 10
-  max_capacity     = 300 
+  max_capacity     = 300
 }
 
 module "sequencer_subscriber" {
@@ -265,7 +265,7 @@ module "sequencer_subscriber_auto_scaling" {
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
   min_capacity     = 10
-  max_capacity     = 300 
+  max_capacity     = 300
 }
 
 
@@ -337,8 +337,8 @@ module "lighthouse_prover_subscriber" {
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 2048
-  memory                   = 4096
+  cpu                      = 8192
+  memory                   = 16384
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -348,14 +348,16 @@ module "lighthouse_prover_subscriber" {
   container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
 }
 module "lighthouse_prover_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.lighthouse_prover_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300 
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  min_capacity               = 50
+  max_capacity               = 100
+  avg_cpu_utilization_target = 10
+  avg_mem_utilization_target = 15
 }
 
 module "lighthouse_process_from_root_cron" {

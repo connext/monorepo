@@ -111,6 +111,10 @@ variable "optgoerli_alchemy_key_0" {
   type = string
 }
 
+variable "optgoerli_alchemy_key_for_lh" {
+  type = string
+}
+
 variable "mumbai_alchemy_key_0" {
   type = string
 }

@@ -79,6 +79,7 @@ import {
   saveAssets,
   getAssets,
   saveAssetPrice,
+  deleteCache,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -283,6 +284,7 @@ export type Database = {
     leaf: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
+  deleteCache: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -353,6 +355,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     updateExecuteSimulationData,
     getPendingTransfersByMessageStatus,
     getMessageByLeaf,
+    deleteCache,
   };
 };
 
