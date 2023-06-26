@@ -43,6 +43,7 @@ contract RelayerProxyHubTest is ForgeHelper {
 
   // ============ Setup ============
   function setUp() public {
+    utils_setUpPropagateParams();
     utils_deployAndAssert();
   }
 
@@ -78,13 +79,19 @@ contract RelayerProxyHubTest is ForgeHelper {
       _hubConnectors,
       _hubConnectorChains
     );
+    vm.deal(address(proxy), 1 ether);
   }
 
   uint256[] _messageFees = new uint256[](2);
   bytes[] _encodedData = new bytes[](2);
   uint256 _relayerFee = 123;
 
-  function utils_setUpPropagateParams() public {}
+  function utils_setUpPropagateParams() public {
+    _messageFees[0] = 123;
+    _messageFees[1] = 456;
+    _encodedData[0] = abi.encode(1);
+    _encodedData[1] = abi.encode(2);
+  }
 
   function test_RelayerProxyHub__deploy_works() public {
     assertEq(address(proxy.connext()), _connext);
@@ -173,7 +180,17 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub_propagate_failsIfNotGelatoRelayer(address sender) public {
     vm.assume(sender != _gelatoRelayer);
     vm.prank(sender);
-    vm.expectRevert(RelayerProxy__onlyRelayer_notRelayer.selector);
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__onlyRelayer_notRelayer.selector, sender));
+    proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
+  }
+
+  function test_RelayerProxyHub_propagate_works() public {
+    vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.propagate.selector), abi.encode());
+    vm.prank(_gelatoRelayer);
+    vm.expectEmit(true, true, true, true);
+    emit FundsDeducted(123 + 456, 1 ether);
+    vm.expectEmit(true, true, true, true);
+    emit FundsDeducted(123, 1 ether - 123);
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 }
