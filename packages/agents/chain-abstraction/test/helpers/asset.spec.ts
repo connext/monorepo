@@ -1,7 +1,7 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
 import { ethers } from "ethers";
-import { getSupportedAssets, getTokenVSusdPrice, getCoingeckoIDs } from "../../src/helpers/asset";
+import { getSupportedAssets, getTokenPricesInUsd, getCoingeckoIDs } from "../../src/helpers/asset";
 import * as MockableFns from "../../src/mockable";
 import { Asset } from "../../src/types";
 
@@ -173,7 +173,7 @@ describe("Helpers:asset", () => {
     });
   });
 
-  describe("#getTokenVSusdPrice", () => {
+  describe("#getTokenPricesInUsd", () => {
     let axiosGetStub: SinonStub;
 
     beforeEach(() => {
@@ -186,12 +186,12 @@ describe("Helpers:asset", () => {
     });
 
     it("should return the correct USD price for the given amount", async () => {
-      const mockCoinGeckoId = "mock-coin";
-      const mockAmount = ethers.utils.parseUnits("5", 18);
-      const mockPriceInUsd = 1000; // Assume 1 token is 1000 USD
+      const mockCoinGeckoId = ["mock-coin"];
+      const mockAmount = [ethers.utils.parseUnits("5", 18)];
+      const mockPriceInUsd = 1000;
       const mockResponse = {
         data: {
-          [mockCoinGeckoId]: {
+          "mock-coin": {
             usd: mockPriceInUsd,
           },
         },
@@ -199,17 +199,17 @@ describe("Helpers:asset", () => {
 
       axiosGetStub.resolves(mockResponse);
 
-      const usdPrice = await getTokenVSusdPrice(mockCoinGeckoId, mockAmount, 18);
-      expect(usdPrice).to.equal(5000); // 5 tokens * 1000 USD each
+      const usdPrice = await getTokenPricesInUsd(mockCoinGeckoId, mockAmount, [18]);
+      expect(usdPrice[0]).to.equal(5000);
     });
 
     it("should throw an error if the API call fails", async () => {
-      const mockCoinGeckoId = "mock-coin";
-      const mockAmount = ethers.utils.parseUnits("5", 18);
+      const mockCoinGeckoId = ["mock-coin"];
+      const mockAmount = [ethers.utils.parseUnits("5", 18)];
 
       axiosGetStub.throws();
 
-      await expect(getTokenVSusdPrice(mockCoinGeckoId, mockAmount, 18)).to.eventually.be.rejectedWith(Error);
+      await expect(getTokenPricesInUsd(mockCoinGeckoId, mockAmount, [18])).to.eventually.be.rejectedWith(Error);
     });
   });
 });
