@@ -66,7 +66,7 @@ export const getSupportedAssets = async (chainID: number): Promise<Asset[] | nul
   }
 };
 
-export const getCoingeckoIDs = async (tokenAddresses: string[]) => {
+export const getCoingeckoIDs = async (tokenAddresses: string[]): Promise<Record<string, string>> => {
   try {
     const response = await axiosGet("https://api.coingecko.com/api/v3/coins/list?include_platform=true");
     const tokens = response.data;
@@ -89,7 +89,11 @@ export const getCoingeckoIDs = async (tokenAddresses: string[]) => {
   }
 };
 
-export const getTokenPricesInUsd = async (coingeckoIds: string[], amounts: BigNumberish[], decimals: number[]) => {
+export const getTokenPricesInUsd = async (
+  coingeckoIds: string[],
+  amounts: BigNumberish[],
+  decimals: number[],
+): Promise<number[]> => {
   try {
     const response = await axiosGet("https://api.coingecko.com/api/v3/simple/price", {
       params: { ids: coingeckoIds.join(","), vs_currencies: "usd" },
