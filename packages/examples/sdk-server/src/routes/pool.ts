@@ -78,10 +78,23 @@ import {
   SdkGetDailySwapVolumeParams,
   Options,
 } from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { RoutesOptions } from "../server";
 
-export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
+interface PoolRoutesOptions extends RoutesOptions {
+  sdkPoolInstance: SdkPool;
+}
+
+export const poolRoutes = async (server: FastifyInstance, options: PoolRoutesOptions): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkPoolInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(poolRoutes.name);
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.post<{ Body: SdkCalculateSwapParams }>(
     "/calculateSwap",

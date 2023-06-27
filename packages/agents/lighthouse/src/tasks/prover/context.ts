@@ -4,6 +4,7 @@ import { Database } from "@connext/nxtp-adapters-database";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import Broker from "amqplib";
+import { Pool } from "pg";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -15,6 +16,7 @@ export type ProverContext = {
     contracts: ConnextContractInterfaces; // Used to read and write to smart contracts.
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[]; // Used to send txs to relayer.
     database: Database;
+    databaseWriter: { database: Database; pool: Pool };
     cache: StoreManager;
     mqClient: Broker.Connection;
   };
