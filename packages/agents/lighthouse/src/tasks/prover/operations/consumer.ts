@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../prover";
 
@@ -11,7 +11,7 @@ export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
     logger,
-    adapters: { mqClient },
+    adapters: { mqClient, cache },
     config,
   } = getContext();
   const prefetchSize = config.messageQueue.prefetchSize ?? DEFAULT_PREFETCH_SIZE;
@@ -43,6 +43,8 @@ export const consume = async () => {
         } catch (err: unknown) {
           logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
           channel.reject(message, false);
+          const statuses = brokerMessage.messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
+          await cache.messages.setStatus(statuses);
         }
       }
     },
