@@ -137,20 +137,18 @@ export class SparseMerkleTree {
       // Get the subtree down the opposite path of the one to the target.
       const nodes = await this.getSubtreeNodes(depth + 1, siblingPath);
 
-      siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
+      // Use cached root for path if available
+      const cachedRoot = await this.db.getRoot(siblingPath);
+      if (cachedRoot) {
+        siblings[depth] = cachedRoot;
+      } else {
+        // The sibling at this depth will be the root of that subtree.
+        siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
 
-      // // Use cached root for path if available
-      // const cachedRoot = await this.db.getRoot(siblingPath);
-      // if (cachedRoot) {
-      //   siblings[depth] = cachedRoot;
-      // } else {
-      //   // The sibling at this depth will be the root of that subtree.
-      //   siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
-
-      //   // Cache the subtree in the DB once we have solved for root.
-      //   const expectedNodeCount = 2 ** (this.height - (depth + 1));
-      //   if (expectedNodeCount - nodes.length === 0) await this.db.putRoot(siblingPath, siblings[depth]);
-      // }
+        // Cache the subtree in the DB once we have solved for root.
+        const expectedNodeCount = 2 ** (this.height - (depth + 1));
+        if (expectedNodeCount - nodes.length === 0) await this.db.putRoot(siblingPath, siblings[depth]);
+      }
     }
 
     // Get the last sibling node.

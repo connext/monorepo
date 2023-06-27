@@ -19,6 +19,9 @@
   "database": {
     "url": "postgres://postgres:postgres@localhost:5432/connext?sslmode=disable"
   },
+  "databaseWriter": {
+    "url": "postgres://postgres:postgres@localhost:5432/connext?sslmode=disable"
+  },
   "relayers": [
     {
       "type": "Gelato",

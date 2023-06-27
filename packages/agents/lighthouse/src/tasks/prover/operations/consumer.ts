@@ -6,6 +6,7 @@ import { PROVER_QUEUE, BrokerMessage } from "./types";
 import { processMessages } from "./process";
 
 const DEFAULT_PREFETCH_SIZE = 1;
+
 export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
@@ -34,8 +35,8 @@ export const consume = async () => {
     PROVER_QUEUE,
     async (message) => {
       if (message) {
+        const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
         try {
-          const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
           logger.info("Processing an unprocessed message", requestContext, methodContext, { message: brokerMessage });
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);
