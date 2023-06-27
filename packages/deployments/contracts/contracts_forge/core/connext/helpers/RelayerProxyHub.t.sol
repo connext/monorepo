@@ -2,9 +2,10 @@
 pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
-import {RelayerProxyHub, IRootManager, IGnosisHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
+import {RelayerProxyHub, IRootManager, IGnosisHubConnector, IArbitrumHubConnector, IOptimismHubConnector, IZkSyncHubConnector, IPolygonHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
 import {IKeep3rV2} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
 import {RootManager} from "../../../../contracts/messaging/RootManager.sol";
+import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
 
 contract RelayerProxyHubTest is ForgeHelper {
   // ============ Events ============
@@ -42,8 +43,8 @@ contract RelayerProxyHubTest is ForgeHelper {
   address _keep3r = address(12335556);
   address _autonolas = address(12335557);
   uint8 _autonolasPriority = 4;
-  address[] _hubConnectors = new address[](2);
-  uint32[] _hubConnectorChains = new uint32[](2);
+  address[] _hubConnectors = new address[](10);
+  uint32[] _hubConnectorChains = new uint32[](10);
 
   RelayerProxyHub proxy;
 
@@ -66,10 +67,26 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);
 
-    _hubConnectors[0] = address(123);
-    _hubConnectors[1] = address(456);
+    _hubConnectors[0] = address(100);
+    _hubConnectors[1] = address(1);
+    _hubConnectors[2] = address(2);
+    _hubConnectors[3] = address(3);
+    _hubConnectors[4] = address(4);
+    _hubConnectors[5] = address(5);
+    _hubConnectors[6] = address(6);
+    _hubConnectors[7] = address(7);
+    _hubConnectors[8] = address(8);
+    _hubConnectors[9] = address(9);
     _hubConnectorChains[0] = 100;
-    _hubConnectorChains[1] = 100200;
+    _hubConnectorChains[1] = 10200;
+    _hubConnectorChains[2] = 42161;
+    _hubConnectorChains[3] = 421613;
+    _hubConnectorChains[4] = 10;
+    _hubConnectorChains[5] = 420;
+    _hubConnectorChains[6] = 324;
+    _hubConnectorChains[7] = 280;
+    _hubConnectorChains[8] = 137;
+    _hubConnectorChains[9] = 80001;
 
     vm.prank(OWNER);
     proxy = new RelayerProxyHub(
@@ -88,8 +105,8 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.deal(address(proxy), 1 ether);
   }
 
-  uint256[] _messageFees = new uint256[](2);
-  bytes[] _encodedData = new bytes[](2);
+  uint256[] _messageFees = new uint256[](10);
+  bytes[] _encodedData = new bytes[](10);
   uint256 _relayerFee = 123;
 
   function utils_setUpPropagateParams() public {
@@ -155,7 +172,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.dequeue.selector),
-      abi.encode(vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001"), 123)
+      abi.encode(bytes32(uint256(1)), 123)
     );
 
     vm.mockCall(
@@ -271,38 +288,22 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.roll(100);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      137,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(101);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      137,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(102);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      137,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(103);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      137,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
   }
 
   function test_RelayerProxyHub__processFromRootKeep3r_doesNotWorkIfNotKeep3r(address sender) public {
@@ -311,11 +312,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.roll(105);
     vm.prank(sender);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      137,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
   }
 
   function test_RelayerProxyHub__processFromRootKeep3r_failsIfNoHubConnector() public {
@@ -323,11 +320,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.roll(100);
     vm.prank(_autonolas);
     vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub__processFromRoot_noHubConnector.selector, 1234567));
-    proxy.processFromRootKeep3r(
-      bytes(""),
-      1234567,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
-    );
+    proxy.processFromRootKeep3r(abi.encode("foo"), 1234567, bytes32(uint256(1)));
   }
 
   function test_RelayerProxyHub__processFromRootKeep3r_worksForGnosis() public {
@@ -343,10 +336,133 @@ contract RelayerProxyHubTest is ForgeHelper {
       _data: abi.encode("data"),
       _signatures: abi.encode("signatures")
     });
-    proxy.processFromRootKeep3r(
-      abi.encode(params),
-      100,
-      vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001")
+    proxy.processFromRootKeep3r(abi.encode(params), 100, bytes32(uint256(1)));
+
+    vm.mockCall(
+      _hubConnectors[1],
+      abi.encodeWithSelector(IGnosisHubConnector.executeSignatures.selector),
+      abi.encode()
     );
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode(params), 10200, bytes32(uint256(1)));
+  }
+
+  function test_RelayerProxyHub__processFromRootKeep3r_worksForArbitrum() public {
+    vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, _autonolas), abi.encode(true));
+    vm.mockCall(
+      _hubConnectors[2],
+      abi.encodeWithSelector(IArbitrumHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.roll(100);
+    vm.prank(_autonolas);
+    bytes32[] memory _proof = new bytes32[](1);
+    _proof[0] = bytes32(uint256(1));
+    IArbitrumHubConnector.ArbitrumRootMessageData memory params = IArbitrumHubConnector.ArbitrumRootMessageData({
+      _nodeNum: 42,
+      _sendRoot: bytes32(uint256(2)),
+      _blockHash: bytes32(uint256(3)),
+      _proof: _proof,
+      _index: 69,
+      _message: IArbitrumHubConnector.L2Message({
+        l2Sender: address(0),
+        to: address(1),
+        l2Block: 24,
+        l1Block: 48,
+        l2Timestamp: 256,
+        value: 10,
+        callData: abi.encode("data")
+      })
+    });
+    proxy.processFromRootKeep3r(abi.encode(params), 42161, bytes32(uint256(4)));
+
+    vm.mockCall(
+      _hubConnectors[3],
+      abi.encodeWithSelector(IArbitrumHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode(params), 421613, bytes32(uint256(4)));
+  }
+
+  function test_RelayerProxyHub__processFromRootKeep3r_worksForOptimism() public {
+    vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, _autonolas), abi.encode(true));
+    vm.mockCall(
+      _hubConnectors[4],
+      abi.encodeWithSelector(IOptimismHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.roll(100);
+    vm.prank(_autonolas);
+    Types.WithdrawalTransaction memory _tx = Types.WithdrawalTransaction({
+      nonce: 0,
+      sender: address(0),
+      target: address(1),
+      value: 10,
+      gasLimit: 100,
+      data: abi.encode("data")
+    });
+    Types.OutputRootProof memory _outputRootProof = Types.OutputRootProof({
+      version: bytes32(uint256(1)),
+      stateRoot: bytes32(uint256(2)),
+      messagePasserStorageRoot: bytes32(uint256(3)),
+      latestBlockhash: bytes32(uint256(4))
+    });
+    bytes[] memory _withdrawalProof = new bytes[](1);
+    _withdrawalProof[0] = abi.encode("withdrawalProof");
+    IOptimismHubConnector.OptimismRootMessageData memory params = IOptimismHubConnector.OptimismRootMessageData({
+      _tx: _tx,
+      _l2OutputIndex: 42,
+      _outputRootProof: _outputRootProof,
+      _withdrawalProof: _withdrawalProof
+    });
+    proxy.processFromRootKeep3r(abi.encode(params), 10, bytes32(uint256(1)));
+
+    vm.mockCall(
+      _hubConnectors[5],
+      abi.encodeWithSelector(IOptimismHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode(params), 420, bytes32(uint256(1)));
+  }
+
+  function test_RelayerProxyHub__processFromRootKeep3r_worksForZkSync() public {
+    vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, _autonolas), abi.encode(true));
+    vm.mockCall(
+      _hubConnectors[6],
+      abi.encodeWithSelector(IZkSyncHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.roll(100);
+    vm.prank(_autonolas);
+    IZkSyncHubConnector.ZkSyncRootMessageData memory params = IZkSyncHubConnector.ZkSyncRootMessageData({
+      _l2BlockNumber: 42,
+      _l2MessageIndex: 69,
+      _l2TxNumberInBlock: 24,
+      _message: abi.encode("data"),
+      _proof: new bytes32[](1)
+    });
+    proxy.processFromRootKeep3r(abi.encode(params), 324, bytes32(uint256(1)));
+
+    vm.mockCall(
+      _hubConnectors[7],
+      abi.encodeWithSelector(IZkSyncHubConnector.processMessageFromRoot.selector),
+      abi.encode()
+    );
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode(params), 280, bytes32(uint256(1)));
+  }
+
+  function test_RelayerProxyHub__processFromRootKeep3r_worksForPolygon() public {
+    vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, _autonolas), abi.encode(true));
+    vm.mockCall(_hubConnectors[8], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
+    vm.roll(100);
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
+
+    vm.mockCall(_hubConnectors[9], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode("params"), 80001, bytes32(uint256(1)));
   }
 }
