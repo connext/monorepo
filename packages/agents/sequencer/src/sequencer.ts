@@ -139,6 +139,19 @@ export const makeHTTPSubscriber = async () => {
     } else {
       throw new Error("Sequencer publisher not configured");
     }
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.pub.host, context.config.server.pub.port);
@@ -466,6 +479,22 @@ export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Co
 
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
   const connection = await Broker.connect(config.messageQueue.connection.uri);
+
+  // hard exit on errors or close, this will force a restart from AWS
+  connection.on("error", (err: unknown) => {
+    logger.error("MQ connection error", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
+  connection.on("close", (err: unknown) => {
+    logger.error("MQ connection closed", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
   logger.info("MQ setup is done!", requestContext, methodContext, {});
   return connection;
 };
