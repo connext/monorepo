@@ -32,6 +32,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
   error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
+  error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
 
   // ============ Storage ============
   address OWNER = address(1);
@@ -464,5 +465,19 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(_hubConnectors[9], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
     vm.prank(_autonolas);
     proxy.processFromRootKeep3r(abi.encode("params"), 80001, bytes32(uint256(1)));
+  }
+
+  function test_RelayerProxyHub__processFromRootKeep3r_failsForDuplicates() public {
+    vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, _autonolas), abi.encode(true));
+    vm.mockCall(_hubConnectors[8], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
+    vm.roll(100);
+    vm.prank(_autonolas);
+    proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
+
+    vm.prank(_autonolas);
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub__processFromRoot_alreadyProcessed.selector, 137, bytes32(uint256(1)))
+    );
+    proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
   }
 }
