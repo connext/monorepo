@@ -47,7 +47,7 @@ export const getPriceImpactForSwaps = async (
 };
 
 /**
- * Returns the `slippgae Distribution` among the swaps
+ * Returns the `slippage distribution` among the swaps
  */
 export const getSlippageDistribution = async (
   inputToken: string,
@@ -63,7 +63,7 @@ export const getSlippageDistribution = async (
   _slippage?: string,
 ) => {
   if (inputToken === outputToken) {
-    throw new Error("Slippgae cannot be calculated in same tokens");
+    throw new Error("Slippage cannot be calculated in same tokens");
   }
   const slippage = _slippage ?? "300";
   const _underlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain];
