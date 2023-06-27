@@ -184,7 +184,7 @@ const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
       return "100000000";
     }
     case 421613: {
-      return "100000000";
+      return "500000";
     }
     default: {
       return "12000000";
