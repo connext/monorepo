@@ -1,7 +1,6 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { SinonStub, restore, reset, stub } from "sinon";
 import { ethers } from "ethers";
-import * as SharedFns from "../../../src/libs/shared";
 
 import { getPriceImpactForSwaps, getSlippageDistribution, getAmountOutMinForUniV3 } from "../../../src/libs/shared";
 import * as quoteModule from "../../../src/libs/shared/quote";
@@ -58,7 +57,7 @@ describe("Libs:slippage", () => {
       expect(priceImpact).to.equal(50);
     });
 
-    it("should throw an error if one of the underlying calls fails", async () => {
+    it("should throw an error if the estimate calls fails", async () => {
       getEstimateAmountReceivedStub.throws();
 
       await expect(
@@ -86,8 +85,12 @@ describe("Libs:slippage", () => {
       getPriceImpactForSwapsStub = stub(slippageModule, "getPriceImpactForSwaps");
     });
 
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
     it("should calculate slippage distribution correctly", async () => {
-      getPriceImpactForSwapsStub.resolves(10);
       getEstimateAmountReceivedStub.resolves(ethers.utils.parseUnits("5", 18).toString());
 
       const slippageDistribution = await getSlippageDistribution(
@@ -132,80 +135,46 @@ describe("Libs:slippage", () => {
     });
   });
 
-  // describe("#getAmountOutMinForUniV3", () => {
-  //   let chainIdToDomainStub: SinonStub;
-  //   let domainToChainIdStub: SinonStub;
-  //   let getEstimateAmountReceivedStub: SinonStub;
-  //   let getCoingeckoIDsStub: SinonStub;
-  //   let getPriceImpactForSwapsStub: SinonStub;
+  describe("#getAmountOutMinForUniV3", () => {
+    const amountIn = ethers.utils.parseUnits("10", 18);
+    const quoteAmountOut = ethers.utils.parseUnits("5", 18);
+    const slippage = "300";
 
-  //   beforeEach(() => {
-  //     chainIdToDomainStub = stub(nxtpUtils, "chainIdToDomain");
-  //     domainToChainIdStub = stub(nxtpUtils, "domainToChainId");
-  //     getEstimateAmountReceivedStub = stub(SharedFns, "getEstimateAmountReceived");
-  //     getCoingeckoIDsStub = stub(HelperFns, "getCoingeckoIDs");
-  //     getPriceImpactForSwapsStub = stub(SharedFns, "getPriceImpactForSwaps");
-  //   });
+    it("should calculate the minimum amount out correctly", async () => {
+      const expectedAmountOutMin =
+        parseFloat(ethers.utils.formatUnits(quoteAmountOut, outputDecimal)) * (1 - +slippage);
 
-  //   afterEach(() => {
-  //     restore();
-  //   });
+      getEstimateAmountReceivedStub.resolves(quoteAmountOut);
 
-  //   it("should calculate the minimum amount out for UniV3 correctly", async () => {
-  //     const inputToken = mkAddress("0x1");
-  //     const outputToken = mkAddress("0x2");
-  //     const rpc = "https://some-provider.io";
-  //     const domainID = 1;
-  //     const amountIn = ethers.utils.parseUnits("10", 18);
-  //     const signerAddress = mkAddress("0x3");
-  //     const slippage = 0.3;
-  //     const outputDecimal = 18;
+      const amountOutMin = await getAmountOutMinForUniV3(
+        inputToken,
+        outputToken,
+        originRpc,
+        originDomain,
+        amountIn,
+        signerAddress,
+        +slippage,
+        outputDecimal,
+      );
 
-  //     chainIdToDomainStub.returns(1);
-  //     domainToChainIdStub.returns(1);
-  //     getEstimateAmountReceivedStub.resolves(ethers.utils.parseUnits("5", 18).toString());
+      expect(amountOutMin).to.equal(expectedAmountOutMin);
+    });
 
-  //     const amountOutMin = await getAmountOutMinForUniV3(
-  //       inputToken,
-  //       outputToken,
-  //       rpc,
-  //       domainID,
-  //       amountIn,
-  //       signerAddress,
-  //       slippage,
-  //       outputDecimal,
-  //     );
+    it("should throw an error if the estimate call fails", async () => {
+      getEstimateAmountReceivedStub.throws();
 
-  //     const expectedAmountOutMin = ethers.utils.parseUnits("3.5", 18).toString();
-  //     expect(amountOutMin).to.equal(expectedAmountOutMin);
-  //   });
-
-  //   it("should throw an error if one of the underlying calls fails", async () => {
-  //     const inputToken = mkAddress("0x1");
-  //     const outputToken = mkAddress("0x2");
-  //     const rpc = "https://some-provider.io";
-  //     const domainID = 1;
-  //     const amountIn = ethers.utils.parseUnits("10", 18);
-  //     const signerAddress = mkAddress("0x3");
-  //     const slippage = 0.3;
-  //     const outputDecimal = 18;
-
-  //     chainIdToDomainStub.returns(1);
-  //     domainToChainIdStub.returns(1);
-  //     getEstimateAmountReceivedStub.throws();
-
-  //     await expect(
-  //       getAmountOutMinForUniV3(
-  //         inputToken,
-  //         outputToken,
-  //         rpc,
-  //         domainID,
-  //         amountIn,
-  //         signerAddress,
-  //         slippage,
-  //         outputDecimal,
-  //       ),
-  //     ).to.be.rejectedWith(Error, "Failed to get Minimum Amount Out for UniV3");
-  //   });
-  // });
+      await expect(
+        getAmountOutMinForUniV3(
+          inputToken,
+          outputToken,
+          originRpc,
+          originDomain,
+          amountIn,
+          signerAddress,
+          +slippage,
+          outputDecimal,
+        ),
+      ).to.be.rejectedWith(Error, "Failed to get Minimum Amount Out for UniV3");
+    });
+  });
 });
