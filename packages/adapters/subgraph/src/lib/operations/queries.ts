@@ -1156,7 +1156,6 @@ const routerDailyTVLQueryString = (
   return `${prefix}_routerDailyTVLs(
     where: {
       timestamp_gte: ${fromTimestamp},
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: timestamp,
     orderDirection: ${orderDirection}
