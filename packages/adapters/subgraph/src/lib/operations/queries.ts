@@ -1108,7 +1108,7 @@ const swapExchangeQueryString = (
   return `${prefix}_swap_stableSwapExchanges(
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
@@ -1156,7 +1156,6 @@ const routerDailyTVLQueryString = (
   return `${prefix}_routerDailyTVLs(
     where: {
       timestamp_gte: ${fromTimestamp},
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: timestamp,
     orderDirection: ${orderDirection}
@@ -1199,7 +1198,7 @@ const poolEventsQueryString = (
   return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
@@ -1245,7 +1244,7 @@ const lpTransfersQueryString = (
   return `${prefix}_swap_lpTransferEvents (
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
