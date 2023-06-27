@@ -92,6 +92,7 @@ describe("Libs:slippage", () => {
 
     it("should calculate slippage distribution correctly", async () => {
       getEstimateAmountReceivedStub.resolves(ethers.utils.parseUnits("5", 18).toString());
+      getPriceImpactForSwapsStub.resolves(10);
 
       const slippageDistribution = await getSlippageDistribution(
         inputToken,
