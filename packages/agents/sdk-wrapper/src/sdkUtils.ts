@@ -25,12 +25,12 @@ export class SdkUtils extends SdkShared {
   async getRoutersData(params?: {
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
   }): Promise<RouterBalance[]> {
-    const response = await axiosPost(`${this.baseUri}/getRoutersData`, params);
+    const response = await axiosPost(`${this.baseUri}/getRoutersData`, params ?? {});
     return response.data;
   }
 
   async getRouterLiquidity(params?: { order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" } }): Promise<any> {
-    const response = await axiosPost(`${this.baseUri}/getRouterLiquidity`, params);
+    const response = await axiosPost(`${this.baseUri}/getRouterLiquidity`, params ?? {});
     return response.data;
   }
 
@@ -44,7 +44,7 @@ export class SdkUtils extends SdkShared {
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<Transfer[]> {
-    const response = await axiosPost(`${this.baseUri}/getTransfers`, params);
+    const response = await axiosPost(`${this.baseUri}/getTransfers`, params ?? {});
     return response.data;
   }
 
