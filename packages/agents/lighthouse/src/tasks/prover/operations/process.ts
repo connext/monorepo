@@ -165,7 +165,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         messages,
       });
       // Clear global tree cache
-      spokeStore.clearCache();
+      // spokeStore.clearCache();
     }
     logger.info("Empty message proofs", requestContext, methodContext, {
       originDomain,

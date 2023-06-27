@@ -165,6 +165,17 @@ export class MessagesCache extends Cache {
   }
 
   /**
+   * Deletes leaf of a domain at index.
+   *
+   * @param domain - Domain.
+   * @param index - Index.
+   * @returns leaf if exists, undefined if not.
+   */
+  public async delNode(domain: string, index: number): Promise<number> {
+    return await this.data.hdel(`${this.prefix}:${domain}`, index.toString());
+  }
+
+  /**
    * Stores leafs of a domain at in a range.
    *
    * @param domain - Domain.
@@ -191,6 +202,19 @@ export class MessagesCache extends Cache {
   }
 
   /**
+   * Deletes leafs of a domain at in a range.
+   *
+   * @param domain - Domain.
+   * @param start - Range start.
+   * @param end - Range end.
+   * @param nodes - Leaf string array.
+   * @returns 1 if deleted, 0 if not.
+   */
+  public async delNodes(domain: string, start: number, end: number): Promise<number> {
+    return await this.data.hdel(`${this.prefix}:${domain}`, `${start}-${end}`);
+  }
+
+  /**
    * Stores root of a domain at path.
    *
    * @param domain - Domain.
@@ -211,6 +235,18 @@ export class MessagesCache extends Cache {
    */
   public async getRoot(domain: string, path: string): Promise<string | undefined> {
     return (await this.data.hget(`${this.prefix}:${domain}`, path)) ?? undefined;
+  }
+
+  /**
+   * Deletes root of a domain at path.
+   *
+   * @param domain - Domain.
+   * @param path - Path in the tree to the root.
+   * @param root - root string.
+   * @returns 1 if added, 0 if not.
+   */
+  public async delRoot(domain: string, path: string): Promise<number> {
+    return await this.data.hdel(`${this.prefix}:${domain}`, path);
   }
 
   /**
