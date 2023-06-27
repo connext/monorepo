@@ -217,7 +217,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9",
         decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString()
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         /// ARBITRUM
@@ -238,7 +238,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6",
         decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString()
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         /// ARBITRUM
