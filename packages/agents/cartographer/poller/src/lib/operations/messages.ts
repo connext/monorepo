@@ -67,12 +67,12 @@ export const retrieveOriginMessages = async () => {
     });
 
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.saveMessages(xMessages);
-
-    // Reset offset at the end of the cycle.
-    await database.saveCheckPoint("message_" + domain, newOffset);
-
-    logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+    if (originMessages.length > 0) {
+      await database.saveMessages(xMessages);
+      // Reset offset at the end of the cycle.
+      await database.saveCheckPoint("message_" + domain, newOffset);
+      logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+    }
   }
 };
 
