@@ -244,14 +244,14 @@ describe("SdkBase", () => {
         originDomain: mockXTransfer.xparams.originDomain,
         destinationDomain: mockXTransfer.xparams.destinationDomain,
       };
-      const serverRes = {
+      const mockServerRes = {
         type: "BigNumber",
         hex: "0x1",
       };
-      const expectedRes = BigNumber.from(serverRes);
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: serverRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -273,7 +273,7 @@ describe("SdkBase", () => {
         receiveLocal: false,
         checkFastLiquidity: false,
       };
-      const serverRes = {
+      const mockServerRes = {
         amountReceived: {
           type: "BigNumber",
           hex: "0x1",
@@ -292,10 +292,10 @@ describe("SdkBase", () => {
         },
         isFastPath: true,
       };
-      const expectedRes = convertBigNumberObject(serverRes);
+      const expectedRes = convertBigNumberObject(mockServerRes);
 
       axiosPostStub.resolves({
-        data: serverRes,
+        data: mockServerRes,
         status: 200,
       });
 
