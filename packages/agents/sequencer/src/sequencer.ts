@@ -78,6 +78,21 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
       throw new Error("Sequencer publisher not configured");
     }
 
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
       port: {
         pub: context.config.server.pub.port,
@@ -139,6 +154,8 @@ export const makeHTTPSubscriber = async () => {
     } else {
       throw new Error("Sequencer publisher not configured");
     }
+
+    // hard error on channel issues, will be restarted from higher level orchestrator
     channel.on("error", (err: unknown) => {
       context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
         error: jsonifyError(err as Error),
@@ -224,6 +241,21 @@ export const makeSubscriber = async () => {
           }),
       );
     }
+
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.sub.host, context.config.server.sub.port);
