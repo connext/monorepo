@@ -750,6 +750,7 @@ export const getUnProcessedMessages = async (
   origin_domain: string,
   limit = 100,
   offset = 0,
+  startIndex = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
@@ -757,7 +758,7 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain },
+      { processed: false, origin_domain, index: dc.gte(startIndex) },
       {
         limit,
         offset,
@@ -1025,7 +1026,7 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 100000,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
@@ -1066,7 +1067,7 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 100000,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;

@@ -295,9 +295,12 @@ locals {
     ]
     environment = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
-    hubDomain       = "1735353714"
+    main            = "1735353714"
     proverBatchSize = 1
   })
 

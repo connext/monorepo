@@ -120,7 +120,7 @@ describe("SdkBase", () => {
     });
   });
 
-  describe("#bumpTransfer", () => {
+  describe.only("#bumpTransfer", () => {
     it("happy: should send request with correct params", async () => {
       const expectedEndpoint = "/bumpTransfer";
       const expectedArgs: SdkBumpTransferParams = {

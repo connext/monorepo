@@ -17,7 +17,8 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*"
+    "src/**/*",
+    "types/**/*"
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",

@@ -294,6 +294,9 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
     relayers = [
@@ -334,7 +337,7 @@ locals {
         persistent     = true
         durable        = true
       }
-      prefetchSize = 5
+      prefetchSize = 2
     }
   })
 
