@@ -41,7 +41,7 @@ export const consume = async () => {
           channel.ack(message);
         } catch (err: unknown) {
           logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
-          channel.reject(message);
+          channel.reject(message, false);
         }
       }
     },

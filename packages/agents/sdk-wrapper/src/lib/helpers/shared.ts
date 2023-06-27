@@ -1,4 +1,3 @@
-import { getContractInterfaces } from "@connext/nxtp-txservice";
 import {
   ajv,
   TUrl,
@@ -11,6 +10,7 @@ import {
   getHardcodedGasLimits as _getHardcodedGasLimits,
   calculateRelayerFee as _calculateRelayerFee,
 } from "@connext/nxtp-utils";
+import { getContractInterfaces } from "../../txservice-types";
 import { axiosGet } from "../../mockable";
 import { providers } from "ethers";
 

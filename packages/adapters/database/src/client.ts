@@ -1025,7 +1025,7 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 10000,
+  pageSize = 100000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
@@ -1066,7 +1066,7 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
-  pageSize = 10000,
+  pageSize = 100000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
@@ -1111,6 +1111,11 @@ export const putRoot = async (
   const poolToUse = _pool ?? pool;
   const root = { domain: domain, domain_path: path, tree_root: hash };
   await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const deleteCache = async (domain: string, _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.deletes("merkle_cache", { domain }).run(poolToUse);
 };
 
 export const saveReceivedAggregateRoot = async (

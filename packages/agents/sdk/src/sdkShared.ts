@@ -233,7 +233,7 @@ export class SdkShared {
     domainId: string,
     assetId: string,
     amount: string,
-    infiniteApprove = true,
+    infiniteApprove?: boolean,
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
@@ -264,7 +264,7 @@ export class SdkShared {
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
           connextContract.address,
-          infiniteApprove ? constants.MaxUint256 : amount,
+          infiniteApprove ?? true ? constants.MaxUint256 : amount,
         );
         return approveData;
       } else {

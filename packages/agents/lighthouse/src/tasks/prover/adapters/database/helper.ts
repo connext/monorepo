@@ -26,7 +26,8 @@ export class SpokeDBHelper implements DBHelper {
     let nodes: string[] = this.cachedNodes[`${start}-${end}`];
     if (!nodes || nodes.length == 0) {
       nodes = await this.db.getSpokeNodes(this.domain, start, end, this.count);
-      this.cachedNodes[`${start}-${end}`] = nodes;
+      // Store in cache if all nodes are returned.
+      if (nodes.length == end - start + 1) this.cachedNodes[`${start}-${end}`] = nodes;
     }
     return nodes;
   }
@@ -44,6 +45,14 @@ export class SpokeDBHelper implements DBHelper {
 
   public async putRoot(path: string, hash: string): Promise<void> {
     return await this.db.putRoot(this.domain, path, hash);
+  }
+
+  public async clearCache(): Promise<void> {
+    this.cachedNode = {};
+    this.cachedNodes = {};
+    this.cachedRoot = {};
+
+    return await this.db.deleteCache(this.domain);
   }
 }
 
@@ -72,7 +81,8 @@ export class HubDBHelper implements DBHelper {
     let nodes: string[] = this.cachedNodes[`${start}-${end}`];
     if (!nodes || nodes.length == 0) {
       nodes = await this.db.getHubNodes(start, end, this.count);
-      this.cachedNodes[`${start}-${end}`] = nodes;
+      // Store in cache if all nodes are returned.
+      if (nodes.length == end - start + 1) this.cachedNodes[`${start}-${end}`] = nodes;
     }
     return nodes;
   }
@@ -90,5 +100,13 @@ export class HubDBHelper implements DBHelper {
 
   public async putRoot(path: string, hash: string): Promise<void> {
     return await this.db.putRoot(this.domain, path, hash);
+  }
+
+  public async clearCache(): Promise<void> {
+    this.cachedNode = {};
+    this.cachedNodes = {};
+    this.cachedRoot = {};
+
+    return await this.db.deleteCache(this.domain);
   }
 }

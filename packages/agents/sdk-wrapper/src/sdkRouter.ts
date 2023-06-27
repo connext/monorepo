@@ -1,7 +1,7 @@
 import { providers } from "ethers";
 import { Logger, ChainData } from "@connext/nxtp-utils";
-import { SdkConfig } from "@connext/sdk-core";
 
+import type { SdkConfig, Options } from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 
@@ -27,8 +27,14 @@ export class SdkRouter extends SdkShared {
     amount: string;
     tokenAddress: string;
     router: string;
+    options?: Options;
   }): Promise<providers.TransactionRequest> {
-    const response = await axiosPost(`${this.baseUri}/addLiquidityForRouter`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/addLiquidityForRouter`, { ...params, options: _options });
     return response.data;
   }
 
@@ -37,8 +43,14 @@ export class SdkRouter extends SdkShared {
     amount: string;
     tokenAddress: string;
     recipient: string;
+    options?: Options;
   }): Promise<providers.TransactionRequest> {
-    const response = await axiosPost(`${this.baseUri}/removeRouterLiquidity`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/removeRouterLiquidity`, { ...params, options: _options });
     return response.data;
   }
 
@@ -48,8 +60,14 @@ export class SdkRouter extends SdkShared {
     tokenAddress: string;
     recipient: string;
     router: string;
+    options?: Options;
   }): Promise<providers.TransactionRequest> {
-    const response = await axiosPost(`${this.baseUri}/removeRouterLiquidityFor`, params);
+    const _options = params.options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/removeRouterLiquidityFor`, { ...params, options: _options });
     return response.data;
   }
 }

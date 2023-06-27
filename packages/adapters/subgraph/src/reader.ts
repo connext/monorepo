@@ -708,7 +708,7 @@ export class SubgraphReader {
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
-    params: { domain: string; offset: number; limit: number }[],
+    params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
   ): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
