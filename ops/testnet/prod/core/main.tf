@@ -309,7 +309,7 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(15 minutes)"
+  schedule_expression    = "rate(5 minutes)"
   timeout                = 900
   memory_size            = 10240
   lambda_in_vpc          = true
@@ -337,7 +337,7 @@ module "lighthouse_prover_subscriber" {
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 1024
+  cpu                      = 2048
   memory                   = 4096
   instance_count           = 10
   timeout                  = 180
