@@ -94,7 +94,7 @@ export const getUnProcessedMessagesByIndex = async (
       if (
         message &&
         getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
-        message.data.origin.index < endIndex &&
+        message.data.origin.index <= endIndex &&
         message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
