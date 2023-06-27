@@ -55,7 +55,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     skipIfAlreadyDeployed: true,
     log: true,
   });
-  console.log(`${contract} deployed to ${deployment.address}`);
+  console.log(`${deploymentName} deployed to ${deployment.address}`);
 };
 func.tags = ["admin-hub"];
 
