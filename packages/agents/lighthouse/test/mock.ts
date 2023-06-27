@@ -62,9 +62,12 @@ export const mockCache = () => {
       getNode: stub().resolves(),
       getNodes: stub().resolves(),
       putNode: stub().resolves(),
+      delNode: stub().resolves(),
       putNodes: stub().resolves(),
+      delNodes: stub().resolves(),
       getRoot: stub().resolves(),
       putRoot: stub().resolves(),
+      delRoot: stub().resolves(),
       clearDomain: stub().resolves(),
     },
   };

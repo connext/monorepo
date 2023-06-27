@@ -60,6 +60,14 @@ describe("MessagesCache", () => {
       const result = await messagesCache.getNode("1111", index);
       expect(result).to.be.equal(leaf);
     });
+    it("should del leaf if exists", async () => {
+      const leaf = "0x1a1";
+      const index = 1;
+      await messagesCache.putNode("1111", index, leaf);
+      await messagesCache.delNode("1111", index);
+      const result = await messagesCache.getNode("1111", index);
+      expect(result).to.be.equal(undefined);
+    });
 
     it("should get undefined if not exist", async () => {
       const result = await messagesCache.getNode("1111", 1);
@@ -77,6 +85,16 @@ describe("MessagesCache", () => {
       expect(result![2]).to.be.equal(leafs[2]);
     });
 
+    it("should del nodes if exists", async () => {
+      const leafs = ["0x1a1", "0x1a2", "0x1a3"];
+      const start = 1;
+      const end = 10;
+      await messagesCache.putNodes("1111", start, end, leafs);
+      await messagesCache.delNodes("1111", start, end);
+      const result = await messagesCache.getNodes("1111", start, end);
+      expect(result?.length).to.be.equal(undefined);
+    });
+
     it("should get undefined if not exist", async () => {
       const result = await messagesCache.getNodes("1111", 1, 10);
       expect(result).to.be.equal(undefined);
@@ -88,6 +106,15 @@ describe("MessagesCache", () => {
       await messagesCache.putRoot("1111", path, root);
       const result = await messagesCache.getRoot("1111", path);
       expect(result).to.be.equal(root);
+    });
+
+    it("should del root if exists", async () => {
+      const root = "0x1a1";
+      const path = "000111000110";
+      await messagesCache.putRoot("1111", path, root);
+      await messagesCache.delRoot("1111", path);
+      const result = await messagesCache.getRoot("1111", path);
+      expect(result).to.be.equal(undefined);
     });
 
     it("should get undefined if not exist", async () => {
