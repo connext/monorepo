@@ -26,7 +26,7 @@ import {
   DestinationSwapPathCallback,
   getSwapPathForUniV3 as _getSwapPathForUniV3,
   getSwapPathForUniV2 as _getSwapPathForUniV2,
-  getSwapPathForHoneySwap as _getSwapPathForHoneySwap,
+  // getSwapPathForHoneySwap as _getSwapPathForHoneySwap,
   getPathForPanCake as _getPathForPanCake,
 } from "./swapUtils";
 
@@ -36,7 +36,7 @@ export const DEPLOYED_ADDRESSES = _DEPLOYED_ADDRESSES;
 export const initCoreSDK = _initCoreSDK;
 export const getSwapPathForUniV3 = _getSwapPathForUniV3;
 export const getSwapPathForUniV2 = _getSwapPathForUniV2;
-export const getSwapPathForHoneySwap = _getSwapPathForHoneySwap;
+// export const getSwapPathForHoneySwap = _getSwapPathForHoneySwap;
 export const getPathForPanCake = _getPathForPanCake;
 
 export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
@@ -55,7 +55,7 @@ export const DestinationSwapPathFns: Record<Swapper, DestinationSwapPathCallback
   UniV2: getSwapPathForUniV2,
   UniV3: getSwapPathForUniV3,
   PanCake: getPathForPanCake,
-  HoneySwap: getSwapPathForHoneySwap,
+  // HoneySwap: getSwapPathForHoneySwap,
 }; 
 
 export const SwapQuoteFns: Record<Swapper, SwapQuoteCallback> = {

@@ -9,6 +9,5 @@ export {
   getEstimateAmountRecieved,
   getSwapPathForUniV3,
   getSwapPathForUniV2,
-  getSwapPathForHoneySwap,
   getPathForPanCake,
 } from "./libs";

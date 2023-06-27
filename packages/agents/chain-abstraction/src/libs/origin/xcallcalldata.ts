@@ -40,7 +40,6 @@ export const getXCallCallData = async (
   }
 
   const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData, result.tokenPath); // result here.
-
   const swapForwarderData = defaultAbiCoder.encode(
     ["address", "address", "bytes", "bytes"],
     [swapperConfig.address, params.swapForwarderData.toAsset, encodedSwapperData, forwardCallData],
