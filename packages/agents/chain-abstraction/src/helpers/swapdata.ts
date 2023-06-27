@@ -14,7 +14,7 @@ export type OriginSwapDataCallbackArgs = {
   slippage?: number;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
-export type DestinationSwapDataCallback = (args: any) => Promise<string>;
+export type DestinationSwapDataCallback = (args: any, path?: any) => Promise<string>;
 
 // ==================================== ORIGIN SIDE ==================================== //
 /**
@@ -37,7 +37,7 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  * Returns the `swapData` which will be used as the low-level calldata
  * including a function signature for the 1inch aggregator.
  */
-export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs, path?: any): Promise<string> => {
   const fromAsset =
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
@@ -56,22 +56,27 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
 /**
  * Returns the `swapData` which will be used on the destination univ2 swapper
  */
-export const getDestinationSwapDataForUniV2 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV2 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV2SwapperParams;
-  return defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
+  return path
+    ? defaultAbiCoder.encode(["uint256", "address[]"], [args.amountOutMin, path])
+    : defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination univ3 swapper
  */
-export const getDestinationSwapDataForUniV3 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV3 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV3SwapperParams;
-  return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
+
+  return !path
+    ? defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin])
+    : defaultAbiCoder.encode(["uint24", "uint256", "bytes"], [args.poolFee, args.amountOutMin, path]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination 1inch swapper
  */
-export const getDestinationSwapDataForOneInch = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForOneInch = async (_args: any, path?: any): Promise<string> => {
   throw new Error("ToDo");
 };
