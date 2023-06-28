@@ -7,6 +7,8 @@ import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygonzk from "./polygonzk";
 export type { polygonzk };
+import type * as wormhole from "./wormhole";
+export type { wormhole };
 import type * as zksync from "./zksync";
 export type { zksync };
 export type { ConsensysAmb } from "./ConsensysAmb";

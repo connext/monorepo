@@ -1,0 +1,4 @@
+[
+  "event SendEvent(uint64 indexed sequence, uint256 deliveryQuote, uint256 paymentForExtraReceiverValue)",
+  "function getRegisteredWormholeRelayerContract(uint16 chainId) view returns (bytes32)"
+]
