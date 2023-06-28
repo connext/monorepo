@@ -3,9 +3,10 @@ pragma solidity 0.8.17;
 
 import "../../../utils/ForgeHelper.sol";
 import {RelayerProxyHub, IRootManager, IGnosisHubConnector, IArbitrumHubConnector, IOptimismHubConnector, IZkSyncHubConnector, IPolygonHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
-import {IKeep3rV2} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
+import {IKeep3rV2, RelayerProxy} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
 import {RootManager} from "../../../../contracts/messaging/RootManager.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
+import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 
 contract RelayerProxyHubTest is ForgeHelper {
   // ============ Events ============
@@ -24,15 +25,6 @@ contract RelayerProxyHubTest is ForgeHelper {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event RootManagerChanged(address rootManager, address oldRootManager);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
-
-  error ProposedOwnable__onlyOwner_notOwner();
-  error RelayerProxy__onlyRelayer_notRelayer(address _sender);
-  error RelayerProxy__isWorkableBySender_notWorkable(address _sender);
-  error RelayerProxy__validateAndPayWithCredits_notKeep3r(address _sender);
-  error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
-  error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
-  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
-  error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
 
   // ============ Storage ============
   address OWNER = address(1);
@@ -135,7 +127,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setRootManager_onlyOwner_failsIfNotOwner(address sender) public {
     vm.assume(sender != OWNER);
     vm.prank(sender);
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     proxy.setRootManager(address(123));
   }
 
@@ -150,7 +142,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setPropagateCooldown_onlyOwner_failsIfNotOwner(address sender) public {
     vm.assume(sender != OWNER);
     vm.prank(sender);
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     proxy.setPropagateCooldown(123);
   }
 
@@ -165,7 +157,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setHubConnector_onlyOwner_failsIfNotOwner(address sender) public {
     vm.assume(sender != OWNER);
     vm.prank(sender);
-    vm.expectRevert(ProposedOwnable__onlyOwner_notOwner.selector);
+    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
     proxy.setHubConnector(address(123), 123);
   }
 
@@ -177,17 +169,17 @@ contract RelayerProxyHubTest is ForgeHelper {
     assertEq(proxy.hubConnectors(123), address(123));
   }
 
-  function test_RelayerProxyHub__propagateWorkable_isFalseIfRootIsSame() public {
+  function test_RelayerProxyHub__propagateWorkable_isFalseIfRootIsSame(bytes32 _root) public {
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.dequeue.selector),
-      abi.encode(bytes32(uint256(1)), 123)
+      abi.encode(_root, 123)
     );
 
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.lastPropagatedRoot.selector),
-      abi.encode(vm.parseBytes32("0x0000000000000000000000000000000000000000000000000000000000000001"))
+      abi.encode(_root)
     );
 
     assertEq(proxy.propagateWorkable(), false);
@@ -212,7 +204,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__propagate_failsIfNotGelatoRelayer(address sender) public {
     vm.assume(sender != _gelatoRelayer);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__onlyRelayer_notRelayer.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector, sender));
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 
@@ -230,22 +222,22 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.assume(sender != _autonolas);
     vm.roll(100);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
 
     vm.roll(101);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
 
     vm.roll(102);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
 
     vm.roll(103);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
   }
 
@@ -254,7 +246,9 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, sender), abi.encode(false));
     vm.roll(105);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender));
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender)
+    );
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
   }
 
@@ -282,7 +276,11 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.prank(_gelatoRelayer);
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub__propagateCooledDown_notCooledDown.selector, 1648744712, 1648745012)
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
+        1648744712,
+        1648745012
+      )
     );
     vm.prank(_gelatoRelayer);
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
@@ -292,22 +290,22 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.assume(sender != _autonolas);
     vm.roll(100);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(101);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(102);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
 
     vm.roll(103);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__isWorkableBySender_notWorkable.selector, sender));
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
   }
 
@@ -316,7 +314,9 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, sender), abi.encode(false));
     vm.roll(105);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender));
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender)
+    );
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
   }
 
@@ -324,7 +324,9 @@ contract RelayerProxyHubTest is ForgeHelper {
     utils_mockIsKeeper(_autonolas, true);
     vm.roll(100);
     vm.prank(_autonolas);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub__processFromRoot_noHubConnector.selector, 1234567));
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__processFromRoot_noHubConnector.selector, 1234567)
+    );
     proxy.processFromRootKeep3r(abi.encode("foo"), 1234567, bytes32(uint256(1)));
   }
 
@@ -480,7 +482,11 @@ contract RelayerProxyHubTest is ForgeHelper {
 
     vm.prank(_autonolas);
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub__processFromRoot_alreadyProcessed.selector, 137, bytes32(uint256(1)))
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__processFromRoot_alreadyProcessed.selector,
+        137,
+        bytes32(uint256(1))
+      )
     );
     proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
   }
