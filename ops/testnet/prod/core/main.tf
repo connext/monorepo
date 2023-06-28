@@ -310,7 +310,7 @@ module "lighthouse_prover_cron" {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
   schedule_expression    = "rate(5 minutes)"
-  timeout                = 900
+  timeout                = 300
   memory_size            = 10240
   lambda_in_vpc          = true
   private_subnets        = module.network.private_subnets
