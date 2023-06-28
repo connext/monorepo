@@ -685,7 +685,7 @@ describe("SdkPool", () => {
 
       const res = await sdkPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
 
-      expect(res).to.deep.equal(["100", "100"]);
+      expect(res).to.deep.equal([BigNumber.from("100"), BigNumber.from("100")]);
     });
   });
 

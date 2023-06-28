@@ -72,7 +72,7 @@ export class SdkBase extends SdkShared {
       throw new Error(`Error calling estimateRelayerFee: ${response.status} ${response.statusText}`);
     }
 
-    return response.data;
+    return BigNumber.from(response.data);
   }
 
   async calculateAmountReceived(
@@ -99,6 +99,14 @@ export class SdkBase extends SdkShared {
     };
 
     const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-    return response.data;
+    const data = response.data;
+
+    return {
+      amountReceived: BigNumber.from(data.amountReceived),
+      originSlippage: BigNumber.from(data.originSlippage),
+      routerFee: BigNumber.from(data.routerFee),
+      destinationSlippage: BigNumber.from(data.destinationSlippage),
+      isFastPath: data.isFastPath,
+    };
   }
 }

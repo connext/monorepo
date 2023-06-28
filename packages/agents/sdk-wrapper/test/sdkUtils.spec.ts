@@ -166,10 +166,14 @@ describe("#SDKUtils", () => {
         asset: mock.asset.A.address,
         topN: undefined,
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 

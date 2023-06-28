@@ -3,6 +3,7 @@ import { providers, BigNumber } from "ethers";
 import { mock } from "./mock";
 import { SdkBase } from "../src/sdkBase";
 import * as MockableFns from "../src/mockable";
+import { convertBigNumberObject } from "./utils";
 
 import {
   SdkXCallParams,
@@ -120,7 +121,7 @@ describe("SdkBase", () => {
     });
   });
 
-  describe.only("#bumpTransfer", () => {
+  describe("#bumpTransfer", () => {
     it("happy: should send request with correct params", async () => {
       const expectedEndpoint = "/bumpTransfer";
       const expectedArgs: SdkBumpTransferParams = {
@@ -243,17 +244,21 @@ describe("SdkBase", () => {
         originDomain: mockXTransfer.xparams.originDomain,
         destinationDomain: mockXTransfer.xparams.destinationDomain,
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
       const res = await sdkBase.estimateRelayerFee(expectedArgs);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res.eq(expectedRes)).to.be.true;
     });
   });
 
@@ -268,10 +273,29 @@ describe("SdkBase", () => {
         receiveLocal: false,
         checkFastLiquidity: false,
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        amountReceived: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        originSlippage: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        routerFee: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        destinationSlippage: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        isFastPath: true,
+      };
+      const expectedRes = convertBigNumberObject(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -283,7 +307,7 @@ describe("SdkBase", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
   });
 });

@@ -55,6 +55,7 @@ export class SdkUtils extends SdkShared {
       topN,
     };
     const response = await axiosPost(`${this.baseUri}/checkRouterLiquidity`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 }
