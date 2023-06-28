@@ -1,45 +1,30 @@
 import { Contract } from "ethers";
 import { task } from "hardhat/config";
-import { domainToChainId } from "@connext/nxtp-utils";
 
-import {
-  Env,
-  getConnectorName,
-  getDeploymentName,
-  getMessagingProtocolConfig,
-  mustGetEnv,
-  ProtocolNetwork,
-} from "../../src/utils";
+import { Env, mustGetEnv } from "../../src/utils";
 
 type TaskArgs = {
   root: string;
-  spoke: string;
+  deployment: string;
   env?: Env;
-  networkType?: ProtocolNetwork;
 };
 
 export default task("add-spoke-root", "Call `AdminHubConnector.addSpokeRootToAggregate()` to distribute outbound root")
   .addParam("root", "The spoke root to insert into the root manager")
-  .addParam("spoke", "The spoke domain")
+  .addParam("deployment", "The deployment name of the AdminHubConnector")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
-  .setAction(async ({ root, spoke, env: _env, networkType: _networkType }: TaskArgs, { deployments, ethers }) => {
+  .setAction(async ({ root, deployment: _deployment, env: _env }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await ethers.getUnnamedSigners();
     }
 
     const env = mustGetEnv(_env);
-    const networkType = _networkType ?? process.env.NETWORK ?? ProtocolNetwork.TESTNET;
-    console.log("networkType: ", networkType);
+    const deploymentName = _deployment;
     console.log("env:", env);
-    const protocolConfig = getMessagingProtocolConfig(networkType as ProtocolNetwork);
+    console.log("deploymentName:", deploymentName);
 
-    const deploymentName = getDeploymentName(
-      getConnectorName(protocolConfig, domainToChainId(+spoke), protocolConfig.hub),
-      undefined,
-      protocolConfig.configs[domainToChainId(+spoke)].networkName,
-    );
     const deployment = await deployments.get(deploymentName);
     const address = deployment.address;
     console.log(deploymentName, "connector:", address);
