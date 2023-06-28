@@ -1,7 +1,7 @@
 import { AlphaRouter } from "@uniswap/smart-order-router";
 import { ethers } from "ethers";
 import { CurrencyAmount, Token, TradeType } from "@uniswap/sdk-core";
-import { Route, Trade, Token as _Token, Fetcher, TokenAmount } from "@uniswap/sdk";
+import { Route, Trade, Token as _Token, Fetcher, TokenAmount, Pair } from "@uniswap/sdk";
 // import { Route, Trade, TokenAmount, Fetcher, Token, TradeType, CoWTrade } from "@swapr/sdk";
 import {
   Fetcher as PancakeFetcher,
@@ -46,9 +46,6 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
     if (!routes) {
       throw Error("No routes found for given Pair");
     }
-    // console.log(typeof routes.route[0].protocol);
-    // console.log(routes.trade.swaps, "trade");
-    // console.log(routes.trade, "trade object");
     return {
       quote: routes.quote,
       tokenPath: routes.route[0].tokenPath.map((token) => token.address),
@@ -73,7 +70,7 @@ export const getSwapPathForUniV2 = async (_args: SwapPathCallBackArgs) => {
     const tokenOut = new _Token(chainId, toTokenContractAddress, toTokenDecimal ?? 18);
     const amountIn = new TokenAmount(tokenIn, ethers.utils.parseUnits(amount, fromTokenDecimal).toString());
 
-    const pair = await Fetcher.fetchPairData(tokenIn, tokenOut, provider);
+    const pair: Pair = await Fetcher.fetchPairData(tokenIn, tokenOut, provider);
     const route = new Route([pair], tokenIn);
     const trade = new Trade(route, amountIn, TradeType.EXACT_INPUT);
 
@@ -86,34 +83,6 @@ export const getSwapPathForUniV2 = async (_args: SwapPathCallBackArgs) => {
     throw Error(err as string);
   }
 };
-
-// export const getSwapPathForHoneySwap = async (_args: SwapPathCallBackArgs) => {
-//   try {
-//     const { fromTokenContractAddress, toTokenContractAddress, chainId, rpc, fromTokenDecimal, toTokenDecimal, amount } =
-//       _args;
-
-//     const provider = new ethers.providers.JsonRpcProvider(rpc);
-//     console.log(provider._isProvider);
-
-//     const tokenIn = new Token(chainId, fromTokenContractAddress, fromTokenDecimal ?? 18);
-//     const tokenOut = new Token(chainId, toTokenContractAddress, toTokenDecimal ?? 18);
-//     const amountIn = new TokenAmount(tokenIn, ethers.utils.parseUnits(amount, fromTokenDecimal).toString());
-
-//     const pair = await Fetcher.fetchPairData(tokenIn, tokenOut, provider);
-//     console.log(pair);
-//     const route = new Route([pair], tokenIn);
-//     const trade = CoWTrade.bestTradeExactIn(route, amountIn, TradeType.EXACT_INPUT);
-
-//     return {
-//       quote: trade.outputAmount.toSignificant(),
-//       tokenPath: route.path.map((token) => token.address),
-//       route: "HONEYSWAP",
-//     };
-//   } catch (err: unknown) {
-//     console.log(err);
-//     throw Error(err as string);
-//   }
-// };
 
 export const getPathForPanCake = async (_args: SwapPathCallBackArgs) => {
   try {

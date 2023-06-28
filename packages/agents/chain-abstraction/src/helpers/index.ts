@@ -28,7 +28,7 @@ import {
   getSwapPathForUniV2 as _getSwapPathForUniV2,
   // getSwapPathForHoneySwap as _getSwapPathForHoneySwap,
   getPathForPanCake as _getPathForPanCake,
-} from "./swapUtils";
+} from "./swaputil";
 
 import { DEPLOYED_ADDRESSES as _DEPLOYED_ADDRESSES } from "./address";
 import {
