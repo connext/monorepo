@@ -37,7 +37,7 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  * Returns the `swapData` which will be used as the low-level calldata
  * including a function signature for the 1inch aggregator.
  */
-export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs, path?: any): Promise<string> => {
+export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
   const fromAsset =
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
