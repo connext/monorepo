@@ -72,7 +72,7 @@ export class SdkBase extends SdkShared {
       throw new Error(`Error calling estimateRelayerFee: ${response.status} ${response.statusText}`);
     }
 
-    return BigNumber.from(response.data.hex);
+    return BigNumber.from(response.data);
   }
 
   async calculateAmountReceived(
