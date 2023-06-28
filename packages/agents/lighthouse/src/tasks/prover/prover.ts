@@ -25,7 +25,7 @@ export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainDat
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);
     }
     // Release lock only on success. On failure, override after timeout.
-    releaseLock();
+    await releaseLock();
   } catch (e: unknown) {
     console.error("Error starting Prover-Publisher. Sad! :(", e);
   } finally {
