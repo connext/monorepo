@@ -46,6 +46,9 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
     if (!routes) {
       throw Error("No routes found for given Pair");
     }
+    // console.log(typeof routes.route[0].protocol);
+    // console.log(routes.trade.swaps, "trade");
+    // console.log(routes.trade, "trade object");
     return {
       quote: routes.quote,
       tokenPath: routes.route[0].tokenPath.map((token) => token.address),
