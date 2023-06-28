@@ -73,6 +73,7 @@ contract Conductor is ProposedOwnable {
   // ============ Errors ============
 
   error Conductor_onlyConductor__notConductor(address sender);
+  error Conductor_addBypass__cannotBypassConductor();
   error Conductor_renounceOwnership__prohibited();
   error Conductor_queue__alreadyQueued(bytes32 key);
   error Conductor_dequeue__notQueued(bytes32 key);
@@ -124,6 +125,9 @@ contract Conductor is ProposedOwnable {
    * @param _selector The selector of the function to bypass
    */
   function addBypass(address _target, bytes4 _selector) public onlyConductor {
+    if (_target == address(this)) {
+      revert Conductor_addBypass__cannotBypassConductor();
+    }
     bypassDelay[keccak256(abi.encodePacked(_target, _selector))] = true;
     emit BypassAdded(_target, _selector);
   }
