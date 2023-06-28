@@ -7,11 +7,24 @@ import {
   SdkRemoveRouterLiquidityForParamsSchema,
   SdkRemoveRouterLiquidityForParams,
 } from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { RoutesOptions } from "../server";
 
-export const routerRoutes = async (server: FastifyInstance, sdkRouterInstance: SdkRouter): Promise<any> => {
+interface RouterRoutesOptions extends RoutesOptions {
+  sdkRouterInstance: SdkRouter;
+}
+
+export const routerRoutes = async (server: FastifyInstance, options: RouterRoutesOptions): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkRouterInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(routerRoutes.name);
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.post<{ Body: SdkAddLiquidityForRouterParams }>(
     "/addLiquidityForRouter",

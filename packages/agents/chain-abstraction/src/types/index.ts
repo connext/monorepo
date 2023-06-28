@@ -138,3 +138,12 @@ export type SwapQuoteCallbackArgs = {
   fee?: string;
   sqrtPriceLimitX96?: string;
 };
+
+export type coingeckoTokenType = {
+  id: string;
+  symbol: string;
+  name: string;
+  platforms: {
+    [key: string]: string;
+  };
+};

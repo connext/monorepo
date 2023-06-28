@@ -1,8 +1,9 @@
 import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
-import { getSupportedAssets } from "../../src/helpers/asset";
+import { ethers } from "ethers";
+import { getSupportedAssets, getTokenPricesInUsd, getCoingeckoIDs } from "../../src/helpers/asset";
 import * as MockableFns from "../../src/mockable";
-import { asset } from "../../src/types";
+import { Asset } from "../../src/types";
 
 const mockUniswapResponse = [
   {
@@ -76,31 +77,139 @@ describe("Helpers:asset", () => {
     it("Should work with getting supported asset", async () => {
       const mockChainID = 1;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("1INCH");
     });
     it("Should work with Polygon asset", async () => {
       const mockChainID = 137;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("1INCH");
     });
     it("Should get null with different chain id", async () => {
       const mockChainID = 45;
       axiosGetStub.resolves({ data: { tokens: mockUniswapResponse } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset).to.be.null;
     });
     it("Should work for gnosis with honeyswap api", async () => {
       const mockChainID = 100;
       axiosGetStub.resolves({ data: { tokens: mockHoneySwap } });
-      const supportedAsset = (await getSupportedAssets(mockChainID)) as asset[];
+      const supportedAsset = (await getSupportedAssets(mockChainID)) as Asset[];
       expect(supportedAsset[0].symbol).to.be.eq("0xMR");
     });
-    it("should throw if axioGet fails", async () => {
+    it("should throw if axiosGet fails", async () => {
       const mockChainID = 56;
       axiosGetStub.throws();
       await expect(getSupportedAssets(mockChainID)).to.eventually.be.rejectedWith(Error);
+    });
+  });
+
+  describe("#getCoingeckoIDs", () => {
+    let axiosGetStub: SinonStub;
+
+    beforeEach(() => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("should work with getting a single token", async () => {
+      const mockTokens = [mkAddress("0xa")];
+      const mockResponse = {
+        data: [
+          {
+            id: "mock-coin",
+            symbol: "MOCK",
+            name: "Mock Coin",
+            platforms: {
+              ethereum: mkAddress("0xa"),
+            },
+          },
+        ],
+      };
+      axiosGetStub.resolves(mockResponse);
+
+      const res = await getCoingeckoIDs(mockTokens);
+
+      expect(res).to.deep.equal({
+        [mockTokens[0]]: "mock-coin",
+      });
+    });
+
+    it("should work with getting multiple tokens", async () => {
+      const mockTokens = [mkAddress("0xA"), mkAddress("0xB"), mkAddress("0xC")];
+      const mockResponse = {
+        data: [
+          {
+            id: "mock-coin-1",
+            symbol: "MOCK1",
+            name: "Mock Coin 1",
+            platforms: {
+              ethereum: mkAddress("0xa"),
+            },
+          },
+          {
+            id: "mock-coin-2",
+            symbol: "MOCK2",
+            name: "Mock Coin 2",
+            platforms: {
+              ethereum: mkAddress("0xb"),
+            },
+          },
+        ],
+      };
+      axiosGetStub.resolves(mockResponse);
+
+      const res = await getCoingeckoIDs(mockTokens);
+
+      expect(res).to.deep.equal({
+        [mockTokens[0]]: "mock-coin-1",
+        [mockTokens[1]]: "mock-coin-2",
+      });
+    });
+  });
+
+  describe("#getTokenPricesInUsd", () => {
+    let axiosGetStub: SinonStub;
+
+    beforeEach(() => {
+      axiosGetStub = stub(MockableFns, "axiosGet");
+    });
+
+    afterEach(() => {
+      restore();
+      reset();
+    });
+
+    it("should return the correct USD price for the given amount", async () => {
+      const mockCoinGeckoId = ["mock-coin"];
+      const mockAmount = [ethers.utils.parseUnits("5", 18)];
+      const mockPriceInUsd = 1000;
+      const mockResponse = {
+        data: {
+          "mock-coin": {
+            usd: mockPriceInUsd,
+          },
+        },
+      };
+
+      axiosGetStub.resolves(mockResponse);
+
+      const usdPrice = await getTokenPricesInUsd(mockCoinGeckoId, mockAmount, [18]);
+      expect(usdPrice[0]).to.equal(5000);
+    });
+
+    it("should throw an error if the API call fails", async () => {
+      const mockCoinGeckoId = ["mock-coin"];
+      const mockAmount = [ethers.utils.parseUnits("5", 18)];
+
+      axiosGetStub.throws();
+
+      await expect(getTokenPricesInUsd(mockCoinGeckoId, mockAmount, [18])).to.eventually.be.rejectedWith(Error);
     });
   });
 });

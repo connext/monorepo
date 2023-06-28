@@ -47,11 +47,7 @@ export const api = {
       try {
         const result: any = {};
         for (const originDomain of Object.keys(chains)) {
-          for (const destinationDomain of Object.keys(chains)) {
-            if (originDomain == destinationDomain) continue;
-            const key = `${originDomain}-${destinationDomain}`;
-            result[key] = await cache.messages.getNonce(originDomain, destinationDomain);
-          }
+          result[originDomain] = await cache.messages.getNonce(originDomain);
         }
         return res.status(200).send(JSON.stringify(result));
       } catch (e: unknown) {
