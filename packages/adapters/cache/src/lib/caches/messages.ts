@@ -1,6 +1,9 @@
 import { ExecStatus, XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
+
+const PUB_LOCK_KEY = "pub";
+
 /**
  * Redis Store Details:
  * Message Nonce:
@@ -243,7 +246,7 @@ export class MessagesCache extends Cache {
    * @param domain - Domain.
    * @param path - Path in the tree to the root.
    * @param root - root string.
-   * @returns 1 if added, 0 if not.
+   * @returns 1 if deleted, 0 if not.
    */
   public async delRoot(domain: string, path: string): Promise<number> {
     return await this.data.hdel(`${this.prefix}:${domain}`, path);
@@ -257,5 +260,43 @@ export class MessagesCache extends Cache {
    */
   public async clearDomain(domain: string): Promise<number> {
     return await this.data.del(`${this.prefix}:${domain}`);
+  }
+
+  /**
+   * Gets current lock.
+   *
+   * @returns lock object if exists, undefined if not.
+   */
+  public async getCurrentLock(): Promise<{ timestamp: number; id: string } | undefined> {
+    const result = await this.data.hget(`${this.prefix}:lock`, PUB_LOCK_KEY);
+    if (result) {
+      const { timestamp, id } = JSON.parse(result) as { timestamp: number; id: string };
+
+      return { timestamp, id };
+    }
+    return undefined;
+  }
+
+  /**
+   * Sets lock regardless of current lock state.
+   *
+   * @param requestContextId - ID of the request context of the caller.
+   * @returns 1 if added, 0 if updated.
+   */
+  public async acquireLock(requestContextId: string): Promise<number> {
+    return await this.data.hset(
+      `${this.prefix}:lock`,
+      PUB_LOCK_KEY,
+      JSON.stringify({ timestamp: getNtpTimeSeconds(), id: requestContextId }),
+    );
+  }
+
+  /**
+   * Deletes lock regardless of current lock state.
+   *
+   * @returns 1 if deleted, 0 if not.
+   */
+  public async releaseLock(): Promise<number> {
+    return await this.data.hdel(`${this.prefix}:lock`, PUB_LOCK_KEY);
   }
 }
