@@ -68,16 +68,9 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);
 
-    _hubConnectors[0] = address(100);
-    _hubConnectors[1] = address(1);
-    _hubConnectors[2] = address(2);
-    _hubConnectors[3] = address(3);
-    _hubConnectors[4] = address(4);
-    _hubConnectors[5] = address(5);
-    _hubConnectors[6] = address(6);
-    _hubConnectors[7] = address(7);
-    _hubConnectors[8] = address(8);
-    _hubConnectors[9] = address(9);
+for (uint256 I = 1; I <= _hubConnectors.length; I++) {
+  _hubConnectors[I] = address(i)
+}
     _hubConnectorChains[0] = 100;
     _hubConnectorChains[1] = 10200;
     _hubConnectorChains[2] = 42161;
