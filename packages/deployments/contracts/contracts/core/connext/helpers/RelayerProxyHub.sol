@@ -7,6 +7,8 @@ import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/Ge
 
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {Types} from "../../../messaging/connectors/optimism/lib/Types.sol";
+import {ChainIDs} from "../libraries/ChainIDs.sol";
+
 import {RelayerProxy} from "./RelayerProxy.sol";
 
 interface IRootManager {
@@ -317,13 +319,13 @@ contract RelayerProxyHub is RelayerProxy {
 
     processedRootMessages[fromChain][l2Hash] = true;
 
-    if (fromChain == 100 || fromChain == 10200) {
+    if (fromChain == ChainIDs.GNOSIS || fromChain == ChainIDs.GNOSIS_CHIADO) {
       IGnosisHubConnector.GnosisRootMessageData memory data = abi.decode(
         encodedData,
         (IGnosisHubConnector.GnosisRootMessageData)
       );
       IGnosisHubConnector(hubConnectors[fromChain]).executeSignatures(data._data, data._signatures);
-    } else if (fromChain == 42161 || fromChain == 421613) {
+    } else if (fromChain == ChainIDs.ARBITRUM_ONE || fromChain == ChainIDs.ARBITRUM_GOERLI) {
       IArbitrumHubConnector.ArbitrumRootMessageData memory data = abi.decode(
         encodedData,
         (IArbitrumHubConnector.ArbitrumRootMessageData)
@@ -336,7 +338,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._index,
         data._message
       );
-    } else if (fromChain == 10 || fromChain == 420) {
+    } else if (fromChain == ChainIDs.OPTIMISM || fromChain == ChainIDs.OPTIMISM_GOERLI) {
       IOptimismHubConnector.OptimismRootMessageData memory data = abi.decode(
         encodedData,
         (IOptimismHubConnector.OptimismRootMessageData)
@@ -347,7 +349,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._outputRootProof,
         data._withdrawalProof
       );
-    } else if (fromChain == 324 || fromChain == 280) {
+    } else if (fromChain == ChainIDs.ZKSYNC || fromChain == ChainIDs.ZKSYNC_TEST) {
       IZkSyncHubConnector.ZkSyncRootMessageData memory data = abi.decode(
         encodedData,
         (IZkSyncHubConnector.ZkSyncRootMessageData)
@@ -359,7 +361,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._message,
         data._proof
       );
-    } else if (fromChain == 137 || fromChain == 80001) {
+    } else if (fromChain == ChainIDs.POLYGON_POS || fromChain == ChainIDs.MUMBAI) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
     } else {
       revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);

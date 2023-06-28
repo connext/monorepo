@@ -7,6 +7,7 @@ import {IKeep3rV2, RelayerProxy} from "../../../../contracts/core/connext/helper
 import {RootManager} from "../../../../contracts/messaging/RootManager.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
+import {ChainIDs} from "../../../../contracts/core/connext/libraries/ChainIDs.sol";
 
 contract RelayerProxyHubTest is ForgeHelper {
   // ============ Events ============
@@ -70,16 +71,16 @@ contract RelayerProxyHubTest is ForgeHelper {
     _hubConnectors[7] = address(7);
     _hubConnectors[8] = address(8);
     _hubConnectors[9] = address(9);
-    _hubConnectorChains[0] = 100;
-    _hubConnectorChains[1] = 10200;
-    _hubConnectorChains[2] = 42161;
-    _hubConnectorChains[3] = 421613;
-    _hubConnectorChains[4] = 10;
-    _hubConnectorChains[5] = 420;
-    _hubConnectorChains[6] = 324;
-    _hubConnectorChains[7] = 280;
-    _hubConnectorChains[8] = 137;
-    _hubConnectorChains[9] = 80001;
+    _hubConnectorChains[0] = ChainIDs.GNOSIS;
+    _hubConnectorChains[1] = ChainIDs.GNOSIS_CHIADO;
+    _hubConnectorChains[2] = ChainIDs.ARBITRUM_ONE;
+    _hubConnectorChains[3] = ChainIDs.ARBITRUM_GOERLI;
+    _hubConnectorChains[4] = ChainIDs.OPTIMISM;
+    _hubConnectorChains[5] = ChainIDs.OPTIMISM_GOERLI;
+    _hubConnectorChains[6] = ChainIDs.ZKSYNC;
+    _hubConnectorChains[7] = ChainIDs.ZKSYNC_TEST;
+    _hubConnectorChains[8] = ChainIDs.POLYGON_POS;
+    _hubConnectorChains[9] = ChainIDs.MUMBAI;
 
     vm.prank(OWNER);
     proxy = new RelayerProxyHub(
