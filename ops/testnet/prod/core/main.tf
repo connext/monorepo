@@ -309,8 +309,8 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(10 minutes)"
-  timeout                = 600
+  schedule_expression    = "rate(5 minutes)"
+  timeout                = 300
   memory_size            = 10240
   lambda_in_vpc          = true
   private_subnets        = module.network.private_subnets
@@ -337,8 +337,8 @@ module "lighthouse_prover_subscriber" {
   health_check_path        = "/ping"
   container_port           = 7072
   loadbalancer_port        = 80
-  cpu                      = 2048
-  memory                   = 4096
+  cpu                      = 4096
+  memory                   = 8192
   instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -355,7 +355,7 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   ecs_service_name           = module.lighthouse_prover_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
   min_capacity               = 10
-  max_capacity               = 100
+  max_capacity               = 200
   avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 15
 }
