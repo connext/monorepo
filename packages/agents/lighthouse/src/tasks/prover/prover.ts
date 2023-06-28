@@ -18,7 +18,7 @@ export const getContext = () => context;
 export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   try {
     await makeProver(config, chainData);
-    if (!acquireLock()) throw new Error("Could not acquire lock");
+    if (!(await acquireLock())) throw new Error("Could not acquire lock");
     await prefetch();
     await enqueue();
     if (context.config.healthUrls.prover) {
