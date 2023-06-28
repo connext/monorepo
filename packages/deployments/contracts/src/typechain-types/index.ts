@@ -158,6 +158,8 @@ export type { IWrapper } from "./contracts/core/xreceivers/Unwrapper.sol/IWrappe
 export { IWrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/IWrapper__factory";
 export type { Unwrapper } from "./contracts/core/xreceivers/Unwrapper.sol/Unwrapper";
 export { Unwrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/Unwrapper__factory";
+export type { AdminHubConnector } from "./contracts/messaging/connectors/admin/AdminHubConnector";
+export { AdminHubConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminHubConnector__factory";
 export type { ArbitrumHubConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumHubConnector";
 export { ArbitrumHubConnector__factory } from "./factories/contracts/messaging/connectors/arbitrum/ArbitrumHubConnector__factory";
 export type { ArbitrumSpokeConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector";
