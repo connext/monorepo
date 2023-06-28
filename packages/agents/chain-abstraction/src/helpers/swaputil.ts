@@ -86,7 +86,7 @@ export const getSwapPathForUniV2 = async (_args: SwapPathCallBackArgs) => {
 
 export const getPathForPanCake = async (_args: SwapPathCallBackArgs) => {
   try {
-    const { fromTokenContractAddress, toTokenContractAddress, chainId, rpc, fromTokenDecimal, toTokenDecimal, amount } =
+    const { fromTokenContractAddress, toTokenContractAddress, chainId, fromTokenDecimal, toTokenDecimal, amount } =
       _args;
     const tokenIn = new PancakeToken(chainId, fromTokenContractAddress as `0x${string}`, fromTokenDecimal ?? 18, "");
 

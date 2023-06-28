@@ -76,6 +76,6 @@ export const getDestinationSwapDataForUniV3 = async (_args: any, path?: any): Pr
 /**
  * Returns the `swapData` which will be used on the destination 1inch swapper
  */
-export const getDestinationSwapDataForOneInch = async (_args: any, path?: any): Promise<string> => {
+export const getDestinationSwapDataForOneInch = async (_args: any): Promise<string> => {
   throw new Error("ToDo");
 };
