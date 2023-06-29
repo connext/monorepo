@@ -146,6 +146,8 @@ export type { AmplificationUtils } from "./contracts/core/connext/libraries/Ampl
 export { AmplificationUtils__factory } from "./factories/contracts/core/connext/libraries/AmplificationUtils__factory";
 export type { AssetLogic } from "./contracts/core/connext/libraries/AssetLogic";
 export { AssetLogic__factory } from "./factories/contracts/core/connext/libraries/AssetLogic__factory";
+export type { ChainIDs } from "./contracts/core/connext/libraries/ChainIDs";
+export { ChainIDs__factory } from "./factories/contracts/core/connext/libraries/ChainIDs__factory";
 export type { Constants } from "./contracts/core/connext/libraries/Constants";
 export { Constants__factory } from "./factories/contracts/core/connext/libraries/Constants__factory";
 export type { LibDiamond } from "./contracts/core/connext/libraries/LibDiamond";

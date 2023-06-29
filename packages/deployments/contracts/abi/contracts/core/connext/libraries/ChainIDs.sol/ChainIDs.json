@@ -1,0 +1,19 @@
+[
+  "function ARBITRUM_GOERLI() view returns (uint32)",
+  "function ARBITRUM_ONE() view returns (uint32)",
+  "function BNB() view returns (uint32)",
+  "function GNOSIS() view returns (uint32)",
+  "function GNOSIS_CHIADO() view returns (uint32)",
+  "function GOERLI() view returns (uint32)",
+  "function LINEA() view returns (uint32)",
+  "function LINEA_TEST() view returns (uint32)",
+  "function MAINNET() view returns (uint32)",
+  "function MUMBAI() view returns (uint32)",
+  "function OPTIMISM() view returns (uint32)",
+  "function OPTIMISM_GOERLI() view returns (uint32)",
+  "function POLYGON_POS() view returns (uint32)",
+  "function POLYGON_ZKEVM() view returns (uint32)",
+  "function POLYGON_ZKEVM_TEST() view returns (uint32)",
+  "function ZKSYNC() view returns (uint32)",
+  "function ZKSYNC_TEST() view returns (uint32)"
+]

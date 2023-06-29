@@ -126,6 +126,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "lastPropagateAt()": FunctionFragment;
     "owner()": FunctionFragment;
     "priorityKeepers(address)": FunctionFragment;
+    "processFromRoot(bytes,uint32,bytes32)": FunctionFragment;
     "processFromRootKeep3r(bytes,uint32,bytes32)": FunctionFragment;
     "processedRootMessages(uint32,bytes32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[],uint256)": FunctionFragment;
@@ -172,6 +173,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "lastPropagateAt"
       | "owner"
       | "priorityKeepers"
+      | "processFromRoot"
       | "processFromRootKeep3r"
       | "processedRootMessages"
       | "propagate"
@@ -245,6 +247,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "priorityKeepers",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processFromRoot",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "processFromRootKeep3r",
@@ -406,6 +416,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "priorityKeepers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processFromRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -789,6 +803,13 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
       _fromChain: PromiseOrValue<BigNumberish>,
@@ -967,6 +988,13 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  processFromRoot(
+    _encodedData: PromiseOrValue<BytesLike>,
+    _fromChain: PromiseOrValue<BigNumberish>,
+    _l2Hash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   processFromRootKeep3r(
     _encodedData: PromiseOrValue<BytesLike>,
     _fromChain: PromiseOrValue<BigNumberish>,
@@ -1142,6 +1170,13 @@ export interface RelayerProxyHub extends BaseContract {
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
@@ -1438,6 +1473,13 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
       _fromChain: PromiseOrValue<BigNumberish>,
@@ -1615,6 +1657,13 @@ export interface RelayerProxyHub extends BaseContract {
     priorityKeepers(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     processFromRootKeep3r(
