@@ -47,9 +47,9 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
    * then during the L1 to L2 transaction its address is aliased.
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should include L2 gas that transaction can consume during execution on L2 + address of
-    // refund recipient (32 + 20 bytes)
-    require(_encodedData.length == 52, "!data length");
+    // Should include L2 gas that transaction can consume during execution on L2 + pubdata + address of
+    // refund recipient (32 + 32 + 20 bytes - padded)
+    require(_encodedData.length == 96, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
