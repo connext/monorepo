@@ -9,7 +9,7 @@ import {GasCap} from "../GasCap.sol";
 abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   // ============ Storage ============
   uint16 public immutable MIRROR_CHAIN_ID;
-  mapping(bytes32 => bool) public processedMessages;
+  mapping(bytes32 => bool) public processedWhMessages;
 
   // ============ Constructor ============
   constructor(uint256 _gasCap, uint16 _mirrorChainId) GasCap(_gasCap) {
@@ -27,14 +27,14 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
     require(sourceChain == MIRROR_CHAIN_ID, "!source chain");
 
     // Check that the VAA hasn't already been processed (replay protection)
-    require(!processedMessages[deliveryHash], "already processed");
+    require(!processedWhMessages[deliveryHash], "already processed");
 
     // Add the VAA to processed messages so it can't be replayed
     // you can alternatively rely on the replay protection
     // of something like transferWithPayload from the Token Bridge module
-    processedMessages[deliveryHash] = true;
+    processedWhMessages[deliveryHash] = true;
 
-    _processMessageFrom(address(uint160(uint256(sourceAddress))), payload);
+    _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
   // ============ Private fns ============
@@ -77,6 +77,11 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
       MIRROR_CHAIN_ID, // refundChain
       _refund // refundAddress
     );
+  }
+
+  function fromWormholeFormat(bytes32 whFormatAddress) internal pure returns (address) {
+    require(uint256(whFormatAddress) >> 160 == 0, "!evm address");
+    return address(uint160(uint256(whFormatAddress)));
   }
 
   /**
