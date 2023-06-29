@@ -313,6 +313,9 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param _fee - Fee to be paid to relayer.
    */
   function transferRelayerFee(uint256 _fee) internal {
+    if (_fee == 0) {
+      return;
+    }
     if (msg.sender == gelatoRelayer) {
       Address.sendValue(payable(feeCollector), _fee);
     } else {
