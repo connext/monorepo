@@ -269,6 +269,9 @@ contract RelayerProxyHub is RelayerProxy {
     bool updatedRoot = false;
     for (uint256 i; i < domains.length; i++) {
       updatedRoot = rootManager.lastPropagatedRoot(domains[i]) != _aggregateRoot;
+      if (updatedRoot) {
+        break;
+      }
     }
     return updatedRoot && _propagateCooledDown();
   }
