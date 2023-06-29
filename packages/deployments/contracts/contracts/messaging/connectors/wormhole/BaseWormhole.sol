@@ -8,11 +8,13 @@ import {GasCap} from "../GasCap.sol";
 
 abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   // ============ Storage ============
+  address public immutable relayerAddress;
   uint16 public immutable MIRROR_CHAIN_ID;
   mapping(bytes32 => bool) public processedWhMessages;
 
   // ============ Constructor ============
-  constructor(uint256 _gasCap, uint16 _mirrorChainId) GasCap(_gasCap) {
+  constructor(address _relayer, uint256 _gasCap, uint16 _mirrorChainId) GasCap(_gasCap) {
+    relayerAddress = _relayer;
     MIRROR_CHAIN_ID = _mirrorChainId;
   }
 
@@ -25,6 +27,7 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
     bytes32 deliveryHash
   ) public payable override {
     require(sourceChain == MIRROR_CHAIN_ID, "!source chain");
+    require(msg.sender == relayerAddress, "!relayer");
 
     // Check that the VAA hasn't already been processed (replay protection)
     require(!processedWhMessages[deliveryHash], "already processed");
@@ -37,12 +40,15 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
     _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
+  function quoteEVMDeliveryPrice(uint256 gasLimit) public view returns (uint256 cost) {
+    (cost, ) = IWormholeRelayer(relayerAddress).quoteEVMDeliveryPrice(MIRROR_CHAIN_ID, 0, gasLimit);
+  }
+
   // ============ Private fns ============
   /**
    * @dev Asserts the sender of a cross domain message
    */
-  function _verifySender(address _amb, address _mirrorConnector, address _expected) internal view returns (bool) {
-    require(msg.sender == _amb, "!relayer");
+  function _verifySender(address _mirrorConnector, address _expected) internal pure returns (bool) {
     return _mirrorConnector == _expected;
   }
 
@@ -54,7 +60,6 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   function _processMessageFrom(address sender, bytes memory _data) internal virtual;
 
   function _sendMessage(
-    address _amb,
     address _mirrorConnector,
     address _refund,
     bytes memory _data,
@@ -65,11 +70,11 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
 
     //calculate cost to deliver message
     uint256 gasLimit = _getGasFromEncoded(_encodedData);
-    (uint256 deliveryCost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_CHAIN_ID, 0, gasLimit);
+    uint256 deliveryCost = quoteEVMDeliveryPrice(gasLimit);
     require(deliveryCost == msg.value, "!msg.value");
 
     // publish delivery request
-    IWormholeRelayer(_amb).sendPayloadToEvm{value: deliveryCost}(
+    IWormholeRelayer(relayerAddress).sendPayloadToEvm{value: deliveryCost}(
       MIRROR_CHAIN_ID,
       _mirrorConnector,
       _data,

@@ -34,7 +34,7 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
       _merkle,
       _watcherManager
     )
-    BaseWormhole(_gasCap, _mirrorChainId)
+    BaseWormhole(_amb, _gasCap, _mirrorChainId)
   {}
 
   // ============ Admin fns ============
@@ -46,7 +46,7 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, mirrorConnector, _expected);
+    return _verifySender(mirrorConnector, _expected);
   }
 
   // ============ Private fns ============
@@ -68,6 +68,6 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(AMB, mirrorConnector, owner(), _data, _encodedData);
+    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
   }
 }

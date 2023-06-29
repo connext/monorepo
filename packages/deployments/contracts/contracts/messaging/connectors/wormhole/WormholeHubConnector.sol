@@ -17,11 +17,14 @@ contract WormholeHubConnector is HubConnector, BaseWormhole {
     address _mirrorConnector,
     uint256 _gasCap,
     uint16 _mirrorChainId
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseWormhole(_gasCap, _mirrorChainId) {}
+  )
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
+    BaseWormhole(_amb, _gasCap, _mirrorChainId)
+  {}
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
-    return _verifySender(AMB, mirrorConnector, _expected);
+    return _verifySender(mirrorConnector, _expected);
   }
 
   // ============ Private fns ============
@@ -42,6 +45,6 @@ contract WormholeHubConnector is HubConnector, BaseWormhole {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(AMB, mirrorConnector, owner(), _data, _encodedData);
+    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
   }
 }
