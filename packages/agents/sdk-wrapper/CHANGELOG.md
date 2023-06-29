@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.0
+
+- Stable release
+
 ## v2.1.0-alpha.4
 
 - Functions with BigNumber return types are converted by the wrapper before returning.
