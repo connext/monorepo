@@ -340,7 +340,7 @@ module "lighthouse_prover_subscriber" {
   cpu                      = 4096
   memory                   = 8192
   instance_count           = 10
-  timeout                  = 180
+  timeout                  = 290
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
