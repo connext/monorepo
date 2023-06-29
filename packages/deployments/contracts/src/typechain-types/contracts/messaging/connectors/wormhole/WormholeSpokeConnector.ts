@@ -71,7 +71,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "paused()": FunctionFragment;
     "pendingAggregateRoots(bytes32)": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
-    "processedMessages(bytes32)": FunctionFragment;
+    "processedWhMessages(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -126,7 +126,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       | "paused"
       | "pendingAggregateRoots"
       | "processMessage"
-      | "processedMessages"
+      | "processedWhMessages"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -241,7 +241,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -409,7 +409,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -876,7 +876,7 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -1071,7 +1071,7 @@ export interface WormholeSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  processedMessages(
+  processedWhMessages(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -1262,7 +1262,7 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1613,7 +1613,7 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1809,7 +1809,7 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

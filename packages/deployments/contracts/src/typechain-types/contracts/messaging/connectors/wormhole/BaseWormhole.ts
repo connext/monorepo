@@ -34,7 +34,7 @@ export interface BaseWormholeInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "owner()": FunctionFragment;
-    "processedMessages(bytes32)": FunctionFragment;
+    "processedWhMessages(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -50,7 +50,7 @@ export interface BaseWormholeInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "owner"
-      | "processedMessages"
+      | "processedWhMessages"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -71,7 +71,7 @@ export interface BaseWormholeInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -114,7 +114,7 @@ export interface BaseWormholeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -219,7 +219,7 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -264,7 +264,7 @@ export interface BaseWormhole extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  processedMessages(
+  processedWhMessages(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -307,7 +307,7 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -375,7 +375,7 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -421,7 +421,7 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

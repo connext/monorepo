@@ -40,7 +40,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
-    "processedMessages(bytes32)": FunctionFragment;
+    "processedWhMessages(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -65,7 +65,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
       | "mirrorConnector"
       | "owner"
       | "processMessage"
-      | "processedMessages"
+      | "processedWhMessages"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -107,7 +107,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -180,7 +180,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "processedMessages",
+    functionFragment: "processedWhMessages",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -370,7 +370,7 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -446,7 +446,7 @@ export interface WormholeHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  processedMessages(
+  processedWhMessages(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -520,7 +520,7 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -660,7 +660,7 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -737,7 +737,7 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    processedMessages(
+    processedWhMessages(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

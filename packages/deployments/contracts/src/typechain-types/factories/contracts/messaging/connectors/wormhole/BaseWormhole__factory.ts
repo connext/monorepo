@@ -150,7 +150,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "processedMessages",
+    name: "processedWhMessages",
     outputs: [
       {
         internalType: "bool",
