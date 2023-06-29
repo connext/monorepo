@@ -249,6 +249,21 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
+   * Wraps the call to processFromRoot() on RootManager. Only allowed to be called by registered relayer.
+   *
+   * @param _encodedData Array of encoded data for HubConnector function.
+   * @param _fromChain Chain ID of the chain the message is coming from.
+   * @param _l2Hash Hash of the message on the L2 chain.
+   */
+  function processFromRoot(
+    bytes calldata _encodedData,
+    uint32 _fromChain,
+    bytes32 _l2Hash
+  ) external onlyRelayer nonReentrant {
+    _processFromRoot(_encodedData, _fromChain, _l2Hash);
+  }
+
+  /**
    * Wraps the call to processFromRoot() on RootManager and pays with Keep3r credits. Only allowed to be called
    * by registered Keep3r.
    *

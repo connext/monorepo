@@ -491,4 +491,19 @@ contract RelayerProxyHubTest is ForgeHelper {
     );
     proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
   }
+
+  function test_RelayerProxyHub__processFromRoot_failsIfNotRelayer(address sender) public {
+    vm.assume(sender != _autonolas);
+    vm.assume(sender != _gelatoRelayer);
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector, sender));
+    vm.prank(sender);
+    proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
+  }
+
+  function test_RelayerProxyHub__processFromRoot_works() public {
+    vm.mockCall(_hubConnectors[8], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
+    vm.roll(100);
+    vm.prank(_gelatoRelayer);
+    proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
+  }
 }
