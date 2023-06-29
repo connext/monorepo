@@ -6,9 +6,41 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
+import {ChainIDs} from "../libraries/ChainIDs.sol";
+import {Types} from "../../../messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {RootManager} from "../../../messaging/RootManager.sol";
+
 import {RelayerProxy} from "./RelayerProxy.sol";
+
+interface IRootManager {
+  function lastPropagatedRoot(uint32 _domain) external view returns (bytes32);
+
+  function propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData
+  ) external payable;
+
+  function dequeue() external returns (bytes32, uint256);
+
+  function proposeAggregateRoot(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains
+  ) external;
+
+  function allowlistedProposers(address _proposer) external view returns (bool);
+
+  function finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external payable;
+}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -50,44 +82,22 @@ interface IArbitrumHubConnector {
 }
 
 interface IOptimismHubConnector {
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L34-L40
-  struct ChainBatchHeader {
-    uint256 batchIndex;
-    bytes32 batchRoot;
-    uint256 batchSize;
-    uint256 prevTotalElements;
-    bytes extraData;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L42-L45
-  struct ChainInclusionProof {
-    uint256 index;
-    bytes32[] siblings;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/L1/messaging/IL1CrossDomainMessenger.sol#L18-L24
-  struct L2MessageInclusionProof {
-    bytes32 stateRoot;
-    ChainBatchHeader stateRootBatchHeader;
-    ChainInclusionProof stateRootProof;
-    bytes stateTrieWitness;
-    bytes storageTrieWitness;
-  }
-
   struct OptimismRootMessageData {
-    address _target;
-    address _sender;
-    bytes _message;
-    uint256 _messageNonce;
-    L2MessageInclusionProof _proof;
+    Types.WithdrawalTransaction _tx;
+    uint256 _l2OutputIndex;
+    Types.OutputRootProof _outputRootProof;
+    bytes[] _withdrawalProof;
   }
 
+  /**
+   * @dev modified from: OptimismPortal contract
+   * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
+   */
   function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
+    Types.WithdrawalTransaction memory _tx,
+    uint256 _l2OutputIndex,
+    Types.OutputRootProof calldata _outputRootProof,
+    bytes[] calldata _withdrawalProof
   ) external;
 }
 
@@ -130,7 +140,7 @@ contract RelayerProxyHub is RelayerProxy {
   /**
    * @notice Address of the RootManager contract
    */
-  RootManager public rootManager;
+  IRootManager public rootManager;
 
   /**
    * @notice Delay for the propagate function
@@ -194,6 +204,7 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
+  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
 
   // ============ Modifiers ============
 
@@ -319,6 +330,21 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
+   * Wraps the call to processFromRoot() on RootManager. Only allowed to be called by registered relayer.
+   *
+   * @param _encodedData Array of encoded data for HubConnector function.
+   * @param _fromChain Chain ID of the chain the message is coming from.
+   * @param _l2Hash Hash of the message on the L2 chain.
+   */
+  function processFromRoot(
+    bytes calldata _encodedData,
+    uint32 _fromChain,
+    bytes32 _l2Hash
+  ) external onlyRelayer nonReentrant {
+    _processFromRoot(_encodedData, _fromChain, _l2Hash);
+  }
+
+  /**
    * Wraps the call to processFromRoot() on RootManager and pays with Keep3r credits. Only allowed to be called
    * by registered Keep3r.
    *
@@ -390,7 +416,7 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ Internal Functions ============
   function _setRootManager(address _rootManager) internal {
     emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = RootManager(_rootManager);
+    rootManager = IRootManager(_rootManager);
   }
 
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
@@ -486,15 +512,13 @@ contract RelayerProxyHub is RelayerProxy {
 
     processedRootMessages[fromChain][l2Hash] = true;
 
-    if (fromChain == 100 || fromChain == 10200) {
+    if (fromChain == ChainIDs.GNOSIS || fromChain == ChainIDs.GNOSIS_CHIADO) {
       IGnosisHubConnector.GnosisRootMessageData memory data = abi.decode(
         encodedData,
         (IGnosisHubConnector.GnosisRootMessageData)
       );
       IGnosisHubConnector(hubConnectors[fromChain]).executeSignatures(data._data, data._signatures);
-    }
-
-    if (fromChain == 42161 || fromChain == 421613) {
+    } else if (fromChain == ChainIDs.ARBITRUM_ONE || fromChain == ChainIDs.ARBITRUM_GOERLI) {
       IArbitrumHubConnector.ArbitrumRootMessageData memory data = abi.decode(
         encodedData,
         (IArbitrumHubConnector.ArbitrumRootMessageData)
@@ -507,23 +531,18 @@ contract RelayerProxyHub is RelayerProxy {
         data._index,
         data._message
       );
-    }
-
-    if (fromChain == 10 || fromChain == 420) {
+    } else if (fromChain == ChainIDs.OPTIMISM || fromChain == ChainIDs.OPTIMISM_GOERLI) {
       IOptimismHubConnector.OptimismRootMessageData memory data = abi.decode(
         encodedData,
         (IOptimismHubConnector.OptimismRootMessageData)
       );
       IOptimismHubConnector(hubConnectors[fromChain]).processMessageFromRoot(
-        data._target,
-        data._sender,
-        data._message,
-        data._messageNonce,
-        data._proof
+        data._tx,
+        data._l2OutputIndex,
+        data._outputRootProof,
+        data._withdrawalProof
       );
-    }
-
-    if (fromChain == 324 || fromChain == 280) {
+    } else if (fromChain == ChainIDs.ZKSYNC || fromChain == ChainIDs.ZKSYNC_TEST) {
       IZkSyncHubConnector.ZkSyncRootMessageData memory data = abi.decode(
         encodedData,
         (IZkSyncHubConnector.ZkSyncRootMessageData)
@@ -535,10 +554,10 @@ contract RelayerProxyHub is RelayerProxy {
         data._message,
         data._proof
       );
-    }
-
-    if (fromChain == 137 || fromChain == 80001) {
+    } else if (fromChain == ChainIDs.POLYGON_POS || fromChain == ChainIDs.MUMBAI) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
+    } else {
+      revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
     }
   }
 }
