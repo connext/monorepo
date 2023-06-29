@@ -11,3 +11,5 @@ export {
   getSlippageDistribution,
   getAmountOutMinForUniV3,
 } from "./libs";
+
+export { getSupportedAssetsForDomain } from "./helpers";
