@@ -422,12 +422,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         custom: {
           hub: {
-            mirrorChainId: "4", // bsc wormhole chainId: 4
             gasCap: "300000", // gas limit for receiveWormholeMessages on bnb
+            mirrorChainId: "4", // bsc wormhole chainId: 4
           },
           spoke: {
-            mirrorChainId: "2", // mainnet wormhole chainid: 2
             gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
+            mirrorChainId: "2", // mainnet wormhole chainid: 2
           },
         },
       },

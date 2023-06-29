@@ -66,6 +66,7 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
     //calculate cost to deliver message
     uint256 gasLimit = _getGasFromEncoded(_encodedData);
     (uint256 deliveryCost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_CHAIN_ID, 0, gasLimit);
+    require(deliveryCost == msg.value, "!msg.value");
 
     // publish delivery request
     IWormholeRelayer(_amb).sendPayloadToEvm{value: deliveryCost}(
