@@ -135,6 +135,7 @@ interface IZkSyncHubConnector {
  * Gelato's legacy relayer network. The contract stores native assets and pays them to the relayer on function call.
  */
 contract RelayerProxyHub is RelayerProxy {
+  using ECDSA for bytes32;
   // ============ Properties ============
 
   /**
@@ -190,6 +191,16 @@ contract RelayerProxyHub is RelayerProxy {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
 
   /**
+   * @notice Emitted when the cooldown period for proposeAggregateRoot is updated
+   * @param proposeAggregateRootCooldown New cooldown period
+   * @param oldProposeAggregateRootCooldown Old cooldown period
+   */
+  event ProposeAggregateRootCooldownChanged(
+    uint256 proposeAggregateRootCooldown,
+    uint256 oldProposeAggregateRootCooldown
+  );
+
+  /**
    * @notice Emitted when a new hub connector is updated
    * @param hubConnector New hub connector address
    * @param oldHubConnector Old hub connector address
@@ -230,11 +241,13 @@ contract RelayerProxyHub is RelayerProxy {
     address _keep3r,
     address _rootManager,
     uint256 _propagateCooldown,
+    uint256 _proposeAggregateRootCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
   ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
+    _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
       _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
     }
@@ -407,11 +420,11 @@ contract RelayerProxyHub is RelayerProxy {
     bytes[] memory _encodedData,
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant returns (uint256 _fee) {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
-    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+    _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
     lastPropagateAt = block.timestamp;
   }
 
@@ -424,6 +437,11 @@ contract RelayerProxyHub is RelayerProxy {
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
     emit PropagateCooldownChanged(_propagateCooldown, propagateCooldown);
     propagateCooldown = _propagateCooldown;
+  }
+
+  function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
+    emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
+    proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
   }
 
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
@@ -447,7 +465,7 @@ contract RelayerProxyHub is RelayerProxy {
     // Get the payload
     bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
     // Recover signer
-    address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(payload), _signature);
+    address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
       revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
     }
