@@ -384,6 +384,8 @@ contract RelayerProxyHub is RelayerProxy {
       );
     }
 
+    lastProposeAggregateRootAt = block.timestamp;
+
     // Validate the signer
     _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
 
