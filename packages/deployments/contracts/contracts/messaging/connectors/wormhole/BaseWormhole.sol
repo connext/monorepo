@@ -19,6 +19,10 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   }
 
   // ============ Public Fns ============
+  /**
+   * @notice This function is called to receive messages through the wormhole relayer module
+   * https://book.wormhole.com/technical/evm/relayer.html
+   */
   function receiveWormholeMessages(
     bytes memory payload,
     bytes[] memory additionalVaas,
@@ -40,6 +44,10 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
     _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
+  /**
+   * @dev calculcate gas to call `receiveWormholeMessages` on target chain
+   * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol
+   */
   function quoteEVMDeliveryPrice(uint256 gasLimit) public view returns (uint256 cost) {
     (cost, ) = IWormholeRelayer(relayerAddress).quoteEVMDeliveryPrice(MIRROR_CHAIN_ID, 0, gasLimit);
   }
@@ -59,6 +67,10 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
    */
   function _processMessageFrom(address sender, bytes memory _data) internal virtual;
 
+  /**
+   * @dev send message via wormhole.
+   * https://book.wormhole.com/technical/evm/relayer.html#sending-messages
+   */
   function _sendMessage(
     address _mirrorConnector,
     address _refund,
