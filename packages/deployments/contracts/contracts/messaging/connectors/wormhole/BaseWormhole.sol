@@ -5,6 +5,7 @@ import {IWormholeRelayer} from "../../interfaces/ambs/wormhole/IWormholeRelayer.
 import {IWormholeReceiver} from "../../interfaces/ambs/wormhole/IWormholeReceiver.sol";
 
 import {GasCap} from "../GasCap.sol";
+import "forge-std/console.sol";
 
 abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   // ============ Storage ============
@@ -107,7 +108,7 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
    */
   function _getGasFromEncoded(bytes memory _encodedData) internal view returns (uint256 _gas) {
     // Should include gssas info in specialized calldata
-    require(_encodedData.length == 32, "!data length");
+    require(_encodedData.length == 32, "!encoded data length");
 
     // Get the gas, if it is more than the cap use the cap
     _gas = _getGas(abi.decode(_encodedData, (uint256)));
