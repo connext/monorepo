@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
 import "../../../utils/ForgeHelper.sol";
 import {RelayerProxyHub, IRootManager, IGnosisHubConnector, IArbitrumHubConnector, IOptimismHubConnector, IZkSyncHubConnector, IPolygonHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
 import {IKeep3rV2, RelayerProxy} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
@@ -10,6 +12,8 @@ import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol"
 import {ChainIDs} from "../../../../contracts/core/connext/libraries/ChainIDs.sol";
 
 contract RelayerProxyHubTest is ForgeHelper {
+  using ECDSA for bytes32;
+
   // ============ Events ============
   event FundsReceived(uint256 amount, uint256 balance);
 
@@ -39,6 +43,8 @@ contract RelayerProxyHubTest is ForgeHelper {
   uint8 _autonolasPriority = 4;
   address[] _hubConnectors = new address[](10);
   uint32[] _hubConnectorChains = new uint32[](10);
+  uint256 SIGNER_PK = 0xa11ce;
+  address SIGNER = vm.addr(0xa11ce);
 
   RelayerProxyHub proxy;
 
@@ -91,10 +97,13 @@ contract RelayerProxyHubTest is ForgeHelper {
       _keep3r,
       _rootManager,
       300,
+      420,
       _hubConnectors,
       _hubConnectorChains
     );
     vm.deal(address(proxy), 1 ether);
+    vm.label(address(proxy), "RelayerProxyHub");
+    vm.label(_rootManager, "RootManager");
   }
 
   uint256[] _messageFees = new uint256[](10);
@@ -114,6 +123,11 @@ contract RelayerProxyHubTest is ForgeHelper {
 
   function utils_mockPropagate() public {
     vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.propagate.selector), abi.encode());
+  }
+
+  function utils_getSig(bytes32 _hash) public view returns (bytes memory signature) {
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(SIGNER_PK, _hash.toEthSignedMessageHash());
+    signature = abi.encodePacked(r, s, v); // note the order here is different from line above.
   }
 
   function test_RelayerProxyHub__deploy_works() public {
@@ -476,5 +490,93 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(_hubConnectors[8], abi.encodeWithSelector(IPolygonHubConnector.receiveMessage.selector), abi.encode());
     vm.prank(_gelatoRelayer);
     proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
+  }
+
+  function test_proposeAggregateRootKeep3r__failsIfNotCooledDown() public {
+    utils_mockIsKeeper(_gelatoRelayer, true);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector,
+        419,
+        420
+      )
+    );
+    vm.warp(419);
+    vm.prank(_gelatoRelayer);
+    bytes memory signature = utils_getSig(bytes32(uint256(1)));
+    proxy.proposeAggregateRootKeep3r(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_proposeAggregateRootKeep3r__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+    utils_mockIsKeeper(_gelatoRelayer, true);
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+      abi.encode(false)
+    );
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__validateProposeSignature_notProposer.selector, SIGNER)
+    );
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
+    bytes memory signature = utils_getSig(payload);
+    vm.prank(_gelatoRelayer);
+    proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_proposeAggregateRootKeep3r__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+    utils_mockIsKeeper(_gelatoRelayer, true);
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+      abi.encode(true)
+    );
+
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.proposeAggregateRoot.selector),
+      abi.encode()
+    );
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
+    bytes memory signature = utils_getSig(payload);
+    vm.prank(_gelatoRelayer);
+    proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_finalizeAndPropagateKeep3r__failsIfNotKeep3r(address _sender) public {
+    utils_mockIsKeeper(_sender, false);
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, _sender)
+    );
+    vm.prank(_sender);
+    proxy.finalizeAndPropagateKeep3r(new address[](1), new uint256[](1), new bytes[](1), bytes32(uint256(1)), 42);
+  }
+
+  function test_finalizeAndPropagateKeep3r__failsIfNotCooledDown(uint256 _time) public {
+    vm.assume(_time < 420);
+    utils_mockIsKeeper(_gelatoRelayer, true);
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector, 419, 420)
+    );
+    vm.warp(_time);
+    vm.prank(_gelatoRelayer);
+    proxy.finalizeAndPropagateKeep3r(new address[](1), new uint256[](1), new bytes[](1), bytes32(uint256(1)), 42);
+  }
+
+  function test_finalizeAndPropagateKeep3r__works(uint256 _fee1, uint256 _fee2) public {
+    vm.assume(_fee1 < type(uint256).max / 2);
+    vm.assume(_fee2 < type(uint256).max / 2);
+    utils_mockIsKeeper(_gelatoRelayer, true);
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.finalizeAndPropagate.selector),
+      abi.encode()
+    );
+    vm.prank(_gelatoRelayer);
+    uint256[] memory _fees = new uint256[](2);
+    _fees[0] = _fee1;
+    _fees[1] = _fee2;
+    uint256 _fee = proxy.finalizeAndPropagateKeep3r(new address[](2), _fees, new bytes[](2), bytes32(uint256(1)), 42);
+    assertEq(_fee, _fee1 + _fee2);
+    assertEq(proxy.lastPropagateAt(), block.timestamp);
   }
 }
