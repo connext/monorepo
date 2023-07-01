@@ -5,7 +5,6 @@ import {IWormholeRelayer} from "../../interfaces/ambs/wormhole/IWormholeRelayer.
 import {IWormholeReceiver} from "../../interfaces/ambs/wormhole/IWormholeReceiver.sol";
 
 import {GasCap} from "../GasCap.sol";
-import "forge-std/console.sol";
 
 abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   // ============ Storage ============
