@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
-import {Connector} from "../Connector.sol";
 
 import {BaseWormhole} from "./BaseWormhole.sol";
 
@@ -20,7 +19,7 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
     address _merkle,
     address _watcherManager,
     uint256 _gasCap,
-    uint16 _mirrorChainId
+    uint16 _mirrorWormholeChainId
   )
     SpokeConnector(
       _domain,
@@ -34,7 +33,7 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
       _merkle,
       _watcherManager
     )
-    BaseWormhole(_amb, _gasCap, _mirrorChainId)
+    BaseWormhole(_gasCap, _amb, _mirrorWormholeChainId)
   {}
 
   // ============ Admin fns ============

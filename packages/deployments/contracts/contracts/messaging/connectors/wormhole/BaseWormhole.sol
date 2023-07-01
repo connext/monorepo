@@ -9,13 +9,18 @@ import {GasCap} from "../GasCap.sol";
 abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   // ============ Storage ============
   address public immutable relayerAddress;
-  uint16 public immutable MIRROR_CHAIN_ID;
+
+  /**
+   * @notice The wormhole id for the mirror network
+   */
+  uint16 public immutable MIRROR_WORMHOLE_ID;
+
   mapping(bytes32 => bool) public processedWhMessages;
 
   // ============ Constructor ============
-  constructor(address _relayer, uint256 _gasCap, uint16 _mirrorChainId) GasCap(_gasCap) {
+  constructor(uint256 _gasCap, address _relayer, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {
     relayerAddress = _relayer;
-    MIRROR_CHAIN_ID = _mirrorChainId;
+    MIRROR_WORMHOLE_ID = _mirrorWormholeChainId;
   }
 
   // ============ Public Fns ============
@@ -25,12 +30,12 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
    */
   function receiveWormholeMessages(
     bytes memory payload,
-    bytes[] memory additionalVaas,
+    bytes[] memory, // additionalVaas,
     bytes32 sourceAddress,
     uint16 sourceChain,
     bytes32 deliveryHash
   ) public payable override {
-    require(sourceChain == MIRROR_CHAIN_ID, "!source chain");
+    require(sourceChain == MIRROR_WORMHOLE_ID, "!source chain");
     require(msg.sender == relayerAddress, "!relayer");
 
     // Check that the VAA hasn't already been processed (replay protection)
@@ -49,7 +54,7 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
    * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol
    */
   function quoteEVMDeliveryPrice(uint256 gasLimit) public view returns (uint256 cost) {
-    (cost, ) = IWormholeRelayer(relayerAddress).quoteEVMDeliveryPrice(MIRROR_CHAIN_ID, 0, gasLimit);
+    (cost, ) = IWormholeRelayer(relayerAddress).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, gasLimit);
   }
 
   // ============ Private fns ============
@@ -87,12 +92,12 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
 
     // publish delivery request
     IWormholeRelayer(relayerAddress).sendPayloadToEvm{value: deliveryCost}(
-      MIRROR_CHAIN_ID,
+      MIRROR_WORMHOLE_ID,
       _mirrorConnector,
       _data,
       0,
       gasLimit,
-      MIRROR_CHAIN_ID, // refundChain
+      MIRROR_WORMHOLE_ID, // refundChain
       _refund // refundAddress
     );
   }

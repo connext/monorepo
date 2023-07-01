@@ -16,10 +16,10 @@ contract WormholeHubConnector is HubConnector, BaseWormhole {
     address _rootManager,
     address _mirrorConnector,
     uint256 _gasCap,
-    uint16 _mirrorChainId
+    uint16 _mirrorWormholeChainId
   )
     HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    BaseWormhole(_amb, _gasCap, _mirrorChainId)
+    BaseWormhole(_gasCap, _amb, _mirrorWormholeChainId)
   {}
 
   // ============ Override Fns ============
