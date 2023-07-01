@@ -31,6 +31,7 @@ abstract contract BaseWormhole is GasCap {
   // ============ Constructor ============
   constructor(uint256 _gasCap, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {
     MIRROR_WORMHOLE_ID = _mirrorWormholeChainId;
+    _setRefundAddress(msg.sender);
   }
 
   // ============ Admin fns ============
@@ -39,9 +40,7 @@ abstract contract BaseWormhole is GasCap {
    * @param _updated The updated refund address
    */
   function setRefundAddress(address _updated) public onlyOwner {
-    require(_updated != refundAddress, "!changed");
-    emit RefundAddressUpdated(refundAddress, _updated);
-    refundAddress = _updated;
+    _setRefundAddress(_updated);
   }
 
   // ============ Public fns ============
@@ -55,6 +54,13 @@ abstract contract BaseWormhole is GasCap {
   }
 
   // ============ Private fns ============
+
+  function _setRefundAddress(address _updated) internal {
+    require(_updated != refundAddress, "!changed");
+    emit RefundAddressUpdated(refundAddress, _updated);
+    refundAddress = _updated;
+  }
+
   /**
    * @dev Asserts the sender of a cross domain message
    */
