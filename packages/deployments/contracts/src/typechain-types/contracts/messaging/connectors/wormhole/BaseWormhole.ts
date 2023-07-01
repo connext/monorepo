@@ -38,7 +38,9 @@ export interface BaseWormholeInterface extends utils.Interface {
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
+    "quoteEVMDeliveryPrice(uint256)": FunctionFragment;
     "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": FunctionFragment;
+    "relayerAddress()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
@@ -54,7 +56,9 @@ export interface BaseWormholeInterface extends utils.Interface {
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
+      | "quoteEVMDeliveryPrice"
       | "receiveWormholeMessages"
+      | "relayerAddress"
       | "renounceOwnership"
       | "renounced"
       | "setGasCap"
@@ -84,6 +88,10 @@ export interface BaseWormholeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "quoteEVMDeliveryPrice",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "receiveWormholeMessages",
     values: [
       PromiseOrValue<BytesLike>,
@@ -92,6 +100,10 @@ export interface BaseWormholeInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "relayerAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -127,7 +139,15 @@ export interface BaseWormholeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "quoteEVMDeliveryPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "receiveWormholeMessages",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "relayerAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -233,6 +253,11 @@ export interface BaseWormhole extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { cost: BigNumber }>;
+
     receiveWormholeMessages(
       payload: PromiseOrValue<BytesLike>,
       additionalVaas: PromiseOrValue<BytesLike>[],
@@ -241,6 +266,8 @@ export interface BaseWormhole extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -278,6 +305,11 @@ export interface BaseWormhole extends BaseContract {
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+  quoteEVMDeliveryPrice(
+    gasLimit: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   receiveWormholeMessages(
     payload: PromiseOrValue<BytesLike>,
     additionalVaas: PromiseOrValue<BytesLike>[],
@@ -286,6 +318,8 @@ export interface BaseWormhole extends BaseContract {
     deliveryHash: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  relayerAddress(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -321,6 +355,11 @@ export interface BaseWormhole extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     receiveWormholeMessages(
       payload: PromiseOrValue<BytesLike>,
       additionalVaas: PromiseOrValue<BytesLike>[],
@@ -329,6 +368,8 @@ export interface BaseWormhole extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -389,6 +430,11 @@ export interface BaseWormhole extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     receiveWormholeMessages(
       payload: PromiseOrValue<BytesLike>,
       additionalVaas: PromiseOrValue<BytesLike>[],
@@ -397,6 +443,8 @@ export interface BaseWormhole extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -435,6 +483,11 @@ export interface BaseWormhole extends BaseContract {
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     receiveWormholeMessages(
       payload: PromiseOrValue<BytesLike>,
       additionalVaas: PromiseOrValue<BytesLike>[],
@@ -443,6 +496,8 @@ export interface BaseWormhole extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

@@ -78,8 +78,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "provenAggregateRoots(bytes32)": FunctionFragment;
     "provenMessageRoots(bytes32)": FunctionFragment;
+    "quoteEVMDeliveryPrice(uint256)": FunctionFragment;
     "rateLimitBlocks()": FunctionFragment;
     "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": FunctionFragment;
+    "relayerAddress()": FunctionFragment;
     "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -133,8 +135,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       | "proveAndProcess"
       | "provenAggregateRoots"
       | "provenMessageRoots"
+      | "quoteEVMDeliveryPrice"
       | "rateLimitBlocks"
       | "receiveWormholeMessages"
+      | "relayerAddress"
       | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
@@ -271,6 +275,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "quoteEVMDeliveryPrice",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "rateLimitBlocks",
     values?: undefined
   ): string;
@@ -283,6 +291,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "relayerAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "removePendingAggregateRoot",
@@ -434,11 +446,19 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "quoteEVMDeliveryPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "rateLimitBlocks",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "receiveWormholeMessages",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "relayerAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -908,6 +928,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { cost: BigNumber }>;
+
     rateLimitBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     receiveWormholeMessages(
@@ -918,6 +943,8 @@ export interface WormholeSpokeConnector extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<[string]>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1103,6 +1130,11 @@ export interface WormholeSpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  quoteEVMDeliveryPrice(
+    gasLimit: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
   receiveWormholeMessages(
@@ -1113,6 +1145,8 @@ export interface WormholeSpokeConnector extends BaseContract {
     deliveryHash: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  relayerAddress(overrides?: CallOverrides): Promise<string>;
 
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1294,6 +1328,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveWormholeMessages(
@@ -1304,6 +1343,8 @@ export interface WormholeSpokeConnector extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<string>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1645,6 +1686,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveWormholeMessages(
@@ -1655,6 +1701,8 @@ export interface WormholeSpokeConnector extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1841,6 +1889,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    quoteEVMDeliveryPrice(
+      gasLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     rateLimitBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     receiveWormholeMessages(
@@ -1851,6 +1904,8 @@ export interface WormholeSpokeConnector extends BaseContract {
       deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    relayerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,

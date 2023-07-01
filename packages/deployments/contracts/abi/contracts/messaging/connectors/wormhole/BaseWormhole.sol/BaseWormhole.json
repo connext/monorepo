@@ -17,7 +17,9 @@
   "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
+  "function quoteEVMDeliveryPrice(uint256 gasLimit) view returns (uint256 cost)",
   "function receiveWormholeMessages(bytes payload, bytes[] additionalVaas, bytes32 sourceAddress, uint16 sourceChain, bytes32 deliveryHash) payable",
+  "function relayerAddress() view returns (address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
   "function setGasCap(uint256 _gasCap)"

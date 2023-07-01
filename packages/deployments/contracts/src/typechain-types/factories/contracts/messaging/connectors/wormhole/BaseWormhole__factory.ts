@@ -203,6 +203,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "gasLimit",
+        type: "uint256",
+      },
+    ],
+    name: "quoteEVMDeliveryPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "cost",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes",
         name: "payload",
         type: "bytes",
@@ -231,6 +250,19 @@ const _abi = [
     name: "receiveWormholeMessages",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "relayerAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
