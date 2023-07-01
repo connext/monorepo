@@ -2,12 +2,13 @@
 pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
+import {IWormholeReceiver} from "../../interfaces/ambs/wormhole/IWormholeReceiver.sol";
 
 import {HubConnector, Connector} from "../HubConnector.sol";
 
 import {BaseWormhole} from "./BaseWormhole.sol";
 
-contract WormholeHubConnector is HubConnector, BaseWormhole {
+contract WormholeHubConnector is HubConnector, BaseWormhole, IWormholeReceiver {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -19,12 +20,30 @@ contract WormholeHubConnector is HubConnector, BaseWormhole {
     uint16 _mirrorWormholeChainId
   )
     HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    BaseWormhole(_gasCap, _amb, _mirrorWormholeChainId)
+    BaseWormhole(_gasCap, _mirrorWormholeChainId)
   {}
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
     return _verifySender(mirrorConnector, _expected);
+  }
+
+  // ============ Public fns ============
+  /**
+   * @notice This function is called to receive messages through the wormhole relayer module
+   * https://book.wormhole.com/technical/evm/relayer.html
+   * @dev This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice.
+   */
+  function receiveWormholeMessages(
+    bytes memory payload,
+    bytes[] memory, // additionalVaas,
+    bytes32 sourceAddress,
+    uint16 sourceChain,
+    bytes32 deliveryHash
+  ) public payable override {
+    _wormholeSanityChecks(sourceChain, AMB, deliveryHash);
+
+    _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
   // ============ Private fns ============
@@ -45,6 +64,6 @@ contract WormholeHubConnector is HubConnector, BaseWormhole {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
+    _sendMessage(AMB, mirrorConnector, owner(), _data, _encodedData);
   }
 }

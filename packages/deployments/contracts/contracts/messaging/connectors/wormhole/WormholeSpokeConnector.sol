@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {IWormholeReceiver} from "../../interfaces/ambs/wormhole/IWormholeReceiver.sol";
+
 import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 
 import {BaseWormhole} from "./BaseWormhole.sol";
 
-contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
+contract WormholeSpokeConnector is SpokeConnector, BaseWormhole, IWormholeReceiver {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -33,7 +35,7 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
       _merkle,
       _watcherManager
     )
-    BaseWormhole(_gasCap, _amb, _mirrorWormholeChainId)
+    BaseWormhole(_gasCap, _mirrorWormholeChainId)
   {}
 
   // ============ Admin fns ============
@@ -46,6 +48,24 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
     return _verifySender(mirrorConnector, _expected);
+  }
+
+  // ============ Public fns ============
+  /**
+   * @notice This function is called to receive messages through the wormhole relayer module
+   * https://book.wormhole.com/technical/evm/relayer.html
+   * @dev This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice.
+   */
+  function receiveWormholeMessages(
+    bytes memory payload,
+    bytes[] memory, // additionalVaas,
+    bytes32 sourceAddress,
+    uint16 sourceChain,
+    bytes32 deliveryHash
+  ) public payable override {
+    _wormholeSanityChecks(sourceChain, AMB, deliveryHash);
+
+    _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
   // ============ Private fns ============
@@ -67,6 +87,6 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole {
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(mirrorConnector, owner(), _data, _encodedData);
+    _sendMessage(AMB, mirrorConnector, owner(), _data, _encodedData);
   }
 }

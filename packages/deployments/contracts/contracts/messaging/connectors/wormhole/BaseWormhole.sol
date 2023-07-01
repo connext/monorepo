@@ -2,14 +2,11 @@
 pragma solidity 0.8.17;
 
 import {IWormholeRelayer} from "../../interfaces/ambs/wormhole/IWormholeRelayer.sol";
-import {IWormholeReceiver} from "../../interfaces/ambs/wormhole/IWormholeReceiver.sol";
 
 import {GasCap} from "../GasCap.sol";
 
-abstract contract BaseWormhole is GasCap, IWormholeReceiver {
+abstract contract BaseWormhole is GasCap {
   // ============ Storage ============
-  address public immutable relayerAddress;
-
   /**
    * @notice The wormhole id for the mirror network
    */
@@ -18,43 +15,16 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   mapping(bytes32 => bool) public processedWhMessages;
 
   // ============ Constructor ============
-  constructor(uint256 _gasCap, address _relayer, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {
-    relayerAddress = _relayer;
+  constructor(uint256 _gasCap, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {
     MIRROR_WORMHOLE_ID = _mirrorWormholeChainId;
-  }
-
-  // ============ Public Fns ============
-  /**
-   * @notice This function is called to receive messages through the wormhole relayer module
-   * https://book.wormhole.com/technical/evm/relayer.html
-   */
-  function receiveWormholeMessages(
-    bytes memory payload,
-    bytes[] memory, // additionalVaas,
-    bytes32 sourceAddress,
-    uint16 sourceChain,
-    bytes32 deliveryHash
-  ) public payable override {
-    require(sourceChain == MIRROR_WORMHOLE_ID, "!source chain");
-    require(msg.sender == relayerAddress, "!relayer");
-
-    // Check that the VAA hasn't already been processed (replay protection)
-    require(!processedWhMessages[deliveryHash], "already processed");
-
-    // Add the VAA to processed messages so it can't be replayed
-    // you can alternatively rely on the replay protection
-    // of something like transferWithPayload from the Token Bridge module
-    processedWhMessages[deliveryHash] = true;
-
-    _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
   }
 
   /**
    * @dev calculcate gas to call `receiveWormholeMessages` on target chain
    * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol
    */
-  function quoteEVMDeliveryPrice(uint256 gasLimit) public view returns (uint256 cost) {
-    (cost, ) = IWormholeRelayer(relayerAddress).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, gasLimit);
+  function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) public view returns (uint256 cost) {
+    (cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _gasLimit);
   }
 
   // ============ Private fns ============
@@ -73,10 +43,28 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
   function _processMessageFrom(address sender, bytes memory _data) internal virtual;
 
   /**
+   * @notice Performs sanity checks specific to receiving wormhole messages.
+   * @dev Checks the sender is the AMB, the chain is the mirror, and replay.
+   */
+  function _wormholeSanityChecks(uint16 _sourceChain, address _amb, bytes32 _deliveryHash) internal {
+    require(_sourceChain == MIRROR_WORMHOLE_ID, "!source chain");
+    require(msg.sender == _amb, "!relayer");
+
+    // Check that the VAA hasn't already been processed (replay protection)
+    require(!processedWhMessages[_deliveryHash], "already processed");
+
+    // Add the VAA to processed messages so it can't be replayed
+    // you can alternatively rely on the replay protection
+    // of something like transferWithPayload from the Token Bridge module
+    processedWhMessages[_deliveryHash] = true;
+  }
+
+  /**
    * @dev send message via wormhole.
    * https://book.wormhole.com/technical/evm/relayer.html#sending-messages
    */
   function _sendMessage(
+    address _amb,
     address _mirrorConnector,
     address _refund,
     bytes memory _data,
@@ -87,11 +75,11 @@ abstract contract BaseWormhole is GasCap, IWormholeReceiver {
 
     //calculate cost to deliver message
     uint256 gasLimit = _getGasFromEncoded(_encodedData);
-    uint256 deliveryCost = quoteEVMDeliveryPrice(gasLimit);
+    uint256 deliveryCost = quoteEVMDeliveryPrice(gasLimit, _amb);
     require(deliveryCost == msg.value, "!msg.value");
 
     // publish delivery request
-    IWormholeRelayer(relayerAddress).sendPayloadToEvm{value: deliveryCost}(
+    IWormholeRelayer(_amb).sendPayloadToEvm{value: deliveryCost}(
       MIRROR_WORMHOLE_ID,
       _mirrorConnector,
       _data,
