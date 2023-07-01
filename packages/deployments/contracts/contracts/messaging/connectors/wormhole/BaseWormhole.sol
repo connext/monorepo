@@ -6,11 +6,21 @@ import {IWormholeRelayer} from "../../interfaces/ambs/wormhole/IWormholeRelayer.
 import {GasCap} from "../GasCap.sol";
 
 abstract contract BaseWormhole is GasCap {
+  // ============ Events ============
+
+  event RefundAddressUpdated(address indexed previous, address indexed updated);
+
   // ============ Storage ============
   /**
    * @notice The wormhole id for the mirror network
    */
   uint16 public immutable MIRROR_WORMHOLE_ID;
+
+  /**
+   * @notice The address on this chain any refunds from wormhole fees will be
+   * sent to
+   */
+  address public refundAddress;
 
   /**
    * @notice Mapping of processed messages from wormhole.
@@ -22,6 +32,19 @@ abstract contract BaseWormhole is GasCap {
   constructor(uint256 _gasCap, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {
     MIRROR_WORMHOLE_ID = _mirrorWormholeChainId;
   }
+
+  // ============ Admin fns ============
+  /**
+   * @notice Allows the owner to set a new address to collect excess wormhole fees.
+   * @param _updated The updated refund address
+   */
+  function setRefundAddress(address _updated) public onlyOwner {
+    require(_updated != refundAddress, "!changed");
+    emit RefundAddressUpdated(refundAddress, _updated);
+    refundAddress = _updated;
+  }
+
+  // ============ Public fns ============
 
   /**
    * @dev calculcate gas to call `receiveWormholeMessages` on target chain
@@ -70,7 +93,6 @@ abstract contract BaseWormhole is GasCap {
   function _sendMessage(
     address _amb,
     address _mirrorConnector,
-    address _refund,
     bytes memory _data,
     bytes memory _encodedData
   ) internal {
@@ -90,7 +112,7 @@ abstract contract BaseWormhole is GasCap {
       0,
       gasLimit,
       MIRROR_WORMHOLE_ID, // refundChain
-      _refund // refundAddress
+      refundAddress // refundAddress
     );
   }
 

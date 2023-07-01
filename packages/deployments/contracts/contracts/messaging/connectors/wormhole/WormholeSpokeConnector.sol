@@ -87,6 +87,6 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole, IWormholeReceiv
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    _sendMessage(AMB, mirrorConnector, owner(), _data, _encodedData);
+    _sendMessage(AMB, mirrorConnector, _data, _encodedData);
   }
 }
