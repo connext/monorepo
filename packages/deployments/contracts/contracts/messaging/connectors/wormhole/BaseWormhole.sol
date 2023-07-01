@@ -12,6 +12,10 @@ abstract contract BaseWormhole is GasCap {
    */
   uint16 public immutable MIRROR_WORMHOLE_ID;
 
+  /**
+   * @notice Mapping of processed messages from wormhole.
+   * @dev Used for replay protection.
+   */
   mapping(bytes32 => bool) public processedWhMessages;
 
   // ============ Constructor ============
@@ -23,8 +27,8 @@ abstract contract BaseWormhole is GasCap {
    * @dev calculcate gas to call `receiveWormholeMessages` on target chain
    * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol
    */
-  function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) public view returns (uint256 cost) {
-    (cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _gasLimit);
+  function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) public view returns (uint256 _cost) {
+    (_cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _gasLimit);
   }
 
   // ============ Private fns ============
@@ -40,7 +44,7 @@ abstract contract BaseWormhole is GasCap {
    * @notice This function is called to handle incoming messages. Should store the latest
    * root generated on the l2 domain.
    */
-  function _processMessageFrom(address sender, bytes memory _data) internal virtual;
+  function _processMessageFrom(address _sender, bytes memory _data) internal virtual;
 
   /**
    * @notice Performs sanity checks specific to receiving wormhole messages.
@@ -90,9 +94,12 @@ abstract contract BaseWormhole is GasCap {
     );
   }
 
-  function fromWormholeFormat(bytes32 whFormatAddress) internal pure returns (address) {
-    require(uint256(whFormatAddress) >> 160 == 0, "!evm address");
-    return address(uint160(uint256(whFormatAddress)));
+  /**
+   * @notice Converts from wormhole 32 byte identifier format to evm address
+   */
+  function _fromWormholeFormat(bytes32 _whFormatAddress) internal pure returns (address) {
+    require(uint256(_whFormatAddress) >> 160 == 0, "!evm address");
+    return address(uint160(uint256(_whFormatAddress)));
   }
 
   /**

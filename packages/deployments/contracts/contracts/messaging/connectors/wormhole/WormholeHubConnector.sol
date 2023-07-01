@@ -35,15 +35,15 @@ contract WormholeHubConnector is HubConnector, BaseWormhole, IWormholeReceiver {
    * @dev This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice.
    */
   function receiveWormholeMessages(
-    bytes memory payload,
+    bytes memory _payload,
     bytes[] memory, // additionalVaas,
-    bytes32 sourceAddress,
-    uint16 sourceChain,
-    bytes32 deliveryHash
+    bytes32 _sourceAddress,
+    uint16 _sourceChain,
+    bytes32 _deliveryHash
   ) public payable override {
-    _wormholeSanityChecks(sourceChain, AMB, deliveryHash);
+    _wormholeSanityChecks(_sourceChain, AMB, _deliveryHash);
 
-    _processMessageFrom(fromWormholeFormat(sourceAddress), payload);
+    _processMessageFrom(_fromWormholeFormat(_sourceAddress), _payload);
   }
 
   // ============ Private fns ============
