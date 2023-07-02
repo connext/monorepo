@@ -57,12 +57,11 @@ contract WormholeSpokeConnectorTest is ConnectorHelper {
   // ============ send ============
 
   // Happy path L1
-  function test_WormholeSpokeConnector_send_sendAndEmitEvent() public {
+  function test_WormholeSpokeConnector_send_sendAndEmitEvent(bytes32 _root) public {
+    vm.assume(_root != bytes32(0));
     uint256 gasLimit = 200000;
     bytes memory encodedData = abi.encode(gasLimit);
-
-    bytes32 root = MerkleTreeManager(_merkle).root();
-    bytes memory _data = abi.encodePacked(root);
+    bytes memory _data = abi.encodePacked(_root);
 
     // Mock the call to fees
     vm.mockCall(
@@ -70,6 +69,8 @@ contract WormholeSpokeConnectorTest is ConnectorHelper {
       abi.encodeWithSignature("quoteEVMDeliveryPrice(uint16,uint256,uint256)", _chainIdL1, 0, gasLimit),
       abi.encode(100, 100)
     );
+
+    vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(_root));
 
     // Mock the call to sendPayloadToEvm
     vm.mockCall(
@@ -142,10 +143,10 @@ contract WormholeSpokeConnectorTest is ConnectorHelper {
   // ============ processMessage ============
 
   // Happy path L1
-  function test_WormholeSpokeConnector_processMessage_processMessageAndEmitEvent(bytes calldata _data) public {
-    vm.assume(_data.length != 0);
+  function test_WormholeSpokeConnector_processMessage_processMessageAndEmitEvent(bytes32 _root) public {
+    vm.assume(_root != bytes32(0x0));
     // Resize fuzzed bytes to 32 bytes long
-    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_data));
+    bytes memory _dataCorrectSize = abi.encodePacked(bytes32(_root));
 
     vm.expectEmit(true, true, true, true);
     emit MessageProcessed(_dataCorrectSize, _amb);
