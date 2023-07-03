@@ -297,6 +297,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 5000,
+            txNonce: 10000000001,
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
@@ -306,6 +307,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 5000,
+            txNonce: 10000000002,
           },
         },
       });
@@ -358,6 +360,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
+            txNonce: 10000000001,
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
@@ -367,6 +370,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
+            txNonce: 10000000002,
           },
         },
       });

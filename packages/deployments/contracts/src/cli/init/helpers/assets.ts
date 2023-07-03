@@ -56,6 +56,10 @@ export const setupAsset = async (args: {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
   }
 
+  if (!canonicalDecimals) {
+    throw new Error(`Unable to find canonical decimals in config for ${asset.name}`);
+  }
+
   await updateIfNeeded({
     apply,
     deployment: home.deployments.Connext,
@@ -70,7 +74,7 @@ export const setupAsset = async (args: {
         tokenSymbol,
         asset.canonical.address,
         constants.AddressZero,
-        asset.canonical.cap,
+        asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
       ],
     },
   });
@@ -163,10 +167,12 @@ export const setupAsset = async (args: {
     }
 
     // After registering the asset, check pool status.
-    const [local, adopted] = await getValue<[string, string]>({
-      deployment: network.deployments.Connext,
-      read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
-    });
+    const [local, adopted] = apply
+      ? await getValue<[string, string]>({
+          deployment: network.deployments.Connext,
+          read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
+        })
+      : [representation.local ?? constants.AddressZero, representation.adopted];
 
     if (local.toLowerCase() === adopted.toLowerCase()) {
       // No pools are needed

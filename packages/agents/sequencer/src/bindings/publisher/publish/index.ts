@@ -7,12 +7,19 @@ import { storeFastPathData, storeSlowPathData } from "../../../lib/operations/ex
 
 export const bindHTTPSubscriber = async (queueName: string, channel: Broker.Channel) => {
   const { logger } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindHTTPSubscriber.name, undefined, "");
-  logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
+  const loggingContext = createLoggingContext(bindHTTPSubscriber.name, undefined, "");
+  logger.info("Binding subscriber for queue", loggingContext.requestContext, loggingContext.methodContext, {
+    queue: queueName,
+  });
   try {
     await channel.consume(queueName, async (message) => {
       if (!message) return;
       const httpMessage: HTTPMessage = JSON.parse(message.content.toString()) as HTTPMessage;
+      const { requestContext, methodContext } = createLoggingContext(
+        bindHTTPSubscriber.name,
+        undefined,
+        httpMessage.transferId,
+      );
       try {
         switch (httpMessage.type) {
           case MessageType.ExecuteFast:
@@ -35,6 +42,11 @@ export const bindHTTPSubscriber = async (queueName: string, channel: Broker.Chan
       }
     });
   } catch (e: unknown) {
-    logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
+    logger.error(
+      "Error while binding subscriber",
+      loggingContext.requestContext,
+      loggingContext.methodContext,
+      jsonifyError(e as Error),
+    );
   }
 };

@@ -28,6 +28,12 @@ input stagingoptimismgoerli_swap_Block_height {
 
 scalar stagingoptimismgoerli_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar stagingoptimismgoerli_swap_Int8
+
 type stagingoptimismgoerli_swap_LpAccount {
   id: ID!
   address: stagingoptimismgoerli_swap_Bytes!

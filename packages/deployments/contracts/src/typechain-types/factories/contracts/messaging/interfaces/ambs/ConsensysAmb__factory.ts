@@ -11,59 +11,66 @@ import type {
 
 const _abi = [
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "recipient",
+        type: "address",
+      },
+    ],
+    name: "FeePaymentFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FeeTooLow",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "destination",
+        type: "address",
+      },
+    ],
+    name: "MessageSendingFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ValueSentTooLow",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ValueShouldBeGreaterThanFee",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "address",
-        name: "_from",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "_to",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_fee",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_value",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_deadline",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "bytes",
-        name: "_calldata",
-        type: "bytes",
+        indexed: true,
+        internalType: "bytes32",
+        name: "_messageHash",
+        type: "bytes32",
       },
     ],
-    name: "MessageDelivered",
+    name: "MessageClaimed",
     type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "_from",
         type: "address",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "_to",
         type: "address",
@@ -83,7 +90,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "_deadline",
+        name: "_nonce",
         type: "uint256",
       },
       {
@@ -92,8 +99,14 @@ const _abi = [
         name: "_calldata",
         type: "bytes",
       },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "_messageHash",
+        type: "bytes32",
+      },
     ],
-    name: "MessageDispatched",
+    name: "MessageSent",
     type: "event",
   },
   {
@@ -119,19 +132,24 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
-        name: "_deadline",
-        type: "uint256",
+        internalType: "address payable",
+        name: "_feeRecipient",
+        type: "address",
       },
       {
         internalType: "bytes",
         name: "_calldata",
         type: "bytes",
       },
+      {
+        internalType: "uint256",
+        name: "_nonce",
+        type: "uint256",
+      },
     ],
-    name: "deliverMessage",
+    name: "claimMessage",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -147,17 +165,12 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
-        name: "_deadline",
-        type: "uint256",
-      },
-      {
         internalType: "bytes",
         name: "_calldata",
         type: "bytes",
       },
     ],
-    name: "dispatchMessage",
+    name: "sendMessage",
     outputs: [],
     stateMutability: "payable",
     type: "function",

@@ -12,7 +12,7 @@ import { contractDeployments } from "@connext/nxtp-txservice";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
 import { SdkConfig, getConfig } from "./config";
 import { SdkShared } from "./sdkShared";
-import { RouterBalance } from "./interfaces";
+import { RouterBalance, Transfer } from "./interfaces";
 
 /**
  * @classdesc SDK class encapsulating utility functions.
@@ -216,7 +216,7 @@ export class SdkUtils extends SdkShared {
     transactionHash?: string;
     xcallCaller?: string;
     range?: { limit?: number; offset?: number };
-  }): Promise<any> {
+  }): Promise<Transfer[]> {
     const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } =
       params ?? {};
 

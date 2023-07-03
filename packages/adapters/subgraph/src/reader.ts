@@ -46,8 +46,8 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByExecutedTimestampQuery,
-  getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getDestinationTransfersByExecutedNonceQuery,
+  getDestinationTransfersByDomainAndReconcileNonceQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
@@ -435,11 +435,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByExecutedTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getDestinationTransfersByExecutedNonce(
+    params: Map<string, SubgraphQueryMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -508,12 +508,12 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByDomainAndReconcileTimestamp(
-    param: SubgraphQueryByTimestampMetaParams,
+  public async getDestinationTransfersByDomainAndReconcileNonce(
+    param: SubgraphQueryMetaParams,
     domain: string,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileNonceQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -708,7 +708,7 @@ export class SubgraphReader {
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
-    params: { domain: string; offset: number; limit: number }[],
+    params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
   ): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);

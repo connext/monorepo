@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { providers, Wallet, utils } from "ethers";
+import { providers, Wallet, utils, constants } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
 import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
@@ -84,16 +84,16 @@ export const sanitizeAndInit = async () => {
   }
 
   const supported = initConfig.supportedDomains;
-  const domains = _domains ?? supported;
+  const domains: string[] = _domains ?? supported;
   for (const domain of domains) {
-    if (!supported.includes(domain as string)) {
+    if (!supported.includes(domain)) {
       throw new Error(`Unsupported domain parsed!, domain: ${domain}, supported: ${supported}`);
     }
   }
 
   // Sanitation checks for hub domain and assets configuration
   const hubDomain = initConfig.hub;
-  if (!supported.includes(hubDomain)) {
+  if (!domains.includes(hubDomain) || !supported.includes(hubDomain)) {
     throw new Error(`Supported domains MUST include the hub domain. hub: ${hubDomain}, supported: ${supported}`);
   }
 
@@ -101,10 +101,12 @@ export const sanitizeAndInit = async () => {
   for (const asset of _assets) {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
-    const configuredDomains = supported.filter((domain) => assetDomains.includes(domain));
-    if (JSON.stringify(configuredDomains) != JSON.stringify(supported)) {
+    const configuredDomains = domains.filter((domain) => assetDomains.includes(domain));
+    if (JSON.stringify(configuredDomains.sort()) != JSON.stringify(domains.sort())) {
       throw new Error(
-        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, parsed: ${domains}`,
+        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${
+          asset.canonical.address
+        }), configured: ${configuredDomains.sort()}, parsed: ${supported.sort()}`,
       );
     }
   }
@@ -156,8 +158,7 @@ export const sanitizeAndInit = async () => {
   }
 
   // Get deployments for each domain if not specified in the config.
-  for (const _domain of domains) {
-    const domain = _domain as string;
+  for (const domain of domains) {
     const chainId = domainToChainId(Number(domain));
 
     const chainConfig = Object.values(filteredHardhatNetworks).find(
@@ -258,100 +259,101 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
   /// ********************* Messaging **********************
   /// MARK - Messaging
   if (shouldExecute("messaging")) {
-    await setupMessaging(protocol, apply);
+    throw new Error("Messaging setup should not be run until admin connector removed from bsc");
+    // await setupMessaging(protocol, apply);
 
-    /// ********************* CONNEXT *********************
-    /// MARK - Enroll Handlers
-    console.log("\n\nENROLLING HANDLERS");
-    for (let i = 0; i < protocol.networks.length; i++) {
-      const targetNetwork = protocol.networks[i];
-      const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-      for (const remoteNetwork of remoteNetworks) {
-        const desiredConnextion = remoteNetwork.deployments.Connext.address;
-        await updateIfNeeded({
-          apply,
-          deployment: targetNetwork.deployments.Connext,
-          desired: desiredConnextion,
-          read: { method: "remote", args: [remoteNetwork.domain] },
-          write: {
-            method: "enrollRemoteRouter",
-            args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-          },
-          chainData,
-        });
-      }
-    }
+    // /// ********************* CONNEXT *********************
+    // /// MARK - Enroll Handlers
+    // console.log("\n\nENROLLING HANDLERS");
+    // for (let i = 0; i < protocol.networks.length; i++) {
+    //   const targetNetwork = protocol.networks[i];
+    //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+    //   for (const remoteNetwork of remoteNetworks) {
+    //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
+    //     await updateIfNeeded({
+    //       apply,
+    //       deployment: targetNetwork.deployments.Connext,
+    //       desired: desiredConnextion,
+    //       read: { method: "remote", args: [remoteNetwork.domain] },
+    //       write: {
+    //         method: "enrollRemoteRouter",
+    //         args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+    //       },
+    //       chainData,
+    //     });
+    //   }
+    // }
 
-    /// MARK - Set relayerFeeVault
-    console.log("\n\nENROLLING RELAYER FEE VAULT");
-    for (const network of protocol.networks) {
-      const {
-        relayerFeeVault,
-        deployments: { Connext },
-      } = network;
+    // /// MARK - Set relayerFeeVault
+    // console.log("\n\nENROLLING RELAYER FEE VAULT");
+    // for (const network of protocol.networks) {
+    //   const {
+    //     relayerFeeVault,
+    //     deployments: { Connext },
+    //   } = network;
 
-      await updateIfNeeded({
-        apply,
-        deployment: Connext,
-        desired: relayerFeeVault,
-        read: { method: "relayerFeeVault" },
-        write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
-        chainData,
-      });
-    }
+    //   await updateIfNeeded({
+    //     apply,
+    //     deployment: Connext,
+    //     desired: relayerFeeVault,
+    //     read: { method: "relayerFeeVault" },
+    //     write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
+    //     chainData,
+    //   });
+    // }
 
-    /// ********************* Relayer Proxy **********************
-    /// MARK - relayer proxy
-    console.log("\n\nCONFIGURE RELAYER PROXY");
-    // On all domains, ensure the following are correctly set:
-    // - connext
-    // - spoke connector
-    // - gelato relayer -- TODO: need to update config
-    // - gelato fee collector -- TODO: need to update config
-    for (const network of protocol.networks) {
-      const isHub = network.domain === protocol.hub;
-      const { Connext, messaging } = network.deployments;
+    // /// ********************* Relayer Proxy **********************
+    // /// MARK - relayer proxy
+    // console.log("\n\nCONFIGURE RELAYER PROXY");
+    // // On all domains, ensure the following are correctly set:
+    // // - connext
+    // // - spoke connector
+    // // - gelato relayer -- TODO: need to update config
+    // // - gelato fee collector -- TODO: need to update config
+    // for (const network of protocol.networks) {
+    //   const isHub = network.domain === protocol.hub;
+    //   const { Connext, messaging } = network.deployments;
 
-      // update connext
-      await updateIfNeeded({
-        apply,
-        deployment: messaging.RelayerProxy,
-        desired: Connext.address,
-        read: { method: "connext" },
-        write: { method: "setConnext", args: [Connext.address] },
-        chainData,
-      });
+    //   // update connext
+    //   await updateIfNeeded({
+    //     apply,
+    //     deployment: messaging.RelayerProxy,
+    //     desired: Connext.address,
+    //     read: { method: "connext" },
+    //     write: { method: "setConnext", args: [Connext.address] },
+    //     chainData,
+    //   });
 
-      // update spoke -- use MainnetConnector key if on hub
-      const spokeConnector = isHub
-        ? (messaging as HubMessagingDeployments).MainnetConnector.address
-        : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
-      await updateIfNeeded({
-        apply,
-        deployment: messaging.RelayerProxy,
-        desired: spokeConnector,
-        read: { method: "spokeConnector" },
-        write: { method: "setSpokeConnector", args: [spokeConnector] },
-        chainData,
-      });
+    //   // update spoke -- use MainnetConnector key if on hub
+    //   const spokeConnector = isHub
+    //     ? (messaging as HubMessagingDeployments).MainnetConnector.address
+    //     : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
+    //   await updateIfNeeded({
+    //     apply,
+    //     deployment: messaging.RelayerProxy,
+    //     desired: spokeConnector,
+    //     read: { method: "spokeConnector" },
+    //     write: { method: "setSpokeConnector", args: [spokeConnector] },
+    //     chainData,
+    //   });
 
-      // TODO: gelato relayer
-      // TODO: gelato fee connector
+    //   // TODO: gelato relayer
+    //   // TODO: gelato fee connector
 
-      // On hub, ensure the following are correctly set:
-      // - root manager
-      if (isHub) {
-        const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
-        await updateIfNeeded({
-          apply,
-          deployment: messaging.RelayerProxy,
-          desired: rootManager,
-          read: { method: "rootManager" },
-          write: { method: "setRootManager", args: [rootManager] },
-          chainData,
-        });
-      }
-    }
+    //   // On hub, ensure the following are correctly set:
+    //   // - root manager
+    //   if (isHub) {
+    //     const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
+    //     await updateIfNeeded({
+    //       apply,
+    //       deployment: messaging.RelayerProxy,
+    //       desired: rootManager,
+    //       read: { method: "rootManager" },
+    //       write: { method: "setRootManager", args: [rootManager] },
+    //       chainData,
+    //     });
+    //   }
+    // }
   }
 
   /// ********************* ASSETS **********************
@@ -364,6 +366,54 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
     // Call `setupAsset` for each domain. This will:
     // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
     // - Set up mapping for stableswap pool if applicable.
+
+    // Sanity check: ensure that all assets have a unique canonical registration.
+    const canonicals = protocol.assets.map((a) => a.canonical.domain + a.canonical.address);
+    if (new Set(canonicals).size !== canonicals.length) {
+      throw new Error(
+        `Duplicate canonical asset detected! (unique: ${new Set(canonicals).size}; total: ${canonicals.length})`,
+      );
+    }
+
+    // Sanity check, on each chain:
+    // - no duplicate locals
+    // - no duplicate adopteds
+    const adopteds: Record<string, string[]> = {};
+    const locals: Record<string, string[]> = {};
+    protocol.assets.forEach((asset) => {
+      Object.entries(asset.representations).forEach(([key, value]) => {
+        if (!adopteds[key]) {
+          adopteds[key] = [];
+        }
+        value.adopted === constants.AddressZero ? "" : adopteds[key].push(value.adopted);
+        if (!value.local) {
+          return;
+        }
+        if (!locals[key]) {
+          locals[key] = [];
+        }
+        value.local === constants.AddressZero ? "" : locals[key].push(value.local);
+      });
+    });
+    Object.keys(locals).forEach((l) => {
+      if (new Set(locals[l]).size !== locals[l].length) {
+        throw new Error(
+          `Duplicate local asset detected! (unique: ${new Set(locals[l]).size}; total: ${
+            locals[l].length
+          }, domain: ${l})`,
+        );
+      }
+    });
+    Object.keys(adopteds).forEach((l) => {
+      if (new Set(adopteds[l]).size !== adopteds[l].length) {
+        throw new Error(
+          `Duplicate adopted asset detected! (unique: ${new Set(adopteds[l]).size}; total: ${
+            adopteds[l].length
+          }, domain: ${l})`,
+        );
+      }
+    });
+
     for (const asset of protocol.assets) {
       await setupAsset({
         apply,

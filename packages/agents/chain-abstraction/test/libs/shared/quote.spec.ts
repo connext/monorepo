@@ -2,8 +2,8 @@ import { expect, mkAddress } from "@connext/nxtp-utils";
 import { stub, SinonStub, reset, restore } from "sinon";
 import * as HelperFns from "../../../src/helpers";
 import * as MockableFns from "../../../src/mockable";
-import { SwapQuoteParams, Swapper } from "../../../src/types";
-import { getBridgeAmountOut, getSwapAmountOut } from "../../../src";
+import { SwapQuoteParams, Swapper, EstimateQuoteAmountArgs } from "../../../src/types";
+import { getBridgeAmountOut, getSwapAmountOut, getEstimateAmountReceived } from "../../../src";
 
 const mockOriginSwapQuoteParams: SwapQuoteParams = {
   domainId: "133712",
@@ -21,6 +21,18 @@ const mockDestinationSwapQuoteParams: SwapQuoteParams = {
   amountIn: "990000000000000",
   fee: "300",
   rpc: "http://localhost:8545",
+};
+
+const mockEstimateQuoteAmountParams: EstimateQuoteAmountArgs = {
+  originDomain: 1869640809,
+  destinationDomain: 1886350457,
+  originRpc: "https://rpc.ankr.com/optimism",
+  destinationRpc: "https://polygon.llamarpc.com",
+  fromAsset: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+  toAsset: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+  amountIn: "1000000000000000",
+  fee: "300",
+  signerAddress: "0x7b88c13D5A56549B2F09BB7D8300e256056fdD85",
 };
 
 class MockJsonRpcProvider {
@@ -132,6 +144,33 @@ describe("Libs:quote", () => {
       expect(await getBridgeAmountOut(mockOriginSwapQuoteParams, mockDestinationSwapQuoteParams)).to.be.eq(
         "900000000000000",
       );
+    });
+  });
+
+  describe("getEstimateAmountReceived", () => {
+    it("should return the estimated amount received", async () => {
+      stub(HelperFns, "OriginSwapperPerDomain").value({
+        "1869640809": {
+          type: Swapper.OneInch,
+          address: mkAddress("0xa"),
+          quoter: mkAddress("0xb"),
+        },
+      });
+      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
+      let initCoreSDKStub: SinonStub;
+      initCoreSDKStub = stub(MockableFns, "initCoreSDK");
+      initCoreSDKStub.resolves({ sdkBase: { calculateAmountReceived: { amountReceived: "100" } } });
+      stub(HelperFns, "DestinationSwapperPerDomain").value({
+        "1886350457": {
+          type: Swapper.UniV3,
+          address: mkAddress("0xa"),
+          quoter: mkAddress("0xb"),
+        },
+      });
+      stub(MockableFns, "getContract").returns({
+        callStatic: { quoteExactInputSingle: stub().resolves(["900000000000000"]) },
+      } as any);
+      expect(await getEstimateAmountReceived(mockEstimateQuoteAmountParams)).to.be.eq("900000000000000");
     });
   });
 });

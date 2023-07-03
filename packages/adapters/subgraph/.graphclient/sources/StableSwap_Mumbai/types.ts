@@ -19,6 +19,7 @@ export type Scalars = {
   mumbai_swap_BigDecimal: any;
   BigInt: any;
   mumbai_swap_Bytes: any;
+  mumbai_swap_Int8: any;
 };
 
 export type mumbai_swap_BlockChangedFilter = {

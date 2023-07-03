@@ -19,9 +19,11 @@
     "src/bindings/index.ts",
     "src/lib/entities/*.ts",
     "src/lib/errors/*.ts",
-    "src/lib/operation/index.ts",
+    "src/lib/operations/index.ts",
     "src/lib/entities/*.ts",
     "src/lib/errors/*.ts",
+    "src/lib/helpers/index.ts",
+    "src/lib/helpers/healthserver.ts",
     "test/**/*.ts"
   ],
   "all": true

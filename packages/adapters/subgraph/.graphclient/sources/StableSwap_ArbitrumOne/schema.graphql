@@ -28,6 +28,12 @@ input arbitrumone_swap_Block_height {
 
 scalar arbitrumone_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar arbitrumone_swap_Int8
+
 type arbitrumone_swap_LpAccount {
   id: ID!
   address: arbitrumone_swap_Bytes!

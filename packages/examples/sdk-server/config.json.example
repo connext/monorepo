@@ -12,5 +12,11 @@
   },
   "logLevel": "debug",
   "environment": "production",
-  "network": "testnet"
+  "network": "testnet",
+  "redis": {
+    "enabled": true,
+    "expirationTime": 10,
+    "host": "localhost",
+    "port": 6379
+  }
 }

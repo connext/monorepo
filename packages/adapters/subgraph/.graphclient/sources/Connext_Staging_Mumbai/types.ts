@@ -19,6 +19,7 @@ export type Scalars = {
   stagingmumbai_BigDecimal: any;
   BigInt: any;
   stagingmumbai_Bytes: any;
+  stagingmumbai_Int8: any;
 };
 
 export type stagingmumbai_AggregateRoot = {

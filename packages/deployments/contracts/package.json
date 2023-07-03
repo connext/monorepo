@@ -3,8 +3,9 @@
   "version": "2.0.0-alpha.1",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
+    "test": "yarn forge test --no-match-path '*/fork/**.sol'",
     "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
+    "test:fork": "yarn forge test --match-path '*/fork/**.sol'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
@@ -42,15 +43,15 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "2.0.1"
+    "@eth-optimism/sdk": "2.1.0"
   },
   "devDependencies": {
-    "@arbitrum/sdk": "3.0.0-beta.12",
+    "@arbitrum/sdk": "3.1.3",
     "@connext/nxtp-utils": "workspace:*",
     "@gelatonetwork/relay-context": "2.1.0",
-    "@matterlabs/hardhat-zksync-deploy": "^0.6.2",
-    "@matterlabs/hardhat-zksync-solc": "^0.3.14",
-    "@matterlabs/hardhat-zksync-verify": "^0.1.2",
+    "@matterlabs/hardhat-zksync-deploy": "0.6.3",
+    "@matterlabs/hardhat-zksync-solc": "0.3.17",
+    "@matterlabs/hardhat-zksync-verify": "0.1.7",
     "@nomiclabs/hardhat-ethers": "2.2.2",
     "@nomiclabs/hardhat-etherscan": "3.1.6",
     "@nomiclabs/hardhat-waffle": "2.0.5",
@@ -73,7 +74,7 @@
     "hardhat": "2.12.7",
     "hardhat-abi-exporter": "2.10.1",
     "hardhat-contract-sizer": "2.8.0",
-    "hardhat-deploy": "0.11.24",
+    "hardhat-deploy": "0.11.30",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
     "prettier": "2.8.4",
@@ -87,7 +88,7 @@
     "ts-node": "10.9.1",
     "typechain": "8.1.1",
     "typescript": "4.9.5",
-    "zksync-web3": "^0.14.3"
+    "zksync-web3": "0.14.3"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"

@@ -52,10 +52,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
-  // Store the transfer locally. We will use this as a reference later when we execute this transfer
-  // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
-  await cache.transfers.storeTransfers([transfer]);
-
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {
@@ -63,19 +59,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       bid,
     });
   }
-
-  // Update and/or create the auction instance in the cache if necessary.
-  const res = await cache.auctions.upsertAuction({
-    transferId,
-    origin: transfer.xparams!.originDomain,
-    destination: transfer.xparams!.destinationDomain!,
-    bid,
-  });
-  logger.info("Updated auction", requestContext, methodContext, {
-    new: res === 0,
-    auction: await cache.auctions.getAuction(transferId),
-    status: await cache.auctions.getExecStatus(transferId),
-  });
 
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
@@ -95,7 +78,7 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       status = execStatus.status as ExecStatus;
     }
   }
-  if (status === ExecStatus.None || status === ExecStatus.Dequeued) {
+  if (status === ExecStatus.None) {
     const message: Message = {
       transferId: transfer.transferId,
       originDomain: transfer.xparams!.originDomain,
@@ -106,8 +89,27 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     await channel.assertExchange(config.messageQueue.exchanges[0].name, config.messageQueue.exchanges[0].type, {
       durable: config.messageQueue.exchanges[0].durable,
     });
-    const queue = config.messageQueue.queues.find((it) => it.name == transfer.xparams!.originDomain);
-    await channel.prefetch(queue?.limit || 1);
+    // Set status before publish
+    // Avoid a race condition where the message is consumed before the status is set
+    // If publish fails we we will have bad state, but publish is HA so we should be fine
+    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
+
+    // Update and/or create the auction instance in the cache if necessary.
+    const res = await cache.auctions.upsertAuction({
+      transferId,
+      origin: transfer.xparams!.originDomain,
+      destination: transfer.xparams!.destinationDomain!,
+      bid,
+    });
+    logger.info("Updated auction", requestContext, methodContext, {
+      new: res === 0,
+      auction: await cache.auctions.getAuction(transferId),
+      status: await cache.auctions.getExecStatus(transferId),
+    });
+
+    // Store the transfer locally. We will use this as a reference later when we execute this transfer
+    // in the auction cycle, for both encoding data and passing relayer fee to the relayer.
+    await cache.transfers.storeTransfers([transfer]);
 
     channel.publish(
       config.messageQueue.exchanges[0].name,
@@ -116,7 +118,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
       { persistent: config.messageQueue.exchanges[0].persistent },
     );
     await channel.close();
-    await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
     logger.info("Enqueued transfer", requestContext, methodContext, {
       message: message,
     });
@@ -194,17 +195,26 @@ export const executeFastPathData = async (
   });
 
   // NOTE: Should be an OriginTransfer, but we will sanity check below.
-  const transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
+  let transfer = (await cache.transfers.getTransfer(transferId)) as OriginTransfer | undefined;
   if (!transfer) {
-    // This should never happen.
-    // TODO: Should this be tossed out? We literally can't handle a transfer without the xcall data.
+    // This can happen in a race between concurrent previous and current attempts that are inflight
     logger.error("Transfer data not found for transfer!", requestContext, methodContext, undefined, {
       transferId,
       origin,
       destination,
       bids,
     });
-    return { taskId };
+
+    // Try to resolve it by rehydrating from the subgraph
+    // Get the XCall from the subgraph for this transfer.
+    transfer = await subgraph.getOriginTransferById(origin, transferId);
+    if (!transfer || !transfer.origin) {
+      // Router shouldn't be bidding on a transfer that doesn't exist.
+      throw new MissingXCall(origin, transferId, {
+        bids,
+      });
+    }
+    await cache.transfers.storeTransfers([transfer]);
   } else if (!transfer.origin) {
     // TODO: Same as above!
     // Again, shouldn't happen: sequencer should not have accepted an auction for a transfer with no xcall.

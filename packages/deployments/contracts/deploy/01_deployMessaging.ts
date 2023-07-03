@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { constants, Wallet } from "ethers";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { chainIdToDomain } from "@connext/nxtp-utils";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -112,18 +112,6 @@ const handleDeployHub = async (
     log: true,
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
-
-  // setArborist to Merkle for RootManager
-  const merkleForRootContract = await hre.ethers.getContractAt(
-    "MerkleTreeManager",
-    merkleTreeManagerForRoot.address,
-    deployer,
-  );
-  if (!(await merkleForRootContract.arborist())) {
-    const tx = await merkleForRootContract.setArborist(rootManager.address);
-    console.log(`setArborist for RootManager tx submitted:`, tx.hash);
-    await tx.wait();
-  }
 
   // Deploy MerkleTreeManager(beacon proxy)
   console.log("Deploying MerkleTreeManager proxy For MainnetSpokeConnector...");

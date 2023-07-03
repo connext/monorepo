@@ -78,6 +78,21 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
       throw new Error("Sequencer publisher not configured");
     }
 
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
       port: {
         pub: context.config.server.pub.port,
@@ -140,6 +155,21 @@ export const makeHTTPSubscriber = async () => {
       throw new Error("Sequencer publisher not configured");
     }
 
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.pub.host, context.config.server.pub.port);
   } catch (error: any) {
@@ -176,7 +206,7 @@ export const makeSubscriber = async () => {
       },
     );
 
-    if (context.config.messageQueue.subscriber) {
+    if (context.config.messageQueue.subscriber && context.config.messageQueue.subscriber != HTTP_QUEUE) {
       const binding = context.config.messageQueue.bindings.find(
         (it) => it.target == context.config.messageQueue.subscriber,
       );
@@ -195,18 +225,37 @@ export const makeSubscriber = async () => {
     } else {
       // By default subscribe to all configured queues concurrently
       await Promise.all(
-        context.config.messageQueue.bindings.map(async (binding) => {
-          const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
-          await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
-          await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
-        }),
+        context.config.messageQueue.bindings
+          .filter((it) => it.target != HTTP_QUEUE)
+          .map(async (binding) => {
+            const queue = context.config.messageQueue.queues.find((it) => it.name == binding.target);
+            await channel.assertQueue(binding.target, { durable: true, maxLength: queue?.queueLimit });
+            await channel.bindQueue(binding.target, binding.exchange, binding.keys[0]);
+          }),
       );
       await Promise.all(
-        context.config.messageQueue.queues.map(async (queueConfig) => {
-          if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
-        }),
+        context.config.messageQueue.queues
+          .filter((it) => it.name != HTTP_QUEUE)
+          .map(async (queueConfig) => {
+            if (queueConfig?.name) bindSubscriber(queueConfig.name, channel);
+          }),
       );
     }
+
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.sub.host, context.config.server.sub.port);
@@ -379,6 +428,22 @@ export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Co
   const methodContext = createMethodContext(setupMQ.name);
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
   const connection = await Broker.connect(config.messageQueue.connection.uri);
+
+  // hard exit on errors or close, this will force a restart from AWS
+  connection.on("error", (err: unknown) => {
+    logger.error("MQ connection error", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
+  connection.on("close", (err: unknown) => {
+    logger.error("MQ connection closed", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
   logger.info("MQ setup is done!", requestContext, methodContext, {});
   return connection;
 };

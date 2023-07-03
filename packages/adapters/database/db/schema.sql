@@ -316,7 +316,9 @@ CREATE TABLE public.transfers (
     execute_simulation_network character varying(255),
     error_message character varying(255),
     message_status character varying(255),
-    relayer_fees jsonb
+    relayer_fees jsonb,
+    execute_tx_nonce numeric DEFAULT 0 NOT NULL,
+    reconcile_tx_nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -592,7 +594,7 @@ CREATE TABLE public.messages (
     leaf character(66) NOT NULL,
     origin_domain character varying(255) NOT NULL,
     destination_domain character varying(255),
-    index numeric,
+    index numeric NOT NULL,
     root character(66),
     message character varying,
     processed boolean DEFAULT false,
@@ -1057,7 +1059,7 @@ ALTER TABLE ONLY public.merkle_cache
 --
 
 ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
+    ADD CONSTRAINT messages_pkey PRIMARY KEY (origin_domain, index);
 
 
 --
@@ -1200,6 +1202,13 @@ CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_
 
 
 --
+-- Name: messages_domain_leaf_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_domain_leaf_idx ON public.messages USING btree (origin_domain, leaf);
+
+
+--
 -- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1211,6 +1220,13 @@ CREATE INDEX messages_processed_index_idx ON public.messages USING btree (proces
 --
 
 CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
+
+
+--
+-- Name: transfers_origin_domain_nonce_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_nonce_idx ON public.transfers USING btree (origin_domain, nonce);
 
 
 --
@@ -1351,4 +1367,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230510210620'),
     ('20230519155643'),
     ('20230523134345'),
-    ('20230530074124');
+    ('20230530074124'),
+    ('20230608135754'),
+    ('20230608174759'),
+    ('20230613125451');

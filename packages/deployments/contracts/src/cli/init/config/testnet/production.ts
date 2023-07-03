@@ -94,6 +94,46 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "nextAlUSD",
+      canonical: {
+        domain: "1735353714",
+        address: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
+          adopted: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
+          adopted: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
+        },
+      },
+    },
+    {
+      name: "nextAlETH",
+      canonical: {
+        domain: "1735353714",
+        address: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
+          adopted: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
+          adopted: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
+        },
+      },
+    },
     // {
     //   name: "WETH",
     //   canonical: {
@@ -186,6 +226,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync)
         "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato
         "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934", // connext relayer

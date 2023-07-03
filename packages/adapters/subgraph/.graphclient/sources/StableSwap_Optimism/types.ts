@@ -19,6 +19,7 @@ export type Scalars = {
   optimism_swap_BigDecimal: any;
   BigInt: any;
   optimism_swap_Bytes: any;
+  optimism_swap_Int8: any;
 };
 
 export type optimism_swap_BlockChangedFilter = {
