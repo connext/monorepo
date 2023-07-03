@@ -722,7 +722,7 @@ contract RootManager_SetMinDisputeBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit MinDisputeBlocksUpdated(newMinDisputeBlocks, _prevMinDisputeBlocks);
+    emit MinDisputeBlocksUpdated(_prevMinDisputeBlocks, newMinDisputeBlocks);
 
     _rootManager.setMinDisputeBlocks(newMinDisputeBlocks);
   }
