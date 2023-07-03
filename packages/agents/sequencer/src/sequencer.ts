@@ -8,7 +8,6 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
-  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "amqplib";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -18,15 +17,13 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { getDatabase } from "@connext/nxtp-adapters-database";
 
-import { MessageType, SequencerConfig } from "./lib/entities";
+import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindSubscriber } from "./bindings/subscriber";
 import { bindHTTPSubscriber } from "./bindings/publisher";
 import { bindServer } from "./bindings/server";
 import { getHelpers } from "./lib/helpers";
-import { getOperations } from "./lib/operations";
-import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
