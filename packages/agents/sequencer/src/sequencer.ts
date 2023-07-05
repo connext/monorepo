@@ -8,7 +8,6 @@ import {
   ChainData,
   jsonifyError,
   RelayerType,
-  XTransferErrorStatus,
 } from "@connext/nxtp-utils";
 import Broker from "amqplib";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -18,15 +17,13 @@ import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { getDatabase } from "@connext/nxtp-adapters-database";
 
-import { MessageType, SequencerConfig } from "./lib/entities";
+import { SequencerConfig } from "./lib/entities";
 import { getConfig } from "./config";
 import { AppContext } from "./lib/entities/context";
 import { bindSubscriber } from "./bindings/subscriber";
 import { bindHTTPSubscriber } from "./bindings/publisher";
 import { bindServer } from "./bindings/server";
 import { getHelpers } from "./lib/helpers";
-import { getOperations } from "./lib/operations";
-import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "./lib/errors";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -77,6 +74,21 @@ export const makePublisher = async (_configOverride?: SequencerConfig) => {
     } else {
       throw new Error("Sequencer publisher not configured");
     }
+
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
 
     context.logger.info("Sequencer boot complete!", requestContext, methodContext, {
       port: {
@@ -139,6 +151,21 @@ export const makeHTTPSubscriber = async () => {
     } else {
       throw new Error("Sequencer publisher not configured");
     }
+
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
 
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.pub.host, context.config.server.pub.port);
@@ -212,6 +239,21 @@ export const makeSubscriber = async () => {
       );
     }
 
+    // hard error on channel issues, will be restarted from higher level orchestrator
+    channel.on("error", (err: unknown) => {
+      context.logger.error("MQ channel error", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
+    channel.on("close", (err: unknown) => {
+      context.logger.error("MQ channel closed", requestContext, methodContext, undefined, {
+        error: jsonifyError(err as Error),
+      });
+      process.exit(1);
+    });
+
     // Create health server, set up routes, and start listening.
     await bindHealthServer(context.config.server.sub.host, context.config.server.sub.port);
   } catch (error: any) {
@@ -219,88 +261,6 @@ export const makeSubscriber = async () => {
     await context.adapters.mqClient.close();
     process.exit(1);
   }
-};
-
-/// MARK - Execute
-/**
- * A `make` method used to configure a context for handling execution of a given transfer.
- *
- * This is used to separate execution on a transfer-by-transfer basis into child processes.
- * @param _configOverride - Overrides for configuration; normally only used for testing.
- */
-export const execute = async (_configOverride?: SequencerConfig) => {
-  const {
-    execute: { executeFastPathData, executeSlowPathData },
-    tasks: { updateTask },
-  } = getOperations();
-
-  // The transferId <-> message type is a CLI argument provided by the parent
-  // ex; {
-  //        "0x33a3f2ee99315a4e0635e59a43044e94c4886b775f1ef2abe8722fc75fe35da8" : "ExecuteFast",
-  //        "0x8d634d61b323e66ab99f4f422a1724d6aeb0d97bd0db44dad364c7b8f049fc7c": "ExecuteSlow"
-  //     }
-  const args = JSON.parse(process.argv[2]) as Record<string, string>;
-  const transferIds = Object.keys(args);
-
-  context.adapters = {} as any;
-  await setupContext(_configOverride);
-
-  for (const transferId of transferIds) {
-    const { requestContext, methodContext } = createLoggingContext(execute.name, undefined, transferId);
-    const messageType = args[transferId] as MessageType;
-    try {
-      const { taskId } =
-        messageType === MessageType.ExecuteFast
-          ? await executeFastPathData(transferId, requestContext)
-          : await executeSlowPathData(transferId, messageType, requestContext);
-
-      if (taskId) {
-        await updateTask(transferId, messageType);
-      }
-    } catch (error: any) {
-      const errorObj = jsonifyError(error as Error);
-      context.logger.error("Error executing:", requestContext, methodContext, errorObj);
-
-      let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
-      switch (errorObj.type) {
-        case SlippageToleranceExceeded.name: {
-          errorName = XTransferErrorStatus.LowSlippage;
-          break;
-        }
-        case NotEnoughRelayerFee.name: {
-          errorName = XTransferErrorStatus.LowRelayerFee;
-          break;
-        }
-        case NoBidsSent.name: {
-          errorName = XTransferErrorStatus.NoBidsReceived;
-          break;
-        }
-      }
-      try {
-        await context.adapters.database.updateErrorStatus(transferId, errorName);
-      } catch (e: unknown) {
-        context.logger.error("Database error:updateErrorStatus", requestContext, methodContext, undefined, {
-          transferId,
-          error: e,
-        });
-      }
-
-      // increase backoff in case error is one of slippage or relayer fee
-      if (messageType === MessageType.ExecuteSlow) {
-        try {
-          await context.adapters.database.increaseBackoff(transferId);
-        } catch (e: unknown) {
-          context.logger.error("Database error:increaseBackoff", requestContext, methodContext, undefined, {
-            transferId,
-            error: e,
-          });
-        }
-      }
-
-      process.exit(1);
-    }
-  }
-  process.exit(0);
 };
 
 /// MARK - Context Setup
@@ -463,9 +423,24 @@ export const setupMQ = async (requestContext: RequestContext): Promise<Broker.Co
   const { logger, config } = context;
 
   const methodContext = createMethodContext(setupMQ.name);
-
   logger.info("MQ setup in progress...", requestContext, methodContext, {});
   const connection = await Broker.connect(config.messageQueue.connection.uri);
+
+  // hard exit on errors or close, this will force a restart from AWS
+  connection.on("error", (err: unknown) => {
+    logger.error("MQ connection error", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
+  connection.on("close", (err: unknown) => {
+    logger.error("MQ connection closed", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
   logger.info("MQ setup is done!", requestContext, methodContext, {});
   return connection;
 };

@@ -52,7 +52,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateSwap`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async calculateSwapLocal(
@@ -144,7 +145,15 @@ export class SdkPool extends SdkShared {
     };
 
     const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-    return response.data;
+    const data = response.data;
+
+    return {
+      amountReceived: BigNumber.from(data.amountReceived),
+      originSlippage: BigNumber.from(data.originSlippage),
+      routerFee: BigNumber.from(data.routerFee),
+      destinationSlippage: BigNumber.from(data.destinationSlippage),
+      isFastPath: data.isFastPath,
+    };
   }
 
   scientificToBigInt(scientificNotationString: string) {
@@ -180,7 +189,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateTokenAmount`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async calculateRemoveSwapLiquidity(
@@ -200,7 +210,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveSwapLiquidity`, params);
-    return response.data;
+
+    return response.data.map((amount: string) => BigNumber.from(amount));
   }
 
   async calculateRemoveSwapLiquidityOneToken(
@@ -222,7 +233,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveSwapLiquidityOneToken`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   calculatePriceImpact(
@@ -258,7 +270,8 @@ export class SdkPool extends SdkShared {
       amountY,
     };
     const response = await axiosPost(`${this.baseUri}/calculateAddLiquidityPriceImpact`, params);
-    return response.data;
+
+    return response.data ? BigNumber.from(response.data) : undefined;
   }
 
   async calculateRemoveLiquidityPriceImpact(
@@ -274,7 +287,8 @@ export class SdkPool extends SdkShared {
       amountY,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveLiquidityPriceImpact`, params);
-    return response.data;
+
+    return response.data ? BigNumber.from(response.data) : undefined;
   }
 
   async calculateSwapPriceImpact(
@@ -296,7 +310,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateSwapPriceImpact`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getTokenPrice(tokenSymbol: string) {
@@ -322,7 +337,8 @@ export class SdkPool extends SdkShared {
       tokenAddress,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenSupply`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
@@ -332,7 +348,8 @@ export class SdkPool extends SdkShared {
       userAddress,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenUserBalance`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getPoolTokenIndex(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
@@ -374,7 +391,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getPoolTokenBalance`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getPoolTokenAddress(domainId: string, tokenAddress: string, index: number) {
@@ -398,7 +416,8 @@ export class SdkPool extends SdkShared {
       options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getVirtualPrice`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
@@ -568,7 +587,25 @@ export class SdkPool extends SdkShared {
       tokenAddress,
     };
     const response = await axiosPost(`${this.baseUri}/getPool`, params);
-    return response.data;
+    const data = response.data;
+
+    if (data) {
+      data.balances = data.balances.map((balance: string) => BigNumber.from(balance));
+      data.invariant = BigNumber.from(data.invariant);
+      data.initialA = BigNumber.from(data.initialA);
+      data.futureA = BigNumber.from(data.futureA);
+      data.currentA = BigNumber.from(data.currentA);
+
+      if (data.local && data.local.balance) {
+        data.local.balance = BigNumber.from(data.local.balance);
+      }
+
+      if (data.adopted && data.adopted.balance) {
+        data.adopted.balance = BigNumber.from(data.adopted.balance);
+      }
+    }
+
+    return data;
   }
 
   async getUserPools(
@@ -580,7 +617,30 @@ export class SdkPool extends SdkShared {
       userAddress,
     };
     const response = await axiosPost(`${this.baseUri}/getUserPools`, params);
-    return response.data;
+
+    return response.data.map((data: any) => {
+      const info = data.info;
+      info.balances = info.balances.map((balance: string) => BigNumber.from(balance));
+      info.invariant = BigNumber.from(info.invariant);
+      info.initialA = BigNumber.from(info.initialA);
+      info.futureA = BigNumber.from(info.futureA);
+      info.currentA = BigNumber.from(info.currentA);
+
+      if (info.local && info.local.balance) {
+        info.local.balance = BigNumber.from(info.local.balance);
+      }
+
+      if (info.adopted && info.adopted.balance) {
+        info.adopted.balance = BigNumber.from(info.adopted.balance);
+      }
+
+      return {
+        ...data,
+        info,
+        lpTokenBalance: BigNumber.from(data.lpTokenBalance),
+        poolTokenBalances: data.poolTokenBalances.map((balance: string) => BigNumber.from(balance)),
+      };
+    });
   }
 
   async getYieldStatsForDays(
@@ -604,7 +664,13 @@ export class SdkPool extends SdkShared {
       days,
     };
     const response = await axiosPost(`${this.baseUri}/getYieldStatsForDays`, params);
-    return response.data;
+    const data = response.data;
+
+    if (data && data.totalVolume) {
+      data.totalVolume = BigNumber.from(data.totalVolume);
+    }
+
+    return data;
   }
 
   calculateYield(

@@ -1,4 +1,4 @@
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import { ChainData, createLoggingContext, jsonifyError, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase, getDatabaseAndPool } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
@@ -77,6 +77,20 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     : context.config.database.url;
   context.adapters.databaseWriter = await getDatabaseAndPool(databaseWriter, context.logger);
   context.adapters.mqClient = await Broker.connect(config.messageQueue.connection.uri);
+  // hard exit on errors or close, this will force a restart from AWS
+  context.adapters.mqClient.on("error", (err: unknown) => {
+    context.logger.error("MQ connection error", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
+
+  context.adapters.mqClient.on("close", (err: unknown) => {
+    context.logger.error("MQ connection closed", requestContext, methodContext, undefined, {
+      error: jsonifyError(err as Error),
+    });
+    process.exit(1);
+  });
   context.adapters.cache = StoreManager.getInstance({
     redis: { host: context.config.redis.host, port: context.config.redis.port, instance: undefined },
     mock: !context.config.redis.host || !context.config.redis.port,
