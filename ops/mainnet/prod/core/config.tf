@@ -339,6 +339,19 @@ locals {
       "6450786"    = 10,
       "6778479"    = 10
     }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+      prefetchSize = 2
+    }    
   })
 
   local_relayer_config = jsonencode({
