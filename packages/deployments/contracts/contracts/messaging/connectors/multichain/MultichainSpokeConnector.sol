@@ -42,16 +42,16 @@ contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
   /**
    * @notice Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {
+    require(false, "prohibited");
+  }
 
   // ============ Public fns ============
   /**
    * @notice Overrides `Connector.processMessage` to revert as multichain should
    * use `anyExecute` pathway instead.
    */
-  function processMessage(
-    bytes memory /*_data*/
-  ) external override {
+  function processMessage(bytes memory /*_data*/) external override {
     revert Connector__processMessage_notUsed();
   }
 

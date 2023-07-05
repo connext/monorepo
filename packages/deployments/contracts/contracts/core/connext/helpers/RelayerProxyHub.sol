@@ -217,8 +217,6 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
   error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
 
-  // ============ Modifiers ============
-
   // ============ Constructor ============
 
   /**
@@ -404,6 +402,8 @@ contract RelayerProxyHub is RelayerProxy {
 
     // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+
+    lastProposeAggregateRootAt = block.timestamp;
   }
 
   /**

@@ -12,6 +12,7 @@ import {MerkleLib} from "./libraries/MerkleLib.sol";
 contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ========== Custom Errors ===========
 
+  error MerkleTreeManager__renounceOwnership_prohibited();
   error MerkleTreeManager__setArborist_zeroAddress();
   error MerkleTreeManager__setArborist_alreadyArborist();
 
@@ -140,7 +141,9 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @dev Renounce ownership should be impossible as long as there is a possibility the
    * arborist may change.
    */
-  function renounceOwnership() public virtual override onlyOwner {}
+  function renounceOwnership() public virtual override onlyOwner {
+    revert MerkleTreeManager__renounceOwnership_prohibited();
+  }
 
   // ========= Public Functions =========
 

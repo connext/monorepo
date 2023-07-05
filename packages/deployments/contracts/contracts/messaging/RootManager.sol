@@ -136,6 +136,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_constructor__DisputeBlocksLowerThanMin();
 
+  error RootManager__renounceOwnership_prohibited();
+
   // ============ Properties ============
 
   /**
@@ -322,7 +324,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
-    emit MinDisputeBlocksUpdated(_minDisputeBlocks, minDisputeBlocks);
+    emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
     minDisputeBlocks = _minDisputeBlocks;
   }
 
@@ -333,7 +335,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function setDisputeBlocks(uint256 _disputeBlocks) public onlyOwner {
     if (_disputeBlocks < minDisputeBlocks) revert RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
     if (_disputeBlocks == disputeBlocks) revert RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
-    emit DisputeBlocksUpdated(_disputeBlocks, disputeBlocks);
+    emit DisputeBlocksUpdated(disputeBlocks, _disputeBlocks);
     disputeBlocks = _disputeBlocks;
   }
 
@@ -343,7 +345,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
-    emit DelayBlocksUpdated(_delayBlocks, delayBlocks);
+    emit DelayBlocksUpdated(delayBlocks, _delayBlocks);
     delayBlocks = _delayBlocks;
   }
 
@@ -396,7 +398,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
    * and only the owner can add them back
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
+    revert RootManager__renounceOwnership_prohibited();
+  }
 
   // ============ Public Functions ============
 
