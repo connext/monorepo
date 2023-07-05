@@ -39,8 +39,6 @@ contract RelayerProxyHubTest is ForgeHelper {
   address _feeCollector = address(12335555);
   address _rootManager = address(12335558);
   address _keep3r = address(12335556);
-  address _autonolas = address(12335557);
-  uint8 _autonolasPriority = 4;
   address[] _hubConnectors = new address[](10);
   uint32[] _hubConnectorChains = new uint32[](10);
   uint256 SIGNER_PK = 0xa11ce;
@@ -265,7 +263,6 @@ contract RelayerProxyHubTest is ForgeHelper {
   }
 
   function test_RelayerProxyHub__propagateKeep3r_doesNotWorkIfNotKeep3r(address sender) public {
-    vm.assume(sender != _autonolas);
     vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, sender), abi.encode(false));
     vm.roll(105);
     vm.prank(sender);
@@ -552,10 +549,10 @@ contract RelayerProxyHubTest is ForgeHelper {
   }
 
   function test_finalizeAndPropagateKeep3r__failsIfNotCooledDown(uint256 _time) public {
-    vm.assume(_time < 420);
+    vm.assume(_time < 300);
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector, 419, 420)
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector, _time, 300)
     );
     vm.warp(_time);
     vm.prank(_gelatoRelayer);
