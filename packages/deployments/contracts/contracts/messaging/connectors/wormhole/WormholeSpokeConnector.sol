@@ -43,7 +43,9 @@ contract WormholeSpokeConnector is SpokeConnector, BaseWormhole, IWormholeReceiv
   /**
    * @notice Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {
+    revert("prohibited");
+  }
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
