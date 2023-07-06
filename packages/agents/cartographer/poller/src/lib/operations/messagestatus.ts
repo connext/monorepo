@@ -11,7 +11,7 @@ export const updateMessageStatus = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateMessageStatus.name);
 
   for (const domain of domains) {
-    const limit = 100;
+    const limit = 1000;
     let end = false;
     let offset = 0;
     while (!end) {
