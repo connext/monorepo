@@ -69,8 +69,7 @@ export const getDestinationSwapDataForUniV2 = async (_args: any, path?: any): Pr
 export const getDestinationSwapDataForUniV3 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV3SwapperParams;
   if (!path) return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
-  const encodedPathData = defaultAbiCoder.encode(["address[]"], [path]);
-  return defaultAbiCoder.encode(["uint24", "uint256", "bytes"], [args.poolFee, args.amountOutMin, encodedPathData]);
+  return defaultAbiCoder.encode(["uint256", "bytes"], [args.amountOutMin, path]);
 };
 
 /**

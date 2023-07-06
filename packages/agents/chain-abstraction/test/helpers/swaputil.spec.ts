@@ -4,6 +4,7 @@ import { getSwapPathForUniV3, getSwapPathForUniV2, getPathForPanCake } from "../
 import * as MockableFns from "../../src/mockable";
 import { Token, TradeType, CurrencyAmount } from "@uniswap/sdk-core";
 import { Fetcher, Pair, Token as _Token, TokenAmount, Route, Trade } from "@uniswap/sdk";
+import { FeeAmount } from "@uniswap/v3-sdk";
 import {
   Fetcher as PancakeFetcher,
   Pair as PancakePair,
@@ -51,6 +52,25 @@ describe("Helpers:swapUtil", () => {
 
   describe("#getSwapPathForUniV3", () => {
     it("should work", async () => {
+      const FEE_SIZE = 3;
+
+      function encodePath(path: string[], fees: FeeAmount[]): string {
+        if (path.length != fees.length + 1) {
+          throw new Error("path/fee lengths do not match");
+        }
+
+        let encoded = "0x";
+        for (let i = 0; i < fees.length; i++) {
+          // 20 byte encoding of the address
+          encoded += path[i].slice(2);
+          // 3 byte encoding of the fee
+          encoded += fees[i].toString(16).padStart(2 * FEE_SIZE, "0");
+        }
+        // encode the final token
+        encoded += path[path.length - 1].slice(2);
+
+        return encoded.toLowerCase();
+      }
       const fakeRoute = {
         quote: CurrencyAmount.fromRawAmount(new Token(1, mockArgs.fromTokenContractAddress, 18), "1000000000000000000"),
         route: [
@@ -69,9 +89,13 @@ describe("Helpers:swapUtil", () => {
       stub(ethers.providers, "JsonRpcProvider").returns({});
       stub(AlphaRouter.prototype, "route").resolves(fakeRoute as any);
       const result = await getSwapPathForUniV3(mockArgs);
+      const path = encodePath(
+        fakeRoute.route[0].tokenPath.map((token) => token.address),
+        [FeeAmount.MEDIUM],
+      );
       expect(result).to.deep.equal({
         quote: fakeRoute.quote,
-        tokenPath: fakeRoute.route[0].tokenPath.map((token) => token.address),
+        tokenPath: path,
         route: "V3",
       });
     });
