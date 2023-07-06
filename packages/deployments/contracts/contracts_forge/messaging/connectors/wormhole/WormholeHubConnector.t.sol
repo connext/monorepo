@@ -101,8 +101,69 @@ contract WormholeHubConnectorTest is ConnectorHelper {
     WormholeHubConnector(_l1Connector).sendMessage{value: 100}(_data, encodedData);
   }
 
+  function test_WormholeHubConnector_sendMessage_sendMessageWithGasCap(bytes memory _data) public {
+    vm.assume(_data.length == 32);
+
+    uint256 gasLimit = _gasCapL2 + 1;
+    bytes memory encodedData = abi.encode(gasLimit);
+
+    // Mock the call to fees
+    vm.mockCall(
+      _amb,
+      abi.encodeWithSignature("quoteEVMDeliveryPrice(uint16,uint256,uint256)", _chainIdL2, 0, _gasCapL2),
+      abi.encode(100, 100)
+    );
+
+    // Mock the call to sendPayloadToEvm
+    vm.mockCall(
+      _amb,
+      100,
+      abi.encodeWithSignature(
+        "sendPayloadToEvm(uint16,address,bytes,uint256,uint256,uint16,address)",
+        _chainIdL2,
+        address(_l2Connector),
+        _data,
+        uint256(0),
+        gasLimit,
+        _chainIdL2,
+        _owner
+      ),
+      abi.encode(uint64(1))
+    );
+
+    // Check: correct event?
+    vm.expectEmit(false, false, false, true, _l1Connector);
+    emit MessageSent(_data, encodedData, _rootManager);
+
+    // Check: call to sendPayloadToEvm?
+    vm.expectCall(
+      _amb,
+      100,
+      abi.encodeWithSignature(
+        "sendPayloadToEvm(uint16,address,bytes,uint256,uint256,uint16,address)",
+        _chainIdL2,
+        address(_l2Connector),
+        _data,
+        0,
+        gasLimit,
+        _chainIdL2,
+        _owner
+      )
+    );
+
+    // Check: call to fees?
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSignature("quoteEVMDeliveryPrice(uint16,uint256,uint256)", _chainIdL2, 0, _gasCapL2)
+    );
+
+    vm.deal(_rootManager, 1 ether);
+    vm.prank(_rootManager);
+    WormholeHubConnector(_l1Connector).sendMessage{value: 100}(_data, encodedData);
+  }
+
   // Access control
-  function test_WormholeHubConnector_sendMessage_revertIfSenderIsNotRootManager(
+  function test_WormholeConnector_sendMessage_revertIfSenderIsNotRootManager(
     address _nonRootManager,
     bytes memory _data
   ) public {

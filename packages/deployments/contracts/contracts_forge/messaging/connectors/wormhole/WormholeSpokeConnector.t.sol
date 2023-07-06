@@ -116,6 +116,65 @@ contract WormholeSpokeConnectorTest is ConnectorHelper {
     WormholeSpokeConnector(_l2Connector).send{value: 100}(encodedData);
   }
 
+  function test_WormholeSpokeConnector_send_sendWithGasCap(bytes32 _root) public {
+    vm.assume(_root != bytes32(0));
+    uint256 gasLimit = _gasCapL1 + 1;
+    bytes memory encodedData = abi.encode(gasLimit);
+    bytes memory _data = abi.encodePacked(_root);
+
+    // Mock the call to fees
+    vm.mockCall(
+      _amb,
+      abi.encodeWithSignature("quoteEVMDeliveryPrice(uint16,uint256,uint256)", _chainIdL1, 0, _gasCapL1),
+      abi.encode(100, 100)
+    );
+
+    vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(_root));
+
+    // Mock the call to sendPayloadToEvm
+    vm.mockCall(
+      _amb,
+      100,
+      abi.encodeWithSignature(
+        "sendPayloadToEvm(uint16,address,bytes,uint256,uint256,uint16,address)",
+        _chainIdL1,
+        address(_l1Connector),
+        _data,
+        uint256(0),
+        gasLimit,
+        _chainIdL1,
+        _owner
+      ),
+      abi.encode(uint64(1))
+    );
+
+    // Check: call to sendPayloadToEvm?
+    vm.expectCall(
+      _amb,
+      100,
+      abi.encodeWithSignature(
+        "sendPayloadToEvm(uint16,address,bytes,uint256,uint256,uint16,address)",
+        _chainIdL1,
+        address(_l1Connector),
+        _data,
+        0,
+        gasLimit,
+        _chainIdL1,
+        _owner
+      )
+    );
+
+    // Check: call to fees?
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSignature("quoteEVMDeliveryPrice(uint16,uint256,uint256)", _chainIdL1, 0, _gasCapL1)
+    );
+
+    vm.deal(_owner, 1 ether);
+    vm.prank(_owner);
+    WormholeSpokeConnector(_l2Connector).send{value: 100}(encodedData);
+  }
+
   // data length
   function test_WormholeSpokeConnector_send_failsIfBadDataLength(bytes memory _data) public {
     vm.assume(_data.length != 32);
