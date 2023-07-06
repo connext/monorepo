@@ -214,6 +214,8 @@ export class SdkUtils extends SdkShared {
     errorStatus?: XTransferErrorStatus;
     transferId?: string;
     transactionHash?: string;
+    executeTransactionHash?: string;
+    reconcileTransactionHash?: string;
     xcallCaller?: string;
     originDomain?: string;
     destinationDomain?: string;
@@ -230,6 +232,8 @@ export class SdkUtils extends SdkShared {
       errorStatus,
       originDomain,
       destinationDomain,
+      executeTransactionHash,
+      reconcileTransactionHash,
     } = params ?? {};
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
@@ -243,6 +247,12 @@ export class SdkUtils extends SdkShared {
     const xcallCallerIdentifier = xcallCaller ? `xcall_caller=eq.${xcallCaller.toLowerCase()}&` : "";
     const originDomainIdentifier = originDomain ? `origin_domain.in.(${originDomain})&` : "";
     const destinationDomainIdentifier = destinationDomain ? `destination_domain.in.(${destinationDomain})&` : "";
+    const executeTransactionHashIdentifier = executeTransactionHash
+      ? `execute_transaction_hash=eq.${executeTransactionHash.toLowerCase()}&`
+      : "";
+    const reconcileTransactionHashIdentifier = reconcileTransactionHash
+      ? `reconcile_transaction_hash=eq.${reconcileTransactionHash.toLowerCase()}&`
+      : "";
 
     const searchIdentifier =
       userIdentifier +
@@ -253,7 +263,9 @@ export class SdkUtils extends SdkShared {
       transactionHashIdentifier +
       xcallCallerIdentifier +
       originDomainIdentifier +
-      destinationDomainIdentifier;
+      destinationDomainIdentifier +
+      executeTransactionHashIdentifier +
+      reconcileTransactionHashIdentifier;
 
     const limit = range?.limit ? range.limit : 10;
     const offset = range?.offset ? range.offset : 0;
