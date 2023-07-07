@@ -11,19 +11,29 @@ export const updateMessageStatus = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateMessageStatus.name);
 
   for (const domain of domains) {
-    const limit = 100;
-    logger.debug("Updating message status", requestContext, methodContext, { domain, limit });
-    const pendingTransfersByMessageStatus = await database.getPendingTransfersByMessageStatus(domain, 0, limit);
-    const updatedTransfers = await Promise.all(
-      pendingTransfersByMessageStatus.map(async (transfer) => {
-        const messageStatus = await getMessageStatus(transfer);
-        const _transfer = transfer;
-        if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
-        return _transfer;
-      }),
-    );
+    const limit = 1000;
+    let end = false;
+    let offset = 0;
+    while (!end) {
+      logger.debug("Updating message status", requestContext, methodContext, { domain, offset, limit });
+      const pendingTransfersByMessageStatus = await database.getPendingTransfersByMessageStatus(domain, offset, limit);
+      const updatedTransfers = await Promise.all(
+        pendingTransfersByMessageStatus.map(async (transfer) => {
+          const messageStatus = await getMessageStatus(transfer);
+          const _transfer = transfer;
+          if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
+          return _transfer;
+        }),
+      );
 
-    await database.saveTransfers(updatedTransfers);
+      await database.saveTransfers(updatedTransfers);
+      offset += pendingTransfersByMessageStatus.length;
+      if (pendingTransfersByMessageStatus.length < limit) {
+        end = true;
+        break;
+      }
+    }
+    logger.debug("Updated message status for domain", requestContext, methodContext, { domain });
   }
 };
 
