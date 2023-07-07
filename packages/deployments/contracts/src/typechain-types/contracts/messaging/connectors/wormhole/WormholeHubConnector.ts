@@ -32,8 +32,8 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
-    "MIRROR_CHAIN_ID()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
+    "MIRROR_WORMHOLE_ID()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -44,14 +44,15 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
-    "quoteEVMDeliveryPrice(uint256)": FunctionFragment;
+    "quoteEVMDeliveryPrice(uint256,address)": FunctionFragment;
     "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": FunctionFragment;
-    "relayerAddress()": FunctionFragment;
+    "refundAddress()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
+    "setRefundAddress(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
   };
 
@@ -59,8 +60,8 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
-      | "MIRROR_CHAIN_ID"
       | "MIRROR_DOMAIN"
+      | "MIRROR_WORMHOLE_ID"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
       | "delay"
@@ -73,23 +74,24 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
       | "proposedTimestamp"
       | "quoteEVMDeliveryPrice"
       | "receiveWormholeMessages"
-      | "relayerAddress"
+      | "refundAddress"
       | "renounceOwnership"
       | "renounced"
       | "sendMessage"
       | "setGasCap"
       | "setMirrorConnector"
+      | "setRefundAddress"
       | "verifySender"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "MIRROR_CHAIN_ID",
+    functionFragment: "MIRROR_DOMAIN",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
+    functionFragment: "MIRROR_WORMHOLE_ID",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -125,7 +127,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "quoteEVMDeliveryPrice",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "receiveWormholeMessages",
@@ -138,7 +140,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "relayerAddress",
+    functionFragment: "refundAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -159,6 +161,10 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setRefundAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
@@ -166,11 +172,11 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "MIRROR_CHAIN_ID",
+    functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
+    functionFragment: "MIRROR_WORMHOLE_ID",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -213,7 +219,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "relayerAddress",
+    functionFragment: "refundAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -231,6 +237,10 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setRefundAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
@@ -243,6 +253,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RefundAddressUpdated(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
@@ -252,6 +263,7 @@ export interface WormholeHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RefundAddressUpdated"): EventFragment;
 }
 
 export interface GasCapUpdatedEventObject {
@@ -338,6 +350,18 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface RefundAddressUpdatedEventObject {
+  previous: string;
+  updated: string;
+}
+export type RefundAddressUpdatedEvent = TypedEvent<
+  [string, string],
+  RefundAddressUpdatedEventObject
+>;
+
+export type RefundAddressUpdatedEventFilter =
+  TypedEventFilter<RefundAddressUpdatedEvent>;
+
 export interface WormholeHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -369,9 +393,9 @@ export interface WormholeHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[number]>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<[number]>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
@@ -405,20 +429,21 @@ export interface WormholeHubConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { cost: BigNumber }>;
+    ): Promise<[BigNumber] & { _cost: BigNumber }>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<[string]>;
+    refundAddress(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -442,6 +467,11 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -452,9 +482,9 @@ export interface WormholeHubConnector extends BaseContract {
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
-  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<number>;
-
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+  MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<number>;
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
@@ -488,20 +518,21 @@ export interface WormholeHubConnector extends BaseContract {
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   quoteEVMDeliveryPrice(
-    gasLimit: PromiseOrValue<BigNumberish>,
+    _gasLimit: PromiseOrValue<BigNumberish>,
+    _amb: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   receiveWormholeMessages(
-    payload: PromiseOrValue<BytesLike>,
-    additionalVaas: PromiseOrValue<BytesLike>[],
-    sourceAddress: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<BigNumberish>,
-    deliveryHash: PromiseOrValue<BytesLike>,
+    _payload: PromiseOrValue<BytesLike>,
+    arg1: PromiseOrValue<BytesLike>[],
+    _sourceAddress: PromiseOrValue<BytesLike>,
+    _sourceChain: PromiseOrValue<BigNumberish>,
+    _deliveryHash: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  relayerAddress(overrides?: CallOverrides): Promise<string>;
+  refundAddress(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -525,6 +556,11 @@ export interface WormholeHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setRefundAddress(
+    _updated: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   verifySender(
     _expected: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -535,9 +571,9 @@ export interface WormholeHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<number>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<number>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
@@ -569,20 +605,21 @@ export interface WormholeHubConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<string>;
+    refundAddress(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -601,6 +638,11 @@ export interface WormholeHubConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -673,6 +715,15 @@ export interface WormholeHubConnector extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "RefundAddressUpdated(address,address)"(
+      previous?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
+    ): RefundAddressUpdatedEventFilter;
+    RefundAddressUpdated(
+      previous?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
+    ): RefundAddressUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -680,9 +731,9 @@ export interface WormholeHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -716,20 +767,21 @@ export interface WormholeHubConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<BigNumber>;
+    refundAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -753,6 +805,11 @@ export interface WormholeHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     verifySender(
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -764,9 +821,11 @@ export interface WormholeHubConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MIRROR_WORMHOLE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -800,20 +859,21 @@ export interface WormholeHubConnector extends BaseContract {
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    refundAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -834,6 +894,11 @@ export interface WormholeHubConnector extends BaseContract {
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
