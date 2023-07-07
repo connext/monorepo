@@ -89,7 +89,7 @@ locals {
       }
       "9991" = {
         providers                 = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
-        excludeListFromRelayerFee = ["0x6c461C0296eBE3715820F1Cbde856219e06ac3B8"]
+        excludeListFromRelayerFee = ["0x6c461C0296eBE3715820F1Cbde856219e06ac3B8", "0x5Ee7Acd9E57f81a08d361b3Dc516f30964601068"]
       }
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
