@@ -157,4 +157,34 @@ describe("MessagesCache", () => {
       expect(latestNonce).to.be.equal(100);
     });
   });
+
+  describe("#lock", () => {
+    beforeEach(async () => {
+      await messagesCache.clear();
+    });
+    it("should get lock", async () => {
+      const result = await messagesCache.acquireLock("1111");
+      expect(result).to.be.equal(1);
+    });
+    it("should override lock", async () => {
+      await messagesCache.acquireLock("1111");
+      const result = await messagesCache.acquireLock("1111");
+      expect(result).to.be.equal(0);
+    });
+    it("should get current lock", async () => {
+      await messagesCache.acquireLock("1111");
+      const result = await messagesCache.getCurrentLock();
+      expect(result).not.to.be.equal(undefined);
+    });
+    it("should not find the lock", async () => {
+      const result = await messagesCache.getCurrentLock();
+      expect(result).to.be.equal(undefined);
+    });
+    it("should release the lock", async () => {
+      await messagesCache.acquireLock("1111");
+      const result = await messagesCache.releaseLock();
+      expect(result).to.be.equal(1);
+    });
+    it("should acquire lock", async () => {});
+  });
 });
