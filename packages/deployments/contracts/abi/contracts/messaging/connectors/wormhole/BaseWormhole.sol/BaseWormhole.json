@@ -9,7 +9,8 @@
   "event GasCapUpdated(uint256 _previous, uint256 _updated)",
   "event OwnershipProposed(address indexed proposedOwner)",
   "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
-  "function MIRROR_CHAIN_ID() view returns (uint16)",
+  "event RefundAddressUpdated(address indexed previous, address indexed updated)",
+  "function MIRROR_WORMHOLE_ID() view returns (uint16)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
   "function owner() view returns (address)",
@@ -17,10 +18,10 @@
   "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",
-  "function quoteEVMDeliveryPrice(uint256 gasLimit) view returns (uint256 cost)",
-  "function receiveWormholeMessages(bytes payload, bytes[] additionalVaas, bytes32 sourceAddress, uint16 sourceChain, bytes32 deliveryHash) payable",
-  "function relayerAddress() view returns (address)",
+  "function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) view returns (uint256 _cost)",
+  "function refundAddress() view returns (address)",
   "function renounceOwnership()",
   "function renounced() view returns (bool)",
-  "function setGasCap(uint256 _gasCap)"
+  "function setGasCap(uint256 _gasCap)",
+  "function setRefundAddress(address _updated)"
 ]

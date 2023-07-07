@@ -47,8 +47,8 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
     "MERKLE()": FunctionFragment;
-    "MIRROR_CHAIN_ID()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
+    "MIRROR_WORMHOLE_ID()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
@@ -78,10 +78,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "provenAggregateRoots(bytes32)": FunctionFragment;
     "provenMessageRoots(bytes32)": FunctionFragment;
-    "quoteEVMDeliveryPrice(uint256)": FunctionFragment;
+    "quoteEVMDeliveryPrice(uint256,address)": FunctionFragment;
     "rateLimitBlocks()": FunctionFragment;
     "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": FunctionFragment;
-    "relayerAddress()": FunctionFragment;
+    "refundAddress()": FunctionFragment;
     "removePendingAggregateRoot(bytes32)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -92,6 +92,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "setGasCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
+    "setRefundAddress(address)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
     "verifySender(address)": FunctionFragment;
@@ -104,8 +105,8 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       | "AMB"
       | "DOMAIN"
       | "MERKLE"
-      | "MIRROR_CHAIN_ID"
       | "MIRROR_DOMAIN"
+      | "MIRROR_WORMHOLE_ID"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
       | "ROOT_MANAGER"
@@ -138,7 +139,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       | "quoteEVMDeliveryPrice"
       | "rateLimitBlocks"
       | "receiveWormholeMessages"
-      | "relayerAddress"
+      | "refundAddress"
       | "removePendingAggregateRoot"
       | "removeSender"
       | "renounceOwnership"
@@ -149,6 +150,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
       | "setGasCap"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
+      | "setRefundAddress"
       | "setWatcherManager"
       | "unpause"
       | "verifySender"
@@ -160,11 +162,11 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "MIRROR_CHAIN_ID",
+    functionFragment: "MIRROR_DOMAIN",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
+    functionFragment: "MIRROR_WORMHOLE_ID",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -276,7 +278,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "quoteEVMDeliveryPrice",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "rateLimitBlocks",
@@ -293,7 +295,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "relayerAddress",
+    functionFragment: "refundAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -334,6 +336,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setRefundAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setWatcherManager",
     values: [PromiseOrValue<string>]
   ): string;
@@ -355,11 +361,11 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "MIRROR_CHAIN_ID",
+    functionFragment: "MIRROR_DOMAIN",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
+    functionFragment: "MIRROR_WORMHOLE_ID",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -458,7 +464,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "relayerAddress",
+    functionFragment: "refundAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -490,6 +496,10 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setRateLimitBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRefundAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -527,6 +537,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
+    "RefundAddressUpdated(address,address)": EventFragment;
     "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
@@ -550,6 +561,7 @@ export interface WormholeSpokeConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RefundAddressUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
@@ -741,6 +753,18 @@ export type ProcessEvent = TypedEvent<
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
 
+export interface RefundAddressUpdatedEventObject {
+  previous: string;
+  updated: string;
+}
+export type RefundAddressUpdatedEvent = TypedEvent<
+  [string, string],
+  RefundAddressUpdatedEventObject
+>;
+
+export type RefundAddressUpdatedEventFilter =
+  TypedEventFilter<RefundAddressUpdatedEvent>;
+
 export interface SendRateLimitUpdatedEventObject {
   updater: string;
   newRateLimit: BigNumber;
@@ -818,9 +842,9 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<[string]>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<[number]>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<[number]>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -929,22 +953,23 @@ export interface WormholeSpokeConnector extends BaseContract {
     ): Promise<[boolean]>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { cost: BigNumber }>;
+    ): Promise<[BigNumber] & { _cost: BigNumber }>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<[string]>;
+    refundAddress(overrides?: CallOverrides): Promise<[string]>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -992,6 +1017,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1020,9 +1050,9 @@ export interface WormholeSpokeConnector extends BaseContract {
 
   MERKLE(overrides?: CallOverrides): Promise<string>;
 
-  MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<number>;
-
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+  MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<number>;
 
   PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1131,22 +1161,23 @@ export interface WormholeSpokeConnector extends BaseContract {
   ): Promise<boolean>;
 
   quoteEVMDeliveryPrice(
-    gasLimit: PromiseOrValue<BigNumberish>,
+    _gasLimit: PromiseOrValue<BigNumberish>,
+    _amb: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
   receiveWormholeMessages(
-    payload: PromiseOrValue<BytesLike>,
-    additionalVaas: PromiseOrValue<BytesLike>[],
-    sourceAddress: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<BigNumberish>,
-    deliveryHash: PromiseOrValue<BytesLike>,
+    _payload: PromiseOrValue<BytesLike>,
+    arg1: PromiseOrValue<BytesLike>[],
+    _sourceAddress: PromiseOrValue<BytesLike>,
+    _sourceChain: PromiseOrValue<BigNumberish>,
+    _deliveryHash: PromiseOrValue<BytesLike>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  relayerAddress(overrides?: CallOverrides): Promise<string>;
+  refundAddress(overrides?: CallOverrides): Promise<string>;
 
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1194,6 +1225,11 @@ export interface WormholeSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setRefundAddress(
+    _updated: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setWatcherManager(
     _watcherManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1222,9 +1258,9 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<string>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<number>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<number>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1329,22 +1365,23 @@ export interface WormholeSpokeConnector extends BaseContract {
     ): Promise<boolean>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<string>;
+    refundAddress(overrides?: CallOverrides): Promise<string>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1387,6 +1424,11 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     setRateLimitBlocks(
       _rateLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1543,6 +1585,15 @@ export interface WormholeSpokeConnector extends BaseContract {
     ): ProcessEventFilter;
     Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
 
+    "RefundAddressUpdated(address,address)"(
+      previous?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
+    ): RefundAddressUpdatedEventFilter;
+    RefundAddressUpdated(
+      previous?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
+    ): RefundAddressUpdatedEventFilter;
+
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
       newRateLimit?: null
@@ -1576,9 +1627,9 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1687,22 +1738,23 @@ export interface WormholeSpokeConnector extends BaseContract {
     ): Promise<BigNumber>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<BigNumber>;
+    refundAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1750,6 +1802,11 @@ export interface WormholeSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1779,9 +1836,11 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MIRROR_CHAIN_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MIRROR_WORMHOLE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     PROCESS_GAS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1890,22 +1949,23 @@ export interface WormholeSpokeConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     quoteEVMDeliveryPrice(
-      gasLimit: PromiseOrValue<BigNumberish>,
+      _gasLimit: PromiseOrValue<BigNumberish>,
+      _amb: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     receiveWormholeMessages(
-      payload: PromiseOrValue<BytesLike>,
-      additionalVaas: PromiseOrValue<BytesLike>[],
-      sourceAddress: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<BigNumberish>,
-      deliveryHash: PromiseOrValue<BytesLike>,
+      _payload: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<BytesLike>[],
+      _sourceAddress: PromiseOrValue<BytesLike>,
+      _sourceChain: PromiseOrValue<BigNumberish>,
+      _deliveryHash: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    relayerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    refundAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
@@ -1950,6 +2010,11 @@ export interface WormholeSpokeConnector extends BaseContract {
 
     setRateLimitBlocks(
       _rateLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -97,8 +97,27 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previous",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "updated",
+        type: "address",
+      },
+    ],
+    name: "RefundAddressUpdated",
+    type: "event",
+  },
+  {
     inputs: [],
-    name: "MIRROR_CHAIN_ID",
+    name: "MIRROR_WORMHOLE_ID",
     outputs: [
       {
         internalType: "uint16",
@@ -204,15 +223,20 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "gasLimit",
+        name: "_gasLimit",
         type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_amb",
+        type: "address",
       },
     ],
     name: "quoteEVMDeliveryPrice",
     outputs: [
       {
         internalType: "uint256",
-        name: "cost",
+        name: "_cost",
         type: "uint256",
       },
     ],
@@ -220,41 +244,8 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "payload",
-        type: "bytes",
-      },
-      {
-        internalType: "bytes[]",
-        name: "additionalVaas",
-        type: "bytes[]",
-      },
-      {
-        internalType: "bytes32",
-        name: "sourceAddress",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint16",
-        name: "sourceChain",
-        type: "uint16",
-      },
-      {
-        internalType: "bytes32",
-        name: "deliveryHash",
-        type: "bytes32",
-      },
-    ],
-    name: "receiveWormholeMessages",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "relayerAddress",
+    name: "refundAddress",
     outputs: [
       {
         internalType: "address",
@@ -294,6 +285,19 @@ const _abi = [
       },
     ],
     name: "setGasCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_updated",
+        type: "address",
+      },
+    ],
+    name: "setRefundAddress",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
