@@ -50,7 +50,9 @@ abstract contract BaseWormhole is GasCap {
    * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol
    */
   function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) public view returns (uint256 _cost) {
-    (_cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _gasLimit);
+    // First Get the gas, if it is more than the cap use the cap
+    // And calculcate delievery price with gasCap
+    (_cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _getGas(_gasLimit));
   }
 
   // ============ Private fns ============
@@ -105,8 +107,11 @@ abstract contract BaseWormhole is GasCap {
     // Should always be sending a merkle root
     require(_data.length == 32, "!data length");
 
+    // Should include gas limit info in specialized calldata
+    require(_encodedData.length == 32, "!encoded data length");
+
     //calculate cost to deliver message
-    uint256 gasLimit = _getGasFromEncoded(_encodedData);
+    uint256 gasLimit = abi.decode(_encodedData, (uint256));
     uint256 deliveryCost = quoteEVMDeliveryPrice(gasLimit, _amb);
     require(deliveryCost == msg.value, "!msg.value");
 
@@ -128,16 +133,5 @@ abstract contract BaseWormhole is GasCap {
   function _fromWormholeFormat(bytes32 _whFormatAddress) internal pure returns (address) {
     require(uint256(_whFormatAddress) >> 160 == 0, "!evm address");
     return address(uint160(uint256(_whFormatAddress)));
-  }
-
-  /**
-   * @notice Using Wormhole relayer (AMB), the gas is provided to `sendMessage` as an encoded uint
-   */
-  function _getGasFromEncoded(bytes memory _encodedData) internal view returns (uint256 _gas) {
-    // Should include gssas info in specialized calldata
-    require(_encodedData.length == 32, "!encoded data length");
-
-    // Get the gas, if it is more than the cap use the cap
-    _gas = _getGas(abi.decode(_encodedData, (uint256)));
   }
 }
