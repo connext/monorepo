@@ -821,6 +821,8 @@ export const SdkGetTransfersParamsSchema = Type.Optional(
     errorStatus: Type.Optional(XTransferErrorStatus),
     transferId: Type.Optional(Type.String()),
     transactionHash: Type.Optional(Type.String()),
+    executeTransactionHash: Type.Optional(Type.String()),
+    reconcileTransactionHash: Type.Optional(Type.String()),
     xcallCaller: Type.Optional(Type.String()),
     range: Type.Optional(TRange),
   }),
