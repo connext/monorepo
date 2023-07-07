@@ -135,43 +135,43 @@ locals {
         {
           name       = "http"
           limit      = 100
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1734439522"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1668247156"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "2053862260"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
       ]
@@ -337,7 +337,7 @@ locals {
         persistent     = true
         durable        = true
       }
-      prefetchSize = 2
+      prefetchSize = 1
     }
   })
 

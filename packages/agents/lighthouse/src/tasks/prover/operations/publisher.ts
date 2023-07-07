@@ -24,7 +24,7 @@ import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../conf
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
-const DEFAULT_REPLICA_SYNC_TIME = 300; // 5 min
+const DEFAULT_PUBLISHER_WAIT_TIME = 300; // 5 min
 /**
  * Pre fetches the unprocessed messages from the database and store them into the `messages` cache
  */
@@ -83,7 +83,7 @@ export const getUnProcessedMessagesByIndex = async (
     adapters: { cache },
   } = getContext();
   const pendingMessages: XMessage[] = [];
-  const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_REPLICA_SYNC_TIME;
+  const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
   let offset = 0;
   const limit = 1000;
   let end = false;
@@ -94,7 +94,7 @@ export const getUnProcessedMessagesByIndex = async (
       if (
         message &&
         getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
-        message.data.origin.index < endIndex &&
+        message.data.origin.index <= endIndex &&
         message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
@@ -374,4 +374,45 @@ export const createBrokerMessage = async (
     aggregateRoot: targetAggregateRoot,
     aggregateRootCount,
   };
+};
+
+/**
+ * Acquire lock.
+ * Mutex to prevent multiple instances of the prover from running at the same time.
+ */
+export const acquireLock = async () => {
+  const { requestContext, methodContext } = createLoggingContext(acquireLock.name);
+  const {
+    logger,
+    adapters: { cache },
+    config,
+  } = getContext();
+  // Check if the lock is already acquired.
+  const lock = await cache.messages.getCurrentLock();
+  if (lock) {
+    logger.info("Lock already acquired", requestContext, methodContext, lock);
+    const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
+    if (getNtpTimeSeconds() - lock.timestamp <= waitTime) {
+      return false;
+    }
+  }
+  logger.info("Overriding current lock", requestContext, methodContext, lock);
+  await cache.messages.acquireLock(requestContext.id);
+  logger.info("Lock acquired", requestContext, methodContext);
+  return true;
+};
+
+/**
+ * Release lock.
+ * Mutex to prevent multiple instances of the prover from running at the same time.
+ */
+export const releaseLock = async () => {
+  const { requestContext, methodContext } = createLoggingContext(releaseLock.name);
+  const {
+    logger,
+    adapters: { cache },
+  } = getContext();
+  // Check if the lock is already acquired.
+  await cache.messages.releaseLock();
+  logger.info("Cache lock released", requestContext, methodContext);
 };
