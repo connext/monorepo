@@ -10,7 +10,7 @@ import { NxtpLighthouseConfig } from "../../config";
 import { ProverContext } from "./context";
 import { enqueue, consume } from "./operations";
 import { bindHealthServer } from "./bindings";
-import { prefetch } from "./operations/publisher";
+import { acquireLock, prefetch, releaseLock } from "./operations/publisher";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -18,11 +18,14 @@ export const getContext = () => context;
 export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
   try {
     await makeProver(config, chainData);
+    if (!(await acquireLock())) throw new Error("Could not acquire lock");
     await prefetch();
     await enqueue();
     if (context.config.healthUrls.prover) {
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);
     }
+    // Release lock only on success. On failure, override after timeout.
+    await releaseLock();
   } catch (e: unknown) {
     console.error("Error starting Prover-Publisher. Sad! :(", e);
   } finally {

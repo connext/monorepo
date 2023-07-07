@@ -151,43 +151,43 @@ locals {
         {
           name       = "http"
           limit      = 100
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6648936"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1869640809"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1886350457"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1634886255"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6450786"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6778479"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
       ]
@@ -229,6 +229,7 @@ locals {
         },
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -310,6 +311,9 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
     relayers = [
@@ -338,6 +342,19 @@ locals {
       "1634886255" = 10,
       "6450786"    = 10,
       "6778479"    = 10
+    }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+      prefetchSize = 1
     }
   })
 

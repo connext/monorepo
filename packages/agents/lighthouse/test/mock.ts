@@ -69,6 +69,9 @@ export const mockCache = () => {
       putRoot: stub().resolves(),
       delRoot: stub().resolves(),
       clearDomain: stub().resolves(),
+      getCurrentLock: stub().resolves(),
+      acquireLock: stub().resolves(),
+      releaseLock: stub().resolves(),
     },
   };
 };

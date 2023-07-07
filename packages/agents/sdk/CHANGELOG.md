@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.0-alpha.2
+
+- Add filtering by domain to getTransfers
+
 ## Amarok 2.0.2
 
 - `estimateRelayerFee`: Handle div by zero and decimals
