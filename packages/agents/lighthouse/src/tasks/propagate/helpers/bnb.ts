@@ -1,4 +1,4 @@
-import { ContractInterface } from "ethers";
+import { ContractInterface, utils } from "ethers";
 import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
 
 import { NoHubConnector, NoProviderForDomain, NoSpokeConnector } from "../errors";
@@ -51,8 +51,12 @@ export const getPropagateParams = async (
   );
   const ambAddress = await l1HubConnectorContract.AMB();
 
-  const ambContract = getContract(ambAddress as string, ambs.bnb as ContractInterface, l1Provider);
-  const fee = await ambContract.calcSrcFees("", l2ChainId, 32);
+  // gasLimit on spoke side = 200_000
+  // actually it required about 60_000 gas on bnb chain to call `receiveWormholeMessages`
+  // remain gas will be refunded on bnb chain to refund address (default: deployer address)
+  const gasLimit = "200000";
+  const fee = await l1HubConnectorContract.quoteEVMDeliveryPrice(gasLimit, ambAddress);
+  const encodedData = utils.defaultAbiCoder.encode(["uint256"], [gasLimit]);
 
-  return { _connector: "", _fee: fee, _encodedData: "0x" };
+  return { _connector: "", _fee: fee, _encodedData: encodedData };
 };
