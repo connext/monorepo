@@ -15,7 +15,7 @@ export const getPropagateParams = async (
   const {
     config,
     logger,
-    adapters: { deployments, ambs },
+    adapters: { deployments },
   } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
   logger.info("Getting propagate params for BNB", requestContext, methodContext, { l2domain });
