@@ -590,9 +590,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         continue;
       }
 
-      // Set the last propagated root optimistically
-      lastPropagatedRoot[domains[i]] = _aggregateRoot;
-
       // Try to send the message with appropriate encoded data and fees
       // Continue on revert, but emit an event
       try
@@ -604,9 +601,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         refund -= _fees[i];
         // mark that the message was sent
         sent = true;
+        // Set the last propagated root
+        lastPropagatedRoot[domains[i]] = _aggregateRoot;
       } catch {
-        // unset updated domain on failure
-        lastPropagatedRoot[domains[i]] = previous;
         emit PropagateFailed(domains[i], _connectors[i]);
       }
 

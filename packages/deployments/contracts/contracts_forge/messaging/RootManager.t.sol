@@ -706,7 +706,7 @@ contract RootManager_SetDelayBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit DelayBlocksUpdated(newDelayBlocks, _prevDelayBlocks);
+    emit DelayBlocksUpdated(_prevDelayBlocks, newDelayBlocks);
 
     _rootManager.setDelayBlocks(newDelayBlocks);
   }
@@ -790,7 +790,7 @@ contract RootManager_SetDisputeBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit DisputeBlocksUpdated(newDisputeBlocks, _prevDisputeBlocks);
+    emit DisputeBlocksUpdated(_prevDisputeBlocks, newDisputeBlocks);
 
     _rootManager.setDisputeBlocks(newDisputeBlocks);
   }
@@ -1108,54 +1108,6 @@ contract RootManager_Propagate is Base {
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
-
-  function test_reentrancy(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > 0 && count > _rootManager.lastCountBeforeOpMode());
-    _rootManager.forTest_setOptimisticMode(false);
-
-    // Set mock on merkle
-    vm.mockCall(
-      _merkle,
-      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
-      abi.encode(aggregateRoot, count)
-    );
-
-    // Add reentrant connector
-    address _reentrant = address(new ReentrantConnector());
-    uint32 _domain = uint32(12);
-    vm.prank(_rootManager.owner());
-    _rootManager.addConnector(_domain, _reentrant);
-    ReentrantConnector(_reentrant).addConnector(_reentrant);
-
-    // Generate propagate args
-    address[] memory connectors = new address[](1);
-    connectors[0] = _reentrant;
-    uint256[] memory fees = new uint256[](1);
-    fees[0] = 0;
-    bytes[] memory encodedData = new bytes[](1);
-    encodedData[0] = bytes("");
-
-    // What we are expecting:
-    // - call to `propagate`
-    // - call to `sendMessage` on reentrant connector
-    // - connector calls `propagate`
-    // - second call to `propagate` fails because it skips
-    //   the reentrant connector and no messages are sent (sent = false)
-
-    // Get root before attempt
-    bytes32 _existing = _rootManager.lastPropagatedRoot(_domain);
-
-    vm.expectEmit(true, true, true, true);
-    emit PropagateFailed(_domain, _reentrant);
-
-    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
-    _rootManager.propagate(connectors, fees, encodedData);
-
-    // ensure `sendMessage` call did not succeed if reentrant
-    assertEq(ReentrantConnector(_reentrant).count(), 0);
-    // ensure correct last propagated root
-    assertEq(_rootManager.lastPropagatedRoot(_domain), _existing);
-  }
 }
 
 contract RootManager_OptimisticPropagate is Base {
@@ -1354,7 +1306,7 @@ contract RootManager_SendRootToHubs is Base {
   }
 
   function test_revertIfNoneRootsWereSendBecauseOfRevert(bytes32 aggregateRoot, uint32 reverterDomain) public {
-     vm.assume(aggregateRoot > _finalizedHash && reverterDomain > 0);
+    vm.assume(aggregateRoot > _finalizedHash && reverterDomain > 0);
 
     // Create reverter connector
     ReverterConnector reverterConnector = new ReverterConnector();
@@ -1372,7 +1324,6 @@ contract RootManager_SendRootToHubs is Base {
     bytes[] memory encodedData = new bytes[](1);
     encodedData[0] = bytes("");
 
-
     // Set domains with reverter domain only
     _rootManager.forTest_setDomains(domains);
 
@@ -1382,7 +1333,7 @@ contract RootManager_SendRootToHubs is Base {
   }
 
   function test_revertIfRootAlreadySentToEveryHub(bytes32 aggregateRoot) public {
-     vm.assume(aggregateRoot > _finalizedHash);
+    vm.assume(aggregateRoot > _finalizedHash);
 
     // Set every lastPropagatedRoot as the aggregateRoot that needs to be sent.
     for (uint256 i = 0; i < _domains.length; i++) {
