@@ -28,13 +28,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "_mirrorGas",
+        "name": "_gasCap",
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "_mirrorChainId",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "_mirrorWormholeChainId",
+        "type": "uint16"
       }
     ],
     "stateMutability": "nonpayable",
@@ -42,7 +42,7 @@
   },
   {
     "inputs": [],
-    "name": "ProposedOwnable__acceptProposedOwner_delayNotElapsed",
+    "name": "Connector__processMessage_notUsed",
     "type": "error"
   },
   {
@@ -57,17 +57,17 @@
   },
   {
     "inputs": [],
+    "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ProposedOwnable__renounceOwnership_delayNotElapsed",
     "type": "error"
   },
   {
@@ -79,6 +79,25 @@
     "inputs": [],
     "name": "ProposedOwnable__renounceOwnership_noProposal",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_previous",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_updated",
+        "type": "uint256"
+      }
+    ],
+    "name": "GasCapUpdated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -110,6 +129,12 @@
       },
       {
         "indexed": false,
+        "internalType": "bytes",
+        "name": "encodedData",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "caller",
         "type": "address"
@@ -135,25 +160,6 @@
       }
     ],
     "name": "MirrorConnectorUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "previous",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "current",
-        "type": "uint256"
-      }
-    ],
-    "name": "MirrorGasUpdated",
     "type": "event"
   },
   {
@@ -226,6 +232,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previous",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "updated",
+        "type": "address"
+      }
+    ],
+    "name": "RefundAddressUpdated",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "AMB",
     "outputs": [
@@ -266,6 +291,19 @@
   },
   {
     "inputs": [],
+    "name": "MIRROR_WORMHOLE_ID",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "ROOT_MANAGER",
     "outputs": [
       {
@@ -281,30 +319,6 @@
     "inputs": [],
     "name": "acceptProposedOwner",
     "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
-      }
-    ],
-    "name": "anyExecute",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      },
-      {
-        "internalType": "bytes",
-        "name": "result",
-        "type": "bytes"
-      }
-    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -336,19 +350,6 @@
   },
   {
     "inputs": [],
-    "name": "mirrorGas",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "owner",
     "outputs": [
       {
@@ -371,6 +372,25 @@
     "name": "processMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "processedWhMessages",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -413,6 +433,76 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_gasLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_amb",
+        "type": "address"
+      }
+    ],
+    "name": "quoteEVMDeliveryPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_cost",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_payload",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_sourceAddress",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_sourceChain",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_deliveryHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "receiveWormholeMessages",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "refundAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
@@ -438,9 +528,27 @@
         "internalType": "bytes",
         "name": "_data",
         "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
       }
     ],
     "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_gasCap",
+        "type": "uint256"
+      }
+    ],
+    "name": "setGasCap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -461,12 +569,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_mirrorGas",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_updated",
+        "type": "address"
       }
     ],
-    "name": "setMirrorGas",
+    "name": "setRefundAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -489,5 +597,9 @@
     ],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
