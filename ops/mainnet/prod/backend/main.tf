@@ -167,7 +167,7 @@ module "sdk-server" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.sdk_server_env_vars
   domain                   = var.domain
 }

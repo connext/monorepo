@@ -2,7 +2,7 @@
 
 ## Next Release
 
-## v2.1.0-alpha.2
+## v2.1.1-alpha.0
 
 - Add filtering by domain to getTransfers
 
