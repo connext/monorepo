@@ -61,6 +61,9 @@ jobs:
           node-version: "18"
           cache: "yarn"
 
+      - name: Check Yarn version
+        run: yarn --version
+
       - name: Validate using commitlint
         if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
         uses: wagoid/commitlint-github-action@v5
@@ -104,7 +107,8 @@ jobs:
             "packages/adapters/txservice:@connext/nxtp-txservice"
             "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
             "packages/adapters/cache:@connext/nxtp-adapters-cache"
-            "packages/agents/sdk:@connext/sdk"
+            "packages/agents/sdk:@connext/sdk-core"
+            "packages/agents/sdk-wrapper:@connext/sdk"
           )
 
           for entry in "${workspaces[@]}"; do
@@ -1115,6 +1119,7 @@ jobs:
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.e2e-tests.outputs.watcher-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
@@ -1241,7 +1246,7 @@ jobs:
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
-      lighthouse-prover-subscriber-tags: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
+      lighthouse-prover-subscriber-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
       sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}

@@ -7,25 +7,28 @@ import {
   SdkEstimateRelayerFeeParamsSchema,
   SdkEstimateRelayerFeeParams,
   SdkBumpTransferParamsSchema,
-  SdkUpdateSlippageSchema,
+  SdkUpdateSlippageParamsSchema,
+  SdkUpdateSlippageParams,
   SdkCalculateAmountReceivedParamsSchema,
-} from "@connext/sdk";
+} from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { RoutesOptions } from "../server";
 
-import { approveIfNeededSchema, getCanonicalTokenIdSchema, calculateCanonicalKeySchema } from "../types/api";
-
-interface BaseRoutesOptions {
+interface BaseRoutesOptions extends RoutesOptions {
   sdkBaseInstance: SdkBase;
-  cacheConfig?: {
-    enabled?: boolean;
-    expirationTime?: number;
-  };
 }
 
 export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOptions): Promise<void> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
-  const { sdkBaseInstance, cacheConfig } = options;
+  const { sdkBaseInstance, logger, cacheConfig } = options;
+  const { requestContext, methodContext } = createLoggingContext(baseRoutes.name);
 
   const CACHE_EXPIRATION_SECS = cacheConfig?.expirationTime || 300;
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.post<{ Body: SdkXCallParams }>(
     "/xcall",
@@ -77,7 +80,7 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
         const cachedFee = await server.redis.get(cacheKey);
 
         if (cachedFee) {
-          reply.status(200).send({ fee: JSON.parse(cachedFee) });
+          reply.status(200).send(JSON.parse(cachedFee));
         } else {
           const txReq = await handleEstimateRelayerFee();
           await server.redis.set(cacheKey, JSON.stringify(txReq), "EX", CACHE_EXPIRATION_SECS);
@@ -87,20 +90,6 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
         const txReq = await handleEstimateRelayerFee();
         reply.status(200).send(txReq);
       }
-    },
-  );
-
-  s.post(
-    "/approveIfNeeded",
-    {
-      schema: {
-        body: approveIfNeededSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, assetId, amount, infiniteApprove } = request.body;
-      const txReq = await sdkBaseInstance.approveIfNeeded(domainId, assetId, amount, infiniteApprove);
-      reply.status(200).send(txReq);
     },
   );
 
@@ -117,44 +106,16 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
     },
   );
 
-  s.post(
+  s.post<{ Body: SdkUpdateSlippageParams }>(
     "/updateSlippage",
     {
       schema: {
-        body: SdkUpdateSlippageSchema,
+        body: SdkUpdateSlippageParamsSchema,
       },
     },
     async (request, reply) => {
       const txReq = await sdkBaseInstance.updateSlippage(request.body);
       reply.status(200).send(txReq);
-    },
-  );
-
-  s.get(
-    "/getCanonicalTokenId/:domainId/:tokenAddress",
-    {
-      schema: {
-        params: getCanonicalTokenIdSchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenAddress } = request.params;
-      const res = await sdkBaseInstance.getCanonicalTokenId(domainId, tokenAddress);
-      reply.status(200).send(res);
-    },
-  );
-
-  s.get(
-    "/calculateCanonicalKey/:domainId/:tokenId",
-    {
-      schema: {
-        params: calculateCanonicalKeySchema,
-      },
-    },
-    async (request, reply) => {
-      const { domainId, tokenId } = request.params;
-      const res = sdkBaseInstance.calculateCanonicalKey(domainId, tokenId);
-      reply.status(200).send(res);
     },
   );
 
@@ -166,21 +127,17 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
       },
     },
     async (request, reply) => {
-      try {
-        const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
-          request.body;
-        const res = await sdkBaseInstance.calculateAmountReceived(
-          originDomain,
-          destinationDomain,
-          originTokenAddress,
-          amount,
-          receiveLocal,
-          checkFastLiquidity,
-        );
-        reply.status(200).send(res);
-      } catch (e: unknown) {
-        console.log(e);
-      }
+      const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
+        request.body;
+      const res = await sdkBaseInstance.calculateAmountReceived(
+        originDomain,
+        destinationDomain,
+        originTokenAddress,
+        amount,
+        receiveLocal,
+        checkFastLiquidity,
+      );
+      reply.status(200).send(res);
     },
   );
 };

@@ -12,6 +12,7 @@ const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
+export const DEFAULT_PROVER_PUB_MAX = 5000;
 
 dotenvConfig();
 
@@ -48,6 +49,7 @@ export const TMQConfig = Type.Object({
   subscriber: Type.Optional(Type.String()),
   queueLimit: Type.Optional(Type.Number()),
   prefetchSize: Type.Optional(Type.Number()),
+  publisherWaitTime: Type.Optional(Type.Number()),
 });
 
 export const TRedisConfig = Type.Object({
@@ -80,6 +82,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  databaseWriter: TDatabaseConfig,
   redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
@@ -92,6 +95,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
+  proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
     Type.Literal("prover-pub"),
     Type.Literal("prover-sub"),
@@ -183,6 +187,9 @@ export const getEnvConfig = (
     database: {
       url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
     },
+    databaseWriter: {
+      url: process.env.DATABASE_WRITER_URL || configJson.databaseWriter?.url || configFile.databaseWriter?.url,
+    },
     redis: {
       host: process.env.REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "127.0.0.1",
       port: process.env.REDIS_PORT
@@ -200,6 +207,9 @@ export const getEnvConfig = (
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
+    proverPubMax: process.env.PROVER_PUB_MAX
+      ? +process.env.PROVER_PUB_MAX
+      : undefined || configJson.proverPubMax || configFile.proverPubMax || DEFAULT_PROVER_PUB_MAX,
     messageQueue: process.env.MESSAGE_QUEUE
       ? JSON.parse(process.env.MESSAGE_QUEUE)
       : configJson.messageQueue ?? configFile.messageQueue,

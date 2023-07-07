@@ -172,3 +172,7 @@ export function getTokenDecimals(tokenAddress: Address): BigInt {
 
   return BigInt.fromI32(result.value);
 }
+
+export function generateTxNonce(event: ethereum.Event): BigInt {
+  return event.block.timestamp.times(BigInt.fromI32(10000)).plus(event.logIndex);
+}

@@ -7,6 +7,8 @@ import {
   ReceivedAggregateRoot,
   createRequestContext,
   RequestContext,
+  getNtpTimeSeconds,
+  ExecStatus,
 } from "@connext/nxtp-utils";
 
 import {
@@ -18,9 +20,92 @@ import {
   NoReceivedAggregateRoot,
 } from "../../../errors";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
+import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
+
+const DEFAULT_PUBLISHER_WAIT_TIME = 300; // 5 min
+/**
+ * Pre fetches the unprocessed messages from the database and store them into the `messages` cache
+ */
+export const prefetch = async () => {
+  const { requestContext, methodContext } = createLoggingContext(prefetch.name);
+  const {
+    logger,
+    adapters: { database, cache },
+    config,
+  } = getContext();
+
+  // Only process configured chains.
+  const domains: string[] = Object.keys(config.chains);
+  for (const originDomain of domains) {
+    const cachedNonce = await cache.messages.getNonce(originDomain);
+    logger.info("Getting unprocessed messages from database", requestContext, methodContext, {
+      originDomain,
+      startIndex: cachedNonce + 1,
+    });
+
+    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, cachedNonce + 1);
+    const indexes = unprocessed.map((item: XMessage) => item.origin.index);
+    if (indexes.length > 0) {
+      logger.info(
+        "Stored unprocessed messages in the cache",
+        requestContext,
+        methodContext,
+
+        {
+          originDomain,
+          startIndex: cachedNonce + 1,
+          min: Math.min(...indexes),
+          max: Math.max(...indexes),
+        },
+      );
+
+      await cache.messages.storeMessages(unprocessed);
+      await cache.messages.setNonce(originDomain, Math.max(...indexes));
+    }
+  }
+};
+
+/**
+ * Gets unprocessed messages from the cache for a given domain pair.
+ * @param originDomain - The origin domain.
+ * @param destinationDomain - The destination domain.
+ * @param endIndex - The upper bound
+ */
+export const getUnProcessedMessagesByIndex = async (
+  originDomain: string,
+  destinationDomain: string,
+  endIndex: number,
+): Promise<XMessage[]> => {
+  const {
+    config,
+    adapters: { cache },
+  } = getContext();
+  const pendingMessages: XMessage[] = [];
+  const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
+  let offset = 0;
+  const limit = 1000;
+  let end = false;
+  while (!end) {
+    const leaves = await cache.messages.getPending(originDomain, destinationDomain, offset, limit);
+    for (const leaf of leaves) {
+      const message = await cache.messages.getMessage(leaf);
+      if (
+        message &&
+        getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
+        message.data.origin.index <= endIndex &&
+        message.status == ExecStatus.None
+      ) {
+        pendingMessages.push(message.data);
+      }
+    }
+    if (leaves.length == limit) offset += limit;
+    else end = true;
+  }
+
+  return pendingMessages;
+};
 
 export const enqueue = async () => {
   const { requestContext, methodContext } = createLoggingContext(enqueue.name);
@@ -41,6 +126,11 @@ export const enqueue = async () => {
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
+
+  // Set a max limit on the number of messages published to the queue in this iteration.
+  const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
+  // Track the number of messages published to the queue in this iteration.
+  let publishedCount = 0;
 
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
@@ -91,42 +181,27 @@ export const enqueue = async () => {
                 }
 
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const pendingMessages = await getUnProcessedMessagesByIndex(
+                  originDomain,
+                  destinationDomain,
+                  latestMessageRoot.count,
+                );
 
                 // Paginate through all unprocessed messages from the domain
                 let offset = 0;
                 let end = false;
                 while (!end) {
-                  logger.info(
-                    "Getting unprocessed messages for origin and destination pair",
-                    requestContext,
-                    methodContext,
-
-                    {
-                      batchSize,
-                      offset,
-                      originDomain,
-                      destinationDomain,
-                      index: latestMessageRoot.count,
-                    },
-                  );
-                  const cachedNonce = await cache.messages.getNonce(originDomain, destinationDomain);
-                  const index = latestMessageRoot.count > cachedNonce ? latestMessageRoot.count : cachedNonce;
-                  const unprocessed: XMessage[] = await database.getUnProcessedMessagesByIndex(
-                    originDomain,
-                    destinationDomain,
-                    index,
-                    offset,
-                    batchSize,
-                  );
+                  const unprocessed = pendingMessages.slice(offset, offset + batchSize);
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
                     `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
                   );
                   if (unprocessed.length > 0) {
                     logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                      unprocessed,
+                      unprocessed: unprocessed.map((message) => message.leaf),
                       originDomain,
                       destinationDomain,
+                      endIndex: latestMessageRoot.count,
                       offset,
                     });
 
@@ -142,6 +217,11 @@ export const enqueue = async () => {
                       subContext,
                     );
                     if (brokerMessage) {
+                      const statuses = brokerMessage.messages.map((it) => ({
+                        leaf: it.leaf,
+                        status: ExecStatus.Enqueued,
+                      }));
+                      await cache.messages.setStatus(statuses);
                       channel.publish(
                         config.messageQueue.exchange.name,
                         PROVER_QUEUE,
@@ -155,16 +235,30 @@ export const enqueue = async () => {
                         {
                           originDomain,
                           destinationDomain,
+                          endIndex: latestMessageRoot.count,
                           offset,
                           brokerMessage,
                         },
                       );
-
-                      const indexes = unprocessed.map((item: XMessage) => item.origin.index);
-                      await cache.messages.setNonce(originDomain, destinationDomain, Math.max(...indexes));
                     }
 
                     offset += unprocessed.length;
+                    publishedCount += unprocessed.length;
+                    if (publishedCount >= proverPubMax) {
+                      end = true;
+                      logger.info(
+                        "Reached max limit on published messages for this iteration",
+                        subContext,
+                        methodContext,
+                        {
+                          originDomain,
+                          destinationDomain,
+                          offset,
+                          publishedCount,
+                          maxLimit: proverPubMax,
+                        },
+                      );
+                    }
                   } else {
                     // End the loop if no more messages are found
                     end = true;
@@ -184,10 +278,11 @@ export const enqueue = async () => {
                 }
               } catch (err: unknown) {
                 logger.error(
-                  "Error processing messages",
+                  "Error processing messages on origin",
                   requestContext,
                   methodContext,
                   jsonifyError(err as NxtpError),
+                  { originDomain, destinationDomain },
                 );
               }
             }),
@@ -214,7 +309,7 @@ export const createBrokerMessage = async (
 ): Promise<BrokerMessage | undefined> => {
   const {
     logger,
-    adapters: { contracts, chainreader, database },
+    adapters: { contracts, chainreader, databaseWriter },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
@@ -258,7 +353,7 @@ export const createBrokerMessage = async (
 
   if (processedMessages.length > 0) {
     logger.info("Saving the processed messages", requestContext, methodContext, { count: processedMessages.length });
-    await database.saveMessages(processedMessages);
+    await databaseWriter.database.saveMessages(processedMessages, databaseWriter.pool);
   }
 
   if (messages.length === 0) {
@@ -279,4 +374,45 @@ export const createBrokerMessage = async (
     aggregateRoot: targetAggregateRoot,
     aggregateRootCount,
   };
+};
+
+/**
+ * Acquire lock.
+ * Mutex to prevent multiple instances of the prover from running at the same time.
+ */
+export const acquireLock = async () => {
+  const { requestContext, methodContext } = createLoggingContext(acquireLock.name);
+  const {
+    logger,
+    adapters: { cache },
+    config,
+  } = getContext();
+  // Check if the lock is already acquired.
+  const lock = await cache.messages.getCurrentLock();
+  if (lock) {
+    logger.info("Lock already acquired", requestContext, methodContext, lock);
+    const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
+    if (getNtpTimeSeconds() - lock.timestamp <= waitTime) {
+      return false;
+    }
+  }
+  logger.info("Overriding current lock", requestContext, methodContext, lock);
+  await cache.messages.acquireLock(requestContext.id);
+  logger.info("Lock acquired", requestContext, methodContext);
+  return true;
+};
+
+/**
+ * Release lock.
+ * Mutex to prevent multiple instances of the prover from running at the same time.
+ */
+export const releaseLock = async () => {
+  const { requestContext, methodContext } = createLoggingContext(releaseLock.name);
+  const {
+    logger,
+    adapters: { cache },
+  } = getContext();
+  // Check if the lock is already acquired.
+  await cache.messages.releaseLock();
+  logger.info("Cache lock released", requestContext, methodContext);
 };

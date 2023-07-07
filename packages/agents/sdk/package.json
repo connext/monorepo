@@ -1,7 +1,7 @@
 {
-  "name": "@connext/sdk",
-  "version": "2.0.4-alpha.2",
-  "description": "Client-side package for interacting with the NXTP protocol for crosschain packages",
+  "name": "@connext/sdk-core",
+  "version": "2.1.1-alpha.0",
+  "description": "Client-side package for interacting with the Connext protocol",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
@@ -41,12 +41,12 @@
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.21",
     "ethers": "5.7.2",
-    "isomorphic-fetch": "^3.0.0",
+    "isomorphic-fetch": "3.0.0",
     "memoizee": "0.4.15",
     "typedoc": "0.23.25"
   },
   "devDependencies": {
-    "@types/isomorphic-fetch": "^0.0.36",
+    "@types/isomorphic-fetch": "0.0.36",
     "@types/memoizee": "0.4.8",
     "concat-md": "0.5.0",
     "eslint": "8.34.0",

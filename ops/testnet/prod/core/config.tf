@@ -135,43 +135,43 @@ locals {
         {
           name       = "http"
           limit      = 100
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1734439522"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1668247156"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "2053862260"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
       ]
@@ -213,6 +213,7 @@ locals {
         }
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -272,16 +273,16 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_for_lh}"]
       }
       "1735353714" = {
         providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers = ["https://polygon-testnet.blastapi.io/${var.blast_key}", "https://endpoints.omniatech.io/v1/matic/mumbai/public"]
+        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
       }
       "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
+        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
@@ -293,6 +294,9 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
     relayers = [
@@ -315,7 +319,12 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10
+      "1668247156" = 10,
+      "9991"       = 10,
+      "1735353714" = 10,
+      "2053862260" = 10,
+      "1734439522" = 10,
+      "1735356532" = 10
     }
     messageQueue = {
       connection = {
@@ -328,6 +337,7 @@ locals {
         persistent     = true
         durable        = true
       }
+      prefetchSize = 1
     }
   })
 

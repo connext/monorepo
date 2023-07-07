@@ -12,7 +12,7 @@ import {
   XTransferStatus,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { SdkBase, SdkUtils } from "@connext/sdk";
+import { SdkBase, SdkUtils } from "@connext/sdk-core";
 import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
 /**

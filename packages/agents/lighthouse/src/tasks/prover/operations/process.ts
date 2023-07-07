@@ -6,27 +6,31 @@ import {
   GELATO_RELAYER_ADDRESS,
   RequestContext,
   XMessage,
+  ExecStatus,
 } from "@connext/nxtp-utils";
 
-import { NoDestinationDomainForProof, NoMessageRootProof, NoMessageProof } from "../../../errors";
+import {
+  NoDestinationDomainForProof,
+  NoMessageRootProof,
+  NoMessageProof,
+  MessageRootVerificationFailed,
+} from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 import { BrokerMessage, ProofStruct } from "./types";
 
-const cachedSpokeSMT: Record<string, SparseMerkleTree> = {};
-const cachedHubSMT: Record<string, SparseMerkleTree> = {};
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader, database },
+    adapters: { contracts, relayers, chainreader, database, databaseWriter, cache },
     config,
     chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(processMessages.name, _requestContext);
   const {
-    messages: _messages,
+    messages,
     originDomain,
     destinationDomain,
     messageRoot,
@@ -36,37 +40,54 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
   } = brokerMessage;
 
-  let spokeSMT: SparseMerkleTree;
-  const spokeKey = `${originDomain}-${messageRootCount + 1}`;
-  if (cachedSpokeSMT[spokeKey]) {
-    spokeSMT = cachedSpokeSMT[spokeKey];
-  } else {
-    const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
-    spokeSMT = new SparseMerkleTree(spokeStore);
-    cachedSpokeSMT[spokeKey] = spokeSMT;
+  // Dedup the batch
+  messages.splice(
+    0,
+    messages.length,
+    ...messages.filter((_m, idx) => idx === messages.findIndex((__m) => __m.leaf === _m.leaf)),
+  );
+
+  // Mark messages as attempted
+  for (const message of messages) {
+    await cache.messages.increaseAttempt(message.leaf);
   }
 
-  let hubSMT: SparseMerkleTree;
-  const hubKey = `hub-${aggregateRootCount}`;
-  if (cachedHubSMT[hubKey]) {
-    hubSMT = cachedHubSMT[hubKey];
-  } else {
-    const hubStore = new HubDBHelper("hub", aggregateRootCount, database);
-    hubSMT = new SparseMerkleTree(hubStore);
-    cachedHubSMT[hubKey] = hubSMT;
-  }
+  const provenMessages: XMessage[] = [];
+
+  const spokeStore = new SpokeDBHelper(
+    originDomain,
+    messageRootCount + 1,
+    {
+      reader: database,
+      writer: databaseWriter,
+    },
+    cache.messages,
+  );
+  const spokeSMT = new SparseMerkleTree(spokeStore);
+
+  const hubStore = new HubDBHelper(
+    "hub",
+    aggregateRootCount,
+    {
+      reader: database,
+      writer: databaseWriter,
+    },
+    cache.messages,
+  );
+  const hubSMT = new SparseMerkleTree(hubStore);
 
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
 
-  // In worst case, the message status couldn't get reflected to the database properly.
-  // To avoid the failure in case we do proveAndProcess in batch, that wouldn't make sense that the unprocessed messages fail due to any processed messages but not reflected to the db.
-  // Ideally, we shouldn't pick the processed messages here but if we rely on database, we can have that case sometimes.
-  // The quick way to verify them is to add a sanitation check against the spoke connector.
-  const messages: XMessage[] = [];
-  for (const message of _messages) {
+  // process messages
+  const messageProofs: ProofStruct[] = [];
+  let failCount = 0;
+  for (const message of messages) {
+    // If message has been removed. Skip processing it.
+    if (!cache.messages.getMessage(message.leaf)) continue;
+
     const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
@@ -76,7 +97,12 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       });
 
       const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
-      if (messageStatus == 0) messages.push(message);
+      if (messageStatus == 0) {
+        logger.debug("Message still unprocessed onchain", requestContext, methodContext, message.leaf);
+      } else if (messageStatus == 2) {
+        await cache.messages.removePending(originDomain, destinationDomain, [message.leaf]);
+        continue;
+      }
     } catch (err: unknown) {
       logger.debug(
         "Failed to read the message status from onchain",
@@ -85,11 +111,6 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         jsonifyError(err as NxtpError),
       );
     }
-  }
-
-  // process messages
-  const messageProofs: ProofStruct[] = [];
-  for (const message of messages) {
     const messageProof: ProofStruct = {
       message: message.origin.message,
       path: await spokeSMT.getProof(message.origin.index),
@@ -108,19 +129,44 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         messageVerification,
       });
     } else {
-      logger.info("Message verification failed", requestContext, methodContext, {
-        messageIndex: message.origin.index,
-        leaf: message.leaf,
-        messageRoot,
-        messageVerification,
-      });
-      // Do not process message if proof verification fails.
-      continue;
+      // Delete local application caches
+      spokeStore.clearLocalCache();
+
+      // Try again
+      const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
+      if (messageVerification && messageVerification.verified) {
+        logger.info("Message Verified successfully after clearLocalCache", requestContext, methodContext, {
+          messageIndex: message.origin.index,
+          leaf: message.leaf,
+          messageRoot,
+          messageVerification,
+        });
+      } else {
+        logger.info("Message verification failed after clearLocalCache", requestContext, methodContext, {
+          messageIndex: message.origin.index,
+          leaf: message.leaf,
+          messageRoot,
+          messageVerification,
+        });
+        // Do not process message if proof verification fails.
+        failCount += 1;
+        continue;
+      }
     }
     messageProofs.push(messageProof);
+    provenMessages.push(message);
   }
 
   if (messageProofs.length === 0) {
+    if (messages.length > 0 && failCount == messages.length) {
+      logger.info("All messages in the batch failed verification. Clear cache.", requestContext, methodContext, {
+        originDomain,
+        destinationDomain,
+        messages,
+      });
+      // Clear global tree cache
+      // spokeStore.clearCache();
+    }
     logger.info("Empty message proofs", requestContext, methodContext, {
       originDomain,
       destinationDomain,
@@ -143,13 +189,29 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       rootVerification,
     });
   } else {
-    logger.info("MessageRoot verification failed", requestContext, methodContext, {
-      messageRootIndex,
-      messageRoot,
-      aggregateRoot,
-      messageRootProof,
-      rootVerification,
-    });
+    // Delete db and application caches
+    hubStore.clearCache();
+    // Try again
+    const rootVerification = hubSMT.verify(messageRootIndex, messageRoot, messageRootProof, aggregateRoot);
+    if (rootVerification && rootVerification.verified) {
+      logger.info("MessageRoot Verified successfully after clearCache", requestContext, methodContext, {
+        messageRoot,
+        aggregateRoot,
+        messageRootProof,
+        rootVerification,
+      });
+    } else {
+      logger.info("MessageRoot verification failed after clearCache", requestContext, methodContext, {
+        messageRootIndex,
+        messageRoot,
+        aggregateRoot,
+        messageRootProof,
+        rootVerification,
+      });
+      throw new MessageRootVerificationFailed({
+        context: { messageRootIndex, messageRoot, aggregateRoot, messageRootProof, rootVerification },
+      });
+    }
   }
   // Batch submit messages by destination domain
   try {
@@ -174,7 +236,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     ]);
 
     logger.debug("Proving and processing messages", requestContext, methodContext, {
-      messages,
+      provenMessages,
       proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
@@ -209,7 +271,19 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       requestContext,
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
+    if (taskId) {
+      await cache.messages.removePending(
+        originDomain,
+        destinationDomain,
+        provenMessages.map((it) => it.leaf),
+      );
+
+      return;
+    }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
+
+  const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
+  await cache.messages.setStatus(statuses);
 };

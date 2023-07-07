@@ -21,7 +21,8 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@connext/sdk": "workspace:*",
+    "@connext/sdk-core": "workspace:*",
+    "@fastify/cors": "8.3.0",
     "@fastify/redis": "6.1.1",
     "@fastify/type-provider-typebox": "2.4.0",
     "dotenv": "16.0.3",
@@ -30,8 +31,10 @@
     "pino": "8.10.0"
   },
   "devDependencies": {
+    "@types/eslint": "^8",
     "@types/node": "18.13.0",
     "@types/pino": "7.0.5",
+    "eslint": "^8.42.0",
     "nyc": "15.1.0",
     "pino-pretty": "9.2.0",
     "rimraf": "3.0.2",

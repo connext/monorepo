@@ -1,49 +1,68 @@
-import { SdkRouter } from "@connext/sdk";
+import {
+  SdkRouter,
+  SdkAddLiquidityForRouterParamsSchema,
+  SdkAddLiquidityForRouterParams,
+  SdkRemoveRouterLiquidityParamsSchema,
+  SdkRemoveRouterLiquidityParams,
+  SdkRemoveRouterLiquidityForParamsSchema,
+  SdkRemoveRouterLiquidityForParams,
+} from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+import { RoutesOptions } from "../server";
 
-import { addLiquidityForRouterSchema, removeRouterLiquiditySchema, removeRouterLiquidityForSchema } from "../types/api";
+interface RouterRoutesOptions extends RoutesOptions {
+  sdkRouterInstance: SdkRouter;
+}
 
-export const routerRoutes = async (server: FastifyInstance, sdkRouterInstance: SdkRouter): Promise<any> => {
+export const routerRoutes = async (server: FastifyInstance, options: RouterRoutesOptions): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkRouterInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(routerRoutes.name);
 
-  s.post(
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
+
+  s.post<{ Body: SdkAddLiquidityForRouterParams }>(
     "/addLiquidityForRouter",
     {
       schema: {
-        body: addLiquidityForRouterSchema,
+        body: SdkAddLiquidityForRouterParamsSchema,
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
+      const params = request.body;
       const res = await sdkRouterInstance.addLiquidityForRouter(params);
       reply.status(200).send(res);
     },
   );
 
-  s.post(
+  s.post<{ Body: SdkRemoveRouterLiquidityParams }>(
     "/removeRouterLiquidity",
     {
       schema: {
-        body: removeRouterLiquiditySchema,
+        body: SdkRemoveRouterLiquidityParamsSchema,
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
+      const params = request.body;
       const res = await sdkRouterInstance.removeRouterLiquidity(params);
       reply.status(200).send(res);
     },
   );
 
-  s.post(
+  s.post<{ Body: SdkRemoveRouterLiquidityForParams }>(
     "/removeRouterLiquidityFor",
     {
       schema: {
-        body: removeRouterLiquidityForSchema,
+        body: SdkRemoveRouterLiquidityForParamsSchema,
       },
     },
     async (request, reply) => {
-      const { params } = request.body;
+      const params = request.body;
       const res = await sdkRouterInstance.removeRouterLiquidityFor(params);
       reply.status(200).send(res);
     },

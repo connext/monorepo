@@ -1,4 +1,4 @@
-import { AdminRequest, ClearCacheRequestSchema, ClearCacheRequest } from "@connext/nxtp-utils";
+import { AdminRequest, ClearCacheRequestSchema, ClearCacheRequest, NxtpError, jsonifyError } from "@connext/nxtp-utils";
 import fastify, { FastifyInstance, FastifyReply } from "fastify";
 
 import { getContext } from "../prover";
@@ -9,6 +9,8 @@ export const bindHealthServer = async (): Promise<FastifyInstance> => {
   const server = fastify();
 
   server.get("/ping", (_, res) => api.get.ping(res));
+
+  server.get("/nonce", (_, res) => api.get.nonce(res));
 
   server.post<{ Body: ClearCacheRequest }>(
     "/clear-cache",
@@ -35,6 +37,24 @@ export const api = {
   get: {
     ping: async (res: FastifyReply) => {
       return res.status(200).send("pong\n");
+    },
+    nonce: async (res: FastifyReply) => {
+      const {
+        config: { chains },
+        logger,
+        adapters: { cache },
+      } = getContext();
+      try {
+        const result: any = {};
+        for (const originDomain of Object.keys(chains)) {
+          result[originDomain] = await cache.messages.getNonce(originDomain);
+        }
+        return res.status(200).send(JSON.stringify(result));
+      } catch (e: unknown) {
+        const json = jsonifyError(e as NxtpError);
+        logger.error("Failed to getNonce", undefined, undefined, json);
+        return res.status(500).send(json);
+      }
     },
   },
   post: {

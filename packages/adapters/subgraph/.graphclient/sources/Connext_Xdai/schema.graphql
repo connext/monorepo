@@ -470,6 +470,7 @@ type xdai_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: xdai_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: xdai_Bytes
   reconciledTransactionHash: xdai_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +478,7 @@ type xdai_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: xdai_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input xdai_DestinationTransfer_filter {
@@ -734,6 +736,14 @@ input xdai_DestinationTransfer_filter {
   executedTxOrigin_not_in: [xdai_Bytes!]
   executedTxOrigin_contains: xdai_Bytes
   executedTxOrigin_not_contains: xdai_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: xdai_Bytes
   reconciledCaller_not: xdai_Bytes
   reconciledCaller_gt: xdai_Bytes
@@ -796,6 +806,14 @@ input xdai_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [xdai_Bytes!]
   reconciledTxOrigin_contains: xdai_Bytes
   reconciledTxOrigin_not_contains: xdai_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
   and: [xdai_DestinationTransfer_filter]
@@ -840,6 +858,7 @@ enum xdai_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,6 +866,7 @@ enum xdai_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
 
 """
@@ -1031,6 +1051,7 @@ type xdai_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: xdai_Bytes
+  txNonce: BigInt
 }
 
 input xdai_OriginTransfer_filter {
@@ -1323,6 +1344,14 @@ input xdai_OriginTransfer_filter {
   txOrigin_not_in: [xdai_Bytes!]
   txOrigin_contains: xdai_Bytes
   txOrigin_not_contains: xdai_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: xdai_BlockChangedFilter
   and: [xdai_OriginTransfer_filter]
@@ -1378,6 +1407,7 @@ enum xdai_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1951,6 +1981,7 @@ enum xdai_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2105,6 +2136,7 @@ enum xdai_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2717,6 +2749,7 @@ enum xdai_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2724,6 +2757,7 @@ enum xdai_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash

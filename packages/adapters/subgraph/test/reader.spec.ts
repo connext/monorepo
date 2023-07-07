@@ -368,28 +368,28 @@ describe("SubgraphReader", () => {
       response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
-      agents.set("3331", { maxBlockNumber: 99999999, fromTimestamp: 1 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
+      agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 1 });
 
-      expect(await subgraphReader.getDestinationTransfersByExecutedTimestamp(agents)).to.be.deep.eq([
+      expect(await subgraphReader.getDestinationTransfersByExecutedNonce(agents)).to.be.deep.eq([
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);
     });
   });
 
-  describe("#getDestinationTransfersByDomainAndReconcileTimestamp", () => {
+  describe("#getDestinationTransfersByDomainAndReconcileNonce", () => {
     it("should return the destination transfers across the multichains", async () => {
       response.set("1111", [[mockDestinationTransferEntity]]);
       response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
 
       expect(
-        await subgraphReader.getDestinationTransfersByDomainAndReconcileTimestamp(agents.get("1111")!, "1111"),
+        await subgraphReader.getDestinationTransfersByDomainAndReconcileNonce(agents.get("1111")!, "1111"),
       ).to.be.deep.eq([
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),

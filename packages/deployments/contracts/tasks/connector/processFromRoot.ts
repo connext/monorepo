@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
-import { BigNumber, Contract, providers, Wallet } from "ethers";
+import { BigNumber, BigNumberish, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
@@ -76,7 +76,12 @@ const processFromArbitrumRoot = async (
     throw new Error(`tx data not yet posted to l1`);
   }
   // get the proof
-  const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
+  const [reader] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
+  console.log("msg:", (reader as any).nitroReader.event);
+  const msg = (reader as any).nitroReader;
+  if (!msg?.event) {
+    throw new Error(`Could not find event for message in ${sendHash}`);
+  }
   const index = msg.event.position;
   console.log("index", index.toNumber());
   // construct the l2 message information
@@ -107,15 +112,10 @@ const processFromArbitrumRoot = async (
   const arbNetwork = l2Networks[spoke];
   const fetcher = new EventFetcher(hubProvider);
   console.log("searching for node created events at", arbNetwork.ethBridge.rollup);
-  const logs = await fetcher.getEvents(
-    arbNetwork.ethBridge.rollup,
-    RollupUserLogic__factory,
-    (t) => t.filters.NodeCreated(),
-    {
-      fromBlock: msg.event.ethBlockNum.toNumber(),
-      toBlock: "latest",
-    },
-  );
+  const logs = await fetcher.getEvents(RollupUserLogic__factory, (t) => t.filters.NodeCreated(), {
+    fromBlock: msg.event.ethBlockNum.toNumber(),
+    toBlock: "latest",
+  });
   // use binary search to find the first node with sendCount > this.event.position
   // default to the last node since we already checked above
   let foundLog: FetchedEvent<NodeCreatedEvent> = logs[logs.length - 1];
@@ -124,9 +124,9 @@ const processFromArbitrumRoot = async (
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await (msg as any).getBlockFromNodeLog(spokeProvider, log);
+    const block = await msg.getBlockFromNodeLog(spokeProvider, log);
     const sendCount = BigNumber.from(block.sendCount);
-    if (sendCount.gt(msg.event.position)) {
+    if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;
     } else {
@@ -134,13 +134,13 @@ const processFromArbitrumRoot = async (
     }
   }
 
-  const earliestNodeWithExit = foundLog.event.nodeNum;
+  const earliestNodeWithExit = (foundLog.event as any).nodeNum;
   const rollup = RollupUserLogic__factory.getContract(
     arbNetwork.ethBridge.rollup,
     RollupUserLogic__factory.abi,
     deployer.connect(hubProvider),
   );
-  const foundBlock = await (msg as any).getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
+  const foundBlock = await msg.getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
   console.log("node:", earliestNodeWithExit.toString());
   console.log("msg.position", msg.event.position.toString());
   console.log("foundLog:", foundLog);
@@ -156,7 +156,7 @@ const processFromArbitrumRoot = async (
   // get the proof
   const params = await NodeInterface__factory.connect(NODE_INTERFACE_ADDRESS, spokeProvider).constructOutboxProof(
     foundBlock.sendCount.toNumber() as number,
-    msg.event.position.toNumber(),
+    (msg.event.position as BigNumber).toNumber(),
   );
 
   // generate the args to submit
