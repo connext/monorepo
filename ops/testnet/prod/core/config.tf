@@ -85,7 +85,7 @@ locals {
       }
       "1735353714" = {
         providers                 = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
-        excludeListFromRelayerFee = ["0x79D5007F9782eE0407DB4C7a9fC6AE030586afac"]
+        excludeListFromRelayerFee = ["0x79D5007F9782eE0407DB4C7a9fC6AE030586afac", "0xc8D125853346a389A8a68390dd23D719c08BF8F8"]
       }
       "9991" = {
         providers                 = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
