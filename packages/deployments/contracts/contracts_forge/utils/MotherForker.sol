@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ForgeHelper} from "./ForgeHelper.sol";
 import {Deployer} from "./Deployer.sol";
-import {RpcEnvLookup} from "./RpcEnvLookup.sol";
+import {RpcLookup} from "./RpcLookup.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "../../contracts/core/connext/interfaces/IDiamondLoupe.sol";
 import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
@@ -100,7 +100,7 @@ abstract contract MotherForker is ForgeHelper {
     // Load the rpcs
     string[] memory rpcs = new string[](chains.length);
     for (uint256 i; i < chains.length; i++) {
-      string memory rpc = vm.envString(RpcEnvLookup.getRpcEnvName(chains[i]));
+      string memory rpc = vm.envString(RpcLookup.getRpcEnvName(chains[i]));
       rpcs[i] = rpc;
     }
 
