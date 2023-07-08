@@ -2,8 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ForgeHelper} from "../utils/ForgeHelper.sol";
+import {ForgeHelper} from "./ForgeHelper.sol";
 import {Deployer} from "./Deployer.sol";
+import {RpcEnvLookup} from "./RpcEnvLookup.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "../../contracts/core/connext/interfaces/IDiamondLoupe.sol";
 import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
@@ -30,6 +31,7 @@ import "forge-std/StdJson.sol";
  * MAINNET_ETH_PROVIDER_URL="mainnetrpc.com"
  * XDAI_PROVIDER_URL="gnosisrpc.com"
  * FORGE_CHAINS="1,100,..."
+ * FORGE_CHAIN_FORK_BLOCKS="123123,123456456,..."
  */
 abstract contract MotherForker is ForgeHelper {
   // ============ Libraries ============
@@ -62,6 +64,7 @@ abstract contract MotherForker is ForgeHelper {
    * @notice Create a fork for each network.
    */
   function utils_createForks() internal {
+    require(NETWORK_IDS.length > 0, "!networks");
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       // read the block to fork
       uint256 forkBlock = forkBlocksByChain[NETWORK_IDS[i]];
@@ -86,11 +89,39 @@ abstract contract MotherForker is ForgeHelper {
     vm.selectFork(forkId);
   }
 
+  /**
+   * @notice Loads the networks from env variables
+   */
+  function utils_loadNetworkFromEnv() internal {
+    // Load the chain ids
+    uint256[] memory defaultChains = new uint256[](0);
+    uint256[] memory chains = vm.envOr("FORGE_CHAINS", ",", defaultChains);
+
+    // Load the rpcs
+    string[] memory rpcs = new string[](chains.length);
+    for (uint256 i; i < chains.length; i++) {
+      string memory rpc = vm.envString(RpcEnvLookup.getRpcEnvName(chains[i]));
+      rpcs[i] = rpc;
+    }
+
+    // Load the fork blocks
+    uint256[] memory forkBlocks = vm.envOr("FORGE_CHAIN_FORK_BLOCKS", ",", defaultChains);
+    utils_loadNetworks(chains, rpcs, forkBlocks);
+  }
+
+  /**
+   * @notice Loads the networks from the specified json file
+   */
   function utils_loadNetworkFromJson() internal {
     string memory json = utils_readConfigJson();
     uint256[] memory chains = json.readUintArray(".chains");
     string[] memory rpcs = json.readStringArray(".rpcs");
     uint256[] memory forkBlocks = json.readUintArray(".forkBlocks");
+
+    utils_loadNetworks(chains, rpcs, forkBlocks);
+  }
+
+  function utils_loadNetworks(uint256[] memory _chains, string[] memory _rpcs, uint256[] memory _forkBlocks) internal {
     // FIXME: forking from gnosis mainnet gives this internal forge error:
     //
     // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
@@ -102,22 +133,22 @@ abstract contract MotherForker is ForgeHelper {
     //
     // In the meantime, we can just skip this chain
     uint256 gnosisIdx = 10_000;
-    for (uint256 i; i < chains.length; i++) {
+    for (uint256 i; i < _chains.length; i++) {
       // see above
-      if (chains[i] == 100) {
+      if (_chains[i] == 100) {
         // set the idx
         gnosisIdx = i;
       }
       // Add to networks
-      NETWORK_IDS.push(chains[i]);
-      forkRpcsByChain[chains[i]] = rpcs[i];
-      forkBlocksByChain[chains[i]] = forkBlocks[i];
+      NETWORK_IDS.push(_chains[i]);
+      forkRpcsByChain[_chains[i]] = _rpcs[i];
+      forkBlocksByChain[_chains[i]] = _forkBlocks.length > i ? _forkBlocks[i] : 0;
     }
 
     // Put gnosis chain last, and remove from array
     if (gnosisIdx != 10_000) {
       // remove from rpcs mapping
-      delete forkRpcsByChain[chains[gnosisIdx]];
+      delete forkRpcsByChain[_chains[gnosisIdx]];
 
       // remove from chain ids array
       NETWORK_IDS[gnosisIdx] = NETWORK_IDS[NETWORK_IDS.length - 1];
@@ -126,7 +157,7 @@ abstract contract MotherForker is ForgeHelper {
   }
 
   /**
-   * @notice Read the proposal json file and return the string contents
+   * @notice Read the config json file and return the string contents
    */
   function utils_readConfigJson() internal view returns (string memory) {
     string memory root = vm.projectRoot();
@@ -135,6 +166,9 @@ abstract contract MotherForker is ForgeHelper {
     return json;
   }
 
+  /**
+   * @notice Rolls fork to a given timestamp
+   */
   function utils_rollForkTo(uint256 timestamp) internal {
     // get blocktime
     uint256 pre = block.timestamp;
