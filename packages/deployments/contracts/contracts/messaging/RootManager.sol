@@ -124,6 +124,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_slowPropagate__OldAggregateRoot();
 
+  error RootManager_sendRootToHub__NoMessageSent();
+
   error RootManager_finalize__InvalidInputHash();
 
   error RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
@@ -183,10 +185,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   bool public optimisticMode;
 
   /**
-   * @notice The last aggregate root we propagated to spoke chains. Used to prevent sending redundant
+   * @notice The last aggregate root we propagated to spoke chains (mapping keyed on domain). Used to prevent sending redundant
    * aggregate roots in `propagate`.
    */
-  bytes32 public lastPropagatedRoot;
+  mapping(uint32 => bytes32) public lastPropagatedRoot;
 
   /**
    * @notice The last finalized aggregate root in optimistic mode.
@@ -576,12 +578,18 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     uint256[] calldata _fees,
     bytes[] memory _encodedData
   ) internal {
-    // Sanity check: make sure we are not propagating a redundant aggregate root.
-    require(_aggregateRoot != lastPropagatedRoot, "redundant root");
-    lastPropagatedRoot = _aggregateRoot;
-
     uint256 refund = msg.value;
+    bool sent;
     for (uint32 i; i < _connectors.length; ) {
+      // Sanity check: skip propagating a redundant aggregate root.
+      bytes32 previous = lastPropagatedRoot[domains[i]];
+      if (previous == _aggregateRoot) {
+        unchecked {
+          ++i;
+        }
+        continue;
+      }
+
       // Try to send the message with appropriate encoded data and fees
       // Continue on revert, but emit an event
       try
@@ -591,6 +599,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         // This will revert as soon as there are insufficient fees for call i, even if call n > i has
         // sufficient budget, this function will revert
         refund -= _fees[i];
+        // mark that the message was sent
+        sent = true;
+        // Set the last propagated root
+        lastPropagatedRoot[domains[i]] = _aggregateRoot;
       } catch {
         emit PropagateFailed(domains[i], _connectors[i]);
       }
@@ -598,6 +610,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       unchecked {
         ++i;
       }
+    }
+
+    // Ensure *a* message was sent to prevent excess relayer spend
+    if (!sent) {
+      revert RootManager_sendRootToHub__NoMessageSent();
     }
 
     // Refund caller

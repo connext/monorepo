@@ -6,9 +6,41 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
+import {ChainIDs} from "../libraries/ChainIDs.sol";
+import {Types} from "../../../messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {RootManager} from "../../../messaging/RootManager.sol";
+
 import {RelayerProxy} from "./RelayerProxy.sol";
+
+interface IRootManager {
+  function lastPropagatedRoot(uint32 _domain) external view returns (bytes32);
+
+  function propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData
+  ) external payable;
+
+  function dequeue() external returns (bytes32, uint256);
+
+  function proposeAggregateRoot(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains
+  ) external;
+
+  function allowlistedProposers(address _proposer) external view returns (bool);
+
+  function finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external payable;
+}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -50,44 +82,22 @@ interface IArbitrumHubConnector {
 }
 
 interface IOptimismHubConnector {
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L34-L40
-  struct ChainBatchHeader {
-    uint256 batchIndex;
-    bytes32 batchRoot;
-    uint256 batchSize;
-    uint256 prevTotalElements;
-    bytes extraData;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L42-L45
-  struct ChainInclusionProof {
-    uint256 index;
-    bytes32[] siblings;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/L1/messaging/IL1CrossDomainMessenger.sol#L18-L24
-  struct L2MessageInclusionProof {
-    bytes32 stateRoot;
-    ChainBatchHeader stateRootBatchHeader;
-    ChainInclusionProof stateRootProof;
-    bytes stateTrieWitness;
-    bytes storageTrieWitness;
-  }
-
   struct OptimismRootMessageData {
-    address _target;
-    address _sender;
-    bytes _message;
-    uint256 _messageNonce;
-    L2MessageInclusionProof _proof;
+    Types.WithdrawalTransaction _tx;
+    uint256 _l2OutputIndex;
+    Types.OutputRootProof _outputRootProof;
+    bytes[] _withdrawalProof;
   }
 
+  /**
+   * @dev modified from: OptimismPortal contract
+   * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
+   */
   function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
+    Types.WithdrawalTransaction memory _tx,
+    uint256 _l2OutputIndex,
+    Types.OutputRootProof calldata _outputRootProof,
+    bytes[] calldata _withdrawalProof
   ) external;
 }
 
@@ -125,12 +135,13 @@ interface IZkSyncHubConnector {
  * Gelato's legacy relayer network. The contract stores native assets and pays them to the relayer on function call.
  */
 contract RelayerProxyHub is RelayerProxy {
+  using ECDSA for bytes32;
   // ============ Properties ============
 
   /**
    * @notice Address of the RootManager contract
    */
-  RootManager public rootManager;
+  IRootManager public rootManager;
 
   /**
    * @notice Delay for the propagate function
@@ -152,29 +163,6 @@ contract RelayerProxyHub is RelayerProxy {
    * @notice Timestamp of when last aggregate was proposed
    */
   uint256 public lastProposeAggregateRootAt;
-
-  /**
-   * @notice Address of Autonolas keeper contract
-   * @dev Special consideration for Autonolas keeper
-   */
-  address public autonolas;
-
-  /**
-   * @notice Enum of Autonolas functions with different priorities
-   */
-  enum AutonolasPriorityFunction {
-    Propagate,
-    ProcessFromRoot,
-    ProposeAggregateRoot,
-    FinalizeAndPropagate
-  }
-
-  /**
-   * @notice Mapping of Autonolas priority function to priority number
-   * @dev number between 0 and 10 to determine priority that Autonolas has for jobs.
-   * 0 is disabled, 10 will work for every block.
-   */
-  mapping(AutonolasPriorityFunction => uint8) public autonolasPriority;
 
   /**
    * @notice Mapping of identifier to root message hash to boolean indicating if the message has been processed
@@ -220,20 +208,6 @@ contract RelayerProxyHub is RelayerProxy {
    */
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
 
-  /**
-   * @notice Emitted when Autonolas address is updated by admin
-   * @param updated New Autonolas address in the contract
-   * @param previous Old Autonolas address in the contract
-   */
-  event AutonolasChanged(address updated, address previous);
-
-  /**
-   * @notice Emitted when Autonolas priority is updated by admin
-   * @param updated New Autonolas priority in the contract
-   * @param previous Old Autonolas priority in the contract
-   */
-  event AutonolasPriorityChanged(AutonolasPriorityFunction fn, uint8 updated, uint8 previous);
-
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
   error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
@@ -241,22 +215,7 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
-
-  // ============ Modifiers ============
-  /**
-   * @notice Indicates if the job is workable by the sender. Takes into account the Autonolas priority.
-   * For example, if priority is 3, then sender will not be able to work on blocks 0, 1, 2, unless they are Autonolas.
-   * Priority 0 disables Autonolas priority completely.
-   * @param _sender The address of the caller
-   */
-  modifier isWorkableBySender(AutonolasPriorityFunction _function, address _sender) {
-    if (
-      _sender != autonolas && autonolasPriority[_function] != 0 && block.number % 10 <= autonolasPriority[_function] - 1
-    ) {
-      revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
-    }
-    _;
-  }
+  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
 
   // ============ Constructor ============
 
@@ -268,7 +227,6 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _feeCollector The address of the Gelato Fee Collector on this domain.
    * @param _keep3r The address of the Keep3r on this domain.
    * @param _rootManager The address of the Root Manager on this domain.
-   * @param _autonolas The address of the Autonolas keeper contract on this domain.
    * @param _propagateCooldown The delay for the propagate function.
    * @param _hubConnectors The addresses of the hub connectors on this domain.
    * @param _hubConnectorChains The identifiers of the hub connectors on this domain.
@@ -280,7 +238,6 @@ contract RelayerProxyHub is RelayerProxy {
     address _feeCollector,
     address _keep3r,
     address _rootManager,
-    address _autonolas,
     uint256 _propagateCooldown,
     uint256 _proposeAggregateRootCooldown,
     address[] memory _hubConnectors,
@@ -289,7 +246,6 @@ contract RelayerProxyHub is RelayerProxy {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
     _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
-    _setAutonolas(_autonolas);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
       _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
     }
@@ -321,22 +277,6 @@ contract RelayerProxyHub is RelayerProxy {
     _setHubConnector(_hubConnector, _chain);
   }
 
-  /**
-   * @notice Updates the Autonolas contract address on this contract.
-   * @param _autonolas - New Autonolas contract address.
-   */
-  function setAutonolas(address _autonolas) external onlyOwner definedAddress(_autonolas) {
-    _setAutonolas(_autonolas);
-  }
-
-  /**
-   * @notice Updates the Autonolas priority on this contract.
-   * @param _autonolasPriority - New Autonolas priority.
-   */
-  function setAutonolasPriority(AutonolasPriorityFunction _function, uint8 _autonolasPriority) external onlyOwner {
-    _setAutonolasPriority(_function, _autonolasPriority);
-  }
-
   // ============ External Functions ============
 
   /**
@@ -346,9 +286,16 @@ contract RelayerProxyHub is RelayerProxy {
    *
    * @return True if the RootManager has a workable root.
    */
-  function propagateWorkable() public returns (bool) {
+  function propagateWorkable(uint32[] memory domains) public returns (bool) {
     (bytes32 _aggregateRoot, ) = rootManager.dequeue();
-    return (rootManager.lastPropagatedRoot() != _aggregateRoot) && _propagateCooledDown();
+    bool updatedRoot = false;
+    for (uint256 i; i < domains.length; i++) {
+      updatedRoot = rootManager.lastPropagatedRoot(domains[i]) != _aggregateRoot;
+      if (updatedRoot) {
+        break;
+      }
+    }
+    return updatedRoot && _propagateCooledDown();
   }
 
   /**
@@ -385,17 +332,27 @@ contract RelayerProxyHub is RelayerProxy {
     address[] calldata _connectors,
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData
-  )
-    external
-    isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
-    validateAndPayWithCredits(msg.sender)
-    nonReentrant
-  {
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
     _propagate(_connectors, _messageFees, _encodedData);
     lastPropagateAt = block.timestamp;
+  }
+
+  /**
+   * Wraps the call to processFromRoot() on RootManager. Only allowed to be called by registered relayer.
+   *
+   * @param _encodedData Array of encoded data for HubConnector function.
+   * @param _fromChain Chain ID of the chain the message is coming from.
+   * @param _l2Hash Hash of the message on the L2 chain.
+   */
+  function processFromRoot(
+    bytes calldata _encodedData,
+    uint32 _fromChain,
+    bytes32 _l2Hash
+  ) external onlyRelayer nonReentrant {
+    _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 
   /**
@@ -410,11 +367,7 @@ contract RelayerProxyHub is RelayerProxy {
     bytes calldata _encodedData,
     uint32 _fromChain,
     bytes32 _l2Hash
-  )
-    external
-    isWorkableBySender(AutonolasPriorityFunction.ProcessFromRoot, msg.sender)
-    validateAndPayWithCredits(msg.sender)
-  {
+  ) external validateAndPayWithCredits(msg.sender) {
     _processFromRoot(_encodedData, _fromChain, _l2Hash);
   }
 
@@ -434,17 +387,15 @@ contract RelayerProxyHub is RelayerProxy {
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains,
     bytes memory _signature
-  )
-    external
-    isWorkableBySender(AutonolasPriorityFunction.ProposeAggregateRoot, msg.sender)
-    validateAndPayWithCredits(msg.sender)
-  {
+  ) external validateAndPayWithCredits(msg.sender) {
     if (!_proposeAggregateRootCooledDown()) {
       revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
         block.timestamp,
         lastProposeAggregateRootAt + proposeAggregateRootCooldown
       );
     }
+
+    lastProposeAggregateRootAt = block.timestamp;
 
     // Validate the signer
     _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
@@ -469,23 +420,18 @@ contract RelayerProxyHub is RelayerProxy {
     bytes[] memory _encodedData,
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  )
-    external
-    isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
-    validateAndPayWithCredits(msg.sender)
-    nonReentrant
-  {
+  ) external validateAndPayWithCredits(msg.sender) nonReentrant returns (uint256 _fee) {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
-    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+    _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
     lastPropagateAt = block.timestamp;
   }
 
   // ============ Internal Functions ============
   function _setRootManager(address _rootManager) internal {
     emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = RootManager(_rootManager);
+    rootManager = IRootManager(_rootManager);
   }
 
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
@@ -501,16 +447,6 @@ contract RelayerProxyHub is RelayerProxy {
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
     emit HubConnectorChanged(_hubConnector, hubConnectors[chain], chain);
     hubConnectors[chain] = _hubConnector;
-  }
-
-  function _setAutonolas(address _autonolas) internal {
-    emit AutonolasChanged(_autonolas, autonolas);
-    autonolas = _autonolas;
-  }
-
-  function _setAutonolasPriority(AutonolasPriorityFunction _function, uint8 _autonolasPriority) internal {
-    emit AutonolasPriorityChanged(_function, _autonolasPriority, autonolasPriority[_function]);
-    autonolasPriority[_function] = _autonolasPriority;
   }
 
   function _propagateCooledDown() internal view returns (bool) {
@@ -529,7 +465,7 @@ contract RelayerProxyHub is RelayerProxy {
     // Get the payload
     bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
     // Recover signer
-    address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(payload), _signature);
+    address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
       revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
     }
@@ -596,15 +532,13 @@ contract RelayerProxyHub is RelayerProxy {
 
     processedRootMessages[fromChain][l2Hash] = true;
 
-    if (fromChain == 100 || fromChain == 10200) {
+    if (fromChain == ChainIDs.GNOSIS || fromChain == ChainIDs.GNOSIS_CHIADO) {
       IGnosisHubConnector.GnosisRootMessageData memory data = abi.decode(
         encodedData,
         (IGnosisHubConnector.GnosisRootMessageData)
       );
       IGnosisHubConnector(hubConnectors[fromChain]).executeSignatures(data._data, data._signatures);
-    }
-
-    if (fromChain == 42161 || fromChain == 421613) {
+    } else if (fromChain == ChainIDs.ARBITRUM_ONE || fromChain == ChainIDs.ARBITRUM_GOERLI) {
       IArbitrumHubConnector.ArbitrumRootMessageData memory data = abi.decode(
         encodedData,
         (IArbitrumHubConnector.ArbitrumRootMessageData)
@@ -617,23 +551,18 @@ contract RelayerProxyHub is RelayerProxy {
         data._index,
         data._message
       );
-    }
-
-    if (fromChain == 10 || fromChain == 420) {
+    } else if (fromChain == ChainIDs.OPTIMISM || fromChain == ChainIDs.OPTIMISM_GOERLI) {
       IOptimismHubConnector.OptimismRootMessageData memory data = abi.decode(
         encodedData,
         (IOptimismHubConnector.OptimismRootMessageData)
       );
       IOptimismHubConnector(hubConnectors[fromChain]).processMessageFromRoot(
-        data._target,
-        data._sender,
-        data._message,
-        data._messageNonce,
-        data._proof
+        data._tx,
+        data._l2OutputIndex,
+        data._outputRootProof,
+        data._withdrawalProof
       );
-    }
-
-    if (fromChain == 324 || fromChain == 280) {
+    } else if (fromChain == ChainIDs.ZKSYNC || fromChain == ChainIDs.ZKSYNC_TEST) {
       IZkSyncHubConnector.ZkSyncRootMessageData memory data = abi.decode(
         encodedData,
         (IZkSyncHubConnector.ZkSyncRootMessageData)
@@ -645,10 +574,10 @@ contract RelayerProxyHub is RelayerProxy {
         data._message,
         data._proof
       );
-    }
-
-    if (fromChain == 137 || fromChain == 80001) {
+    } else if (fromChain == ChainIDs.POLYGON_POS || fromChain == ChainIDs.MUMBAI) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
+    } else {
+      revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
     }
   }
 }
