@@ -14,39 +14,7 @@ contract WormholeUpgradeTransfers {
     uint256 aggregateIndex;
   }
 
-  //   // 1 - transfer we want to be reconciled going to bsc - need prove and process data + transferId + message hash
-  //   Transfer public UNRECONCILED_TO_BSC_TRANSFER =
-  //     Transfer({
-  //       transferId: bytes32(0x83e3fcd235ed97fb94beadb03daea6a67ef8247c410e1cc6d1bfa6e53776840a),
-  //       aggregateRoot: bytes32(""),
-  //       aggregatePath: AGGREGATE_PATH,
-  //       aggregateIndex: 0,
-  //       proof: SpokeConnector.Proof({
-  //         path: SPOKE_PATH,
-  //         index: 6270,
-  //         message: bytes(
-  //           0x006574680000000000000000000000008898b472c54c31894e3b9bb83cea802a5d0e63c60000034900626e62000000000000000000000000cd401c10afa37d641d2f594852da94c700e4f2ce00657468000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480300000000000000000000000000000000000000000000000000000000001e848083e3fcd235ed97fb94beadb03daea6a67ef8247c410e1cc6d1bfa6e53776840a
-  //         )
-  //       })
-  //     });
-
-  //   // 2 - transfer we want to be reconciled leaving bsc (ideally to mainnet, but another chain works) - need prove and process data + transferId + message hash
-  //   Transfer public UNRECONCILED_FROM_BSC_TRANSFER =
-  //     Transfer({
-  //       transferId: bytes32(0x33193082cf840c03d3a893e490586b4435d37c3e1d83eb7aca5dc8f32b5a1549),
-  //       aggregateRoot: bytes32(""),
-  //       aggregatePath: AGGREGATE_PATH,
-  //       aggregateIndex: 0,
-  //       proof: SpokeConnector.Proof({
-  //         path: SPOKE_PATH,
-  //         index: 30008,
-  //         message: bytes(
-  //           0x00626e62000000000000000000000000cd401c10afa37d641d2f594852da94c700e4f2ce000008266f7074690000000000000000000000008f7492de823025b4cfaab1d34c58963f2af5deda00657468000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec703000000000000000000000000000000000000000000000000000000002c375b0f33193082cf840c03d3a893e490586b4435d37c3e1d83eb7aca5dc8f32b5a1549
-  //         )
-  //       })
-  //     });
-
-  // 3 - transfer that is completed going to bsc - need prove and process data + transferId + message hash
+  // transfer that is completed going to bsc - need prove and process data + transferId + message hash
   // reconcile tx: https://bscscan.com/tx/0x6cdbcc82ab3d92be475aeac9fbc898ccaab38b2d674f0343f2219641d6c410ff#eventlog
   function getCompletedToBscTransfer() public pure returns (Transfer memory) {
     return
