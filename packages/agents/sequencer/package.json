@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
