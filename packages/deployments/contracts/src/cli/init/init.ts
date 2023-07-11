@@ -188,14 +188,16 @@ export const sanitizeAndInit = async () => {
       useStaging,
     });
 
-    // TODO: relayers and agents should also be configured per-network. when this is done,
-    // ensure the relayerFeeVault can be passed in
+    // TODO: all agents should also be configured per-network
+    if (!initConfig.agents.relayerFeeVaults[domain]) {
+      throw new Error(`No relayer fee vault configured for ${domain}!`);
+    }
     networks.push({
       chain: chainId.toString(),
       domain,
       rpc,
       deployments,
-      relayerFeeVault: deployments.messaging.RelayerProxy.address,
+      relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
     });
   }
 
@@ -259,101 +261,100 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
   /// ********************* Messaging **********************
   /// MARK - Messaging
   if (shouldExecute("messaging")) {
-    throw new Error("Messaging setup should not be run until admin connector removed from bsc");
-    // await setupMessaging(protocol, apply);
+    await setupMessaging(protocol, apply);
 
-    // /// ********************* CONNEXT *********************
-    // /// MARK - Enroll Handlers
-    // console.log("\n\nENROLLING HANDLERS");
-    // for (let i = 0; i < protocol.networks.length; i++) {
-    //   const targetNetwork = protocol.networks[i];
-    //   const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
-    //   for (const remoteNetwork of remoteNetworks) {
-    //     const desiredConnextion = remoteNetwork.deployments.Connext.address;
-    //     await updateIfNeeded({
-    //       apply,
-    //       deployment: targetNetwork.deployments.Connext,
-    //       desired: desiredConnextion,
-    //       read: { method: "remote", args: [remoteNetwork.domain] },
-    //       write: {
-    //         method: "enrollRemoteRouter",
-    //         args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
-    //       },
-    //       chainData,
-    //     });
-    //   }
-    // }
+    /// ********************* CONNEXT *********************
+    /// MARK - Enroll Handlers
+    console.log("\n\nENROLLING HANDLERS");
+    for (let i = 0; i < protocol.networks.length; i++) {
+      const targetNetwork = protocol.networks[i];
+      const remoteNetworks = protocol.networks.filter((_, j) => j !== i);
+      for (const remoteNetwork of remoteNetworks) {
+        const desiredConnextion = remoteNetwork.deployments.Connext.address;
+        await updateIfNeeded({
+          apply,
+          deployment: targetNetwork.deployments.Connext,
+          desired: desiredConnextion,
+          read: { method: "remote", args: [remoteNetwork.domain] },
+          write: {
+            method: "enrollRemoteRouter",
+            args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
+          },
+          chainData,
+        });
+      }
+    }
 
-    // /// MARK - Set relayerFeeVault
-    // console.log("\n\nENROLLING RELAYER FEE VAULT");
-    // for (const network of protocol.networks) {
-    //   const {
-    //     relayerFeeVault,
-    //     deployments: { Connext },
-    //   } = network;
+    /// MARK - Set relayerFeeVault
+    console.log("\n\nENROLLING RELAYER FEE VAULT");
+    for (const network of protocol.networks) {
+      const {
+        relayerFeeVault,
+        deployments: { Connext },
+      } = network;
 
-    //   await updateIfNeeded({
-    //     apply,
-    //     deployment: Connext,
-    //     desired: relayerFeeVault,
-    //     read: { method: "relayerFeeVault" },
-    //     write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
-    //     chainData,
-    //   });
-    // }
+      await updateIfNeeded({
+        apply,
+        deployment: Connext,
+        desired: relayerFeeVault,
+        read: { method: "relayerFeeVault" },
+        write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
+        chainData,
+      });
+    }
 
-    // /// ********************* Relayer Proxy **********************
-    // /// MARK - relayer proxy
-    // console.log("\n\nCONFIGURE RELAYER PROXY");
-    // // On all domains, ensure the following are correctly set:
-    // // - connext
-    // // - spoke connector
-    // // - gelato relayer -- TODO: need to update config
-    // // - gelato fee collector -- TODO: need to update config
-    // for (const network of protocol.networks) {
-    //   const isHub = network.domain === protocol.hub;
-    //   const { Connext, messaging } = network.deployments;
+    /// ********************* Relayer Proxy **********************
+    /// MARK - relayer proxy
+    console.log("\n\nCONFIGURE RELAYER PROXY");
+    // On all domains, ensure the following are correctly set:
+    // - connext
+    // - spoke connector
+    // - gelato relayer -- TODO: need to update config
+    // - gelato fee collector -- TODO: need to update config
+    for (const network of protocol.networks) {
+      const isHub = network.domain === protocol.hub;
+      const { Connext, messaging } = network.deployments;
 
-    //   // update connext
-    //   await updateIfNeeded({
-    //     apply,
-    //     deployment: messaging.RelayerProxy,
-    //     desired: Connext.address,
-    //     read: { method: "connext" },
-    //     write: { method: "setConnext", args: [Connext.address] },
-    //     chainData,
-    //   });
+      // update connext
+      await updateIfNeeded({
+        apply,
+        deployment: messaging.RelayerProxy,
+        desired: Connext.address,
+        read: { method: "connext" },
+        write: { method: "setConnext", args: [Connext.address] },
+        chainData,
+      });
 
-    //   // update spoke -- use MainnetConnector key if on hub
-    //   const spokeConnector = isHub
-    //     ? (messaging as HubMessagingDeployments).MainnetConnector.address
-    //     : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
-    //   await updateIfNeeded({
-    //     apply,
-    //     deployment: messaging.RelayerProxy,
-    //     desired: spokeConnector,
-    //     read: { method: "spokeConnector" },
-    //     write: { method: "setSpokeConnector", args: [spokeConnector] },
-    //     chainData,
-    //   });
+      // update spoke -- use MainnetConnector key if on hub
+      const spokeConnector = isHub
+        ? (messaging as HubMessagingDeployments).MainnetConnector.address
+        : (messaging as SpokeMessagingDeployments).SpokeConnector.address;
+      await updateIfNeeded({
+        apply,
+        deployment: messaging.RelayerProxy,
+        desired: spokeConnector,
+        read: { method: "spokeConnector" },
+        write: { method: "setSpokeConnector", args: [spokeConnector] },
+        chainData,
+      });
 
-    //   // TODO: gelato relayer
-    //   // TODO: gelato fee connector
+      // TODO: gelato relayer
+      // TODO: gelato fee connector
 
-    //   // On hub, ensure the following are correctly set:
-    //   // - root manager
-    //   if (isHub) {
-    //     const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
-    //     await updateIfNeeded({
-    //       apply,
-    //       deployment: messaging.RelayerProxy,
-    //       desired: rootManager,
-    //       read: { method: "rootManager" },
-    //       write: { method: "setRootManager", args: [rootManager] },
-    //       chainData,
-    //     });
-    //   }
-    // }
+      // On hub, ensure the following are correctly set:
+      // - root manager
+      if (isHub) {
+        const rootManager = (messaging as HubMessagingDeployments).RootManager.address;
+        await updateIfNeeded({
+          apply,
+          deployment: messaging.RelayerProxy,
+          desired: rootManager,
+          read: { method: "rootManager" },
+          write: { method: "setRootManager", args: [rootManager] },
+          chainData,
+        });
+      }
+    }
   }
 
   /// ********************* ASSETS **********************

@@ -49,7 +49,7 @@ export const setupAsset = async (args: {
     );
   }
 
-  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenName = asset.name.startsWith(`next`) ? asset.name : `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
   if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {

@@ -10,6 +10,7 @@ export * as multichain from "./multichain";
 export * as optimism from "./optimism";
 export * as polygon from "./polygon";
 export * as polygonzk from "./polygonzk";
+export * as wormhole from "./wormhole";
 export * as zksync from "./zksync";
 export { Connector__factory } from "./Connector__factory";
 export { ConnectorManager__factory } from "./ConnectorManager__factory";
