@@ -32,6 +32,11 @@
         "name": "ArbitrumHubConnector",
         "address": "0xd151C9ef49cE2d30B829a98A07767E3280F70961",
         "startBlock": 16233513
+      },
+      {
+        "name": "BnbHubConnector",
+        "address": "0x69009c6f567590d8B469dbF4C8808e8ee32b8a45",
+        "startBlock": 17640454
       }
     ]
   },
