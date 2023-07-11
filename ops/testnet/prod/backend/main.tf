@@ -26,10 +26,9 @@ module "cartographer_db" {
   domain                = "cartographer"
   source                = "../../../modules/db"
   identifier            = "rds-postgres-cartographer-${var.environment}"
-  instance_class        = "db.t4g.large"
-  allocated_storage     = 125
-  max_allocated_storage = 140
-
+  instance_class        = "db.t4g.2xlarge"
+  allocated_storage     = 150
+  max_allocated_storage = 180
 
   name     = "connext" // db name
   username = var.postgres_user
@@ -43,8 +42,7 @@ module "cartographer_db" {
     Domain      = var.domain
   }
 
-  parameter_group_name = "default.postgres14"
-  vpc_id               = module.network.vpc_id
+  vpc_id = module.network.vpc_id
 
   hosted_zone_id             = data.aws_route53_zone.primary.zone_id
   stage                      = var.stage
@@ -52,6 +50,41 @@ module "cartographer_db" {
   db_security_group_id       = module.sgs.rds_sg_id
   db_subnet_group_subnet_ids = module.network.public_subnets
   publicly_accessible        = true
+}
+
+module "cartographer_db_replica" {
+  domain              = "cartographer"
+  source              = "../../../modules/db-replica"
+  replicate_source_db = module.cartographer_db.db_instance_id
+  depends_on          = [module.cartographer_db]
+  replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}"
+  instance_class      = "db.t4g.2xlarge"
+  allocated_storage   = 150
+
+  name     = module.cartographer_db.db_instance_name
+  username = module.cartographer_db.db_instance_username
+  password = module.cartographer_db.db_instance_password
+  port     = module.cartographer_db.db_instance_port
+
+  engine_version = module.cartographer_db.db_instance_engine_version
+
+  maintenance_window      = module.cartographer_db.db_maintenance_window
+  backup_retention_period = module.cartographer_db.db_backup_retention_period
+  backup_window           = module.cartographer_db.db_backup_window
+
+  tags = {
+    Environment = var.environment
+    Domain      = var.domain
+  }
+
+  parameter_group_name = "default.postgres14"
+
+  hosted_zone_id        = data.aws_route53_zone.primary.zone_id
+  stage                 = var.stage
+  environment           = var.environment
+  db_security_group_ids = module.cartographer_db.db_instance_vpc_security_group_ids
+  db_subnet_group_name  = module.cartographer_db.db_subnet_group_name
+  publicly_accessible   = module.cartographer_db.db_publicly_accessible
 }
 
 
@@ -66,7 +99,7 @@ module "postgrest" {
   private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = "postgrest/postgrest:v9.0.0.20220107"
+  docker_image             = "postgrest/postgrest:v10.0.0.20221011"
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80
@@ -83,6 +116,7 @@ module "postgrest" {
   container_env_vars       = local.postgrest_env_vars
   domain                   = var.domain
 }
+
 module "cartographer-routers-lambda-cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-cartographer"

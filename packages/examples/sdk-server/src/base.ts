@@ -137,17 +137,21 @@ export const baseRoutes = async (server: FastifyInstance, sdkBaseInstance: SdkBa
       },
     },
     async (request, reply) => {
-      const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
-        request.body;
-      const res = await sdkBaseInstance.calculateAmountReceived(
-        originDomain,
-        destinationDomain,
-        originTokenAddress,
-        amount,
-        receiveLocal,
-        checkFastLiquidity,
-      );
-      reply.status(200).send(res);
+      try {
+        const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
+          request.body;
+        const res = await sdkBaseInstance.calculateAmountReceived(
+          originDomain,
+          destinationDomain,
+          originTokenAddress,
+          amount,
+          receiveLocal,
+          checkFastLiquidity,
+        );
+        reply.status(200).send(res);
+      } catch (e: unknown) {
+        console.log(e);
+      }
     },
   );
 };

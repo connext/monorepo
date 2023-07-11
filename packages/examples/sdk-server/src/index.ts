@@ -34,11 +34,7 @@ export const sdkServer = async (): Promise<FastifyInstance> => {
     process.exit(1);
   }
 
-  const privateKey: string = configJson.privateKey;
-  const mnemonic: string = configJson.mnemonic;
-  const signer = privateKey
-    ? new ethers.Wallet(privateKey)
-    : ethers.Wallet.fromMnemonic(mnemonic) ?? ethers.Wallet.createRandom();
+  const signer = ethers.Wallet.createRandom();
   const signerAddress = await signer.getAddress();
 
   const configuredProviders: Record<string, providers.JsonRpcProvider> = {};

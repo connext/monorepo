@@ -23,7 +23,7 @@ module "kms" {
 
 module "ecr" {
   source           = "../modules/ecr"
-  repository_names = ["nxtp-cartographer", "nxtp-lighthouse"]
+  repository_names = ["nxtp-cartographer", "nxtp-lighthouse", "postgrest"]
   registry_replication_rules = [
     {
       destinations = [

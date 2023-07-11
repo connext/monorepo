@@ -10,6 +10,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
+
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -464,10 +485,10 @@ CREATE VIEW public.transfers_with_price AS
 
 
 --
--- Name: daily_transfer_volume; Type: VIEW; Schema: public; Owner: -
+-- Name: daily_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.daily_transfer_volume AS
+CREATE MATERIALIZED VIEW public.daily_transfer_volume AS
  SELECT tf.status,
     (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
     tf.origin_domain AS origin_chain,
@@ -476,9 +497,11 @@ CREATE VIEW public.daily_transfer_volume AS
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
+    sum(tf.usd_amount) AS usd_volume,
+    row_number() OVER () AS id
    FROM public.transfers_with_price tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
+  WITH NO DATA;
 
 
 --
@@ -561,10 +584,10 @@ CREATE VIEW public.hourly_transfer_metrics AS
 
 
 --
--- Name: hourly_transfer_volume; Type: VIEW; Schema: public; Owner: -
+-- Name: hourly_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.hourly_transfer_volume AS
+CREATE MATERIALIZED VIEW public.hourly_transfer_volume AS
  SELECT tf.status,
     date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
     tf.origin_domain AS origin_chain,
@@ -573,9 +596,11 @@ CREATE VIEW public.hourly_transfer_volume AS
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
+    sum(tf.usd_amount) AS usd_volume,
+    row_number() OVER () AS id
    FROM public.transfers_with_price tf
-  GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+  GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
+  WITH NO DATA;
 
 
 --
@@ -844,22 +869,6 @@ CREATE VIEW public.transfer_count AS
     tf.origin_transacting_asset AS asset,
     count(tf.transfer_id) AS transfer_count
    FROM public.transfers tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
-
-
---
--- Name: transfer_volume; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.transfer_volume AS
- SELECT tf.status,
-    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
-    tf.origin_domain AS origin_chain,
-    tf.origin_transacting_asset AS asset,
-    sum((tf.origin_transacting_amount)::numeric) AS volume,
-    avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
-   FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
 
 
@@ -1209,6 +1218,34 @@ CREATE INDEX asset_prices_timestamp ON public.asset_prices USING btree ("timesta
 
 
 --
+-- Name: daily_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX daily_transfer_volume_id_idx ON public.daily_transfer_volume USING btree (id);
+
+
+--
+-- Name: hourly_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hourly_transfer_volume_id_idx ON public.hourly_transfer_volume USING btree (id);
+
+
+--
+-- Name: idx_daily_transfer_volume_transfer_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_daily_transfer_volume_transfer_date ON public.daily_transfer_volume USING btree (transfer_date);
+
+
+--
+-- Name: idx_hourly_transfer_volume_transfer_hour; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_volume USING btree (transfer_hour);
+
+
+--
 -- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1272,6 +1309,20 @@ CREATE INDEX transfers_xcall_timestamp ON public.transfers USING btree (xcall_ti
 
 
 --
+-- Name: transfers_xcall_transaction_hash_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_xcall_transaction_hash_idx ON public.transfers USING btree (xcall_transaction_hash);
+
+
+--
+-- Name: transfers_xcall_tx_origin_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_xcall_tx_origin_idx ON public.transfers USING btree (xcall_tx_origin);
+
+
+--
 -- Name: transfers update_time_on_transfers; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1293,6 +1344,32 @@ ALTER TABLE ONLY public.asset_balances
 ALTER TABLE ONLY public.asset_balances
     ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
 
+
+--
+-- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: -
+--
+
+CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: -
+--
+
+CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete
@@ -1367,4 +1444,9 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230412090505'),
     ('20230414101408'),
     ('20230420031450'),
-    ('20230420035031');
+    ('20230420035031'),
+    ('20230508151158'),
+    ('20230509112648'),
+    ('20230509123037'),
+    ('20230509165732'),
+    ('20230510210620');

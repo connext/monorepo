@@ -50,6 +50,7 @@ describe("SdkShared", () => {
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "domainToChainId").returns(chainId);
+    stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
   });
@@ -202,6 +203,7 @@ describe("SdkShared", () => {
   describe("#getBlockNumberFromUnixTimestamp", () => {
     it("happy: should work", async () => {
       const height = 1234;
+      restore();
       stub(SdkShared, "domainToChainName").resolves("mock-chain");
       stub(SharedFns, "axiosGetRequest").resolves({ height: height });
       const res = await SdkShared.getBlockNumberFromUnixTimestamp(mock.domain.A, 123124);
@@ -211,6 +213,7 @@ describe("SdkShared", () => {
 
   describe("#getAssetsData", () => {
     it("happy: should work", async () => {
+      restore();
       stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
       const res = await sdkShared.getAssetsData();
       expect(res).to.be.deep.equal([mockAssetData]);

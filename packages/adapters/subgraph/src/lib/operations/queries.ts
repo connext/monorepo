@@ -360,7 +360,7 @@ export const SAVED_SNAPSHOT_ROOT_ENTITY = `
 `;
 export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       id
-      endOfDispute
+      disputeCliff
       aggregateRoot
       snapshotsRoots
       domains
@@ -704,9 +704,9 @@ const destinationTransferByExecutedTimestampQueryString = (
 ) => {
   return `${prefix}_destinationTransfers(
     where: {
-      reconciledTimestamp_gte: ${fromTimestamp},
+      executedTimestamp_gte: ${fromTimestamp},
     },
-    orderBy: nonce,
+    orderBy: executedTimestamp,
     orderDirection: ${orderDirection}
   ) {${DESTINATION_TRANSFER_ENTITY}}`;
 };
@@ -1000,14 +1000,13 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
+    // TODO: Ordering needed
     combinedQuery += `
-    ${prefix}_optimisticRootProposed ( 
+    ${prefix}_optimisticRootProposeds ( 
       first: ${param.limit}, 
       where: { 
         id_gte: ${param.snapshotId}
       }
-      orderBy: timestamp, 
-      orderDirection: asc
     ) {
       ${PROPOSED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1051,13 +1050,8 @@ export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp:
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
-    ${prefix}_optimisticRootFinalized ( 
-      first: ${param.limit}, 
-      where: { 
-        timestamp_gte: ${param.timestamp}
-      }
-      orderBy: timestamp, 
-      orderDirection: asc
+    ${prefix}_optimisticRootFinalizeds ( 
+      where: {}
     ) {
       ${FINALIZED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1078,13 +1072,8 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
-    ${prefix}_optimisticRootFinalized ( 
-      first: ${param.limit}, 
-      where: { 
-        timestamp_gte: ${param.timestamp}
-      }
-      orderBy: timestamp, 
-      orderDirection: asc
+    ${prefix}_optimisticRootFinalizeds ( 
+      where: {}
     ) {
       ${PROPAGATED_OPTIMISTIC_ROOT_ENTITY}
     }`;

@@ -29,6 +29,7 @@ import {
   getTransfersByStatus,
   getTransfersWithOriginPending,
   getTransfersWithDestinationPending,
+  getPendingTransfersByDomains,
   saveTransfers,
   saveRouterBalances,
   saveMessages,
@@ -47,6 +48,7 @@ import {
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
+  getUnProcessedMessagesByDomains,
   getAggregateRoot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
@@ -104,6 +106,14 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
+  getPendingTransfersByDomains: (
+    origin_domain: string,
+    destination_domain: string,
+    limit: number,
+    offset: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
@@ -151,6 +161,14 @@ export type Database = {
   ) => Promise<void>;
   getUnProcessedMessages: (
     origin_domain: string,
+    limit?: number,
+    offset?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByDomains: (
+    origin_domain: string,
+    destination_domain: string,
     limit?: number,
     offset?: number,
     orderDirection?: "ASC" | "DESC",
@@ -307,6 +325,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,
+    getPendingTransfersByDomains,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveAssets,
@@ -327,6 +346,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     savePropagatedOptimisticRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
+    getUnProcessedMessagesByDomains,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootByRootAndDomain,

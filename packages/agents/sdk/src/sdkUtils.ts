@@ -63,7 +63,7 @@ export class SdkUtils extends SdkShared {
       ? _logger.child({ name: "SdkUtils" })
       : new Logger({ name: "SdkUtils", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkUtils(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkUtils(nxtpConfig, logger, chainData));
   }
 
   /**

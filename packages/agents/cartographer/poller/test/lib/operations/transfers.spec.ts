@@ -32,7 +32,7 @@ describe("Transfers operations", () => {
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithOriginPending as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getTransfersWithDestinationPending as SinonStub).callCount(0);
-      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(0);
+      expect(mockContext.adapters.database.saveTransfers as SinonStub).callCount(2);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(0);
     });
 

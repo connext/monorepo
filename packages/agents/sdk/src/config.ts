@@ -155,8 +155,6 @@ export const getEnvConfig = (
   return nxtpConfig;
 };
 
-let nxtpConfig: SdkConfig | undefined;
-
 /**
  * Caches and returns the environment config
  *
@@ -171,7 +169,7 @@ export const getConfig = async (
   if (!chainData) {
     chainData = await getChainData();
   }
-  nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
+  const nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   return { nxtpConfig: nxtpConfig, chainData: chainData };
 };
 

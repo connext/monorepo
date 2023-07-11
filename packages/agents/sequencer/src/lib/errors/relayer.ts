@@ -17,3 +17,9 @@ export class SlippageToleranceExceeded extends NxtpError {
     super(`Slippage tolerance exceeded`, context, SlippageToleranceExceeded.name);
   }
 }
+
+export class CanonicalAssetNotFound extends NxtpError {
+  constructor(context: any = {}) {
+    super(`Asset not found`, context, CanonicalAssetNotFound.name);
+  }
+}

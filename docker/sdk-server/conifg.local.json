@@ -1,0 +1,17 @@
+{
+  "chains": {
+    "1735353714": {
+      "providers": ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"]
+    },
+    "1735356532": {
+      "providers": ["https://goerli.optimism.io/"]
+    },
+    "9991": {
+      "providers": ["https://rpc.ankr.com/polygon_mumbai"]
+    }
+  },
+  "logLevel": "debug",
+  "mnemonic": "<YOUR MNEMONIC HERE>",
+  "environment": "production",
+  "network": "testnet"
+}

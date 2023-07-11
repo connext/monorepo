@@ -41,8 +41,6 @@ export const updateTransfers = async () => {
 
   const subgraphOriginQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const subgraphDestinationQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-  const subgraphOriginPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
-  const subgraphDestinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const latestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
@@ -87,20 +85,6 @@ export const updateTransfers = async () => {
         fromTimestamp: reconciledTimestamp,
         orderDirection: "asc",
       });
-
-      const pendingOriginTransfersIDs = await database.getTransfersWithOriginPending(domain, 100, "ASC");
-
-      subgraphOriginPendingQueryMetaParams.set(domain, {
-        maxBlockNumber: latestBlockNumber,
-        transferIDs: pendingOriginTransfersIDs,
-      });
-
-      const pendingDestinationTransfersIDs = await database.getTransfersWithDestinationPending(domain, 100, "ASC");
-
-      subgraphDestinationPendingQueryMetaParams.set(domain, {
-        maxBlockNumber: latestBlockNumber,
-        transferIDs: pendingDestinationTransfersIDs,
-      });
     }),
   );
 
@@ -130,7 +114,6 @@ export const updateTransfers = async () => {
     // Get destination transfers for all domains in the mapping.
     const transfers = await subgraph.getDestinationTransfersByExecutedTimestamp(subgraphDestinationQueryMetaParams);
     logger.info("Retrieved destination transfers by executed timestamp", requestContext, methodContext, {
-      transfers: transfers,
       count: transfers.length,
     });
 
@@ -162,7 +145,6 @@ export const updateTransfers = async () => {
           domain,
         );
         logger.info("Retrieved destination transfers by reconcile timestamp by domain", requestContext, methodContext, {
-          transfers: domainTransfers,
           domain: domain,
           count: domainTransfers.length,
         });
@@ -177,22 +159,35 @@ export const updateTransfers = async () => {
     );
   }
 
-  if (subgraphOriginPendingQueryMetaParams.size > 0) {
-    const transfers = await subgraph.getOriginTransfersById(subgraphOriginPendingQueryMetaParams);
-    logger.info("Retrieved origin transfers by id", requestContext, methodContext, {
-      transfers: transfers,
-      count: transfers.length,
-    });
-    await database.saveTransfers(transfers);
-  }
+  for (const originDomain of domains) {
+    for (const destinationDomain of domains) {
+      if (originDomain == destinationDomain) continue;
+      const pendingTransfers = await database.getPendingTransfersByDomains(
+        originDomain,
+        destinationDomain,
+        100,
+        0,
+        "ASC",
+      );
 
-  if (subgraphDestinationPendingQueryMetaParams.size > 0) {
-    const transfers = await subgraph.getDestinationTransfersById(subgraphDestinationPendingQueryMetaParams);
-    logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
-      transfers: transfers,
-      count: transfers.length,
-    });
-    await database.saveTransfers(transfers as XTransfer[]);
+      const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
+      _destinationPendingQueryMetaParams.set(destinationDomain, {
+        maxBlockNumber: latestBlockNumbers.get(originDomain)!,
+        transferIDs: pendingTransfers,
+      });
+      const destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
+
+      if (destinationTransfers.length > 0) {
+        logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
+          originDomain,
+          destinationDomain,
+          indexes: destinationTransfers.map((i) => i.xparams.nonce),
+          count: destinationTransfers.length,
+        });
+
+        await database.saveTransfers(destinationTransfers as XTransfer[]);
+      }
+    }
   }
 };
 

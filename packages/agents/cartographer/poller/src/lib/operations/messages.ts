@@ -2,7 +2,10 @@ import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils
 
 import { getContext } from "../../shared";
 
-const markableDomainsForRootMessage = ["6450786"];
+const markableDomainsForRootMessage = [
+  "6450786", // BNB
+  "1668247156", // Consensys zkEvm Testnet
+];
 
 export const retrieveOriginMessages = async () => {
   const {
@@ -50,26 +53,56 @@ export const updateMessages = async () => {
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateMessages.name);
-  for (const domain of domains) {
-    logger.debug("Updating messages", requestContext, methodContext, { domain });
-    const pendingMessages = await database.getUnProcessedMessages(domain);
-    const messageHashes = pendingMessages.map((message) => message.leaf);
-    const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
+  for (const originDomain of domains) {
+    for (const destinationDomain of domains) {
+      if (originDomain == destinationDomain) continue;
+      const offset = 0;
+      const limit = 100;
 
-    const xMessages: XMessage[] = [];
-    for (const pendingMessage of pendingMessages) {
-      const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
-      if (!completed) continue;
-      xMessages.push({
-        ...pendingMessage,
-        destination: {
-          processed: true,
-          returnData: "",
-        },
+      logger.debug("Updating messages", requestContext, methodContext, {
+        originDomain,
+        destinationDomain,
+        offset,
+        limit,
+      });
+      const pendingMessages = await database.getUnProcessedMessagesByDomains(
+        originDomain,
+        destinationDomain,
+        limit,
+        offset,
+      );
+      if (pendingMessages.length > 0) {
+        logger.debug("Pending messages", requestContext, methodContext, {
+          originDomain,
+          destinationDomain,
+          startIndex: pendingMessages[0].origin.index,
+          endIndex: pendingMessages[pendingMessages.length - 1].origin.index,
+        });
+      }
+      const messageHashes = pendingMessages.map((message) => message.leaf);
+      const completedTransfers = await database.getCompletedTransfersByMessageHashes(messageHashes);
+
+      const xMessages: XMessage[] = [];
+      for (const pendingMessage of pendingMessages) {
+        const completed = completedTransfers.find((transfer) => transfer.origin?.messageHash === pendingMessage.leaf);
+        if (!completed) continue;
+        xMessages.push({
+          ...pendingMessage,
+          destination: {
+            processed: true,
+            returnData: "",
+          },
+        });
+      }
+      await database.saveMessages(xMessages);
+      logger.debug("Updated messages", requestContext, methodContext, {
+        count: xMessages.length,
+        originDomain,
+        destinationDomain,
+        offset,
+        limit,
       });
     }
-    await database.saveMessages(xMessages);
-    logger.debug("Updated messages", requestContext, methodContext, { count: xMessages.length, domain });
   }
 };
 

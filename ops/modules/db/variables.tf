@@ -40,12 +40,6 @@ variable "db_security_group_id" {
   type        = string
 }
 
-
-variable "parameter_group_name" {
-  description = "Name of the DB parameter group to associate"
-  type        = string
-}
-
 variable "availability_zone" {
   description = "The Availability Zone of the RDS instance"
   type        = string
@@ -70,7 +64,7 @@ variable "maintenance_window" {
 }
 
 variable "domain" {
-  type = string
+  type        = string
   description = "Domain model target"
 }
 
@@ -90,7 +84,7 @@ variable "hosted_zone_id" {
 
 
 variable "vpc_id" {
-  type = string
+  type        = string
   description = "underlying vpc id"
 }
 
@@ -101,9 +95,13 @@ variable "base_domain" {
 
 variable "db_subnet_group_subnet_ids" {
   description = "subnet group ids"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "publicly_accessible" {
   default = false
+}
+
+variable "performance_insights_enabled" {
+  default = true
 }
