@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-integration",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "Integration tests for NXTP",
   "author": "Connext",
   "license": "MIT",
@@ -76,5 +76,5 @@
     "tslib": "2.5.0",
     "typescript": "4.9.5"
   },
-  "stableVersion": "0.2.0-alpha.29"
+  "stableVersion": "2.0.0"
 }
