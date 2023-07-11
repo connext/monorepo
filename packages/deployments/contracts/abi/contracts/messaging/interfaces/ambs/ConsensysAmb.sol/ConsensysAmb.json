@@ -1,7 +1,12 @@
 [
-  "event MessageDelivered(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata)",
-  "event MessageDispatched(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata)",
-  "function deliverMessage(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata) payable",
-  "function dispatchMessage(address _to, uint256 _fee, uint256 _deadline, bytes _calldata) payable",
+  "error FeePaymentFailed(address recipient)",
+  "error FeeTooLow()",
+  "error MessageSendingFailed(address destination)",
+  "error ValueSentTooLow()",
+  "error ValueShouldBeGreaterThanFee()",
+  "event MessageClaimed(bytes32 indexed _messageHash)",
+  "event MessageSent(address indexed _from, address indexed _to, uint256 _fee, uint256 _value, uint256 _nonce, bytes _calldata, bytes32 indexed _messageHash)",
+  "function claimMessage(address _from, address _to, uint256 _fee, uint256 _value, address _feeRecipient, bytes _calldata, uint256 _nonce)",
+  "function sendMessage(address _to, uint256 _fee, bytes _calldata) payable",
   "function sender() view returns (address)"
 ]

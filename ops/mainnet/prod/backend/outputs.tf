@@ -30,6 +30,11 @@ output "postgrest-service-endpoint" {
   value = module.postgrest.service_endpoint
 }
 
+output "sdk-server-service-endpoint" {
+  value = module.sdk-server.service_endpoint
+}
+
+
 output "db-instance-endpoint" {
   value = module.cartographer_db.db_instance_endpoint
 }

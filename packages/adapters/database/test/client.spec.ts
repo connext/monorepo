@@ -77,6 +77,7 @@ import {
   getMessageRootStatusFromIndex,
   getAggregateRootByRootAndDomain,
   getMessageByLeaf,
+  deleteNonExistTransfers,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -249,6 +250,28 @@ describe("Database client", () => {
       expect(dbTransfer!.destination!.status).equal(XTransferStatus.CompletedSlow);
       expect(dbTransfer!.transferId).equal(transfer.transferId);
     }
+  });
+
+  it("should delete duplicated transfers", async () => {
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      transfers.push(mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: _i }));
+    }
+    const duplicated = mock.entity.xtransfer({ status: XTransferStatus.XCalled, nonce: 0 });
+    duplicated.origin!.xcall.timestamp = transfers[0].origin!.xcall.timestamp + 1;
+    transfers.push(duplicated);
+
+    await saveTransfers(transfers, pool);
+    let all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.length).to.eq(batchSize + 1);
+
+    const transferIds = await deleteNonExistTransfers(pool);
+
+    all = await getTransfersByStatus(XTransferStatus.XCalled, 100, 0, "ASC", pool);
+    expect(all.map((t) => t.transferId).includes(duplicated.transferId)).to.be.true;
+    expect(all.length).to.eq(batchSize);
+    expect(transferIds.length).to.eq(1);
+    expect(transferIds[0]).to.eq(transfers[0].transferId);
   });
 
   it("should get transfer by status", async () => {
@@ -674,7 +697,9 @@ describe("Database client", () => {
   it("should save multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
   });
@@ -682,7 +707,9 @@ describe("Database client", () => {
   it("should upsert multiple messages", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
     for (let message of messages) {
@@ -692,6 +719,7 @@ describe("Database client", () => {
     const pendingMessages = await getUnProcessedMessagesByIndex(
       mock.domain.A,
       mock.domain.B,
+      0,
       batchSize,
       0,
       100,
@@ -803,7 +831,9 @@ describe("Database client", () => {
   it("should getMessageByLeaf", async () => {
     const messages: XMessage[] = [];
     for (var _i = 0; _i < batchSize; _i++) {
-      messages.push(mock.entity.xMessage());
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
     }
     await saveMessages(messages, pool);
 
@@ -861,8 +891,10 @@ describe("Database client", () => {
     }
     await saveMessages(messages, pool);
 
-    const _messages = await getSpokeNodes(mock.domain.A, 0, 3, batchSize, pool);
-    expect(_messages).to.deep.eq(messages.slice(1, 4).map((m) => m.leaf));
+    const _messages1 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 10000, pool);
+    expect(_messages1).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
+    const _messages2 = await getSpokeNodes(mock.domain.A, 1, 4, batchSize, 1, pool);
+    expect(_messages2).to.deep.eq(messages.slice(1, 5).map((m) => m.leaf));
   });
 
   it("should get hub node", async () => {
@@ -887,8 +919,11 @@ describe("Database client", () => {
     }
     await saveAggregatedRoots(roots, pool);
 
-    const dbRoots = await getHubNodes(3, 7, batchSize, pool);
-    expect(dbRoots).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
+    const dbRoots1 = await getHubNodes(3, 7, batchSize, 10000, pool);
+    expect(dbRoots1).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
+
+    const dbRoots2 = await getHubNodes(3, 7, batchSize, 1, pool);
+    expect(dbRoots2).to.deep.eq(roots.slice(3, 7 + 1).map((r) => r.receivedRoot));
   });
 
   it("should get getLatestMessageRoot", async () => {
@@ -1003,7 +1038,14 @@ describe("Database client", () => {
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(
-      getUnProcessedMessages(undefined as any, undefined as any, undefined as any, undefined as any, undefined as any),
+      getUnProcessedMessages(
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+      ),
     ).to.eventually.not.be.rejected;
     await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;

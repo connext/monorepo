@@ -14,10 +14,26 @@ import {
   getDestinationSwapDataForUniV3,
   getDestinationSwapDataForOneInch,
 } from "./swapdata";
-import { SwapQuoteCallback, getSwapQuoteForOneInch, getSwapQuoteForUniV2, getSwapQuoteForUniV3 } from "./swapquote";
+import {
+  SwapQuoteCallback,
+  getSwapQuoteForOneInch,
+  getSwapQuoteForUniV2,
+  getSwapQuoteForUniV3,
+  initCoreSDK as _initCoreSDK,
+} from "./swapquote";
 import { DEPLOYED_ADDRESSES as _DEPLOYED_ADDRESSES } from "./address";
+import {
+  getSupportedAssets as _getSupportedAssets,
+  getCoingeckoIDs as _getCoingeckoIDs,
+  getTokenPricesInUsd as _getTokenPricesInUsd,
+} from "./asset";
+
+export const getSupportedAssetsForDomain = _getSupportedAssets;
+export const getCoingeckoIDs = _getCoingeckoIDs;
+export const getTokenPricesInUsd = _getTokenPricesInUsd;
 
 export const DEPLOYED_ADDRESSES = _DEPLOYED_ADDRESSES;
+export const initCoreSDK = _initCoreSDK;
 
 export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
   UniV2: getOriginSwapDataForUniV2,

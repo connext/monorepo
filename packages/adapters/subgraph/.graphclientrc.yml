@@ -398,9 +398,9 @@ sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
             retry: 2
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_
@@ -425,11 +425,11 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6NccoNRo22DgB7oCHaG7U5MxvfYXcCERRN1oVtCWm32x"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
             retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-polygon"
-            retry: 5
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
@@ -455,11 +455,11 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DNQfRxJou184r5YagTz9HUQST5URsY2WdYkegH9Rrdkf"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
             retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one"
-            retry: 5
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:

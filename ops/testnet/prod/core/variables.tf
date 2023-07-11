@@ -60,6 +60,11 @@ variable "full_image_name_sequencer_subscriber" {
   default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.8"
 }
 
+variable "full_image_name_lighthouse_prover_subscriber" {
+  type        = string
+  description = "lighthouse subscriber image name"
+}
+
 variable "lighthouse_image_tag" {
   type        = string
   description = "lighthouse image tag"
@@ -103,6 +108,14 @@ variable "goerli_alchemy_key_1" {
 }
 
 variable "optgoerli_alchemy_key_0" {
+  type = string
+}
+
+variable "optgoerli_alchemy_key_for_lh" {
+  type = string
+}
+
+variable "mumbai_alchemy_key_0" {
   type = string
 }
 

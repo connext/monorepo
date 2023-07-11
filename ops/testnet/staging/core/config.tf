@@ -28,6 +28,13 @@ locals {
     DD_API_KEY        = var.dd_api_key,
     DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
   }
+  lighthouse_prover_subscriber_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
@@ -251,6 +258,10 @@ locals {
   })
 
   local_lighthouse_config = jsonencode({
+    redis = {
+      host = module.lighthouse_cache.redis_instance_address,
+      port = module.lighthouse_cache.redis_instance_port
+    }
     logLevel = "debug"
     chains = {
       "1735356532" = {
@@ -284,9 +295,12 @@ locals {
     ]
     environment = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
-    hubDomain       = "1735353714"
+    main            = "1735353714"
     proverBatchSize = 1
   })
 

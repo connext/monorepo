@@ -1,5 +1,11 @@
-import { BigNumber } from "ethers";
-import { createLoggingContext, createRequestContext, jsonifyError, RelayerTaskStatus } from "@connext/nxtp-utils";
+import { BigNumber, providers } from "ethers";
+import {
+  createLoggingContext,
+  createRequestContext,
+  getBestProvider,
+  jsonifyError,
+  RelayerTaskStatus,
+} from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
 
@@ -23,6 +29,7 @@ export const bindRelays = async (_pollInterval?: number) => {
 export const pollCache = async () => {
   const {
     adapters: { cache, wallet, txservice },
+    config,
     logger,
     chainToDomainMap,
   } = getContext();
@@ -61,11 +68,20 @@ export const pollCache = async () => {
     const chain = Number(chainIdKey);
     const domain = chainToDomainMap.get(chain)!;
 
+    const rpcUrl = await getBestProvider(config.chains[domain].providers);
+    if (!rpcUrl) {
+      logger.debug("Bad rpcs", _requestContext, methodContext, { domain, providers: config.chains[domain].providers });
+      continue;
+    }
+
+    const rpcProvider = new providers.JsonRpcProvider(rpcUrl);
+
     for (const task of tasksByChain[chain]) {
       // TODO: Sanity check: should have enough balance to pay for gas on the specified chain.
       const taskId = task.id;
       const requestContext = createRequestContext(pollCache.name, taskId);
       const status = await cache.tasks.getStatus(taskId);
+
       if (status !== RelayerTaskStatus.ExecPending) {
         // Sanity: task should be pending.
         // Possible in the event of a race while updating the cache.
@@ -87,13 +103,32 @@ export const pollCache = async () => {
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
+        const gasPrice = await rpcProvider.getGasPrice();
+        logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
+          gasPrice: gasPrice.toString(),
+        });
+        const gasLimit = await txservice.getGasEstimate(+domain, transaction);
+        logger.debug(`Got the gasLimit for domain: ${domain}`, requestContext, methodContext, {
+          gasLimit: gasLimit.toString(),
+        });
+
+        const bumpedGasPrice = gasPrice.mul(130).div(100);
+        const bumpedGasLimit = gasLimit.mul(120).div(100);
 
         // Execute the calldata.
-        logger.info("Sending tx", requestContext, methodContext, { chain, taskId, data });
+        logger.info("Sending tx", requestContext, methodContext, {
+          chain,
+          taskId,
+          data,
+          gasPrice: bumpedGasPrice.toString(),
+          gasLimit: bumpedGasLimit.toString(),
+        });
+
         const receipt = await txservice.sendTx(
           {
             ...transaction,
-            gasLimit: MIN_GAS_LIMIT,
+            gasLimit: bumpedGasLimit,
+            gasPrice: bumpedGasPrice,
             value: 0,
           },
           requestContext,

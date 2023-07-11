@@ -34,7 +34,7 @@ variable "cartographer_image_tag" {
 variable "full_image_name_sdk_server" {
   type        = string
   description = "sdk-server image name"
-  default     = "ghcr.io/connext/sdk-server:sha-e33b4fd"
+  default     = "latest"
 }
 
 

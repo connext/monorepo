@@ -31,6 +31,13 @@ locals {
     DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
     GRAPH_API_KEY     = var.graph_api_key
   }
+  lighthouse_prover_subscriber_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
@@ -144,43 +151,43 @@ locals {
         {
           name       = "http"
           limit      = 100
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6648936"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1869640809"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1886350457"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1634886255"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6450786"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6778479"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
       ]
@@ -222,6 +229,7 @@ locals {
         },
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -275,6 +283,10 @@ locals {
   })
 
   local_lighthouse_config = jsonencode({
+    redis = {
+      host = module.lighthouse_cache.redis_instance_address,
+      port = module.lighthouse_cache.redis_instance_port
+    }
     logLevel = "debug"
     chains = {
       "6648936" = {
@@ -299,6 +311,9 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
       url = local.default_db_url
     }
     relayers = [
@@ -327,6 +342,19 @@ locals {
       "1634886255" = 10,
       "6450786"    = 10,
       "6778479"    = 10
+    }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+      prefetchSize = 1
     }
   })
 
