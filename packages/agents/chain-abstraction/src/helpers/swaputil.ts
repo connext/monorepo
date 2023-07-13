@@ -1,8 +1,8 @@
-import { AlphaRouter } from "@uniswap/smart-order-router";
+import { AlphaRouter, V3RouteWithValidQuote } from "@uniswap/smart-order-router";
 import { ethers } from "ethers";
 import { CurrencyAmount, Token, TradeType } from "@uniswap/sdk-core";
 import { Route, Trade, Token as _Token, Fetcher, TokenAmount, Pair } from "@uniswap/sdk";
-import { FeeAmount } from "@uniswap/v3-sdk";
+import { encodeRouteToPath } from "@uniswap/v3-sdk";
 import {
   Fetcher as PancakeFetcher,
   Trade as PancakeTrade,
@@ -23,26 +23,6 @@ type SwapPathCallBackArgs = {
 };
 
 export type DestinationSwapPathCallback = (args: SwapPathCallBackArgs) => Promise<any>;
-
-const FEE_SIZE = 3;
-
-export function encodePath(path: string[], fees: FeeAmount[]): string {
-  if (path.length != fees.length + 1) {
-    throw new Error("path/fee lengths do not match");
-  }
-
-  let encoded = "0x";
-  for (let i = 0; i < fees.length; i++) {
-    // 20 byte encoding of the address
-    encoded += path[i].slice(2);
-    // 3 byte encoding of the fee
-    encoded += fees[i].toString(16).padStart(2 * FEE_SIZE, "0");
-  }
-  // encode the final token
-  encoded += path[path.length - 1].slice(2);
-
-  return encoded.toLowerCase();
-}
 
 /**
  * Returns the `path` from the uniswap v3 router.
@@ -67,15 +47,8 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
       throw Error("No routes found for given Pair");
     }
 
-    const tokenPathAddress = routes?.route[0].tokenPath.map((tokenPath) => tokenPath.address);
-
-    const feeAmount = [];
-
-    for (let i = 0; i < tokenPathAddress.length - 1; i++) {
-      feeAmount.push(FeeAmount.MEDIUM);
-    }
-
-    const path = encodePath(tokenPathAddress, feeAmount);
+    const route = routes?.route[0] as V3RouteWithValidQuote;
+    const path = encodeRouteToPath(route.route, false);
 
     return {
       quote: routes.quote,
