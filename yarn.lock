@@ -838,7 +838,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@certusone/wormhole-sdk@npm:^0.9.21":
+"@certusone/wormhole-sdk@npm:0.9.21":
   version: 0.9.21
   resolution: "@certusone/wormhole-sdk@npm:0.9.21"
   dependencies:
@@ -2867,7 +2867,7 @@ __metadata:
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
     "@arbitrum/sdk": 3.1.3
-    "@certusone/wormhole-sdk": ^0.9.21
+    "@certusone/wormhole-sdk": 0.9.21
     "@connext/nxtp-utils": "workspace:*"
     "@eth-optimism/sdk": 2.1.0
     "@gelatonetwork/relay-context": 2.1.0
