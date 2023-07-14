@@ -25,7 +25,10 @@ const chainIdToWhId: Map<number, number> = new Map([
 ]);
 
 export default task("wormhole-deliver", "Get status of the message through wormhole and deliver")
-  .addOptionalParam("txHash", "Sent transaction has on origin chain")
+  .addOptionalParam(
+    "txHash",
+    "Sent transaction on origin chain. If not provided, find the latest MessageSent event tx.",
+  )
   .addOptionalParam("dryRun", "Execute tx if wasn't delivered")
   .setAction(
     async (
