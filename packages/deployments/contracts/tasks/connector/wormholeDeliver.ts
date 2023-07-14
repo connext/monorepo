@@ -24,6 +24,15 @@ const chainIdToWhId: Map<number, number> = new Map([
   [56, CHAINS.bsc],
 ]);
 
+// USAGE:
+// process to bnb:
+// yarn workspace wormhole-deliver --dry-run false --network mainnet
+//
+// process from bnb:
+// yarn workspace wormhole-deliver --dry-run false --network bnb
+//
+// leave out "--dry-run" flag to run through the script without submitting transactions to chain
+
 export default task("wormhole-deliver", "Get status of the message through wormhole and deliver")
   .addOptionalParam(
     "txHash",
