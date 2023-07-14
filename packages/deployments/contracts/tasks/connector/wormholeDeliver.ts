@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { relayer, toChainName, ChainId, CHAINS } from "@certusone/wormhole-sdk";
 import { axiosGet } from "@connext/nxtp-utils";
-import { Contract } from "ethers";
+import { Contract, Wallet } from "ethers";
 
 import {
   Env,
@@ -58,11 +58,10 @@ export default task("wormhole-deliver", "Get status of the message through wormh
         const latestBlock = await sourceProvider.getBlockNumber();
 
         const protocolConfig = getMessagingProtocolConfig("mainnet" as ProtocolNetwork);
-
         const deploymentName = getDeploymentName(
-          getConnectorName(protocolConfig, +network.chainId),
+          getConnectorName(protocolConfig, 56, network.chainId),
           "production",
-          protocolConfig.configs[+network.chainId].networkName,
+          protocolConfig.configs[56].networkName,
         );
         const deployment = await deployments.get(deploymentName);
         const address = deployment.address;
@@ -112,7 +111,11 @@ export default task("wormhole-deliver", "Get status of the message through wormh
         const signed_vaa = Buffer.from(vaaBytes as string, "base64");
         console.log("signed vaa: ", signed_vaa);
 
-        const receipt = await relayer.deliver(signed_vaa, deployer.connect(targetProvider), "");
+        const receipt = await relayer.deliver(
+          signed_vaa,
+          Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC!).connect(targetProvider),
+          "",
+        );
 
         console.log("deliver tx", receipt);
       }
