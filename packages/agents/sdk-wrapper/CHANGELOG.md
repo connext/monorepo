@@ -4,7 +4,7 @@
 
 ## v2.1.2-alpha.0
 
-- `getTokenSupply`, `getTokenUserBalance`, `getUserPools`: Passes `options` correctly to backend request.
+- `getTokenSupply`, `getTokenUserBalance`, `getUserPools`: Correctly passes `options` to backend request and uses provider from config as default.
 
 ## v2.1.1
 
