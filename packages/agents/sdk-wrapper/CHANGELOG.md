@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.2-alpha.0
+
+- `getTokenSupply`, `getTokenUserBalance`, `getUserPools`: Passes `options` correctly to backend request.
+
 ## v2.1.1
 
 - Stable release with just sdk-core changes
