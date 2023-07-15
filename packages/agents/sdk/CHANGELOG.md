@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.2-alpha.0
+
+- `getUserPools`: Takes `options?` param
+
 ## v2.1.1
 
 - Stable release with filter by domain
