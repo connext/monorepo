@@ -331,21 +331,38 @@ export class SdkPool extends SdkShared {
     return response.data;
   }
 
-  async getTokenSupply(domainId: string, tokenAddress: string): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string } = {
+  async getTokenSupply(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+      originProviderUrl: this.config.chains[domainId].providers?.[0],
+    };
+    const params = {
       domainId,
       tokenAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenSupply`, params);
 
     return BigNumber.from(response.data);
   }
 
-  async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string; userAddress: string } = {
+  async getTokenUserBalance(
+    domainId: string,
+    tokenAddress: string,
+    userAddress: string,
+    options?: Options,
+  ): Promise<BigNumber> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+      originProviderUrl: this.config.chains[domainId].providers?.[0],
+    };
+    const params = {
       domainId,
       tokenAddress,
       userAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenUserBalance`, params);
 
@@ -611,10 +628,17 @@ export class SdkPool extends SdkShared {
   async getUserPools(
     domainId: string,
     userAddress: string,
+    options?: Options,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
-    const params: { domainId: string; userAddress: string } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+      originProviderUrl: this.config.chains[domainId].providers?.[0],
+    };
+    const params = {
       domainId,
       userAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getUserPools`, params);
 
