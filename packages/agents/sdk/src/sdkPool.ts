@@ -1337,6 +1337,7 @@ export class SdkPool extends SdkShared {
   async getUserPools(
     domainId: string,
     userAddress: string,
+    options?: Options,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
     const { requestContext, methodContext } = createLoggingContext(this.getUserPools.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, userAddress });
@@ -1351,13 +1352,24 @@ export class SdkPool extends SdkShared {
           if (data.domain === domainId) {
             const pool = await this.getPool(domainId, data.local);
             if (pool) {
-              const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+              const lpTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.lpTokenAddress,
+                userAddress,
+                options,
+              );
               const adoptedTokenUserBalance = await this.getTokenUserBalance(
                 domainId,
                 pool.adopted.address,
                 userAddress,
+                options,
               );
-              const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
+              const localTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.local.address,
+                userAddress,
+                options,
+              );
 
               if (lpTokenUserBalance.gt(0)) {
                 result.push({
