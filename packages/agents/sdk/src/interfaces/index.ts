@@ -552,6 +552,7 @@ export type SdkGetLPTokenAddressParams = Static<typeof SdkGetLPTokenAddressParam
 export const SdkGetTokenSupplyParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetTokenSupplyParams = Static<typeof SdkGetTokenSupplyParamsSchema>;
 
@@ -560,6 +561,7 @@ export const SdkGetTokenUserBalanceParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   userAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetTokenUserBalanceParams = Static<typeof SdkGetTokenUserBalanceParamsSchema>;
 
@@ -712,6 +714,7 @@ export type SdkGetPoolParams = Static<typeof SdkGetPoolParamsSchema>;
 export const SdkGetUserPoolsParamsSchema = Type.Object({
   domainId: Type.String(),
   userAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetUserPoolsParams = Static<typeof SdkGetUserPoolsParamsSchema>;
 
