@@ -107,6 +107,7 @@ jobs:
             "packages/adapters/txservice:@connext/nxtp-txservice"
             "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
             "packages/adapters/cache:@connext/nxtp-adapters-cache"
+            "packages/agents/sdk:@connext/sdk-core"
             "packages/agents/sdk-wrapper:@connext/sdk"
           )
 

@@ -400,7 +400,7 @@ export class SdkPool extends SdkShared {
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
 
-    return amounts;
+    return amounts.map((amount) => BigNumber.from(amount));
   }
 
   /**
@@ -1269,7 +1269,7 @@ export class SdkPool extends SdkShared {
         symbol: recordX?.symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
-        balance: poolData.balances[0],
+        balance: BigNumber.from(poolData.balances[0]),
       };
 
       const assetY: PoolAsset = {
@@ -1278,7 +1278,7 @@ export class SdkPool extends SdkShared {
         symbol: recordY?.symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
-        balance: poolData.balances[1],
+        balance: BigNumber.from(poolData.balances[1]),
       };
 
       // Calculate Current A
@@ -1314,11 +1314,11 @@ export class SdkPool extends SdkShared {
         balances: poolData.balances.map((b: string) => BigNumber.from(b)),
         decimals: poolData.pool_token_decimals,
         invariant: BigNumber.from(poolData.invariant),
-        initialA: poolData.initial_a,
+        initialA: BigNumber.from(poolData.initial_a),
         initialATime: poolData.initial_a_time,
-        futureA: poolData.future_a,
+        futureA: BigNumber.from(poolData.future_a),
         futureATime: poolData.future_a_time,
-        currentA: currentA,
+        currentA: BigNumber.from(currentA),
         swapFee: poolData.swap_fee,
         adminFee: poolData.admin_fee,
       };
@@ -1337,6 +1337,7 @@ export class SdkPool extends SdkShared {
   async getUserPools(
     domainId: string,
     userAddress: string,
+    options?: Options,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
     const { requestContext, methodContext } = createLoggingContext(this.getUserPools.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, userAddress });
@@ -1351,13 +1352,24 @@ export class SdkPool extends SdkShared {
           if (data.domain === domainId) {
             const pool = await this.getPool(domainId, data.local);
             if (pool) {
-              const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+              const lpTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.lpTokenAddress,
+                userAddress,
+                options,
+              );
               const adoptedTokenUserBalance = await this.getTokenUserBalance(
                 domainId,
                 pool.adopted.address,
                 userAddress,
+                options,
               );
-              const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
+              const localTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.local.address,
+                userAddress,
+                options,
+              );
 
               if (lpTokenUserBalance.gt(0)) {
                 result.push({

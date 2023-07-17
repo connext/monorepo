@@ -1,14 +1,15 @@
 import { createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
+import { ContractInterface, utils } from "ethers";
 
 import { getContext } from "../sendOutboundRoot";
 import { ExtraSendOutboundRootParam } from "../operations/sendOutboundRoot";
 import { NoProviderForDomain, NoSpokeConnector } from "../../propagate/errors";
-import { getInterface, getBestProvider } from "../../../mockable";
+import { getBestProvider, getJsonRpcProvider, getContract } from "../../../mockable";
 
 export const getSendOutboundRootParams = async (l2domain: string): Promise<ExtraSendOutboundRootParam> => {
   const {
     config,
-    adapters: { deployments, contracts, chainreader, ambs },
+    adapters: { deployments },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getSendOutboundRootParams.name);
   const l2RpcUrl = await getBestProvider(config.chains[l2domain]?.providers ?? []);
@@ -22,7 +23,6 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
   }
 
   const l2ChainId = domainToChainId(+l2domain);
-  const hubChainId = domainToChainId(+config.hubDomain);
 
   const l2SpokeConnector = deployments.spokeConnector(
     l2ChainId,
@@ -33,14 +33,20 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
     throw new NoSpokeConnector(l2ChainId, requestContext, methodContext);
   }
 
-  let encodedData = contracts.spokeConnector.encodeFunctionData("AMB");
-  let encoded = await chainreader.readTx({ data: encodedData, domain: Number(l2domain), to: l2SpokeConnector.address });
-  const [ambAddress] = contracts.spokeConnector.decodeFunctionResult("AMB", encoded);
+  const l2Provider = getJsonRpcProvider(l2RpcUrl);
+  const l2SpokeConnectorContract = getContract(
+    l2SpokeConnector.address,
+    l2SpokeConnector.abi as ContractInterface,
+    l2Provider,
+  );
+  const ambAddress = await l2SpokeConnectorContract.AMB();
 
-  const ambInterface = getInterface(ambs.bnb);
-  encodedData = ambInterface.encodeFunctionData("calcSrcFees", ["", hubChainId, 32]);
-  encoded = await chainreader.readTx({ data: encodedData, domain: Number(l2domain), to: ambAddress });
-  const [_fee] = ambInterface.decodeFunctionResult("calcSrcFees", encoded);
+  // gasLimit on hub side = 200_000
+  // actually it required about 100_000 gas on mainnet to call `receiveWormholeMessages`
+  // remain gas will be refunded on mainnetto refund address (default: deployer address)
+  const gasLimit = "200000";
+  const fee = await l2SpokeConnectorContract.quoteEVMDeliveryPrice(gasLimit, ambAddress);
+  const encodedData = utils.defaultAbiCoder.encode(["uint256"], [gasLimit]);
 
-  return { _fee: _fee.toString(), _encodedData: "0x" };
+  return { _fee: fee.toString(), _encodedData: encodedData };
 };

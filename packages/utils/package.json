@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "2.0.4-alpha.2",
+  "version": "2.0.4",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",
@@ -63,5 +63,5 @@
     "access": "public"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
-  "stableVersion": "0.1.25"
+  "stableVersion": "2.0.4"
 }

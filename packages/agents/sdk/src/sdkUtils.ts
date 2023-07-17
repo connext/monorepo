@@ -214,11 +214,27 @@ export class SdkUtils extends SdkShared {
     errorStatus?: XTransferErrorStatus;
     transferId?: string;
     transactionHash?: string;
+    executeTransactionHash?: string;
+    reconcileTransactionHash?: string;
     xcallCaller?: string;
+    originDomain?: string;
+    destinationDomain?: string;
     range?: { limit?: number; offset?: number };
   }): Promise<Transfer[]> {
-    const { userAddress, routerAddress, status, transferId, transactionHash, range, xcallCaller, errorStatus } =
-      params ?? {};
+    const {
+      userAddress,
+      routerAddress,
+      status,
+      transferId,
+      transactionHash,
+      range,
+      xcallCaller,
+      errorStatus,
+      originDomain,
+      destinationDomain,
+      executeTransactionHash,
+      reconcileTransactionHash,
+    } = params ?? {};
 
     const userIdentifier = userAddress ? `xcall_tx_origin=eq.${userAddress.toLowerCase()}&` : "";
     const routerIdentifier = routerAddress ? `routers=cs.%7B${routerAddress.toLowerCase()}%7D&` : "";
@@ -229,6 +245,14 @@ export class SdkUtils extends SdkShared {
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
       : "";
     const xcallCallerIdentifier = xcallCaller ? `xcall_caller=eq.${xcallCaller.toLowerCase()}&` : "";
+    const originDomainIdentifier = originDomain ? `origin_domain.in.(${originDomain})&` : "";
+    const destinationDomainIdentifier = destinationDomain ? `destination_domain.in.(${destinationDomain})&` : "";
+    const executeTransactionHashIdentifier = executeTransactionHash
+      ? `execute_transaction_hash=eq.${executeTransactionHash.toLowerCase()}&`
+      : "";
+    const reconcileTransactionHashIdentifier = reconcileTransactionHash
+      ? `reconcile_transaction_hash=eq.${reconcileTransactionHash.toLowerCase()}&`
+      : "";
 
     const searchIdentifier =
       userIdentifier +
@@ -237,7 +261,11 @@ export class SdkUtils extends SdkShared {
       errorStatusIdentifier +
       transferIdIdentifier +
       transactionHashIdentifier +
-      xcallCallerIdentifier;
+      xcallCallerIdentifier +
+      originDomainIdentifier +
+      destinationDomainIdentifier +
+      executeTransactionHashIdentifier +
+      reconcileTransactionHashIdentifier;
 
     const limit = range?.limit ? range.limit : 10;
     const offset = range?.offset ? range.offset : 0;

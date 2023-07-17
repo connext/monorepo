@@ -3,6 +3,8 @@ import { BigNumber, providers } from "ethers";
 import { mock } from "./mock";
 import { SdkPool } from "../src/sdkPool";
 import * as MockableFns from "../src/mockable";
+import { convertBigNumberObject } from "./utils";
+import { isEqual } from "lodash";
 
 import {
   Pool,
@@ -202,10 +204,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -218,7 +224,7 @@ describe("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
 
     it("happy: should send request with overridden options", async () => {
@@ -229,10 +235,6 @@ describe("#SDKPool", () => {
         tokenIndexFrom: 0,
         tokenIndexTo: 1,
         amount: "100",
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -242,10 +244,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -262,7 +268,7 @@ describe("#SDKPool", () => {
         ...expectedArgs,
         options,
       });
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
   });
 
@@ -313,10 +319,29 @@ describe("#SDKPool", () => {
         receiveLocal: false,
         checkFastLiquidity: false,
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        amountReceived: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        originSlippage: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        routerFee: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        destinationSlippage: {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        isFastPath: true,
+      };
+      const expectedRes = convertBigNumberObject(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -328,7 +353,7 @@ describe("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
   });
 
@@ -353,10 +378,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -368,7 +397,7 @@ describe("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
 
     it("happy: should send request with overridden options", async () => {
@@ -378,10 +407,6 @@ describe("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amounts: ["100", "100"],
         isDeposit: true,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -391,10 +416,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -410,7 +439,7 @@ describe("#SDKPool", () => {
         ...expectedArgs,
         options,
       });
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
   });
 
@@ -426,10 +455,20 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = [
+        {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+      ];
+      const expectedRes = [BigNumber.from(mockServerRes[0]), BigNumber.from(mockServerRes[1])];
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -440,7 +479,7 @@ describe("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
 
     it("happy: should send request with overridden options", async () => {
@@ -449,10 +488,6 @@ describe("#SDKPool", () => {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amount: "100",
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -462,10 +497,20 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = [
+        {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+        {
+          type: "BigNumber",
+          hex: "0x1",
+        },
+      ];
+      const expectedRes = [BigNumber.from(mockServerRes[0]), BigNumber.from(mockServerRes[1])];
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -480,7 +525,7 @@ describe("#SDKPool", () => {
         ...expectedArgs,
         options,
       });
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.eq(expectedRes);
     });
   });
 
@@ -497,10 +542,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -522,10 +571,6 @@ describe("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amount: "100",
         index: 0,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -535,10 +580,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -577,10 +626,14 @@ describe("#SDKPool", () => {
         amountX: "100",
         amountY: "100",
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -605,10 +658,14 @@ describe("#SDKPool", () => {
         amountX: "100",
         amountY: "100",
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -637,10 +694,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -662,10 +723,6 @@ describe("#SDKPool", () => {
         amountX: "100",
         tokenX: mock.asset.A.address,
         tokenY: mock.asset.B.address,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -675,10 +732,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -745,8 +806,17 @@ describe("#SDKPool", () => {
       const expectedArgs: SdkGetTokenSupplyParams = {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
+        },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
         data: expectedRes,
@@ -758,6 +828,40 @@ describe("#SDKPool", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getTokenSupply";
+      const expectedArgs: SdkGetTokenSupplyParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.getTokenSupply(expectedArgs.domainId, expectedArgs.tokenAddress, options);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#getTokenUserBalance", async () => {
@@ -767,11 +871,20 @@ describe("#SDKPool", () => {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         userAddress: "0x0000000000000000000000000000000000000000",
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
+        },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -782,6 +895,46 @@ describe("#SDKPool", () => {
       );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getTokenUserBalance";
+      const expectedArgs: SdkGetTokenUserBalanceParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
+        userAddress: "0x0000000000000000000000000000000000000000",
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
+
+      axiosPostStub.resolves({
+        data: mockServerRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.getTokenUserBalance(
+        expectedArgs.domainId,
+        expectedArgs.tokenAddress,
+        expectedArgs.userAddress,
+        options,
+      );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -851,10 +1004,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -876,10 +1033,6 @@ describe("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         _index: 0,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -889,10 +1042,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -949,10 +1106,14 @@ describe("#SDKPool", () => {
           signerAddress: mockConfig.signerAddress,
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -967,10 +1128,6 @@ describe("#SDKPool", () => {
       const expectedArgs: SdkGetVirtualPriceParams = {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -980,10 +1137,14 @@ describe("#SDKPool", () => {
           },
         },
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -1115,10 +1276,6 @@ describe("#SDKPool", () => {
         amounts: ["100", "100"],
         minToMint: "0",
         deadline: 100000,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -1194,10 +1351,6 @@ describe("#SDKPool", () => {
         amount: "100",
         minAmount: "0",
         deadline: 100000,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -1271,10 +1424,6 @@ describe("#SDKPool", () => {
         amount: "100",
         minAmounts: ["100", "100"],
         deadline: 100000,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -1347,10 +1496,6 @@ describe("#SDKPool", () => {
         amounts: ["100", "100"],
         maxBurnAmount: "0",
         deadline: 100000,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -1429,10 +1574,6 @@ describe("#SDKPool", () => {
         amount: "1000",
         minDy: 0,
         deadline: 100000,
-        options: {
-          chains: mockConfig.chains,
-          signerAddress: mockConfig.signerAddress,
-        },
       };
       const options: Options = {
         signerAddress: mkAddress("0xabc"),
@@ -1474,10 +1615,70 @@ describe("#SDKPool", () => {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
       };
-      const expectedRes = mockPoolBN;
+      const mockServerRes = {
+        domainId: "9991",
+        name: "WETH Pool",
+        symbol: "WETH-nextWETH",
+        local: {
+          address: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+          name: "nextWETH",
+          symbol: "nextWETH",
+          decimals: 18,
+          index: 0,
+          balance: {
+            type: "BigNumber",
+            hex: "0x1ef4c8cbee1a7077",
+          },
+        },
+        adopted: {
+          address: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+          name: "Wrapped Ether",
+          symbol: "WETH",
+          decimals: 18,
+          index: 1,
+          balance: {
+            type: "BigNumber",
+            hex: "0x03bd8fcf8ed970",
+          },
+        },
+        lpTokenAddress: "0x6abd68912d3b4bad9d8979aad3de6a392bb7bbb0",
+        canonicalHash: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+        balances: [
+          {
+            type: "BigNumber",
+            hex: "0x1ef4c8cbee1a7077",
+          },
+          {
+            type: "BigNumber",
+            hex: "0x03bd8fcf8ed970",
+          },
+        ],
+        decimals: [18, 18],
+        invariant: {
+          type: "BigNumber",
+          hex: "0x13fcc233687bc6d2",
+        },
+        initialA: {
+          type: "BigNumber",
+          hex: "0x4e20",
+        },
+        initialATime: 0,
+        futureA: {
+          type: "BigNumber",
+          hex: "0x4e20",
+        },
+        futureATime: 0,
+        currentA: {
+          type: "BigNumber",
+          hex: "0x4e20",
+        },
+        swapFee: "4000000",
+        adminFee: "0",
+      };
+      const expectedRes = convertBigNumberObject(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
@@ -1494,18 +1695,209 @@ describe("#SDKPool", () => {
       const expectedArgs: SdkGetUserPoolsParams = {
         domainId: mockXTransfer.xparams.originDomain,
         userAddress: mockXTransfer.origin!.assets.transacting.asset,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
+        },
       };
-      const expectedRes = {};
+      const mockServerRes = [
+        {
+          info: {
+            domainId: "9991",
+            name: "WETH Pool",
+            symbol: "WETH-nextWETH",
+            local: {
+              address: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+              name: "nextWETH",
+              symbol: "nextWETH",
+              decimals: 18,
+              index: 0,
+              balance: {
+                type: "BigNumber",
+                hex: "0x1ef4c8cbee1a7077",
+              },
+            },
+            adopted: {
+              address: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+              name: "Wrapped Ether",
+              symbol: "WETH",
+              decimals: 18,
+              index: 1,
+              balance: {
+                type: "BigNumber",
+                hex: "0x03bd8fcf8ed970",
+              },
+            },
+            lpTokenAddress: "0x6abd68912d3b4bad9d8979aad3de6a392bb7bbb0",
+            canonicalHash: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+            balances: [
+              {
+                type: "BigNumber",
+                hex: "0x1ef4c8cbee1a7077",
+              },
+              {
+                type: "BigNumber",
+                hex: "0x03bd8fcf8ed970",
+              },
+            ],
+            decimals: [18, 18],
+            invariant: {
+              type: "BigNumber",
+              hex: "0x13fcc233687bc6d2",
+            },
+            initialA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            initialATime: 0,
+            futureA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            futureATime: 0,
+            currentA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            swapFee: "4000000",
+            adminFee: "0",
+          },
+          lpTokenBalance: {
+            type: "BigNumber",
+            hex: "0x470de4df820000",
+          },
+          poolTokenBalances: [
+            {
+              type: "BigNumber",
+              hex: "0x068dbe6b7a8a002b",
+            },
+            {
+              type: "BigNumber",
+              hex: "0x36a0e6a7c8ab86d067c3437476d8",
+            },
+          ],
+        },
+      ];
+      const expectedRes = [convertBigNumberObject(mockServerRes[0])];
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 
       const res = await sdkPool.getUserPools(expectedArgs.domainId, expectedArgs.userAddress);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
-      expect(res).to.be.deep.eq(expectedRes);
+      expect(res).to.deep.equal(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getUserPools";
+      const expectedArgs: SdkGetUserPoolsParams = {
+        domainId: mockXTransfer.xparams.originDomain,
+        userAddress: mockXTransfer.origin!.assets.transacting.asset,
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "404": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const mockServerRes = [
+        {
+          info: {
+            domainId: "9991",
+            name: "WETH Pool",
+            symbol: "WETH-nextWETH",
+            local: {
+              address: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+              name: "nextWETH",
+              symbol: "nextWETH",
+              decimals: 18,
+              index: 0,
+              balance: {
+                type: "BigNumber",
+                hex: "0x1ef4c8cbee1a7077",
+              },
+            },
+            adopted: {
+              address: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+              name: "Wrapped Ether",
+              symbol: "WETH",
+              decimals: 18,
+              index: 1,
+              balance: {
+                type: "BigNumber",
+                hex: "0x03bd8fcf8ed970",
+              },
+            },
+            lpTokenAddress: "0x6abd68912d3b4bad9d8979aad3de6a392bb7bbb0",
+            canonicalHash: "0x292e02936c5b0f88fab7f755caac58d92cd10b13f484cd46f6dd45468cb23e3f",
+            balances: [
+              {
+                type: "BigNumber",
+                hex: "0x1ef4c8cbee1a7077",
+              },
+              {
+                type: "BigNumber",
+                hex: "0x03bd8fcf8ed970",
+              },
+            ],
+            decimals: [18, 18],
+            invariant: {
+              type: "BigNumber",
+              hex: "0x13fcc233687bc6d2",
+            },
+            initialA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            initialATime: 0,
+            futureA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            futureATime: 0,
+            currentA: {
+              type: "BigNumber",
+              hex: "0x4e20",
+            },
+            swapFee: "4000000",
+            adminFee: "0",
+          },
+          lpTokenBalance: {
+            type: "BigNumber",
+            hex: "0x470de4df820000",
+          },
+          poolTokenBalances: [
+            {
+              type: "BigNumber",
+              hex: "0x068dbe6b7a8a002b",
+            },
+            {
+              type: "BigNumber",
+              hex: "0x36a0e6a7c8ab86d067c3437476d8",
+            },
+          ],
+        },
+      ];
+      const expectedRes = [convertBigNumberObject(mockServerRes[0])];
+
+      axiosPostStub.resolves({
+        data: mockServerRes,
+        status: 200,
+      });
+
+      const res = await sdkPool.getUserPools(expectedArgs.domainId, expectedArgs.userAddress, options);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options,
+      });
+      expect(res).to.deep.equal(expectedRes);
     });
   });
 
@@ -1518,10 +1910,19 @@ describe("#SDKPool", () => {
         unixTimestamp: 1000000,
         days: 1,
       };
-      const expectedRes = {};
+      const mockServerRes = {
+        totalFeesFormatted: 0.000037987101001304,
+        totalLiquidityFormatted: 2.231681343944215,
+        totalVolume: {
+          type: "BigNumber",
+          hex: "0x015164aaf112f3f9",
+        },
+        totalVolumeFormatted: 0.09496775250326016,
+      };
+      const expectedRes = convertBigNumberObject(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 

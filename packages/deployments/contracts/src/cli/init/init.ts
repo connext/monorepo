@@ -23,7 +23,6 @@ import {
 import { setupAsset } from "./helpers/assets";
 import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
-import assert from "assert";
 
 // defines which stages of the init script should be executed
 const STAGES = ["messaging", "agents", "assets", "all"] as const;
@@ -189,14 +188,16 @@ export const sanitizeAndInit = async () => {
       useStaging,
     });
 
-    // TODO: relayers and agents should also be configured per-network. when this is done,
-    // ensure the relayerFeeVault can be passed in
+    // TODO: all agents should also be configured per-network
+    if (!initConfig.agents.relayerFeeVaults[domain]) {
+      throw new Error(`No relayer fee vault configured for ${domain}!`);
+    }
     networks.push({
       chain: chainId.toString(),
       domain,
       rpc,
       deployments,
-      relayerFeeVault: deployments.messaging.RelayerProxy.address,
+      relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
     });
   }
 

@@ -1,10 +1,11 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --no-match-path '*/upgrade/**.sol'",
+    "test": "yarn forge test --no-match-path '*/fork/**.sol'",
     "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
+    "test:fork": "yarn forge test --match-path '*/fork/**.sol'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@arbitrum/sdk": "3.1.3",
+    "@certusone/wormhole-sdk": "0.9.21",
     "@connext/nxtp-utils": "workspace:*",
     "@gelatonetwork/relay-context": "2.1.0",
     "@matterlabs/hardhat-zksync-deploy": "0.6.3",
