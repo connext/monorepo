@@ -49,11 +49,11 @@ export const getSwapPathForUniV3 = async (_args: SwapPathCallBackArgs) => {
 
     const route = routes?.route[0] as V3RouteWithValidQuote;
     const path = encodeRouteToPath(route.route, false);
-
+    console.log(route.route, path, "from sdk function");
     return {
       quote: routes.quote,
       tokenPath: path,
-      route: routes.route[0].route.protocol,
+      route: route.route.protocol,
     };
   } catch (err: unknown) {
     throw Error(`getSwapPathForUniV3: Failed to get paths ${(err as Error).message}`);

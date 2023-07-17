@@ -3,8 +3,9 @@ import { stub, reset, restore } from "sinon";
 import { getSwapPathForUniV3, getSwapPathForUniV2, getPathForPanCake } from "../../src/helpers/swaputil";
 import * as MockableFns from "../../src/mockable";
 import { Token, TradeType, CurrencyAmount } from "@uniswap/sdk-core";
-import { Fetcher, Pair, Token as _Token, TokenAmount, Route, Trade } from "@uniswap/sdk";
-import { FeeAmount } from "@uniswap/v3-sdk";
+import { Fetcher, Pair, Token as _Token, TokenAmount, Route, Trade, JSBI } from "@uniswap/sdk";
+import { FeeAmount, encodeRouteToPath } from "@uniswap/v3-sdk";
+import * as UniFuncs from "@uniswap/v3-sdk";
 import {
   Fetcher as PancakeFetcher,
   Pair as PancakePair,
@@ -71,14 +72,36 @@ describe("Helpers:swapUtil", () => {
 
         return encoded.toLowerCase();
       }
+      const token0 = new Token(1, mockArgs.fromTokenContractAddress, 18);
+      const token1 = new Token(1, mockArgs.toTokenContractAddress, 18);
       const fakeRoute = {
-        quote: CurrencyAmount.fromRawAmount(new Token(1, mockArgs.fromTokenContractAddress, 18), "1000000000000000000"),
+        quote: CurrencyAmount.fromRawAmount(new Token(1, mockArgs.toTokenContractAddress, 18), "1000000000000000000"),
         route: [
+          // {
+          //   tokenPath: [
+          //     new Token(1, mockArgs.fromTokenContractAddress, 18),
+          //     new Token(1, mockArgs.toTokenContractAddress, 18),
+          //   ],
+          //   route: {
+          //     protocol: "V3",
+          //   },
+          // },
           {
-            tokenPath: [
-              new Token(1, mockArgs.fromTokenContractAddress, 18),
-              new Token(1, mockArgs.toTokenContractAddress, 18),
+            _midPrice: null,
+            pools: [
+              {
+                token0: [token0],
+                token1: [token1],
+                fee: 100,
+                sqrtRatioX96: [JSBI],
+                liquidity: [JSBI],
+                tickCurrent: 276325,
+                tickDataProvider: {},
+              },
             ],
+            tokenPath: [token0, token1],
+            input: token0,
+            output: token1,
             route: {
               protocol: "V3",
             },
@@ -87,12 +110,12 @@ describe("Helpers:swapUtil", () => {
       };
 
       stub(ethers.providers, "JsonRpcProvider").returns({});
+      stub(UniFuncs, "encodeRouteToPath").returns("1234");
       stub(AlphaRouter.prototype, "route").resolves(fakeRoute as any);
       const result = await getSwapPathForUniV3(mockArgs);
-      const path = encodePath(
-        fakeRoute.route[0].tokenPath.map((token) => token.address),
-        [FeeAmount.MEDIUM],
-      );
+      console.log(result, "resultfrom");
+      const path = "1234";
+      console.log(result.route, "pepepe");
       expect(result).to.deep.equal({
         quote: fakeRoute.quote,
         tokenPath: path,
