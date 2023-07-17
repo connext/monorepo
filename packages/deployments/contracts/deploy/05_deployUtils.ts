@@ -11,22 +11,24 @@ const deployContract = async (params: {
   deployer: Wallet;
   contractName: string;
   args: any[];
+  deploymentName?: string;
 }): Promise<DeployResult | undefined> => {
   const { hre, deployer, contractName, args } = params;
-  const deployment = await hre.deployments.getOrNull(contractName);
+  const deploymentName = params.deploymentName ?? contractName;
+  const deployment = await hre.deployments.getOrNull(deploymentName);
   if (!deployment) {
-    console.log(`Deploying ${contractName} contract...`);
-    const deployResult = await hre.deployments.deploy(contractName, {
+    console.log(`Deploying ${deploymentName} contract...`);
+    const deployResult = await hre.deployments.deploy(deploymentName, {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
       contract: contractName,
       args: args,
     });
-    console.log(`Deployed ${contractName} contract to: ${deployResult.address}`);
+    console.log(`Deployed ${deploymentName} (${contractName}): ${deployResult.address}`);
     return deployResult;
   } else {
-    console.log(`${contractName} contract already deployed at: ${deployment.address}`);
+    console.log(`${deploymentName} (${contractName}) contract already deployed at: ${deployment.address}`);
     return;
   }
 };
@@ -55,6 +57,35 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
   const chain = network.chainId;
+
+  /// MARK - Test assets:
+  /// - Test ERC20
+  /// - Test WETH
+  /// - Test Adopted
+  console.log("Deploying test tokens...");
+  // Note: NOT using special token for staging envs
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "TestERC20",
+    args: ["Test Token", "TEST"],
+  });
+
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "TestERC20",
+    deploymentName: "TestAdopted",
+    args: ["Test Adopted", "TEST2"],
+  });
+
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "TestERC20",
+    deploymentName: "TestWETH",
+    args: ["Test Wrapped Ether", "TWETH"],
+  });
 
   /// MARK - MultiSend
   // NOTE: MultiSend will be shared between staging and production environments; we do not

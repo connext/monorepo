@@ -228,38 +228,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
     console.log("relayerProxy: ", relayerProxy.address);
   }
-
-  if (!SKIP_SETUP.includes(parseInt(chainId))) {
-    console.log("Deploying test token on non-mainnet chain...");
-    // Note: NOT using special token for staging envs
-    let deployment = await hre.deployments.deploy("TestERC20", {
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Token", "TEST"],
-    });
-    console.log("TestERC20: ", deployment.address);
-
-    deployment = await hre.deployments.deploy("TestAdopted", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Adopted", "TEST2"],
-    });
-
-    deployment = await hre.deployments.deploy("TestWETH", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Wrapped Ether", "TWETH"],
-    });
-
-    console.log("TestERC20: ", deployment.address);
-  } else {
-    console.log("Skipping test setup on chainId: ", chainId);
-  }
 };
 
 export default func;
