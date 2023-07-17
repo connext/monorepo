@@ -283,17 +283,6 @@ export type Database = {
     pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
-  getOptimisticHubNode: (
-    index: number,
-    count: number,
-    _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
-  getOptimisticHubNodes: (
-    start: number,
-    end: number,
-    count: number,
-    _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   putRoot: (domain: string, path: string, hash: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   increaseBackoff: (transferId: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -469,6 +458,10 @@ export const getDatabaseAndPool = async (
       transaction,
       saveAggregatedRoots,
       savePropagatedRoots,
+      saveSnapshotRoots,
+      saveProposedSnapshots,
+      saveFinalizedRoots,
+      savePropagatedOptimisticRoots,
       saveReceivedAggregateRoot,
       getUnProcessedMessages,
       getUnProcessedMessagesByDomains,
@@ -476,9 +469,14 @@ export const getDatabaseAndPool = async (
       getAggregateRoot,
       getAggregateRootByRootAndDomain,
       getAggregateRootCount,
+      getAggregateRoots,
+      getBaseAggregateRoot,
       getMessageRootIndex,
       getLatestMessageRoot,
       getLatestAggregateRoots,
+      getPendingAggregateRoot,
+      getCurrentProposedSnapshot,
+      getPendingSnapshots,
       getMessageRootAggregatedFromIndex,
       getMessageRootsFromIndex,
       getMessageRootCount,
@@ -487,6 +485,8 @@ export const getDatabaseAndPool = async (
       getSpokeNodes,
       getHubNode,
       getHubNodes,
+      getOptimisticHubNode,
+      getOptimisticHubNodes,
       getRoot,
       putRoot,
       increaseBackoff,
@@ -503,6 +503,7 @@ export const getDatabaseAndPool = async (
       updateExecuteSimulationData,
       getPendingTransfersByMessageStatus,
       getMessageByLeaf,
+      getMessageByRoot,
       deleteCache,
     },
   };

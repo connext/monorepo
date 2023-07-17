@@ -1014,19 +1014,6 @@ export const getCurrentProposedSnapshot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
-export const saveFinalizedRoots = async (
-  roots: OptimisticRootFinalized[],
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<void> => {
-  const poolToUse = _pool ?? pool;
-
-  await Promise.all(
-    roots.map(async (root) => {
-      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
-    }),
-  );
-};
-
 export const savePropagatedOptimisticRoots = async (
   roots: OptimisticRootPropagated[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -1040,49 +1027,6 @@ export const savePropagatedOptimisticRoots = async (
   );
 };
 
-export const getPendingAggregateRoot = async (
-  aggregate_root: string,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<Snapshot | undefined> => {
-  const poolToUse = _pool ?? pool;
-  const snapshot = await db.selectOne("snapshots", { processed: false, aggregate_root }).run(poolToUse);
-  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
-};
-
-export const getPendingSnapshots = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<SnapshotRoot[]> => {
-  const poolToUse = _pool ?? pool;
-  const snapshots = await db
-    .select("snapshot_roots", { processed: false }, { limit: 100, order: { by: "id", direction: "DESC" } })
-    .run(poolToUse);
-  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshotRoot) : [];
-};
-
-export const saveProposedSnapshots = async (
-  _snapshots: Snapshot[],
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<void> => {
-  const poolToUse = _pool ?? pool;
-  const snapshots: s.snapshots.Insertable[] = _snapshots
-    .map((m) => {
-      m.status = "Proposed" as s.snapshot_status;
-      return convertToDbSnapshot(m);
-    })
-    .map(sanitizeNull);
-
-  await db.upsert("snapshots", snapshots, ["id"]).run(poolToUse);
-};
-
-export const getCurrentProposedSnapshot = async (
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<Snapshot | undefined> => {
-  const poolToUse = _pool ?? pool;
-
-  const snapshot = await db
-    .selectOne("snapshots", { status: "Proposed" }, { limit: 1, order: { by: "id", direction: "DESC" } })
-    .run(poolToUse);
-  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
-};
-
 export const saveFinalizedRoots = async (
   roots: OptimisticRootFinalized[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -1092,19 +1036,6 @@ export const saveFinalizedRoots = async (
   await Promise.all(
     roots.map(async (root) => {
       await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
-    }),
-  );
-};
-
-export const savePropagatedOptimisticRoots = async (
-  roots: OptimisticRootPropagated[],
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<void> => {
-  const poolToUse = _pool ?? pool;
-
-  await Promise.all(
-    roots.map(async (root) => {
-      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
     }),
   );
 };
@@ -1344,79 +1275,6 @@ export const getOptimisticHubNodes = async (
       _end = end - _start > pageSize ? _start + pageSize - 1 : end;
     } else done = true;
   }
-  return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
-};
-
-export const getOptimisticHubNode = async (
-  index: number,
-  count: number,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
-  const poolToUse = _pool ?? pool;
-  //TODO: Ri
-  const root = await db
-    .selectOne("aggregated_roots", { domain_index: dc.and(dc.eq(index), dc.lt(count)) })
-    .run(poolToUse);
-  return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
-};
-
-export const getOptimisticHubNodes = async (
-  start: number,
-  end: number,
-  count: number,
-  pageSize = 10000,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string[]> => {
-  const poolToUse = _pool ?? pool;
-  let roots: any[] = [];
-  let _start = start;
-  let _end = end - start > pageSize ? start + pageSize - 1 : end;
-  let done = false;
-  while (!done) {
-    const subRoots = await db
-      .select(
-        "aggregated_roots",
-        { domain_index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
-        { order: { by: "domain_index", direction: "ASC" } },
-      )
-      .run(poolToUse);
-
-    roots = roots.concat(subRoots);
-    if (subRoots.length == pageSize) {
-      _start += pageSize;
-      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
-    } else done = true;
-  }
-  return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
-};
-
-export const getOptimisticHubNode = async (
-  index: number,
-  count: number,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
-  const poolToUse = _pool ?? pool;
-  //TODO: Ri
-  const root = await db
-    .selectOne("aggregated_roots", { domain_index: dc.and(dc.eq(index), dc.lt(count)) })
-    .run(poolToUse);
-  return root ? convertFromDbAggregatedRoot(root).receivedRoot : undefined;
-};
-
-export const getOptimisticHubNodes = async (
-  start: number,
-  end: number,
-  count: number,
-  _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string[]> => {
-  const poolToUse = _pool ?? pool;
-  const roots = await db
-    .select(
-      "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "domain_index", direction: "ASC" } },
-    )
-    .run(poolToUse);
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
 
