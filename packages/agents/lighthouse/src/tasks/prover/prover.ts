@@ -1,6 +1,7 @@
 import {
   ChainData,
-  createLoggingContext, jsonifyError,
+  createLoggingContext,
+  jsonifyError,
   Logger,
   RelayerType,
   sendHeartbeat,
@@ -128,11 +129,11 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     });
   }
   context.adapters.contracts = getContractInterfaces();
-    context.adapters.subgraph = await SubgraphReader.create(
-      chainData,
-      context.config.environment,
-      context.config.subgraphPrefix as string,
-    );
+  context.adapters.subgraph = await SubgraphReader.create(
+    chainData,
+    context.config.environment,
+    context.config.subgraphPrefix as string,
+  );
 
   context.logger.info("Prover boot complete!", requestContext, methodContext, {
     chains: [...Object.keys(context.config.chains)],
@@ -147,16 +148,18 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
         _|_|_|     _|_|     _|      _|   _|      _|   _|_|_|_|   _|      _|       _|
 
       `,
-    );
+  );
 
-    // Start the prover.
+  // Start the prover.
+  try {
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
       await proveAndProcessOpMode();
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode", requestContext, methodContext);
-      await proveAndProcess();
+      // TODO: Refactor for merge
+      // await proveAndProcess();
     } else {
       throw new Error(`Unknown mode detected: ${rootManagerMode}`);
     }
