@@ -4,3 +4,4 @@
 export type { TestAavePool } from "./TestAavePool";
 export type { TestAggregator } from "./TestAggregator";
 export type { TestERC20 } from "./TestERC20";
+export type { TestERC20Votes } from "./TestERC20Votes";
