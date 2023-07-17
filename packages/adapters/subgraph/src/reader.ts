@@ -24,6 +24,7 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   RouterDailyTVL,
+  StableSwapTransfer,
   SnapshotRoot,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
@@ -50,8 +51,8 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByExecutedTimestampQuery,
-  getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getDestinationTransfersByExecutedNonceQuery,
+  getDestinationTransfersByDomainAndReconcileNonceQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
@@ -67,6 +68,7 @@ import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
   getAssetsQuery,
+  getLpTransfersQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
@@ -443,11 +445,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByExecutedTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getDestinationTransfersByExecutedNonce(
+    params: Map<string, SubgraphQueryMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -516,12 +518,12 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByDomainAndReconcileTimestamp(
-    param: SubgraphQueryByTimestampMetaParams,
+  public async getDestinationTransfersByDomainAndReconcileNonce(
+    param: SubgraphQueryMetaParams,
     domain: string,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileNonceQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -716,7 +718,7 @@ export class SubgraphReader {
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
-    params: { domain: string; offset: number; limit: number }[],
+    params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
   ): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
@@ -1059,8 +1061,8 @@ export class SubgraphReader {
     return pools;
   }
 
-  public async getStableSwapExchangeByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapExchangeByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
   ): Promise<StableSwapExchange[]> {
     const { execute, parser } = getHelpers();
     const exchangeQuery = getSwapExchangesQuery(agents);
@@ -1085,8 +1087,8 @@ export class SubgraphReader {
     return domainExchanges;
   }
 
-  public async getStableSwapPoolEventsByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapPoolEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
     addOrRemove: "add" | "remove" = "add",
   ): Promise<StableSwapPoolEvent[]> {
     const { execute, parser } = getHelpers();
@@ -1108,6 +1110,32 @@ export class SubgraphReader {
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
+  }
+
+  public async getStableSwapLpTransferEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
+  ): Promise<StableSwapTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const transfersQuery = getLpTransfersQuery(agents);
+    const response = await execute(transfersQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapTransfer[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapLpTransfer);
 
     return domainEvents;
   }

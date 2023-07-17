@@ -62,11 +62,6 @@ export class AuctionsCache extends Cache {
     };
     const res = await this.data.hset(`${this.prefix}:auction`, transferId, JSON.stringify(auction));
 
-    if (!existing) {
-      // If the auction didn't previously exist, create an entry for status as well.
-      await this.setExecStatus(transferId, ExecStatus.Queued);
-    }
-
     return Number(res >= 1);
   }
 
@@ -137,7 +132,7 @@ export class AuctionsCache extends Cache {
 
   /// MARK - Queued Transfers
   /**
-   * Retrieve all transfer IDs that have the ExecStatus.Queued status.
+   * Retrieve all transfer IDs that have the ExecStatus.Enqueued status.
    * @returns An array of transfer IDs.
    */
   public async getQueuedTransfers(): Promise<string[]> {
@@ -158,7 +153,7 @@ export class AuctionsCache extends Cache {
     const filtered: string[] = [];
     for (const key of keys) {
       const status = await this.getExecStatus(key);
-      if (status === ExecStatus.Queued) {
+      if (status === ExecStatus.Enqueued) {
         filtered.push(key);
       }
     }

@@ -37,10 +37,16 @@ variable "full_image_name_router_subscriber" {
   default     = "ghcr.io/connext/router-subscriber:sha-b5bb49a"
 }
 
-variable "full_image_name_router_executor" {
+variable "full_image_name_lighthouse_prover_subscriber" {
   type        = string
   description = "router image name"
-  default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
+  default     = "ghcr.io/connext/lighthouse-subscriber:sha-b5bb49a"
+}
+
+variable "full_image_name_sequencer_server" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/sequencer-server:sha-b5bb49a"
 }
 
 variable "full_image_name_sequencer_publisher" {
@@ -187,6 +193,6 @@ variable "betteruptime_api_key" {
 }
 
 variable "betteruptime_requester_email" {
-  type = string
+  type    = string
   default = "layne@connext.network"
 }

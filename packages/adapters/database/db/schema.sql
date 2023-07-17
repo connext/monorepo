@@ -10,27 +10,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
-
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -200,7 +179,8 @@ CREATE TABLE public.stableswap_exchanges (
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
     balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
-    fee numeric DEFAULT 0 NOT NULL
+    fee numeric DEFAULT 0 NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -223,7 +203,8 @@ CREATE TABLE public.stableswap_pool_events (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -346,7 +327,9 @@ CREATE TABLE public.transfers (
     execute_simulation_network character varying(255),
     error_message character varying(255),
     message_status character varying(255),
-    relayer_fees jsonb
+    relayer_fees jsonb,
+    execute_tx_nonce numeric DEFAULT 0 NOT NULL,
+    reconcile_tx_nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -622,11 +605,12 @@ CREATE TABLE public.messages (
     leaf character(66) NOT NULL,
     origin_domain character varying(255) NOT NULL,
     destination_domain character varying(255),
-    index numeric,
+    index numeric NOT NULL,
     root character(66),
     message character varying,
     processed boolean DEFAULT false,
-    return_data character varying(255)
+    return_data character varying(255),
+    transfer_id character(66)
 );
 
 
@@ -809,28 +793,35 @@ CREATE TABLE public.snapshots (
 -- Name: stableswap_lp_balances; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.stableswap_lp_balances AS
- SELECT e.pool_id,
-    e.domain,
-    e.provider,
-    sum(
-        CASE
-            WHEN (e.action = 'Add'::public.action_type) THEN e.lp_token_amount
-            WHEN (e.action = 'Remove'::public.action_type) THEN (('-1'::integer)::numeric * e.lp_token_amount)
-            ELSE NULL::numeric
-        END) AS balance,
-    sum(
-        CASE
-            WHEN (e.action = 'Add'::public.action_type) THEN 1
-            ELSE 0
-        END) AS add_count,
-    sum(
-        CASE
-            WHEN (e.action = 'Remove'::public.action_type) THEN 1
-            ELSE 0
-        END) AS remove_count
-   FROM public.stableswap_pool_events e
-  GROUP BY e.pool_id, e.domain, e.provider;
+CREATE TABLE public.stableswap_lp_balances (
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    provider character(42) NOT NULL,
+    lp_token character(42) NOT NULL,
+    balance numeric NOT NULL,
+    last_timestamp integer NOT NULL
+);
+
+
+--
+-- Name: stableswap_lp_transfers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_lp_transfers (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    lp_token character(42) NOT NULL,
+    from_address character(42) NOT NULL,
+    to_address character(42) NOT NULL,
+    pooled_tokens text[],
+    amount numeric NOT NULL,
+    balances numeric[],
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -1111,7 +1102,7 @@ ALTER TABLE ONLY public.merkle_cache
 --
 
 ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
+    ADD CONSTRAINT messages_pkey PRIMARY KEY (origin_domain, index);
 
 
 --
@@ -1187,6 +1178,22 @@ ALTER TABLE ONLY public.stableswap_exchanges
 
 
 --
+-- Name: stableswap_lp_balances stableswap_lp_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lp_balances
+    ADD CONSTRAINT stableswap_lp_balances_pkey PRIMARY KEY (pool_id, domain, provider);
+
+
+--
+-- Name: stableswap_lp_transfers stableswap_lp_transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lp_transfers
+    ADD CONSTRAINT stableswap_lp_transfers_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stableswap_pool_events stableswap_pool_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1246,6 +1253,13 @@ CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_
 
 
 --
+-- Name: messages_domain_leaf_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_domain_leaf_idx ON public.messages USING btree (origin_domain, leaf);
+
+
+--
 -- Name: messages_processed_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1285,6 +1299,13 @@ CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
 --
 
 CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers USING btree (destination_domain, update_time);
+
+
+--
+-- Name: transfers_origin_domain_nonce_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_nonce_idx ON public.transfers USING btree (origin_domain, nonce);
 
 
 --
@@ -1344,32 +1365,6 @@ ALTER TABLE ONLY public.asset_balances
 ALTER TABLE ONLY public.asset_balances
     ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
 
-
---
--- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: -
---
-
-CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
-
-
---
--- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: -
---
-
-CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
-
-
---
--- Name: job; Type: ROW SECURITY; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
-
---
--- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete
@@ -1449,4 +1444,10 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230509112648'),
     ('20230509123037'),
     ('20230509165732'),
-    ('20230510210620');
+    ('20230510210620'),
+    ('20230519155643'),
+    ('20230523134345'),
+    ('20230530074124'),
+    ('20230608135754'),
+    ('20230608174759'),
+    ('20230613125451');

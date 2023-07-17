@@ -1,1 +1,1 @@
-export { makeProver } from "./prover";
+export { makeProverPublisher, makeProverSubscriber } from "./prover";

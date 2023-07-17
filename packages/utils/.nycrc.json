@@ -10,7 +10,8 @@
     "test/**/*.ts",
     "src/helpers/env.ts",
     "src/helpers/time.ts",
-    "src/helpers/axios.ts"
+    "src/helpers/axios.ts",
+    "src/peripherals/errors.ts"
   ],
   "all": true
 }

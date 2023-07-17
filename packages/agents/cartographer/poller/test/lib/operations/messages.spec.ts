@@ -47,20 +47,10 @@ describe("Message operations", () => {
     it("initial conditions", async () => {
       (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
       await retrieveOriginMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledWithExactly(
         "message_" + mockContext.domains[0],
-      );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(mockContext.domains.length);
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "message_" + mockContext.domains[0],
-        0,
-      );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "message_" + mockContext.domains[1],
-        0,
       );
     });
   });

@@ -6,10 +6,17 @@ import {
   AggregatedRoot,
   PropagatedRoot,
   ReceivedAggregateRoot,
+  RootMessageStatus,
   Snapshot,
   SnapshotRoot,
 } from "./amb";
-import { PoolActionType, StableSwapExchange, StableSwapPool, StableSwapPoolEvent } from "./stableswap";
+import {
+  PoolActionType,
+  StableSwapExchange,
+  StableSwapPool,
+  StableSwapPoolEvent,
+  StableSwapTransfer,
+} from "./stableswap";
 import {
   Asset,
   AssetBalance,
@@ -231,6 +238,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             transactionHash: transfer.execute_transaction_hash!,
             originSender: transfer.execute_origin_sender!,
             txOrigin: transfer.execute_tx_origin!,
+            txNonce: BigNumber.from(transfer.execute_tx_nonce ?? "0").toNumber(),
           },
           reconcile: {
             blockNumber: transfer.reconcile_block_number!,
@@ -240,6 +248,7 @@ export const convertFromDbTransfer = (transfer: any): XTransfer => {
             timestamp: transfer.reconcile_timestamp!,
             transactionHash: transfer.reconcile_transaction_hash!,
             txOrigin: transfer.reconcile_tx_origin!,
+            txNonce: BigNumber.from(transfer.reconcile_tx_nonce ?? "0").toNumber(),
           },
         }
       : undefined,
@@ -350,7 +359,7 @@ export const convertFromDbMessage = (message: any): XMessage => {
     leaf: message.leaf,
     originDomain: message.origin_domain,
     destinationDomain: message.destination_domain,
-    transferId: message.transferId,
+    transferId: message.transfer_id,
     origin: {
       index: BigNumber.from(message.index).toNumber(),
       root: message.root,
@@ -434,6 +443,21 @@ export const convertFromDbReceivedAggregateRoot = (message: any): ReceivedAggreg
   };
 };
 
+/**
+ * Converts a root message status from the cartographer db through either DB queries or Postgrest into the RootMessageStatus type
+ * @param message - the message from the cartographer db as a JSON object
+ * @returns an RootMessageStatus object
+ */
+export const convertFromDbRootStatus = (status: any): RootMessageStatus => {
+  const obj = {
+    processedCount: +status.processed_count,
+    unprocessedCount: +status.unprocessed_count,
+    aggregatedCount: +status.aggregated_count,
+    lastAggregatedRoot: status.last_aggregated_id ? status.last_aggregated_id.split("-")[0] : undefined,
+  };
+  return sanitizeNull(obj);
+};
+
 export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
   return {
     id: snapshot.id,
@@ -506,6 +530,7 @@ export const convertFromDbStableSwapExchange = (exchange: any): StableSwapExchan
     blockNumber: exchange.blockNumber,
     transactionHash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -531,5 +556,29 @@ export const convertFromDbStableSwapPoolEvent = (event: any): StableSwapPoolEven
     blockNumber: event.blockNumber,
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+/**
+ * Converts a stable swap lp token transfer events from the cartographer db through
+ * @param event - the stable swap lp transfer event from the cartographer db as a JSON object
+ * @returns an StableSwapTransfer object
+ */
+export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfer => {
+  return {
+    id: event.id,
+    poolId: event.poolId,
+    domain: event.domain,
+    lpToken: event.lp_token,
+    fromAddress: event.from_address,
+    toAddress: event.to_address,
+    pooledTokens: event.pooled_tokens,
+    balances: event.balances,
+    amount: event.amount,
+    blockNumber: event.block_number,
+    transactionHash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };

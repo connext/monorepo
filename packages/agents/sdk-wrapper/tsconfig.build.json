@@ -1,0 +1,11 @@
+{
+  "extends": "../../../config/tsconfig.node.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "dist",
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
+  },
+  "exclude": ["test/**/*.ts"],
+  "include": ["src/**/*.ts", "src/typechain-types/**/*.json"]
+}

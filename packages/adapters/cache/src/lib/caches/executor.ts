@@ -69,27 +69,28 @@ export class ExecutorCache extends Cache {
 
   /**
    * Removes all the executor data including backup items for a given transferId.
-   * @param tranferId - The transferId you're gonna remove for
+   * @param transferId - The transferId you're gonna remove for
    */
-  public async pruneExecutorData(tranferId: string): Promise<void> {
+  public async pruneExecutorData(transferId: string): Promise<void> {
     const dataKey = `${this.prefix}:data`;
     const backupKey = `${this.prefix}:backup`;
-    await this.data.hdel(dataKey, tranferId);
-    await this.data.hdel(backupKey, tranferId);
+    await this.data.hdel(dataKey, transferId);
+    await this.data.hdel(backupKey, transferId);
 
-    await this.setExecStatus(tranferId, ExecStatus.None);
+    await this.setExecStatus(transferId, ExecStatus.None);
   }
 
   /// MARK - Executor Tx Status
   /**
    * Set the status for a given tranfer id
-   * @param tranferId - Transfer Id
+   * @param transferId - Transfer Id
    * @param status - The status to set
    * @returns 1 if added, 0 if updated.
    */
-  public async setExecStatus(tranferId: string, status: ExecStatus): Promise<number> {
+  public async setExecStatus(transferId: string, status: ExecStatus): Promise<number> {
     const key = `${this.prefix}:status`;
-    return await this.data.hset(key, tranferId, status.toString());
+    await this.setExecStatusTime(transferId);
+    return await this.data.hset(key, transferId, status.toString());
   }
 
   /**
@@ -103,6 +104,28 @@ export class ExecutorCache extends Cache {
     return res && Object.values(ExecStatus).includes(res as ExecStatus)
       ? ExecStatus[res as ExecStatus]
       : ExecStatus.None;
+  }
+
+  /**
+   * Set the exec timestamp for a given tranfer id
+   * @param transferId - Transfer Id
+   * @returns 1 if added, 0 if updated.
+   */
+  public async setExecStatusTime(transferId: string): Promise<number> {
+    const key = `${this.prefix}:timestamp`;
+    const timestamp = getNtpTimeSeconds().toString();
+    return await this.data.hset(key, transferId, timestamp);
+  }
+
+  /**
+   * Get the exec timestamp for a given transfer id
+   * @param transferId - Tranfer Id to get
+   * @returns The last update time in seconds.
+   */
+  public async getExecStatusTime(transferId: string): Promise<number> {
+    const key = `${this.prefix}:timestamp`;
+    const res = await this.data.hget(key, transferId);
+    return res ? Number(res) : 0;
   }
 
   /// MARK - Meta TX Tasks

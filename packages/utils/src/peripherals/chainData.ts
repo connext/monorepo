@@ -101,11 +101,13 @@ export const getChainData = async (): Promise<Map<string, ChainData>> => {
   const url = "https://chaindata.connext.ninja";
   try {
     const data = await fetchJson(url);
+    if (!data) throw new Error("No chain data found");
     return chainDataToMap(data);
   } catch (err: unknown) {
     const url = "https://raw.githubusercontent.com/connext/chaindata/main/crossChain.json";
     try {
       const data = await fetchJson(url);
+      if (!data) throw new Error("No chain data found");
       return chainDataToMap(data);
     } catch (err: unknown) {
       // Check to see if we have the chain data cached locally.

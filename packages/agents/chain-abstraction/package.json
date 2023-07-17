@@ -1,6 +1,6 @@
 {
   "name": "@connext/chain-abstraction",
-  "version": "1.0.2-alpha.18",
+  "version": "1.0.2",
   "description": "A package to make it easy to integrate arbitrary DEXes on both origin/destination domains",
   "author": "Connext",
   "license": "MIT",
@@ -22,6 +22,7 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/sdk-core": "workspace:*",
     "@sinclair/typebox": "0.25.21",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",

@@ -297,6 +297,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 5000,
+            txNonce: 10000000001,
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
@@ -306,6 +307,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 5000,
+            txNonce: 10000000002,
           },
         },
       });
@@ -358,6 +360,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
+            txNonce: 10000000001,
           },
           reconcile: {
             caller: "0x1500000000000000000000000000000000000000",
@@ -367,6 +370,7 @@ describe("Helpers:parse", () => {
             gasPrice: "10000000000",
             gasLimit: "1000000",
             blockNumber: 0,
+            txNonce: 10000000002,
           },
         },
       });
@@ -606,6 +610,7 @@ describe("Helpers:parse", () => {
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),
+        nonce: "16728234800000",
       };
       expect(stableSwapExchange(entity)).to.be.deep.eq(
         mock.entity.stableSwapExchange({
@@ -622,6 +627,7 @@ describe("Helpers:parse", () => {
           blockNumber: 25792350,
           timestamp: 1672823480,
           transactionHash: mkBytes32("0xa"),
+          nonce: 16728234800000,
         }),
       );
     });
@@ -662,6 +668,7 @@ describe("Helpers:parse", () => {
         block: 37933815,
         timestamp: 1673421076,
         transaction: mkBytes32("0xb"),
+        nonce: 16734210760001,
       };
       expect(stableSwapPoolEvent(entity)).to.be.deep.eq(
         mock.entity.stableswapPoolEvent({
@@ -680,6 +687,7 @@ describe("Helpers:parse", () => {
           blockNumber: 37933815,
           timestamp: 1673421076,
           transactionHash: mkBytes32("0xb"),
+          nonce: 16734210760001,
         }),
       );
     });

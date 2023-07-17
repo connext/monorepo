@@ -50,9 +50,9 @@ describe("Helpers: Arbitrum ", () => {
     it("should return necessary data successfully", async () => {
       l1ToL2.estimateAll.resolves({
         gasLimit: BigNumber.from(100),
-        maxSubmissionFee: BigNumber.from(100),
+        maxSubmissionCost: BigNumber.from(100),
         maxFeePerGas: BigNumber.from(100),
-        totalL2GasCosts: BigNumber.from(100),
+        deposit: BigNumber.from(100),
       });
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({

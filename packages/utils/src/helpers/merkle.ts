@@ -42,6 +42,7 @@ export type DBHelper = {
   getNodes: (start: number, end: number) => Promise<string[]>;
   putRoot: (path: string, hash: string) => Promise<void>;
   getRoot: (path: string) => Promise<string | undefined>;
+  clearCache: () => Promise<void>;
 };
 
 const ZERO_BYTES = mkBytes32("0x");
@@ -136,14 +137,18 @@ export class SparseMerkleTree {
       // Get the subtree down the opposite path of the one to the target.
       const nodes = await this.getSubtreeNodes(depth + 1, siblingPath);
 
-      // TODO: @jakek verify that removing this check doesn't break anything.
-      // Sanity check: nodes were returned (if not, then our starting depth was likely incorrect).
-      // if (!nodes.length) {
-      //   throw new Error("No nodes...?");
-      // }
+      // Use cached root for path if available
+      const cachedRoot = await this.db.getRoot(siblingPath);
+      if (cachedRoot) {
+        siblings[depth] = cachedRoot;
+      } else {
+        // The sibling at this depth will be the root of that subtree.
+        siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
 
-      // The sibling at this depth will be the root of that subtree.
-      siblings[depth] = this.getSubtreeRoot(depth + 1, nodes);
+        // Cache the subtree in the DB once we have solved for root.
+        const expectedNodeCount = 2 ** (this.height - (depth + 1));
+        if (expectedNodeCount - nodes.length === 0) await this.db.putRoot(siblingPath, siblings[depth]);
+      }
     }
 
     // Get the last sibling node.
@@ -201,9 +206,6 @@ export class SparseMerkleTree {
 
   // Get root from (sub)array of base layer nodes
   private getSubtreeRoot(depth: number, nodes: string[]): string {
-    // TODO: Check to see if we have the given subtree cached!
-    // const cached = await this.db.getSubtreeRoot()
-
     // TODO: There's probably a faster way to fill out empty subtrees... i.e. using KNOWN zero hashes.
     // Determine the expected number of nodes in this subtree given the current depth.
     // At a depth of 0, this should be the whole tree (e.g. for a tree of 16-depth: 65,536 nodes).
@@ -248,7 +250,6 @@ export class SparseMerkleTree {
     }
 
     return roots[0];
-    // TODO: Cache the subtree in the DB once we have solved for root.
   }
 
   private async getStartingDepth(_count?: number): Promise<number> {

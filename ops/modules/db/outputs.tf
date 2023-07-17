@@ -13,6 +13,11 @@ output "db_instance_id" {
   value       = aws_db_instance.db.id
 }
 
+output "db_instance_identifier" {
+  description = "The instance identifier of the RDS instance"
+  value       = aws_db_instance.db.identifier
+}
+
 output "db_instance_arn" {
   description = "The ARN of the RDS instance"
   value       = aws_db_instance.db.arn
@@ -25,7 +30,7 @@ output "db_instance_endpoint" {
 
 output "db_instance_name" {
   description = "The database name"
-  value       = aws_db_instance.db.name
+  value       = aws_db_instance.db.db_name
 }
 
 output "db_instance_username" {

@@ -112,18 +112,6 @@ const handleDeployHub = async (
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
 
-  // setArborist to Merkle for RootManager
-  const merkleForRootContract = await hre.ethers.getContractAt(
-    "MerkleTreeManager",
-    merkleTreeManagerForRoot.address,
-    deployer,
-  );
-  if (!(await merkleForRootContract.arborist())) {
-    const tx = await merkleForRootContract.setArborist(rootManager.address);
-    console.log(`setArborist for RootManager tx submitted:`, tx.hash);
-    await tx.wait();
-  }
-
   // Deploy MerkleTreeManager(beacon proxy)
   console.log("Deploying MerkleTreeManager proxy For MainnetSpokeConnector...");
   const merkleTreeManagerForSpoke = await deployBeaconProxy(
@@ -230,7 +218,7 @@ const handleDeploySpoke = async (
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
       !contract.includes("Consensys") &&
-      !contract.includes("Multichain")) ||
+      !contract.includes("Wormhole")) ||
     contract.includes("Mainnet")
   ) {
     return;

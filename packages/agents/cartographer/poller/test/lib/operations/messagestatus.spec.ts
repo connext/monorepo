@@ -36,7 +36,12 @@ describe("MessageStatus operations", () => {
       (mockContext.adapters.database.getMessageByLeaf as SinonStub).resolves(
         mock.entity.xMessage({ destination: { processed: false, returnData: getRandomBytes32() } }),
       );
-      (mockContext.adapters.database.getMessageRootsFromIndex as SinonStub).resolves([]);
+      (mockContext.adapters.database.getMessageRootStatusFromIndex as SinonStub).resolves({
+        processedCount: 0,
+        unprocessedCount: 0,
+        aggregatedCount: 0,
+        lastAggregatedRoot: undefined,
+      });
       const xTransfer = mock.entity.xtransfer({ messageHash: undefined });
       const messageStatus = await getMessageStatus(xTransfer);
       expect(messageStatus).to.be.eq(XTransferMessageStatus.XCalled);
@@ -45,9 +50,12 @@ describe("MessageStatus operations", () => {
       (mockContext.adapters.database.getMessageByLeaf as SinonStub).resolves(
         mock.entity.xMessage({ destination: { processed: false, returnData: getRandomBytes32() } }),
       );
-      (mockContext.adapters.database.getMessageRootsFromIndex as SinonStub).resolves([
-        mock.entity.rootMessage({ processed: false }),
-      ]);
+      (mockContext.adapters.database.getMessageRootStatusFromIndex as SinonStub).resolves({
+        processedCount: 0,
+        unprocessedCount: 1,
+        aggregatedCount: 0,
+        lastAggregatedRoot: undefined,
+      });
       const xTransfer = mock.entity.xtransfer({ messageHash: undefined });
       const messageStatus = await getMessageStatus(xTransfer);
       expect(messageStatus).to.be.eq(XTransferMessageStatus.SpokeRootSent);
@@ -57,10 +65,12 @@ describe("MessageStatus operations", () => {
       (mockContext.adapters.database.getMessageByLeaf as SinonStub).resolves(
         mock.entity.xMessage({ destination: { processed: false, returnData: getRandomBytes32() } }),
       );
-      (mockContext.adapters.database.getMessageRootsFromIndex as SinonStub).resolves([
-        mock.entity.rootMessage({ processed: true }),
-      ]);
-      (mockContext.adapters.database.getAggregateRoot as SinonStub).resolves(undefined);
+      (mockContext.adapters.database.getMessageRootStatusFromIndex as SinonStub).resolves({
+        processedCount: 1,
+        unprocessedCount: 5,
+        aggregatedCount: 0,
+        lastAggregatedRoot: undefined,
+      });
       const xTransfer = mock.entity.xtransfer({ messageHash: undefined });
       const messageStatus = await getMessageStatus(xTransfer);
       expect(messageStatus).to.be.eq(XTransferMessageStatus.SpokeRootArrivedOnHub);
@@ -70,10 +80,12 @@ describe("MessageStatus operations", () => {
       (mockContext.adapters.database.getMessageByLeaf as SinonStub).resolves(
         mock.entity.xMessage({ destination: { processed: false, returnData: getRandomBytes32() } }),
       );
-      (mockContext.adapters.database.getMessageRootsFromIndex as SinonStub).resolves([
-        mock.entity.rootMessage({ processed: true }),
-      ]);
-      (mockContext.adapters.database.getAggregateRoot as SinonStub).resolves(mock.entity.aggregatedRoot());
+      (mockContext.adapters.database.getMessageRootStatusFromIndex as SinonStub).resolves({
+        processedCount: 1,
+        unprocessedCount: 5,
+        aggregatedCount: 1,
+        lastAggregatedRoot: mock.entity.aggregatedRoot(),
+      });
       const xTransfer = mock.entity.xtransfer({ messageHash: undefined });
       const messageStatus = await getMessageStatus(xTransfer);
       expect(messageStatus).to.be.eq(XTransferMessageStatus.AggregateRootPropagated);
@@ -83,10 +95,12 @@ describe("MessageStatus operations", () => {
       (mockContext.adapters.database.getMessageByLeaf as SinonStub).resolves(
         mock.entity.xMessage({ destination: { processed: false, returnData: getRandomBytes32() } }),
       );
-      (mockContext.adapters.database.getMessageRootsFromIndex as SinonStub).resolves([
-        mock.entity.rootMessage({ processed: true }),
-      ]);
-      (mockContext.adapters.database.getAggregateRoot as SinonStub).resolves(mock.entity.aggregatedRoot());
+      (mockContext.adapters.database.getMessageRootStatusFromIndex as SinonStub).resolves({
+        processedCount: 1,
+        unprocessedCount: 5,
+        aggregatedCount: 1,
+        lastAggregatedRoot: mock.entity.aggregatedRoot(),
+      });
       (mockContext.adapters.database.getAggregateRootByRootAndDomain as SinonStub).resolves(
         mock.entity.aggregatedRoot(),
       );

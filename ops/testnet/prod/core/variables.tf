@@ -42,16 +42,27 @@ variable "full_image_name_router_executor" {
   default     = "ghcr.io/connext/router-executor:0.2.1-beta.8"
 }
 
+variable "full_image_name_sequencer_server" {
+  type        = string
+  description = "sequencer server image name"
+  default     = "ghcr.io/connext/sequencer-server:0.2.1-beta.8"
+}
+
 variable "full_image_name_sequencer_publisher" {
   type        = string
-  description = "sequencer image name"
+  description = "sequencer publisher image name"
   default     = "ghcr.io/connext/sequencer-publisher:0.2.1-beta.8"
 }
 
 variable "full_image_name_sequencer_subscriber" {
   type        = string
-  description = "sequencer image name"
+  description = "sequencer subscriber image name"
   default     = "ghcr.io/connext/sequencer-subscriber:0.2.1-beta.8"
+}
+
+variable "full_image_name_lighthouse_prover_subscriber" {
+  type        = string
+  description = "lighthouse subscriber image name"
 }
 
 variable "lighthouse_image_tag" {
@@ -97,6 +108,14 @@ variable "goerli_alchemy_key_1" {
 }
 
 variable "optgoerli_alchemy_key_0" {
+  type = string
+}
+
+variable "optgoerli_alchemy_key_for_lh" {
+  type = string
+}
+
+variable "mumbai_alchemy_key_0" {
   type = string
 }
 

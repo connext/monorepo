@@ -24,64 +24,49 @@ import type {
 } from "../../../../../common";
 
 export declare namespace IOptimismHubConnector {
-  export type ChainBatchHeaderStruct = {
-    batchIndex: PromiseOrValue<BigNumberish>;
-    batchRoot: PromiseOrValue<BytesLike>;
-    batchSize: PromiseOrValue<BigNumberish>;
-    prevTotalElements: PromiseOrValue<BigNumberish>;
-    extraData: PromiseOrValue<BytesLike>;
+  export type WithdrawalTransactionStruct = {
+    nonce: PromiseOrValue<BigNumberish>;
+    sender: PromiseOrValue<string>;
+    target: PromiseOrValue<string>;
+    value: PromiseOrValue<BigNumberish>;
+    gasLimit: PromiseOrValue<BigNumberish>;
+    data: PromiseOrValue<BytesLike>;
   };
 
-  export type ChainBatchHeaderStructOutput = [
+  export type WithdrawalTransactionStructOutput = [
     BigNumber,
+    string,
     string,
     BigNumber,
     BigNumber,
     string
   ] & {
-    batchIndex: BigNumber;
-    batchRoot: string;
-    batchSize: BigNumber;
-    prevTotalElements: BigNumber;
-    extraData: string;
+    nonce: BigNumber;
+    sender: string;
+    target: string;
+    value: BigNumber;
+    gasLimit: BigNumber;
+    data: string;
   };
 
-  export type ChainInclusionProofStruct = {
-    index: PromiseOrValue<BigNumberish>;
-    siblings: PromiseOrValue<BytesLike>[];
-  };
-
-  export type ChainInclusionProofStructOutput = [BigNumber, string[]] & {
-    index: BigNumber;
-    siblings: string[];
-  };
-
-  export type L2MessageInclusionProofStruct = {
+  export type OutputRootProofStruct = {
+    version: PromiseOrValue<BytesLike>;
     stateRoot: PromiseOrValue<BytesLike>;
-    stateRootBatchHeader: IOptimismHubConnector.ChainBatchHeaderStruct;
-    stateRootProof: IOptimismHubConnector.ChainInclusionProofStruct;
-    stateTrieWitness: PromiseOrValue<BytesLike>;
-    storageTrieWitness: PromiseOrValue<BytesLike>;
+    messagePasserStorageRoot: PromiseOrValue<BytesLike>;
+    latestBlockhash: PromiseOrValue<BytesLike>;
   };
 
-  export type L2MessageInclusionProofStructOutput = [
-    string,
-    IOptimismHubConnector.ChainBatchHeaderStructOutput,
-    IOptimismHubConnector.ChainInclusionProofStructOutput,
-    string,
-    string
-  ] & {
+  export type OutputRootProofStructOutput = [string, string, string, string] & {
+    version: string;
     stateRoot: string;
-    stateRootBatchHeader: IOptimismHubConnector.ChainBatchHeaderStructOutput;
-    stateRootProof: IOptimismHubConnector.ChainInclusionProofStructOutput;
-    stateTrieWitness: string;
-    storageTrieWitness: string;
+    messagePasserStorageRoot: string;
+    latestBlockhash: string;
   };
 }
 
 export interface IOptimismHubConnectorInterface extends utils.Interface {
   functions: {
-    "processMessageFromRoot(address,address,bytes,uint256,(bytes32,(uint256,bytes32,uint256,uint256,bytes),(uint256,bytes32[]),bytes,bytes))": FunctionFragment;
+    "processMessageFromRoot((uint256,address,address,uint256,uint256,bytes),uint256,(bytes32,bytes32,bytes32,bytes32),bytes[])": FunctionFragment;
   };
 
   getFunction(
@@ -91,11 +76,10 @@ export interface IOptimismHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
     values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
+      IOptimismHubConnector.WithdrawalTransactionStruct,
       PromiseOrValue<BigNumberish>,
-      IOptimismHubConnector.L2MessageInclusionProofStruct
+      IOptimismHubConnector.OutputRootProofStruct,
+      PromiseOrValue<BytesLike>[]
     ]
   ): string;
 
@@ -135,31 +119,28 @@ export interface IOptimismHubConnector extends BaseContract {
 
   functions: {
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: IOptimismHubConnector.L2MessageInclusionProofStruct,
+      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   processMessageFromRoot(
-    _target: PromiseOrValue<string>,
-    _sender: PromiseOrValue<string>,
-    _message: PromiseOrValue<BytesLike>,
-    _messageNonce: PromiseOrValue<BigNumberish>,
-    _proof: IOptimismHubConnector.L2MessageInclusionProofStruct,
+    _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+    _l2OutputIndex: PromiseOrValue<BigNumberish>,
+    _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+    _withdrawalProof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: IOptimismHubConnector.L2MessageInclusionProofStruct,
+      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -168,22 +149,20 @@ export interface IOptimismHubConnector extends BaseContract {
 
   estimateGas: {
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: IOptimismHubConnector.L2MessageInclusionProofStruct,
+      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     processMessageFromRoot(
-      _target: PromiseOrValue<string>,
-      _sender: PromiseOrValue<string>,
-      _message: PromiseOrValue<BytesLike>,
-      _messageNonce: PromiseOrValue<BigNumberish>,
-      _proof: IOptimismHubConnector.L2MessageInclusionProofStruct,
+      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _l2OutputIndex: PromiseOrValue<BigNumberish>,
+      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
