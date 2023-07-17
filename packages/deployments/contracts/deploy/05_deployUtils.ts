@@ -62,6 +62,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   /// - Test ERC20
   /// - Test WETH
   /// - Test Adopted
+  /// - Test Votes
   console.log("Deploying test tokens...");
   // Note: NOT using special token for staging envs
   await deployContract({
@@ -85,6 +86,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     contractName: "TestERC20",
     deploymentName: "TestWETH",
     args: ["Test Wrapped Ether", "TWETH"],
+  });
+
+  await deployContract({
+    hre,
+    deployer,
+    contractName: "TestERC20Votes",
+    deploymentName: "TestVotes",
+    args: ["Test Votes", "TVOTES"],
   });
 
   /// MARK - MultiSend
