@@ -34,6 +34,7 @@ export const optionDefinitions = [
   { name: "env", type: String },
   { name: "apply", type: String, defaultValue: "false" },
   { name: "domains", type: String, multiple: true },
+  { name: "asset", type: String },
 ];
 
 /**
@@ -48,7 +49,7 @@ export const sanitizeAndInit = async () => {
   }
 
   // Validate command line arguments
-  const { network, env, domains: _domains, apply: _apply, name } = cmdArgs;
+  const { network, env, domains: _domains, apply: _apply, name, asset: specifiedAssetName } = cmdArgs;
   const apply = _apply === "true";
   if (!STAGES.includes(name as Stage)) {
     throw new Error(`Name should be one of ${STAGES.join()}, name: ${name}`);
@@ -97,7 +98,17 @@ export const sanitizeAndInit = async () => {
     throw new Error(`Supported domains MUST include the hub domain. hub: ${hubDomain}, supported: ${supported}`);
   }
 
-  const _assets = initConfig.assets ?? [];
+  const assetNames = initConfig.assets.map((a) => a.name.toLowerCase());
+  console.log("asset: ", specifiedAssetName);
+  if (!assetNames.includes(((specifiedAssetName ?? "") as string).toLowerCase())) {
+    throw new Error(
+      `Specified asset name is not configured, asset: ${specifiedAssetName}, configured: ${assetNames.join(",")}`,
+    );
+  }
+
+  const _assets = (initConfig.assets ?? []).filter((a) =>
+    specifiedAssetName ? a.name.toLowerCase() === specifiedAssetName.toLowerCase() : true,
+  );
   for (const asset of _assets) {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
