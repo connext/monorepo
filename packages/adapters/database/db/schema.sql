@@ -790,7 +790,7 @@ CREATE TABLE public.snapshots (
 
 
 --
--- Name: stableswap_lp_balances; Type: VIEW; Schema: public; Owner: -
+-- Name: stableswap_lp_balances; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.stableswap_lp_balances (
