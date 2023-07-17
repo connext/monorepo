@@ -1,3 +1,5 @@
+import { constants } from "ethers";
+
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
@@ -132,6 +134,46 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "TVOTES",
+      canonical: {
+        domain: "1735353714",
+        address: "0xC15bAC780f7702E83d421955132d192c8841B13f",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x2b6488d408d1999c71936eE642f0fAD136f8582d",
+          adopted: "0x2b6488d408d1999c71936eE642f0fAD136f8582d",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x0466310B91743Da33A0ACa64bDAb0e7F5559e36c",
+          adopted: "0x0466310B91743Da33A0ACa64bDAb0e7F5559e36c",
+        },
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x8073a764c4651a9BE132032d7B5E3B319311904E",
+          adopted: "0x8073a764c4651a9BE132032d7B5E3B319311904E",
+        },
+        /// ZKSYNC-TEST
+        "2053862260": {
+          local: constants.AddressZero,
+          adopted: constants.AddressZero,
+        },
+        /// CONSENSYS-ZKEVM-TEST
+        "1668247156": {
+          local: "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
+          adopted: "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
+        },
+        /// POLYGON-ZKEVM-TEST
+        "1887071092": {
+          local: "0x90f1df0686878C9cBA4d9A7B412c04410d0220cd",
+          adopted: "0x90f1df0686878C9cBA4d9A7B412c04410d0220cd",
+        },
+      },
+    },
     // {
     //   name: "WETH",
     //   canonical: {
@@ -208,12 +250,12 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   agents: {
     relayerFeeVaults: {
-      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
-      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
-      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
-      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
-      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
-      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735353714": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735356532": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "9991": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1734439522": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1668247156": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1887071092": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
     },
     watchers: {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
