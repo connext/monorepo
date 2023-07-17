@@ -37,6 +37,12 @@ variable "full_image_name_router_subscriber" {
   default     = "ghcr.io/connext/router-subscriber:sha-b5bb49a"
 }
 
+variable "full_image_name_router_executor" {
+  type        = string
+  description = "router image name"
+  default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
+}
+
 variable "full_image_name_lighthouse_prover_subscriber" {
   type        = string
   description = "router image name"
