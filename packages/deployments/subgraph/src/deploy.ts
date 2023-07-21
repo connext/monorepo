@@ -125,7 +125,7 @@ const run = async () => {
     console.error(`stderr: ${err}`);
 
     /// deploy
-    if (!configFile.includes("local")) {
+    if (!configFile.includes("local") && !configFile.includes("devnet")) {
       console.log("Running Deployment command for " + n.network);
       const { stdout, stderr } = await exec(`graph deploy --product hosted-service ${n.subgraphName}`);
 
