@@ -38,7 +38,7 @@ export const getLatestBlockNumber = async (url: string): Promise<number> => {
       }}
     `,
     });
-    return Number(result.data._meta.block.number);
+    return Number(result.data.data._meta.block.number);
   } catch (error: unknown) {
     console.error(`Error in getLatestBlockNumber, error: ${jsonifyError(error as Error).toString()}`);
     return 0;
