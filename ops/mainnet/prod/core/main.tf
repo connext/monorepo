@@ -407,7 +407,7 @@ module "lighthouse_sendoutboundroot_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
   schedule_expression = "rate(120 minutes)"
-  memory_size         = 512
+  memory_size         = 2048
 }
 
 
