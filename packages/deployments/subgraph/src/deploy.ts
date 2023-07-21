@@ -4,6 +4,7 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
+import { getLatestBlockNumber } from "@connext/nxtp-utils";
 
 // import Connext_DiamondProxy_1337 from "../../contracts/deployments/local_1337/Connext_DiamondProxy.json";
 // import Connext_DiamondProxy_1338 from "../../contracts/deployments/local_1338/Connext_DiamondProxy.json";
@@ -12,6 +13,7 @@ const exec = util.promisify(_exec);
 
 export type Network = {
   subgraphName: string;
+  subgraphId?: string;
   network: string;
   source: [
     {
@@ -75,31 +77,29 @@ const run = async () => {
 
   for (const n of networksToDeploy) {
     console.log(n);
-    // if (n.network === "local_1337") {
-    //   n.address = Connext_DiamondProxy_1337.address;
-    // }
-
-    // if (n.network === "local_1338") {
-    //   n.address = Connext_DiamondProxy_1338.address;
-    // }
 
     /// prepare
-    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
-      const source = n.source.find((s) => s.name === ds.name);
-      if (source) {
-        return {
-          ...ds,
-          network: n.network,
-          source: {
-            ...ds.source,
-            address: source.address,
-            startBlock: source.startBlock,
-          },
-        };
-      } else {
-        return null;
-      }
-    });
+    await Promise.all(
+      (jsonFile.dataSources = (jsonFile.dataSources ?? []).map(async (ds: any) => {
+        const source = n.source.find((s) => s.name === ds.name);
+        if (source) {
+          const startBlock = configFile.includes("devnet")
+            ? await getLatestBlockNumber(`https://api.thegraph.com/subgraphs/name/${n.subgraphName}`)
+            : source.startBlock;
+          return {
+            ...ds,
+            network: n.network,
+            source: {
+              ...ds.source,
+              address: source.address,
+              startBlock,
+            },
+          };
+        } else {
+          return null;
+        }
+      })),
+    );
     jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
 
     if (jsonFile.templates) {

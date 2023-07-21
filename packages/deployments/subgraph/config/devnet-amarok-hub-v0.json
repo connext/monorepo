@@ -1,6 +1,8 @@
 [
   {
     "network": "mainnet",
+    "subgraphName": "connext/amarok-hub-v0-mainnet",
+    "subgraphId": "",
     "source": [
       {
         "name": "RootManager",
