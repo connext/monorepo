@@ -13,3 +13,6 @@
 [submodule "packages/deployments/contracts/lib/relay-context-contracts"]
 	path = packages/deployments/contracts/lib/relay-context-contracts
 	url = https://github.com/gelatodigital/relay-context-contracts
+[submodule "packages/deployments/contracts/lib/forge-deploy"]
+	path = packages/deployments/contracts/lib/forge-deploy
+	url = https://github.com/wighawag/forge-deploy

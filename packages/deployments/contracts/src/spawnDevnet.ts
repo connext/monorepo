@@ -52,7 +52,7 @@ const createDevNets = async () => {
     }
     const fileContent = fs.readFileSync(".env", "utf8");
 
-    const newFileContent = fileContent.replace(config.regex, "");
+    const newFileContent = fileContent.replace(config.regex, "").replace(/^\s*\n/gm, "");
     fs.writeFileSync(".env", newFileContent);
     fs.appendFileSync(".env", `${os.EOL}${config.network}_DEVNET_RPC_URL=` + devnetUrl);
   }

@@ -7,7 +7,7 @@ import "../deployer/DeployerFunctions.g.sol";
 contract Deployments is DeployScript {
   using DeployerFunctions for Deployer;
 
-  function deploy() external returns (Counter) {
+  function deploy() external returns (TestERC20) {
     return deployer.deploy_TestERC20("TestERC20", "Test", "Test");
   }
 }
