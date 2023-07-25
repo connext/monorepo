@@ -1,6 +1,7 @@
 [profile.default]
 src = 'contracts_forge'
 out = 'artifacts_forge'
+script = 'script'
 libs = ["node_modules", "lib"]
 block_timestamp = 1648744712
 solc_version = '0.8.17'

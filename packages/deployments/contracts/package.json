@@ -27,6 +27,8 @@
     "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "spawn-devnet": "ts-node ./src/spawnDevnet.ts",
+    "gen-deployer": "yarn forge-deploy gen-deployer --output ./ --sources ./contracts --templates ./templates/DeployerFunctions.g.sol.hbs",
+    "forge:deploy": "ts-node ./src/devnetDeploy.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",
@@ -44,7 +46,9 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "2.1.0"
+    "@eth-optimism/sdk": "2.1.0",
+    "forge-deploy": "^0.2.0",
+    "forge-deploy-proxy": "^0.1.0"
   },
   "devDependencies": {
     "@arbitrum/sdk": "3.1.3",
