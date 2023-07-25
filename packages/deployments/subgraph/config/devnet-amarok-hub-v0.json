@@ -1,0 +1,29 @@
+[
+  {
+    "network": "mainnet",
+    "subgraphName": "connext/amarok-hub-v0-mainnet",
+    "subgraphId": "",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0xd5d61E9dfb6680Cba8353988Ba0337802811C2e1",
+        "startBlock": 16232834
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x7D2596D7E44b0990611d390Fbb0Bd24e64845694",
+        "startBlock": 16232831
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0x66a425f09cfd613d40A986B3ef800AA7604C8eeE",
+        "startBlock": 17429373
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0xd151C9ef49cE2d30B829a98A07767E3280F70961",
+        "startBlock": 16233513
+      }
+    ]
+  }
+]

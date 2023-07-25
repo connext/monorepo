@@ -642,3 +642,51 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
+  #####################################################
+  # DEVNETS
+  - name: Devnet_Hub_Mainnet
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_DEVNET_HUB_MAINNET}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: devnetmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Devnet_Optimism
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_DEVNET_OPTIMISM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: devnetoptimism_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Devnet_Arbitrum
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_DEVNET_ARBITRUM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: devnetarbitrum_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250

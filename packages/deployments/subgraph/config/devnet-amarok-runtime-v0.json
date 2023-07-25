@@ -1,0 +1,40 @@
+[
+  {
+    "subgraphName": "connext/amarok-runtime-v0-optimism",
+    "subgraphId": "",
+    "network": "optimism",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x88483B3e3B4DD7cEdB8EFcef81F6dC9adb6292D5"
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-arbitrum-one",
+    "subgraphId": "",
+    "network": "arbitrum-one",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xFD81392229b6252cF761459d370C239Be3aFc54F"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x8533004Ecb90151cD821dc2Fafb78797d8fdd085"
+      }
+    ]
+  }
+]
