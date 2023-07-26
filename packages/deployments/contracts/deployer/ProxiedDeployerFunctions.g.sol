@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import {Deployer} from "forge-deploy/Deployer.sol";
-import {DefaultDeployerFunction, DeployOptions} from "forge-deploy/DefaultDeployerFunction.sol";
+import {GenericProxiedDeployerFunction, ProxiedDeployOptions} from "forge-deploy-proxy/GenericProxiedDeployerFunction.sol";
 
 // --------------------------------------------------------------------------------------------
 // GENERATED
@@ -285,7 +285,7 @@ string constant Artifact_RootManager = "RootManager.sol:RootManager";
 
 // --------------------------------------------------------------------------------------------
 
-library DeployerFunctions {
+library ProxiedDeployerFunctions {
   // --------------------------------------------------------------------------------------------
   // GENERATED
   // --------------------------------------------------------------------------------------------
@@ -294,237 +294,138 @@ library DeployerFunctions {
     Deployer deployer,
     string memory name,
     address connext,
-    address wrapper
-  ) internal returns (Unwrapper) {
-    bytes memory args = abi.encode(connext, wrapper);
-    return Unwrapper(DefaultDeployerFunction.deploy(deployer, name, Artifact_Unwrapper, args));
-  }
-
-  function deploy_Unwrapper(
-    Deployer deployer,
-    string memory name,
-    address connext,
     address wrapper,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (Unwrapper) {
     bytes memory args = abi.encode(connext, wrapper);
-    return Unwrapper(DefaultDeployerFunction.deploy(deployer, name, Artifact_Unwrapper, args, options));
-  }
-
-  function deploy_DiamondCutFacet(Deployer deployer, string memory name) internal returns (DiamondCutFacet) {
-    bytes memory args = abi.encode();
-    return DiamondCutFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondCutFacet, args));
+    return Unwrapper(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_Unwrapper, args, options));
   }
 
   function deploy_DiamondCutFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (DiamondCutFacet) {
     bytes memory args = abi.encode();
-    return DiamondCutFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondCutFacet, args, options));
-  }
-
-  function deploy_BaseConnextFacet(Deployer deployer, string memory name) internal returns (BaseConnextFacet) {
-    bytes memory args = abi.encode();
-    return BaseConnextFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_BaseConnextFacet, args));
+    return
+      DiamondCutFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_DiamondCutFacet, args, options));
   }
 
   function deploy_BaseConnextFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (BaseConnextFacet) {
     bytes memory args = abi.encode();
-    return BaseConnextFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_BaseConnextFacet, args, options));
-  }
-
-  function deploy_SwapAdminFacet(Deployer deployer, string memory name) internal returns (SwapAdminFacet) {
-    bytes memory args = abi.encode();
-    return SwapAdminFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_SwapAdminFacet, args));
+    return
+      BaseConnextFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_BaseConnextFacet, args, options));
   }
 
   function deploy_SwapAdminFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (SwapAdminFacet) {
     bytes memory args = abi.encode();
-    return SwapAdminFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_SwapAdminFacet, args, options));
-  }
-
-  function deploy_BridgeFacet(Deployer deployer, string memory name) internal returns (BridgeFacet) {
-    bytes memory args = abi.encode();
-    return BridgeFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_BridgeFacet, args));
+    return
+      SwapAdminFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_SwapAdminFacet, args, options));
   }
 
   function deploy_BridgeFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (BridgeFacet) {
     bytes memory args = abi.encode();
-    return BridgeFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_BridgeFacet, args, options));
-  }
-
-  function deploy_StableSwapFacet(Deployer deployer, string memory name) internal returns (StableSwapFacet) {
-    bytes memory args = abi.encode();
-    return StableSwapFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_StableSwapFacet, args));
+    return BridgeFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_BridgeFacet, args, options));
   }
 
   function deploy_StableSwapFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (StableSwapFacet) {
     bytes memory args = abi.encode();
-    return StableSwapFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_StableSwapFacet, args, options));
-  }
-
-  function deploy_PortalFacet(Deployer deployer, string memory name) internal returns (PortalFacet) {
-    bytes memory args = abi.encode();
-    return PortalFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_PortalFacet, args));
+    return
+      StableSwapFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_StableSwapFacet, args, options));
   }
 
   function deploy_PortalFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (PortalFacet) {
     bytes memory args = abi.encode();
-    return PortalFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_PortalFacet, args, options));
-  }
-
-  function deploy_RoutersFacet(Deployer deployer, string memory name) internal returns (RoutersFacet) {
-    bytes memory args = abi.encode();
-    return RoutersFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_RoutersFacet, args));
+    return PortalFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_PortalFacet, args, options));
   }
 
   function deploy_RoutersFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (RoutersFacet) {
     bytes memory args = abi.encode();
-    return RoutersFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_RoutersFacet, args, options));
-  }
-
-  function deploy_DiamondLoupeFacet(Deployer deployer, string memory name) internal returns (DiamondLoupeFacet) {
-    bytes memory args = abi.encode();
-    return DiamondLoupeFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondLoupeFacet, args));
+    return RoutersFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_RoutersFacet, args, options));
   }
 
   function deploy_DiamondLoupeFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (DiamondLoupeFacet) {
     bytes memory args = abi.encode();
-    return DiamondLoupeFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondLoupeFacet, args, options));
-  }
-
-  function deploy_InboxFacet(Deployer deployer, string memory name) internal returns (InboxFacet) {
-    bytes memory args = abi.encode();
-    return InboxFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_InboxFacet, args));
+    return
+      DiamondLoupeFacet(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_DiamondLoupeFacet, args, options)
+      );
   }
 
   function deploy_InboxFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (InboxFacet) {
     bytes memory args = abi.encode();
-    return InboxFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_InboxFacet, args, options));
-  }
-
-  function deploy_RelayerFacet(Deployer deployer, string memory name) internal returns (RelayerFacet) {
-    bytes memory args = abi.encode();
-    return RelayerFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerFacet, args));
+    return InboxFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_InboxFacet, args, options));
   }
 
   function deploy_RelayerFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (RelayerFacet) {
     bytes memory args = abi.encode();
-    return RelayerFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerFacet, args, options));
-  }
-
-  function deploy_TokenFacet(Deployer deployer, string memory name) internal returns (TokenFacet) {
-    bytes memory args = abi.encode();
-    return TokenFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_TokenFacet, args));
+    return RelayerFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_RelayerFacet, args, options));
   }
 
   function deploy_TokenFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (TokenFacet) {
     bytes memory args = abi.encode();
-    return TokenFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_TokenFacet, args, options));
-  }
-
-  function deploy_ProposedOwnableFacet(Deployer deployer, string memory name) internal returns (ProposedOwnableFacet) {
-    bytes memory args = abi.encode();
-    return ProposedOwnableFacet(DefaultDeployerFunction.deploy(deployer, name, Artifact_ProposedOwnableFacet, args));
+    return TokenFacet(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_TokenFacet, args, options));
   }
 
   function deploy_ProposedOwnableFacet(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ProposedOwnableFacet) {
     bytes memory args = abi.encode();
     return
       ProposedOwnableFacet(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ProposedOwnableFacet, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ProposedOwnableFacet, args, options)
       );
-  }
-
-  function deploy_DiamondInit(Deployer deployer, string memory name) internal returns (DiamondInit) {
-    bytes memory args = abi.encode();
-    return DiamondInit(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondInit, args));
   }
 
   function deploy_DiamondInit(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (DiamondInit) {
     bytes memory args = abi.encode();
-    return DiamondInit(DefaultDeployerFunction.deploy(deployer, name, Artifact_DiamondInit, args, options));
-  }
-
-  function deploy_RelayerProxyHub(
-    Deployer deployer,
-    string memory name,
-    address _connext,
-    address _spokeConnector,
-    address _gelatoRelayer,
-    address _feeCollector,
-    address _rootManager,
-    address _keep3r,
-    address _autonolas,
-    uint8 _autonolasPriority,
-    uint256 _propagateCooldown,
-    address[] memory _hubConnectors,
-    uint32[] memory _hubConnectorChains
-  ) internal returns (RelayerProxyHub) {
-    bytes memory args = abi.encode(
-      _connext,
-      _spokeConnector,
-      _gelatoRelayer,
-      _feeCollector,
-      _rootManager,
-      _keep3r,
-      _autonolas,
-      _autonolasPriority,
-      _propagateCooldown,
-      _hubConnectors,
-      _hubConnectorChains
-    );
-    return RelayerProxyHub(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerProxyHub, args));
+    return DiamondInit(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_DiamondInit, args, options));
   }
 
   function deploy_RelayerProxyHub(
@@ -541,7 +442,7 @@ library DeployerFunctions {
     uint256 _propagateCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (RelayerProxyHub) {
     bytes memory args = abi.encode(
       _connext,
@@ -556,19 +457,8 @@ library DeployerFunctions {
       _hubConnectors,
       _hubConnectorChains
     );
-    return RelayerProxyHub(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerProxyHub, args, options));
-  }
-
-  function deploy_ERC20(
-    Deployer deployer,
-    string memory name,
-    uint8 decimals_,
-    string memory name_,
-    string memory symbol_,
-    string memory version_
-  ) internal returns (ERC20) {
-    bytes memory args = abi.encode(decimals_, name_, symbol_, version_);
-    return ERC20(DefaultDeployerFunction.deploy(deployer, name, Artifact_ERC20, args));
+    return
+      RelayerProxyHub(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_RelayerProxyHub, args, options));
   }
 
   function deploy_ERC20(
@@ -578,72 +468,36 @@ library DeployerFunctions {
     string memory name_,
     string memory symbol_,
     string memory version_,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ERC20) {
     bytes memory args = abi.encode(decimals_, name_, symbol_, version_);
-    return ERC20(DefaultDeployerFunction.deploy(deployer, name, Artifact_ERC20, args, options));
-  }
-
-  function deploy_ConnextProxyAdmin(
-    Deployer deployer,
-    string memory name,
-    address owner
-  ) internal returns (ConnextProxyAdmin) {
-    bytes memory args = abi.encode(owner);
-    return ConnextProxyAdmin(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextProxyAdmin, args));
+    return ERC20(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ERC20, args, options));
   }
 
   function deploy_ConnextProxyAdmin(
     Deployer deployer,
     string memory name,
     address owner,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ConnextProxyAdmin) {
     bytes memory args = abi.encode(owner);
-    return ConnextProxyAdmin(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextProxyAdmin, args, options));
-  }
-
-  function deploy_ConnextPriceOracle(
-    Deployer deployer,
-    string memory name,
-    address _wrapped
-  ) internal returns (ConnextPriceOracle) {
-    bytes memory args = abi.encode(_wrapped);
-    return ConnextPriceOracle(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextPriceOracle, args));
+    return
+      ConnextProxyAdmin(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ConnextProxyAdmin, args, options)
+      );
   }
 
   function deploy_ConnextPriceOracle(
     Deployer deployer,
     string memory name,
     address _wrapped,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ConnextPriceOracle) {
     bytes memory args = abi.encode(_wrapped);
     return
-      ConnextPriceOracle(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextPriceOracle, args, options));
-  }
-
-  function deploy_RelayerProxy(
-    Deployer deployer,
-    string memory name,
-    address _connext,
-    address _spokeConnector,
-    address _gelatoRelayer,
-    address _feeCollector,
-    address _keep3r,
-    address _autonolas,
-    uint8 _autonolasPriority
-  ) internal returns (RelayerProxy) {
-    bytes memory args = abi.encode(
-      _connext,
-      _spokeConnector,
-      _gelatoRelayer,
-      _feeCollector,
-      _keep3r,
-      _autonolas,
-      _autonolasPriority
-    );
-    return RelayerProxy(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerProxy, args));
+      ConnextPriceOracle(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ConnextPriceOracle, args, options)
+      );
   }
 
   function deploy_RelayerProxy(
@@ -656,7 +510,7 @@ library DeployerFunctions {
     address _keep3r,
     address _autonolas,
     uint8 _autonolasPriority,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (RelayerProxy) {
     bytes memory args = abi.encode(
       _connext,
@@ -667,35 +521,25 @@ library DeployerFunctions {
       _autonolas,
       _autonolasPriority
     );
-    return RelayerProxy(DefaultDeployerFunction.deploy(deployer, name, Artifact_RelayerProxy, args, options));
-  }
-
-  function deploy_LPToken(Deployer deployer, string memory name) internal returns (LPToken) {
-    bytes memory args = abi.encode();
-    return LPToken(DefaultDeployerFunction.deploy(deployer, name, Artifact_LPToken, args));
+    return RelayerProxy(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_RelayerProxy, args, options));
   }
 
   function deploy_LPToken(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (LPToken) {
     bytes memory args = abi.encode();
-    return LPToken(DefaultDeployerFunction.deploy(deployer, name, Artifact_LPToken, args, options));
-  }
-
-  function deploy_StableSwap(Deployer deployer, string memory name) internal returns (StableSwap) {
-    bytes memory args = abi.encode();
-    return StableSwap(DefaultDeployerFunction.deploy(deployer, name, Artifact_StableSwap, args));
+    return LPToken(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_LPToken, args, options));
   }
 
   function deploy_StableSwap(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (StableSwap) {
     bytes memory args = abi.encode();
-    return StableSwap(DefaultDeployerFunction.deploy(deployer, name, Artifact_StableSwap, args, options));
+    return StableSwap(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_StableSwap, args, options));
   }
 
   function deploy_ConnextDiamond(
@@ -703,33 +547,12 @@ library DeployerFunctions {
     string memory name,
     address _contractOwner,
     _ConnextDiamond.IDiamondCut.FacetCut[] memory _diamondCut,
-    _ConnextDiamond.ConnextDiamond.Initialization[] memory _initializations
+    _ConnextDiamond.Initialization[] memory _initializations,
+    ProxiedDeployOptions memory options
   ) internal returns (ConnextDiamond) {
     bytes memory args = abi.encode(_contractOwner, _diamondCut, _initializations);
-    return ConnextDiamond(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextDiamond, args));
-  }
-
-  function deploy_ConnextDiamond(
-    Deployer deployer,
-    string memory name,
-    address _contractOwner,
-    _ConnextDiamond.IDiamondCut.FacetCut[] memory _diamondCut,
-    _ConnextDiamond.ConnextDiamond.Initialization[] memory _initializations,
-    DeployOptions memory options
-  ) internal returns (ConnextDiamond) {
-    bytes memory args = abi.encode(_contractOwner, _diamondCut, _initializations);
-    return ConnextDiamond(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConnextDiamond, args, options));
-  }
-
-  function deploy_BridgeToken(
-    Deployer deployer,
-    string memory name,
-    uint8 decimals_,
-    string memory name_,
-    string memory symbol_
-  ) internal returns (BridgeToken) {
-    bytes memory args = abi.encode(decimals_, name_, symbol_);
-    return BridgeToken(DefaultDeployerFunction.deploy(deployer, name, Artifact_BridgeToken, args));
+    return
+      ConnextDiamond(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ConnextDiamond, args, options));
   }
 
   function deploy_BridgeToken(
@@ -738,53 +561,30 @@ library DeployerFunctions {
     uint8 decimals_,
     string memory name_,
     string memory symbol_,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (BridgeToken) {
     bytes memory args = abi.encode(decimals_, name_, symbol_);
-    return BridgeToken(DefaultDeployerFunction.deploy(deployer, name, Artifact_BridgeToken, args, options));
-  }
-
-  function deploy_TestAggregator(
-    Deployer deployer,
-    string memory name,
-    uint8 _decimals
-  ) internal returns (TestAggregator) {
-    bytes memory args = abi.encode(_decimals);
-    return TestAggregator(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestAggregator, args));
+    return BridgeToken(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_BridgeToken, args, options));
   }
 
   function deploy_TestAggregator(
     Deployer deployer,
     string memory name,
     uint8 _decimals,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (TestAggregator) {
     bytes memory args = abi.encode(_decimals);
-    return TestAggregator(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestAggregator, args, options));
-  }
-
-  function deploy_TestAavePool(Deployer deployer, string memory name) internal returns (TestAavePool) {
-    bytes memory args = abi.encode();
-    return TestAavePool(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestAavePool, args));
+    return
+      TestAggregator(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_TestAggregator, args, options));
   }
 
   function deploy_TestAavePool(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (TestAavePool) {
     bytes memory args = abi.encode();
-    return TestAavePool(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestAavePool, args, options));
-  }
-
-  function deploy_TestERC20(
-    Deployer deployer,
-    string memory name,
-    string memory _name,
-    string memory _symbol
-  ) internal returns (TestERC20) {
-    bytes memory args = abi.encode(_name, _symbol);
-    return TestERC20(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestERC20, args));
+    return TestAavePool(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_TestAavePool, args, options));
   }
 
   function deploy_TestERC20(
@@ -792,30 +592,21 @@ library DeployerFunctions {
     string memory name,
     string memory _name,
     string memory _symbol,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (TestERC20) {
     bytes memory args = abi.encode(_name, _symbol);
-    return TestERC20(DefaultDeployerFunction.deploy(deployer, name, Artifact_TestERC20, args, options));
-  }
-
-  function deploy_UpgradeBeaconController(
-    Deployer deployer,
-    string memory name
-  ) internal returns (UpgradeBeaconController) {
-    bytes memory args = abi.encode();
-    return
-      UpgradeBeaconController(DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconController, args));
+    return TestERC20(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_TestERC20, args, options));
   }
 
   function deploy_UpgradeBeaconController(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (UpgradeBeaconController) {
     bytes memory args = abi.encode();
     return
       UpgradeBeaconController(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconController, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconController, args, options)
       );
   }
 
@@ -823,32 +614,14 @@ library DeployerFunctions {
     Deployer deployer,
     string memory name,
     address _upgradeBeacon,
-    bytes memory _initializationCalldata
-  ) internal returns (UpgradeBeaconProxy) {
-    bytes memory args = abi.encode(_upgradeBeacon, _initializationCalldata);
-    return UpgradeBeaconProxy(DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconProxy, args));
-  }
-
-  function deploy_UpgradeBeaconProxy(
-    Deployer deployer,
-    string memory name,
-    address _upgradeBeacon,
     bytes memory _initializationCalldata,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (UpgradeBeaconProxy) {
     bytes memory args = abi.encode(_upgradeBeacon, _initializationCalldata);
     return
-      UpgradeBeaconProxy(DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconProxy, args, options));
-  }
-
-  function deploy_UpgradeBeacon(
-    Deployer deployer,
-    string memory name,
-    address _initialImplementation,
-    address _controller
-  ) internal returns (UpgradeBeacon) {
-    bytes memory args = abi.encode(_initialImplementation, _controller);
-    return UpgradeBeacon(DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeacon, args));
+      UpgradeBeaconProxy(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeaconProxy, args, options)
+      );
   }
 
   function deploy_UpgradeBeacon(
@@ -856,75 +629,29 @@ library DeployerFunctions {
     string memory name,
     address _initialImplementation,
     address _controller,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (UpgradeBeacon) {
     bytes memory args = abi.encode(_initialImplementation, _controller);
-    return UpgradeBeacon(DefaultDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeacon, args, options));
-  }
-
-  function deploy_MultiSend(Deployer deployer, string memory name) internal returns (MultiSend) {
-    bytes memory args = abi.encode();
-    return MultiSend(DefaultDeployerFunction.deploy(deployer, name, Artifact_MultiSend, args));
+    return UpgradeBeacon(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_UpgradeBeacon, args, options));
   }
 
   function deploy_MultiSend(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (MultiSend) {
     bytes memory args = abi.encode();
-    return MultiSend(DefaultDeployerFunction.deploy(deployer, name, Artifact_MultiSend, args, options));
-  }
-
-  function deploy_WatcherClient(
-    Deployer deployer,
-    string memory name,
-    address _watcherManager
-  ) internal returns (WatcherClient) {
-    bytes memory args = abi.encode(_watcherManager);
-    return WatcherClient(DefaultDeployerFunction.deploy(deployer, name, Artifact_WatcherClient, args));
+    return MultiSend(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_MultiSend, args, options));
   }
 
   function deploy_WatcherClient(
     Deployer deployer,
     string memory name,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (WatcherClient) {
     bytes memory args = abi.encode(_watcherManager);
-    return WatcherClient(DefaultDeployerFunction.deploy(deployer, name, Artifact_WatcherClient, args, options));
-  }
-
-  function deploy_OptimismSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
-    uint256 _gasCap
-  ) internal returns (OptimismSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager,
-      _gasCap
-    );
-    return
-      OptimismSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_OptimismSpokeConnector, args));
+    return WatcherClient(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_WatcherClient, args, options));
   }
 
   function deploy_OptimismSpokeConnector(
@@ -941,7 +668,7 @@ library DeployerFunctions {
     address _merkle,
     address _watcherManager,
     uint256 _gasCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (OptimismSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -958,31 +685,8 @@ library DeployerFunctions {
     );
     return
       OptimismSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_OptimismSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_OptimismSpokeConnector, args, options)
       );
-  }
-
-  function deploy_OptimismHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    address _optimismPortal,
-    uint256 _gasCap
-  ) internal returns (OptimismHubConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _optimismPortal,
-      _gasCap
-    );
-    return OptimismHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_OptimismHubConnector, args));
   }
 
   function deploy_OptimismHubConnector(
@@ -995,7 +699,7 @@ library DeployerFunctions {
     address _mirrorConnector,
     address _optimismPortal,
     uint256 _gasCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (OptimismHubConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1008,7 +712,7 @@ library DeployerFunctions {
     );
     return
       OptimismHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_OptimismHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_OptimismHubConnector, args, options)
       );
   }
 
@@ -1020,27 +724,13 @@ library DeployerFunctions {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint32 _mirrorNetworkId
-  ) internal returns (PolygonZkHubConnector) {
-    bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorNetworkId);
-    return PolygonZkHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonZkHubConnector, args));
-  }
-
-  function deploy_PolygonZkHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
     uint32 _mirrorNetworkId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (PolygonZkHubConnector) {
     bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _mirrorNetworkId);
     return
       PolygonZkHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonZkHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_PolygonZkHubConnector, args, options)
       );
   }
 
@@ -1057,40 +747,8 @@ library DeployerFunctions {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    uint32 _mirrorNetworkId
-  ) internal returns (PolygonZkSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager,
-      _mirrorNetworkId
-    );
-    return
-      PolygonZkSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonZkSpokeConnector, args));
-  }
-
-  function deploy_PolygonZkSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
     uint32 _mirrorNetworkId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (PolygonZkSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1107,35 +765,8 @@ library DeployerFunctions {
     );
     return
       PolygonZkSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonZkSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_PolygonZkSpokeConnector, args, options)
       );
-  }
-
-  function deploy_ArbitrumHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    address _outbox,
-    uint256 _maxSubmissionCostCap,
-    uint256 _maxGasCap,
-    uint256 _gasPriceCap
-  ) internal returns (ArbitrumHubConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _outbox,
-      _maxSubmissionCostCap,
-      _maxGasCap,
-      _gasPriceCap
-    );
-    return ArbitrumHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ArbitrumHubConnector, args));
   }
 
   function deploy_ArbitrumHubConnector(
@@ -1150,7 +781,7 @@ library DeployerFunctions {
     uint256 _maxSubmissionCostCap,
     uint256 _maxGasCap,
     uint256 _gasPriceCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ArbitrumHubConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1165,38 +796,8 @@ library DeployerFunctions {
     );
     return
       ArbitrumHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ArbitrumHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ArbitrumHubConnector, args, options)
       );
-  }
-
-  function deploy_ArbitrumSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  ) internal returns (ArbitrumSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
-    return
-      ArbitrumSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ArbitrumSpokeConnector, args));
   }
 
   function deploy_ArbitrumSpokeConnector(
@@ -1212,7 +813,7 @@ library DeployerFunctions {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ArbitrumSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1228,7 +829,7 @@ library DeployerFunctions {
     );
     return
       ArbitrumSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ArbitrumSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ArbitrumSpokeConnector, args, options)
       );
   }
 
@@ -1241,32 +842,8 @@ library DeployerFunctions {
     address _rootManager,
     address _mirrorConnector,
     uint256 _mirrorChainId,
-    uint256 _gasCap
-  ) internal returns (MultichainHubConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _mirrorChainId,
-      _gasCap
-    );
-    return
-      MultichainHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_MultichainHubConnector, args));
-  }
-
-  function deploy_MultichainHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _mirrorChainId,
     uint256 _gasCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (MultichainHubConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1279,7 +856,7 @@ library DeployerFunctions {
     );
     return
       MultichainHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_MultichainHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_MultichainHubConnector, args, options)
       );
   }
 
@@ -1297,42 +874,8 @@ library DeployerFunctions {
     address _merkle,
     address _watcherManager,
     uint256 _mirrorChainId,
-    uint256 _gasCap
-  ) internal returns (MultichainSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager,
-      _mirrorChainId,
-      _gasCap
-    );
-    return
-      MultichainSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_MultichainSpokeConnector, args));
-  }
-
-  function deploy_MultichainSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
-    uint256 _mirrorChainId,
     uint256 _gasCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (MultichainSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1350,7 +893,7 @@ library DeployerFunctions {
     );
     return
       MultichainSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_MultichainSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_MultichainSpokeConnector, args, options)
       );
   }
 
@@ -1359,51 +902,14 @@ library DeployerFunctions {
     string memory name,
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _rootManager
+    address _rootManager,
+    ProxiedDeployOptions memory options
   ) internal returns (AdminHubConnector) {
     bytes memory args = abi.encode(_domain, _mirrorDomain, _rootManager);
-    return AdminHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_AdminHubConnector, args));
-  }
-
-  function deploy_AdminHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _rootManager,
-    DeployOptions memory options
-  ) internal returns (AdminHubConnector) {
-    bytes memory args = abi.encode(_domain, _mirrorDomain, _rootManager);
-    return AdminHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_AdminHubConnector, args, options));
-  }
-
-  function deploy_PolygonSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  ) internal returns (PolygonSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
-    return PolygonSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonSpokeConnector, args));
+    return
+      AdminHubConnector(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_AdminHubConnector, args, options)
+      );
   }
 
   function deploy_PolygonSpokeConnector(
@@ -1419,7 +925,7 @@ library DeployerFunctions {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (PolygonSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1435,22 +941,8 @@ library DeployerFunctions {
     );
     return
       PolygonSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_PolygonSpokeConnector, args, options)
       );
-  }
-
-  function deploy_PolygonHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    address _checkPointManager
-  ) internal returns (PolygonHubConnector) {
-    bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _checkPointManager);
-    return PolygonHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonHubConnector, args));
   }
 
   function deploy_PolygonHubConnector(
@@ -1462,21 +954,13 @@ library DeployerFunctions {
     address _rootManager,
     address _mirrorConnector,
     address _checkPointManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (PolygonHubConnector) {
     bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _checkPointManager);
     return
-      PolygonHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_PolygonHubConnector, args, options));
-  }
-
-  function deploy_ICheckpointManager(
-    Deployer deployer,
-    string memory name,
-    address _checkpointManager,
-    address _fxRoot
-  ) internal returns (ICheckpointManager) {
-    bytes memory args = abi.encode(_checkpointManager, _fxRoot);
-    return ICheckpointManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_ICheckpointManager, args));
+      PolygonHubConnector(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_PolygonHubConnector, args, options)
+      );
   }
 
   function deploy_ICheckpointManager(
@@ -1484,24 +968,13 @@ library DeployerFunctions {
     string memory name,
     address _checkpointManager,
     address _fxRoot,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ICheckpointManager) {
     bytes memory args = abi.encode(_checkpointManager, _fxRoot);
     return
-      ICheckpointManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_ICheckpointManager, args, options));
-  }
-
-  function deploy_ConsensysHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector
-  ) internal returns (ConsensysHubConnector) {
-    bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
-    return ConsensysHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConsensysHubConnector, args));
+      ICheckpointManager(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ICheckpointManager, args, options)
+      );
   }
 
   function deploy_ConsensysHubConnector(
@@ -1512,43 +985,13 @@ library DeployerFunctions {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ConsensysHubConnector) {
     bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);
     return
       ConsensysHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ConsensysHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ConsensysHubConnector, args, options)
       );
-  }
-
-  function deploy_ConsensysSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  ) internal returns (ConsensysSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
-    return
-      ConsensysSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ConsensysSpokeConnector, args));
   }
 
   function deploy_ConsensysSpokeConnector(
@@ -1564,7 +1007,7 @@ library DeployerFunctions {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ConsensysSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1580,7 +1023,7 @@ library DeployerFunctions {
     );
     return
       ConsensysSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ConsensysSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ConsensysSpokeConnector, args, options)
       );
   }
 
@@ -1593,31 +1036,8 @@ library DeployerFunctions {
     address _rootManager,
     address _mirrorConnector,
     uint256 _gasCap,
-    uint16 _mirrorWormholeChainId
-  ) internal returns (WormholeHubConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _gasCap,
-      _mirrorWormholeChainId
-    );
-    return WormholeHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_WormholeHubConnector, args));
-  }
-
-  function deploy_WormholeHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _gasCap,
     uint16 _mirrorWormholeChainId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (WormholeHubConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1630,7 +1050,7 @@ library DeployerFunctions {
     );
     return
       WormholeHubConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_WormholeHubConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_WormholeHubConnector, args, options)
       );
   }
 
@@ -1648,42 +1068,8 @@ library DeployerFunctions {
     address _merkle,
     address _watcherManager,
     uint256 _gasCap,
-    uint16 _mirrorWormholeChainId
-  ) internal returns (WormholeSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager,
-      _gasCap,
-      _mirrorWormholeChainId
-    );
-    return
-      WormholeSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_WormholeSpokeConnector, args));
-  }
-
-  function deploy_WormholeSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
-    uint256 _gasCap,
     uint16 _mirrorWormholeChainId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (WormholeSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1701,7 +1087,7 @@ library DeployerFunctions {
     );
     return
       WormholeSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_WormholeSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_WormholeSpokeConnector, args, options)
       );
   }
 
@@ -1717,37 +1103,8 @@ library DeployerFunctions {
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
-  ) internal returns (MainnetSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
-    return MainnetSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_MainnetSpokeConnector, args));
-  }
-
-  function deploy_MainnetSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (MainnetSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1763,7 +1120,7 @@ library DeployerFunctions {
     );
     return
       MainnetSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_MainnetSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_MainnetSpokeConnector, args, options)
       );
   }
 
@@ -1779,37 +1136,8 @@ library DeployerFunctions {
     uint256 _reserveGas,
     uint256 _delayBlocks,
     address _merkle,
-    address _watcherManager
-  ) internal returns (ZkSyncSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
-    return ZkSyncSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ZkSyncSpokeConnector, args));
-  }
-
-  function deploy_ZkSyncSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ZkSyncSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1825,7 +1153,7 @@ library DeployerFunctions {
     );
     return
       ZkSyncSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_ZkSyncSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ZkSyncSpokeConnector, args, options)
       );
   }
 
@@ -1837,59 +1165,14 @@ library DeployerFunctions {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
-    uint256 _gasCap
-  ) internal returns (ZkSyncHubConnector) {
-    bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _gasCap);
-    return ZkSyncHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ZkSyncHubConnector, args));
-  }
-
-  function deploy_ZkSyncHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
     uint256 _gasCap,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (ZkSyncHubConnector) {
     bytes memory args = abi.encode(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _gasCap);
     return
-      ZkSyncHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_ZkSyncHubConnector, args, options));
-  }
-
-  function deploy_GnosisSpokeConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
-    uint256 _gasCap,
-    uint256 _mirrorChainId
-  ) internal returns (GnosisSpokeConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager,
-      _gasCap,
-      _mirrorChainId
-    );
-    return GnosisSpokeConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_GnosisSpokeConnector, args));
+      ZkSyncHubConnector(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_ZkSyncHubConnector, args, options)
+      );
   }
 
   function deploy_GnosisSpokeConnector(
@@ -1907,7 +1190,7 @@ library DeployerFunctions {
     address _watcherManager,
     uint256 _gasCap,
     uint256 _mirrorChainId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (GnosisSpokeConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1925,7 +1208,7 @@ library DeployerFunctions {
     );
     return
       GnosisSpokeConnector(
-        DefaultDeployerFunction.deploy(deployer, name, Artifact_GnosisSpokeConnector, args, options)
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_GnosisSpokeConnector, args, options)
       );
   }
 
@@ -1938,31 +1221,8 @@ library DeployerFunctions {
     address _rootManager,
     address _mirrorConnector,
     uint256 _gasCap,
-    uint256 _mirrorChainId
-  ) internal returns (GnosisHubConnector) {
-    bytes memory args = abi.encode(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _gasCap,
-      _mirrorChainId
-    );
-    return GnosisHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_GnosisHubConnector, args));
-  }
-
-  function deploy_GnosisHubConnector(
-    Deployer deployer,
-    string memory name,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _gasCap,
     uint256 _mirrorChainId,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (GnosisHubConnector) {
     bytes memory args = abi.encode(
       _domain,
@@ -1974,46 +1234,31 @@ library DeployerFunctions {
       _mirrorChainId
     );
     return
-      GnosisHubConnector(DefaultDeployerFunction.deploy(deployer, name, Artifact_GnosisHubConnector, args, options));
-  }
-
-  function deploy_MerkleTreeManager(Deployer deployer, string memory name) internal returns (MerkleTreeManager) {
-    bytes memory args = abi.encode();
-    return MerkleTreeManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_MerkleTreeManager, args));
+      GnosisHubConnector(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_GnosisHubConnector, args, options)
+      );
   }
 
   function deploy_MerkleTreeManager(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (MerkleTreeManager) {
     bytes memory args = abi.encode();
-    return MerkleTreeManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_MerkleTreeManager, args, options));
-  }
-
-  function deploy_WatcherManager(Deployer deployer, string memory name) internal returns (WatcherManager) {
-    bytes memory args = abi.encode();
-    return WatcherManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_WatcherManager, args));
+    return
+      MerkleTreeManager(
+        GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_MerkleTreeManager, args, options)
+      );
   }
 
   function deploy_WatcherManager(
     Deployer deployer,
     string memory name,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (WatcherManager) {
     bytes memory args = abi.encode();
-    return WatcherManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_WatcherManager, args, options));
-  }
-
-  function deploy_RootManager(
-    Deployer deployer,
-    string memory name,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  ) internal returns (RootManager) {
-    bytes memory args = abi.encode(_delayBlocks, _merkle, _watcherManager);
-    return RootManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_RootManager, args));
+    return
+      WatcherManager(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_WatcherManager, args, options));
   }
 
   function deploy_RootManager(
@@ -2022,10 +1267,10 @@ library DeployerFunctions {
     uint256 _delayBlocks,
     address _merkle,
     address _watcherManager,
-    DeployOptions memory options
+    ProxiedDeployOptions memory options
   ) internal returns (RootManager) {
     bytes memory args = abi.encode(_delayBlocks, _merkle, _watcherManager);
-    return RootManager(DefaultDeployerFunction.deploy(deployer, name, Artifact_RootManager, args, options));
+    return RootManager(GenericProxiedDeployerFunction.deploy(deployer, name, Artifact_RootManager, args, options));
   }
 
   // --------------------------------------------------------------------------------------------

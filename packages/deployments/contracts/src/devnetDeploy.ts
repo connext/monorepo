@@ -17,14 +17,14 @@ const deployToDevnets = async () => {
   }
 
   const chainConfigs = [
-    {
-      network: "mainnet",
-      rpc: MAINNET_DEVNET_RPC_URL,
-    },
-    {
-      network: "optimism",
-      rpc: OPTIMISM_DEVNET_RPC_URL,
-    },
+    // {
+    //   network: "mainnet",
+    //   rpc: MAINNET_DEVNET_RPC_URL,
+    // },
+    // {
+    //   network: "optimism",
+    //   rpc: OPTIMISM_DEVNET_RPC_URL,
+    // },
     {
       network: "arbitrum",
       rpc: ARBITRUM_DEVNET_RPC_URL,
@@ -39,20 +39,21 @@ const deployToDevnets = async () => {
     const { stdout } = await exec(
       `curl -H "Content-Type: application/json" -X POST --data '{
         "jsonrpc": "2.0",
-        "method": "tenderly_setBalance",
+        "method": "tenderly_addBalance",
         "params": [
           "${sender}",
-          "0x56BC75E2D63100000"
+          "0x8AC7230489E8000000"
         ],
         "id": "${TENDERLY_ACCOUNT_ID}"
       }' ${config.rpc}`,
     );
 
+    console.log(stdout);
     if (!JSON.parse(stdout)?.result) {
-      throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
+      throw new Error(`failed to tenderly_addBalance, ${sender}, ${config.network}`);
     }
 
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script script/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender 0xa2ee8dcd2a8a3a54cf37f6590e5108bbe502b006 -vvv && yarn forge-deploy sync --artifacts artifacts_forge ;`;
+    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script script/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv && yarn forge-deploy sync --artifacts artifacts_forge ;`;
 
     const { stdout: out, stderr: err } = await exec(cmd);
     console.log("out", out);

@@ -2914,7 +2914,6 @@ __metadata:
     ethereum-waffle: 3.4.4
     ethers: 5.7.2
     forge-deploy: ^0.2.0
-    forge-deploy-proxy: ^0.1.0
     hardhat: 2.12.7
     hardhat-abi-exporter: 2.10.1
     hardhat-contract-sizer: 2.8.0
@@ -17106,15 +17105,6 @@ __metadata:
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
   checksum: 766ae6e220f5fe23676bb4c6a99387cec5b7b62ceb99e10923376e27bfea72f3c3aeec2ba5f45f3f7ba65d6616965aa7c20b15002b6860833bb6e394dea546a8
-  languageName: node
-  linkType: hard
-
-"forge-deploy-proxy@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "forge-deploy-proxy@npm:0.1.0"
-  peerDependencies:
-    forge-deploy: "*"
-  checksum: 3c70de10cf053c557e6ba55be298310f2d2190ab181308e226e21251101da499cd06abe7ab13b52414e6bee28982f72bcdbac5b0a1b16e6cad41555fcdf006a5
   languageName: node
   linkType: hard
 
