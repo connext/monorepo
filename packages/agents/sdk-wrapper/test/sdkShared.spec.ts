@@ -332,6 +332,8 @@ describe("#SDKShared", () => {
         amount: "100",
         infiniteApprove: true,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
         },
       };

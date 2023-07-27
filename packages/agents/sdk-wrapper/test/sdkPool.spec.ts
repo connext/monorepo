@@ -200,6 +200,8 @@ describe("#SDKPool", () => {
         tokenIndexTo: 1,
         amount: "100",
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -373,6 +375,8 @@ describe("#SDKPool", () => {
         amounts: ["100", "100"],
         isDeposit: true,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -449,6 +453,8 @@ describe("#SDKPool", () => {
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         amount: "100",
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -535,6 +541,8 @@ describe("#SDKPool", () => {
         amount: "100",
         index: 0,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -686,6 +694,8 @@ describe("#SDKPool", () => {
         tokenX: mock.asset.A.address,
         tokenY: mock.asset.B.address,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -995,6 +1005,8 @@ describe("#SDKPool", () => {
         poolTokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         _index: 0,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -1096,6 +1108,8 @@ describe("#SDKPool", () => {
         domainId: mockXTransfer.xparams.originDomain,
         tokenAddress: mockXTransfer.origin!.assets.transacting.asset,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -1459,6 +1473,8 @@ describe("#SDKPool", () => {
         maxBurnAmount: "0",
         deadline: 100000,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
@@ -1532,6 +1548,8 @@ describe("#SDKPool", () => {
         minDy: 0,
         deadline: 100000,
         options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
           originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
