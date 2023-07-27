@@ -3,5 +3,3 @@ forge-std/=lib/forge-std/src/
 ds-test/=lib/ds-test/src/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts
 @gelatonetwork/relay-context/contracts/=lib/relay-context-contracts/contracts
-forge-deploy/=lib/forge-deploy/contracts/
-forge-deploy-proxy/=lib/forge-deploy-proxy/src/

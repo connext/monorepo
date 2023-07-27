@@ -27,7 +27,6 @@
     "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "spawn-devnet": "ts-node ./src/spawnDevnet.ts",
-    "gen-deployer": "yarn forge-deploy gen-deployer --output ./ --sources ./contracts --templates ./templates",
     "forge:deploy": "ts-node ./src/devnetDeploy.ts",
     "version": "yarn version"
   },
@@ -75,7 +74,6 @@
     "eslint": "8.34.0",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.2",
-    "forge-deploy": "^0.2.0",
     "hardhat": "2.12.7",
     "hardhat-abi-exporter": "2.10.1",
     "hardhat-contract-sizer": "2.8.0",
