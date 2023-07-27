@@ -39,10 +39,14 @@ export class SdkPool extends SdkShared {
     amount: BigNumberish,
     options?: Options,
   ): Promise<BigNumber> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -177,10 +181,14 @@ export class SdkPool extends SdkShared {
     isDeposit = true,
     options?: Options,
   ): Promise<BigNumber> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -199,10 +207,14 @@ export class SdkPool extends SdkShared {
     amount: string,
     options?: Options,
   ): Promise<BigNumber[]> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -221,10 +233,14 @@ export class SdkPool extends SdkShared {
     index: number,
     options?: Options,
   ): Promise<BigNumber> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -262,7 +278,16 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -279,7 +304,15 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -299,8 +332,7 @@ export class SdkPool extends SdkShared {
     options?: Options,
   ): Promise<BigNumber> {
     const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
+      originProviderUrl: this.config.chains[domainId].providers?.[0],
     };
     const params = {
       domainId,
@@ -396,10 +428,14 @@ export class SdkPool extends SdkShared {
     _index?: number,
     options?: Options,
   ): Promise<BigNumber> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -423,10 +459,14 @@ export class SdkPool extends SdkShared {
   }
 
   async getVirtualPrice(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
+
     const params = {
       domainId,
       tokenAddress,
@@ -554,10 +594,13 @@ export class SdkPool extends SdkShared {
     deadline = this.getDefaultDeadline(),
     options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
     const params = {
       domainId,
       tokenAddress,
@@ -580,10 +623,13 @@ export class SdkPool extends SdkShared {
     deadline = this.getDefaultDeadline(),
     options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const originProviderUrl = this.config.chains[domainId]?.providers;
+
+    const _options = options ?? {};
+
+    if (originProviderUrl) {
+      _options["originProviderUrl"] = originProviderUrl[0];
+    }
     const params = {
       domainId,
       tokenAddress,
