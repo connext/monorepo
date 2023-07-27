@@ -43,22 +43,12 @@ import {
   SdkGetCanonicalTokenIdParams,
   Options,
 } from "@connext/sdk-core";
-import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
 import { RoutesOptions } from "../server";
 
 interface SharedRoutesOptions extends RoutesOptions {
   sdkSharedInstance: SdkShared;
-}
-
-export class ContractAddressMissing extends NxtpError {
-  constructor(domainId: string, which: string, context: any = {}) {
-    super(
-      `Contract address missing for ${domainId}: ${which}`,
-      { ...context, domainId, which },
-      ContractAddressMissing.name,
-    );
-  }
 }
 
 export const sharedRoutes = async (server: FastifyInstance, options: SharedRoutesOptions): Promise<any> => {
