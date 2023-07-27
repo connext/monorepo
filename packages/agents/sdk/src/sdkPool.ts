@@ -481,11 +481,12 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [virtualPrice, lpTokenAmount] = await Promise.all([
-      this.getVirtualPrice(domainId, _tokenAddress),
+      this.getVirtualPrice(domainId, _tokenAddress, options),
       this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY]),
     ]);
 
@@ -518,12 +519,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, _tokenAddress),
-      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY], false),
+      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY], false, options),
     ]);
 
     // Normalize to 18 decimals
@@ -1133,7 +1135,9 @@ export class SdkPool extends SdkShared {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
       }
       const poolData = poolDataResults[0]; // there should only be one pool
-      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), _signerAddress)).toString();
+      maxBurnAmount = (
+        await this.getTokenUserBalance(domainId, String(poolData.lp_token), _signerAddress, options)
+      ).toString();
     }
 
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidityImbalance(

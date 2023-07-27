@@ -110,17 +110,11 @@ export class SdkShared {
     infiniteApprove?: boolean,
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
-   
-    const originProviderUrl = this.config.chains[domainId]?.providers?.[0];
-
     const _options = options ?? {
       chains: this.config.chains,
+      originProviderUrl: this.config.chains[domainId]?.providers?.[0],
       signerAddress: this.config.signerAddress,
     };
-
-    if (originProviderUrl) {
-      _options["originProviderUrl"] = originProviderUrl;
-    }
 
     const params = {
       domainId,
