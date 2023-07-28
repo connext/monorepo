@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "2.1.2-alpha.0",
+  "version": "2.1.2-alpha.1",
   "description": "Client-side package for interacting with the Connext protocol",
   "author": "Connext",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "isomorphic-fetch": "3.0.0"
   },
   "devDependencies": {
-    "@connext/sdk-core": "workspace:*",
+    "@connext/sdk-core": "/Users/eddie/sdk-core.tgz",
     "@types/cpx": "1",
     "@types/isomorphic-fetch": "0.0.36",
     "cpx": "1.5.0",
