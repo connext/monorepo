@@ -112,7 +112,6 @@ export class SdkShared {
   ): Promise<providers.TransactionRequest | undefined> {
     const _options = options ?? {
       chains: this.config.chains,
-      originProviderUrl: this.config.chains[domainId]?.providers?.[0],
       signerAddress: this.config.signerAddress,
     };
 

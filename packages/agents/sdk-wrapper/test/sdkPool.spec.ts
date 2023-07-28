@@ -202,7 +202,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -377,7 +376,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -455,7 +453,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = [
@@ -543,7 +540,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -696,7 +692,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -814,7 +809,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -879,7 +873,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -1007,7 +1000,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -1110,7 +1102,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
       const mockServerRes = {
@@ -1475,7 +1466,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
 
@@ -1550,7 +1540,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mockXTransfer.xparams.originDomain].providers?.[0],
         },
       };
 
@@ -1707,7 +1696,6 @@ describe("#SDKPool", () => {
         options: {
           chains: mockConfig.chains,
           signerAddress: mockConfig.signerAddress,
-          originProviderUrl: mockConfig.chains[mock.domain.A].providers?.[0],
         },
       };
       const mockServerRes = [
