@@ -131,8 +131,19 @@ export class SdkShared {
 
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = options?.originProviderUrl
-        ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
         : await this.getProvider(domainId);
       return Connext__factory.connect(connextAddress, provider);
     },
@@ -151,9 +162,21 @@ export class SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const provider = options?.originProviderUrl
-      ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
-      : await this.getProvider(domainId);
+    let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+    if (options?.chains) {
+      Object.keys(options.chains).forEach((domain) => {
+        if (domain !== domainId) {
+          return;
+        }
+        providerURL = options.chains?.[domain].providers?.[0];
+      });
+    }
+
+    console.log(providerURL, "providerURL");
+
+    const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
+
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
