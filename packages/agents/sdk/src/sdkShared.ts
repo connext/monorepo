@@ -173,8 +173,6 @@ export class SdkShared {
       });
     }
 
-    console.log(providerURL, "providerURL");
-
     const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
 
     return IERC20__factory.connect(tokenAddress, provider);
