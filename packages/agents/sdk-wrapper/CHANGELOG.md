@@ -14,6 +14,10 @@
 
 - Stable release with just sdk-core changes
 
+## v2.1.1
+
+- Stable release with just sdk-core changes
+
 ## v2.1.0
 
 - Stable release
