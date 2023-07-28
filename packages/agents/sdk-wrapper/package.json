@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Client-side package for interacting with the Connext protocol",
   "author": "Connext",
   "license": "MIT",

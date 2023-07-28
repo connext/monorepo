@@ -3,6 +3,7 @@ import { BigNumber, constants, providers } from "ethers";
 
 import {
   DestinationSwapDataFns,
+  DestinationSwapPathFns,
   DestinationSwapperPerDomain,
   UniV3FactoryABI,
   UniV3PoolABI,
@@ -28,11 +29,17 @@ export const getXCallCallData = async (
   swapper: Swapper,
   forwardCallData: string,
   params: DestinationCallDataParams,
+  // add a parameter
 ): Promise<string> => {
   const swapperConfig = DestinationSwapperPerDomain[domainId];
   const destinationSwapDataCallbackFn = DestinationSwapDataFns[swapper];
-  const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData);
+  let result = undefined;
+  if (params.swapForwarderData.swapPathData) {
+    const destinationSwapPathDataFns = DestinationSwapPathFns[swapperConfig.path];
+    result = await destinationSwapPathDataFns(params.swapForwarderData.swapPathData);
+  }
 
+  const encodedSwapperData = await destinationSwapDataCallbackFn(params.swapForwarderData.swapData, result?.tokenPath); // result here.
   const swapForwarderData = defaultAbiCoder.encode(
     ["address", "address", "bytes", "bytes"],
     [swapperConfig.address, params.swapForwarderData.toAsset, encodedSwapperData, forwardCallData],
