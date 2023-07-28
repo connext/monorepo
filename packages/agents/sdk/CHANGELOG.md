@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.2
+
+- `options`: SDK takes passed in provider
+
 ## v2.1.2-alpha.0
 
 - `getUserPools`: Takes `options?` param
