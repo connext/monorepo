@@ -14,7 +14,7 @@ export type OriginSwapDataCallbackArgs = {
   slippage?: number;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
-export type DestinationSwapDataCallback = (args: any) => Promise<string>;
+export type DestinationSwapDataCallback = (args: any, path?: any) => Promise<string>;
 
 // ==================================== ORIGIN SIDE ==================================== //
 /**
@@ -56,17 +56,20 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
 /**
  * Returns the `swapData` which will be used on the destination univ2 swapper
  */
-export const getDestinationSwapDataForUniV2 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV2 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV2SwapperParams;
-  return defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
+  return path
+    ? defaultAbiCoder.encode(["uint256", "address[]"], [args.amountOutMin, path])
+    : defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination univ3 swapper
  */
-export const getDestinationSwapDataForUniV3 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV3 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV3SwapperParams;
-  return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
+  if (!path) return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
+  return defaultAbiCoder.encode(["uint256", "bytes"], [args.amountOutMin, path]);
 };
 
 /**
