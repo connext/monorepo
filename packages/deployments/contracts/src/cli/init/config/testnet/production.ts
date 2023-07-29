@@ -142,8 +142,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0xaE7cDB0f489Fee4ec18Aa276EBFE5CD999e32F71",
-          adopted: "0xaE7cDB0f489Fee4ec18Aa276EBFE5CD999e32F71",
+          local: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+          adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
         },
       },
     },
