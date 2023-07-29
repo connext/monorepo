@@ -132,6 +132,21 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "RADAR_TEST",
+      canonical: {
+        domain: "9991",
+        address: "0xb732f1fEb3C5c3943E40BF49ee9Ac2E656be2fF8",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xaE7cDB0f489Fee4ec18Aa276EBFE5CD999e32F71",
+          adopted: "0xaE7cDB0f489Fee4ec18Aa276EBFE5CD999e32F71",
+        },
+      },
+    },
     // {
     //   name: "WETH",
     //   canonical: {
