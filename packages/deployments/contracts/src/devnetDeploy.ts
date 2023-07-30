@@ -21,14 +21,14 @@ const deployToDevnets = async () => {
     //   network: "mainnet",
     //   rpc: MAINNET_DEVNET_RPC_URL,
     // },
-    // {
-    //   network: "optimism",
-    //   rpc: OPTIMISM_DEVNET_RPC_URL,
-    // },
     {
-      network: "arbitrum",
-      rpc: ARBITRUM_DEVNET_RPC_URL,
+      network: "optimism",
+      rpc: OPTIMISM_DEVNET_RPC_URL,
     },
+    // {
+    //   network: "arbitrum",
+    //   rpc: ARBITRUM_DEVNET_RPC_URL,
+    // },
   ];
 
   const sender = Wallet.fromMnemonic(MNEMONIC!).address;
@@ -39,7 +39,7 @@ const deployToDevnets = async () => {
     const { stdout } = await exec(
       `curl -H "Content-Type: application/json" -X POST --data '{
         "jsonrpc": "2.0",
-        "method": "tenderly_addBalance",
+        "method": "tenderly_setBalance",
         "params": [
           "${sender}",
           "0x8AC7230489E8000000"
@@ -48,16 +48,14 @@ const deployToDevnets = async () => {
       }' ${config.rpc}`,
     );
 
-    console.log(stdout);
+    console.log("set balance: ", stdout);
     if (!JSON.parse(stdout)?.result) {
-      throw new Error(`failed to tenderly_addBalance, ${sender}, ${config.network}`);
+      throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script script/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv && yarn forge-deploy sync --artifacts artifacts_forge ;`;
+    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv && DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv`;
 
-    const { stdout: out, stderr: err } = await exec(cmd);
-    console.log("out", out);
-    console.log("error", err);
+    _exec(cmd)?.stdout?.pipe(process.stdout);
   }
 };
 

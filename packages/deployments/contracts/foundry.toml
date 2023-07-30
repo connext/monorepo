@@ -1,16 +1,26 @@
 [profile.default]
 src = 'contracts_forge'
 out = 'artifacts_forge'
-script = 'script'
+script = 'scripts'
 libs = ["node_modules", "lib"]
 block_timestamp = 1648744712
 solc_version = '0.8.17'
 fs_permissions = [
-    { access = "read", path = "./"},
-    { access = "read", path = "./deployments"},
-	{ access = "read", path = "./out"}
+    { access = "read-write", path = "./deployments/"},
+	{ access = "read", path = "./scripts/" },
+    { access = "read", path = "./broadcast/" },
+    { access = "read", path = "./artifacts_forge/" },
 ]
 # See more config options https://github.com/gakonst/foundry/tree/master/config
+
+extra_output = ['devdoc', 'userdoc', 'metadata', 'storageLayout']
+bytecode_hash = 'none'
+build_info = true
+build_info_path = 'artifacts/build-info'
+ffi = true
+# PNPM symlinks all node_modules from the monorepo root
+allow_paths = ["../../node_modules", "./**"]
+
 
 
 [rpc_endpoints]
