@@ -133,7 +133,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "RADAR_TEST",
+      name: "xxDappRadar",
       canonical: {
         domain: "9991",
         address: "0xb732f1fEb3C5c3943E40BF49ee9Ac2E656be2fF8",
