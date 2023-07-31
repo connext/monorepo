@@ -19,6 +19,7 @@ import {RootManager} from "../contracts/messaging/RootManager.sol";
 import {AdminHubConnector} from "../contracts/messaging/connectors/admin/AdminHubConnector.sol";
 import {AdminSpokeConnector} from "../contracts/messaging/connectors/admin/AdminSpokeConnector.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
+import {Multisend} from "../contracts/shared/libraries/Multisend.sol";
 
 /// @title Deploy
 /// @notice Script used to deploy a bedrock system. The entire system is deployed within the `run` function.
@@ -111,6 +112,9 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     console.log("Deploying Connext Diamond...");
     deployLPToken();
     deployConnextDiamond();
+
+    // Deploy Utils contracts
+    deployMultiSend();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -231,5 +235,12 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
         0,
         mustGetAddress("LPToken")
       );
+  }
+
+  /// @notice Deploy MultiSend contract
+  function deployMultiSend() public broadcast returns (address) {
+    Multisend multisend = new Multisend();
+    save("Multisend", address(multisend));
+    return address(multisend);
   }
 }
