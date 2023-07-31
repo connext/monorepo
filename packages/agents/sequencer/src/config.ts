@@ -10,7 +10,7 @@ import { version } from "../package.json";
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
 const DEFAULT_AUCTION_WAIT_TIME = 10_000;
-const DEFAULT_EXECUTION_WAIT_TIME = 120_000;
+const DEFAULT_EXECUTION_WAIT_TIME = 300_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 const DEFAULT_RELAYER_FEE_TOLERANCE = 10;
 

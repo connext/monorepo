@@ -103,16 +103,8 @@ export const getProcessFromArbitrumRootArgs = async ({
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    let sendCount = BigNumber.from(msg.event.position as BigNumberish);
-    try {
-      const block = await msg.getBlockFromNodeLog(spokeJsonProvider, log);
-      sendCount = BigNumber.from(block.sendCount);
-    } catch (e: unknown) {
-      logger.warn("Failed to get block from node log", requestContext, methodContext, {
-        error: jsonifyError(e as Error),
-        log,
-      });
-    }
+    const block = await msg.getBlockFromNodeLog(spokeJsonProvider, log);
+    const sendCount = BigNumber.from(block.sendCount);
     if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;

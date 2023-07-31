@@ -358,6 +358,21 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   avg_mem_utilization_target = 15
 }
 
+module "lighthouse_prover_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-prover"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars = merge(local.lighthouse_env_vars, {
+    LIGHTHOUSE_SERVICE = "prover"
+  })
+  schedule_expression = "rate(30 minutes)"
+  memory_size         = 4096
+  timeout             = 900
+}
+
 module "lighthouse_process_from_root_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
@@ -392,7 +407,7 @@ module "lighthouse_sendoutboundroot_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
   schedule_expression = "rate(120 minutes)"
-  memory_size         = 512
+  memory_size         = 2048
 }
 
 
