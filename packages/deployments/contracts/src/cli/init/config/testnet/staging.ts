@@ -76,6 +76,20 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "P8",
+      canonical: {
+        domain: "100",
+        address: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
+        decimals: 18,
+      },
+      representations: {
+        "100": {
+          local: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
+          adopted: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
