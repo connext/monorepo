@@ -14,6 +14,10 @@
 
 - Stable release with filter by domain
 
+## v2.1.1
+
+- Stable release with filter by domain
+
 ## v2.1.1-alpha.0
 
 - Add filtering by domain to getTransfers
