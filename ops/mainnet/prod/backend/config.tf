@@ -42,7 +42,7 @@ locals {
         providers = ["https://rpc.ankr.com/polygon"]
       }
       "1634886255" = {
-        providers = ["https://rpc.ankr.com/arbitrum	"]
+        providers = ["https://rpc.ankr.com/arbitrum"]
       }
       "6450786" = {
         providers = ["https://rpc.ankr.com/bsc"]
