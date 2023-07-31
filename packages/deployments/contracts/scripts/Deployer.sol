@@ -5,8 +5,6 @@ import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {Executables} from "./Executables.sol";
-import {ProxyDeployer} from "./ProxyDeployer.sol";
-import {DiamondDeployer} from "./DiamondDeployer.sol";
 
 /// @notice store the new deployment to be saved
 struct Deployment {
@@ -37,7 +35,7 @@ struct Artifact {
 ///         When a contract is deployed, call the `save` function to write its name and
 ///         contract address to disk. Then the `sync` function can be called to generate
 ///         hardhat deploy style artifacts. Forked from `forge-deploy`.
-abstract contract Deployer is Script, ProxyDeployer, DiamondDeployer {
+abstract contract Deployer is Script {
   /// @notice The set of deployments that have been done during execution.
   mapping(string => Deployment) internal _namedDeployments;
   /// @notice The same as `_namedDeployments` but as an array.

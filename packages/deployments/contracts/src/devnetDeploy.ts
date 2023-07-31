@@ -17,18 +17,18 @@ const deployToDevnets = async () => {
   }
 
   const chainConfigs = [
-    // {
-    //   network: "mainnet",
-    //   rpc: MAINNET_DEVNET_RPC_URL,
-    // },
+    {
+      network: "mainnet",
+      rpc: MAINNET_DEVNET_RPC_URL,
+    },
     {
       network: "optimism",
       rpc: OPTIMISM_DEVNET_RPC_URL,
     },
-    // {
-    //   network: "arbitrum",
-    //   rpc: ARBITRUM_DEVNET_RPC_URL,
-    // },
+    {
+      network: "arbitrum",
+      rpc: ARBITRUM_DEVNET_RPC_URL,
+    },
   ];
 
   const sender = Wallet.fromMnemonic(MNEMONIC!).address;
@@ -53,7 +53,9 @@ const deployToDevnets = async () => {
       throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv && DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv`;
+    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv && DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -v`;
+    // const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv `;
+    ///const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --broadcast --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv`;
 
     _exec(cmd)?.stdout?.pipe(process.stdout);
   }

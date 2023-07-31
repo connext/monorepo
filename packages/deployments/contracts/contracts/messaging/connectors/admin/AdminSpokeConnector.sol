@@ -2,8 +2,7 @@
 pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {SpokeConnector} from "../HubConnector.sol";
-import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
+import {SpokeConnector} from "../SpokeConnector.sol";
 
 /**
  * @title AdminSpokeConnector
@@ -12,7 +11,7 @@ import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
  * This is meant to be deployed only as an emergency measure where an AMB is no longer operational and a root needs to be sent in order to
  * allow users to withdraw funds. This contract should be deployed with the same domain as the AMB it is replacing.
  */
-contract AdminSpokeConnector is ProposedOwnable, SpokeConnector {
+contract AdminSpokeConnector is SpokeConnector {
   // ============ Constructor ============
   // some params are unused so they will not be specified
   constructor(
@@ -27,7 +26,6 @@ contract AdminSpokeConnector is ProposedOwnable, SpokeConnector {
     address _merkle,
     address _watcherManager
   )
-    ProposedOwnable()
     SpokeConnector(
       _domain,
       _mirrorDomain,
@@ -40,16 +38,14 @@ contract AdminSpokeConnector is ProposedOwnable, SpokeConnector {
       _merkle,
       _watcherManager
     )
-  {
-    _setOwner(msg.sender);
-  }
+  {}
 
   // ============ Admin fns ============
   /**
    * Owner only function that allows to receive aggregateRoot from hub
    * @param _data The data to receive aggregate root
    */
-  function receiveHubAggregateRoot(bytes32 _data) external onlyOwner {
+  function receiveHubAggregateRoot(bytes memory _data) external onlyOwner {
     require(_data.length == 32, "!length");
 
     receiveAggregateRoot(bytes32(_data));

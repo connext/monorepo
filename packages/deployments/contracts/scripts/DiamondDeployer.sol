@@ -16,11 +16,13 @@ import {PortalFacet} from "../contracts/core/connext/facets/PortalFacet.sol";
 import {TransferInfo} from "../contracts/core/connext/libraries/LibConnextStorage.sol";
 import {IDiamondCut} from "../contracts/core/connext/interfaces/IDiamondCut.sol";
 
+import {console2 as console} from "forge-std/console2.sol";
+
 import {Connext} from "../contracts_forge/utils/Connext.sol";
+import {Deployer} from "./Deployer.sol";
+import {DiamondHelper} from "./DiamondHelper.sol";
 
-import {Script} from "forge-std/Script.sol";
-
-abstract contract DiamondDeployer is Script {
+abstract contract DiamondDeployer is Deployer, DiamondHelper {
   Connext connextDiamondProxy;
   DiamondCutFacet diamondCutFacet;
   DiamondLoupeFacet diamondLoupeFacet;
@@ -51,23 +53,61 @@ abstract contract DiamondDeployer is Script {
 
     deployFacets();
 
-    connextDiamondProxy = new Connext(address(this), address(diamondInit), initCallData, getFacetCuts());
+    connextDiamondProxy = new Connext(msg.sender, address(diamondInit), initCallData, getFacetCuts());
+    save("Connext_DiamondProxy", address(connextDiamondProxy));
+    console.log("Connext_DiamondProxy deployed at %s", address(connextDiamondProxy));
+
     return address(connextDiamondProxy);
   }
 
   function deployFacets() internal {
     diamondCutFacet = new DiamondCutFacet();
+    save("DiamondCutFacet", address(diamondCutFacet));
+    console.log("DiamondCutFacet deployed at %s", address(diamondCutFacet));
+
     diamondLoupeFacet = new DiamondLoupeFacet();
+    save("DiamondLoupeFacet", address(diamondLoupeFacet));
+    console.log("DiamondLoupeFacet deployed at %s", address(diamondLoupeFacet));
+
     diamondInit = new DiamondInit();
+    save("DiamondInit", address(diamondInit));
+    console.log("DiamondInit deployed at %s", address(diamondInit));
+
     tokenFacet = new TokenFacet();
+    save("TokenFacet", address(tokenFacet));
+    console.log("TokenFacet deployed at %s", address(tokenFacet));
+
     bridgeFacet = new BridgeFacet();
+    save("BridgeFacet", address(bridgeFacet));
+    console.log("BridgeFacet deployed at %s", address(bridgeFacet));
+
     inboxFacet = new InboxFacet();
+    save("InboxFacet", address(inboxFacet));
+    console.log("InboxFacet deployed at %s", address(inboxFacet));
+
     proposedOwnableFacet = new ProposedOwnableFacet();
+    save("ProposedOwnableFacet", address(proposedOwnableFacet));
+    console.log("ProposedOwnableFacet deployed at %s", address(proposedOwnableFacet));
+
     relayerFacet = new RelayerFacet();
+    save("RelayerFacet", address(relayerFacet));
+    console.log("RelayerFacet deployed at %s", address(relayerFacet));
+
     routersFacet = new RoutersFacet();
+    save("RoutersFacet", address(routersFacet));
+    console.log("RoutersFacet deployed at %s", address(routersFacet));
+
     stableSwapFacet = new StableSwapFacet();
+    save("StableSwapFacet", address(stableSwapFacet));
+    console.log("StableSwapFacet deployed at %s", address(stableSwapFacet));
+
     swapAdminFacet = new SwapAdminFacet();
+    save("SwapAdminFacet", address(swapAdminFacet));
+    console.log("SwapAdminFacet deployed at %s", address(swapAdminFacet));
+
     portalFacet = new PortalFacet();
+    save("PortalFacet", address(portalFacet));
+    console.log("PortalFacet deployed at %s", address(portalFacet));
   }
 
   function getFacetCuts() internal returns (IDiamondCut.FacetCut[] memory) {
@@ -99,14 +139,5 @@ abstract contract DiamondDeployer is Script {
         functionSelectors: selectors
       })
     );
-  }
-
-  function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
-    string[] memory cmd = new string[](3);
-    cmd[0] = "node";
-    cmd[1] = "scripts/genSelectors.js";
-    cmd[2] = _facetName;
-    bytes memory res = vm.ffi(cmd);
-    selectors = abi.decode(res, (bytes4[]));
   }
 }

@@ -7,19 +7,25 @@ import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 import {Deployer} from "./Deployer.sol";
+import {ProxyDeployer} from "./ProxyDeployer.sol";
+import {DiamondDeployer} from "./DiamondDeployer.sol";
+
 import {DeployConfig} from "./DeployConfig.s.sol";
 
 import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WatcherManager} from "../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../contracts/messaging/RootManager.sol";
+import {AdminHubConnector} from "../contracts/messaging/connectors/admin/AdminHubConnector.sol";
+import {AdminSpokeConnector} from "../contracts/messaging/connectors/admin/AdminSpokeConnector.sol";
+import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 
 /// @title Deploy
 /// @notice Script used to deploy a bedrock system. The entire system is deployed within the `run` function.
 ///         To add a new contract to the system, add a public function that deploys that individual contract.
 ///         Then add a call to that function inside of `run`. Be sure to call the `save` function after each
 ///         deployment so that hardhat-deploy style artifacts can be generated using a call to `sync()`.
-contract Deploy is Deployer {
+contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   DeployConfig cfg;
 
   /// @notice The name of the script, used to ensure the right deploy artifacts
@@ -44,20 +50,67 @@ contract Deploy is Deployer {
 
     console.log("Deploying Messaging Layer...");
 
-    deployTestERC20();
+    uint256 chainId = uint256(block.chainid);
 
     // Deploy hub connector if hub
-    if (cfg.hubChainId() == block.chainid) {
-      address watcherManager = deployWatcherManager();
-      address merkleTreeManagerForRoot = deployMerkleTreeManager(true);
+    if (cfg.hubChainId() == chainId) {
+      deployWatcherManager();
+      deployMerkleTreeManager(true);
 
-      uint256 delayBlocks = 100;
-      address rootManager = deployRootManager(delayBlocks, watcherManager, merkleTreeManagerForRoot);
-      address merkleTreeManagerSpoke = deployMerkleTreeManager(false);
+      deployRootManager();
+      deployMerkleTreeManager(false);
 
       // Deploy MainnetSpokeConnector
-      //address mainnetSpokeConnector = deploySpokeConnector();
+      deploySpokeConnector(
+        "MainnetSpokeConnector",
+        uint32(cfg.domain()),
+        uint32(cfg.domain()),
+        address(cfg.getMessagingConfig(chainId).hubAmb),
+        mustGetAddress("RootManager"),
+        address(0),
+        cfg.getMessagingConfig(chainId).processGas,
+        cfg.getMessagingConfig(chainId).reserveGas,
+        cfg.getMessagingConfig(chainId).delayBlocks,
+        mustGetAddress("MerkleTreeManagerSpokeUpgradeableBeaconProxy"),
+        mustGetAddress("WatcherManager")
+      );
+
+      // Deploy Hub connectors
+      for (uint256 i = 0; i < cfg.chainsLength(); i++) {
+        uint256 id = cfg.getChainIdFromIndex(i);
+        if (id != cfg.hubChainId()) {
+          deployHubConnector(
+            string.concat(cfg.getMessagingConfig(id).prefix, "HubConnector"),
+            uint32(cfg.domain()),
+            uint32(cfg.getMessagingConfig(id).domain),
+            mustGetAddress("RootManager")
+          );
+        }
+      }
+    } else {
+      deployWatcherManager();
+      deployMerkleTreeManager(false);
+
+      // Deploy SpokeConnector
+      deploySpokeConnector(
+        string.concat(cfg.getMessagingConfig(chainId).prefix, "SpokeConnector"),
+        uint32(cfg.domain()),
+        uint32(cfg.getMessagingConfig(cfg.hubChainId()).domain),
+        address(cfg.getMessagingConfig(chainId).spokeAmb),
+        address(1), //mustGetAddress("RootManager"),
+        address(0),
+        cfg.getMessagingConfig(chainId).processGas,
+        cfg.getMessagingConfig(chainId).reserveGas,
+        cfg.getMessagingConfig(chainId).delayBlocks,
+        mustGetAddress("MerkleTreeManagerSpokeUpgradeableBeaconProxy"),
+        mustGetAddress("WatcherManager")
+      );
     }
+
+    // Deploy Connext Diamond proxy
+    console.log("Deploying Connext Diamond...");
+    deployLPToken();
+    deployConnextDiamond();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -84,34 +137,32 @@ contract Deploy is Deployer {
 
   /// @notice Deploy MerkleTreeManager for RootManager or SpokeConnector
   function deployMerkleTreeManager(bool isForRoot) public broadcast returns (address) {
-    string memory name = isForRoot ? "MerkleTreeManagerRoot" : "MerkleTreeManagerSpoke";
+    string memory contractName = isForRoot ? "MerkleTreeManagerRoot" : "MerkleTreeManagerSpoke";
     // Deploy implementation
     MerkleTreeManager merkleTreeManagerImpl = new MerkleTreeManager();
-    save(name, address(merkleTreeManagerImpl));
+    save(contractName, address(merkleTreeManagerImpl));
     console.log("MerkleTreeManagerRoot Implementation deployed at %s", address(merkleTreeManagerImpl));
 
     // Deploy beacon
-    address beacon = deployBeacon(merkleTreeManagerImpl);
-    string memory beaconName = string(abi.encodePacked(name, "UpgradeBeacon"));
+    address beacon = deployBeacon(address(merkleTreeManagerImpl));
+    string memory beaconName = string(abi.encodePacked(contractName, "UpgradeableBeacon"));
     save(beaconName, beacon);
     console.log("%s deployed at %s", beaconName, address(beacon));
 
     // Deplpy beacon proxy
     bytes memory initData = abi.encodeCall(MerkleTreeManager.initialize, (address(0)));
     address beaconProxy = deployBeaconProxy(beacon, initData);
-    string memory beaconProxyName = string(abi.encodePacked(name, "UpgradeBeaconProxy"));
+    string memory beaconProxyName = string(abi.encodePacked(contractName, "UpgradeableBeaconProxy"));
     save(beaconProxyName, beaconProxy);
     console.log("%s deployed at %s", beaconProxyName, address(beaconProxy));
     return beaconProxy;
   }
 
   /// @notice Deploy RootManager of hub connector
-  function deployRootManager(
-    uint256 delayBlocks,
-    address watcherManager,
-    address merkleTreeManagerForRoot
-  ) public broadcast returns (address) {
-    RootManager rootManager = new RootManager(delayBlocks, watcherManager, merkleTreeManagerForRoot);
+  function deployRootManager() public broadcast returns (address) {
+    address watcherManager = mustGetAddress("WatcherManager");
+    address merkleTreeManagerForRoot = mustGetAddress("MerkleTreeManagerRootUpgradeableBeaconProxy");
+    RootManager rootManager = new RootManager(100, watcherManager, merkleTreeManagerForRoot);
 
     save("RootManager", address(rootManager));
     console.log("RootManager deployed at %s", address(rootManager));
@@ -119,15 +170,66 @@ contract Deploy is Deployer {
   }
 
   /// @notice Deploy Spoke Connector
-  //   function deploySpokeConnector(
-  //     uint256 delayBlocks,
-  //     address watcherManager,
-  //     address merkleTreeManagerForRoot
-  //   ) public broadcast returns (address) {
-  //     RootManager rootManager = new RootManager(delayBlocks, watcherManager, merkleTreeManagerForRoot);
+  function deploySpokeConnector(
+    string memory _connectorName,
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _amb,
+    address _rootManager,
+    address _mirrorConnector,
+    uint256 _processGas,
+    uint256 _reserveGas,
+    uint256 _delayBlocks,
+    address _merkle,
+    address _watcherManager
+  ) public broadcast returns (address) {
+    AdminSpokeConnector adminConnector = new AdminSpokeConnector(
+      _domain,
+      _mirrorDomain,
+      _amb,
+      _rootManager,
+      _mirrorConnector,
+      _processGas,
+      _reserveGas,
+      _delayBlocks,
+      _merkle,
+      _watcherManager
+    );
 
-  //     save("RootManager", address(rootManager));
-  //     console.log("RootManager deployed at %s", address(rootManager));
-  //     return address(rootManager);
-  //   }
+    save(_connectorName, address(adminConnector));
+    console.log("%s deployed at %s", _connectorName, address(adminConnector));
+    return address(adminConnector);
+  }
+
+  /// @notice Deploy Admin Hub Connector
+  function deployHubConnector(
+    string memory _connectorName,
+    uint32 _domain,
+    uint32 _mirrorDomain,
+    address _rootManager
+  ) public broadcast returns (address) {
+    AdminHubConnector adminConnector = new AdminHubConnector(_domain, _mirrorDomain, _rootManager);
+
+    save(_connectorName, address(adminConnector));
+    console.log("%s deployed at %s", _connectorName, address(adminConnector));
+    return address(adminConnector);
+  }
+
+  /// @notice Deploy Stable swap LP Token Contract
+  function deployLPToken() public broadcast returns (address) {
+    LPToken lp = new LPToken();
+    save("LPToken", address(lp));
+    return address(lp);
+  }
+
+  /// @notice Deploy Connext Diamond Proxy Contract
+  function deployConnextDiamond() public broadcast returns (address) {
+    return
+      deployDiamond(
+        cfg.domain(),
+        mustGetAddress(string.concat(cfg.getMessagingConfig(uint256(block.chainid)).prefix, "SpokeConnector")),
+        0,
+        mustGetAddress("LPToken")
+      );
+  }
 }

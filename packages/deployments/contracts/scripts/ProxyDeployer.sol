@@ -6,17 +6,9 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {UpgradeableBeacon} from "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import {BeaconProxy} from "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
-import {Script} from "forge-std/Script.sol";
+import {Deployer} from "./Deployer.sol";
 
-contract UpgradeableBeaconProxy is BeaconProxy {
-  constructor(address beacon, bytes memory data) BeaconProxy(beacon, data) {}
-
-  function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) public {
-    _upgradeBeaconToAndCall(newBeacon, data, forceCall);
-  }
-}
-
-abstract contract ProxyDeployer is Script {
+abstract contract ProxyDeployer is Deployer {
   function deployBeacon(address impl) public returns (address) {
     UpgradeableBeacon beacon = new UpgradeableBeacon(impl);
     address beaconAddress = address(beacon);
@@ -25,7 +17,7 @@ abstract contract ProxyDeployer is Script {
   }
 
   function deployBeaconProxy(address _beacon, bytes memory data) public returns (address) {
-    UpgradeableBeaconProxy beaconProxy = new UpgradeableBeaconProxy(_beacon, data);
+    BeaconProxy beaconProxy = new BeaconProxy(_beacon, data);
     address proxyAddress = address(beaconProxy);
     vm.label(proxyAddress, "Beacon Proxy");
     return proxyAddress;
@@ -43,10 +35,6 @@ abstract contract ProxyDeployer is Script {
     address proxyAddress = address(uups);
     vm.label(proxyAddress, "UUPS Proxy");
     return proxyAddress;
-  }
-
-  function upgradeBeacon(address payable proxy, address newBeacon, bytes memory data, bool forceCall) public {
-    UpgradeableBeaconProxy(proxy).upgradeBeaconToAndCall(newBeacon, data, forceCall);
   }
 
   function upgradeBeaconProxy(address _beacon, address implementation) public {

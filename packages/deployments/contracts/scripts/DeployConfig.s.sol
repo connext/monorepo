@@ -15,7 +15,9 @@ contract DeployConfig is Script {
   string internal _messagingJson;
 
   struct ProtocolConfig {
+    uint256 chainId;
     uint256 delayBlocks;
+    uint256 domain;
     address hubAmb;
     string prefix;
     uint256 processGas;
@@ -32,33 +34,48 @@ contract DeployConfig is Script {
 
   constructor(string memory _path) {
     console.log("DeployConfig: reading file %s", _path);
-    // try vm.readFile(_path) returns (string memory data) {
-    //   _json = data;
-    // } catch {
-    //   console.log("Warning: unable to read config. Do not deploy unless you are not using config.");
-    //   return;
-    // }
+    try vm.readFile(_path) returns (string memory data) {
+      _json = data;
+    } catch {
+      console.log("Warning: unable to read config. Do not deploy unless you are not using config.");
+      return;
+    }
 
-    // domain = stdJson.readUint(_json, "$.domain");
+    domain = stdJson.readUint(_json, "$.domain");
+    console.log("Read domain from json: %s", domain);
 
-    // // Read messaging config
-    // try vm.readFile(string.concat(vm.projectRoot(), "/scripts/deploy-config/messaging.json")) returns (
-    //   string memory data
-    // ) {
-    //   _messagingJson = data;
-    // } catch {
-    //   console.log("Warning: unable to read messaging config. Do not deploy unless you are not using config.");
-    //   return;
-    // }
-    // hubChainId = stdJson.readUint(_messagingJson, "$.hub");
-    // chainsLength = stdJson.readUint(_messagingJson, "$.chains");
-    // for (uint256 index = 0; index < chainsLength; index++) {
-    //   string memory key = string(abi.encodePacked(".configs[", vm.toString(index), "]"));
-    //   ProtocolConfig memory rawConfig = abi.decode(_messagingJson.parseRaw(key), (ProtocolConfig));
-    //   console.log(rawConfig.delayBlocks);
-    //   console.log(rawConfig.hubAmb);
-    //   console.log(rawConfig.prefix);
-    //   console.log(rawConfig.processGas);
-    // }
+    // Read messaging config
+    try vm.readFile(string.concat(vm.projectRoot(), "/scripts/deploy-config/messaging.json")) returns (
+      string memory data
+    ) {
+      _messagingJson = data;
+    } catch {
+      console.log("Warning: unable to read messaging config. Do not deploy unless you are not using config.");
+      return;
+    }
+    hubChainId = stdJson.readUint(_messagingJson, "$.hub");
+    chainsLength = stdJson.readUint(_messagingJson, "$.chains");
+    console.log("Read hub chain Id from json: %s", hubChainId);
+
+    for (uint256 index = 0; index < chainsLength; index++) {
+      string memory key = string(abi.encodePacked(".configs[", vm.toString(index), "]"));
+      ProtocolConfig memory rawConfig = abi.decode(stdJson.parseRaw(_messagingJson, key), (ProtocolConfig));
+      uint256 chainId = rawConfig.chainId;
+      if (_protocolConfigs[chainId].chainId > 0) {
+        console.log("Duplicated chain config: %s", chainId);
+        continue;
+      }
+
+      _protocolConfigs[chainId] = rawConfig;
+      chains.push(chainId);
+    }
+  }
+
+  function getMessagingConfig(uint256 chainId) public view returns (ProtocolConfig memory config) {
+    config = _protocolConfigs[chainId];
+  }
+
+  function getChainIdFromIndex(uint256 index) public view returns (uint256) {
+    return chains[index];
   }
 }
