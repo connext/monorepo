@@ -215,7 +215,7 @@ module "cartographer-transfers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
-  memory_size         = 1024
+  memory_size         = 2048
 }
 
 module "cartographer-messages-lambda-cron" {
