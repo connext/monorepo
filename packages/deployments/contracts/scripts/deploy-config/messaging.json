@@ -23,9 +23,9 @@
       "delayBlocks": 0
     },
     {
-      "chainId": 42161,
-      "domain": 1634886255,
-      "prefix": "Arbitrum",
+      "chainId": 100,
+      "domain": 6778479,
+      "prefix": "Gnosis",
       "hubAmb": "0x0000000000000000000000000000000000000000",
       "spokeAmb": "0x0000000000000000000000000000000000000000",
       "processGas": 850000,
