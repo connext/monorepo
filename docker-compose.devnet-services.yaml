@@ -1,0 +1,88 @@
+version: "3.3"
+
+services:
+  signer-router:
+    container_name: signer-router
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_ROUTER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  router-cache:
+    container_name: router-cache
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  signer-sequencer:
+    container_name: signer-sequencer
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_SEQUENCER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  message-queue:
+    container_name: message-queue
+    image: rabbitmq:3.10-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  sequencer-cache:
+    container_name: sequencer-cache
+    image: redis:latest
+    ports:
+      - "6380:6379"
+
+  signer-relayer:
+    container_name: signer-relayer
+    image: "ghcr.io/connext/web3signer:latest"
+    restart: always
+    environment:
+      - WEB3_SIGNER_PRIVATE_KEY=$WEB3_SIGNER_PRIVATE_KEY_RELAYER
+      - WEB3SIGNER_HTTP_HOST_ALLOWLIST=*
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+  relayer-cache:
+    container_name: relayer-cache
+    image: redis:latest
+    ports:
+      - "6381:6379"
+
+  cartographer-api:
+    container_name: cartographer-api
+    depends_on:
+      - cartographer-database
+    image: postgrest/postgrest:v9.0.0.20220107
+    ports:
+      - "3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://reader:3eadooor@cartographer-database:5432/connext
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: query
+
+  # Setup devnet database. Ideally it should fork the mainnet database to reduce the sync time.
+  # cartographer-database:
+  #  container_name: cartographer-database
+  #  image: postgres
+  #  ports:
+  #    - "5434:5432"
+  #  command: ["postgres"]
+  #  environment:
+  #    POSTGRES_PASSWORD: qwerty
