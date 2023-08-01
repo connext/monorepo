@@ -18,8 +18,10 @@ import {MerkleTreeManager} from "../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../contracts/messaging/RootManager.sol";
 import {AdminHubConnector} from "../contracts/messaging/connectors/admin/AdminHubConnector.sol";
 import {AdminSpokeConnector} from "../contracts/messaging/connectors/admin/AdminSpokeConnector.sol";
+import {RelayerProxyHub} from "../contracts/core/connext/helpers/RelayerProxyHub.sol";
+import {RelayerProxy} from "../contracts/core/connext/helpers/RelayerProxy.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
-import {Multisend} from "../contracts/shared/libraries/Multisend.sol";
+import {MultiSend} from "../contracts/shared/libraries/Multisend.sol";
 
 /// @title Deploy
 /// @notice Script used to deploy a bedrock system. The entire system is deployed within the `run` function.
@@ -113,8 +115,16 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     deployLPToken();
     deployConnextDiamond();
 
+    // Deploy Relayer Proxy Contract
+    if (cfg.hubChainId() == chainId) {
+      deployRelayerProxyHub();
+    } else {
+      deployRelayerProxy();
+    }
+
     // Deploy Utils contracts
     deployMultiSend();
+    deployTestERC20();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -125,7 +135,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   }
 
   function deployTestERC20() public broadcast returns (address) {
-    TestERC20 erc20 = new TestERC20("Test", "Test");
+    TestERC20 erc20 = new TestERC20("Test Token", "Test");
     save("TestERC20", address(erc20));
     return address(erc20);
   }
@@ -239,8 +249,55 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
 
   /// @notice Deploy MultiSend contract
   function deployMultiSend() public broadcast returns (address) {
-    Multisend multisend = new Multisend();
-    save("Multisend", address(multisend));
+    MultiSend multisend = new MultiSend();
+    save("MultiSend", address(multisend));
     return address(multisend);
+  }
+
+  /// @notice Deploy Relayer Proxy Hub
+  function deployRelayerProxyHub() public broadcast returns (address) {
+    uint256 length = cfg.chainsLength();
+    uint32[] memory chainIds = new uint32[](length - 1);
+    address[] memory connectors = new address[](length - 1);
+    uint256 index;
+    for (uint256 i = 0; i < cfg.chainsLength(); i++) {
+      uint256 id = cfg.getChainIdFromIndex(i);
+      if (id != cfg.hubChainId()) {
+        chainIds[index] = uint32(id);
+        connectors[index] = mustGetAddress(string.concat(cfg.getMessagingConfig(id).prefix, "HubConnector"));
+        index++;
+      }
+    }
+
+    RelayerProxyHub proxy = new RelayerProxyHub(
+      mustGetAddress("Connext_DiamondProxy"),
+      mustGetAddress("MainnetSpokeConnector"),
+      address(0), //gelato relayer
+      address(0), //fee collector
+      mustGetAddress("RootManager"),
+      address(0), //Keep3r address
+      address(0),
+      0,
+      0,
+      connectors,
+      chainIds
+    );
+    save("RelayerProxyHub", address(proxy));
+    return address(proxy);
+  }
+
+  /// @notice Deploy Relayer Proxy
+  function deployRelayerProxy() public broadcast returns (address) {
+    RelayerProxy proxy = new RelayerProxy(
+      mustGetAddress("Connext_DiamondProxy"),
+      mustGetAddress(string.concat(cfg.getMessagingConfig(block.chainid).prefix, "SpokeConnector")),
+      address(0), //gelato relayer
+      address(0), //fee collector
+      address(0), //Keep3r address
+      address(0),
+      0
+    );
+    save("RelayerProxy", address(proxy));
+    return address(proxy);
   }
 }

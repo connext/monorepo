@@ -15,14 +15,14 @@ const {
   TENDERLY_ACCOUNT_ID,
   TENDERLY_MAINNET_DEVNET_TEMPLATE,
   TENDERLY_OPTIMISM_DEVNET_TEMPLATE,
-  TENDERLY_ARBITRUM_DEVNET_TEMPLATE,
+  //TENDERLY_ARBITRUM_DEVNET_TEMPLATE,
   TENDERLY_GNOSIS_DEVNET_TEMPLATE,
 } = process.env;
 
 const createDevNets = async () => {
   const mainnetCommand = `tenderly devnet spawn-rpc --project ${TENDERLY_PROJECT_SLUG} --template ${TENDERLY_MAINNET_DEVNET_TEMPLATE} --account ${TENDERLY_ACCOUNT_ID}  --access_key ${TENDERLY_ACCESS_KEY}`;
   const optimismCommand = `tenderly devnet spawn-rpc --project ${TENDERLY_PROJECT_SLUG} --template ${TENDERLY_OPTIMISM_DEVNET_TEMPLATE} --account ${TENDERLY_ACCOUNT_ID}  --access_key ${TENDERLY_ACCESS_KEY}`;
-  const arbitrumCommand = `tenderly devnet spawn-rpc --project ${TENDERLY_PROJECT_SLUG} --template ${TENDERLY_ARBITRUM_DEVNET_TEMPLATE} --account ${TENDERLY_ACCOUNT_ID}  --access_key ${TENDERLY_ACCESS_KEY}`;
+  //const arbitrumCommand = `tenderly devnet spawn-rpc --project ${TENDERLY_PROJECT_SLUG} --template ${TENDERLY_ARBITRUM_DEVNET_TEMPLATE} --account ${TENDERLY_ACCOUNT_ID}  --access_key ${TENDERLY_ACCESS_KEY}`;
   const gnosisCommand = `tenderly devnet spawn-rpc --project ${TENDERLY_PROJECT_SLUG} --template ${TENDERLY_GNOSIS_DEVNET_TEMPLATE} --account ${TENDERLY_ACCOUNT_ID}  --access_key ${TENDERLY_ACCESS_KEY}`;
   const chainConfigs = [
     {

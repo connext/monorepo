@@ -17,14 +17,14 @@ const deployToDevnets = async () => {
   }
 
   const chainConfigs = [
-    // {
-    //   network: "mainnet",
-    //   rpc: MAINNET_DEVNET_RPC_URL,
-    // },
-    // {
-    //   network: "optimism",
-    //   rpc: OPTIMISM_DEVNET_RPC_URL,
-    // },
+    {
+      network: "mainnet",
+      rpc: MAINNET_DEVNET_RPC_URL,
+    },
+    {
+      network: "optimism",
+      rpc: OPTIMISM_DEVNET_RPC_URL,
+    },
     {
       network: "gnosis",
       rpc: GNOSIS_DEVNET_RPC_URL,
