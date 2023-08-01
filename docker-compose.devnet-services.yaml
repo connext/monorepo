@@ -46,22 +46,6 @@ services:
     ports:
       - "6380:6379"
 
-  relayer:
-    container_name: relayer
-    depends_on:
-      - sequencer-subscriber
-    image: ${RELAYER_IMAGE}
-    restart: always
-    ports:
-      - "8082:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/relayer/:/home/node/agents/relayer/
-      - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
-
   signer-relayer:
     container_name: signer-relayer
     image: "ghcr.io/connext/web3signer:latest"
