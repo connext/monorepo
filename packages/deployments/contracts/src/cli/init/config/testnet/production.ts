@@ -133,10 +133,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "xxDappRadar",
+      name: "xDappRadar",
       canonical: {
-        domain: "9991",
-        address: "0xb732f1fEb3C5c3943E40BF49ee9Ac2E656be2fF8",
+        domain: "1735353714",
+        address: "0x369e5C58F6c09c1CE947CA313f03c0d558B77b3e",
         decimals: 18,
       },
       representations: {
