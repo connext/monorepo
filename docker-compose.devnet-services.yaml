@@ -1,6 +1,69 @@
 version: "3.3"
 
 services:
+  router-publisher:
+    container_name: router-publisher
+    depends_on:
+      - message-queue
+      - signer-router
+    image: ${ROUTER_PUBLISHER_IMAGE}
+    restart: always
+    ports:
+      - "8880:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
+
+  router-subscriber:
+    container_name: router-subscriber
+    depends_on:
+      - message-queue
+      - sequencer-server
+      - signer-router
+    image: ${ROUTER_SUBSCRIBER_IMAGE}
+    restart: always
+    ports:
+      - "8881:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
+
+  router-executor:
+    container_name: router-executor
+    depends_on:
+      - message-queue
+      - sequencer-server
+      - signer-router
+    image: ${ROUTER_EXECUTOR_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/router/executor/:/home/node/agents/executor/
+      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
+
   signer-router:
     container_name: signer-router
     image: "ghcr.io/connext/web3signer:latest"
@@ -19,6 +82,66 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+  sequencer-server:
+    container_name: sequencer-server
+    depends_on:
+      - message-queue
+    image: ${SEQUENCER_SERVER_IMAGE}
+    restart: always
+    ports:
+      - "8882:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
+
+  sequencer-publisher:
+    container_name: sequencer-publisher
+    depends_on:
+      - message-queue
+    image: ${SEQUENCER_PUBLISHER_IMAGE}
+    restart: always
+    ports:
+      - "8883:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
+
+  sequencer-subscriber:
+    container_name: sequencer-subscriber
+    depends_on:
+      - message-queue
+    image: ${SEQUENCER_SUBSCRIBER_IMAGE}
+    restart: always
+    ports:
+      - "8884:8081"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
+      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_DEVNET_HUB_MAINNET: "http://graph-node-dev-hub-mainnet:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_OPTIMISM: "http://graph-node-dev-spoke-optimism:8000/subgraphs/name/connext/amarok"
+      GRAPH_DEVNET_GNOSIS: "http://graph-node-dev-spoke-gnosis:8000/subgraphs/name/connext/amarok"
 
   signer-sequencer:
     container_name: signer-sequencer

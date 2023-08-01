@@ -675,15 +675,15 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Devnet_Arbitrum
+  - name: Connext_Devnet_Gnosis
     handler:
       graphql:
-        endpoint: "{env.GRAPH_DEVNET_ARBITRUM}"
+        endpoint: "{env.GRAPH_DEVNET_GNOSIS}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: devnetarbitrum_
+          value: devnetgnosis_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
