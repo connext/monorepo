@@ -290,6 +290,42 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ZOOMER",
+      canonical: {
+        domain: "6648936",
+        address: "0x0D505C03d30e65f6e9b4Ef88855a47a89e4b7676",
+        decimals: 18,
+        cap: utils.parseUnits("10000000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+          adopted: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+        },
+        // bnb
+        "6450786": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+          adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
