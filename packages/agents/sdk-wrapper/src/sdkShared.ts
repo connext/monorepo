@@ -114,6 +114,7 @@ export class SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       assetId,

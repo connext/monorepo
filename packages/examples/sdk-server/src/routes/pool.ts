@@ -387,8 +387,8 @@ export const poolRoutes = async (server: FastifyInstance, options: PoolRoutesOpt
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.body;
-      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress);
+      const { domainId, tokenAddress, options } = request.body;
+      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -401,8 +401,8 @@ export const poolRoutes = async (server: FastifyInstance, options: PoolRoutesOpt
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, userAddress } = request.body;
-      const res = await sdkPoolInstance.getTokenUserBalance(domainId, tokenAddress, userAddress);
+      const { domainId, tokenAddress, userAddress, options } = request.body;
+      const res = await sdkPoolInstance.getTokenUserBalance(domainId, tokenAddress, userAddress, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -669,8 +669,8 @@ export const poolRoutes = async (server: FastifyInstance, options: PoolRoutesOpt
       },
     },
     async (request, reply) => {
-      const { domainId, userAddress } = request.body;
-      const res = await sdkPoolInstance.getUserPools(domainId, userAddress);
+      const { domainId, userAddress, options } = request.body;
+      const res = await sdkPoolInstance.getUserPools(domainId, userAddress, options as Options);
       reply.status(200).send(res);
     },
   );

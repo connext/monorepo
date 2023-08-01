@@ -3,6 +3,7 @@
 @baseUrl = http://127.0.0.1:8080
 # @baseUrl = https://sdk-server.testnet.staging.connext.ninja
 # @baseUrl = https://sdk-server.testnet.connext.ninja
+# @baseUrl = https://sdk-server.mainnet.connext.ninja
 @yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
@@ -467,7 +468,10 @@ Content-Type: application/json
 
 {
   "domainId": "1869640809",
-  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+  "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+  "options": {
+    "originProviderUrl": "https://rpc.ankr.com/optimism"
+  }
 }
 
 ##############
@@ -478,7 +482,10 @@ Content-Type: application/json
 {
   "domainId": "1869640809",
   "tokenAddress": "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-  "userAddress": "{{yourAddress}}"
+  "userAddress": "{{yourAddress}}",
+  "options": {
+    "originProviderUrl": "https://rpc.ankr.com/optimism"
+  }
 }
 
 ##############
@@ -656,7 +663,10 @@ Content-Type: application/json
 
 {
   "domainId": "1869640809",
-  "userAddress": "{{yourAddress}}"
+  "userAddress": "{{yourAddress}}",
+  "options": {
+    "originProviderUrl": "https://rpc.ankr.com/optimism"
+  }
 }
 
 ##############

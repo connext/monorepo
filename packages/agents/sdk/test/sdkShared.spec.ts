@@ -116,6 +116,9 @@ describe("SdkShared", () => {
       stub(sdkShared, "getProvider").resolves(undefined);
       const options = {
         originProviderUrl: "http://example.com",
+        chains: {
+          [mock.domain.A]: { providers: ["http://example.com"] },
+        },
       };
 
       const res = await sdkShared.getERC20(mock.domain.A, mock.asset.A.address, options);
