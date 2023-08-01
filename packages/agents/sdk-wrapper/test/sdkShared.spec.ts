@@ -145,7 +145,7 @@ describe("#SDKShared", () => {
         status: 200,
       });
 
-      const res = await sdkShared.getDeploymentAddress(expectedArgs.domainId, expectedArgs.deploymentName);
+      const res = await sdkShared.getDeploymentAddress(expectedArgs.domainId, expectedArgs.deploymentName as "connext");
 
       expect(axiosGetStub).to.have.been.calledWithExactly(
         expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.deploymentName}`,
