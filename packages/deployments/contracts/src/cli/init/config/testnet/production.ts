@@ -145,9 +145,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
           adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
         },
+        /// MUMBAI
         "9991": { 
-          local: "0x4c82266B29F82525FD20560638C517D11219F5B5", 
-          adopted: "0x4c82266B29F82525FD20560638C517D11219F5B5", 
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
         },
       },
     },
