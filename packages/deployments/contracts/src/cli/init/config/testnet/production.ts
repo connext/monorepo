@@ -152,6 +152,21 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "BTRST",
+      canonical: {
+        domain: "1735353714",
+        address: "0x39e09359F5a7396937504Eb2766722e2bf4650e8",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+        },
+      },
+    },
     // {
     //   name: "WETH",
     //   canonical: {
