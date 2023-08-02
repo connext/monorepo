@@ -24,7 +24,7 @@ import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 import {MultiSend} from "../contracts/shared/libraries/Multisend.sol";
 
 /// @title Deploy
-/// @notice Script used to deploy a bedrock system. The entire system is deployed within the `run` function.
+/// @notice Script used to deploy connext contracts. The entire system is deployed within the `run` function.
 ///         To add a new contract to the system, add a public function that deploys that individual contract.
 ///         Then add a call to that function inside of `run`. Be sure to call the `save` function after each
 ///         deployment so that hardhat-deploy style artifacts can be generated using a call to `sync()`.
