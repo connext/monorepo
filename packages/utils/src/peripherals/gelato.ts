@@ -51,12 +51,12 @@ const EquivalentChainsForGelato: Record<number, number> = {
 
   // TESTNETS
   4: 1, // rinkeby
-  5: 1, // goerli
+  5: 5, // goerli
   1337: 1, // local chain
   1338: 1, // local chain
   13337: 1, // local chain
   13338: 1, // local chain
-  420: 1, //  optimism-goerli
+  420: 420, //  optimism-goerli
   80001: 137, // mumbai (polygon testnet)
   421613: 1, // arbitrum-goerli
   10200: 100, // chiado (gnosis testnet)
