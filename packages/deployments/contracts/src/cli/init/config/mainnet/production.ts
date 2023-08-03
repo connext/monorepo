@@ -290,6 +290,21 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "BTRST",
+      canonical: {
+        domain: "6648936",
+        address: "0x799ebfABE77a6E34311eeEe9825190B9ECe32824",
+        decimals: 18
+      },
+      representations: {
+        /// POLYGON
+        "1886350457": {
+          local: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
+          adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
+        },
+      },
+    }
   ],
   agents: {
     relayerFeeVaults: {
