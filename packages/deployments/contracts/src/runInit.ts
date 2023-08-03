@@ -11,7 +11,7 @@ const exec = util.promisify(_exec);
 const { MAINNET_DEVNET_RPC_URL, OPTIMISM_DEVNET_RPC_URL, GNOSIS_DEVNET_RPC_URL, MNEMONIC, TENDERLY_ACCOUNT_ID } =
   process.env;
 
-const deployToDevnets = async () => {
+const runInit = async () => {
   if (!MAINNET_DEVNET_RPC_URL || !OPTIMISM_DEVNET_RPC_URL || !GNOSIS_DEVNET_RPC_URL) {
     throw new Error("Not found devnet rpcs");
   }
@@ -53,13 +53,9 @@ const deployToDevnets = async () => {
       throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv && DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --slow -v`;
-    // Deploy only
-    // const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvvv `;
-    // Sync only
-    // const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --slow -v`;
+    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Initialize.s.sol  --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv`;
     _exec(cmd)?.stdout?.pipe(process.stdout);
   }
 };
 
-deployToDevnets();
+runInit();

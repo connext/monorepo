@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import {Script} from "forge-std/Script.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console2 as console} from "forge-std/console2.sol";
+import {strings} from "solidity-stringutils/strings.sol";
 import {Executables} from "./Executables.sol";
 
 /// @notice store the new deployment to be saved
@@ -36,6 +37,8 @@ struct Artifact {
 ///         contract address to disk. Then the `sync` function can be called to generate
 ///         hardhat deploy style artifacts. Forked from `forge-deploy`.
 abstract contract Deployer is Script {
+  using strings for *;
+
   /// @notice The set of deployments that have been done during execution.
   mapping(string => Deployment) internal _namedDeployments;
   /// @notice The same as `_namedDeployments` but as an array.
@@ -187,11 +190,31 @@ abstract contract Deployer is Script {
     return _getExistingDeploymentAdress(_name);
   }
 
+  /// @notice Returns the address of a deployment.
+  /// @param _name The name of the deployment.
+  /// @param _context The context of the deployment.
+  /// @return The address of the deployment. May be `address(0)` if the deployment does not
+  ///         exist.
+  function getAddress(string memory _name, string memory _context) public view returns (address payable) {
+    return _getExistingDeploymentAdress(_name, _context);
+  }
+
   /// @notice Returns the address of a deployment and reverts if the deployment
   ///         does not exist.
   /// @return The address of the deployment.
   function mustGetAddress(string memory _name) public view returns (address payable) {
     address addr = getAddress(_name);
+    if (addr == address(0)) {
+      revert DeploymentDoesNotExist(_name);
+    }
+    return payable(addr);
+  }
+
+  /// @notice Returns the address of a deployment and reverts if the deployment
+  ///         does not exist.
+  /// @return The address of the deployment.
+  function mustGetAddress(string memory _name, string memory _context) public view returns (address payable) {
+    address addr = getAddress(_name, _context);
     if (addr == address(0)) {
       revert DeploymentDoesNotExist(_name);
     }
@@ -208,6 +231,14 @@ abstract contract Deployer is Script {
     } else {
       return _getExistingDeployment(_name);
     }
+  }
+
+  /// @notice Returns a deployment that is suitable to be used to interact with contracts.
+  /// @param _name The name of the deployment.
+  /// @param _context The context of the deployment.
+  /// @return The deployment.
+  function get(string memory _name, string memory _context) public view returns (Deployment memory) {
+    return _getExistingDeployment(_name, _context);
   }
 
   /// @notice Writes a deployment to disk as a temp deployment so that the
@@ -441,14 +472,14 @@ abstract contract Deployer is Script {
     json = stdJson.serialize("", "args", _artifact.args);
     json = stdJson.serialize("", "bytecode", _artifact.bytecode);
     json = stdJson.serialize("", "deployedBytecode", _artifact.deployedBytecode);
-    json = stdJson.serialize("", "devdoc", _artifact.devdoc);
-    json = stdJson.serialize("", "metadata", _artifact.metadata);
+    //json = stdJson.serialize("", "devdoc", _artifact.devdoc);
+    //json = stdJson.serialize("", "metadata", _artifact.metadata);
     json = stdJson.serialize("", "numDeployments", _artifact.numDeployments);
     json = stdJson.serialize("", "receipt", _artifact.receipt);
     json = stdJson.serialize("", "solcInputHash", _artifact.solcInputHash);
     json = stdJson.serialize("", "storageLayout", _artifact.storageLayout);
     json = stdJson.serialize("", "transactionHash", _artifact.transactionHash);
-    json = stdJson.serialize("", "userdoc", _artifact.userdoc);
+    //json = stdJson.serialize("", "userdoc", _artifact.userdoc);
     return json;
   }
 
@@ -485,11 +516,40 @@ abstract contract Deployer is Script {
     return _getExistingDeployment(_name).addr;
   }
 
+  /// @notice Reads the artifact from the filesystem by name and context and returns the address.
+  /// @param _name The name of the artifact to read.
+  /// @param _context The name of the artifact to read.
+  /// @return The address of the artifact.
+  function _getExistingDeploymentAdress(
+    string memory _name,
+    string memory _context
+  ) internal view returns (address payable) {
+    return _getExistingDeployment(_name, _context).addr;
+  }
+
   /// @notice Reads the artifact from the filesystem by name and returns the Deployment.
   /// @param _name The name of the artifact to read.
   /// @return The deployment corresponding to the name.
   function _getExistingDeployment(string memory _name) internal view returns (Deployment memory) {
     string memory path = string.concat(deploymentsDir, "/", _name, ".json");
+    try vm.readFile(path) returns (string memory json) {
+      bytes memory addr = stdJson.parseRaw(json, "$.address");
+      return Deployment({addr: abi.decode(addr, (address)), name: _name});
+    } catch {
+      return Deployment({addr: payable(address(0)), name: ""});
+    }
+  }
+
+  /// @notice Reads the artifact from the filesystem by name, and context and returns the Deployment.
+  /// @param _name The name of the artifact to read.
+  /// @param _context The context of the artifact to read.
+  /// @return The deployment corresponding to the name.
+  function _getExistingDeployment(
+    string memory _name,
+    string memory _context
+  ) internal view returns (Deployment memory) {
+    string memory _deploymentsDir = string.concat(vm.projectRoot(), "/deployments/", _context);
+    string memory path = string.concat(_deploymentsDir, "/", _name, ".json");
     try vm.readFile(path) returns (string memory json) {
       bytes memory addr = stdJson.parseRaw(json, "$.address");
       return Deployment({addr: abi.decode(addr, (address)), name: _name});
