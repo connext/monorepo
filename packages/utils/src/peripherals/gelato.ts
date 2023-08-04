@@ -66,6 +66,7 @@ const EquivalentChainsForGelato: Record<number, number> = {
   13337: 1, // local chain
   13338: 1, // local chain
 
+
   // TESTNETS
   4: 1, // rinkeby
   5: 1, // goerli
