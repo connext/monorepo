@@ -125,6 +125,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     // Deploy Utils contracts
     deployMultiSend();
     deployTestERC20();
+    deployTestAdopted();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -135,8 +136,14 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   }
 
   function deployTestERC20() public broadcast returns (address) {
-    TestERC20 erc20 = new TestERC20("Test Token", "Test");
+    TestERC20 erc20 = new TestERC20("Test Token", "nextTest");
     save("TestERC20", address(erc20));
+    return address(erc20);
+  }
+
+  function deployTestAdopted() public broadcast returns (address) {
+    TestERC20 erc20 = new TestERC20("Test Adopted Token", "Test");
+    save("TestAdopted", address(erc20));
     return address(erc20);
   }
 

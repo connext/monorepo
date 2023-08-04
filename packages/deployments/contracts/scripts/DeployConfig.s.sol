@@ -109,8 +109,7 @@ contract DeployConfig is Script {
   }
 
   function getAgentRelayerFeeVault(uint256 chainId) public view returns (address) {
-    uint256 domain = _protocolConfigs[chainId].domain;
-    return _agentConfig.relayerFeeVaults[domain];
+    return _agentConfig.relayerFeeVaults[_protocolConfigs[chainId].domain];
   }
 
   function getAgentWatchersConfig() public view returns (address[] memory allow, address[] memory black) {

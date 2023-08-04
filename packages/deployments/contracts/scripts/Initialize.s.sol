@@ -49,6 +49,8 @@ contract Initialize is Deployer {
     console.log("Initializing Contracts...");
 
     initMessaging();
+    initAssets();
+    initAgents();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -139,15 +141,148 @@ contract Initialize is Deployer {
     }
   }
 
-  function getConnextContractAddress(uint256 chainId) public returns (address) {
+  /// @notice Initialize Next/Adopted Assets
+  function initAssets() public broadcast {}
+
+  /// @notice Initialize Agents
+  function initAgents() public broadcast {
+    IConnext connext = IConnext(getConnextContractAddress(block.chainid));
+    uint256 chainId = block.chainid;
+
+    // Watchers
+    if (chainId == cfg.hubChainId()) {
+      console.log("setup watchers...");
+      (address[] memory watchersAllowList, address[] memory watchersBlackList) = cfg.getAgentWatchersConfig();
+      for (uint256 i = 0; i < watchersAllowList.length; i++) {
+        updateIfNeeded(
+          mustGetAddress("WatcherManager"),
+          abi.encodeWithSignature("isWatcher(address)", watchersAllowList[i]),
+          true,
+          abi.encodeWithSignature("addWatcher(address)", watchersAllowList[i])
+        );
+      }
+      for (uint256 i = 0; i < watchersBlackList.length; i++) {
+        updateIfNeeded(
+          mustGetAddress("WatcherManager"),
+          abi.encodeWithSignature("isWatcher(address)", watchersBlackList[i]),
+          false,
+          abi.encodeWithSignature("removeWatcher(address)", watchersBlackList[i])
+        );
+      }
+    }
+
+    // Relayers
+    console.log("setup relayers...");
+    address payable relayerProxy = chainId == cfg.hubChainId()
+      ? mustGetAddress("RelayerProxyHub")
+      : mustGetAddress("RelayerProxy");
+
+    console.log("setup addRelayer relayer proxy contract to connext...");
+    updateIfNeeded(
+      address(connext),
+      abi.encodeWithSignature("approvedRelayers(address)", relayerProxy),
+      true,
+      abi.encodeWithSignature("addRelayer(address)", relayerProxy)
+    );
+
+    address feeCollector = cfg.getAgentRelayerFeeVault(chainId);
+    console.log("setup setFeeCollector to relayer proxy...");
+    updateIfNeeded(
+      relayerProxy,
+      abi.encodeWithSignature("feeCollector()"),
+      feeCollector,
+      abi.encodeWithSignature("setFeeCollector(address)", feeCollector)
+    );
+
+    (address[] memory relayersAllowList, address[] memory relayersBlackList) = cfg.getAgentRelayersConfig();
+    for (uint256 i = 0; i < relayersAllowList.length; i++) {
+      console.log("setup addRelayer to relayer proxy...");
+      updateIfNeeded(
+        relayerProxy,
+        abi.encodeWithSignature("allowedRelayer(address)", relayersAllowList[i]),
+        true,
+        abi.encodeWithSignature("addRelayer(address)", relayersAllowList[i])
+      );
+      console.log("setup addRelayer to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("approvedRelayers(address)", relayersAllowList[i]),
+        true,
+        abi.encodeWithSignature("addRelayer(address)", relayersAllowList[i])
+      );
+    }
+    for (uint256 i = 0; i < relayersBlackList.length; i++) {
+      console.log("setup removeRelayer to relayer proxy...");
+      updateIfNeeded(
+        relayerProxy,
+        abi.encodeWithSignature("allowedRelayer(address)", relayersBlackList[i]),
+        false,
+        abi.encodeWithSignature("removeRelayer(address)", relayersBlackList[i])
+      );
+      console.log("setup addRelayer to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("approvedRelayers(address)", relayersBlackList[i]),
+        false,
+        abi.encodeWithSignature("removeRelayer(address)", relayersBlackList[i])
+      );
+    }
+
+    // Sequencers
+    console.log("setup Sequencers...");
+    (address[] memory sequencersAllowList, address[] memory sequencersBlackList) = cfg.getAgentSequencersConfig();
+    for (uint256 i = 0; i < sequencersAllowList.length; i++) {
+      console.log("setup addSequencer to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("approvedSequencers(address)", sequencersAllowList[i]),
+        true,
+        abi.encodeWithSignature("addSequencer(address)", sequencersAllowList[i])
+      );
+    }
+    for (uint256 i = 0; i < sequencersBlackList.length; i++) {
+      console.log("setup removeSequencer to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("approvedSequencers(address)", sequencersBlackList[i]),
+        false,
+        abi.encodeWithSignature("removeSequencer(address)", sequencersBlackList[i])
+      );
+    }
+
+    // Routers
+    console.log("setup Routers...");
+    (address[] memory routersAllowList, address[] memory routersBlackList) = cfg.getAgentRoutersConfig();
+    for (uint256 i = 0; i < routersAllowList.length; i++) {
+      console.log("setup approveRouter to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("getRouterApproval(address)", routersAllowList[i]),
+        true,
+        abi.encodeWithSignature("approveRouter(address)", routersAllowList[i])
+      );
+    }
+    for (uint256 i = 0; i < routersBlackList.length; i++) {
+      console.log("setup unapproveRouter to connext...");
+      updateIfNeeded(
+        address(connext),
+        abi.encodeWithSignature("getRouterApproval(address)", routersBlackList[i]),
+        false,
+        abi.encodeWithSignature("unapproveRouter(address)", routersBlackList[i])
+      );
+    }
+  }
+
+  /// @notice utility functions
+  function getConnextContractAddress(uint256 chainId) public view returns (address) {
     return mustGetAddress("Connext_DiamondProxy", getContextFromChainId(chainId));
   }
 
-  function getContextFromChainId(uint256 chainId) public returns (string memory context) {
+  function getContextFromChainId(uint256 chainId) public view returns (string memory context) {
     return cfg.getMessagingConfig(chainId).name;
   }
 
-  function getDomainFromChainId(uint256 chainId) public returns (uint32) {
+  function getDomainFromChainId(uint256 chainId) public view returns (uint32) {
     return uint32(cfg.getMessagingConfig(chainId).domain);
   }
 
@@ -157,15 +292,14 @@ contract Initialize is Deployer {
       readSignature := mload(add(read, 32))
     }
 
-    (bool success, bytes memory data) = address(addr).call(read);
-
-    require(success);
+    (bool readSuccess, bytes memory data) = address(addr).call(read);
+    require(readSuccess);
 
     uint256 value = abi.decode(data, (uint256));
     console.log("Read: %s, current: %s, desired: %s", bytes4ToString(readSignature), value, desired);
     if (value != desired) {
-      (bool success, ) = address(addr).call(write);
-      require(success);
+      (bool writeSuccess, ) = address(addr).call(write);
+      require(writeSuccess);
       console.log("Updated!");
     } else {
       console.log("Skipped!");
@@ -178,18 +312,42 @@ contract Initialize is Deployer {
       readSignature := mload(add(read, 32))
     }
 
-    (bool success, bytes memory data) = address(addr).call(read);
-
-    require(success);
+    (bool readSuccess, bytes memory data) = address(addr).call(read);
+    require(readSuccess);
 
     address value = abi.decode(data, (address));
     console.log("Read: %s, current: %s, desired: %s", bytes4ToString(readSignature), value, desired);
     if (value != desired) {
-      (bool success, ) = address(addr).call(write);
-      require(success);
+      (bool writeSuccess, ) = address(addr).call(write);
+      require(writeSuccess);
       console.log("Updated!");
     } else {
       console.log("Skipped!");
+    }
+  }
+
+  function updateIfNeeded(address addr, bytes memory read, bool desired, bytes memory write) public {
+    bytes4 readSignature;
+    assembly {
+      readSignature := mload(add(read, 32))
+    }
+
+    (bool readSuccess, bytes memory data) = address(addr).call(read);
+    require(readSuccess);
+
+    bool value = abi.decode(data, (bool));
+    console.log(
+      "Read: %s, current: %s, desired: %s",
+      bytes4ToString(readSignature),
+      (value ? "true" : "false"),
+      (desired ? "true" : "false")
+    );
+    if (value != desired) {
+      (bool writeSuccess, ) = address(addr).call(write);
+      require(writeSuccess);
+      console.log("---Updated!");
+    } else {
+      console.log("---Skipped!");
     }
   }
 
