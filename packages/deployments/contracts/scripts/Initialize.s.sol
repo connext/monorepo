@@ -10,7 +10,7 @@ import {Deployer} from "./Deployer.sol";
 
 import {DeployConfig} from "./DeployConfig.s.sol";
 
-import {TestERC20} from "../contracts/test/TestERC20.sol";
+import {TestERC20, IERC20} from "../contracts/test/TestERC20.sol";
 import {WatcherManager} from "../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../contracts/messaging/RootManager.sol";
@@ -21,6 +21,7 @@ import {RelayerProxy} from "../contracts/core/connext/helpers/RelayerProxy.sol";
 import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 import {IConnext} from "../contracts/core/connext/interfaces/IConnext.sol";
 import {TypeCasts} from "../contracts/shared/libraries/TypeCasts.sol";
+import {TokenId} from "../contracts/core/connext/libraries/TokenId.sol";
 
 /// @title Initialize
 /// @notice Script used to initialize connext system. The entire system is initialized within the `run` function.
@@ -142,7 +143,85 @@ contract Initialize is Deployer {
   }
 
   /// @notice Initialize Next/Adopted Assets
-  function initAssets() public broadcast {}
+  function initAssets() public broadcast {
+    IConnext connext = IConnext(getConnextContractAddress(block.chainid));
+    address canonicalAsset = mustGetAddress("TestERC20", getContextFromChainId(cfg.hubChainId()));
+    console.log("canonical asset on mainnet: %s", canonicalAsset);
+
+    TokenId memory canonicalId = TokenId({
+      domain: getDomainFromChainId(cfg.hubChainId()),
+      id: TypeCasts.addressToBytes32(canonicalAsset)
+    });
+    bytes32 key = keccak256(abi.encode(canonicalId.id, canonicalId.domain));
+    console.log("canonical asset key on mainnet: %s", vm.toString(key));
+
+    address oldAdopted = address(0);
+    try connext.canonicalToAdopted(key) returns (address addr) {
+      oldAdopted = addr;
+    } catch {}
+    console.log("old adopted asset on this chain: %s", oldAdopted);
+
+    if (block.chainid == cfg.hubChainId()) {
+      // canonical domain
+      if (oldAdopted != canonicalAsset) {
+        connext.setupAsset(canonicalId, 18, "nextTEST", "nextTEST", canonicalAsset, address(0), 0);
+      }
+    } else {
+      // Set up all the representational assets on their respective domains.
+      address desiredAdopted = mustGetAddress("TestERC20");
+      if (oldAdopted != address(0) && oldAdopted != desiredAdopted) {
+        console.log("already approved asset. remove asset Id...");
+        updateIfNeeded(
+          address(connext),
+          abi.encodeWithSignature("approvedAssets(bytes32)", key),
+          false,
+          abi.encodeWithSignature(
+            "removeAssetId((uint32,bytes32),address,address)",
+            canonicalId,
+            desiredAdopted,
+            connext.canonicalToRepresentation(key)
+          )
+        );
+      }
+
+      console.log("setupAsset old adopted: %s, desired adopted: %s", oldAdopted, desiredAdopted);
+      if (oldAdopted != desiredAdopted) {
+        connext.setupAsset(canonicalId, 18, "nextTEST", "nextTEST", desiredAdopted, address(0), 0);
+      }
+
+      // setup stableswap pool
+      console.log("setup stableswap pool between Test - nextTEST");
+      (address local, address adopted) = connext.getLocalAndAdoptedToken(canonicalId.id, canonicalId.domain);
+      if (local == adopted) {
+        console.log("local == adopted. %s, skipping", local);
+      } else {
+        uint256 INITIAL_A = 200;
+        IERC20[] memory _pooledTokens = new IERC20[](2);
+        _pooledTokens[0] = IERC20(local);
+        _pooledTokens[1] = IERC20(adopted);
+        uint8[] memory _decimals = new uint8[](2);
+        _decimals[0] = 18;
+        _decimals[1] = 18;
+
+        updateIfNeeded(
+          address(connext),
+          abi.encodeWithSignature("getSwapA(bytes32)", key),
+          INITIAL_A,
+          abi.encodeWithSignature(
+            "initializeSwap(bytes32,address[],uint8[],string,string,uint256,uint256,uint256)",
+            key,
+            _pooledTokens,
+            _decimals,
+            "Connext Test Token StableSwap LP",
+            "CTestLP",
+            INITIAL_A,
+            "4000000",
+            "0"
+          )
+        );
+      }
+    }
+  }
 
   /// @notice Initialize Agents
   function initAgents() public broadcast {
@@ -293,16 +372,21 @@ contract Initialize is Deployer {
     }
 
     (bool readSuccess, bytes memory data) = address(addr).call(read);
-    require(readSuccess);
+    bool need = !readSuccess;
+    uint256 value;
+    if (readSuccess) {
+      value = abi.decode(data, (uint256));
+      console.log("Read: %s, current: %s, desired: %s", vm.toString(readSignature), value, desired);
 
-    uint256 value = abi.decode(data, (uint256));
-    console.log("Read: %s, current: %s, desired: %s", bytes4ToString(readSignature), value, desired);
-    if (value != desired) {
+      need = value != desired;
+    }
+
+    if (need) {
       (bool writeSuccess, ) = address(addr).call(write);
       require(writeSuccess);
-      console.log("Updated!");
+      console.log("--Updated!");
     } else {
-      console.log("Skipped!");
+      console.log("--Skipped!");
     }
   }
 
@@ -313,16 +397,21 @@ contract Initialize is Deployer {
     }
 
     (bool readSuccess, bytes memory data) = address(addr).call(read);
-    require(readSuccess);
+    bool need = !readSuccess;
+    address value;
+    if (readSuccess) {
+      value = abi.decode(data, (address));
+      console.log("Read: %s, current: %s, desired: %s", vm.toString(readSignature), value, desired);
 
-    address value = abi.decode(data, (address));
-    console.log("Read: %s, current: %s, desired: %s", bytes4ToString(readSignature), value, desired);
-    if (value != desired) {
+      need = value != desired;
+    }
+
+    if (need) {
       (bool writeSuccess, ) = address(addr).call(write);
       require(writeSuccess);
-      console.log("Updated!");
+      console.log("--Updated!");
     } else {
-      console.log("Skipped!");
+      console.log("--Skipped!");
     }
   }
 
@@ -333,34 +422,21 @@ contract Initialize is Deployer {
     }
 
     (bool readSuccess, bytes memory data) = address(addr).call(read);
-    require(readSuccess);
+    bool need = !readSuccess;
+    bool value;
+    if (readSuccess) {
+      value = abi.decode(data, (bool));
+      console.log("Read: %s, current: %s, desired: %s", vm.toString(readSignature), value, desired);
 
-    bool value = abi.decode(data, (bool));
-    console.log(
-      "Read: %s, current: %s, desired: %s",
-      bytes4ToString(readSignature),
-      (value ? "true" : "false"),
-      (desired ? "true" : "false")
-    );
-    if (value != desired) {
+      need = value != desired;
+    }
+
+    if (need) {
       (bool writeSuccess, ) = address(addr).call(write);
       require(writeSuccess);
-      console.log("---Updated!");
+      console.log("--Updated!");
     } else {
-      console.log("---Skipped!");
+      console.log("--Skipped!");
     }
-  }
-
-  function bytes4ToString(bytes4 data) internal pure returns (string memory) {
-    bytes memory bytesData = abi.encodePacked(data);
-    bytes memory alphabet = "0123456789abcdef";
-    bytes memory str = new bytes(8);
-
-    for (uint256 i = 0; i < 4; i++) {
-      str[i * 2] = alphabet[uint256(uint8(bytesData[i] >> 4))];
-      str[i * 2 + 1] = alphabet[uint256(uint8(bytesData[i] & 0x0f))];
-    }
-
-    return string(str);
   }
 }

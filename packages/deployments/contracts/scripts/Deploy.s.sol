@@ -136,7 +136,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   }
 
   function deployTestERC20() public broadcast returns (address) {
-    TestERC20 erc20 = new TestERC20("Test Token", "nextTest");
+    TestERC20 erc20 = new TestERC20("Test Token", "Test");
     save("TestERC20", address(erc20));
     return address(erc20);
   }
