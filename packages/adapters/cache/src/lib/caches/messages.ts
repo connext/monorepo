@@ -145,6 +145,83 @@ export class MessagesCache extends Cache {
   }
 
   /**
+   * Add pending task to the `tasks` list.
+   *
+   * @param taskId - The taskId.
+   * @param relayer - The relayer type which can be either Gelato or Connext.
+   * @param leaves - The leaves that the task includes.
+   */
+  public async addTaskPending(
+    taskId: string,
+    relayer: string,
+    originDomain: string,
+    destinationDomain: string,
+    leaves: string[],
+  ) {
+    await this.data.rpush(`${this.prefix}:tasks`, taskId);
+    return await this.data.hset(
+      `${this.prefix}:task`,
+      taskId,
+      JSON.stringify({
+        relayer,
+        originDomain,
+        destinationDomain,
+        leaves,
+        timestamp: getNtpTimeSeconds(),
+      }),
+    );
+  }
+
+  /**
+   * Retrieves pending tasks in a range.
+   *
+   * @param offset - The starting point.
+   * @param limit - The number of tasks you're gonna retrieve
+   */
+  public async getPendingTasks(
+    offset = 0,
+    limit = 100,
+  ): Promise<{ taskId: string; relayer: string; originDomain: string; destinationDomain: string; leaves: string[] }[]> {
+    const result: {
+      taskId: string;
+      relayer: string;
+      originDomain: string;
+      destinationDomain: string;
+      leaves: string[];
+    }[] = [];
+    const tasks = await this.data.lrange(`${this.prefix}:tasks`, offset, offset + limit - 1);
+    for (const task of tasks) {
+      const rawTask = await this.data.hget(`${this.prefix}:task`, task);
+      if (!rawTask) continue;
+      const taskDetail = JSON.parse(rawTask) as {
+        relayer: string;
+        originDomain: string;
+        destinationDomain: string;
+        leaves: string[];
+        timestamp: number;
+      };
+      result.push({ taskId: task, ...taskDetail });
+    }
+    return result;
+  }
+
+  /**
+   * Remove pending tasks from both `tasks` and `task` data.
+   * @param taskIds - The list of task you wanna remove from the store
+   * @returns 1 if anything deleted, 0 if nothing
+   */
+  public async removePendingTasks(taskIds: string[]): Promise<boolean> {
+    let sum = 0;
+    for (const taskId of taskIds) {
+      const res = await this.data.lrem(`${this.prefix}:tasks`, 0, taskId);
+      await this.data.hdel(`${this.prefix}:task`, taskId);
+      sum += res;
+    }
+    if (sum > 0) return true;
+    else return false;
+  }
+
+  /**
    * Stores leaf of a domain at index.
    *
    * @param domain - Domain.
