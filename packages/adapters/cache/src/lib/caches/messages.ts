@@ -1,4 +1,4 @@
-import { ExecStatus, XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
+import { ExecStatus, RelayerType, XMessage, getNtpTimeSeconds } from "@connext/nxtp-utils";
 
 import { Cache } from "./cache";
 
@@ -153,7 +153,7 @@ export class MessagesCache extends Cache {
    */
   public async addTaskPending(
     taskId: string,
-    relayer: string,
+    relayer: RelayerType,
     originDomain: string,
     destinationDomain: string,
     leaves: string[],
@@ -167,7 +167,6 @@ export class MessagesCache extends Cache {
         originDomain,
         destinationDomain,
         leaves,
-        timestamp: getNtpTimeSeconds(),
       }),
     );
   }
@@ -198,7 +197,6 @@ export class MessagesCache extends Cache {
         originDomain: string;
         destinationDomain: string;
         leaves: string[];
-        timestamp: number;
       };
       result.push({ taskId: task, ...taskDetail });
     }
