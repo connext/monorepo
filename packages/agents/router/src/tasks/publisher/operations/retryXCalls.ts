@@ -47,6 +47,11 @@ export const retryXCalls = async (): Promise<void> => {
       });
 
       const originTransfersFromSubgraph: XTransfer[] = await subgraph.getOriginTransfersByDomain(domain, pending);
+      const _transferIdsFromSubgraph = originTransfersFromSubgraph.map((i) => i.transferId);
+      logger.debug(`Origin IDs from subgraph: ${domain}`, requestContext, methodContext, {
+        domain,
+        _transferIdsFromSubgraph,
+      });
       const originTransfers = (
         await Promise.all(
           originTransfersFromSubgraph.flatMap(async (transfer) => {
@@ -75,6 +80,12 @@ export const retryXCalls = async (): Promise<void> => {
           }),
         )
       ).filter((i) => !!i);
+      const _originTransfers = originTransfers as OriginTransfer[];
+      const _filteredTransferIds = _originTransfers.map((i) => i.transferId);
+      logger.debug(`IDs after filtering: ${domain}`, requestContext, methodContext, {
+        domain,
+        _filteredTransferIds,
+      });
 
       const destinationTransfers = await subgraph.getDestinationTransfers(originTransfers as OriginTransfer[]);
       const transferIdsToRemove = destinationTransfers.map((i) => i.transferId);
@@ -91,6 +102,10 @@ export const retryXCalls = async (): Promise<void> => {
       const transfersToPublish = originTransfers.filter(
         (transfer) => transferIdsToRemove.includes(transfer!.transferId) === false,
       );
+      logger.debug(`IDs removed: ${domain}`, requestContext, methodContext, {
+        domain,
+        transferIdsToRemove,
+      });
 
       await Promise.all(
         transfersToPublish.map(async (transfer) => {
