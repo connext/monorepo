@@ -58,9 +58,9 @@ export const getXCalls = async () => {
       subgraphQueryMetaParams,
     );
     logger.debug("getOriginXCalls Results:", requestContext, methodContext, {
-      txIdsByDestinationDomain,
-      allTxById,
-      latestNonces,
+      txIdsByDestinationDomain: JSON.stringify(txIdsByDestinationDomain),
+      allTxById: JSON.stringify(allTxById),
+      latestNonces: JSON.stringify(latestNonces),
     });
 
     for (const [domain, nonce] of latestNonces.entries()) {

@@ -80,11 +80,9 @@ export const retryXCalls = async (): Promise<void> => {
           }),
         )
       ).filter((i) => !!i);
-      const _originTransfers = originTransfers as OriginTransfer[];
-      const _filteredTransferIds = _originTransfers.map((i) => i.transferId);
       logger.debug(`IDs after filtering: ${domain}`, requestContext, methodContext, {
         domain,
-        _filteredTransferIds,
+        originTransfers: JSON.stringify(originTransfers),
       });
 
       const destinationTransfers = await subgraph.getDestinationTransfers(originTransfers as OriginTransfer[]);
