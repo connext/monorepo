@@ -255,50 +255,5 @@ describe("AuctionCache", () => {
         expect(secondCallTimestamp).to.not.be.eq(timestamp);
       });
     });
-
-    describe("#getQueuedTransfers", () => {
-      const mockTransferIdBatch = (count: number) => new Array(count).fill(0).map(() => getRandomBytes32());
-
-      it("happy: should retrieve existing queued transfers", async () => {
-        const transferIds = mockTransferIdBatch(10);
-        for (const transferId of transferIds) {
-          await mockRedisHelpers.setExecStatus(transferId, ExecStatus.Enqueued);
-        }
-
-        const res = await cache.getQueuedTransfers();
-        expect(res).to.deep.eq(transferIds);
-      });
-
-      it("should not retrieve transfers of other statuses", async () => {
-        const queuedTransferIds = mockTransferIdBatch(10);
-        for (const transferId of queuedTransferIds) {
-          await mockRedisHelpers.setExecStatus(transferId, ExecStatus.Enqueued);
-        }
-
-        // Simulate: a lot have been sent already.
-        const sentTransferIds = mockTransferIdBatch(1234);
-        for (const transferId of sentTransferIds) {
-          await mockRedisHelpers.setExecStatus(transferId, ExecStatus.Sent);
-        }
-
-        const res = await cache.getQueuedTransfers();
-        expect(res).to.deep.eq(queuedTransferIds);
-      });
-
-      it("should return empty array if no transfers have queued status", async () => {
-        const sentTransferIds = mockTransferIdBatch(27);
-        for (const transferId of sentTransferIds) {
-          await mockRedisHelpers.setExecStatus(transferId, ExecStatus.Sent);
-        }
-
-        const res = await cache.getQueuedTransfers();
-        expect(res).to.deep.eq([]);
-      });
-
-      it("sad: should return empty array if no queued transfers exist", async () => {
-        const res = await cache.getQueuedTransfers();
-        expect(res).to.deep.eq([]);
-      });
-    });
   });
 });
