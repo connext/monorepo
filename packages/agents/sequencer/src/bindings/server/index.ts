@@ -12,8 +12,6 @@ import {
   SequencerApiErrorResponse,
   ExecuteFastApiGetExecStatusResponse,
   ExecuteFastApiGetAuctionsStatusResponseSchema,
-  ExecuteFastApiGetQueuedResponseSchema,
-  ExecuteFastApiGetQueuedResponse,
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
