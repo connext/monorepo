@@ -53,7 +53,7 @@ describe("Operations:Execute:FastPath", () => {
 
     getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
     setStatusStub = stub(auctions, "setExecStatus").resolves(1);
-
+    upsertTaskStub = stub(auctions, "upsertMetaTxTask").resolves(0);
     getTransferStub = stub(transfers, "getTransfer");
     storeTransfersStub = stub(transfers, "storeTransfers");
     pruneTransfersByIds = stub(transfers, "pruneTransfersByIds").resolves();
