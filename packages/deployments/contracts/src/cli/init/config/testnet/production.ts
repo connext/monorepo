@@ -146,9 +146,9 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
         },
         /// MUMBAI
-        "9991": { 
-          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
-          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+        "9991": {
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
         },
       },
     },
@@ -164,6 +164,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "9991": {
           local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
           adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+        },
+      },
+    },
+    {
+      name: "EURe",
+      canonical: {
+        domain: "1735353714",
+        address: "0x83B844180f66Bbc3BE2E97C6179035AF91c4Cce8",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0xBB2c109654198eafD6D4571b90084d5F21F06e09",
+          adopted: "0xBB2c109654198eafD6D4571b90084d5F21F06e09",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x9b0a23ca9688e8c86c2003AB41AdC8983b1c91ce",
+          adopted: "0x9b0a23ca9688e8c86c2003AB41AdC8983b1c91ce",
         },
       },
     },
