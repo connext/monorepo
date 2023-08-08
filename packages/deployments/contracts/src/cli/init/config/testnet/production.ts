@@ -133,6 +133,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "xDappRadar",
+      canonical: {
+        domain: "1735353714",
+        address: "0x369e5C58F6c09c1CE947CA313f03c0d558B77b3e",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+          adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+        },
+        /// MUMBAI
+        "9991": { 
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+        },
+      },
+    },
+    {
       name: "BTRST",
       canonical: {
         domain: "1735353714",
