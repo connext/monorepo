@@ -320,6 +320,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
+        "0x49a9E7ec76Bc8fDF658d09557305170d9F01D2fA", // BlockTech 3
         "0x6273c0965A1dB4F8A6277d490B4fD48715a42b96", // Xocalatl
         "0x9584Eb0356a380b25D7ED2C14c54De58a25f2581", // Mike Nai
         "0xC4Ae07F276768A3b74AE8c47bc108a2aF0e40eBa", // P2P 2
