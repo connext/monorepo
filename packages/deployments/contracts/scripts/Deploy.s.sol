@@ -24,7 +24,7 @@ import {LPToken} from "../contracts/core/connext/helpers/LPToken.sol";
 import {MultiSend} from "../contracts/shared/libraries/Multisend.sol";
 
 /// @title Deploy
-/// @notice Script used to deploy a bedrock system. The entire system is deployed within the `run` function.
+/// @notice Script used to deploy connext contracts. The entire system is deployed within the `run` function.
 ///         To add a new contract to the system, add a public function that deploys that individual contract.
 ///         Then add a call to that function inside of `run`. Be sure to call the `save` function after each
 ///         deployment so that hardhat-deploy style artifacts can be generated using a call to `sync()`.
@@ -125,6 +125,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     // Deploy Utils contracts
     deployMultiSend();
     deployTestERC20();
+    deployTestAdopted();
   }
 
   /// @notice Modifier that wraps a function in broadcasting.
@@ -137,6 +138,12 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   function deployTestERC20() public broadcast returns (address) {
     TestERC20 erc20 = new TestERC20("Test Token", "Test");
     save("TestERC20", address(erc20));
+    return address(erc20);
+  }
+
+  function deployTestAdopted() public broadcast returns (address) {
+    TestERC20 erc20 = new TestERC20("Test Adopted Token", "Test");
+    save("TestAdopted", address(erc20));
     return address(erc20);
   }
 

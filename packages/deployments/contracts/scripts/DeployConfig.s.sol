@@ -12,17 +12,30 @@ import {Executables} from "./Executables.sol";
 ///         values if they are not defined in the JSON themselves.
 contract DeployConfig is Script {
   string internal _json;
-  string internal _messagingJson;
+  string internal _configJson;
 
   struct ProtocolConfig {
     uint256 chainId;
     uint256 delayBlocks;
     uint256 domain;
     address hubAmb;
+    string name;
     string prefix;
     uint256 processGas;
     uint256 reserveGas;
     address spokeAmb;
+  }
+
+  struct AgentConfig {
+    mapping(uint256 => address) relayerFeeVaults;
+    address[] watchersAllowList;
+    address[] watchersBlackList;
+    address[] routersAllowList;
+    address[] routersBlackList;
+    address[] sequencersAllowList;
+    address[] sequencersBlackList;
+    address[] relayersAllowList;
+    address[] relayersBlackList;
   }
 
   uint256 public domain;
@@ -31,6 +44,7 @@ contract DeployConfig is Script {
   uint256[] public chains;
 
   mapping(uint256 => ProtocolConfig) internal _protocolConfigs;
+  AgentConfig internal _agentConfig;
 
   constructor(string memory _path) {
     console.log("DeployConfig: reading file %s", _path);
@@ -45,21 +59,19 @@ contract DeployConfig is Script {
     console.log("Read domain from json: %s", domain);
 
     // Read messaging config
-    try vm.readFile(string.concat(vm.projectRoot(), "/scripts/deploy-config/messaging.json")) returns (
-      string memory data
-    ) {
-      _messagingJson = data;
+    try vm.readFile(string.concat(vm.projectRoot(), "/scripts/deploy-config/all.json")) returns (string memory data) {
+      _configJson = data;
     } catch {
       console.log("Warning: unable to read messaging config. Do not deploy unless you are not using config.");
       return;
     }
-    hubChainId = stdJson.readUint(_messagingJson, "$.hub");
-    chainsLength = stdJson.readUint(_messagingJson, "$.chains");
+    hubChainId = stdJson.readUint(_configJson, "$.hub");
+    chainsLength = stdJson.readUint(_configJson, "$.chains");
     console.log("Read hub chain Id from json: %s", hubChainId);
 
     for (uint256 index = 0; index < chainsLength; index++) {
-      string memory key = string(abi.encodePacked(".configs[", vm.toString(index), "]"));
-      ProtocolConfig memory rawConfig = abi.decode(stdJson.parseRaw(_messagingJson, key), (ProtocolConfig));
+      string memory key = string(abi.encodePacked(".messaging.configs[", vm.toString(index), "]"));
+      ProtocolConfig memory rawConfig = abi.decode(stdJson.parseRaw(_configJson, key), (ProtocolConfig));
       uint256 chainId = rawConfig.chainId;
       if (_protocolConfigs[chainId].chainId > 0) {
         console.log("Duplicated chain config: %s", chainId);
@@ -68,11 +80,56 @@ contract DeployConfig is Script {
 
       _protocolConfigs[chainId] = rawConfig;
       chains.push(chainId);
+
+      //Read Relayer Fee Vaults
+      key = string(abi.encodePacked("$.agents.relayerFeeVaults.", vm.toString(rawConfig.domain)));
+      _agentConfig.relayerFeeVaults[rawConfig.domain] = stdJson.readAddress(_configJson, key);
+      console.log(
+        "Read relayer fee vault (%s) from json: %s",
+        rawConfig.domain,
+        _agentConfig.relayerFeeVaults[rawConfig.domain]
+      );
     }
+
+    _agentConfig.watchersAllowList = stdJson.readAddressArray(_configJson, "$.agents.watchers.allowlist");
+    _agentConfig.watchersBlackList = stdJson.readAddressArray(_configJson, "$.agents.watchers.blacklist");
+
+    _agentConfig.routersAllowList = stdJson.readAddressArray(_configJson, "$.agents.routers.allowlist");
+    _agentConfig.routersBlackList = stdJson.readAddressArray(_configJson, "$.agents.routers.blacklist");
+
+    _agentConfig.sequencersAllowList = stdJson.readAddressArray(_configJson, "$.agents.sequencers.allowlist");
+    _agentConfig.sequencersBlackList = stdJson.readAddressArray(_configJson, "$.agents.sequencers.blacklist");
+
+    _agentConfig.relayersAllowList = stdJson.readAddressArray(_configJson, "$.agents.relayers.allowlist");
+    _agentConfig.relayersBlackList = stdJson.readAddressArray(_configJson, "$.agents.relayers.blacklist");
   }
 
   function getMessagingConfig(uint256 chainId) public view returns (ProtocolConfig memory config) {
     config = _protocolConfigs[chainId];
+  }
+
+  function getAgentRelayerFeeVault(uint256 chainId) public view returns (address) {
+    return _agentConfig.relayerFeeVaults[_protocolConfigs[chainId].domain];
+  }
+
+  function getAgentWatchersConfig() public view returns (address[] memory allow, address[] memory black) {
+    allow = _agentConfig.watchersAllowList;
+    black = _agentConfig.watchersAllowList;
+  }
+
+  function getAgentRoutersConfig() public view returns (address[] memory allow, address[] memory black) {
+    allow = _agentConfig.routersAllowList;
+    black = _agentConfig.watchersBlackList;
+  }
+
+  function getAgentSequencersConfig() public view returns (address[] memory allow, address[] memory black) {
+    allow = _agentConfig.sequencersAllowList;
+    black = _agentConfig.sequencersBlackList;
+  }
+
+  function getAgentRelayersConfig() public view returns (address[] memory allow, address[] memory black) {
+    allow = _agentConfig.relayersAllowList;
+    black = _agentConfig.relayersBlackList;
   }
 
   function getChainIdFromIndex(uint256 index) public view returns (uint256) {
