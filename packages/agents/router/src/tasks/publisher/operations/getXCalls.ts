@@ -16,8 +16,6 @@ export const getXCalls = async () => {
   const subgraphQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const allowedDomains = Object.keys(config.chains);
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
-  logger.debug("latestBlockNumbers", requestContext, methodContext, { latestBlockNumbers });
-  logger.debug("destinationDomains", requestContext, methodContext, { destinationDomains });
   for (const domain of allowedDomains) {
     try {
       let latestBlockNumber = 0;
@@ -30,9 +28,7 @@ export const getXCalls = async () => {
       }
 
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
-      logger.debug("safeConfirmations", requestContext, methodContext, { domain, safeConfirmations });
       let latestNonce = await cache.transfers.getLatestNonce(domain);
-      logger.debug("Cached latestNonce", requestContext, methodContext, { domain, latestNonce });
       latestNonce = Math.max(latestNonce, config.chains[domain].startNonce ?? 0);
       logger.debug("Selected latestNonce", requestContext, methodContext, { domain, latestNonce });
 
@@ -57,14 +53,8 @@ export const getXCalls = async () => {
     const { txIdsByDestinationDomain, allTxById, latestNonces } = await subgraph.getOriginXCalls(
       subgraphQueryMetaParams,
     );
-    logger.debug("getOriginXCalls Results:", requestContext, methodContext, {
-      txIdsByDestinationDomain: JSON.stringify(txIdsByDestinationDomain),
-      allTxById: JSON.stringify(allTxById),
-      latestNonces: JSON.stringify(latestNonces),
-    });
 
     for (const [domain, nonce] of latestNonces.entries()) {
-      logger.debug("Set latest Nonce:", requestContext, methodContext, { domain, nonce });
       // set nonce now so we don't requery the same transfers
       await cache.transfers.setLatestNonce(domain, nonce ?? 0);
     }
@@ -76,9 +66,7 @@ export const getXCalls = async () => {
           subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
         });
       } else {
-        const transferIds = transfers.map((t) => t.transferId);
         await cache.transfers.storeTransfers(transfers as XTransfer[], false);
-        logger.debug("Added transfer to cache:", requestContext, methodContext, { transferIds });
       }
     } else {
       logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
