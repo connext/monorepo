@@ -177,13 +177,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// ARBITRUM-GOERLI
         "1734439522": {
-          local: "0xBB2c109654198eafD6D4571b90084d5F21F06e09",
-          adopted: "0xBB2c109654198eafD6D4571b90084d5F21F06e09",
+          local: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
+          adopted: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
         },
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0x9b0a23ca9688e8c86c2003AB41AdC8983b1c91ce",
-          adopted: "0x9b0a23ca9688e8c86c2003AB41AdC8983b1c91ce",
+          local: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
+          adopted: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
         },
       },
     },
