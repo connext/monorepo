@@ -9,6 +9,7 @@ import {
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   RootMessage,
@@ -35,6 +36,7 @@ import {
   getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
   getOriginTransfersByIdsQuery,
+  getOriginTransfersByNoncesCombinedQuery,
   getOriginTransfersByIdsFallbackQuery,
   getOriginTransfersQuery,
   getOriginTransfersFallbackQuery,
@@ -506,6 +508,26 @@ export class SubgraphReader {
       .map(parser.destinationTransfer);
 
     return destinationTransfers;
+  }
+
+  public async getOriginTransfersByNonces(params: Map<string, SubgraphQueryByNoncesMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const { config } = getContext();
+    const xcalledXQuery = getOriginTransfersByNoncesCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
+
+    return originTransfers;
   }
 
   public async getDestinationTransfersByDomainAndReconcileNonce(
