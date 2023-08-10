@@ -27,8 +27,8 @@
     "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "spawn-devnet": "ts-node ./src/spawnDevnet.ts",
-    "forge:deploy": "ts-node ./src/devnetDeploy.ts",
-    "forge:init": "ts-node ./src/runInit.ts",
+    "devnet:deploy": "ts-node ./src/devnetDeploy.ts",
+    "devnet:init": "ts-node ./src/devnetInit.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",

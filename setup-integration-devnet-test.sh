@@ -15,16 +15,21 @@ sleep 5
 
 ##### Contract Deployments
 echo "Deploying contracts to the hub chain - mainnet-devnet"
-### TODO: Add a command to apply the necessary changes for mainnet-devnet.
-echo "Deployed contracts to mainnet-devnet"
-
 echo "Deploying contracts to the spoke chain - optimism-devnet"
-### TODO: Add a command to apply the necessary changes for optimism-devnet.
+echo "Deploying contracts to the spoke chain - gnosis-devnet"
+yarn workspace @connext/smart-contracts devnet:deploy --network all
+echo "Deployed contracts to mainnet-devnet"
 echo "Deployed contracts to optimism-devnet"
+echo "Deployed contracts to gnosis-devnet"
 
-echo "Deploying contracts to the spoke chain - arbitrum-devnet"
-### TODO: Add a command to apply the necessary changes for arbitrum-devnet.
-echo "Deployed contracts to arbitrum-devnet"
+
+echo "Initializing contracts - mainnet-devnet"
+echo "Initializing contracts - optimism-devnet"
+echo "Initializing contracts - gnosis-devnet"
+yarn workspace @connext/smart-contracts devnet:init --network all
+echo "Initialized contracts - mainnet-devnet"
+echo "Initialized contracts - optimism-devnet"
+echo "Initialized contracts - gnosis-devnet"
 #####
 
 ##### Loading .env file contents

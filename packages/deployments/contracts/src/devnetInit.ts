@@ -3,6 +3,7 @@ import { exec as _exec } from "child_process";
 
 import { config as dotenvConfig } from "dotenv";
 import { Wallet } from "ethers";
+import commandLineArgs from "command-line-args";
 
 dotenvConfig();
 
@@ -11,30 +12,46 @@ const exec = util.promisify(_exec);
 const { MAINNET_DEVNET_RPC_URL, OPTIMISM_DEVNET_RPC_URL, GNOSIS_DEVNET_RPC_URL, MNEMONIC, TENDERLY_ACCOUNT_ID } =
   process.env;
 
+const optionDefinitions = [{ name: "network", type: String, defaultValue: "all" }];
+
+const chainConfigs = [
+  {
+    network: "mainnet",
+    rpc: MAINNET_DEVNET_RPC_URL,
+  },
+  {
+    network: "optimism",
+    rpc: OPTIMISM_DEVNET_RPC_URL,
+  },
+  {
+    network: "gnosis",
+    rpc: GNOSIS_DEVNET_RPC_URL,
+  },
+];
+
 const runInit = async () => {
-  if (!MAINNET_DEVNET_RPC_URL || !OPTIMISM_DEVNET_RPC_URL || !GNOSIS_DEVNET_RPC_URL) {
-    throw new Error("Not found devnet rpcs");
+  let cmdArgs: any;
+  try {
+    cmdArgs = commandLineArgs(optionDefinitions);
+  } catch (err: any) {
+    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
   }
 
-  const chainConfigs = [
-    {
-      network: "mainnet",
-      rpc: MAINNET_DEVNET_RPC_URL,
-    },
-    {
-      network: "optimism",
-      rpc: OPTIMISM_DEVNET_RPC_URL,
-    },
-    {
-      network: "gnosis",
-      rpc: GNOSIS_DEVNET_RPC_URL,
-    },
-  ];
+  // Validate command line arguments
+  const { network } = cmdArgs;
+
+  if (network != "all" && !chainConfigs.map((c) => c.network).includes(network as string)) {
+    throw new Error(
+      `Network should be either all, ${chainConfigs.map((c) => c.network).join(",")}, network: ${network}`,
+    );
+  }
 
   const sender = Wallet.fromMnemonic(MNEMONIC!).address;
   console.log("deployer", sender);
 
-  for (const config of chainConfigs) {
+  const configs = network === "all" ? chainConfigs : [chainConfigs.find((c) => c.network === network)!];
+
+  for (const config of configs) {
     //funds to sender
     const { stdout } = await exec(
       `curl -H "Content-Type: application/json" -X POST --data '{
