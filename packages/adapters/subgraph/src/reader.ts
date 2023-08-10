@@ -561,12 +561,6 @@ export class SubgraphReader {
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
 
-          // do not add more than 100 entries to each destination domain
-          // this result is used to query the subgraph by ID and the query will
-          // truncate the list if it is too long
-          if (txIds.length >= 100) {
-            continue;
-          }
           txIds.push(`"${xtransfer.transferId as string}"`);
         } else {
           txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
