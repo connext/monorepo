@@ -65,8 +65,8 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
 
-  graph-node-dev-spoke-arbitrum:
-    container_name: graph-node-dev-spoke-arbitrum
+  graph-node-dev-spoke-gnosis:
+    container_name: graph-node-dev-spoke-gnosis
     image: graphprotocol/graph-node:992121b
     ports:
       - "9010:8000"
@@ -76,18 +76,18 @@ services:
       - "9040:8040"
     depends_on:
       - ipfs
-      - postgres-dev-spoke-arbitrum
+      - postgres-dev-spoke-gnosis
     environment:
-      postgres_host: postgres-dev-spoke-arbitrum
+      postgres_host: postgres-dev-spoke-gnosis
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:${ARBITRUM_DEVNET_RPC_URL}"
+      ethereum: "mainnet:${GNOSIS_DEVNET_RPC_URL}"
       GRAPH_LOG: info
 
-  postgres-dev-spoke-arbitrum:
-    container_name: postgres-dev-spoke-arbitrum
+  postgres-dev-spoke-gnosis:
+    container_name: postgres-dev-spoke-gnosis
     image: postgres
     ports:
       - "5433:5432"

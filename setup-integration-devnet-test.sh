@@ -45,8 +45,8 @@ yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the hub chain"
 
 echo "Deploying subgraph to the hub chain - mainnet-devnet..."
-yarn workspace @connext/nxtp-subgraph create:hub_devnet_mainnet --node MAINNET_DEVNET_RPC_URL
-yarn workspace @connext/nxtp-subgraph deploy:hub_devnet_mainnet --node MAINNET_DEVNET_RPC_URL -l v0.0.1
+yarn workspace @connext/nxtp-subgraph create:hub_devnet_mainnet --node $MAINNET_DEVNET_RPC_URL
+yarn workspace @connext/nxtp-subgraph deploy:hub_devnet_mainnet --node $MAINNET_DEVNET_RPC_URL -l v0.0.1
 echo "Deployed subgraph to the hub chain - mainnet-devnet"
 
 echo "Building subgraph for the spoke chains - optimism-devnet & arbitrum-devnet..."
@@ -55,14 +55,14 @@ yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chains"
 
 echo "Deploying subgraph to the spoke chain - optimism-devnet..."
-yarn workspace @connext/nxtp-subgraph create:spoke_devnet_optimism --node OPTIMISM_DEVNET_RPC_URL
-yarn workspace @connext/nxtp-subgraph deploy:spoke_devnet_optimism --node OPTIMISM_DEVNET_RPC_URL -l v0.0.1
+yarn workspace @connext/nxtp-subgraph create:spoke_devnet_optimism --node $OPTIMISM_DEVNET_RPC_URL
+yarn workspace @connext/nxtp-subgraph deploy:spoke_devnet_optimism --node $OPTIMISM_DEVNET_RPC_URL -l v0.0.1
 echo "Deployed subgraphs to the optimism-devnet"
 
-echo "Deploying subgraph to the hub chain - arbitrum-devnet..."
-yarn workspace @connext/nxtp-subgraph create:spoke_devnet_arbitrum --node ARBITRUM_DEVNET_RPC_URL
-yarn workspace @connext/nxtp-subgraph deploy:spoke_devnet_arbitrum --node ARBITRUM_DEVNET_RPC_URL -l v0.0.1
-echo "Deployed subgraph to the arbitrum-devnet"
+echo "Deploying subgraph to the hub chain - gnosis-devnet..."
+yarn workspace @connext/nxtp-subgraph create:spoke_devnet_gnosis --node $GNOSIS_DEVNET_RPC_URL
+yarn workspace @connext/nxtp-subgraph deploy:spoke_devnet_gnosis --node $GNOSIS_DEVNET_RPC_URL -l v0.0.1
+echo "Deployed subgraph to the gnosis-devnet"
 #####
 
 ##### Off-Chain Agents
