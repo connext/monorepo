@@ -54,9 +54,30 @@ export const getXCalls = async () => {
       subgraphQueryMetaParams,
     );
 
+    const nonces: number[] = [...allTxById.values()].map((x: any) => +x.xparams.nonce);
+
     for (const [domain, nonce] of latestNonces.entries()) {
       // set nonce now so we don't requery the same transfers
       await cache.transfers.setLatestNonce(domain, nonce ?? 0);
+      logger.debug("Set latest nonce", requestContext, methodContext, { domain, nonce });
+    }
+
+    // TODO: remove this once we have a better way to handle this
+    nonces.sort();
+    const firstNonce = Math.min(...nonces);
+    const lastNonce = Math.max(...nonces);
+    logger.debug("NONCE PAGE STATS", requestContext, methodContext, {
+      firstNonce,
+      lastNonce,
+      length: nonces.length,
+      nonces,
+    });
+    let start = firstNonce;
+    for (const nonce of nonces) {
+      if (+nonce !== start) {
+        logger.debug("NONCE GAP", requestContext, methodContext, { start, nonce });
+      }
+      start += 1;
     }
 
     if (txIdsByDestinationDomain.size > 0) {

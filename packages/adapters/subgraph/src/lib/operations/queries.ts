@@ -566,7 +566,7 @@ const originTransferQueryString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: ${limit ?? 1000},
+    first: ${limit ?? 100},
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
