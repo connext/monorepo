@@ -2,7 +2,7 @@ import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
 import { retryXCalls } from "../../operations";
-import { getXCalls } from "../../operations/getXCalls";
+import { getMissingXCalls, getXCalls } from "../../operations/getXCalls";
 import { getContext } from "../../publisher";
 
 export const bindSubgraph = async (_pollInterval?: number) => {
@@ -15,6 +15,7 @@ export const bindSubgraph = async (_pollInterval?: number) => {
     } else {
       try {
         // 1. fetch `XCalled` transfers from the subgraph and store them to the cache
+        await getMissingXCalls();
         await getXCalls();
       } catch (e: unknown) {
         logger.error(
