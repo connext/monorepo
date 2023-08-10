@@ -168,10 +168,10 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "EURe",
+      name: "xTokenFrontend",
       canonical: {
         domain: "1735353714",
-        address: "0x83B844180f66Bbc3BE2E97C6179035AF91c4Cce8",
+        address: "0x6984384D6abE16221769BD9400de72b8F4Aa572C",
         decimals: 18,
       },
       representations: {
