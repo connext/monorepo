@@ -15,7 +15,6 @@ export const bindSubgraph = async (_pollInterval?: number) => {
     } else {
       try {
         // 1. fetch `XCalled` transfers from the subgraph and store them to the cache
-        await getMissingXCalls();
         await getXCalls();
       } catch (e: unknown) {
         logger.error(
@@ -40,6 +39,25 @@ export const bindSubgraph = async (_pollInterval?: number) => {
       } catch (e: unknown) {
         logger.error(
           "Error retrying xcalls, waiting for next loop",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
+      }
+    }
+  }, pollInterval);
+
+  interval(async (_, stop) => {
+    if (config.mode.cleanup) {
+      stop();
+    } else {
+      try {
+        // 3. read `MissedXCalled` transfers from the cache and re check statuses on the destination chain
+        // If missing store them in cached pending queue for submission to the sequencer
+        await getMissingXCalls();
+      } catch (e: unknown) {
+        logger.error(
+          "Error getting missed xcalls, waiting for next loop",
           requestContext,
           methodContext,
           jsonifyError(e as Error),
