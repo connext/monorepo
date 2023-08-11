@@ -80,28 +80,31 @@ export const getXCalls = async () => {
     for (const domain of allowedDomains) {
       const startNonce = subgraphQueryMetaParams.get(domain)?.latestNonce ?? 0;
       const querySize = subgraphQueryMetaParams.get(domain)?.limit ?? 1000;
-      const resultSize = noncesPerDomain[domain].length;
       const nonces = noncesPerDomain[domain];
-      const minNonce = Math.min(...nonces);
-      const maxNonce = Math.max(...nonces);
-      const missingNonces: number[] = [];
-      for (let i = minNonce; i <= maxNonce; i++) {
-        if (!nonces.includes(i)) missingNonces.push(i);
-      }
+      if (nonces && nonces.length > 0) {
+        const resultSize = noncesPerDomain[domain].length;
 
-      if (missingNonces.length > 0) {
-        logger.debug("Missing xcalls from subgraph", requestContext, methodContext, {
-          originDomain: domain,
-          startNonce,
-          querySize,
-          resultSize,
-          minNonce,
-          maxNonce,
-          missing: missingNonces.length,
-          missingNonces: missingNonces.join(","),
-        });
+        const minNonce = Math.min(...nonces);
+        const maxNonce = Math.max(...nonces);
+        const missingNonces: number[] = [];
+        for (let i = minNonce; i <= maxNonce; i++) {
+          if (!nonces.includes(i)) missingNonces.push(i);
+        }
 
-        await cache.transfers.addMissingNonces(domain, missingNonces);
+        if (missingNonces.length > 0) {
+          logger.debug("Missing xcalls from subgraph", requestContext, methodContext, {
+            originDomain: domain,
+            startNonce,
+            querySize,
+            resultSize,
+            minNonce,
+            maxNonce,
+            missing: missingNonces.length,
+            missingNonces: missingNonces.join(","),
+          });
+
+          await cache.transfers.addMissingNonces(domain, missingNonces);
+        }
       }
     }
 
@@ -176,10 +179,7 @@ export const getMissingXCalls = async () => {
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     for (const originTransfer of transfersByNonces) {
-      if (
-        noncesByDomain[originTransfer.xparams.originDomain] &&
-        noncesByDomain[originTransfer.xparams.originDomain].length > 0
-      ) {
+      if (noncesByDomain[originTransfer.xparams.originDomain]) {
         noncesByDomain[originTransfer.xparams.originDomain].push(originTransfer.xparams.nonce);
       } else {
         noncesByDomain[originTransfer.xparams.originDomain] = [originTransfer.xparams.nonce];
@@ -207,7 +207,7 @@ export const getMissingXCalls = async () => {
 
     for (const domain of allowedDomains) {
       const noncesToRemove = noncesByDomain[domain];
-      if (noncesToRemove.length > 0) await cache.transfers.removeMissingNonces(domain, noncesToRemove);
+      if (noncesToRemove) await cache.transfers.removeMissingNonces(domain, noncesToRemove);
     }
   }
 };
