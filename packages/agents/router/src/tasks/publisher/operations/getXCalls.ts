@@ -111,6 +111,7 @@ export const getXCalls = async () => {
     for (const [domain, nonce] of latestNonces.entries()) {
       // set nonce now so we don't requery the same transfers
       await cache.transfers.setLatestNonce(domain, nonce ?? 0);
+      logger.debug("Set latest nonce", requestContext, methodContext, { domain, nonce });
     }
 
     if (txIdsByDestinationDomain.size > 0) {
