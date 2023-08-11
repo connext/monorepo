@@ -12,10 +12,12 @@ export function loadAllDeployments() {
   const networksFound: { [networkName: string]: any } = {};
   const all: any = {};
   const deploymentsPath = path.resolve("deployments");
+  const isDevnetDeploy = (name: string) => name.includes("tenderly") || name.includes("fork");
   fs.readdirSync(deploymentsPath)
     .sort((a, b) => {
       // Mainnet should be index 0
-      if (a.includes("tenderly") || a.includes("fork")) return 1;
+      if (isDevnetDeploy(a) && !isDevnetDeploy(b)) return 1;
+      if (!isDevnetDeploy(a) && isDevnetDeploy(b)) return -1;
       if (a < b) {
         return -1;
       }
