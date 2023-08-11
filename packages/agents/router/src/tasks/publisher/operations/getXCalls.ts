@@ -192,7 +192,7 @@ export const getMissingXCalls = async () => {
         txIdsByDestinationDomain.set(originTransfer.xparams.destinationDomain, [originTransfer.transferId]);
       }
 
-      allTxById.set(originTransfer.transferId, originTransfer as XTransfer);
+      allTxById.set(originTransfer.transferId, originTransfer);
     }
 
     if (txIdsByDestinationDomain.size > 0) {
