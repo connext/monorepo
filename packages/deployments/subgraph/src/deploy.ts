@@ -81,11 +81,7 @@ const run = async () => {
       (jsonFile.dataSources ?? []).map(async (ds: any) => {
         const source = n.source.find((s) => s.name === ds.name);
         if (source) {
-          const startBlock = configFile.includes("devnet")
-            ? await getLatestBlockNumber(`https://api.thegraph.com/subgraphs/name/${n.subgraphName}`)
-            : source.startBlock;
-
-          if (!utils.isAddress(source.address)) {
+          if (!utils.isAddress(source.address) || !source.startBlock) {
             const networkName = `${configFile.includes("devnet") ? "tenderly-" : ""}${n.network}`;
             const deployment = Object.values(contractDeployments)
               .flat()
@@ -95,7 +91,12 @@ const run = async () => {
               return null;
             }
 
-            source.address = (deployment as any).contracts?.[source.contractName ?? source.name]?.address;
+            if (!utils.isAddress(source.address))
+              source.address = (deployment as any).contracts?.[source.contractName ?? source.name]?.address;
+
+            if (!source.startBlock) {
+              source.startBlock = (deployment as any).contracts?.[source.contractName ?? source.name]?.blockNumber;
+            }
           }
           return {
             ...ds,
@@ -103,7 +104,7 @@ const run = async () => {
             source: {
               ...ds.source,
               address: source.address,
-              startBlock,
+              startBlock: source.startBlock,
             },
           };
         } else {

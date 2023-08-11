@@ -81,6 +81,7 @@ function loadDeployments(deploymentsPath: string, subPath: string) {
       deployment = {
         address: deployment.address,
         abi: deployment.abi,
+        blockNumber: parseInt(deployment.receipt?.blockNumber || "0"),
       };
 
       const name = fileName.slice(0, fileName.length - 5);

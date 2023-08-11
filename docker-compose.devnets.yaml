@@ -51,7 +51,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:${OPTIMISM_DEVNET_RPC_URL}"
+      ethereum: "optimism:${OPTIMISM_DEVNET_RPC_URL}"
       GRAPH_LOG: info
 
   postgres-dev-spoke-optimism:
@@ -83,7 +83,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:${GNOSIS_DEVNET_RPC_URL}"
+      ethereum: "gnosis:${GNOSIS_DEVNET_RPC_URL}"
       GRAPH_LOG: info
 
   postgres-dev-spoke-gnosis:
