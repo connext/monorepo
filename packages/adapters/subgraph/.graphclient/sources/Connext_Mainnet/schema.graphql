@@ -869,6 +869,12 @@ enum mainnet_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar mainnet_Int8
+
 """Defines the order direction, either ascending or descending"""
 enum mainnet_OrderDirection {
   asc
