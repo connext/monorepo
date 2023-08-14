@@ -70,7 +70,7 @@ const runInit = async () => {
       throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Initialize.s.sol  --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvvv`;
+    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Initialize.s.sol  --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv`;
     _exec(cmd)?.stdout?.pipe(process.stdout);
   }
 };

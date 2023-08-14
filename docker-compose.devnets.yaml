@@ -51,7 +51,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:${OPTIMISM_DEVNET_RPC_URL}"
+      ethereum: "optimism:${OPTIMISM_DEVNET_RPC_URL}"
       GRAPH_LOG: info
 
   postgres-dev-spoke-optimism:
@@ -65,32 +65,32 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
 
-  graph-node-dev-spoke-arbitrum:
-    container_name: graph-node-dev-spoke-arbitrum
+  graph-node-dev-spoke-gnosis:
+    container_name: graph-node-dev-spoke-gnosis
     image: graphprotocol/graph-node:992121b
     ports:
-      - "9010:8000"
-      - "9001:8001"
-      - "9020:8020"
-      - "9030:8030"
-      - "9040:8040"
+      - "7010:8000"
+      - "7001:8001"
+      - "7020:8020"
+      - "7030:8030"
+      - "7040:8040"
     depends_on:
       - ipfs
-      - postgres-dev-spoke-arbitrum
+      - postgres-dev-spoke-gnosis
     environment:
-      postgres_host: postgres-dev-spoke-arbitrum
+      postgres_host: postgres-dev-spoke-gnosis
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:${ARBITRUM_DEVNET_RPC_URL}"
+      ethereum: "gnosis:${GNOSIS_DEVNET_RPC_URL}"
       GRAPH_LOG: info
 
-  postgres-dev-spoke-arbitrum:
-    container_name: postgres-dev-spoke-arbitrum
+  postgres-dev-spoke-gnosis:
+    container_name: postgres-dev-spoke-gnosis
     image: postgres
     ports:
-      - "5433:5432"
+      - "5434:5432"
     command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     environment:
       POSTGRES_USER: graph-node

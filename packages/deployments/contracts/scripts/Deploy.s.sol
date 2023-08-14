@@ -74,7 +74,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
         cfg.getMessagingConfig(chainId).processGas,
         cfg.getMessagingConfig(chainId).reserveGas,
         cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeableBeaconProxy"),
+        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
         mustGetAddress("WatcherManager")
       );
 
@@ -105,7 +105,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
         cfg.getMessagingConfig(chainId).processGas,
         cfg.getMessagingConfig(chainId).reserveGas,
         cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeableBeaconProxy"),
+        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
         mustGetAddress("WatcherManager")
       );
     }
@@ -173,7 +173,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     // Deplpy beacon proxy
     bytes memory initData = abi.encodeCall(MerkleTreeManager.initialize, (address(0)));
     address beaconProxy = deployBeaconProxy(beacon, initData);
-    string memory beaconProxyName = string(abi.encodePacked(contractName, "UpgradeableBeaconProxy"));
+    string memory beaconProxyName = string(abi.encodePacked(contractName, "UpgradeBeaconProxy"));
     save(beaconProxyName, beaconProxy);
     console.log("%s deployed at %s", beaconProxyName, address(beaconProxy));
     return beaconProxy;
@@ -182,7 +182,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   /// @notice Deploy RootManager of hub connector
   function deployRootManager() public broadcast returns (address) {
     address watcherManager = mustGetAddress("WatcherManager");
-    address merkleTreeManagerForRoot = mustGetAddress("MerkleTreeManagerRootUpgradeableBeaconProxy");
+    address merkleTreeManagerForRoot = mustGetAddress("MerkleTreeManagerRootUpgradeBeaconProxy");
     RootManager rootManager = new RootManager(100, watcherManager, merkleTreeManagerForRoot);
 
     save("RootManager", address(rootManager));

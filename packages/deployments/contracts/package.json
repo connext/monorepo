@@ -13,7 +13,7 @@
     "allowlist": "ts-node ./src/allowlist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
-    "export": "hardhat export --export-all ./deployments.json",
+    "export": "ts-node ./src/exportDeployments.ts",
     "lint:sol": "solhint --config ./.solhint.json \"contracts/**/*.sol\"",
     "prettier:sol": "prettier --write './contracts/**/*.sol' && prettier --write './contracts_forge/**/*.sol'",
     "lint": "eslint ./src --ext .ts --env node && yarn lint:sol",

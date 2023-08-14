@@ -5,9 +5,8 @@ import util from "util";
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
 import { getLatestBlockNumber } from "@connext/nxtp-utils";
-
-// import Connext_DiamondProxy_1337 from "../../contracts/deployments/local_1337/Connext_DiamondProxy.json";
-// import Connext_DiamondProxy_1338 from "../../contracts/deployments/local_1338/Connext_DiamondProxy.json";
+import contractDeployments from "@connext/smart-contracts/deployments.json";
+import { utils } from "ethers";
 
 const exec = util.promisify(_exec);
 
@@ -20,6 +19,7 @@ export type Network = {
       name: string;
       address: string;
       startBlock: number;
+      contractName?: string;
     },
   ];
 };
@@ -76,32 +76,44 @@ const run = async () => {
   const jsonFile: any = yamlToJson.load(readFileSync(`./src/${contractVersion}/subgraph.template.yaml`, "utf8"));
 
   for (const n of networksToDeploy) {
-    console.log(n);
-
     /// prepare
-    await Promise.all(
-      (jsonFile.dataSources = (jsonFile.dataSources ?? []).map(async (ds: any) => {
+    jsonFile.dataSources = await Promise.all(
+      (jsonFile.dataSources ?? []).map(async (ds: any) => {
         const source = n.source.find((s) => s.name === ds.name);
         if (source) {
-          const startBlock = configFile.includes("devnet")
-            ? await getLatestBlockNumber(`https://api.thegraph.com/subgraphs/name/${n.subgraphName}`)
-            : source.startBlock;
+          if (!utils.isAddress(source.address) || !source.startBlock) {
+            const networkName = `${configFile.includes("devnet") ? "tenderly-" : ""}${n.network}`;
+            const deployment = Object.values(contractDeployments)
+              .flat()
+              .find((d: any) => d.name === networkName);
+            if (!deployment) {
+              console.log("missing contract deployment", networkName);
+              return null;
+            }
+
+            if (!utils.isAddress(source.address))
+              source.address = (deployment as any).contracts?.[source.contractName ?? source.name]?.address;
+
+            if (!source.startBlock) {
+              source.startBlock = (deployment as any).contracts?.[source.contractName ?? source.name]?.blockNumber;
+            }
+          }
           return {
             ...ds,
             network: n.network,
             source: {
               ...ds.source,
               address: source.address,
-              startBlock,
+              startBlock: source.startBlock,
             },
           };
         } else {
           return null;
         }
-      })),
+      }),
     );
-    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
 
+    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
     if (jsonFile.templates) {
       jsonFile.templates = (jsonFile.templates ?? []).map((ds: any, index: number) => {
         return {
