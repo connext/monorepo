@@ -37,6 +37,35 @@ describe("Operations:GetXCalls", () => {
       ];
       (mockPubContext.adapters.subgraph.getLatestBlockNumber as SinonStub).resolves(mockBlockNumber);
       (mockPubContext.adapters.subgraph.getDestinationXCalls as SinonStub).resolves(mockSubgraphResponse);
+
+      const xtransfer1 = mock.entity.xtransfer({
+        transferId: mkBytes32("0x1"),
+        nonce: 9,
+        originDomain: "13337",
+        destinationDomain: "13338",
+      }) as OriginTransfer;
+      const xtransfer2 = mock.entity.xtransfer({
+        transferId: mkBytes32("0x2"),
+        nonce: 10,
+        originDomain: "13337",
+        destinationDomain: "13338",
+      }) as OriginTransfer;
+      const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+      const allTxById: Map<string, XTransfer> = new Map();
+      const latestNonces: Map<string, number> = new Map();
+      const txByOriginDomain: Map<string, XTransfer[]> = new Map();
+      txIdsByDestinationDomain.set("13338", [xtransfer1.transferId, xtransfer2.transferId]);
+      allTxById.set(xtransfer1.transferId, xtransfer1);
+      allTxById.set(xtransfer2.transferId, xtransfer2);
+      txByOriginDomain.set("13337", [xtransfer1, xtransfer2]);
+      latestNonces.set("13337", 10);
+
+      (mockPubContext.adapters.subgraph.getOriginXCalls as SinonStub).resolves({
+        txIdsByDestinationDomain,
+        allTxById,
+        latestNonces,
+        txByOriginDomain,
+      });
     });
 
     it("happy: should retrieve xcalls from the subgraph and publish them", async () => {
@@ -55,31 +84,6 @@ describe("Operations:GetXCalls", () => {
     });
 
     it("happy: should catch up the missing nonces from the subgraph and store them", async () => {
-      const xtransfer1 = mock.entity.xtransfer({
-        transferId: mkBytes32("0x1"),
-        nonce: 9,
-        originDomain: "13337",
-        destinationDomain: "13338",
-      }) as OriginTransfer;
-      const xtransfer2 = mock.entity.xtransfer({
-        transferId: mkBytes32("0x2"),
-        nonce: 10,
-        originDomain: "13337",
-        destinationDomain: "13338",
-      }) as OriginTransfer;
-      const txIdsByDestinationDomain: Map<string, string[]> = new Map();
-      const allTxById: Map<string, XTransfer> = new Map();
-      const latestNonces: Map<string, number> = new Map();
-      txIdsByDestinationDomain.set("13338", [xtransfer1.transferId, xtransfer2.transferId]);
-      allTxById.set(xtransfer1.transferId, xtransfer1);
-      allTxById.set(xtransfer2.transferId, xtransfer2);
-      latestNonces.set("13337", 10);
-
-      (mockPubContext.adapters.subgraph.getOriginXCalls as SinonStub).resolves({
-        txIdsByDestinationDomain,
-        allTxById,
-        latestNonces,
-      });
       await getXCalls();
 
       // Should have been called once per available/configured chain.
@@ -96,11 +100,9 @@ describe("Operations:GetXCalls", () => {
 
     it("should not publish if nothing available", async () => {
       (mockPubContext.adapters.subgraph.getDestinationXCalls as SinonStub).resolves([]);
-
       await getXCalls();
-
       expect((mockPubContext.adapters.mqClient.publish as SinonStub).callCount).to.be.eq(0);
-      expect((mockPubContext.adapters.cache.transfers.setLatestNonce as SinonStub).callCount).to.be.eq(0);
+      expect((mockPubContext.adapters.cache.transfers.setLatestNonce as SinonStub).callCount).to.be.eq(1);
     });
 
     it("should catch publish error", async () => {
