@@ -135,15 +135,39 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "P8",
       canonical: {
-        domain: "100",
+        domain: "6778479",
         address: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
         decimals: 18,
       },
       representations: {
-        "100": {
-          local: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
-          adopted: "0x772fCe4B8E88BD19e86dC92428d242704aC480a0",
-
+        // mainnet
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // optimism
+        "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bsc
+        "6450786": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+      },
+    },
+    {
       name: "xDappRadar",
       canonical: {
         domain: "1735353714",
