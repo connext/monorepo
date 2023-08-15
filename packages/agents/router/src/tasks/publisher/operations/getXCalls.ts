@@ -198,13 +198,9 @@ export const getMissingXCalls = async () => {
       }
 
       if (txIdsByDestinationDomain.has(originTransfer.xparams.destinationDomain)) {
-        txIdsByDestinationDomain
-          .get(originTransfer.xparams.destinationDomain)
-          ?.push(`"${originTransfer.transferId as string}"`);
+        txIdsByDestinationDomain.get(originTransfer.xparams.destinationDomain)?.push(`"${originTransfer.transferId}"`);
       } else {
-        txIdsByDestinationDomain.set(originTransfer.xparams.destinationDomain, [
-          `"${originTransfer.transferId as string}"`,
-        ]);
+        txIdsByDestinationDomain.set(originTransfer.xparams.destinationDomain, [`"${originTransfer.transferId}"`]);
       }
 
       allTxById.set(originTransfer.transferId, originTransfer);
