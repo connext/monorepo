@@ -589,9 +589,9 @@ export class SubgraphReader {
           if (txIds.length >= 100) {
             continue;
           }
-          txIds.push(`"${xtransfer.transferId as string}"`);
+          txIds.push(`${xtransfer.transferId as string}`);
         } else {
-          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
+          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`${xtransfer.transferId as string}`]);
         }
         allTxById.set(
           xtransfer.transferId as string,
