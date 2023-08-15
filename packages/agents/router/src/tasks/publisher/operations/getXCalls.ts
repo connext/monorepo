@@ -194,6 +194,9 @@ export const getMissingXCalls = async () => {
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     for (const originTransfer of transfersByNonces) {
+      logger.debug("Processing missing transfer", requestContext, methodContext, {
+        transferId: originTransfer.transferId,
+      });
       if (noncesByDomain[originTransfer.xparams.originDomain]) {
         noncesByDomain[originTransfer.xparams.originDomain].push(originTransfer.xparams.nonce);
       } else {
@@ -212,9 +215,14 @@ export const getMissingXCalls = async () => {
     if (txIdsByDestinationDomain.size > 0) {
       const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       if (transfers.length === 0) {
-        logger.debug("No pending missing transfers found within operational domains.", requestContext, methodContext);
+        logger.debug("No pending missing transfers found after filtering destination", requestContext, methodContext);
       } else {
         await cache.transfers.storeTransfers(transfers as XTransfer[], false);
+        for (const transfer of transfers) {
+          logger.debug("Added missing transfer to cache", requestContext, methodContext, {
+            transferId: transfer.transferId,
+          });
+        }
       }
     } else {
       logger.debug("No pending missing transfers found within operational domains.", requestContext, methodContext);
