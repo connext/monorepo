@@ -561,6 +561,7 @@ export class SubgraphReader {
     txIdsByDestinationDomain: Map<string, string[]>;
     allTxById: Map<string, XTransfer>;
     latestNonces: Map<string, number>;
+    txByOriginDomain: Map<string, XTransfer[]>;
   }> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
@@ -573,35 +574,31 @@ export class SubgraphReader {
     }
     const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const txByOriginDomain: Map<string, XTransfer[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     const latestNonces: Map<string, number> = new Map();
 
     for (const domain of response.keys()) {
       const value = response.get(domain);
       const xtransfersByDomain = (value ?? [])[0];
+      const originTransfers: XTransfer[] = [];
       for (const xtransfer of xtransfersByDomain) {
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
 
-          // do not add more than 100 entries to each destination domain
-          // this result is used to query the subgraph by ID and the query will
-          // truncate the list if it is too long
-          if (txIds.length >= 100) {
-            continue;
-          }
-          txIds.push(`${xtransfer.transferId as string}`);
+          txIds.push(`"${xtransfer.transferId as string}"`);
         } else {
-          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`${xtransfer.transferId as string}`]);
+          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
         }
-        allTxById.set(
-          xtransfer.transferId as string,
-          parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]),
-        );
+        const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
+        allTxById.set(xtransfer.transferId as string, originTransfer);
         latestNonces.set(domain, xtransfer.nonce as number);
+        originTransfers.push(originTransfer);
       }
+      txByOriginDomain.set(domain, originTransfers);
     }
 
-    return { txIdsByDestinationDomain, allTxById, latestNonces };
+    return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
   }
 
   public async getDestinationXCalls(

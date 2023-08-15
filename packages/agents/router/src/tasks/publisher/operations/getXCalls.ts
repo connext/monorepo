@@ -56,33 +56,30 @@ export const getXCalls = async () => {
   }
 
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const { txIdsByDestinationDomain, allTxById, latestNonces } = await subgraph.getOriginXCalls(
+    const { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain } = await subgraph.getOriginXCalls(
       subgraphQueryMetaParams,
     );
-
-    // Regroup nonces by origin domain
-    const noncesPerDomain: Record<string, number[]> = {};
-    for (const domain of allowedDomains) {
-      const txIds = txIdsByDestinationDomain.get(domain);
-      if (txIds) {
-        for (const txId of txIds) {
-          const tx = allTxById.get(txId);
-          if (tx) {
-            if (noncesPerDomain[tx.xparams.originDomain] && noncesPerDomain[tx.xparams.originDomain].length > 0)
-              noncesPerDomain[tx.xparams.originDomain].push(tx.xparams.nonce);
-            else noncesPerDomain[tx.xparams.originDomain] = [tx.xparams.nonce];
-          }
-        }
-      }
-    }
 
     // Collect analytics information for missing nonces
     for (const domain of allowedDomains) {
       const startNonce = subgraphQueryMetaParams.get(domain)?.latestNonce ?? 0;
-      const querySize = subgraphQueryMetaParams.get(domain)?.limit ?? 1000;
-      const nonces = noncesPerDomain[domain];
+      const querySize = subgraphQueryMetaParams.get(domain)?.limit ?? 100;
+      const txs = txByOriginDomain.get(domain);
+      const nonces: number[] = [];
+      if (txs) {
+        for (const tx of txs) {
+          if (tx) {
+            nonces.push(tx.xparams.nonce);
+          } else {
+            logger.warn(`Missing tx for domain ${domain}`, requestContext, methodContext, {
+              domain: domain,
+              startNonce,
+            });
+          }
+        }
+      }
       if (nonces && nonces.length > 0) {
-        const resultSize = noncesPerDomain[domain].length;
+        const resultSize = nonces.length;
 
         const minNonce = Math.min(...nonces);
         const maxNonce = Math.max(...nonces);
@@ -157,7 +154,7 @@ export const getMissingXCalls = async () => {
   const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
   for (const domain of allowedDomains) {
     try {
-      const missingNonces = await cache.transfers.getMissingNonces(domain);
+      const missingNonces = await cache.transfers.getMissingNonces(domain, 0, 100);
       let latestBlockNumber = 0;
       if (latestBlockNumbers.has(domain)) {
         latestBlockNumber = latestBlockNumbers.get(domain)!;
@@ -168,9 +165,6 @@ export const getMissingXCalls = async () => {
       }
 
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
-      let latestNonce = await cache.transfers.getLatestNonce(domain);
-      latestNonce = Math.max(latestNonce, config.chains[domain].startNonce ?? 0);
-      logger.debug("Selected latestNonce", requestContext, methodContext, { domain, latestNonce });
 
       subgraphQueryByNonceMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,
@@ -204,9 +198,13 @@ export const getMissingXCalls = async () => {
       }
 
       if (txIdsByDestinationDomain.has(originTransfer.xparams.destinationDomain)) {
-        txIdsByDestinationDomain.get(originTransfer.xparams.destinationDomain)?.push(originTransfer.transferId);
+        txIdsByDestinationDomain
+          .get(originTransfer.xparams.destinationDomain)
+          ?.push(`"${originTransfer.transferId as string}"`);
       } else {
-        txIdsByDestinationDomain.set(originTransfer.xparams.destinationDomain, [originTransfer.transferId]);
+        txIdsByDestinationDomain.set(originTransfer.xparams.destinationDomain, [
+          `"${originTransfer.transferId as string}"`,
+        ]);
       }
 
       allTxById.set(originTransfer.transferId, originTransfer);

@@ -266,7 +266,7 @@ export class TransfersCache extends Cache {
   public async removeMissingNonces(domain: string, nonces: number[]): Promise<number> {
     let sum = 0;
     for (const nonce of nonces) {
-      const res = await this.data.lrem(`${this.prefix}:pending:${domain}`, 0, nonce.toString());
+      const res = await this.data.lrem(`${this.prefix}:missing:${domain}`, 0, nonce.toString());
       sum += res;
     }
     return sum;
