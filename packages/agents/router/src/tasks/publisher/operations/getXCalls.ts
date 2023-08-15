@@ -104,6 +104,17 @@ export const getXCalls = async () => {
           });
 
           await cache.transfers.addMissingNonces(domain, missingNonces);
+        } else {
+          logger.debug("Got all xcalls from subgraph", requestContext, methodContext, {
+            originDomain: domain,
+            startNonce,
+            querySize,
+            resultSize,
+            minNonce,
+            maxNonce,
+            length: nonces.length,
+            nonces: nonces.join(","),
+          });
         }
       }
     }
@@ -117,11 +128,14 @@ export const getXCalls = async () => {
     if (txIdsByDestinationDomain.size > 0) {
       const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       if (transfers.length === 0) {
-        logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+        logger.debug("No pending transfers after filtering destination", requestContext, methodContext, {
           subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
         });
       } else {
         await cache.transfers.storeTransfers(transfers as XTransfer[], false);
+        for (const transfer of transfers) {
+          logger.debug("Added transfer to cache", requestContext, methodContext, { transferId: transfer.transferId });
+        }
       }
     } else {
       logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
