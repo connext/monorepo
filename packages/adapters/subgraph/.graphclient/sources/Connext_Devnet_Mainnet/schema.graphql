@@ -12,14 +12,13 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-type devnetmainnet_AggregatedMessageRoot {
+type devnetmainnet_AggregateRoot {
   id: ID!
-  index: BigInt!
-  receivedRoot: devnetmainnet_Bytes!
-  domain: BigInt
+  root: devnetmainnet_Bytes!
+  blockNumber: BigInt!
 }
 
-input devnetmainnet_AggregatedMessageRoot_filter {
+input devnetmainnet_AggregateRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -28,49 +27,54 @@ input devnetmainnet_AggregatedMessageRoot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  index: BigInt
-  index_not: BigInt
-  index_gt: BigInt
-  index_lt: BigInt
-  index_gte: BigInt
-  index_lte: BigInt
-  index_in: [BigInt!]
-  index_not_in: [BigInt!]
-  receivedRoot: devnetmainnet_Bytes
-  receivedRoot_not: devnetmainnet_Bytes
-  receivedRoot_in: [devnetmainnet_Bytes!]
-  receivedRoot_not_in: [devnetmainnet_Bytes!]
-  receivedRoot_contains: devnetmainnet_Bytes
-  receivedRoot_not_contains: devnetmainnet_Bytes
-  domain: BigInt
-  domain_not: BigInt
-  domain_gt: BigInt
-  domain_lt: BigInt
-  domain_gte: BigInt
-  domain_lte: BigInt
-  domain_in: [BigInt!]
-  domain_not_in: [BigInt!]
+  root: devnetmainnet_Bytes
+  root_not: devnetmainnet_Bytes
+  root_in: [devnetmainnet_Bytes!]
+  root_not_in: [devnetmainnet_Bytes!]
+  root_contains: devnetmainnet_Bytes
+  root_not_contains: devnetmainnet_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_AggregatedMessageRoot_orderBy {
+enum devnetmainnet_AggregateRoot_orderBy {
   id
-  index
-  receivedRoot
-  domain
+  root
+  blockNumber
 }
 
-type devnetmainnet_ArbitrumConnectorMeta {
+type devnetmainnet_Asset {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
+  key: devnetmainnet_Bytes
+  decimal: BigInt
+  canonicalId: devnetmainnet_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: devnetmainnet_Bytes
+  localAsset: devnetmainnet_Bytes
+  blockNumber: BigInt
+  status: devnetmainnet_AssetStatus
 }
 
-input devnetmainnet_ArbitrumConnectorMeta_filter {
+type devnetmainnet_AssetBalance {
+  id: ID!
+  amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
+  router: devnetmainnet_Router!
+  asset: devnetmainnet_Asset!
+  feesEarned: BigInt!
+}
+
+input devnetmainnet_AssetBalance_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -79,51 +83,222 @@ input devnetmainnet_ArbitrumConnectorMeta_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  spokeDomain: BigInt
-  spokeDomain_not: BigInt
-  spokeDomain_gt: BigInt
-  spokeDomain_lt: BigInt
-  spokeDomain_gte: BigInt
-  spokeDomain_lte: BigInt
-  spokeDomain_in: [BigInt!]
-  spokeDomain_not_in: [BigInt!]
-  hubDomain: BigInt
-  hubDomain_not: BigInt
-  hubDomain_gt: BigInt
-  hubDomain_lt: BigInt
-  hubDomain_gte: BigInt
-  hubDomain_lte: BigInt
-  hubDomain_in: [BigInt!]
-  hubDomain_not_in: [BigInt!]
-  amb: devnetmainnet_Bytes
-  amb_not: devnetmainnet_Bytes
-  amb_in: [devnetmainnet_Bytes!]
-  amb_not_in: [devnetmainnet_Bytes!]
-  amb_contains: devnetmainnet_Bytes
-  amb_not_contains: devnetmainnet_Bytes
-  rootManager: devnetmainnet_Bytes
-  rootManager_not: devnetmainnet_Bytes
-  rootManager_in: [devnetmainnet_Bytes!]
-  rootManager_not_in: [devnetmainnet_Bytes!]
-  rootManager_contains: devnetmainnet_Bytes
-  rootManager_not_contains: devnetmainnet_Bytes
-  mirrorConnector: devnetmainnet_Bytes
-  mirrorConnector_not: devnetmainnet_Bytes
-  mirrorConnector_in: [devnetmainnet_Bytes!]
-  mirrorConnector_not_in: [devnetmainnet_Bytes!]
-  mirrorConnector_contains: devnetmainnet_Bytes
-  mirrorConnector_not_contains: devnetmainnet_Bytes
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: devnetmainnet_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: devnetmainnet_Asset_filter
+  feesEarned: BigInt
+  feesEarned_not: BigInt
+  feesEarned_gt: BigInt
+  feesEarned_lt: BigInt
+  feesEarned_gte: BigInt
+  feesEarned_lte: BigInt
+  feesEarned_in: [BigInt!]
+  feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_ArbitrumConnectorMeta_orderBy {
+enum devnetmainnet_AssetBalance_orderBy {
   id
-  spokeDomain
-  hubDomain
-  amb
-  rootManager
-  mirrorConnector
+  amount
+  locked
+  supplied
+  removed
+  router
+  asset
+  feesEarned
+}
+
+type devnetmainnet_AssetStatus {
+  id: ID!
+  status: Boolean
+}
+
+input devnetmainnet_AssetStatus_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  status: Boolean
+  status_not: Boolean
+  status_in: [Boolean!]
+  status_not_in: [Boolean!]
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_AssetStatus_orderBy {
+  id
+  status
+}
+
+input devnetmainnet_Asset_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  key: devnetmainnet_Bytes
+  key_not: devnetmainnet_Bytes
+  key_in: [devnetmainnet_Bytes!]
+  key_not_in: [devnetmainnet_Bytes!]
+  key_contains: devnetmainnet_Bytes
+  key_not_contains: devnetmainnet_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
+  canonicalId: devnetmainnet_Bytes
+  canonicalId_not: devnetmainnet_Bytes
+  canonicalId_in: [devnetmainnet_Bytes!]
+  canonicalId_not_in: [devnetmainnet_Bytes!]
+  canonicalId_contains: devnetmainnet_Bytes
+  canonicalId_not_contains: devnetmainnet_Bytes
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  adoptedAsset: devnetmainnet_Bytes
+  adoptedAsset_not: devnetmainnet_Bytes
+  adoptedAsset_in: [devnetmainnet_Bytes!]
+  adoptedAsset_not_in: [devnetmainnet_Bytes!]
+  adoptedAsset_contains: devnetmainnet_Bytes
+  adoptedAsset_not_contains: devnetmainnet_Bytes
+  localAsset: devnetmainnet_Bytes
+  localAsset_not: devnetmainnet_Bytes
+  localAsset_in: [devnetmainnet_Bytes!]
+  localAsset_not_in: [devnetmainnet_Bytes!]
+  localAsset_contains: devnetmainnet_Bytes
+  localAsset_not_contains: devnetmainnet_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  status: String
+  status_not: String
+  status_gt: String
+  status_lt: String
+  status_gte: String
+  status_lte: String
+  status_in: [String!]
+  status_not_in: [String!]
+  status_contains: String
+  status_contains_nocase: String
+  status_not_contains: String
+  status_not_contains_nocase: String
+  status_starts_with: String
+  status_starts_with_nocase: String
+  status_not_starts_with: String
+  status_not_starts_with_nocase: String
+  status_ends_with: String
+  status_ends_with_nocase: String
+  status_not_ends_with: String
+  status_not_ends_with_nocase: String
+  status_: devnetmainnet_AssetStatus_filter
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_Asset_orderBy {
+  id
+  key
+  decimal
+  canonicalId
+  canonicalDomain
+  adoptedAsset
+  localAsset
+  blockNumber
+  status
 }
 
 scalar devnetmainnet_BigDecimal
@@ -140,83 +315,18 @@ input devnetmainnet_Block_height {
   number_gte: Int
 }
 
-type devnetmainnet_BnbConnectorMeta {
-  id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
-}
-
-input devnetmainnet_BnbConnectorMeta_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  spokeDomain: BigInt
-  spokeDomain_not: BigInt
-  spokeDomain_gt: BigInt
-  spokeDomain_lt: BigInt
-  spokeDomain_gte: BigInt
-  spokeDomain_lte: BigInt
-  spokeDomain_in: [BigInt!]
-  spokeDomain_not_in: [BigInt!]
-  hubDomain: BigInt
-  hubDomain_not: BigInt
-  hubDomain_gt: BigInt
-  hubDomain_lt: BigInt
-  hubDomain_gte: BigInt
-  hubDomain_lte: BigInt
-  hubDomain_in: [BigInt!]
-  hubDomain_not_in: [BigInt!]
-  amb: devnetmainnet_Bytes
-  amb_not: devnetmainnet_Bytes
-  amb_in: [devnetmainnet_Bytes!]
-  amb_not_in: [devnetmainnet_Bytes!]
-  amb_contains: devnetmainnet_Bytes
-  amb_not_contains: devnetmainnet_Bytes
-  rootManager: devnetmainnet_Bytes
-  rootManager_not: devnetmainnet_Bytes
-  rootManager_in: [devnetmainnet_Bytes!]
-  rootManager_not_in: [devnetmainnet_Bytes!]
-  rootManager_contains: devnetmainnet_Bytes
-  rootManager_not_contains: devnetmainnet_Bytes
-  mirrorConnector: devnetmainnet_Bytes
-  mirrorConnector_not: devnetmainnet_Bytes
-  mirrorConnector_in: [devnetmainnet_Bytes!]
-  mirrorConnector_not_in: [devnetmainnet_Bytes!]
-  mirrorConnector_contains: devnetmainnet_Bytes
-  mirrorConnector_not_contains: devnetmainnet_Bytes
-  """Filter for the block changed event."""
-  _change_block: devnetmainnet_BlockChangedFilter
-}
-
-enum devnetmainnet_BnbConnectorMeta_orderBy {
-  id
-  spokeDomain
-  hubDomain
-  amb
-  rootManager
-  mirrorConnector
-}
-
 scalar devnetmainnet_Bytes
 
-type devnetmainnet_GnosisConnectorMeta {
+type devnetmainnet_ConnectorMeta {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: devnetmainnet_Bytes
+  rootManager: devnetmainnet_Bytes
+  mirrorConnector: devnetmainnet_Bytes
 }
 
-input devnetmainnet_GnosisConnectorMeta_filter {
+input devnetmainnet_ConnectorMeta_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -263,7 +373,7 @@ input devnetmainnet_GnosisConnectorMeta_filter {
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_GnosisConnectorMeta_orderBy {
+enum devnetmainnet_ConnectorMeta_orderBy {
   id
   spokeDomain
   hubDomain
@@ -272,16 +382,48 @@ enum devnetmainnet_GnosisConnectorMeta_orderBy {
   mirrorConnector
 }
 
-type devnetmainnet_OptimismConnectorMeta {
+type devnetmainnet_DestinationTransfer {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
+  chainId: BigInt
+  transferId: devnetmainnet_Bytes
+  nonce: BigInt
+  status: devnetmainnet_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: devnetmainnet_Router_orderBy, orderDirection: devnetmainnet_OrderDirection, where: devnetmainnet_Router_filter): [devnetmainnet_Router!]
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: devnetmainnet_Bytes
+  delegate: devnetmainnet_Bytes
+  receiveLocal: Boolean
+  callData: devnetmainnet_Bytes
+  slippage: BigInt
+  bumpSlippageCount: BigInt
+  originSender: devnetmainnet_Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: devnetmainnet_Bytes
+  asset: devnetmainnet_Asset
+  amount: BigInt
+  routersFee: BigInt
+  executedCaller: devnetmainnet_Bytes
+  executedTransactionHash: devnetmainnet_Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+  executedTxOrigin: devnetmainnet_Bytes
+  executedTxNonce: BigInt
+  reconciledCaller: devnetmainnet_Bytes
+  reconciledTransactionHash: devnetmainnet_Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+  reconciledTxOrigin: devnetmainnet_Bytes
+  reconciledTxNonce: BigInt
 }
 
-input devnetmainnet_OptimismConnectorMeta_filter {
+input devnetmainnet_DestinationTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -290,51 +432,325 @@ input devnetmainnet_OptimismConnectorMeta_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  spokeDomain: BigInt
-  spokeDomain_not: BigInt
-  spokeDomain_gt: BigInt
-  spokeDomain_lt: BigInt
-  spokeDomain_gte: BigInt
-  spokeDomain_lte: BigInt
-  spokeDomain_in: [BigInt!]
-  spokeDomain_not_in: [BigInt!]
-  hubDomain: BigInt
-  hubDomain_not: BigInt
-  hubDomain_gt: BigInt
-  hubDomain_lt: BigInt
-  hubDomain_gte: BigInt
-  hubDomain_lte: BigInt
-  hubDomain_in: [BigInt!]
-  hubDomain_not_in: [BigInt!]
-  amb: devnetmainnet_Bytes
-  amb_not: devnetmainnet_Bytes
-  amb_in: [devnetmainnet_Bytes!]
-  amb_not_in: [devnetmainnet_Bytes!]
-  amb_contains: devnetmainnet_Bytes
-  amb_not_contains: devnetmainnet_Bytes
-  rootManager: devnetmainnet_Bytes
-  rootManager_not: devnetmainnet_Bytes
-  rootManager_in: [devnetmainnet_Bytes!]
-  rootManager_not_in: [devnetmainnet_Bytes!]
-  rootManager_contains: devnetmainnet_Bytes
-  rootManager_not_contains: devnetmainnet_Bytes
-  mirrorConnector: devnetmainnet_Bytes
-  mirrorConnector_not: devnetmainnet_Bytes
-  mirrorConnector_in: [devnetmainnet_Bytes!]
-  mirrorConnector_not_in: [devnetmainnet_Bytes!]
-  mirrorConnector_contains: devnetmainnet_Bytes
-  mirrorConnector_not_contains: devnetmainnet_Bytes
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: devnetmainnet_Bytes
+  transferId_not: devnetmainnet_Bytes
+  transferId_in: [devnetmainnet_Bytes!]
+  transferId_not_in: [devnetmainnet_Bytes!]
+  transferId_contains: devnetmainnet_Bytes
+  transferId_not_contains: devnetmainnet_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  status: devnetmainnet_TransferStatus
+  status_not: devnetmainnet_TransferStatus
+  status_in: [devnetmainnet_TransferStatus!]
+  status_not_in: [devnetmainnet_TransferStatus!]
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  routers_: devnetmainnet_Router_filter
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: devnetmainnet_Bytes
+  to_not: devnetmainnet_Bytes
+  to_in: [devnetmainnet_Bytes!]
+  to_not_in: [devnetmainnet_Bytes!]
+  to_contains: devnetmainnet_Bytes
+  to_not_contains: devnetmainnet_Bytes
+  delegate: devnetmainnet_Bytes
+  delegate_not: devnetmainnet_Bytes
+  delegate_in: [devnetmainnet_Bytes!]
+  delegate_not_in: [devnetmainnet_Bytes!]
+  delegate_contains: devnetmainnet_Bytes
+  delegate_not_contains: devnetmainnet_Bytes
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  callData: devnetmainnet_Bytes
+  callData_not: devnetmainnet_Bytes
+  callData_in: [devnetmainnet_Bytes!]
+  callData_not_in: [devnetmainnet_Bytes!]
+  callData_contains: devnetmainnet_Bytes
+  callData_not_contains: devnetmainnet_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
+  originSender: devnetmainnet_Bytes
+  originSender_not: devnetmainnet_Bytes
+  originSender_in: [devnetmainnet_Bytes!]
+  originSender_not_in: [devnetmainnet_Bytes!]
+  originSender_contains: devnetmainnet_Bytes
+  originSender_not_contains: devnetmainnet_Bytes
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: devnetmainnet_Bytes
+  canonicalId_not: devnetmainnet_Bytes
+  canonicalId_in: [devnetmainnet_Bytes!]
+  canonicalId_not_in: [devnetmainnet_Bytes!]
+  canonicalId_contains: devnetmainnet_Bytes
+  canonicalId_not_contains: devnetmainnet_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: devnetmainnet_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  routersFee: BigInt
+  routersFee_not: BigInt
+  routersFee_gt: BigInt
+  routersFee_lt: BigInt
+  routersFee_gte: BigInt
+  routersFee_lte: BigInt
+  routersFee_in: [BigInt!]
+  routersFee_not_in: [BigInt!]
+  executedCaller: devnetmainnet_Bytes
+  executedCaller_not: devnetmainnet_Bytes
+  executedCaller_in: [devnetmainnet_Bytes!]
+  executedCaller_not_in: [devnetmainnet_Bytes!]
+  executedCaller_contains: devnetmainnet_Bytes
+  executedCaller_not_contains: devnetmainnet_Bytes
+  executedTransactionHash: devnetmainnet_Bytes
+  executedTransactionHash_not: devnetmainnet_Bytes
+  executedTransactionHash_in: [devnetmainnet_Bytes!]
+  executedTransactionHash_not_in: [devnetmainnet_Bytes!]
+  executedTransactionHash_contains: devnetmainnet_Bytes
+  executedTransactionHash_not_contains: devnetmainnet_Bytes
+  executedTimestamp: BigInt
+  executedTimestamp_not: BigInt
+  executedTimestamp_gt: BigInt
+  executedTimestamp_lt: BigInt
+  executedTimestamp_gte: BigInt
+  executedTimestamp_lte: BigInt
+  executedTimestamp_in: [BigInt!]
+  executedTimestamp_not_in: [BigInt!]
+  executedGasPrice: BigInt
+  executedGasPrice_not: BigInt
+  executedGasPrice_gt: BigInt
+  executedGasPrice_lt: BigInt
+  executedGasPrice_gte: BigInt
+  executedGasPrice_lte: BigInt
+  executedGasPrice_in: [BigInt!]
+  executedGasPrice_not_in: [BigInt!]
+  executedGasLimit: BigInt
+  executedGasLimit_not: BigInt
+  executedGasLimit_gt: BigInt
+  executedGasLimit_lt: BigInt
+  executedGasLimit_gte: BigInt
+  executedGasLimit_lte: BigInt
+  executedGasLimit_in: [BigInt!]
+  executedGasLimit_not_in: [BigInt!]
+  executedBlockNumber: BigInt
+  executedBlockNumber_not: BigInt
+  executedBlockNumber_gt: BigInt
+  executedBlockNumber_lt: BigInt
+  executedBlockNumber_gte: BigInt
+  executedBlockNumber_lte: BigInt
+  executedBlockNumber_in: [BigInt!]
+  executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: devnetmainnet_Bytes
+  executedTxOrigin_not: devnetmainnet_Bytes
+  executedTxOrigin_in: [devnetmainnet_Bytes!]
+  executedTxOrigin_not_in: [devnetmainnet_Bytes!]
+  executedTxOrigin_contains: devnetmainnet_Bytes
+  executedTxOrigin_not_contains: devnetmainnet_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
+  reconciledCaller: devnetmainnet_Bytes
+  reconciledCaller_not: devnetmainnet_Bytes
+  reconciledCaller_in: [devnetmainnet_Bytes!]
+  reconciledCaller_not_in: [devnetmainnet_Bytes!]
+  reconciledCaller_contains: devnetmainnet_Bytes
+  reconciledCaller_not_contains: devnetmainnet_Bytes
+  reconciledTransactionHash: devnetmainnet_Bytes
+  reconciledTransactionHash_not: devnetmainnet_Bytes
+  reconciledTransactionHash_in: [devnetmainnet_Bytes!]
+  reconciledTransactionHash_not_in: [devnetmainnet_Bytes!]
+  reconciledTransactionHash_contains: devnetmainnet_Bytes
+  reconciledTransactionHash_not_contains: devnetmainnet_Bytes
+  reconciledTimestamp: BigInt
+  reconciledTimestamp_not: BigInt
+  reconciledTimestamp_gt: BigInt
+  reconciledTimestamp_lt: BigInt
+  reconciledTimestamp_gte: BigInt
+  reconciledTimestamp_lte: BigInt
+  reconciledTimestamp_in: [BigInt!]
+  reconciledTimestamp_not_in: [BigInt!]
+  reconciledGasPrice: BigInt
+  reconciledGasPrice_not: BigInt
+  reconciledGasPrice_gt: BigInt
+  reconciledGasPrice_lt: BigInt
+  reconciledGasPrice_gte: BigInt
+  reconciledGasPrice_lte: BigInt
+  reconciledGasPrice_in: [BigInt!]
+  reconciledGasPrice_not_in: [BigInt!]
+  reconciledGasLimit: BigInt
+  reconciledGasLimit_not: BigInt
+  reconciledGasLimit_gt: BigInt
+  reconciledGasLimit_lt: BigInt
+  reconciledGasLimit_gte: BigInt
+  reconciledGasLimit_lte: BigInt
+  reconciledGasLimit_in: [BigInt!]
+  reconciledGasLimit_not_in: [BigInt!]
+  reconciledBlockNumber: BigInt
+  reconciledBlockNumber_not: BigInt
+  reconciledBlockNumber_gt: BigInt
+  reconciledBlockNumber_lt: BigInt
+  reconciledBlockNumber_gte: BigInt
+  reconciledBlockNumber_lte: BigInt
+  reconciledBlockNumber_in: [BigInt!]
+  reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: devnetmainnet_Bytes
+  reconciledTxOrigin_not: devnetmainnet_Bytes
+  reconciledTxOrigin_in: [devnetmainnet_Bytes!]
+  reconciledTxOrigin_not_in: [devnetmainnet_Bytes!]
+  reconciledTxOrigin_contains: devnetmainnet_Bytes
+  reconciledTxOrigin_not_contains: devnetmainnet_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_OptimismConnectorMeta_orderBy {
+enum devnetmainnet_DestinationTransfer_orderBy {
   id
-  spokeDomain
-  hubDomain
-  amb
-  rootManager
-  mirrorConnector
+  chainId
+  transferId
+  nonce
+  status
+  routers
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  bumpSlippageCount
+  originSender
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  amount
+  routersFee
+  executedCaller
+  executedTransactionHash
+  executedTimestamp
+  executedGasPrice
+  executedGasLimit
+  executedBlockNumber
+  executedTxOrigin
+  executedTxNonce
+  reconciledCaller
+  reconciledTransactionHash
+  reconciledTimestamp
+  reconciledGasPrice
+  reconciledGasLimit
+  reconciledBlockNumber
+  reconciledTxOrigin
+  reconciledTxNonce
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -343,16 +759,20 @@ enum devnetmainnet_OrderDirection {
   desc
 }
 
-type devnetmainnet_PolygonConnectorMeta {
+type devnetmainnet_OriginMessage {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
+  transferId: devnetmainnet_Bytes
+  destinationDomain: BigInt
+  leaf: devnetmainnet_Bytes
+  index: BigInt
+  message: devnetmainnet_Bytes
+  root: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  blockNumber: BigInt
+  rootCount: devnetmainnet_RootCount
 }
 
-input devnetmainnet_PolygonConnectorMeta_filter {
+input devnetmainnet_OriginMessage_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -361,374 +781,26 @@ input devnetmainnet_PolygonConnectorMeta_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  spokeDomain: BigInt
-  spokeDomain_not: BigInt
-  spokeDomain_gt: BigInt
-  spokeDomain_lt: BigInt
-  spokeDomain_gte: BigInt
-  spokeDomain_lte: BigInt
-  spokeDomain_in: [BigInt!]
-  spokeDomain_not_in: [BigInt!]
-  hubDomain: BigInt
-  hubDomain_not: BigInt
-  hubDomain_gt: BigInt
-  hubDomain_lt: BigInt
-  hubDomain_gte: BigInt
-  hubDomain_lte: BigInt
-  hubDomain_in: [BigInt!]
-  hubDomain_not_in: [BigInt!]
-  amb: devnetmainnet_Bytes
-  amb_not: devnetmainnet_Bytes
-  amb_in: [devnetmainnet_Bytes!]
-  amb_not_in: [devnetmainnet_Bytes!]
-  amb_contains: devnetmainnet_Bytes
-  amb_not_contains: devnetmainnet_Bytes
-  rootManager: devnetmainnet_Bytes
-  rootManager_not: devnetmainnet_Bytes
-  rootManager_in: [devnetmainnet_Bytes!]
-  rootManager_not_in: [devnetmainnet_Bytes!]
-  rootManager_contains: devnetmainnet_Bytes
-  rootManager_not_contains: devnetmainnet_Bytes
-  mirrorConnector: devnetmainnet_Bytes
-  mirrorConnector_not: devnetmainnet_Bytes
-  mirrorConnector_in: [devnetmainnet_Bytes!]
-  mirrorConnector_not_in: [devnetmainnet_Bytes!]
-  mirrorConnector_contains: devnetmainnet_Bytes
-  mirrorConnector_not_contains: devnetmainnet_Bytes
-  """Filter for the block changed event."""
-  _change_block: devnetmainnet_BlockChangedFilter
-}
-
-enum devnetmainnet_PolygonConnectorMeta_orderBy {
-  id
-  spokeDomain
-  hubDomain
-  amb
-  rootManager
-  mirrorConnector
-}
-
-type Query {
-  devnetmainnet_rootAggregated(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootAggregated
-  devnetmainnet_rootAggregateds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootAggregated_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootAggregated_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootAggregated!]!
-  devnetmainnet_rootPropagated(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootPropagated
-  devnetmainnet_rootPropagateds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootPropagated_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootPropagated_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootPropagated!]!
-  devnetmainnet_aggregatedMessageRoot(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_AggregatedMessageRoot
-  devnetmainnet_aggregatedMessageRoots(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_AggregatedMessageRoot_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_AggregatedMessageRoot_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_AggregatedMessageRoot!]!
-  devnetmainnet_rootManagerMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootManagerMeta
-  devnetmainnet_rootManagerMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootManagerMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootManagerMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootManagerMeta!]!
-  devnetmainnet_polygonConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_PolygonConnectorMeta
-  devnetmainnet_polygonConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_PolygonConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_PolygonConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_PolygonConnectorMeta!]!
-  devnetmainnet_optimismConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_OptimismConnectorMeta
-  devnetmainnet_optimismConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_OptimismConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_OptimismConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_OptimismConnectorMeta!]!
-  devnetmainnet_bnbConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_BnbConnectorMeta
-  devnetmainnet_bnbConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_BnbConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_BnbConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_BnbConnectorMeta!]!
-  devnetmainnet_arbitrumConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_ArbitrumConnectorMeta
-  devnetmainnet_arbitrumConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_ArbitrumConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_ArbitrumConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_ArbitrumConnectorMeta!]!
-  devnetmainnet_gnosisConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_GnosisConnectorMeta
-  devnetmainnet_gnosisConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_GnosisConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_GnosisConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_GnosisConnectorMeta!]!
-  devnetmainnet_zkSyncConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_ZkSyncConnectorMeta
-  devnetmainnet_zkSyncConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_ZkSyncConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_ZkSyncConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_ZkSyncConnectorMeta!]!
-  devnetmainnet_rootMessageProcessed(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootMessageProcessed
-  devnetmainnet_rootMessageProcesseds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootMessageProcessed_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootMessageProcessed_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootMessageProcessed!]!
-  """Access to subgraph metadata"""
-  devnetmainnet__meta(block: devnetmainnet_Block_height): devnetmainnet__Meta_
-}
-
-type devnetmainnet_RootAggregated {
-  id: ID!
-  domain: BigInt!
-  receivedRoot: devnetmainnet_Bytes!
-  index: BigInt!
-}
-
-input devnetmainnet_RootAggregated_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  domain: BigInt
-  domain_not: BigInt
-  domain_gt: BigInt
-  domain_lt: BigInt
-  domain_gte: BigInt
-  domain_lte: BigInt
-  domain_in: [BigInt!]
-  domain_not_in: [BigInt!]
-  receivedRoot: devnetmainnet_Bytes
-  receivedRoot_not: devnetmainnet_Bytes
-  receivedRoot_in: [devnetmainnet_Bytes!]
-  receivedRoot_not_in: [devnetmainnet_Bytes!]
-  receivedRoot_contains: devnetmainnet_Bytes
-  receivedRoot_not_contains: devnetmainnet_Bytes
+  transferId: devnetmainnet_Bytes
+  transferId_not: devnetmainnet_Bytes
+  transferId_in: [devnetmainnet_Bytes!]
+  transferId_not_in: [devnetmainnet_Bytes!]
+  transferId_contains: devnetmainnet_Bytes
+  transferId_not_contains: devnetmainnet_Bytes
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  leaf: devnetmainnet_Bytes
+  leaf_not: devnetmainnet_Bytes
+  leaf_in: [devnetmainnet_Bytes!]
+  leaf_not_in: [devnetmainnet_Bytes!]
+  leaf_contains: devnetmainnet_Bytes
+  leaf_not_contains: devnetmainnet_Bytes
   index: BigInt
   index_not: BigInt
   index_gt: BigInt
@@ -737,98 +809,992 @@ input devnetmainnet_RootAggregated_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: devnetmainnet_BlockChangedFilter
-}
-
-enum devnetmainnet_RootAggregated_orderBy {
-  id
-  domain
-  receivedRoot
-  index
-}
-
-type devnetmainnet_RootManagerMeta {
-  id: ID!
-  domains: [BigInt!]
-  connectors: [devnetmainnet_Bytes!]
-}
-
-input devnetmainnet_RootManagerMeta_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  domains: [BigInt!]
-  domains_not: [BigInt!]
-  domains_contains: [BigInt!]
-  domains_contains_nocase: [BigInt!]
-  domains_not_contains: [BigInt!]
-  domains_not_contains_nocase: [BigInt!]
-  connectors: [devnetmainnet_Bytes!]
-  connectors_not: [devnetmainnet_Bytes!]
-  connectors_contains: [devnetmainnet_Bytes!]
-  connectors_contains_nocase: [devnetmainnet_Bytes!]
-  connectors_not_contains: [devnetmainnet_Bytes!]
-  connectors_not_contains_nocase: [devnetmainnet_Bytes!]
-  """Filter for the block changed event."""
-  _change_block: devnetmainnet_BlockChangedFilter
-}
-
-enum devnetmainnet_RootManagerMeta_orderBy {
-  id
-  domains
-  connectors
-}
-
-type devnetmainnet_RootMessageProcessed {
-  id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  root: devnetmainnet_Bytes
-  caller: devnetmainnet_Bytes
-  transactionHash: devnetmainnet_Bytes
-  timestamp: BigInt
-  gasPrice: BigInt
-  gasLimit: BigInt
-  blockNumber: BigInt
-}
-
-input devnetmainnet_RootMessageProcessed_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  spokeDomain: BigInt
-  spokeDomain_not: BigInt
-  spokeDomain_gt: BigInt
-  spokeDomain_lt: BigInt
-  spokeDomain_gte: BigInt
-  spokeDomain_lte: BigInt
-  spokeDomain_in: [BigInt!]
-  spokeDomain_not_in: [BigInt!]
-  hubDomain: BigInt
-  hubDomain_not: BigInt
-  hubDomain_gt: BigInt
-  hubDomain_lt: BigInt
-  hubDomain_gte: BigInt
-  hubDomain_lte: BigInt
-  hubDomain_in: [BigInt!]
-  hubDomain_not_in: [BigInt!]
+  message: devnetmainnet_Bytes
+  message_not: devnetmainnet_Bytes
+  message_in: [devnetmainnet_Bytes!]
+  message_not_in: [devnetmainnet_Bytes!]
+  message_contains: devnetmainnet_Bytes
+  message_not_contains: devnetmainnet_Bytes
   root: devnetmainnet_Bytes
   root_not: devnetmainnet_Bytes
   root_in: [devnetmainnet_Bytes!]
   root_not_in: [devnetmainnet_Bytes!]
   root_contains: devnetmainnet_Bytes
   root_not_contains: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  transactionHash_not: devnetmainnet_Bytes
+  transactionHash_in: [devnetmainnet_Bytes!]
+  transactionHash_not_in: [devnetmainnet_Bytes!]
+  transactionHash_contains: devnetmainnet_Bytes
+  transactionHash_not_contains: devnetmainnet_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  rootCount: String
+  rootCount_not: String
+  rootCount_gt: String
+  rootCount_lt: String
+  rootCount_gte: String
+  rootCount_lte: String
+  rootCount_in: [String!]
+  rootCount_not_in: [String!]
+  rootCount_contains: String
+  rootCount_contains_nocase: String
+  rootCount_not_contains: String
+  rootCount_not_contains_nocase: String
+  rootCount_starts_with: String
+  rootCount_starts_with_nocase: String
+  rootCount_not_starts_with: String
+  rootCount_not_starts_with_nocase: String
+  rootCount_ends_with: String
+  rootCount_ends_with_nocase: String
+  rootCount_not_ends_with: String
+  rootCount_not_ends_with_nocase: String
+  rootCount_: devnetmainnet_RootCount_filter
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_OriginMessage_orderBy {
+  id
+  transferId
+  destinationDomain
+  leaf
+  index
+  message
+  root
+  transactionHash
+  blockNumber
+  rootCount
+}
+
+type devnetmainnet_OriginTransfer {
+  id: ID!
+  chainId: BigInt
+  transferId: devnetmainnet_Bytes
+  nonce: BigInt
+  status: devnetmainnet_TransferStatus
+  messageHash: devnetmainnet_Bytes
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: devnetmainnet_Bytes
+  delegate: devnetmainnet_Bytes
+  receiveLocal: Boolean
+  callData: devnetmainnet_Bytes
+  slippage: BigInt
+  originSender: devnetmainnet_Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: devnetmainnet_Bytes
+  asset: devnetmainnet_Asset
+  transactingAsset: devnetmainnet_Bytes
+  message: devnetmainnet_OriginMessage
+  bumpRelayerFeeCount: BigInt
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: devnetmainnet_RelayerFee_orderBy, orderDirection: devnetmainnet_OrderDirection, where: devnetmainnet_RelayerFee_filter): [devnetmainnet_RelayerFee!]
+  initialRelayerFeeAsset: devnetmainnet_Bytes
+  caller: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+  txOrigin: devnetmainnet_Bytes
+  txNonce: BigInt
+}
+
+input devnetmainnet_OriginTransfer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  chainId: BigInt
+  chainId_not: BigInt
+  chainId_gt: BigInt
+  chainId_lt: BigInt
+  chainId_gte: BigInt
+  chainId_lte: BigInt
+  chainId_in: [BigInt!]
+  chainId_not_in: [BigInt!]
+  transferId: devnetmainnet_Bytes
+  transferId_not: devnetmainnet_Bytes
+  transferId_in: [devnetmainnet_Bytes!]
+  transferId_not_in: [devnetmainnet_Bytes!]
+  transferId_contains: devnetmainnet_Bytes
+  transferId_not_contains: devnetmainnet_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  status: devnetmainnet_TransferStatus
+  status_not: devnetmainnet_TransferStatus
+  status_in: [devnetmainnet_TransferStatus!]
+  status_not_in: [devnetmainnet_TransferStatus!]
+  messageHash: devnetmainnet_Bytes
+  messageHash_not: devnetmainnet_Bytes
+  messageHash_in: [devnetmainnet_Bytes!]
+  messageHash_not_in: [devnetmainnet_Bytes!]
+  messageHash_contains: devnetmainnet_Bytes
+  messageHash_not_contains: devnetmainnet_Bytes
+  originDomain: BigInt
+  originDomain_not: BigInt
+  originDomain_gt: BigInt
+  originDomain_lt: BigInt
+  originDomain_gte: BigInt
+  originDomain_lte: BigInt
+  originDomain_in: [BigInt!]
+  originDomain_not_in: [BigInt!]
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: devnetmainnet_Bytes
+  to_not: devnetmainnet_Bytes
+  to_in: [devnetmainnet_Bytes!]
+  to_not_in: [devnetmainnet_Bytes!]
+  to_contains: devnetmainnet_Bytes
+  to_not_contains: devnetmainnet_Bytes
+  delegate: devnetmainnet_Bytes
+  delegate_not: devnetmainnet_Bytes
+  delegate_in: [devnetmainnet_Bytes!]
+  delegate_not_in: [devnetmainnet_Bytes!]
+  delegate_contains: devnetmainnet_Bytes
+  delegate_not_contains: devnetmainnet_Bytes
+  receiveLocal: Boolean
+  receiveLocal_not: Boolean
+  receiveLocal_in: [Boolean!]
+  receiveLocal_not_in: [Boolean!]
+  callData: devnetmainnet_Bytes
+  callData_not: devnetmainnet_Bytes
+  callData_in: [devnetmainnet_Bytes!]
+  callData_not_in: [devnetmainnet_Bytes!]
+  callData_contains: devnetmainnet_Bytes
+  callData_not_contains: devnetmainnet_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  originSender: devnetmainnet_Bytes
+  originSender_not: devnetmainnet_Bytes
+  originSender_in: [devnetmainnet_Bytes!]
+  originSender_not_in: [devnetmainnet_Bytes!]
+  originSender_contains: devnetmainnet_Bytes
+  originSender_not_contains: devnetmainnet_Bytes
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: devnetmainnet_Bytes
+  canonicalId_not: devnetmainnet_Bytes
+  canonicalId_in: [devnetmainnet_Bytes!]
+  canonicalId_not_in: [devnetmainnet_Bytes!]
+  canonicalId_contains: devnetmainnet_Bytes
+  canonicalId_not_contains: devnetmainnet_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: devnetmainnet_Asset_filter
+  transactingAsset: devnetmainnet_Bytes
+  transactingAsset_not: devnetmainnet_Bytes
+  transactingAsset_in: [devnetmainnet_Bytes!]
+  transactingAsset_not_in: [devnetmainnet_Bytes!]
+  transactingAsset_contains: devnetmainnet_Bytes
+  transactingAsset_not_contains: devnetmainnet_Bytes
+  message: String
+  message_not: String
+  message_gt: String
+  message_lt: String
+  message_gte: String
+  message_lte: String
+  message_in: [String!]
+  message_not_in: [String!]
+  message_contains: String
+  message_contains_nocase: String
+  message_not_contains: String
+  message_not_contains_nocase: String
+  message_starts_with: String
+  message_starts_with_nocase: String
+  message_not_starts_with: String
+  message_not_starts_with_nocase: String
+  message_ends_with: String
+  message_ends_with_nocase: String
+  message_not_ends_with: String
+  message_not_ends_with_nocase: String
+  message_: devnetmainnet_OriginMessage_filter
+  bumpRelayerFeeCount: BigInt
+  bumpRelayerFeeCount_not: BigInt
+  bumpRelayerFeeCount_gt: BigInt
+  bumpRelayerFeeCount_lt: BigInt
+  bumpRelayerFeeCount_gte: BigInt
+  bumpRelayerFeeCount_lte: BigInt
+  bumpRelayerFeeCount_in: [BigInt!]
+  bumpRelayerFeeCount_not_in: [BigInt!]
+  relayerFees: [String!]
+  relayerFees_not: [String!]
+  relayerFees_contains: [String!]
+  relayerFees_contains_nocase: [String!]
+  relayerFees_not_contains: [String!]
+  relayerFees_not_contains_nocase: [String!]
+  relayerFees_: devnetmainnet_RelayerFee_filter
+  initialRelayerFeeAsset: devnetmainnet_Bytes
+  initialRelayerFeeAsset_not: devnetmainnet_Bytes
+  initialRelayerFeeAsset_in: [devnetmainnet_Bytes!]
+  initialRelayerFeeAsset_not_in: [devnetmainnet_Bytes!]
+  initialRelayerFeeAsset_contains: devnetmainnet_Bytes
+  initialRelayerFeeAsset_not_contains: devnetmainnet_Bytes
+  caller: devnetmainnet_Bytes
+  caller_not: devnetmainnet_Bytes
+  caller_in: [devnetmainnet_Bytes!]
+  caller_not_in: [devnetmainnet_Bytes!]
+  caller_contains: devnetmainnet_Bytes
+  caller_not_contains: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  transactionHash_not: devnetmainnet_Bytes
+  transactionHash_in: [devnetmainnet_Bytes!]
+  transactionHash_not_in: [devnetmainnet_Bytes!]
+  transactionHash_contains: devnetmainnet_Bytes
+  transactionHash_not_contains: devnetmainnet_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  txOrigin: devnetmainnet_Bytes
+  txOrigin_not: devnetmainnet_Bytes
+  txOrigin_in: [devnetmainnet_Bytes!]
+  txOrigin_not_in: [devnetmainnet_Bytes!]
+  txOrigin_contains: devnetmainnet_Bytes
+  txOrigin_not_contains: devnetmainnet_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_OriginTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  status
+  messageHash
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  originSender
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  transactingAsset
+  message
+  bumpRelayerFeeCount
+  relayerFees
+  initialRelayerFeeAsset
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+  txOrigin
+  txNonce
+}
+
+type Query {
+  devnetmainnet_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Asset
+  devnetmainnet_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Asset_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Asset!]!
+  devnetmainnet_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AssetStatus
+  devnetmainnet_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AssetStatus_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AssetStatus!]!
+  devnetmainnet_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AssetBalance
+  devnetmainnet_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AssetBalance_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AssetBalance!]!
+  devnetmainnet_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Router
+  devnetmainnet_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Router_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Router!]!
+  devnetmainnet_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RouterDailyTVL
+  devnetmainnet_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RouterDailyTVL_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RouterDailyTVL!]!
+  devnetmainnet_setting(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Setting
+  devnetmainnet_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Setting_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Setting!]!
+  devnetmainnet_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Relayer
+  devnetmainnet_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Relayer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Relayer!]!
+  devnetmainnet_sequencer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Sequencer
+  devnetmainnet_sequencers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Sequencer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Sequencer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Sequencer!]!
+  devnetmainnet_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RelayerFee
+  devnetmainnet_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RelayerFee_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RelayerFee!]!
+  devnetmainnet_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_OriginTransfer
+  devnetmainnet_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_OriginTransfer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_OriginTransfer!]!
+  devnetmainnet_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_DestinationTransfer
+  devnetmainnet_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_DestinationTransfer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_DestinationTransfer!]!
+  devnetmainnet_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_OriginMessage
+  devnetmainnet_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_OriginMessage_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_OriginMessage!]!
+  devnetmainnet_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AggregateRoot
+  devnetmainnet_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AggregateRoot_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AggregateRoot!]!
+  devnetmainnet_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_ConnectorMeta
+  devnetmainnet_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_ConnectorMeta_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_ConnectorMeta!]!
+  devnetmainnet_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RootCount
+  devnetmainnet_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RootCount_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RootCount!]!
+  devnetmainnet_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RootMessageSent
+  devnetmainnet_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RootMessageSent_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RootMessageSent!]!
+  devnetmainnet_relayerFeesIncrease(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RelayerFeesIncrease
+  devnetmainnet_relayerFeesIncreases(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RelayerFeesIncrease_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RelayerFeesIncrease_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RelayerFeesIncrease!]!
+  devnetmainnet_slippageUpdate(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_SlippageUpdate
+  devnetmainnet_slippageUpdates(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_SlippageUpdate_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_SlippageUpdate_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_SlippageUpdate!]!
+  """Access to subgraph metadata"""
+  devnetmainnet__meta(block: devnetmainnet_Block_height): devnetmainnet__Meta_
+}
+
+type devnetmainnet_Relayer {
+  id: ID!
+  isActive: Boolean!
+  relayer: devnetmainnet_Bytes
+}
+
+type devnetmainnet_RelayerFee {
+  id: ID!
+  transfer: devnetmainnet_OriginTransfer!
+  fee: BigInt!
+  asset: devnetmainnet_Bytes!
+}
+
+input devnetmainnet_RelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: devnetmainnet_OriginTransfer_filter
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  asset: devnetmainnet_Bytes
+  asset_not: devnetmainnet_Bytes
+  asset_in: [devnetmainnet_Bytes!]
+  asset_not_in: [devnetmainnet_Bytes!]
+  asset_contains: devnetmainnet_Bytes
+  asset_not_contains: devnetmainnet_Bytes
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_RelayerFee_orderBy {
+  id
+  transfer
+  fee
+  asset
+}
+
+type devnetmainnet_RelayerFeesIncrease {
+  id: ID!
+  transfer: devnetmainnet_OriginTransfer!
+  increase: BigInt
+  asset: devnetmainnet_Bytes
+  caller: devnetmainnet_Bytes!
+  transactionHash: devnetmainnet_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+input devnetmainnet_RelayerFeesIncrease_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: devnetmainnet_OriginTransfer_filter
+  increase: BigInt
+  increase_not: BigInt
+  increase_gt: BigInt
+  increase_lt: BigInt
+  increase_gte: BigInt
+  increase_lte: BigInt
+  increase_in: [BigInt!]
+  increase_not_in: [BigInt!]
+  asset: devnetmainnet_Bytes
+  asset_not: devnetmainnet_Bytes
+  asset_in: [devnetmainnet_Bytes!]
+  asset_not_in: [devnetmainnet_Bytes!]
+  asset_contains: devnetmainnet_Bytes
+  asset_not_contains: devnetmainnet_Bytes
   caller: devnetmainnet_Bytes
   caller_not: devnetmainnet_Bytes
   caller_in: [devnetmainnet_Bytes!]
@@ -877,11 +1843,11 @@ input devnetmainnet_RootMessageProcessed_filter {
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_RootMessageProcessed_orderBy {
+enum devnetmainnet_RelayerFeesIncrease_orderBy {
   id
-  spokeDomain
-  hubDomain
-  root
+  transfer
+  increase
+  asset
   caller
   transactionHash
   timestamp
@@ -890,14 +1856,7 @@ enum devnetmainnet_RootMessageProcessed_orderBy {
   blockNumber
 }
 
-type devnetmainnet_RootPropagated {
-  id: ID!
-  aggregate: devnetmainnet_Bytes!
-  domainsHash: devnetmainnet_Bytes!
-  count: BigInt!
-}
-
-input devnetmainnet_RootPropagated_filter {
+input devnetmainnet_Relayer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -906,18 +1865,40 @@ input devnetmainnet_RootPropagated_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  aggregate: devnetmainnet_Bytes
-  aggregate_not: devnetmainnet_Bytes
-  aggregate_in: [devnetmainnet_Bytes!]
-  aggregate_not_in: [devnetmainnet_Bytes!]
-  aggregate_contains: devnetmainnet_Bytes
-  aggregate_not_contains: devnetmainnet_Bytes
-  domainsHash: devnetmainnet_Bytes
-  domainsHash_not: devnetmainnet_Bytes
-  domainsHash_in: [devnetmainnet_Bytes!]
-  domainsHash_not_in: [devnetmainnet_Bytes!]
-  domainsHash_contains: devnetmainnet_Bytes
-  domainsHash_not_contains: devnetmainnet_Bytes
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  relayer: devnetmainnet_Bytes
+  relayer_not: devnetmainnet_Bytes
+  relayer_in: [devnetmainnet_Bytes!]
+  relayer_not_in: [devnetmainnet_Bytes!]
+  relayer_contains: devnetmainnet_Bytes
+  relayer_not_contains: devnetmainnet_Bytes
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_Relayer_orderBy {
+  id
+  isActive
+  relayer
+}
+
+type devnetmainnet_RootCount {
+  id: ID!
+  count: BigInt
+}
+
+input devnetmainnet_RootCount_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -930,314 +1911,26 @@ input devnetmainnet_RootPropagated_filter {
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_RootPropagated_orderBy {
+enum devnetmainnet_RootCount_orderBy {
   id
-  aggregate
-  domainsHash
   count
 }
 
-type Subscription {
-  devnetmainnet_rootAggregated(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootAggregated
-  devnetmainnet_rootAggregateds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootAggregated_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootAggregated_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootAggregated!]!
-  devnetmainnet_rootPropagated(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootPropagated
-  devnetmainnet_rootPropagateds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootPropagated_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootPropagated_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootPropagated!]!
-  devnetmainnet_aggregatedMessageRoot(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_AggregatedMessageRoot
-  devnetmainnet_aggregatedMessageRoots(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_AggregatedMessageRoot_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_AggregatedMessageRoot_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_AggregatedMessageRoot!]!
-  devnetmainnet_rootManagerMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootManagerMeta
-  devnetmainnet_rootManagerMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootManagerMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootManagerMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootManagerMeta!]!
-  devnetmainnet_polygonConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_PolygonConnectorMeta
-  devnetmainnet_polygonConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_PolygonConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_PolygonConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_PolygonConnectorMeta!]!
-  devnetmainnet_optimismConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_OptimismConnectorMeta
-  devnetmainnet_optimismConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_OptimismConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_OptimismConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_OptimismConnectorMeta!]!
-  devnetmainnet_bnbConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_BnbConnectorMeta
-  devnetmainnet_bnbConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_BnbConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_BnbConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_BnbConnectorMeta!]!
-  devnetmainnet_arbitrumConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_ArbitrumConnectorMeta
-  devnetmainnet_arbitrumConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_ArbitrumConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_ArbitrumConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_ArbitrumConnectorMeta!]!
-  devnetmainnet_gnosisConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_GnosisConnectorMeta
-  devnetmainnet_gnosisConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_GnosisConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_GnosisConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_GnosisConnectorMeta!]!
-  devnetmainnet_zkSyncConnectorMeta(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_ZkSyncConnectorMeta
-  devnetmainnet_zkSyncConnectorMetas(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_ZkSyncConnectorMeta_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_ZkSyncConnectorMeta_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_ZkSyncConnectorMeta!]!
-  devnetmainnet_rootMessageProcessed(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): devnetmainnet_RootMessageProcessed
-  devnetmainnet_rootMessageProcesseds(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: devnetmainnet_RootMessageProcessed_orderBy
-    orderDirection: devnetmainnet_OrderDirection
-    where: devnetmainnet_RootMessageProcessed_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: devnetmainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [devnetmainnet_RootMessageProcessed!]!
-  """Access to subgraph metadata"""
-  devnetmainnet__meta(block: devnetmainnet_Block_height): devnetmainnet__Meta_
-}
-
-type devnetmainnet_ZkSyncConnectorMeta {
+type devnetmainnet_RootMessageSent {
   id: ID!
-  spokeDomain: BigInt!
-  hubDomain: BigInt!
-  amb: devnetmainnet_Bytes!
-  rootManager: devnetmainnet_Bytes!
-  mirrorConnector: devnetmainnet_Bytes!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: devnetmainnet_Bytes
+  count: BigInt
+  caller: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
 }
 
-input devnetmainnet_ZkSyncConnectorMeta_filter {
+input devnetmainnet_RootMessageSent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1262,35 +1955,896 @@ input devnetmainnet_ZkSyncConnectorMeta_filter {
   hubDomain_lte: BigInt
   hubDomain_in: [BigInt!]
   hubDomain_not_in: [BigInt!]
-  amb: devnetmainnet_Bytes
-  amb_not: devnetmainnet_Bytes
-  amb_in: [devnetmainnet_Bytes!]
-  amb_not_in: [devnetmainnet_Bytes!]
-  amb_contains: devnetmainnet_Bytes
-  amb_not_contains: devnetmainnet_Bytes
-  rootManager: devnetmainnet_Bytes
-  rootManager_not: devnetmainnet_Bytes
-  rootManager_in: [devnetmainnet_Bytes!]
-  rootManager_not_in: [devnetmainnet_Bytes!]
-  rootManager_contains: devnetmainnet_Bytes
-  rootManager_not_contains: devnetmainnet_Bytes
-  mirrorConnector: devnetmainnet_Bytes
-  mirrorConnector_not: devnetmainnet_Bytes
-  mirrorConnector_in: [devnetmainnet_Bytes!]
-  mirrorConnector_not_in: [devnetmainnet_Bytes!]
-  mirrorConnector_contains: devnetmainnet_Bytes
-  mirrorConnector_not_contains: devnetmainnet_Bytes
+  root: devnetmainnet_Bytes
+  root_not: devnetmainnet_Bytes
+  root_in: [devnetmainnet_Bytes!]
+  root_not_in: [devnetmainnet_Bytes!]
+  root_contains: devnetmainnet_Bytes
+  root_not_contains: devnetmainnet_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  caller: devnetmainnet_Bytes
+  caller_not: devnetmainnet_Bytes
+  caller_in: [devnetmainnet_Bytes!]
+  caller_not_in: [devnetmainnet_Bytes!]
+  caller_contains: devnetmainnet_Bytes
+  caller_not_contains: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  transactionHash_not: devnetmainnet_Bytes
+  transactionHash_in: [devnetmainnet_Bytes!]
+  transactionHash_not_in: [devnetmainnet_Bytes!]
+  transactionHash_contains: devnetmainnet_Bytes
+  transactionHash_not_contains: devnetmainnet_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: devnetmainnet_BlockChangedFilter
 }
 
-enum devnetmainnet_ZkSyncConnectorMeta_orderBy {
+enum devnetmainnet_RootMessageSent_orderBy {
   id
   spokeDomain
   hubDomain
-  amb
-  rootManager
-  mirrorConnector
+  root
+  count
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type devnetmainnet_Router {
+  id: ID!
+  isActive: Boolean!
+  owner: devnetmainnet_Bytes
+  recipient: devnetmainnet_Bytes
+  proposedOwner: devnetmainnet_Bytes
+  proposedTimestamp: BigInt
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: devnetmainnet_AssetBalance_orderBy, orderDirection: devnetmainnet_OrderDirection, where: devnetmainnet_AssetBalance_filter): [devnetmainnet_AssetBalance!]!
+}
+
+type devnetmainnet_RouterDailyTVL {
+  id: ID!
+  router: devnetmainnet_Router!
+  asset: devnetmainnet_Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
+input devnetmainnet_RouterDailyTVL_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: devnetmainnet_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: devnetmainnet_Asset_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_RouterDailyTVL_orderBy {
+  id
+  router
+  asset
+  timestamp
+  balance
+}
+
+input devnetmainnet_Router_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  owner: devnetmainnet_Bytes
+  owner_not: devnetmainnet_Bytes
+  owner_in: [devnetmainnet_Bytes!]
+  owner_not_in: [devnetmainnet_Bytes!]
+  owner_contains: devnetmainnet_Bytes
+  owner_not_contains: devnetmainnet_Bytes
+  recipient: devnetmainnet_Bytes
+  recipient_not: devnetmainnet_Bytes
+  recipient_in: [devnetmainnet_Bytes!]
+  recipient_not_in: [devnetmainnet_Bytes!]
+  recipient_contains: devnetmainnet_Bytes
+  recipient_not_contains: devnetmainnet_Bytes
+  proposedOwner: devnetmainnet_Bytes
+  proposedOwner_not: devnetmainnet_Bytes
+  proposedOwner_in: [devnetmainnet_Bytes!]
+  proposedOwner_not_in: [devnetmainnet_Bytes!]
+  proposedOwner_contains: devnetmainnet_Bytes
+  proposedOwner_not_contains: devnetmainnet_Bytes
+  proposedTimestamp: BigInt
+  proposedTimestamp_not: BigInt
+  proposedTimestamp_gt: BigInt
+  proposedTimestamp_lt: BigInt
+  proposedTimestamp_gte: BigInt
+  proposedTimestamp_lte: BigInt
+  proposedTimestamp_in: [BigInt!]
+  proposedTimestamp_not_in: [BigInt!]
+  assetBalances_: devnetmainnet_AssetBalance_filter
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_Router_orderBy {
+  id
+  isActive
+  owner
+  recipient
+  proposedOwner
+  proposedTimestamp
+  assetBalances
+}
+
+type devnetmainnet_Sequencer {
+  id: ID!
+  isActive: Boolean!
+  sequencer: devnetmainnet_Bytes
+}
+
+input devnetmainnet_Sequencer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  sequencer: devnetmainnet_Bytes
+  sequencer_not: devnetmainnet_Bytes
+  sequencer_in: [devnetmainnet_Bytes!]
+  sequencer_not_in: [devnetmainnet_Bytes!]
+  sequencer_contains: devnetmainnet_Bytes
+  sequencer_not_contains: devnetmainnet_Bytes
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_Sequencer_orderBy {
+  id
+  isActive
+  sequencer
+}
+
+type devnetmainnet_Setting {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: devnetmainnet_Bytes!
+}
+
+input devnetmainnet_Setting_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  maxRoutersPerTransfer: BigInt
+  maxRoutersPerTransfer_not: BigInt
+  maxRoutersPerTransfer_gt: BigInt
+  maxRoutersPerTransfer_lt: BigInt
+  maxRoutersPerTransfer_gte: BigInt
+  maxRoutersPerTransfer_lte: BigInt
+  maxRoutersPerTransfer_in: [BigInt!]
+  maxRoutersPerTransfer_not_in: [BigInt!]
+  caller: devnetmainnet_Bytes
+  caller_not: devnetmainnet_Bytes
+  caller_in: [devnetmainnet_Bytes!]
+  caller_not_in: [devnetmainnet_Bytes!]
+  caller_contains: devnetmainnet_Bytes
+  caller_not_contains: devnetmainnet_Bytes
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_Setting_orderBy {
+  id
+  maxRoutersPerTransfer
+  caller
+}
+
+type devnetmainnet_SlippageUpdate {
+  id: ID!
+  transfer: devnetmainnet_DestinationTransfer!
+  slippage: BigInt!
+  caller: devnetmainnet_Bytes!
+  transactionHash: devnetmainnet_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+input devnetmainnet_SlippageUpdate_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: devnetmainnet_DestinationTransfer_filter
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  caller: devnetmainnet_Bytes
+  caller_not: devnetmainnet_Bytes
+  caller_in: [devnetmainnet_Bytes!]
+  caller_not_in: [devnetmainnet_Bytes!]
+  caller_contains: devnetmainnet_Bytes
+  caller_not_contains: devnetmainnet_Bytes
+  transactionHash: devnetmainnet_Bytes
+  transactionHash_not: devnetmainnet_Bytes
+  transactionHash_in: [devnetmainnet_Bytes!]
+  transactionHash_not_in: [devnetmainnet_Bytes!]
+  transactionHash_contains: devnetmainnet_Bytes
+  transactionHash_not_contains: devnetmainnet_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: devnetmainnet_BlockChangedFilter
+}
+
+enum devnetmainnet_SlippageUpdate_orderBy {
+  id
+  transfer
+  slippage
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
+type Subscription {
+  devnetmainnet_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Asset
+  devnetmainnet_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Asset_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Asset!]!
+  devnetmainnet_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AssetStatus
+  devnetmainnet_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AssetStatus_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AssetStatus!]!
+  devnetmainnet_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AssetBalance
+  devnetmainnet_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AssetBalance_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AssetBalance!]!
+  devnetmainnet_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Router
+  devnetmainnet_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Router_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Router!]!
+  devnetmainnet_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RouterDailyTVL
+  devnetmainnet_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RouterDailyTVL_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RouterDailyTVL!]!
+  devnetmainnet_setting(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Setting
+  devnetmainnet_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Setting_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Setting!]!
+  devnetmainnet_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Relayer
+  devnetmainnet_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Relayer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Relayer!]!
+  devnetmainnet_sequencer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_Sequencer
+  devnetmainnet_sequencers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_Sequencer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_Sequencer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_Sequencer!]!
+  devnetmainnet_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RelayerFee
+  devnetmainnet_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RelayerFee_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RelayerFee!]!
+  devnetmainnet_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_OriginTransfer
+  devnetmainnet_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_OriginTransfer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_OriginTransfer!]!
+  devnetmainnet_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_DestinationTransfer
+  devnetmainnet_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_DestinationTransfer_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_DestinationTransfer!]!
+  devnetmainnet_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_OriginMessage
+  devnetmainnet_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_OriginMessage_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_OriginMessage!]!
+  devnetmainnet_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_AggregateRoot
+  devnetmainnet_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_AggregateRoot_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_AggregateRoot!]!
+  devnetmainnet_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_ConnectorMeta
+  devnetmainnet_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_ConnectorMeta_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_ConnectorMeta!]!
+  devnetmainnet_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RootCount
+  devnetmainnet_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RootCount_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RootCount!]!
+  devnetmainnet_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RootMessageSent
+  devnetmainnet_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RootMessageSent_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RootMessageSent!]!
+  devnetmainnet_relayerFeesIncrease(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_RelayerFeesIncrease
+  devnetmainnet_relayerFeesIncreases(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_RelayerFeesIncrease_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_RelayerFeesIncrease_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_RelayerFeesIncrease!]!
+  devnetmainnet_slippageUpdate(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): devnetmainnet_SlippageUpdate
+  devnetmainnet_slippageUpdates(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: devnetmainnet_SlippageUpdate_orderBy
+    orderDirection: devnetmainnet_OrderDirection
+    where: devnetmainnet_SlippageUpdate_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: devnetmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [devnetmainnet_SlippageUpdate!]!
+  """Access to subgraph metadata"""
+  devnetmainnet__meta(block: devnetmainnet_Block_height): devnetmainnet__Meta_
+}
+
+enum devnetmainnet_TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+  CompletedSlow
+  CompletedFast
 }
 
 type devnetmainnet__Block_ {

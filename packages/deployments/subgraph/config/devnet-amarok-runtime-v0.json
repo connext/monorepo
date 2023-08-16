@@ -1,5 +1,30 @@
 [
   {
+    "subgraphName": "connext/amarok-runtime-v0-mainnet",
+    "subgraphId": "",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "Connext_DiamondProxy"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MainnetpokeConnector"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MerkleTreeManagerSpokeUpgradeBeaconProxy"
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/amarok-runtime-v0-optimism",
     "subgraphId": "",
     "network": "optimism",
