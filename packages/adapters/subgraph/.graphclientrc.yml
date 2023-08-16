@@ -645,7 +645,7 @@ sources:
 
   #####################################################
   # DEVNETS
-  - name: Devnet_Hub_Mainnet
+  - name: Connext_Devnet_Mainnet
     handler:
       graphql:
         endpoint: "{env.GRAPH_DEVNET_MAINNET}"
