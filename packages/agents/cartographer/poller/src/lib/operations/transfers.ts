@@ -183,15 +183,15 @@ export const updateTransfers = async () => {
         });
         const _destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);
 
-        if (destinationTransfers.length > 0) {
+        if (_destinationTransfers.length > 0) {
           logger.info("Retrieved destination transfers by id", requestContext, methodContext, {
             originDomain,
             destinationDomain,
             pendingTransfers,
-            nonces: destinationTransfers.map((i) => i.xparams.nonce),
-            count: destinationTransfers.length,
+            nonces: _destinationTransfers.map((i) => i.xparams.nonce),
+            count: _destinationTransfers.length,
           });
-          destinationTransfers.concat(_destinationTransfers as XTransfer[]);
+          destinationTransfers.push(...(_destinationTransfers as XTransfer[]));
         }
 
         if (offset >= DEFAULT_LOAD_SIZE) done = true;
@@ -199,7 +199,9 @@ export const updateTransfers = async () => {
         else done = true;
       }
 
-      await database.saveTransfers(destinationTransfers);
+      if (destinationTransfers.length > 0) {
+        await database.saveTransfers(destinationTransfers);
+      }
     }
   }
 
