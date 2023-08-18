@@ -295,7 +295,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0x799ebfABE77a6E34311eeEe9825190B9ECe32824",
-        decimals: 18
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         /// POLYGON
