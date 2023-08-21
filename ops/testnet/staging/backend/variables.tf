@@ -31,9 +31,9 @@ variable "cartographer_image_tag" {
   default     = "latest"
 }
 
-variable "sdk_server_image_tag" {
+variable "full_image_name_sdk_server" {
   type        = string
-  description = "sdk-server image tag"
+  description = "sdk-server image name"
   default     = "latest"
 }
 

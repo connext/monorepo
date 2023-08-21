@@ -2,7 +2,7 @@ import { restore, reset } from "sinon";
 import { expect } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 
-import * as BindingFns from "../../../../src/bindings/subscriber";
+import * as BindingFns from "../../../../src/lib/helpers/healthserver";
 
 let fastifyApp: FastifyInstance;
 describe("Bindings:HealthServer", () => {
@@ -17,7 +17,7 @@ describe("Bindings:HealthServer", () => {
   });
 
   it("happy: should respond with `pong`", async () => {
-    fastifyApp = await BindingFns.bindHealthServer();
+    fastifyApp = await BindingFns.bindHealthServer("", 8000);
     const response = await fastifyApp.inject({
       method: "GET",
       url: "/ping",

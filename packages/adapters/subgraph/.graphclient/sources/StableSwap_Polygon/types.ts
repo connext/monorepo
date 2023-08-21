@@ -19,6 +19,7 @@ export type Scalars = {
   polygon_swap_BigDecimal: any;
   BigInt: any;
   polygon_swap_Bytes: any;
+  polygon_swap_Int8: any;
 };
 
 export type polygon_swap_BlockChangedFilter = {
@@ -30,6 +31,569 @@ export type polygon_swap_Block_height = {
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
+
+export type polygon_swap_LpAccount = {
+  id: Scalars['ID'];
+  address: Scalars['polygon_swap_Bytes'];
+  balances: Array<polygon_swap_LpAccountBalance>;
+};
+
+
+export type polygon_swap_LpAccountbalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpAccountBalance_filter>;
+};
+
+export type polygon_swap_LpAccountBalance = {
+  id: Scalars['ID'];
+  account: polygon_swap_LpAccount;
+  token: polygon_swap_LpToken;
+  amount: Scalars['polygon_swap_BigDecimal'];
+  block?: Maybe<Scalars['BigInt']>;
+  modified?: Maybe<Scalars['BigInt']>;
+  transaction?: Maybe<Scalars['polygon_swap_Bytes']>;
+};
+
+export type polygon_swap_LpAccountBalance_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  account?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<polygon_swap_LpAccount_filter>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<polygon_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  modified?: InputMaybe<Scalars['BigInt']>;
+  modified_not?: InputMaybe<Scalars['BigInt']>;
+  modified_gt?: InputMaybe<Scalars['BigInt']>;
+  modified_lt?: InputMaybe<Scalars['BigInt']>;
+  modified_gte?: InputMaybe<Scalars['BigInt']>;
+  modified_lte?: InputMaybe<Scalars['BigInt']>;
+  modified_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  modified_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_swap_LpAccountBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_swap_LpAccountBalance_filter>>>;
+};
+
+export type polygon_swap_LpAccountBalance_orderBy =
+  | 'id'
+  | 'account'
+  | 'account__id'
+  | 'account__address'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'block'
+  | 'modified'
+  | 'transaction';
+
+export type polygon_swap_LpAccount_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  address?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  balances_?: InputMaybe<polygon_swap_LpAccountBalance_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_swap_LpAccount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_swap_LpAccount_filter>>>;
+};
+
+export type polygon_swap_LpAccount_orderBy =
+  | 'id'
+  | 'address'
+  | 'balances';
+
+export type polygon_swap_LpToken = {
+  id: Scalars['ID'];
+  address: Scalars['polygon_swap_Bytes'];
+  stableSwap: polygon_swap_StableSwap;
+  decimals: Scalars['Int'];
+  name: Scalars['String'];
+  symbol: Scalars['String'];
+  totalSupply: Scalars['polygon_swap_BigDecimal'];
+  events: Array<polygon_swap_LpTokenEvent>;
+};
+
+
+export type polygon_swap_LpTokeneventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpTokenEvent_filter>;
+};
+
+export type polygon_swap_LpTokenEvent = {
+  id: Scalars['ID'];
+  token: polygon_swap_LpToken;
+  amount: Scalars['polygon_swap_BigDecimal'];
+  block: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type polygon_swap_LpTokenEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<polygon_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_swap_LpTokenEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_swap_LpTokenEvent_filter>>>;
+};
+
+export type polygon_swap_LpTokenEvent_orderBy =
+  | 'id'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'block'
+  | 'timestamp'
+  | 'transaction'
+  | 'nonce';
+
+export type polygon_swap_LpToken_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  address?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  stableSwap?: InputMaybe<Scalars['String']>;
+  stableSwap_not?: InputMaybe<Scalars['String']>;
+  stableSwap_gt?: InputMaybe<Scalars['String']>;
+  stableSwap_lt?: InputMaybe<Scalars['String']>;
+  stableSwap_gte?: InputMaybe<Scalars['String']>;
+  stableSwap_lte?: InputMaybe<Scalars['String']>;
+  stableSwap_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_not_in?: InputMaybe<Array<Scalars['String']>>;
+  stableSwap_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains?: InputMaybe<Scalars['String']>;
+  stableSwap_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
+  stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stableSwap_?: InputMaybe<polygon_swap_StableSwap_filter>;
+  decimals?: InputMaybe<Scalars['Int']>;
+  decimals_not?: InputMaybe<Scalars['Int']>;
+  decimals_gt?: InputMaybe<Scalars['Int']>;
+  decimals_lt?: InputMaybe<Scalars['Int']>;
+  decimals_gte?: InputMaybe<Scalars['Int']>;
+  decimals_lte?: InputMaybe<Scalars['Int']>;
+  decimals_in?: InputMaybe<Array<Scalars['Int']>>;
+  decimals_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  name?: InputMaybe<Scalars['String']>;
+  name_not?: InputMaybe<Scalars['String']>;
+  name_gt?: InputMaybe<Scalars['String']>;
+  name_lt?: InputMaybe<Scalars['String']>;
+  name_gte?: InputMaybe<Scalars['String']>;
+  name_lte?: InputMaybe<Scalars['String']>;
+  name_in?: InputMaybe<Array<Scalars['String']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']>>;
+  name_contains?: InputMaybe<Scalars['String']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_not_contains?: InputMaybe<Scalars['String']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_starts_with?: InputMaybe<Scalars['String']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_starts_with?: InputMaybe<Scalars['String']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_ends_with?: InputMaybe<Scalars['String']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol?: InputMaybe<Scalars['String']>;
+  symbol_not?: InputMaybe<Scalars['String']>;
+  symbol_gt?: InputMaybe<Scalars['String']>;
+  symbol_lt?: InputMaybe<Scalars['String']>;
+  symbol_gte?: InputMaybe<Scalars['String']>;
+  symbol_lte?: InputMaybe<Scalars['String']>;
+  symbol_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_contains?: InputMaybe<Scalars['String']>;
+  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_contains?: InputMaybe<Scalars['String']>;
+  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  totalSupply?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  events_?: InputMaybe<polygon_swap_LpTokenEvent_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_swap_LpToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_swap_LpToken_filter>>>;
+};
+
+export type polygon_swap_LpToken_orderBy =
+  | 'id'
+  | 'address'
+  | 'stableSwap'
+  | 'stableSwap__id'
+  | 'stableSwap__isActive'
+  | 'stableSwap__key'
+  | 'stableSwap__canonicalId'
+  | 'stableSwap__domain'
+  | 'stableSwap__swapPool'
+  | 'stableSwap__lpToken'
+  | 'stableSwap__initialA'
+  | 'stableSwap__futureA'
+  | 'stableSwap__initialATime'
+  | 'stableSwap__futureATime'
+  | 'stableSwap__swapFee'
+  | 'stableSwap__adminFee'
+  | 'stableSwap__virtualPrice'
+  | 'stableSwap__invariant'
+  | 'stableSwap__lpTokenSupply'
+  | 'decimals'
+  | 'name'
+  | 'symbol'
+  | 'totalSupply'
+  | 'events';
+
+export type polygon_swap_LpTransferEvent = polygon_swap_LpTokenEvent & {
+  id: Scalars['ID'];
+  token: polygon_swap_LpToken;
+  amount: Scalars['polygon_swap_BigDecimal'];
+  from: Scalars['polygon_swap_Bytes'];
+  to: Scalars['polygon_swap_Bytes'];
+  fromBalance: Scalars['polygon_swap_BigDecimal'];
+  toBalance: Scalars['polygon_swap_BigDecimal'];
+  block: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type polygon_swap_LpTransferEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<polygon_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  from?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  from_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  from_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  from_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  fromBalance?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  fromBalance_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  fromBalance_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  toBalance?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_not?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_gt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_lt?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_gte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_lte?: InputMaybe<Scalars['polygon_swap_BigDecimal']>;
+  toBalance_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  toBalance_not_in?: InputMaybe<Array<Scalars['polygon_swap_BigDecimal']>>;
+  block?: InputMaybe<Scalars['BigInt']>;
+  block_not?: InputMaybe<Scalars['BigInt']>;
+  block_gt?: InputMaybe<Scalars['BigInt']>;
+  block_lt?: InputMaybe<Scalars['BigInt']>;
+  block_gte?: InputMaybe<Scalars['BigInt']>;
+  block_lte?: InputMaybe<Scalars['BigInt']>;
+  block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transaction?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_swap_LpTransferEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_swap_LpTransferEvent_filter>>>;
+};
+
+export type polygon_swap_LpTransferEvent_orderBy =
+  | 'id'
+  | 'token'
+  | 'token__id'
+  | 'token__address'
+  | 'token__decimals'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__totalSupply'
+  | 'amount'
+  | 'from'
+  | 'to'
+  | 'fromBalance'
+  | 'toBalance'
+  | 'block'
+  | 'timestamp'
+  | 'transaction'
+  | 'nonce';
 
 /** Defines the order direction, either ascending or descending */
 export type polygon_swap_OrderDirection =
@@ -89,10 +653,20 @@ export type Query = {
   polygon_swap_swapHourlyVolumes: Array<polygon_swap_SwapHourlyVolume>;
   polygon_swap_swapWeeklyVolume?: Maybe<polygon_swap_SwapWeeklyVolume>;
   polygon_swap_swapWeeklyVolumes: Array<polygon_swap_SwapWeeklyVolume>;
+  polygon_swap_lpAccount?: Maybe<polygon_swap_LpAccount>;
+  polygon_swap_lpAccounts: Array<polygon_swap_LpAccount>;
+  polygon_swap_lpAccountBalance?: Maybe<polygon_swap_LpAccountBalance>;
+  polygon_swap_lpAccountBalances: Array<polygon_swap_LpAccountBalance>;
+  polygon_swap_lpToken?: Maybe<polygon_swap_LpToken>;
+  polygon_swap_lpTokens: Array<polygon_swap_LpToken>;
+  polygon_swap_lpTransferEvent?: Maybe<polygon_swap_LpTransferEvent>;
+  polygon_swap_lpTransferEvents: Array<polygon_swap_LpTransferEvent>;
   polygon_swap_stableSwapEvent?: Maybe<polygon_swap_StableSwapEvent>;
   polygon_swap_stableSwapEvents: Array<polygon_swap_StableSwapEvent>;
   polygon_swap_swapTradeVolume?: Maybe<polygon_swap_SwapTradeVolume>;
   polygon_swap_swapTradeVolumes: Array<polygon_swap_SwapTradeVolume>;
+  polygon_swap_lpTokenEvent?: Maybe<polygon_swap_LpTokenEvent>;
+  polygon_swap_lpTokenEvents: Array<polygon_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
   polygon_swap__meta?: Maybe<polygon_swap__Meta_>;
 };
@@ -260,6 +834,78 @@ export type Querypolygon_swap_swapWeeklyVolumesArgs = {
 };
 
 
+export type Querypolygon_swap_lpAccountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpAccountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpAccount_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpAccountBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpAccountBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpToken_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTransferEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTransferEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querypolygon_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<polygon_swap_Block_height>;
@@ -291,6 +937,24 @@ export type Querypolygon_swap_swapTradeVolumesArgs = {
   orderBy?: InputMaybe<polygon_swap_SwapTradeVolume_orderBy>;
   orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
   where?: InputMaybe<polygon_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTokenEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_swap_lpTokenEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpTokenEvent_filter>;
   block?: InputMaybe<polygon_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -386,6 +1050,7 @@ export type polygon_swap_StableSwapAddLiquidityEvent = polygon_swap_StableSwapEv
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type polygon_swap_StableSwapAddLiquidityEvent_filter = {
@@ -496,6 +1161,14 @@ export type polygon_swap_StableSwapAddLiquidityEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<polygon_swap_StableSwapAddLiquidityEvent_filter>>>;
@@ -530,7 +1203,8 @@ export type polygon_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'balances'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type polygon_swap_StableSwapEvent = {
   id: Scalars['ID'];
@@ -538,6 +1212,7 @@ export type polygon_swap_StableSwapEvent = {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type polygon_swap_StableSwapEvent_filter = {
@@ -596,6 +1271,14 @@ export type polygon_swap_StableSwapEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<polygon_swap_StableSwapEvent_filter>>>;
@@ -623,7 +1306,8 @@ export type polygon_swap_StableSwapEvent_orderBy =
   | 'stableSwap__lpTokenSupply'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type polygon_swap_StableSwapExchange = {
   id: Scalars['ID'];
@@ -638,6 +1322,7 @@ export type polygon_swap_StableSwapExchange = {
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type polygon_swap_StableSwapExchange_filter = {
@@ -752,6 +1437,14 @@ export type polygon_swap_StableSwapExchange_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<polygon_swap_StableSwapExchange_filter>>>;
@@ -786,7 +1479,8 @@ export type polygon_swap_StableSwapExchange_orderBy =
   | 'fee'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type polygon_swap_StableSwapRemoveLiquidityEvent = polygon_swap_StableSwapEvent & {
   id: Scalars['ID'];
@@ -801,6 +1495,7 @@ export type polygon_swap_StableSwapRemoveLiquidityEvent = polygon_swap_StableSwa
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   transaction: Scalars['polygon_swap_Bytes'];
+  nonce: Scalars['BigInt'];
 };
 
 export type polygon_swap_StableSwapRemoveLiquidityEvent_filter = {
@@ -911,6 +1606,14 @@ export type polygon_swap_StableSwapRemoveLiquidityEvent_filter = {
   transaction_not_in?: InputMaybe<Array<Scalars['polygon_swap_Bytes']>>;
   transaction_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
   transaction_not_contains?: InputMaybe<Scalars['polygon_swap_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<polygon_swap_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<polygon_swap_StableSwapRemoveLiquidityEvent_filter>>>;
@@ -945,7 +1648,8 @@ export type polygon_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'balances'
   | 'block'
   | 'timestamp'
-  | 'transaction';
+  | 'transaction'
+  | 'nonce';
 
 export type polygon_swap_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -1161,10 +1865,20 @@ export type Subscription = {
   polygon_swap_swapHourlyVolumes: Array<polygon_swap_SwapHourlyVolume>;
   polygon_swap_swapWeeklyVolume?: Maybe<polygon_swap_SwapWeeklyVolume>;
   polygon_swap_swapWeeklyVolumes: Array<polygon_swap_SwapWeeklyVolume>;
+  polygon_swap_lpAccount?: Maybe<polygon_swap_LpAccount>;
+  polygon_swap_lpAccounts: Array<polygon_swap_LpAccount>;
+  polygon_swap_lpAccountBalance?: Maybe<polygon_swap_LpAccountBalance>;
+  polygon_swap_lpAccountBalances: Array<polygon_swap_LpAccountBalance>;
+  polygon_swap_lpToken?: Maybe<polygon_swap_LpToken>;
+  polygon_swap_lpTokens: Array<polygon_swap_LpToken>;
+  polygon_swap_lpTransferEvent?: Maybe<polygon_swap_LpTransferEvent>;
+  polygon_swap_lpTransferEvents: Array<polygon_swap_LpTransferEvent>;
   polygon_swap_stableSwapEvent?: Maybe<polygon_swap_StableSwapEvent>;
   polygon_swap_stableSwapEvents: Array<polygon_swap_StableSwapEvent>;
   polygon_swap_swapTradeVolume?: Maybe<polygon_swap_SwapTradeVolume>;
   polygon_swap_swapTradeVolumes: Array<polygon_swap_SwapTradeVolume>;
+  polygon_swap_lpTokenEvent?: Maybe<polygon_swap_LpTokenEvent>;
+  polygon_swap_lpTokenEvents: Array<polygon_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
   polygon_swap__meta?: Maybe<polygon_swap__Meta_>;
 };
@@ -1332,6 +2046,78 @@ export type Subscriptionpolygon_swap_swapWeeklyVolumesArgs = {
 };
 
 
+export type Subscriptionpolygon_swap_lpAccountArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpAccountsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpAccount_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpAccountBalanceArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpAccountBalancesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTokenArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTokensArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpToken_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTransferEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTransferEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionpolygon_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<polygon_swap_Block_height>;
@@ -1363,6 +2149,24 @@ export type Subscriptionpolygon_swap_swapTradeVolumesArgs = {
   orderBy?: InputMaybe<polygon_swap_SwapTradeVolume_orderBy>;
   orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
   where?: InputMaybe<polygon_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTokenEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_swap_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_swap_lpTokenEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<polygon_swap_OrderDirection>;
+  where?: InputMaybe<polygon_swap_LpTokenEvent_filter>;
   block?: InputMaybe<polygon_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1797,6 +2601,22 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   polygon_swap_swapWeeklyVolumes: InContextSdkMethod<Query['polygon_swap_swapWeeklyVolumes'], Querypolygon_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
+  polygon_swap_lpAccount: InContextSdkMethod<Query['polygon_swap_lpAccount'], Querypolygon_swap_lpAccountArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccounts: InContextSdkMethod<Query['polygon_swap_lpAccounts'], Querypolygon_swap_lpAccountsArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccountBalance: InContextSdkMethod<Query['polygon_swap_lpAccountBalance'], Querypolygon_swap_lpAccountBalanceArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccountBalances: InContextSdkMethod<Query['polygon_swap_lpAccountBalances'], Querypolygon_swap_lpAccountBalancesArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpToken: InContextSdkMethod<Query['polygon_swap_lpToken'], Querypolygon_swap_lpTokenArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokens: InContextSdkMethod<Query['polygon_swap_lpTokens'], Querypolygon_swap_lpTokensArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTransferEvent: InContextSdkMethod<Query['polygon_swap_lpTransferEvent'], Querypolygon_swap_lpTransferEventArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTransferEvents: InContextSdkMethod<Query['polygon_swap_lpTransferEvents'], Querypolygon_swap_lpTransferEventsArgs, MeshContext>,
+  /** null **/
   polygon_swap_stableSwapEvent: InContextSdkMethod<Query['polygon_swap_stableSwapEvent'], Querypolygon_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
   polygon_swap_stableSwapEvents: InContextSdkMethod<Query['polygon_swap_stableSwapEvents'], Querypolygon_swap_stableSwapEventsArgs, MeshContext>,
@@ -1804,6 +2624,10 @@ export type _SubgraphErrorPolicy_ =
   polygon_swap_swapTradeVolume: InContextSdkMethod<Query['polygon_swap_swapTradeVolume'], Querypolygon_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
   polygon_swap_swapTradeVolumes: InContextSdkMethod<Query['polygon_swap_swapTradeVolumes'], Querypolygon_swap_swapTradeVolumesArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokenEvent: InContextSdkMethod<Query['polygon_swap_lpTokenEvent'], Querypolygon_swap_lpTokenEventArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokenEvents: InContextSdkMethod<Query['polygon_swap_lpTokenEvents'], Querypolygon_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon_swap__meta: InContextSdkMethod<Query['polygon_swap__meta'], Querypolygon_swap__metaArgs, MeshContext>
   };
@@ -1850,6 +2674,22 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   polygon_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['polygon_swap_swapWeeklyVolumes'], Subscriptionpolygon_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
+  polygon_swap_lpAccount: InContextSdkMethod<Subscription['polygon_swap_lpAccount'], Subscriptionpolygon_swap_lpAccountArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccounts: InContextSdkMethod<Subscription['polygon_swap_lpAccounts'], Subscriptionpolygon_swap_lpAccountsArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccountBalance: InContextSdkMethod<Subscription['polygon_swap_lpAccountBalance'], Subscriptionpolygon_swap_lpAccountBalanceArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpAccountBalances: InContextSdkMethod<Subscription['polygon_swap_lpAccountBalances'], Subscriptionpolygon_swap_lpAccountBalancesArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpToken: InContextSdkMethod<Subscription['polygon_swap_lpToken'], Subscriptionpolygon_swap_lpTokenArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokens: InContextSdkMethod<Subscription['polygon_swap_lpTokens'], Subscriptionpolygon_swap_lpTokensArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTransferEvent: InContextSdkMethod<Subscription['polygon_swap_lpTransferEvent'], Subscriptionpolygon_swap_lpTransferEventArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTransferEvents: InContextSdkMethod<Subscription['polygon_swap_lpTransferEvents'], Subscriptionpolygon_swap_lpTransferEventsArgs, MeshContext>,
+  /** null **/
   polygon_swap_stableSwapEvent: InContextSdkMethod<Subscription['polygon_swap_stableSwapEvent'], Subscriptionpolygon_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
   polygon_swap_stableSwapEvents: InContextSdkMethod<Subscription['polygon_swap_stableSwapEvents'], Subscriptionpolygon_swap_stableSwapEventsArgs, MeshContext>,
@@ -1857,6 +2697,10 @@ export type _SubgraphErrorPolicy_ =
   polygon_swap_swapTradeVolume: InContextSdkMethod<Subscription['polygon_swap_swapTradeVolume'], Subscriptionpolygon_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
   polygon_swap_swapTradeVolumes: InContextSdkMethod<Subscription['polygon_swap_swapTradeVolumes'], Subscriptionpolygon_swap_swapTradeVolumesArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokenEvent: InContextSdkMethod<Subscription['polygon_swap_lpTokenEvent'], Subscriptionpolygon_swap_lpTokenEventArgs, MeshContext>,
+  /** null **/
+  polygon_swap_lpTokenEvents: InContextSdkMethod<Subscription['polygon_swap_lpTokenEvents'], Subscriptionpolygon_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon_swap__meta: InContextSdkMethod<Subscription['polygon_swap__meta'], Subscriptionpolygon_swap__metaArgs, MeshContext>
   };

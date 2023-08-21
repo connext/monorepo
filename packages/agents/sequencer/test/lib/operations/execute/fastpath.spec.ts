@@ -102,7 +102,7 @@ describe("Operations:Execute:FastPath", () => {
       const bid: Bid = mock.entity.bid({ transferId });
 
       getStatusStub.onCall(0).resolves(ExecStatus.None);
-      getStatusStub.onCall(1).resolves(ExecStatus.Queued);
+      getStatusStub.onCall(1).resolves(ExecStatus.Enqueued);
 
       await storeFastPathData(bid, requestContext);
 
@@ -115,23 +115,6 @@ describe("Operations:Execute:FastPath", () => {
       expect(getStatusStub.callCount).to.eq(2);
       expect(getStatusStub.getCall(0).args).to.be.deep.eq([transferId]);
       expect(getStatusStub.getCall(1).args).to.be.deep.eq([transferId]);
-    });
-
-    it("should error if input validation fails", async () => {
-      const invalidBid1: any = {
-        ...mock.entity.bid(),
-        router: 1,
-      };
-      await expect(storeFastPathData(invalidBid1, requestContext)).to.be.rejectedWith(ParamsInvalid);
-
-      const invalidBid2: any = {
-        ...mock.entity.bid(),
-        signatures: {
-          99999: -1234,
-        },
-      };
-
-      await expect(storeFastPathData(invalidBid2, requestContext)).to.be.rejectedWith(ParamsInvalid);
     });
 
     it("should error if the auction has expired", async () => {
@@ -481,13 +464,15 @@ describe("Operations:Execute:FastPath", () => {
         bids: { [router1]: mock.entity.bid() },
       });
       getAuctionStub.resolves(auction);
+      const transfer = mock.entity.xtransfer({ transferId });
+      getTransferStub.resolves(transfer);
 
       await executeFastPathData(transferId, requestContext);
 
       expect(getTransferStub.callCount).to.be.eq(1);
     });
 
-    it("should ignore if transfer is undefined", async () => {
+    it("should throw if transfer is undefined on subgraph", async () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
       sendExecuteFastToRelayerStub.resolves({ taskId });
@@ -498,7 +483,7 @@ describe("Operations:Execute:FastPath", () => {
       getAuctionStub.resolves(auction);
       getTransferStub.resolves(undefined);
 
-      await executeFastPathData(mkBytes32(), requestContext);
+      await expect(executeFastPathData(transferId, requestContext)).to.be.rejectedWith(MissingXCall);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -547,14 +532,15 @@ describe("Operations:Execute:FastPath", () => {
       getLiquidityStub.resolves(BigNumber.from("10000000000000000000"));
       const taskId = getRandomBytes32();
       sendExecuteFastToRelayerStub.resolves({ taskId });
+      const transfer: XTransfer = mock.entity.xtransfer();
+      const transferId = transfer.transferId;
 
-      const transferId = getRandomBytes32();
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mock.entity.auction({
         timestamp: (getNtpTimeSeconds() - ctxMock.config.auctionWaitTime - 20).toString(),
         bids: {
           [mkAddress()]: {
-            ...mock.entity.bid(),
+            ...mock.entity.bid({ transferId }),
             signatures: {
               "2": mock.signature,
             },
@@ -562,8 +548,11 @@ describe("Operations:Execute:FastPath", () => {
         },
       });
       getAuctionStub.resolves(auction);
+      (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(transfer);
 
-      await executeFastPathData(mkBytes32(), requestContext);
+      getTransferStub.resolves(transfer);
+
+      await expect(executeFastPathData(mkBytes32(), requestContext)).to.be.rejectedWith(NoBidsSent);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);
@@ -579,11 +568,13 @@ describe("Operations:Execute:FastPath", () => {
       getQueuedTransfersStub.resolves([transferId]);
       const auction = mockAuctionDataBatch(1)[0];
       getAuctionStub.resolves(auction);
+      const transfer = mock.entity.xtransfer({ transferId });
+      getTransferStub.resolves(transfer);
 
       getLiquidityStub.resolves(undefined);
       (ctxMock.adapters.subgraph as any).getAssetBalance.resolves(constants.Zero);
 
-      await executeFastPathData(mkBytes32(), requestContext);
+      await expect(executeFastPathData(mkBytes32(), requestContext)).to.be.rejectedWith(NoBidsSent);
 
       expect(getAuctionStub.callCount).to.be.eq(1);
       expect(getTransferStub.callCount).to.be.eq(1);

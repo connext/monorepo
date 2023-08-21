@@ -23,4 +23,8 @@ export class OptimisticHubDBHelper implements DBHelper {
   public async getRoot() {
     return undefined;
   }
+
+  public async clearCache() {
+    // noop
+  }
 }

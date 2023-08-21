@@ -470,6 +470,7 @@ type mainnet_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: mainnet_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: mainnet_Bytes
   reconciledTransactionHash: mainnet_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +478,7 @@ type mainnet_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: mainnet_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input mainnet_DestinationTransfer_filter {
@@ -734,6 +736,14 @@ input mainnet_DestinationTransfer_filter {
   executedTxOrigin_not_in: [mainnet_Bytes!]
   executedTxOrigin_contains: mainnet_Bytes
   executedTxOrigin_not_contains: mainnet_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: mainnet_Bytes
   reconciledCaller_not: mainnet_Bytes
   reconciledCaller_gt: mainnet_Bytes
@@ -796,6 +806,14 @@ input mainnet_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [mainnet_Bytes!]
   reconciledTxOrigin_contains: mainnet_Bytes
   reconciledTxOrigin_not_contains: mainnet_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
   and: [mainnet_DestinationTransfer_filter]
@@ -840,6 +858,7 @@ enum mainnet_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,7 +866,14 @@ enum mainnet_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar mainnet_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum mainnet_OrderDirection {
@@ -1025,6 +1051,7 @@ type mainnet_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: mainnet_Bytes
+  txNonce: BigInt
 }
 
 input mainnet_OriginTransfer_filter {
@@ -1317,6 +1344,14 @@ input mainnet_OriginTransfer_filter {
   txOrigin_not_in: [mainnet_Bytes!]
   txOrigin_contains: mainnet_Bytes
   txOrigin_not_contains: mainnet_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
   and: [mainnet_OriginTransfer_filter]
@@ -1372,6 +1407,7 @@ enum mainnet_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1945,6 +1981,7 @@ enum mainnet_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2099,6 +2136,7 @@ enum mainnet_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2711,6 +2749,7 @@ enum mainnet_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2718,6 +2757,7 @@ enum mainnet_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash

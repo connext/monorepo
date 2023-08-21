@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@jtbennett/ts-project-scripts": "1.0.0-rc.4",
     "@typescript-eslint/eslint-plugin": "5.52.0",
@@ -10,7 +12,8 @@
     "eslint": "8.34.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-node": "11.1.0",
-    "rimraf": "3.0.2"
+    "husky": "^8.0.3",
+    "rimraf": "^5.0.1"
   },
   "workspaces": [
     "packages/utils",
@@ -27,6 +30,7 @@
     "packages/agents/sequencer",
     "packages/agents/cartographer/poller",
     "packages/agents/sdk",
+    "packages/agents/sdk-wrapper",
     "packages/agents/relayer",
     "packages/agents/lighthouse",
     "packages/agents/watcher",
@@ -39,7 +43,7 @@
     "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration --exclude @connext/smart-contracts run lint",
     "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/sdk run test",
     "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
+    "build:all": "yarn workspaces foreach --parallel -p --topological-dev --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach run version $0 && yarn run version $0",
     "purge:all": "yarn workspaces foreach --parallel run purge && rimraf './node_modules'",
@@ -52,6 +56,6 @@
   "resolutions": {
     "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
   },
-  "packageManager": "yarn@3.5.0",
+  "packageManager": "yarn@3.3.1",
   "stableVersion": "0.1.25"
 }

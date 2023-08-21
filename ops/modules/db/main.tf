@@ -4,7 +4,7 @@ resource "aws_db_instance" "db" {
   identifier = var.identifier
 
   engine            = "postgres"
-  engine_version    = "14.3"
+  engine_version    = "14.7"
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
 
@@ -78,5 +78,15 @@ resource "aws_db_parameter_group" "rds_postgres" {
     name         = "cron.database_name"
     value        = var.name
     apply_method = "pending-reboot"
+  }
+  parameter {
+    name = "max_standby_archive_delay"
+    # 30 minutes in milliseconds
+    value = "1800000"
+  }
+  parameter {
+    name = "max_standby_streaming_delay"
+    # 30 minutes in milliseconds
+    value = "1800000"
   }
 }

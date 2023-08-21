@@ -57,6 +57,14 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     // },
   ],
   agents: {
+    relayerFeeVaults: {
+      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    },
     watchers: {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },

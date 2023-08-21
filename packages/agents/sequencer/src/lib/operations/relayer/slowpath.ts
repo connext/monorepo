@@ -35,13 +35,19 @@ export const sendExecuteSlowToRelayer = async (
   // Simulation data for Execute transfer
   const relayerFrom = GELATO_RELAYER_ADDRESS;
 
-  await database.updateExecuteSimulationData(
-    transfer.transferId,
-    executeEncodedData,
-    relayerFrom,
-    destinationConnextAddress,
-    String(destinationChainId),
-  );
+  try {
+    await database.updateExecuteSimulationData(
+      transfer.transferId,
+      executeEncodedData,
+      relayerFrom,
+      destinationConnextAddress,
+      String(destinationChainId),
+    );
+  } catch (err: unknown) {
+    logger.error(`Database error:updateExecuteSimulationData`, requestContext, methodContext, undefined, {
+      error: err,
+    });
+  }
 
   return await sendWithRelayerWithBackup(
     destinationChainId,

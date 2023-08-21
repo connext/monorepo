@@ -75,7 +75,7 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
   let result = 0;
   const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
   let apiEndpoint = `${GELATO_SERVER}/oracles/${chainId}/conversionRate`;
-  if (to) {
+  if (to && chainId == _chainId) {
     apiEndpoint = apiEndpoint.concat(`?to=${to}`);
   }
 

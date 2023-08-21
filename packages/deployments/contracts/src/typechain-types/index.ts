@@ -158,6 +158,8 @@ export type { IWrapper } from "./contracts/core/xreceivers/Unwrapper.sol/IWrappe
 export { IWrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/IWrapper__factory";
 export type { Unwrapper } from "./contracts/core/xreceivers/Unwrapper.sol/Unwrapper";
 export { Unwrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/Unwrapper__factory";
+export type { AdminHubConnector } from "./contracts/messaging/connectors/admin/AdminHubConnector";
+export { AdminHubConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminHubConnector__factory";
 export type { ArbitrumHubConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumHubConnector";
 export { ArbitrumHubConnector__factory } from "./factories/contracts/messaging/connectors/arbitrum/ArbitrumHubConnector__factory";
 export type { ArbitrumSpokeConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector";
@@ -216,6 +218,12 @@ export type { PolygonZkSpokeConnector } from "./contracts/messaging/connectors/p
 export { PolygonZkSpokeConnector__factory } from "./factories/contracts/messaging/connectors/polygonzk/PolygonZkSpokeConnector__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
+export type { BaseWormhole } from "./contracts/messaging/connectors/wormhole/BaseWormhole";
+export { BaseWormhole__factory } from "./factories/contracts/messaging/connectors/wormhole/BaseWormhole__factory";
+export type { WormholeHubConnector } from "./contracts/messaging/connectors/wormhole/WormholeHubConnector";
+export { WormholeHubConnector__factory } from "./factories/contracts/messaging/connectors/wormhole/WormholeHubConnector__factory";
+export type { WormholeSpokeConnector } from "./contracts/messaging/connectors/wormhole/WormholeSpokeConnector";
+export { WormholeSpokeConnector__factory } from "./factories/contracts/messaging/connectors/wormhole/WormholeSpokeConnector__factory";
 export type { ZkSyncHubConnector } from "./contracts/messaging/connectors/zksync/ZkSyncHubConnector";
 export { ZkSyncHubConnector__factory } from "./factories/contracts/messaging/connectors/zksync/ZkSyncHubConnector__factory";
 export type { ZkSyncSpokeConnector } from "./contracts/messaging/connectors/zksync/ZkSyncSpokeConnector";
@@ -242,6 +250,16 @@ export type { IBridgeMessageReceiver } from "./contracts/messaging/interfaces/am
 export { IBridgeMessageReceiver__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IBridgeMessageReceiver__factory";
 export type { IPolygonZkEVMBridge } from "./contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge";
 export { IPolygonZkEVMBridge__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge__factory";
+export type { IWormholeReceiver } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeReceiver";
+export { IWormholeReceiver__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeReceiver__factory";
+export type { IWormholeRelayer } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayer";
+export { IWormholeRelayer__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayer__factory";
+export type { IWormholeRelayerBase } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerBase";
+export { IWormholeRelayerBase__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerBase__factory";
+export type { IWormholeRelayerDelivery } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerDelivery";
+export { IWormholeRelayerDelivery__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerDelivery__factory";
+export type { IWormholeRelayerSend } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerSend";
+export { IWormholeRelayerSend__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayerSend__factory";
 export type { IL1Messenger } from "./contracts/messaging/interfaces/ambs/zksync/IL1Messenger";
 export { IL1Messenger__factory } from "./factories/contracts/messaging/interfaces/ambs/zksync/IL1Messenger__factory";
 export type { IZkSync } from "./contracts/messaging/interfaces/ambs/zksync/IZkSync";

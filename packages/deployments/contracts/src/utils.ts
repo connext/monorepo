@@ -90,9 +90,9 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
   const env = mustGetEnv(_env);
   let contractName = _contractName;
 
-  if (contractName.includes("Multichain")) {
+  if (contractName.includes("Wormhole")) {
     const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
-    contractName = contractName.replace("Multichain", networkName);
+    contractName = contractName.replace("Wormhole", networkName);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
@@ -252,6 +252,7 @@ export const queryOptimismMessageStatus = async (
     l2ChainId,
     l1SignerOrProvider: l1Provider,
     l2SignerOrProvider: l2Provider,
+    bedrock: true,
   });
   const status = await crossChainMessenger.getMessageStatus(hash);
   const [message] = await crossChainMessenger.getMessagesByTransaction(hash);
@@ -260,6 +261,7 @@ export const queryOptimismMessageStatus = async (
     [MessageStatus.UNCONFIRMED_L1_TO_L2_MESSAGE]: "Unconfirmed L1 -> L2",
     [MessageStatus.FAILED_L1_TO_L2_MESSAGE]: "Failed L1 -> L2",
     [MessageStatus.STATE_ROOT_NOT_PUBLISHED]: "State root not published",
+    [MessageStatus.READY_TO_PROVE]: "Ready to prove",
     [MessageStatus.IN_CHALLENGE_PERIOD]: "In challenge period",
     [MessageStatus.READY_FOR_RELAY]: "Ready for relay",
     [MessageStatus.RELAYED]: "Relayed",
@@ -270,7 +272,7 @@ export const queryOptimismMessageStatus = async (
     const receipt = await tx.wait();
     console.log("relay message tx mined:", receipt.transactionHash);
   }
-  return (mapping as any)[status] as string;
+  return mapping[status];
 };
 
 export const deployBeaconProxy = async <T extends Contract = Contract>(

@@ -59,6 +59,9 @@ import "./tasks/connector/claimPolygonZk";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
+import "./tasks/rootmanager/enrollAdminConnector";
+import "./tasks/connector/addSpokeRootToAggregate";
+import "./tasks/connector/wormholeDeliver";
 import { hardhatNetworks } from "./src/config";
 
 const config: HardhatUserConfig = {

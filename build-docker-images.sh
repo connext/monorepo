@@ -4,7 +4,8 @@ yarn
 yarn build:all
 echo "Build done."
 
-echo "Docker: building sequencer-publisher and sequencer-subscriber images..."
+echo "Docker: building sequencer-server, sequencer-publisher and sequencer-subscriber images..."
+docker build --tag sequencer-server:latest --file ./docker/sequencer/server/Dockerfile .
 docker build --tag sequencer-publisher:latest --file ./docker/sequencer/publisher/Dockerfile .
 docker build --tag sequencer-subscriber:latest --file ./docker/sequencer/subscriber/Dockerfile .
 

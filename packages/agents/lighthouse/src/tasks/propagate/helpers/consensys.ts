@@ -19,7 +19,8 @@ export const getPropagateParams = async (
     l2ChainId,
   });
 
-  const _fee = utils.parseEther("0.01").toString();
+  // the additional optional "postman" fee = 0 currently
+  const _fee = utils.parseEther("0").toString();
 
   return { _connector: "", _fee, _encodedData: "0x" };
 };

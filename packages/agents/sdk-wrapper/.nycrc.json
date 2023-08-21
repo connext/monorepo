@@ -1,0 +1,18 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "exclude": [
+    "src/index.ts",
+    "src/interfaces/*.ts",
+    "src/sdkStableSwap.ts",
+    "src/lib/errors/*.ts",
+    "src/lib/helpers/*.ts",
+    "src/lib/priceFeed/*.ts",
+    "test/**/*.ts"
+  ],
+  "all": true,
+  "check-coverage": true,
+  "branches": 65,
+  "lines": 70,
+  "functions": 70,
+  "statements": 70
+}

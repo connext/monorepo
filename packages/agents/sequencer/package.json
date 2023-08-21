@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-sequencer",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "Sequencer for Amarok, previously auctioneer",
   "author": "Connext",
   "license": "MIT",
@@ -11,6 +11,7 @@
     "start": "node dist/index.js",
     "start:publisher": "node --enable-source-maps dist/publisher.js",
     "start:subscriber": "node --enable-source-maps dist/subscriber.js",
+    "start:server": "node --enable-source-maps dist/server.js",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --require test/globalTestHook.ts --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
@@ -40,6 +41,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.21",
+    "amqplib": "0.10.3",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.13.0",
@@ -51,6 +53,7 @@
     "tsc": "2.0.4"
   },
   "devDependencies": {
+    "@types/amqplib": "0.10.1",
     "@types/pg": "8.6.6",
     "concurrently": "7.6.0",
     "eslint": "8.34.0",
