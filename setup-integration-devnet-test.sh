@@ -11,6 +11,9 @@ echo ".env contents loaded"
 ##### Config Variables
 LOCALHOST="127.0.0.1"
 
+#For M* macs set the default platform to linux/amd64 
+# export DOCKER_DEFAULT_PLATFORM=linux/amd64
+
 
 
 ##### Devnet Deployments
@@ -45,33 +48,33 @@ sleep 5
 
 ##### Subgraph Deployments
 echo "Building subgraph for the hub chain - mainnet-devnet..."
-yarn workspace @connext/nxtp-adapters-subgraph prepare:devnet:amarok-hub-v0
-yarn workspace @connext/nxtp-adapters-subgraph codegen
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-hub-v0
+yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the hub chain"
 
 echo "Deploying subgraph to the hub chain - mainnet-devnet..."
-yarn workspace @connext/nxtp-adapters-subgraph create:hub_devnet_mainnet --node http://localhost:8020/
-yarn workspace @connext/nxtp-adapters-subgraph deploy:hub_devnet_mainnet --node http://localhost:8020/ -l v0.0.1
+yarn workspace @connext/nxtp-subgraph create:hub_devnet_mainnet --node http://localhost:8020/
+yarn workspace @connext/nxtp-subgraph deploy:hub_devnet_mainnet --node http://localhost:8020/ -l v0.0.1
 echo "Deployed subgraph to the hub chain - mainnet-devnet"
 
 echo "Building subgraph for the spoke chain - optimism-devnet"
-yarn workspace @connext/nxtp-adapters-subgraph prepare:devnet:amarok-runtime-v0:optimism
-yarn workspace @connext/nxtp-adapters-subgraph codegen
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0:optimism
+yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chain - optimism-devnet"
 
 echo "Deploying subgraph to the spoke chain - optimism-devnet..."
-yarn workspace @connext/nxtp-adapters-subgraph create:spoke_devnet_optimism --node http://localhost:9020/
-yarn workspace @connext/nxtp-adapters-subgraph deploy:spoke_devnet_optimism --node http://localhost:9020/ -l v0.0.1
+yarn workspace @connext/nxtp-subgraph create:devnet_v0_optimism --node http://localhost:9020/
+yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_optimism --node http://localhost:9020/ -l v0.0.1
 echo "Deployed subgraphs to the optimism-devnet"
 
 echo "Building subgraph for the spoke chain - gnosis-devnet"
-yarn workspace @connext/nxtp-adapters-subgraph prepare:devnet:amarok-runtime-v0:gnosis
-yarn workspace @connext/nxtp-adapters-subgraph codegen
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0:gnosis
+yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chain - gnosis-devnet"
 
 echo "Deploying subgraph to the hub chain - gnosis-devnet..."
-yarn workspace @connext/nxtp-adapters-subgraph create:spoke_devnet_gnosis --node http://localhost:7020/
-yarn workspace @connext/nxtp-adapters-subgraph deploy:spoke_devnet_gnosis --node http://localhost:7020/ -l v0.0.1
+yarn workspace @connext/nxtp-subgraph create:devnet_v0_gnosis --node http://localhost:7020/
+yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_gnosis --node http://localhost:7020/ -l v0.0.1
 echo "Deployed subgraph to the gnosis-devnet"
 #####
 
