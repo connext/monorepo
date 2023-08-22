@@ -233,6 +233,45 @@ export class TransfersCache extends Cache {
     else return false;
   }
 
+  /**
+   * Add a list of nonces missing from the subgraph result for the secondary poller.
+   * @param domain - The domain where the missing txs happened.
+   * @param nonces - The list of nonce.
+   */
+  public async addMissingNonces(domain: string, nonces: number[]) {
+    for (const nonce of nonces) {
+      await this.data.rpush(`${this.prefix}:missing:${domain}`, nonce.toString());
+    }
+  }
+
+  /**
+   * Get the missing nonces on a given domain.
+   *
+   * @param domain - The domain where the missing txs happened.
+   * @param offset - The start index.
+   * @param limit - The number of records you wanna get.
+   * @returns The list of nonce.
+   */
+  public async getMissingNonces(domain: string, offset = 0, limit = 100): Promise<string[]> {
+    const nonces = await this.data.lrange(`${this.prefix}:missing:${domain}`, offset, offset + limit - 1);
+    return nonces;
+  }
+
+  /**
+   * Remove missing nonces in the cache.
+   * @param domain - The target domain.
+   * @param nonces - The list of nonces you're gonna remove.
+   * @returns - The number of items removed in the cache.
+   */
+  public async removeMissingNonces(domain: string, nonces: number[]): Promise<number> {
+    let sum = 0;
+    for (const nonce of nonces) {
+      const res = await this.data.lrem(`${this.prefix}:missing:${domain}`, 0, nonce.toString());
+      sum += res;
+    }
+    return sum;
+  }
+
   /// MARK - Errors
   /**
    * Returns a list of all error strings for the specified transfer ID.

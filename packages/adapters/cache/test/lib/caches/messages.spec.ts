@@ -1,4 +1,4 @@
-import { ExecStatus, Logger, XMessage, expect, mkBytes32, mock } from "@connext/nxtp-utils";
+import { ExecStatus, Logger, RelayerType, XMessage, expect, mkBytes32, mock } from "@connext/nxtp-utils";
 import { MessagesCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });
@@ -155,6 +155,36 @@ describe("MessagesCache", () => {
       await messagesCache.setNonce("1111", 100);
       const latestNonce = await messagesCache.getNonce("1111");
       expect(latestNonce).to.be.equal(100);
+    });
+  });
+
+  describe("#task", () => {
+    beforeEach(async () => {
+      await messagesCache.clear();
+    });
+
+    it("should store tasks", async () => {
+      const taskId = mkBytes32("0x123123");
+      const leaves = [mkBytes32("0x111"), mkBytes32("0x222")];
+      const originDomain = "13337";
+      const destinationDomain = "13338";
+      await messagesCache.addTaskPending(taskId, RelayerType.Mock, originDomain, destinationDomain, leaves);
+
+      const tasks = await messagesCache.getPendingTasks();
+      expect(tasks).to.be.deep.eq([{ taskId, relayer: RelayerType.Mock, originDomain, destinationDomain, leaves }]);
+    });
+
+    it("should remove tasks", async () => {
+      const taskId = mkBytes32("0x123123");
+      const leaves = [mkBytes32("0x111"), mkBytes32("0x222")];
+      const originDomain = "13337";
+      const destinationDomain = "13338";
+      await messagesCache.addTaskPending(taskId, RelayerType.Mock, originDomain, destinationDomain, leaves);
+
+      await messagesCache.removePendingTasks([taskId]);
+
+      const tasks = await messagesCache.getPendingTasks();
+      expect(tasks.length).to.be.eq(0);
     });
   });
 
