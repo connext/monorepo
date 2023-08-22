@@ -198,32 +198,10 @@ services:
     ports:
       - "6381:6379"
 
-  cartographer-transfers:
-    container_name: cartographer-transfers
-    depends_on:
-      - cartographer-database
-      - cartographer-api
-    image: ${CARTOGRAPHER_IMAGE}
-    restart: always
-    ports:
-      - "8083:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
-      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
-
   cartographer-routers:
     container_name: cartographer-routers
     depends_on:
       - cartographer-database
-      - cartographer-api
     image: ${CARTOGRAPHER_IMAGE}
     restart: always
     ports:
@@ -233,12 +211,132 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
       - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: routers
+
+  cartographer-transfers:
+    container_name: cartographer-transfers
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8094:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: transfers
+
+  cartographer-messages:
+    container_name: cartographer-messages
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8095:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: messages
+
+  cartographer-roots:
+    container_name: cartographer-roots
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8096:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: roots
+
+  cartographer-stableswap:
+    container_name: cartographer-stableswap
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8097:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: stableswap
+
+  cartographer-messagestatus:
+    container_name: cartographer-messagestatus
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8098:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: messagestatus
+
+  cartographer-prices:
+    container_name: cartographer-prices
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8099:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
+      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: prices
 
   cartographer-database:
     container_name: cartographer-database
@@ -261,16 +359,85 @@ services:
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: query
 
-  # lighthouse:
-  #   container_name: lighthouse
-  #   depends_on:
-  #     - cartographer-api
-  #   image: ${LIGHTHOUSE_IMAGE}
-  #   restart: always
-  #   logging:
-  #     driver: json-file
-  #     options:
-  #       max-size: 10m
-  #   volumes:
-  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-  #     - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+  lighthouse-prover-subscriber:
+    container_name: lighthouse-prover-subscriber
+    depends_on:
+      - cartographer-database
+      - message-queue
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: prover-sub
+
+  lighthouse-prover-publisher:
+    container_name: lighthouse-prover-publisher
+    depends_on:
+      - cartographer-database
+      - message-queue
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: prover-pub
+
+  lighthouse-process-from-root:
+    container_name: lighthouse-process-from-root
+    depends_on:
+      - cartographer-database
+      - message-queue
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: process
+
+  lighthouse-propagate:
+    container_name: lighthouse-propagate
+    depends_on:
+      - cartographer-database
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: propagate
+
+  lighthouse-sendoutboundroot:
+    container_name: lighthouse-sendoutboundroot
+    depends_on:
+      - cartographer-database
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: sendoutboundroot
