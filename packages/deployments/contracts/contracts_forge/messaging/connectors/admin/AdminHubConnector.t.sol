@@ -50,7 +50,7 @@ contract AdminHubConnectorTest is ForgeHelper {
 
     // deploy root manager
     vm.prank(owner);
-    rootManager = new RootManager(0, address(merkleTreeManager), address(manager));
+    rootManager = new RootManager(0, address(merkleTreeManager), address(manager), 0, 0);
     vm.prank(address(rootManager));
     merkleTreeManager.initialize(address(rootManager));
 
@@ -148,6 +148,10 @@ contract AdminHubConnectorTest is ForgeHelper {
     vm.expectEmit(true, true, true, true, address(adminHubConnector));
     emit MessageProcessed(abi.encode(_rootToInsert), owner);
 
+    // activate slow mode to be able to call aggregate on RootManager
+    vm.prank(watcher);
+    rootManager.activateSlowMode();
+    
     vm.prank(owner);
     adminHubConnector.addSpokeRootToAggregate(_rootToInsert);
 
