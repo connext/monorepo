@@ -58,7 +58,7 @@ yarn workspace @connext/nxtp-subgraph deploy:hub_devnet_mainnet --node http://lo
 echo "Deployed subgraph to the hub chain - mainnet-devnet"
 
 echo "Building subgraph for the spoke chain - optimism-devnet"
-yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0:optimism
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0 optimism
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chain - optimism-devnet"
 
@@ -68,7 +68,7 @@ yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_optimism --node http://lo
 echo "Deployed subgraphs to the optimism-devnet"
 
 echo "Building subgraph for the spoke chain - gnosis-devnet"
-yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0:gnosis
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0 gnosis
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chain - gnosis-devnet"
 

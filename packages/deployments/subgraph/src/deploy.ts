@@ -4,7 +4,6 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
-import { getLatestBlockNumber } from "@connext/nxtp-utils";
 import contractDeployments from "@connext/smart-contracts/deployments.json";
 import { utils } from "ethers";
 
