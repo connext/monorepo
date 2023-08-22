@@ -85,6 +85,7 @@ export const sanitizeAndInit = async () => {
 
   const supported = initConfig.supportedDomains;
   const domains: string[] = _domains ?? supported;
+  console.log(_domains, supported);
   for (const domain of domains) {
     if (!supported.includes(domain)) {
       throw new Error(`Unsupported domain parsed!, domain: ${domain}, supported: ${supported}`);
@@ -102,7 +103,9 @@ export const sanitizeAndInit = async () => {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
     const configuredDomains = domains.filter((domain) => assetDomains.includes(domain));
-    if (JSON.stringify(configuredDomains.sort()) != JSON.stringify(domains.sort())) {
+    console.log(configuredDomains); //subset array
+    const isSubset = configuredDomains.every((item) => domains.includes(item));
+    if (!isSubset) {
       throw new Error(
         `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${
           asset.canonical.address
@@ -385,6 +388,9 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
       Object.entries(asset.representations).forEach(([key, value]) => {
         if (!adopteds[key]) {
           adopteds[key] = [];
+        }
+        if (!value) {
+          return;
         }
         value.adopted === constants.AddressZero ? "" : adopteds[key].push(value.adopted);
         if (!value.local) {
