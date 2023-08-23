@@ -342,7 +342,7 @@ services:
     container_name: cartographer-database
     image: postgres
     ports:
-      - "5434:5432"
+      - "5432:5432"
     command: ["postgres"]
     environment:
       POSTGRES_PASSWORD: qwerty
