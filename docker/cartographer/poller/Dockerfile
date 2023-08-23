@@ -72,4 +72,4 @@ WORKDIR /home/node/packages/agents/cartographer/poller
 
 EXPOSE 8080
 
-CMD ["node", "--trace-warnings", "dist/tasks/run.js"]
+CMD ["node", "--trace-warnings", "dist/run.js"]
