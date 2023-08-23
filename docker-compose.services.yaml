@@ -340,7 +340,7 @@ services:
 
   cartographer-database:
     container_name: cartographer-database
-    image: postgres
+    image: ${DB_IMAGE}
     ports:
       - "5432:5432"
     command: ["postgres"]
