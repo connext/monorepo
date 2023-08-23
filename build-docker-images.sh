@@ -21,7 +21,7 @@ echo "Docker: building relayer image..."
 docker build --tag relayer:latest --file ./docker/relayer/Dockerfile .
 
 echo "Docker: building lighthouse image..."
-docker build --tag lighthouse:latest --file ./docker/lighthouse/Dockerfile .
+docker build --tag lighthouse:latest --file docker/lighthouse/subscriber/Dockerfile .
 
 echo "Docker: building cartographer-transfers and cartographer-routers images..."
 docker build --tag cartographer:latest --file ./docker/cartographer/poller/Dockerfile .
