@@ -3,7 +3,7 @@ import { stub, SinonStub, reset, restore } from "sinon";
 import * as HelperFns from "../../../src/helpers";
 import * as MockableFns from "../../../src/mockable";
 import { SwapQuoteParams, Swapper, EstimateQuoteAmountArgs } from "../../../src/types";
-import { getBridgeAmountOut, getSwapAmountOut, getEstimateAmountRecieved } from "../../../src";
+import { getBridgeAmountOut, getSwapAmountOut, getEstimateAmountReceived } from "../../../src";
 
 const mockOriginSwapQuoteParams: SwapQuoteParams = {
   domainId: "133712",
@@ -147,7 +147,7 @@ describe("Libs:quote", () => {
     });
   });
 
-  describe("getEstimateAmountRecieved", () => {
+  describe("getEstimateAmountReceived", () => {
     it("should return the estimated amount received", async () => {
       stub(HelperFns, "OriginSwapperPerDomain").value({
         "1869640809": {
@@ -170,7 +170,7 @@ describe("Libs:quote", () => {
       stub(MockableFns, "getContract").returns({
         callStatic: { quoteExactInputSingle: stub().resolves(["900000000000000"]) },
       } as any);
-      expect(await getEstimateAmountRecieved(mockEstimateQuoteAmountParams)).to.be.eq("900000000000000");
+      expect(await getEstimateAmountReceived(mockEstimateQuoteAmountParams)).to.be.eq("900000000000000");
     });
   });
 });

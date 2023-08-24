@@ -3,9 +3,9 @@ import { stub, restore, reset } from "sinon";
 
 import { create } from "../src/sdk";
 import { mock } from "./mock";
-import { getEnvConfig } from "@connext/sdk-core/dist/config";
+import { getEnvConfig } from "../src/config";
 
-import * as ConfigFns from "@connext/sdk-core/src/config";
+import * as ConfigFns from "../src/config";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();

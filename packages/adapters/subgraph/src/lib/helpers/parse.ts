@@ -322,9 +322,9 @@ export const rootMessage = (entity: any): RootMessage => {
       });
     }
   }
-
+  const [idRoot, ...idRest] = entity.id.split("-");
   return {
-    id: entity.id,
+    id: isValidBytes32(idRoot) ? entity.id : [`0x${idRoot.slice(-64)}`].concat(idRest as string[]).join("-"),
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
     // root will be final 32 if not 32 bytes

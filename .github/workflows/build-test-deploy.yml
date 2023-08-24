@@ -64,11 +64,11 @@ jobs:
       - name: Check Yarn version
         run: yarn --version
 
-      - name: Validate using commitlint
-        if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
-        uses: wagoid/commitlint-github-action@v5
-        with:
-          commitDepth: 1
+      # - name: Validate using commitlint
+      #   if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
+      #   uses: wagoid/commitlint-github-action@v5
+      #   with:
+      #     commitDepth: 1
 
       - name: Yarn install
         run: yarn install
@@ -107,7 +107,8 @@ jobs:
             "packages/adapters/txservice:@connext/nxtp-txservice"
             "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
             "packages/adapters/cache:@connext/nxtp-adapters-cache"
-            "packages/agents/sdk:@connext/sdk"
+            "packages/agents/sdk:@connext/sdk-core"
+            "packages/agents/sdk-wrapper:@connext/sdk"
           )
 
           for entry in "${workspaces[@]}"; do

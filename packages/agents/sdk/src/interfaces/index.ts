@@ -511,6 +511,7 @@ export const SdkCalculateAddLiquidityPriceImpactParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amountX: Type.String(),
   amountY: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateAddLiquidityPriceImpactParams = Static<typeof SdkCalculateAddLiquidityPriceImpactParamsSchema>;
 
@@ -520,6 +521,7 @@ export const SdkCalculateRemoveLiquidityPriceImpactParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amountX: Type.String(),
   amountY: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateRemoveLiquidityPriceImpactParams = Static<
   typeof SdkCalculateRemoveLiquidityPriceImpactParamsSchema
@@ -552,6 +554,7 @@ export type SdkGetLPTokenAddressParams = Static<typeof SdkGetLPTokenAddressParam
 export const SdkGetTokenSupplyParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetTokenSupplyParams = Static<typeof SdkGetTokenSupplyParamsSchema>;
 
@@ -560,6 +563,7 @@ export const SdkGetTokenUserBalanceParamsSchema = Type.Object({
   domainId: Type.String(),
   tokenAddress: Type.String(),
   userAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetTokenUserBalanceParams = Static<typeof SdkGetTokenUserBalanceParamsSchema>;
 
@@ -712,6 +716,7 @@ export type SdkGetPoolParams = Static<typeof SdkGetPoolParamsSchema>;
 export const SdkGetUserPoolsParamsSchema = Type.Object({
   domainId: Type.String(),
   userAddress: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkGetUserPoolsParams = Static<typeof SdkGetUserPoolsParamsSchema>;
 
@@ -821,6 +826,8 @@ export const SdkGetTransfersParamsSchema = Type.Optional(
     errorStatus: Type.Optional(XTransferErrorStatus),
     transferId: Type.Optional(Type.String()),
     transactionHash: Type.Optional(Type.String()),
+    executeTransactionHash: Type.Optional(Type.String()),
+    reconcileTransactionHash: Type.Optional(Type.String()),
     xcallCaller: Type.Optional(Type.String()),
     range: Type.Optional(TRange),
   }),

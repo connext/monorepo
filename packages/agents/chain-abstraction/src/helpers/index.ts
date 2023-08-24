@@ -21,10 +21,30 @@ import {
   getSwapQuoteForUniV3,
   initCoreSDK as _initCoreSDK,
 } from "./swapquote";
+import {
+  DestinationSwapPathCallback,
+  getSwapPathForUniV3 as _getSwapPathForUniV3,
+  getSwapPathForUniV2 as _getSwapPathForUniV2,
+  // getSwapPathForHoneySwap as _getSwapPathForHoneySwap,
+  getPathForPanCake as _getPathForPanCake,
+} from "./swaputil";
 import { DEPLOYED_ADDRESSES as _DEPLOYED_ADDRESSES } from "./address";
+import {
+  getSupportedAssets as _getSupportedAssets,
+  getCoingeckoIDs as _getCoingeckoIDs,
+  getTokenPricesInUsd as _getTokenPricesInUsd,
+} from "./asset";
+
+export const getSupportedAssetsForDomain = _getSupportedAssets;
+export const getCoingeckoIDs = _getCoingeckoIDs;
+export const getTokenPricesInUsd = _getTokenPricesInUsd;
 
 export const DEPLOYED_ADDRESSES = _DEPLOYED_ADDRESSES;
 export const initCoreSDK = _initCoreSDK;
+export const getSwapPathForUniV3 = _getSwapPathForUniV3;
+export const getSwapPathForUniV2 = _getSwapPathForUniV2;
+// export const getSwapPathForHoneySwap = _getSwapPathForHoneySwap;
+export const getPathForPanCake = _getPathForPanCake;
 
 export const OriginSwapDataFns: Record<Swapper, OriginSwapDataCallback> = {
   UniV2: getOriginSwapDataForUniV2,
@@ -37,6 +57,13 @@ export const DestinationSwapDataFns: Record<Swapper, DestinationSwapDataCallback
   UniV3: getDestinationSwapDataForUniV3,
   OneInch: getDestinationSwapDataForOneInch,
 };
+
+export const DestinationSwapPathFns: Record<Swapper, DestinationSwapPathCallback> = {
+  UniV2: getSwapPathForUniV2,
+  UniV3: getSwapPathForUniV3,
+  PanCake: getPathForPanCake,
+  // HoneySwap: getSwapPathForHoneySwap,
+}; 
 
 export const SwapQuoteFns: Record<Swapper, SwapQuoteCallback> = {
   UniV2: getSwapQuoteForUniV2,
@@ -87,45 +114,56 @@ export const OriginSwapperPerDomain: Record<string, { type: Swapper; address: st
   }, // Polygon zkEVM
 };
 
-export const DestinationSwapperPerDomain: Record<string, { type: Swapper; address: string; quoter: string }> = {
+export const DestinationSwapperPerDomain: Record<
+  string,
+  { type: Swapper; address: string; quoter: string; path: Swapper }
+> = {
   "6648936": {
     type: Swapper.UniV3,
     address: "",
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+    path: Swapper.UniV3,
   }, // ETH mainnet
   "1869640809": {
     type: Swapper.UniV3,
     address: "0x1135Cc96A7E9d8f161BE8B6bDB74F896A9658a08",
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+    path: Swapper.UniV3,
   }, // Optimism
   "6450786": {
     type: Swapper.UniV3,
     address: "0x0b081b724CDC4DD9186E64F259b5fC589a4Fd7D0", // PancakeV3 Swapper
     quoter: "0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997",
+    path: Swapper.PanCake,
   }, // BNB Chain
   "6778479": {
     type: Swapper.UniV2,
     address: "0x7b659eF70e18C01d88F305042ae916D235cb8648",
     quoter: "0x7b659eF70e18C01d88F305042ae916D235cb8648",
+    path: Swapper.HoneySwap,
   }, // Gnosis Chain
   "1886350457": {
     type: Swapper.UniV3,
     address: "0xeC345E9be52f0Fca8aAd6aec3254Ed86151b060d", // UniV3 Swapper
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+    path: Swapper.UniV3,
   }, // Polygon
   "1634886255": {
     type: Swapper.UniV3,
     address: "0x924E679c3c23017aef214c9ea1fBC22e97ff9E2e",
     quoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+    path: Swapper.UniV3,
   }, // Arbitrum One
   "2053862243": {
     type: Swapper.UniV3,
     address: "",
     quoter: "",
+    path: "",
   }, // zkSync2 mainnet
   "1887071085": {
     type: Swapper.UniV3,
     address: "",
     quoter: "",
+    path: "",
   }, // Polygon zkEVM
 };

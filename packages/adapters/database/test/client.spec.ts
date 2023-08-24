@@ -1038,7 +1038,14 @@ describe("Database client", () => {
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(
-      getUnProcessedMessages(undefined as any, undefined as any, undefined as any, undefined as any, undefined as any),
+      getUnProcessedMessages(
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+        undefined as any,
+      ),
     ).to.eventually.not.be.rejected;
     await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;

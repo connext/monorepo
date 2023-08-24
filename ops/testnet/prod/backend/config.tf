@@ -64,12 +64,12 @@ locals {
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735356532" = {}
-      "1735353714" = {}
-      "9991"       = {}
-      "1734439522" = {}
-      "2053862260" = {}
-      "1668247156" = {}
+      "1735356532" = { confirmations = 1 }
+      "1735353714" = { confirmations = 10 }
+      "9991"       = { confirmations = 200 }
+      "1734439522" = { confirmations = 1 }
+      "2053862260" = { confirmations = 1 }
+      "1668247156" = { confirmations = 1 }
     }
     environment = var.stage
     healthUrls = {

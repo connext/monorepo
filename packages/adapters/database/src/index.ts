@@ -79,6 +79,7 @@ import {
   saveAssets,
   getAssets,
   saveAssetPrice,
+  deleteCache,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -148,6 +149,7 @@ export type Database = {
     origin_domain: string,
     limit?: number,
     offset?: number,
+    startIndex?: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
@@ -283,6 +285,7 @@ export type Database = {
     leaf: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
+  deleteCache: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -353,9 +356,91 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     updateExecuteSimulationData,
     getPendingTransfersByMessageStatus,
     getMessageByLeaf,
+    deleteCache,
   };
 };
 
-export const closeDatabase = async (): Promise<void> => {
+// Get a database and pool instance
+export const getDatabaseAndPool = async (
+  databaseUrl: string,
+  logger: Logger,
+): Promise<{ pool: Pool; database: Database }> => {
+  const _pool = new Pool({ connectionString: databaseUrl, idleTimeoutMillis: 3000, allowExitOnIdle: true });
+  _pool.on("error", (err: Error) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
+
+  try {
+    await _pool.query("SELECT NOW()");
+  } catch (e: unknown) {
+    logger.error("Database connection error", undefined, undefined, jsonifyError(e as Error));
+    throw new Error("Database connection error");
+  }
+
+  return {
+    pool: _pool,
+    database: {
+      saveTransfers,
+      deleteNonExistTransfers,
+      getTransfersByStatus,
+      getTransfersWithOriginPending,
+      getTransfersWithDestinationPending,
+      getPendingTransfersByDomains,
+      getCompletedTransfersByMessageHashes,
+      saveRouterBalances,
+      saveAssets,
+      getAssets,
+      saveAssetPrice,
+      saveMessages,
+      getRootMessages,
+      saveSentRootMessages,
+      saveProcessedRootMessages,
+      saveCheckPoint,
+      getCheckPoint,
+      transaction,
+      saveAggregatedRoots,
+      savePropagatedRoots,
+      saveReceivedAggregateRoot,
+      getUnProcessedMessages,
+      getUnProcessedMessagesByDomains,
+      getUnProcessedMessagesByIndex,
+      getAggregateRoot,
+      getAggregateRootByRootAndDomain,
+      getAggregateRootCount,
+      getMessageRootIndex,
+      getLatestMessageRoot,
+      getLatestAggregateRoots,
+      getMessageRootAggregatedFromIndex,
+      getMessageRootsFromIndex,
+      getMessageRootCount,
+      getMessageRootStatusFromIndex,
+      getSpokeNode,
+      getSpokeNodes,
+      getHubNode,
+      getHubNodes,
+      getRoot,
+      putRoot,
+      increaseBackoff,
+      resetBackoffs,
+      saveStableSwapPool,
+      saveStableSwapExchange,
+      saveStableSwapTransfers,
+      saveStableSwapLpBalances,
+      updateErrorStatus,
+      saveStableSwapPoolEvent,
+      markRootMessagesProcessed,
+      saveRouterDailyTVL,
+      updateSlippage,
+      updateExecuteSimulationData,
+      getPendingTransfersByMessageStatus,
+      getMessageByLeaf,
+      deleteCache,
+    },
+  };
+};
+
+// Overload to close the given pool as well
+export const closeDatabase = async (_pool?: Pool): Promise<void> => {
   await pool.end();
+  if (_pool) {
+    await _pool.end();
+  }
 };

@@ -1,7 +1,7 @@
 import { providers, BigNumber, BigNumberish, constants } from "ethers";
 import { Logger, ChainData, StableSwapExchange } from "@connext/nxtp-utils";
-import { SdkConfig, Pool } from "@connext/sdk-core";
 
+import type { SdkConfig, Pool, Options } from "./sdk-types";
 import { axiosPost } from "./mockable";
 import { SdkShared } from "./sdkShared";
 import { PriceFeed } from "./lib/priceFeed";
@@ -37,22 +37,24 @@ export class SdkPool extends SdkShared {
     tokenIndexFrom: number,
     tokenIndexTo: number,
     amount: BigNumberish,
+    options?: Options,
   ): Promise<BigNumber> {
-    const params: {
-      domainId: string;
-      tokenAddress: string;
-      tokenIndexFrom: number;
-      tokenIndexTo: number;
-      amount: BigNumberish;
-    } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       tokenIndexFrom,
       tokenIndexTo,
       amount,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateSwap`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async calculateSwapLocal(
@@ -144,7 +146,15 @@ export class SdkPool extends SdkShared {
     };
 
     const response = await axiosPost(`${this.baseUri}/calculateAmountReceived`, params);
-    return response.data;
+    const data = response.data;
+
+    return {
+      amountReceived: BigNumber.from(data.amountReceived),
+      originSlippage: BigNumber.from(data.originSlippage),
+      routerFee: BigNumber.from(data.routerFee),
+      destinationSlippage: BigNumber.from(data.destinationSlippage),
+      isFastPath: data.isFastPath,
+    };
   }
 
   scientificToBigInt(scientificNotationString: string) {
@@ -166,25 +176,45 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amounts: string[],
     isDeposit = true,
+    options?: Options,
   ): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string; amounts: string[]; isDeposit: boolean } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       amounts,
       isDeposit,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateTokenAmount`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
-  async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
-    const params: { domainId: string; tokenAddress: string; amount: string } = {
+  async calculateRemoveSwapLiquidity(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    options?: Options,
+  ): Promise<BigNumber[]> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       amount,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveSwapLiquidity`, params);
-    return response.data;
+
+    return response.data.map((amount: string) => BigNumber.from(amount));
   }
 
   async calculateRemoveSwapLiquidityOneToken(
@@ -192,15 +222,23 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amount: string,
     index: number,
+    options?: Options,
   ): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string; amount: string; index: number } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       amount,
       index,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveSwapLiquidityOneToken`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   calculatePriceImpact(
@@ -228,7 +266,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -236,7 +280,8 @@ export class SdkPool extends SdkShared {
       amountY,
     };
     const response = await axiosPost(`${this.baseUri}/calculateAddLiquidityPriceImpact`, params);
-    return response.data;
+
+    return response.data ? BigNumber.from(response.data) : undefined;
   }
 
   async calculateRemoveLiquidityPriceImpact(
@@ -244,7 +289,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -252,7 +303,8 @@ export class SdkPool extends SdkShared {
       amountY,
     };
     const response = await axiosPost(`${this.baseUri}/calculateRemoveLiquidityPriceImpact`, params);
-    return response.data;
+
+    return response.data ? BigNumber.from(response.data) : undefined;
   }
 
   async calculateSwapPriceImpact(
@@ -260,15 +312,23 @@ export class SdkPool extends SdkShared {
     amountX: string,
     tokenX: string,
     tokenY: string,
+    options?: Options,
   ): Promise<BigNumber> {
-    const params: { domainId: string; amountX: string; tokenX: string; tokenY: string } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       amountX,
       tokenX,
       tokenY,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/calculateSwapPriceImpact`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getTokenPrice(tokenSymbol: string) {
@@ -288,23 +348,40 @@ export class SdkPool extends SdkShared {
     return response.data;
   }
 
-  async getTokenSupply(domainId: string, tokenAddress: string): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string } = {
+  async getTokenSupply(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       tokenAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenSupply`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
-  async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string; userAddress: string } = {
+  async getTokenUserBalance(
+    domainId: string,
+    tokenAddress: string,
+    userAddress: string,
+    options?: Options,
+  ): Promise<BigNumber> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       tokenAddress,
       userAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getTokenUserBalance`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getPoolTokenIndex(domainId: string, tokenAddress: string, poolTokenAddress: string): Promise<number> {
@@ -332,15 +409,23 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     poolTokenAddress: string,
     _index?: number,
+    options?: Options,
   ): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string; poolTokenAddress: string; _index?: number } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       poolTokenAddress,
       _index,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getPoolTokenBalance`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getPoolTokenAddress(domainId: string, tokenAddress: string, index: number) {
@@ -353,13 +438,20 @@ export class SdkPool extends SdkShared {
     return response.data;
   }
 
-  async getVirtualPrice(domainId: string, tokenAddress: string): Promise<BigNumber> {
-    const params: { domainId: string; tokenAddress: string } = {
+  async getVirtualPrice(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getVirtualPrice`, params);
-    return response.data;
+
+    return BigNumber.from(response.data);
   }
 
   async getRepresentation(domainId: string, tokenAddress: string): Promise<string> {
@@ -403,13 +495,19 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     minToMint = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const params: { domainId: string; tokenAddress: string; amounts: string[]; minToMint: string; deadline: number } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       tokenAddress,
       amounts,
       minToMint,
       deadline,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/addLiquidity`, params);
     return response.data;
@@ -422,21 +520,20 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const params: {
-      domainId: string;
-      tokenAddress: string;
-      withdrawTokenAddress: string;
-      amount: string;
-      minAmount: string;
-      deadline: number;
-    } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       tokenAddress,
       withdrawTokenAddress,
       amount,
       minAmount,
       deadline,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/removeLiquidityOneToken`, params);
     return response.data;
@@ -448,19 +545,19 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmounts = ["0", "0"],
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const params: {
-      domainId: string;
-      tokenAddress: string;
-      amount: string;
-      minAmounts: string[];
-      deadline: number;
-    } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       tokenAddress,
       amount,
       minAmounts,
       deadline,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/removeLiquidity`, params);
     return response.data;
@@ -472,19 +569,20 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     maxBurnAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const params: {
-      domainId: string;
-      tokenAddress: string;
-      amounts: string[];
-      maxBurnAmount: string;
-      deadline: number;
-    } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       amounts,
       maxBurnAmount,
       deadline,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/removeLiquidityImbalance`, params);
     return response.data;
@@ -498,16 +596,14 @@ export class SdkPool extends SdkShared {
     amount: string,
     minDy = 0,
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
-    const params: {
-      domainId: string;
-      tokenAddress: string;
-      from: string;
-      to: string;
-      amount: string;
-      minDy: number;
-      deadline: number;
-    } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
       domainId,
       tokenAddress,
       from,
@@ -515,6 +611,7 @@ export class SdkPool extends SdkShared {
       amount,
       minDy,
       deadline,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/swap`, params);
     return response.data;
@@ -526,19 +623,66 @@ export class SdkPool extends SdkShared {
       tokenAddress,
     };
     const response = await axiosPost(`${this.baseUri}/getPool`, params);
-    return response.data;
+    const data = response.data;
+
+    if (data) {
+      data.balances = data.balances.map((balance: string) => BigNumber.from(balance));
+      data.invariant = BigNumber.from(data.invariant);
+      data.initialA = BigNumber.from(data.initialA);
+      data.futureA = BigNumber.from(data.futureA);
+      data.currentA = BigNumber.from(data.currentA);
+
+      if (data.local && data.local.balance) {
+        data.local.balance = BigNumber.from(data.local.balance);
+      }
+
+      if (data.adopted && data.adopted.balance) {
+        data.adopted.balance = BigNumber.from(data.adopted.balance);
+      }
+    }
+
+    return data;
   }
 
   async getUserPools(
     domainId: string,
     userAddress: string,
+    options?: Options,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
-    const params: { domainId: string; userAddress: string } = {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
       domainId,
       userAddress,
+      options: _options,
     };
     const response = await axiosPost(`${this.baseUri}/getUserPools`, params);
-    return response.data;
+
+    return response.data.map((data: any) => {
+      const info = data.info;
+      info.balances = info.balances.map((balance: string) => BigNumber.from(balance));
+      info.invariant = BigNumber.from(info.invariant);
+      info.initialA = BigNumber.from(info.initialA);
+      info.futureA = BigNumber.from(info.futureA);
+      info.currentA = BigNumber.from(info.currentA);
+
+      if (info.local && info.local.balance) {
+        info.local.balance = BigNumber.from(info.local.balance);
+      }
+
+      if (info.adopted && info.adopted.balance) {
+        info.adopted.balance = BigNumber.from(info.adopted.balance);
+      }
+
+      return {
+        ...data,
+        info,
+        lpTokenBalance: BigNumber.from(data.lpTokenBalance),
+        poolTokenBalances: data.poolTokenBalances.map((balance: string) => BigNumber.from(balance)),
+      };
+    });
   }
 
   async getYieldStatsForDays(
@@ -562,7 +706,13 @@ export class SdkPool extends SdkShared {
       days,
     };
     const response = await axiosPost(`${this.baseUri}/getYieldStatsForDays`, params);
-    return response.data;
+    const data = response.data;
+
+    if (data && data.totalVolume) {
+      data.totalVolume = BigNumber.from(data.totalVolume);
+    }
+
+    return data;
   }
 
   calculateYield(

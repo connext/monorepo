@@ -11,20 +11,24 @@ import {
   SdkUpdateSlippageParams,
   SdkCalculateAmountReceivedParamsSchema,
 } from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import { RoutesOptions } from "../server";
 
-interface BaseRoutesOptions {
+interface BaseRoutesOptions extends RoutesOptions {
   sdkBaseInstance: SdkBase;
-  cacheConfig?: {
-    enabled?: boolean;
-    expirationTime?: number;
-  };
 }
 
 export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOptions): Promise<void> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
-  const { sdkBaseInstance, cacheConfig } = options;
+  const { sdkBaseInstance, logger, cacheConfig } = options;
+  const { requestContext, methodContext } = createLoggingContext(baseRoutes.name);
 
   const CACHE_EXPIRATION_SECS = cacheConfig?.expirationTime || 300;
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.post<{ Body: SdkXCallParams }>(
     "/xcall",

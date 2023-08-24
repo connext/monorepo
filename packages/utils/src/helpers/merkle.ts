@@ -42,6 +42,7 @@ export type DBHelper = {
   getNodes: (start: number, end: number) => Promise<string[]>;
   putRoot: (path: string, hash: string) => Promise<void>;
   getRoot: (path: string) => Promise<string | undefined>;
+  clearCache: () => Promise<void>;
 };
 
 const ZERO_BYTES = mkBytes32("0x");

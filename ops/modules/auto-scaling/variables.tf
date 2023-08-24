@@ -32,3 +32,15 @@ variable "min_capacity" {
   type        = number
   default     = 10
 }
+
+variable "avg_mem_utilization_target" {
+  description = "Average memory utilization target"
+  type        = number
+  default     = 20
+}
+
+variable "avg_cpu_utilization_target" {
+  description = "Average cpu utilization target"
+  type        = number
+  default     = 25
+}

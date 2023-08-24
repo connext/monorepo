@@ -6,7 +6,7 @@ import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/bnb"
 import * as Mockable from "../../../../src/mockable";
 import { getBestProviderMock, propagateCtxMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { constants, Contract } from "ethers";
+import { constants, Contract, utils } from "ethers";
 
 const requestContext = createRequestContext("test");
 
@@ -15,7 +15,7 @@ describe("Helpers: Bnb", () => {
     beforeEach(() => {
       stub(Mockable, "getContract").returns({
         AMB: stub().resolves(mkAddress("0x123")),
-        calcSrcFees: stub().resolves(constants.One),
+        quoteEVMDeliveryPrice: stub().resolves(constants.One),
       } as any);
     });
 
@@ -54,7 +54,7 @@ describe("Helpers: Bnb", () => {
       expect(data).to.deep.eq({
         _connector: "",
         _fee: constants.One,
-        _encodedData: "0x",
+        _encodedData: utils.defaultAbiCoder.encode(["uint256"], [200000]),
       });
     });
   });

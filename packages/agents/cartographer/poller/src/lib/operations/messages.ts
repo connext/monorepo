@@ -1,7 +1,7 @@
-import { createLoggingContext, XMessage, RootMessage } from "@connext/nxtp-utils";
+import { createLoggingContext, XMessage, RootMessage, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
-import { DEFAULT_LOAD_SIZE } from ".";
+import { DEFAULT_LOAD_SIZE, DEFAULT_SAFE_CONFIRMATIONS } from ".";
 
 const markableDomainsForRootMessage = [
   "6450786", // BNB
@@ -11,12 +11,41 @@ const markableDomainsForRootMessage = [
 export const retrieveOriginMessages = async () => {
   const {
     adapters: { subgraph, database },
+    config,
     logger,
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveOriginMessages.name);
+  const allowedDomains = Object.keys(config.chains);
+  const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
 
   for (const domain of domains) {
+    let latestBlockNumber = 0;
+    try {
+      if (latestBlockNumbers.has(domain)) {
+        latestBlockNumber = latestBlockNumbers.get(domain)!;
+      }
+      if (latestBlockNumber === 0) {
+        logger.error(`Error getting the latestBlockNumber, skipping domain: ${domain}}`, requestContext, methodContext);
+        continue;
+      }
+    } catch (err: unknown) {
+      logger.error(
+        `Error getting the latestBlockNumber, skipping domain: ${domain}}`,
+        requestContext,
+        methodContext,
+        jsonifyError(err as Error),
+        { domain },
+      );
+      continue;
+    }
+
+    let confirmations = DEFAULT_SAFE_CONFIRMATIONS;
+    if (config.chains[domain]) {
+      confirmations = (config.chains[domain] as { confirmations: number | undefined }).confirmations ?? confirmations;
+    }
+
+    const maxBlockNumber = latestBlockNumber - confirmations;
     const offset = await database.getCheckPoint("message_" + domain);
     const limit = 1000;
     logger.debug("Retrieving origin messages", requestContext, methodContext, {
@@ -25,7 +54,7 @@ export const retrieveOriginMessages = async () => {
       limit: limit,
     });
 
-    const originMessages = await subgraph.getOriginMessagesByDomain([{ domain, offset, limit }]);
+    const originMessages = await subgraph.getOriginMessagesByDomain([{ domain, offset, limit, maxBlockNumber }]);
 
     const xMessages: XMessage[] = originMessages.map((_message) => {
       return {
@@ -38,12 +67,12 @@ export const retrieveOriginMessages = async () => {
     });
 
     const newOffset = originMessages.length == 0 ? 0 : originMessages[originMessages.length - 1].index;
-    await database.saveMessages(xMessages);
-
-    // Reset offset at the end of the cycle.
-    await database.saveCheckPoint("message_" + domain, newOffset);
-
-    logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+    if (originMessages.length > 0) {
+      await database.saveMessages(xMessages);
+      // Reset offset at the end of the cycle.
+      await database.saveCheckPoint("message_" + domain, newOffset);
+      logger.debug("Saved messages", requestContext, methodContext, { domain: domain, offset: newOffset });
+    }
   }
 };
 
@@ -115,12 +144,40 @@ export const updateMessages = async () => {
 export const retrieveSentRootMessages = async () => {
   const {
     adapters: { subgraph, database },
+    config,
     logger,
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(retrieveSentRootMessages.name);
+  const allowedDomains = Object.keys(config.chains);
+  const latestBlockNumbers = await subgraph.getLatestBlockNumber(allowedDomains);
 
   for (const domain of domains) {
+    let latestBlockNumber = 0;
+    try {
+      if (latestBlockNumbers.has(domain)) {
+        latestBlockNumber = latestBlockNumbers.get(domain)!;
+      }
+      if (latestBlockNumber === 0) {
+        logger.error(`Error getting the latestBlockNumber, skipping domain: ${domain}}`, requestContext, methodContext);
+        continue;
+      }
+    } catch (err: unknown) {
+      logger.error(
+        `Error getting the latestBlockNumber, skipping domain: ${domain}}`,
+        requestContext,
+        methodContext,
+        jsonifyError(err as Error),
+        { domain },
+      );
+      continue;
+    }
+
+    let confirmations = DEFAULT_SAFE_CONFIRMATIONS;
+    if (config.chains[domain]) {
+      confirmations = (config.chains[domain] as { confirmations: number | undefined }).confirmations ?? confirmations;
+    }
+    const maxBlockNumber = latestBlockNumber - confirmations;
     const offset = await database.getCheckPoint("sent_root_message_" + domain);
     const limit = 100;
     logger.debug("Retrieving sent root messages", requestContext, methodContext, {
@@ -128,6 +185,15 @@ export const retrieveSentRootMessages = async () => {
       offset: offset,
       limit: limit,
     });
+
+    if (offset + limit > maxBlockNumber) {
+      logger.debug("Waiting for max block to be confirmed", requestContext, methodContext, {
+        domain,
+        offset,
+        maxBlockNumber,
+      });
+      return;
+    }
 
     const _sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
 

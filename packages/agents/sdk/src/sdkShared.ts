@@ -131,9 +131,21 @@ export class SdkShared {
 
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = options?.originProviderUrl
-        ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
         : await this.getProvider(domainId);
+
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -151,9 +163,19 @@ export class SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const provider = options?.originProviderUrl
-      ? new providers.StaticJsonRpcProvider(options.originProviderUrl)
-      : await this.getProvider(domainId);
+    let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+    if (!providerURL && options?.chains) {
+      Object.keys(options.chains).forEach((domain) => {
+        if (domain !== domainId) {
+          return;
+        }
+        providerURL = options.chains?.[domain].providers?.[0];
+      });
+    }
+
+    const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
+
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
@@ -233,7 +255,7 @@ export class SdkShared {
     domainId: string,
     assetId: string,
     amount: string,
-    infiniteApprove = true,
+    infiniteApprove?: boolean,
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
@@ -264,7 +286,7 @@ export class SdkShared {
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
           connextContract.address,
-          infiniteApprove ? constants.MaxUint256 : amount,
+          infiniteApprove ?? true ? constants.MaxUint256 : amount,
         );
         return approveData;
       } else {

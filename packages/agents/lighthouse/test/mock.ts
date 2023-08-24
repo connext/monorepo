@@ -14,7 +14,7 @@ import {
 } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
-import { mockDatabase } from "@connext/nxtp-adapters-database/test/mock";
+import { mockDatabase, mockDatabasePool } from "@connext/nxtp-adapters-database/test/mock";
 import { mockChainReader } from "@connext/nxtp-txservice/test/mock";
 
 import { NxtpLighthouseConfig } from "../src/config";
@@ -54,6 +54,24 @@ export const mockCache = () => {
     messages: {
       getNonce: stub().resolves(1),
       setNonce: stub().resolves(),
+      storeMessages: stub().resolves(),
+      getPending: stub().resolves(),
+      getMessage: stub().resolves(),
+      increaseAttempt: stub().resolves(),
+      removePending: stub().resolves(),
+      getNode: stub().resolves(),
+      getNodes: stub().resolves(),
+      putNode: stub().resolves(),
+      delNode: stub().resolves(),
+      putNodes: stub().resolves(),
+      delNodes: stub().resolves(),
+      getRoot: stub().resolves(),
+      putRoot: stub().resolves(),
+      delRoot: stub().resolves(),
+      clearDomain: stub().resolves(),
+      getCurrentLock: stub().resolves(),
+      acquireLock: stub().resolves(),
+      releaseLock: stub().resolves(),
     },
   };
 };
@@ -74,6 +92,7 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        databaseWriter: { database: mock.adapters.database(), pool: mockDatabasePool() },
         cache: mockCache() as any,
         mqClient: mockMqClient() as any,
       },

@@ -12,3 +12,4 @@ export { runMigration } from "./migrations";
 export { updateAssetPrices, updateHistoricAssetPrices } from "./prices";
 
 export const DEFAULT_LOAD_SIZE = 3000;
+export const DEFAULT_SAFE_CONFIRMATIONS = 5;

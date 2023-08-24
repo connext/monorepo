@@ -21,6 +21,9 @@ data "aws_iam_role" "ecr_admin_role" {
 data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
+locals {
+  db_alarm_emails = ["carlo@connext.network", "rahul@connext.network", "preetham@connext.network", "sanchay@connext.network"]
+}
 
 module "cartographer_db" {
   domain                = "cartographer"
@@ -51,6 +54,17 @@ module "cartographer_db" {
   db_security_group_id       = module.sgs.rds_sg_id
   db_subnet_group_subnet_ids = module.network.public_subnets
   publicly_accessible        = true
+}
+module "cartographer-db-alarms" {
+  source                                  = "../../../modules/db-alarms"
+  db_instance_name                        = module.cartographer_db.db_instance_name
+  db_instance_id                          = module.cartographer_db.db_instance_id
+  is_replica                              = false
+  enable_cpu_utilization_alarm            = true
+  enable_free_storage_space_too_low_alarm = true
+  stage                                   = var.stage
+  environment                             = var.environment
+  sns_topic_subscription_emails           = local.db_alarm_emails
 }
 
 module "cartographer_db_replica" {
@@ -88,6 +102,17 @@ module "cartographer_db_replica" {
   publicly_accessible   = module.cartographer_db.db_publicly_accessible
 }
 
+module "cartographer-db-replica-alarms" {
+  source                                  = "../../../modules/db-alarms"
+  db_instance_name                        = module.cartographer_db.db_instance_name
+  db_instance_id                          = module.cartographer_db.db_instance_id
+  is_replica                              = true
+  enable_cpu_utilization_alarm            = true
+  enable_free_storage_space_too_low_alarm = true
+  stage                                   = var.stage
+  environment                             = var.environment
+  sns_topic_subscription_emails           = local.db_alarm_emails
+}
 module "postgrest" {
   source                   = "../../../modules/service"
   region                   = var.region
@@ -142,7 +167,7 @@ module "sdk-server" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = local.sdk_server_env_vars
   domain                   = var.domain
 }
@@ -190,7 +215,7 @@ module "cartographer-transfers-lambda-cron" {
   stage               = var.stage
   container_env_vars  = merge(local.cartographer_env_vars, { CARTOGRAPHER_SERVICE = "transfers" })
   schedule_expression = "rate(1 minute)"
-  memory_size         = 1024
+  memory_size         = 2048
 }
 
 module "cartographer-messages-lambda-cron" {

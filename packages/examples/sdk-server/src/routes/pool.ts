@@ -78,10 +78,23 @@ import {
   SdkGetDailySwapVolumeParams,
   Options,
 } from "@connext/sdk-core";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { RoutesOptions } from "../server";
 
-export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPool): Promise<any> => {
+interface PoolRoutesOptions extends RoutesOptions {
+  sdkPoolInstance: SdkPool;
+}
+
+export const poolRoutes = async (server: FastifyInstance, options: PoolRoutesOptions): Promise<any> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
+  const { sdkPoolInstance, logger } = options;
+  const { requestContext, methodContext } = createLoggingContext(poolRoutes.name);
+
+  server.setErrorHandler(function (error, request, reply) {
+    logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
+    reply.status(500).send(jsonifyError(error as Error));
+  });
 
   s.post<{ Body: SdkCalculateSwapParams }>(
     "/calculateSwap",
@@ -374,8 +387,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress } = request.body;
-      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress);
+      const { domainId, tokenAddress, options } = request.body;
+      const res = await sdkPoolInstance.getTokenSupply(domainId, tokenAddress, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -388,8 +401,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, tokenAddress, userAddress } = request.body;
-      const res = await sdkPoolInstance.getTokenUserBalance(domainId, tokenAddress, userAddress);
+      const { domainId, tokenAddress, userAddress, options } = request.body;
+      const res = await sdkPoolInstance.getTokenUserBalance(domainId, tokenAddress, userAddress, options as Options);
       reply.status(200).send(res);
     },
   );
@@ -656,8 +669,8 @@ export const poolRoutes = async (server: FastifyInstance, sdkPoolInstance: SdkPo
       },
     },
     async (request, reply) => {
-      const { domainId, userAddress } = request.body;
-      const res = await sdkPoolInstance.getUserPools(domainId, userAddress);
+      const { domainId, userAddress, options } = request.body;
+      const res = await sdkPoolInstance.getUserPools(domainId, userAddress, options as Options);
       reply.status(200).send(res);
     },
   );

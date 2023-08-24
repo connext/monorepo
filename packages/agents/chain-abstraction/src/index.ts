@@ -6,5 +6,10 @@ export {
   getSwapAmountOut,
   getSwapAndXcallAddress,
   getSwapperConfig,
-  getEstimateAmountRecieved,
+  getEstimateAmountReceived,
+  getPriceImpactForSwaps,
+  getSlippageDistribution,
+  getAmountOutMinForUniV3,
 } from "./libs";
+
+export { getSupportedAssetsForDomain } from "./helpers";

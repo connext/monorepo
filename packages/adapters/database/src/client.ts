@@ -750,6 +750,7 @@ export const getUnProcessedMessages = async (
   origin_domain: string,
   limit = 100,
   offset = 0,
+  startIndex = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
@@ -757,7 +758,7 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain },
+      { processed: false, origin_domain, index: dc.gte(startIndex) },
       {
         limit,
         offset,
@@ -1111,6 +1112,11 @@ export const putRoot = async (
   const poolToUse = _pool ?? pool;
   const root = { domain: domain, domain_path: path, tree_root: hash };
   await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const deleteCache = async (domain: string, _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.deletes("merkle_cache", { domain }).run(poolToUse);
 };
 
 export const saveReceivedAggregateRoot = async (

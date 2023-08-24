@@ -90,9 +90,9 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
   const env = mustGetEnv(_env);
   let contractName = _contractName;
 
-  if (contractName.includes("Multichain")) {
+  if (contractName.includes("Wormhole")) {
     const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
-    contractName = contractName.replace("Multichain", networkName);
+    contractName = contractName.replace("Wormhole", networkName);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {

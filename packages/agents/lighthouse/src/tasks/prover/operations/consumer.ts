@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, ExecStatus } from "@connext/nxtp-utils";
 
 import { getContext } from "../prover";
 
@@ -6,11 +6,12 @@ import { PROVER_QUEUE, BrokerMessage } from "./types";
 import { processMessages } from "./process";
 
 const DEFAULT_PREFETCH_SIZE = 1;
+
 export const consume = async () => {
   const { requestContext, methodContext } = createLoggingContext(consume.name);
   const {
     logger,
-    adapters: { mqClient },
+    adapters: { mqClient, cache },
     config,
   } = getContext();
   const prefetchSize = config.messageQueue.prefetchSize ?? DEFAULT_PREFETCH_SIZE;
@@ -34,14 +35,16 @@ export const consume = async () => {
     PROVER_QUEUE,
     async (message) => {
       if (message) {
+        const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
         try {
-          const brokerMessage = JSON.parse(message.content.toString()) as BrokerMessage;
           logger.info("Processing an unprocessed message", requestContext, methodContext, { message: brokerMessage });
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);
         } catch (err: unknown) {
           logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
-          channel.reject(message);
+          channel.reject(message, false);
+          const statuses = brokerMessage.messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
+          await cache.messages.setStatus(statuses);
         }
       }
     },

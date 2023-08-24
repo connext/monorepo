@@ -13,7 +13,7 @@
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-node": "11.1.0",
     "husky": "^8.0.3",
-    "rimraf": "3.0.2"
+    "rimraf": "^5.0.1"
   },
   "workspaces": [
     "packages/utils",
@@ -43,7 +43,7 @@
     "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration --exclude @connext/smart-contracts run lint",
     "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/sdk run test",
     "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
-    "build:all": "yarn workspaces foreach --parallel -pt --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
+    "build:all": "yarn workspaces foreach --parallel -p --topological-dev --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
     "verify:all": "yarn test:all && yarn clean:all && yarn build:all && yarn lint:all --max-warnings 0",
     "version:all": "yarn workspaces foreach run version $0 && yarn run version $0",
     "purge:all": "yarn workspaces foreach --parallel run purge && rimraf './node_modules'",

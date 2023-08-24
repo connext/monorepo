@@ -567,7 +567,7 @@ const originTransferQueryString = (
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     first: ${limit ?? 1000},
-    orderBy: blockNumber,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
@@ -589,7 +589,7 @@ const originTransferQueryFallbackString = (
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     first: ${limit ?? 1000},
-    orderBy: blockNumber,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
 };
@@ -889,7 +889,7 @@ export const getDestinationTransfersByDomainAndIdsQuery = (txIdsByDestinationDom
 };
 
 export const getOriginMessagesByDomainAndIndexQuery = (
-  params: { domain: string; offset: number; limit: number }[],
+  params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
 ): string => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -901,7 +901,9 @@ export const getOriginMessagesByDomainAndIndexQuery = (
       where: { 
         index_gte: ${param.offset}, 
         transferId_not: null, 
-        destinationDomain_not: null
+        destinationDomain_not: null,
+        ${param.maxBlockNumber ? `, blockNumber_lte: ${param.maxBlockNumber}` : ""}
+
       },
       orderBy: index, 
       orderDirection: asc
@@ -1106,7 +1108,7 @@ const swapExchangeQueryString = (
   return `${prefix}_swap_stableSwapExchanges(
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
@@ -1154,7 +1156,6 @@ const routerDailyTVLQueryString = (
   return `${prefix}_routerDailyTVLs(
     where: {
       timestamp_gte: ${fromTimestamp},
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: timestamp,
     orderDirection: ${orderDirection}
@@ -1197,7 +1198,7 @@ const poolEventsQueryString = (
   return `${prefix}_swap_${addOrRemove === "add" ? "stableSwapAddLiquidityEvents" : "stableSwapRemoveLiquidityEvents"}(
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}
@@ -1243,7 +1244,7 @@ const lpTransfersQueryString = (
   return `${prefix}_swap_lpTransferEvents (
     where: {
       nonce_gte: "${lastestNonce}",
-      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+      ${maxBlockNumber ? `, block_lte: ${maxBlockNumber}` : ""}
     },
     orderBy: nonce,
     orderDirection: ${orderDirection}

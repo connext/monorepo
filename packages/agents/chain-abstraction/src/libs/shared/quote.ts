@@ -7,6 +7,10 @@ import {
   SwapQuoteFns,
   DEPLOYED_ADDRESSES,
   initCoreSDK,
+  getSwapPathForUniV3 as _getSwapPathForUniV3,
+  getSwapPathForUniV2 as _getSwapPathForUniV2,
+  // getSwapPathForHoneySwap as _getSwapPathForHoneySwap,
+  getPathForPanCake as _getPathForPanCake,
 } from "../../helpers";
 import { SwapQuoteParams, Swapper, EstimateQuoteAmountArgs, SwapQuoteCallbackArgs } from "../../types";
 import { getPoolFeeForUniV3 } from "../origin";
@@ -16,6 +20,12 @@ import { getPoolFeeForUniV3 } from "../origin";
  *
  * @param params: SwapQuoteParams object
  */
+
+export const getSwapPathForUniV3 = _getSwapPathForUniV3;
+export const getSwapPathForUniV2 = _getSwapPathForUniV2;
+// export const getSwapPathForHoneySwap = _getSwapPathForHoneySwap;
+export const getPathForPanCake = _getPathForPanCake;
+
 export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true): Promise<string> => {
   const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
 
@@ -89,7 +99,7 @@ export const getBridgeAmountOut = async (
   return amountOut;
 };
 
-export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): Promise<string> => {
+export const getEstimateAmountReceived = async (args: EstimateQuoteAmountArgs): Promise<string> => {
   const {
     originDomain,
     destinationDomain,
@@ -115,7 +125,7 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
   const originUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[originDomain.toString()];
   const destinationUnderlyingAsset = DEPLOYED_ADDRESSES.USDCAddress[destinationDomain.toString()];
 
-  const _toAsset = originUnderlyingAsset; // origin Side
+  const _toAsset = originDomain === destinationDomain ? toAsset : originUnderlyingAsset; // origin Side
   try {
     let _fee = fee;
     if (originQuoter.type === Swapper.UniV3 && !_fee) {
@@ -132,17 +142,17 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
       quoter: originQuoter.quoter,
       rpc: originRpc,
       fromAsset,
-      toAsset: _toAsset, // fix need here
+      toAsset: _toAsset,
       amountIn,
       fee: _fee,
     };
 
     // Step 1: Calculate amountOut after origin swaps
 
-    const originSwapAmountOut = await originSwapFunction(args);
+    const originSwapAmountOut = fromAsset !== _toAsset ? await originSwapFunction(args) : amountIn;
     if (originDomain === destinationDomain) return originSwapAmountOut;
 
-    // initing the core sdk for calculating amount recieved after bridging
+    // initing the core sdk for calculating amount Received after bridging
     const { sdkBase } = await initCoreSDK(signerAddress, originDomain, destinationDomain, originRpc, destinationRpc);
 
     // Step 2: Calculate amount after bridge.
@@ -157,7 +167,6 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
     if (!amountReceived) {
       throw Error("Failed to fetch estimate bridging amountOut");
     }
-
     if (toAsset === destinationUnderlyingAsset) return amountReceived.toString();
 
     if (destinationQuoter.type === Swapper.UniV3 && !_fee) {
@@ -181,7 +190,10 @@ export const getEstimateAmountRecieved = async (args: EstimateQuoteAmountArgs): 
       fee: _fee,
     };
     const destinationSwapFunction = SwapQuoteFns[destinationQuoter.type];
-    const amountOut = await destinationSwapFunction(destinationArgs);
+    const amountOut =
+      destinationUnderlyingAsset !== toAsset
+        ? await destinationSwapFunction(destinationArgs)
+        : amountReceived.toString();
     return amountOut;
   } catch (err: unknown) {
     throw Error(`Failed to swap with Error: ${(err as Error).message}`);

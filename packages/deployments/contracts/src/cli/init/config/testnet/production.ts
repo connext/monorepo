@@ -1,5 +1,3 @@
-import { utils } from "ethers";
-
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
@@ -153,6 +151,41 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x49000f5e208349D2fA678263418e21365208E498",
         },
       },
+    },
+    {
+      name: "xDappRadar",
+      canonical: {
+        domain: "1735353714",
+        address: "0x369e5C58F6c09c1CE947CA313f03c0d558B77b3e",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+          adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+        },
+        /// MUMBAI
+        "9991": { 
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4", 
+        },
+      },
+    },
+    {
+      name: "BTRST",
+      canonical: {
+        domain: "1735353714",
+        address: "0x39e09359F5a7396937504Eb2766722e2bf4650e8",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+        },
+      },
     }
     // {
     //   name: "WETH",
@@ -229,6 +262,14 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     // },
   ],
   agents: {
+    relayerFeeVaults: {
+      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    },
     watchers: {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },

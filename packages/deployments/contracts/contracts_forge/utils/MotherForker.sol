@@ -2,8 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ForgeHelper} from "../utils/ForgeHelper.sol";
+import {ForgeHelper} from "./ForgeHelper.sol";
 import {Deployer} from "./Deployer.sol";
+import {RpcLookup} from "./RpcLookup.sol";
 import {IDiamondCut} from "../../contracts/core/connext/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "../../contracts/core/connext/interfaces/IDiamondLoupe.sol";
 import {IConnext} from "../../contracts/core/connext/interfaces/IConnext.sol";
@@ -12,9 +13,25 @@ import "forge-std/console.sol";
 import "forge-std/StdJson.sol";
 
 /**
- * @notice A 'ForkHelper' used to initialize all the applicable forks (foun`d in foundry.toml).
+ * @notice A 'ForkHelper' used to initialize all the applicable forks (found in foundry.toml).
  * @dev Should be inherited and used in the `upgrade` suite of tests to basically test upgradability
  * of live contracts.
+ *
+ * @dev Can load fork info from two sources:
+ *
+ * 1. A json file at the instantiated path with the following format:
+ * {
+ *    "chains": [1, 100, ...],
+ *    "rpcs": ["mainnetrpc.com", "gnosisrpc.com", ...],
+ *    "forkBlocks": [123123, 123456456, ...]
+ * }
+ *
+ * 2. Environment variables using the same keys found in `contracts/src/config` for providers
+ *    and an array for chains. For example:
+ * MAINNET_ETH_PROVIDER_URL="mainnetrpc.com"
+ * XDAI_PROVIDER_URL="gnosisrpc.com"
+ * FORGE_CHAINS="1,100,..."
+ * FORGE_CHAIN_FORK_BLOCKS="123123,123456456,..."
  */
 abstract contract MotherForker is ForgeHelper {
   // ============ Libraries ============
@@ -24,31 +41,30 @@ abstract contract MotherForker is ForgeHelper {
 
   // ============ Storage ============
 
+  // File path to config file
+  string public CONFIG_FILE_PATH;
+
   // All chain ids to fork
   uint256[] public NETWORK_IDS;
-
-  // Hardcode the path to the file
-  string public PROPOSAL_FILE_PATH = "/cuts.json";
 
   mapping(uint256 => uint256) public forkIdsByChain;
   mapping(uint256 => uint256) public chainsByForkId;
   mapping(uint256 => string) public forkRpcsByChain;
   mapping(uint256 => uint256) public forkBlocksByChain;
 
-  struct ForkInfo {
-    address connext;
-    bytes[] encodedCuts; // an array of all facet cuts to propose
-    mapping(address => bytes) facetCode;
+  // ============ Constructor ============
+  constructor(string memory _filePath) {
+    // load the networks from the json file
+    CONFIG_FILE_PATH = _filePath;
   }
-
-  mapping(uint256 => ForkInfo) public forkInfo;
 
   // ============ Utils ==================
 
   /**
    * @notice Create a fork for each network.
    */
-  function utils_createForks() private {
+  function utils_createForks() internal {
+    require(NETWORK_IDS.length > 0, "!networks");
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       // read the block to fork
       uint256 forkBlock = forkBlocksByChain[NETWORK_IDS[i]];
@@ -73,11 +89,39 @@ abstract contract MotherForker is ForgeHelper {
     vm.selectFork(forkId);
   }
 
-  function utils_loadNetworkFromJson() private {
-    string memory json = utils_readProposalJson();
+  /**
+   * @notice Loads the networks from env variables
+   */
+  function utils_loadNetworkFromEnv() internal {
+    // Load the chain ids
+    uint256[] memory defaultChains = new uint256[](0);
+    uint256[] memory chains = vm.envOr("FORGE_CHAINS", ",", defaultChains);
+
+    // Load the rpcs
+    string[] memory rpcs = new string[](chains.length);
+    for (uint256 i; i < chains.length; i++) {
+      string memory rpc = vm.envString(RpcLookup.getRpcEnvName(chains[i]));
+      rpcs[i] = rpc;
+    }
+
+    // Load the fork blocks
+    uint256[] memory forkBlocks = vm.envOr("FORGE_CHAIN_FORK_BLOCKS", ",", defaultChains);
+    utils_loadNetworks(chains, rpcs, forkBlocks);
+  }
+
+  /**
+   * @notice Loads the networks from the specified json file
+   */
+  function utils_loadNetworkFromJson() internal {
+    string memory json = utils_readConfigJson();
     uint256[] memory chains = json.readUintArray(".chains");
     string[] memory rpcs = json.readStringArray(".rpcs");
     uint256[] memory forkBlocks = json.readUintArray(".forkBlocks");
+
+    utils_loadNetworks(chains, rpcs, forkBlocks);
+  }
+
+  function utils_loadNetworks(uint256[] memory _chains, string[] memory _rpcs, uint256[] memory _forkBlocks) internal {
     // FIXME: forking from gnosis mainnet gives this internal forge error:
     //
     // ERROR sharedbackend: Failed to send/recv `basic` err=GetAccount(0x1804c8ab1f12e6bbf3894d4083f33e07309d1f38,
@@ -89,22 +133,22 @@ abstract contract MotherForker is ForgeHelper {
     //
     // In the meantime, we can just skip this chain
     uint256 gnosisIdx = 10_000;
-    for (uint256 i; i < chains.length; i++) {
+    for (uint256 i; i < _chains.length; i++) {
       // see above
-      if (chains[i] == 100) {
+      if (_chains[i] == 100) {
         // set the idx
         gnosisIdx = i;
       }
       // Add to networks
-      NETWORK_IDS.push(chains[i]);
-      forkRpcsByChain[chains[i]] = rpcs[i];
-      forkBlocksByChain[chains[i]] = forkBlocks[i];
+      NETWORK_IDS.push(_chains[i]);
+      forkRpcsByChain[_chains[i]] = _rpcs[i];
+      forkBlocksByChain[_chains[i]] = _forkBlocks.length > i ? _forkBlocks[i] : 0;
     }
 
     // Put gnosis chain last, and remove from array
     if (gnosisIdx != 10_000) {
       // remove from rpcs mapping
-      delete forkRpcsByChain[chains[gnosisIdx]];
+      delete forkRpcsByChain[_chains[gnosisIdx]];
 
       // remove from chain ids array
       NETWORK_IDS[gnosisIdx] = NETWORK_IDS[NETWORK_IDS.length - 1];
@@ -113,136 +157,19 @@ abstract contract MotherForker is ForgeHelper {
   }
 
   /**
-   * @notice Read the proposal json file and return the string contents
+   * @notice Read the config json file and return the string contents
    */
-  function utils_readProposalJson() private view returns (string memory) {
+  function utils_readConfigJson() internal view returns (string memory) {
     string memory root = vm.projectRoot();
-    string memory path = string.concat(root, PROPOSAL_FILE_PATH);
+    string memory path = string.concat(root, CONFIG_FILE_PATH);
     string memory json = vm.readFile(path);
     return json;
   }
 
   /**
-   * @notice Loads the forkInfo (connext address and proposed cuts) from the proposal file
-   * @dev Should be called after utils_loadNetworkFromJson + utils_createForks
+   * @notice Rolls fork to a given timestamp
    */
-  function utils_loadForkInfo() private {
-    string memory json = utils_readProposalJson();
-
-    // Find all the facets that must be deployed from the json
-
-    for (uint256 i; i < NETWORK_IDS.length; i++) {
-      uint256 chainId = NETWORK_IDS[i];
-      uint256 forkId = forkIdsByChain[chainId];
-
-      // update connext address
-      string memory connextKey = string.concat(".", chainId.toString(), ".connext");
-      forkInfo[forkId].connext = json.readAddress(connextKey);
-
-      // get number of facet cuts to parse
-      string memory numberOfCutsKey = string.concat(".", chainId.toString(), ".numberOfCuts");
-      uint256 numberOfCuts = json.readUint(numberOfCutsKey);
-
-      // parse the cuts
-      forkInfo[forkId].encodedCuts = new bytes[](numberOfCuts);
-      for (uint256 j; j < numberOfCuts; j++) {
-        IDiamondCut.FacetCut memory cut;
-        string memory cutsKey = string.concat(".", chainId.toString(), ".proposal[", j.toString(), "]");
-
-        // TODO: fix the decoding here to simplify parsing. Must define `JsonFacetCut` struct
-        // bytes memory encoded = json.parseRaw(cutsKey);
-        // JsonFacetCut memory decoded = abi.decode(encoded, (JsonFacetCut));
-        // console.log("decoded via parseRaw", decoded.facetAddress, decoded.action, decoded.functionSelectors.length);
-
-        // get facet address
-        cut.facetAddress = json.readAddress(string.concat(cutsKey, ".facetAddress"));
-
-        // get action
-        uint256 actionUint = json.readUint(string.concat(cutsKey, ".action"));
-        if (actionUint == 0) {
-          cut.action = IDiamondCut.FacetCutAction.Add;
-        } else if (actionUint == 1) {
-          cut.action = IDiamondCut.FacetCutAction.Replace;
-        } else if (actionUint == 2) {
-          cut.action = IDiamondCut.FacetCutAction.Remove;
-        } else {
-          revert("invalid action");
-        }
-
-        // get selectors
-        bytes[] memory selectors = json.readBytesArray(string.concat(cutsKey, ".functionSelectors"));
-        cut.functionSelectors = new bytes4[](selectors.length);
-        for (uint256 k; k < selectors.length; k++) {
-          cut.functionSelectors[k] = bytes4(selectors[k]);
-        }
-
-        // encode the cut and store
-        forkInfo[forkId].encodedCuts[j] = abi.encode(cut);
-
-        // update the mapping
-        forkInfo[forkId].facetCode[cut.facetAddress] = json.readBytes(string.concat(cutsKey, ".code"));
-      }
-    }
-  }
-
-  /**
-   * @notice Sets up the forks, runs the proposal script to generate cuts to perform, and
-   * loads the fork info into the contract.
-   */
-  function utils_setupForkingEnv() internal {
-    // load info from proposal file
-    utils_loadNetworkFromJson();
-    // make sure the forks are created
-    utils_createForks();
-    // load the fork info into mapping
-    utils_loadForkInfo();
-  }
-
-  /**
-   * @notice This function applies the upgrades to all Connext instances across all forks
-   */
-  function utils_upgradeDiamonds() internal {
-    for (uint256 i; i < NETWORK_IDS.length; i++) {
-      uint256 forkId = forkIdsByChain[NETWORK_IDS[i]];
-      utils_upgradeDiamond(forkId);
-    }
-  }
-
-  /**
-   * @notice This function applies the upgrades to a single Connext instance
-   */
-  function utils_upgradeDiamond(uint256 forkId) private {
-    vm.selectFork(forkId);
-    ForkInfo storage info = forkInfo[forkId];
-    IConnext connext = IConnext(info.connext);
-    if (info.encodedCuts.length == 0) {
-      console.log("No cuts to apply for", info.connext, "on", block.chainid);
-      return;
-    }
-    IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](info.encodedCuts.length);
-    for (uint256 i; i < info.encodedCuts.length; i++) {
-      cuts[i] = abi.decode(info.encodedCuts[i], (IDiamondCut.FacetCut));
-      // make all facets persistent
-      vm.makePersistent(cuts[i].facetAddress);
-      // etch code
-      vm.etch(cuts[i].facetAddress, info.facetCode[cuts[i].facetAddress]);
-    }
-    // make connext persistent
-    vm.makePersistent(info.connext);
-    // propose upgrade
-    vm.prank(connext.owner());
-    connext.proposeDiamondCut(cuts, address(0), bytes(""));
-    // roll forward and accept
-    uint256 acceptance = connext.getAcceptanceTime(cuts, address(0), bytes(""));
-    utils_rollForkTo(acceptance + 1);
-    require(block.timestamp >= acceptance, "acceptance time not reached");
-    vm.prank(connext.owner());
-    connext.diamondCut(cuts, address(0), bytes(""));
-    // revoke connext persistent
-    vm.revokePersistent(info.connext);
-  }
-
-  function utils_rollForkTo(uint256 timestamp) private {
+  function utils_rollForkTo(uint256 timestamp) internal {
     // get blocktime
     uint256 pre = block.timestamp;
     if (pre >= timestamp) {

@@ -1,4 +1,3 @@
-import { getContractInterfaces, ConnextContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import {
   Logger,
   ChainData,
@@ -7,16 +6,15 @@ import {
   domainToChainId as _domainToChainId,
 } from "@connext/nxtp-utils";
 import { providers } from "ethers";
-import { Connext, IERC20 } from "@connext/smart-contracts";
-import { SdkConfig, AssetData, ConnextSupport, ChainDeployments, domainsToChainNames } from "@connext/sdk-core";
 
+import { Connext, IERC20 } from "./typechain-types";
+import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "./sdk-types";
+import { domainsToChainNames } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
 
 export class SdkShared {
   readonly config: SdkConfig;
   readonly chainData: Map<string, ChainData>;
-  readonly contracts: ConnextContractInterfaces;
-  protected readonly chainreader: ChainReader;
   protected readonly logger: Logger;
 
   readonly baseUri: string;
@@ -25,16 +23,14 @@ export class SdkShared {
     this.config = config;
     this.logger = logger;
     this.chainData = chainData;
-    this.contracts = getContractInterfaces();
-    this.chainreader = new ChainReader(logger.child({ module: "ChainReader" }), config.chains);
     this.baseUri =
       this.config.network === "local"
         ? "http://localhost:8080"
         : this.config.network === "testnet"
         ? this.config.environment === "staging"
-          ? "sdk-server.testnet.staging.connext.ninja"
-          : "sdk-server.testnet.connext.ninja"
-        : "sdk-server.mainnet.connext.ninja";
+          ? "https://sdk-server.testnet.staging.connext.ninja"
+          : "https://sdk-server.testnet.connext.ninja"
+        : "https://sdk-server.mainnet.connext.ninja";
   }
 
   async getConversionRate(chainId: number) {
@@ -52,13 +48,32 @@ export class SdkShared {
     return response.data;
   }
 
-  async getConnext(domainId: string): Promise<Connext> {
-    const response = await axiosGet(`${this.baseUri}/getConnext/${domainId}`);
+  async getConnext(domainId: string, options?: Options): Promise<Connext> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
+      domainId,
+      options: _options,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/getConnext`, params);
     return response.data;
   }
 
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const response = await axiosGet(`${this.baseUri}/getERC20/${domainId}/${tokenAddress}`);
+  async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+    const params = {
+      domainId,
+      tokenAddress,
+      options: _options,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/getERC20`, params);
     return response.data;
   }
 
@@ -92,11 +107,23 @@ export class SdkShared {
     domainId: string,
     assetId: string,
     amount: string,
-    infiniteApprove = true,
+    infiniteApprove?: boolean,
+    options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
-    const response = await axiosGet(
-      `${this.baseUri}/approveIfNeeded/${domainId}/${assetId}/${amount}/${infiniteApprove}`,
-    );
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
+    const params = {
+      domainId,
+      assetId,
+      amount,
+      infiniteApprove: infiniteApprove ?? true,
+      options: _options,
+    };
+
+    const response = await axiosPost(`${this.baseUri}/approveIfNeeded`, params);
     return response.data;
   }
 
@@ -140,9 +167,8 @@ export class SdkShared {
     return response.data;
   }
 
-  async changeSignerAddress(signerAddress: string): Promise<AssetData[]> {
-    const response = await axiosGet(`${this.baseUri}/changeSignerAddress/${signerAddress}`);
-    return response.data;
+  async changeSignerAddress(signerAddress: string) {
+    this.config.signerAddress = signerAddress;
   }
 
   async parseConnextTransactionReceipt(transactionReceipt: providers.TransactionReceipt) {

@@ -12,8 +12,6 @@ import {
   SequencerApiErrorResponse,
   ExecuteFastApiGetExecStatusResponse,
   ExecuteFastApiGetAuctionsStatusResponseSchema,
-  ExecuteFastApiGetQueuedResponseSchema,
-  ExecuteFastApiGetQueuedResponse,
   ClearCacheRequest,
   ClearCacheRequestSchema,
   AdminRequest,
@@ -122,28 +120,6 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
         return response
           .code(500)
           .send({ message: type ?? "Failed to submit fastpath data", error: jsonifyError(error as Error) });
-      }
-    },
-  );
-
-  server.get<{ Reply: ExecuteFastApiGetQueuedResponse | SequencerApiErrorResponse }>(
-    "/queued",
-    {
-      schema: {
-        response: {
-          200: ExecuteFastApiGetQueuedResponseSchema,
-          500: SequencerApiErrorResponseSchema,
-        },
-      },
-    },
-    async (_, response) => {
-      const { requestContext, methodContext } = createLoggingContext("GET /queued endpoint");
-      try {
-        const queued = await cache.auctions.getQueuedTransfers();
-        return response.status(200).send({ queued });
-      } catch (error: unknown) {
-        logger.error(`Pending Bid Get Error`, requestContext, methodContext);
-        return response.code(500).send({ message: `Pending Bid Get Error`, error: jsonifyError(error as Error) });
       }
     },
   );

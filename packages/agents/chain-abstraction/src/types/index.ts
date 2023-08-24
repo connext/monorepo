@@ -5,6 +5,8 @@ export const Swapper = {
   UniV2: "UniV2",
   UniV3: "UniV3",
   OneInch: "OneInch",
+  HoneySwap: "Honeyswap",
+  PanCake: "Pancake",
 };
 export type Swapper = (typeof Swapper)[keyof typeof Swapper];
 
@@ -41,9 +43,23 @@ export const UniV3SwapperParamsSchema = Type.Object({
 });
 export type UniV3SwapperParams = Static<typeof UniV3SwapperParamsSchema>;
 
+export const SwapPathSchema = Type.Object({
+  fromTokenContractAddress: TAddress,
+  toTokenContractAddress: TAddress,
+  signerAddress: TAddress,
+  chainId: Type.Number(),
+  rpc: Type.String(),
+  amount: TIntegerString,
+  fromTokenDecimal: Type.Optional(Type.Number()),
+  toTokenDecimal: Type.Optional(Type.Number()),
+});
+
+export type SwapPathParams = Static<typeof SwapPathSchema>;
+
 export const DestinationSwapForwarderParamsSchema = Type.Object({
   toAsset: TAddress,
   swapData: Type.Union([UniV2SwapperParamsSchema, UniV3SwapperParamsSchema]), // UniV2SwapperParamsSchema isn't currently supported
+  swapPathData: Type.Optional(SwapPathSchema),
 });
 export type DestinationSwapForwarderParams = Static<typeof DestinationSwapForwarderParamsSchema>;
 
@@ -51,7 +67,7 @@ export const DestinationCallDataParamsSchema = Type.Object({
   fallback: TAddress,
   swapForwarderData: DestinationSwapForwarderParamsSchema,
 });
-export type DestinationCallDataParams = Static<typeof DestinationCallDataParamsSchema>;
+export type DestinationCallDataParams = Static<typeof DestinationCallDataParamsSchema>; // change schema
 
 export const SwapQuoteParamsSchema = Type.Object({
   domainId: TIntegerString,
@@ -121,4 +137,13 @@ export type SwapQuoteCallbackArgs = {
   amountIn: string;
   fee?: string;
   sqrtPriceLimitX96?: string;
+};
+
+export type coingeckoTokenType = {
+  id: string;
+  symbol: string;
+  name: string;
+  platforms: {
+    [key: string]: string;
+  };
 };

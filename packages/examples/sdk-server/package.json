@@ -22,6 +22,7 @@
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@connext/sdk-core": "workspace:*",
+    "@fastify/cors": "8.3.0",
     "@fastify/redis": "6.1.1",
     "@fastify/type-provider-typebox": "2.4.0",
     "dotenv": "16.0.3",

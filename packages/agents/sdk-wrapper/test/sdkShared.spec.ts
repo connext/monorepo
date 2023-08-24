@@ -21,7 +21,8 @@ import {
   SdkGetERC20Params,
   SdkGetProviderParams,
   SdkIsNextAssetParams,
-} from "@connext/sdk-core";
+  Options,
+} from "../src/sdk-types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -144,7 +145,7 @@ describe("#SDKShared", () => {
         status: 200,
       });
 
-      const res = await sdkShared.getDeploymentAddress(expectedArgs.domainId, expectedArgs.deploymentName);
+      const res = await sdkShared.getDeploymentAddress(expectedArgs.domainId, expectedArgs.deploymentName as "connext");
 
       expect(axiosGetStub).to.have.been.calledWithExactly(
         expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.deploymentName}`,
@@ -158,19 +159,54 @@ describe("#SDKShared", () => {
       const expectedEndpoint = "/getConnext";
       const expectedArgs: SdkGetConnextParams = {
         domainId: mock.domain.A,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = mkAddress("0x1234");
 
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: expectedRes,
         status: 200,
       });
 
       const res = await sdkShared.getConnext(expectedArgs.domainId);
 
-      expect(axiosGetStub).to.have.been.calledWithExactly(
-        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}`,
-      );
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getConnext";
+      const expectedArgs: SdkGetConnextParams = {
+        domainId: mock.domain.A,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "999": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getConnext(expectedArgs.domainId, options);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -181,19 +217,55 @@ describe("#SDKShared", () => {
       const expectedArgs: SdkGetERC20Params = {
         domainId: mock.domain.A,
         tokenAddress: mock.asset.A.address,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
       const expectedRes = mkAddress("0x1234");
 
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: expectedRes,
         status: 200,
       });
 
       const res = await sdkShared.getERC20(expectedArgs.domainId, expectedArgs.tokenAddress);
 
-      expect(axiosGetStub).to.have.been.calledWithExactly(
-        expectedBaseUri + expectedEndpoint + `/${expectedArgs.domainId}` + `/${expectedArgs.tokenAddress}`,
-      );
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/getERC20";
+      const expectedArgs: SdkGetERC20Params = {
+        domainId: mock.domain.A,
+        tokenAddress: mock.asset.A.address,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "999": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+      const expectedRes = mkAddress("0x1234");
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkShared.getERC20(expectedArgs.domainId, expectedArgs.tokenAddress, options);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -259,9 +331,13 @@ describe("#SDKShared", () => {
         assetId: "1",
         amount: "100",
         infiniteApprove: true,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
       };
 
-      axiosGetStub.resolves({
+      axiosPostStub.resolves({
         data: mockGenericTxRequest,
         status: 200,
       });
@@ -273,14 +349,48 @@ describe("#SDKShared", () => {
         expectedArgs.infiniteApprove,
       );
 
-      expect(axiosGetStub).to.have.been.calledWithExactly(
-        expectedBaseUri +
-          expectedEndpoint +
-          `/${expectedArgs.domainId}` +
-          `/${expectedArgs.assetId}` +
-          `/${expectedArgs.amount}` +
-          `/${expectedArgs.infiniteApprove}`,
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(mockGenericTxRequest);
+    });
+
+    it("happy: should send request with overridden options", async () => {
+      const expectedEndpoint = "/approveIfNeeded";
+      const expectedArgs: SdkApproveIfNeededParams = {
+        domainId: mock.domain.A,
+        assetId: "1",
+        amount: "100",
+        infiniteApprove: true,
+        options: {
+          chains: mockConfig.chains,
+          signerAddress: mockConfig.signerAddress,
+        },
+      };
+      const options: Options = {
+        signerAddress: mkAddress("0xabc"),
+        chains: {
+          "999": {
+            providers: ["https://some-fake-provider.io"],
+          },
+        },
+      };
+
+      axiosPostStub.resolves({
+        data: mockGenericTxRequest,
+        status: 200,
+      });
+
+      const res = await sdkShared.approveIfNeeded(
+        expectedArgs.domainId,
+        expectedArgs.assetId,
+        expectedArgs.amount,
+        expectedArgs.infiniteApprove,
+        options,
       );
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {
+        ...expectedArgs,
+        options: options,
+      });
       expect(res).to.be.deep.eq(mockGenericTxRequest);
     });
   });
@@ -435,25 +545,11 @@ describe("#SDKShared", () => {
     });
   });
 
-  describe("#changeSignerAddress", async () => {
-    it("happy: should send request with correct params", async () => {
-      const expectedEndpoint = "/changeSignerAddress";
-      const expectedArgs: SdkChangeSignerAddressParams = {
-        signerAddress: mkAddress("0x1234"),
-      };
-      const expectedRes = {};
-
-      axiosGetStub.resolves({
-        data: expectedRes,
-        status: 200,
-      });
-
-      const res = await sdkShared.changeSignerAddress(expectedArgs.signerAddress);
-
-      expect(axiosGetStub).to.have.been.calledWithExactly(
-        expectedBaseUri + expectedEndpoint + `/${expectedArgs.signerAddress}`,
-      );
-      expect(res).to.be.deep.eq(expectedRes);
+  describe("#changeSignerAddress", () => {
+    it("happy: should work", async () => {
+      const mockSignerAddress = mkAddress("0xabcdef456");
+      await sdkShared.changeSignerAddress(mockSignerAddress);
+      expect(sdkShared.config.signerAddress).to.be.eq(mockSignerAddress);
     });
   });
 

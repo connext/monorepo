@@ -10,12 +10,12 @@ import {
   SdkGetRouterLiquidityParams,
   SdkGetRoutersDataParams,
   SdkGetTransfersParams,
-} from "@connext/sdk-core";
+} from "../src/sdk-types";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
 
-describe.only("#SDKUtils", () => {
+describe("#SDKUtils", () => {
   let sdkUtils: SdkUtils;
   let axiosPostStub: SinonStub;
   let expectedBaseUri: string;
@@ -65,6 +65,21 @@ describe.only("#SDKUtils", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with default body if params are empty", async () => {
+      const expectedEndpoint = "/getRoutersData";
+      const expectedRes = [];
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkUtils.getRoutersData();
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {});
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#getRouterLiquidity", async () => {
@@ -86,6 +101,21 @@ describe.only("#SDKUtils", () => {
       const res = await sdkUtils.getRouterLiquidity(expectedArgs);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+
+    it("happy: should send request with default body if params are empty", async () => {
+      const expectedEndpoint = "/getRouterLiquidity";
+      const expectedRes = [];
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkUtils.getRouterLiquidity();
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {});
       expect(res).to.be.deep.eq(expectedRes);
     });
   });
@@ -111,6 +141,21 @@ describe.only("#SDKUtils", () => {
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
     });
+
+    it("happy: should send request with default body if params are empty", async () => {
+      const expectedEndpoint = "/getTransfers";
+      const expectedRes = [];
+
+      axiosPostStub.resolves({
+        data: expectedRes,
+        status: 200,
+      });
+
+      const res = await sdkUtils.getTransfers();
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, {});
+      expect(res).to.be.deep.eq(expectedRes);
+    });
   });
 
   describe("#checkRouterLiquidity", async () => {
@@ -121,10 +166,14 @@ describe.only("#SDKUtils", () => {
         asset: mock.asset.A.address,
         topN: undefined,
       };
-      const expectedRes = BigNumber.from(1);
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
 
       axiosPostStub.resolves({
-        data: expectedRes,
+        data: mockServerRes,
         status: 200,
       });
 

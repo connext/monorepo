@@ -1,12 +1,13 @@
 {
   "name": "@connext/sdk",
-  "version": "2.1.0-alpha.0",
+  "version": "2.1.2",
   "description": "Client-side package for interacting with the Connext protocol",
   "author": "Connext",
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./dist ./tsconfig.tsBuildInfo",
-    "build": "tsc --build ./tsconfig.build.json",
+    "copy-sdk-types": "cpx \"../sdk/dist/**/*.d.ts*\" ./src/sdk-types",
+    "build": "yarn copy-sdk-types && tsc --build ./tsconfig.build.json",
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
@@ -16,15 +17,19 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*"
+    "src/**/*",
+    "types/**/*"
   ],
   "dependencies": {
-    "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
-    "@connext/sdk-core": "workspace:^",
-    "ethers": "5.7.2"
+    "ethers": "5.7.2",
+    "isomorphic-fetch": "3.0.0"
   },
   "devDependencies": {
+    "@connext/sdk-core": "workspace:*",
+    "@types/cpx": "1",
+    "@types/isomorphic-fetch": "0.0.36",
+    "cpx": "1.5.0",
     "eslint": "8.34.0",
     "mocha": "10.2.0",
     "nyc": "15.1.0",
