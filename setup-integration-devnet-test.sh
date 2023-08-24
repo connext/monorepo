@@ -83,12 +83,3 @@ echo "Starting services and off-chain agents..."
 docker compose -f docker-compose.services.yaml up -d --force-recreate
 sleep 5
 #####
-
-##### Ingest mainnet snapshot into cartographer DB
-echo "Load mainnet snapshot in to cartographer..."
-# Setup db schema
-yarn workspace @connext/nxtp-adapters-database dbmate up
-# Copy the snapshot file from s3 to local
-curl https://next-integration-test-data.s3.us-west-1.amazonaws.com/mainnet_data.sql --output mainnet_data.sql
-psql $DATABASE_URL < mainnet_data.sql 
-#####
