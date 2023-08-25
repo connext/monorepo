@@ -29,6 +29,42 @@ export OPTIMISM_DEVNET_RPC_URL
 export GNOSIS_DEVNET_RPC_URL
 #####
 
+##### Create config files from the templates.
+mainnet_rpcs=("$MAINNET_DEVNET_RPC_URL")
+optimism_rpcs=("$OPTIMISM_DEVNET_RPC_URL")
+gnosis_rpcs=("$GNOSIS_DEVNET_RPC_URL")
+
+chains_mainnet = $(jq -n --argjson providers "${mainnet_rpcs[*]}" "[{providers: $providers}]")
+chains_optimism = $(jq -n --argjson providers "${optimism_rpcs[*]}" "[{providers: $providers}]")
+chains_gnosis = $(jq -n --argjson providers "${gnosis_rpcs[*]}" "[{providers: $providers}]")
+
+chains_json = $(jq -n \
+     --argjson "1" "$chains_mainnet" \
+     --argjson "10" "$chains_optimism" \
+     --argjson "100" "$chains_gnosis" \
+     "{"1": $chains_mainnet, "10": $chains_optimism, "100": $chains_gnosis}"
+     )
+
+# Add docker paths to replace/add `chains` in config.json
+config_dir_paths=("docker/cartographer", "docker/lighthhouse", "docker/router", "docker/sequencer", "docker/relayer", "docker/watcher")
+target_file="config.devnet.json"
+
+for dir_path in "${config_dir_paths}"; do
+    echo "Finding $target_file in $dir_path"
+    config_file_path="${dir_path}/${target_file}"
+
+    # Check if the config file exists
+    if [ -f "$config_file_path" ]; then
+        target_file_path = "${dir_path}/config.json"
+        # Use jq to load the JSON file, add elements, and save the modified content
+        jq ". + { "chains": $chains_json }" \
+            "$config_file_path" > "$target_file_path"
+    else
+        echo "$config_file_path not found" 
+    fi
+done
+
+#####
 
 ##### IPFS, postgres, graph nodes.
 echo "Starting ipfs, postgres and graph-node..."
