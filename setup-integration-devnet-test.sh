@@ -122,6 +122,6 @@ echo "Deployed subgraph to the gnosis-devnet"
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."
-docker compose -f docker-compose.services.yaml up -d --force-recreate
+docker compose -f docker-compose.devnet-services.yaml up -d --force-recreate
 sleep 5
 #####
