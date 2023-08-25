@@ -27,6 +27,7 @@ echo "Gnosis devnet rpc url: $GNOSIS_DEVNET_RPC_URL"
 export MAINNET_DEVNET_RPC_URL
 export OPTIMISM_DEVNET_RPC_URL
 export GNOSIS_DEVNET_RPC_URL
+
 #####
 
 ##### Create config files from the templates.
@@ -34,36 +35,39 @@ mainnet_rpcs=("$MAINNET_DEVNET_RPC_URL")
 optimism_rpcs=("$OPTIMISM_DEVNET_RPC_URL")
 gnosis_rpcs=("$GNOSIS_DEVNET_RPC_URL")
 
-chains_mainnet = $(jq -n --argjson providers "${mainnet_rpcs[*]}" "[{providers: $providers}]")
-chains_optimism = $(jq -n --argjson providers "${optimism_rpcs[*]}" "[{providers: $providers}]")
-chains_gnosis = $(jq -n --argjson providers "${gnosis_rpcs[*]}" "[{providers: $providers}]")
+chains_mainnet=$(jq -n --argjson providers "$(printf '%s\n' "${mainnet_rpcs[@]}" | jq -R . | jq -s .)" '{"providers": $providers}')
+chains_optimism=$(jq -n --argjson providers "$(printf '%s\n' "${optimism_rpcs[@]}" | jq -R . | jq -s .)" '{"providers": $providers}')
+chains_gnosis=$(jq -n --argjson providers "$(printf '%s\n' "${gnosis_rpcs[@]}" | jq -R . | jq -s .)" '{"providers": $providers}')
 
-chains_json = $(jq -n \
-     --argjson "1" "$chains_mainnet" \
-     --argjson "10" "$chains_optimism" \
-     --argjson "100" "$chains_gnosis" \
-     "{"1": $chains_mainnet, "10": $chains_optimism, "100": $chains_gnosis}"
+echo "mainnet: $chains_mainnet" 
+echo "optimism: $chains_optimism"
+echo "gnosis: $chains_gnosis"
+
+chains_json=$(jq -n \
+     --argjson chains_mainnet "$chains_mainnet" \
+     --argjson chains_optimism "$chains_optimism" \
+     --argjson chains_gnosis "$chains_gnosis" \
+     '{"1": $chains_mainnet, "10": $chains_optimism, "100": $chains_gnosis}'
      )
 
+echo "chains: $chains_json"
 # Add docker paths to replace/add `chains` in config.json
-config_dir_paths=("docker/cartographer", "docker/lighthhouse", "docker/router", "docker/sequencer", "docker/relayer", "docker/watcher")
+config_dir_paths=("docker/cartographer" "docker/lighthhouse" "docker/router" "docker/sequencer" "docker/relayer" "docker/watcher")
 template_file="config-template.json"
 
-for dir_path in "${config_dir_paths}"; do
+for dir_path in "${config_dir_paths[@]}"; do
     echo "Finding $template_file in $dir_path"
-    template_file_path="${dir_path}/${template_file}"
+    template_file_path="$dir_path/$template_file"
 
     # Check if the config file exists
-    if [ -f "$config_file_path" ]; then
-        target_file_path = "${dir_path}/config.json"
+    if [ -f "$template_file_path" ]; then
+        target_file_path="${dir_path}/config.json"
         # Use jq to load the JSON file, add elements, and save the modified content
-        jq ". + { "chains": $chains_json }" \
-            "$template_file_path" > "$target_file_path"
+        jq ". + { "chains": $chains_json }" "$template_file_path" > "$target_file_path"
     else
-        echo "$config_file_path not found" 
+        echo "$template_file_path not found"
     fi
 done
-
 #####
 
 ##### IPFS, postgres, graph nodes.
