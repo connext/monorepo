@@ -47,18 +47,18 @@ chains_json = $(jq -n \
 
 # Add docker paths to replace/add `chains` in config.json
 config_dir_paths=("docker/cartographer", "docker/lighthhouse", "docker/router", "docker/sequencer", "docker/relayer", "docker/watcher")
-target_file="config.devnet.json"
+template_file="config-template.json"
 
 for dir_path in "${config_dir_paths}"; do
-    echo "Finding $target_file in $dir_path"
-    config_file_path="${dir_path}/${target_file}"
+    echo "Finding $template_file in $dir_path"
+    template_file_path="${dir_path}/${template_file}"
 
     # Check if the config file exists
     if [ -f "$config_file_path" ]; then
         target_file_path = "${dir_path}/config.json"
         # Use jq to load the JSON file, add elements, and save the modified content
         jq ". + { "chains": $chains_json }" \
-            "$config_file_path" > "$target_file_path"
+            "$template_file_path" > "$target_file_path"
     else
         echo "$config_file_path not found" 
     fi

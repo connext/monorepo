@@ -1,0 +1,12 @@
+{
+  "relayers": [
+    {
+      "type": "Connext",
+      "apiKey": "xxx",
+      "url": "http://relayer:8080"
+    }
+  ],
+  "environment": "production",
+  "logLevel": "debug",
+  "cartographerUrl": "http://cartographer-api:3000"
+}
