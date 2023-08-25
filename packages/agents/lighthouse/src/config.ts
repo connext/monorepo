@@ -69,7 +69,12 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   hubDomain: Type.String(),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   cartographerUrl: Type.String({ format: "uri" }),
   mode: TModeConfig,
   polling: TPollingConfig,

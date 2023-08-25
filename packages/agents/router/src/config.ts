@@ -92,7 +92,12 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
   mode: TModeConfig,
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   polling: TPollingConfig,
   auctionRoundDepth: Type.Integer(),
   subgraphPrefix: Type.Optional(Type.String()),
