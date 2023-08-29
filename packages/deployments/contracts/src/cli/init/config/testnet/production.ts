@@ -207,6 +207,21 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xMonoTest",
+      canonical: {
+        domain: "1735353714",
+        address: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+          adopted: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
