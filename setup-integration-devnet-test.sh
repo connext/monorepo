@@ -97,6 +97,12 @@ echo "Built subgraph for the hub chain"
 echo "Deploying subgraph to the hub chain - mainnet-devnet..."
 yarn workspace @connext/nxtp-subgraph create:hub_devnet_mainnet --node http://localhost:8020/
 yarn workspace @connext/nxtp-subgraph deploy:hub_devnet_mainnet --node http://localhost:8020/ -l v0.0.1
+
+yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0 mainnet
+yarn workspace @connext/nxtp-subgraph codegen
+yarn workspace @connext/nxtp-subgraph create:devnet_v0_mainnet --node http://localhost:8020/
+yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_mainnet --node http://localhost:8020/ -l v0.0.1
+
 echo "Deployed subgraph to the hub chain - mainnet-devnet"
 
 echo "Building subgraph for the spoke chain - optimism-devnet"
