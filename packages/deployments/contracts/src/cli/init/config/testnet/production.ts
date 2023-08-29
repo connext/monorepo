@@ -187,6 +187,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xTokenFrontend",
+      canonical: {
+        domain: "1735353714",
+        address: "0x6984384D6abE16221769BD9400de72b8F4Aa572C",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
+          adopted: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
+          adopted: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
