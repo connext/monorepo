@@ -117,7 +117,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.connext ??
         (() => {
           if (chainDataForChain) {
-            const res = deployments.connext(chainDataForChain.chainId, contractPostfix);
+            const res = deployments.connext(chainDataForChain.chainId, contractPostfix, nxtpConfig.network);
             if (res) {
               return res.address;
             }
