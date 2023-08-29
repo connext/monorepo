@@ -20,7 +20,6 @@ let channel: Broker.Channel;
 describe("Bindings:Server", () => {
   describe("#bindServer", () => {
     // db
-    let getQueuedTransfersStub: SinonStub;
     let getAuctionStub: SinonStub;
     let getTaskStub: SinonStub;
     let upsertAuctionStub: SinonStub;
@@ -39,7 +38,6 @@ describe("Bindings:Server", () => {
       getAuctionStub = stub(auctions, "getAuction");
       getStatusStub = stub(auctions, "getExecStatus").resolves(ExecStatus.None);
       setStatusStub = stub(auctions, "setExecStatus").resolves(1);
-      getQueuedTransfersStub = stub(auctions, "getQueuedTransfers");
       getTaskStub = stub(auctions, "getMetaTxTask").resolves(undefined);
 
       getExecStatusStub = stub(executors, "getExecStatus");
@@ -186,30 +184,6 @@ describe("Bindings:Server", () => {
 
       expect(response.statusCode).to.be.eq(200);
       expect(JSON.parse(response.payload).message).to.be.eq("executor data received");
-    });
-
-    it("happy: should get empty queued bids", async () => {
-      const transferIds = [getRandomBytes32(), getRandomBytes32()];
-      getQueuedTransfersStub.resolves(transferIds);
-
-      const response = await fastifyApp.inject({
-        method: "GET",
-        url: "/queued",
-      });
-      expect(response.statusCode).to.be.eq(200);
-      expect(JSON.parse(response.payload).queued).to.be.deep.eq(transferIds);
-      expect(getQueuedTransfersStub.callCount).to.be.eq(1);
-    });
-
-    it("happy: should get 500 if getting queued transfers fails ", async () => {
-      const transferIds = [getRandomBytes32(), getRandomBytes32()];
-      getQueuedTransfersStub.throws();
-
-      const response = await fastifyApp.inject({
-        method: "GET",
-        url: "/queued",
-      });
-      expect(response.statusCode).to.be.eq(500);
     });
 
     it("should get 500 on non-existent auction", async () => {

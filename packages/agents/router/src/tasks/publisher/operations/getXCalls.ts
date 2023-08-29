@@ -30,6 +30,7 @@ export const getXCalls = async () => {
       const safeConfirmations = config.chains[domain].confirmations ?? DEFAULT_SAFE_CONFIRMATIONS;
       let latestNonce = await cache.transfers.getLatestNonce(domain);
       latestNonce = Math.max(latestNonce, config.chains[domain].startNonce ?? 0);
+      logger.debug("Selected latestNonce", requestContext, methodContext, { domain, latestNonce });
 
       subgraphQueryMetaParams.set(domain, {
         maxBlockNumber: latestBlockNumber - safeConfirmations,

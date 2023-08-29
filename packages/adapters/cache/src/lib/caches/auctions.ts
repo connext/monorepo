@@ -130,42 +130,14 @@ export class AuctionsCache extends Cache {
     return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
   }
 
-  /// MARK - Queued Transfers
   /**
-   * Retrieve all transfer IDs that have the ExecStatus.Enqueued status.
-   * @returns An array of transfer IDs.
-   */
-  public async getQueuedTransfers(): Promise<string[]> {
-    const stream = this.data.hscanStream(`${this.prefix}:status`);
-    const keys: string[] = [];
-    await new Promise((res) => {
-      stream.on("data", (resultKeys: string[] = []) => {
-        // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis
-        // link : https://redis.io/commands/scan/#scan-guarantees
-        for (const resultKey of resultKeys) {
-          if (!keys.includes(resultKey)) keys.push(resultKey);
-        }
-      });
-      stream.on("end", async () => {
-        res(undefined);
-      });
-    });
-    const filtered: string[] = [];
-    for (const key of keys) {
-      const status = await this.getExecStatus(key);
-      if (status === ExecStatus.Enqueued) {
-        filtered.push(key);
-      }
-    }
-    return filtered;
-  }
-
-  /**
-   * Removes all the auction data for a given transferId.
+   * Removes all the auction data/status for a given transferId.
    * @param transferId - The transferId to be removed
    */
   public async pruneAuctionData(transferId: string): Promise<void> {
-    const dataKey = `${this.prefix}:data`;
+    const dataKey = `${this.prefix}:auction`;
     await this.data.hdel(dataKey, transferId);
+    const statusKey = `${this.prefix}:status`;
+    await this.data.hdel(statusKey, transferId);
   }
 }

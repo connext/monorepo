@@ -567,7 +567,7 @@ const originTransferQueryString = (
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     first: ${limit ?? 1000},
-    orderBy: blockNumber,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
@@ -589,7 +589,7 @@ const originTransferQueryFallbackString = (
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
     first: ${limit ?? 1000},
-    orderBy: blockNumber,
+    orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
 };

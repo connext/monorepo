@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.3-alpha.1
+
+- `updateSlippage`: Fix decimal parsing
+
 ## v2.1.2
 
 - `options`: SDK takes passed in provider
