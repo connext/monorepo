@@ -10,6 +10,7 @@ echo ".env contents loaded"
 
 ##### Config Variables
 LOCALHOST="127.0.0.1"
+NETWORK="devnet"
 
 ##### Devnet Deployments
 echo "Starting devnets..."
@@ -58,7 +59,7 @@ for dir_path in "${config_dir_paths[@]}"; do
     if [ -f "$template_file_path" ]; then
         target_file_path="${dir_path}/config.json"
         # Use jq to load the JSON file, add elements, and save the modified content
-        jq ". + { "chains": $chains_json }" "$template_file_path" > "$target_file_path"
+        jq ". + { "network": \"$NETWORK\", "chains": $chains_json }" "$template_file_path" > "$target_file_path"
     else
         echo "$template_file_path not found"
     fi
