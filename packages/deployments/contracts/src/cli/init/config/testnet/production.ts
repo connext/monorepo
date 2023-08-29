@@ -133,6 +133,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "ALCX",
+      canonical: {
+        domain: "1735353714",
+        address: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
+        },
+      },
+    },
+    {
       name: "xDappRadar",
       canonical: {
         domain: "1735353714",
