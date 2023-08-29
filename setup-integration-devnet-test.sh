@@ -11,11 +11,6 @@ echo ".env contents loaded"
 ##### Config Variables
 LOCALHOST="127.0.0.1"
 
-#For M* macs set the default platform to linux/amd64 
-# export DOCKER_DEFAULT_PLATFORM=linux/amd64
-
-
-
 ##### Devnet Deployments
 echo "Starting devnets..."
 MAINNET_DEVNET_RPC_URL=$(tenderly devnet spawn-rpc --project $TENDERLY_PROJECT_SLUG --template $TENDERLY_MAINNET_DEVNET_TEMPLATE --account $TENDERLY_ACCOUNT_ID  --access_key $TENDERLY_ACCESS_KEY 2>&1)
@@ -52,7 +47,7 @@ chains_json=$(jq -n \
 
 echo "chains: $chains_json"
 # Add docker paths to replace/add `chains` in config.json
-config_dir_paths=("docker/cartographer" "docker/lighthhouse" "docker/router" "docker/sequencer" "docker/relayer" "docker/watcher")
+config_dir_paths=("docker/cartographer" "docker/lighthouse" "docker/router" "docker/sequencer" "docker/relayer" "docker/watcher")
 template_file="config-template.json"
 
 for dir_path in "${config_dir_paths[@]}"; do

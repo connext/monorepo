@@ -16,7 +16,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
-      - ${PWD}/docker/router/config.devnet.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -37,7 +37,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
-      - ${PWD}/docker/router/config.devnet.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -56,7 +56,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/executor/:/home/node/agents/executor/
-      - ${PWD}/docker/router/config.devnet.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -94,7 +94,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.devnet.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -113,7 +113,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.devnet.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -132,7 +132,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.devnet.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -177,7 +177,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
-      - ${PWD}/docker/relayer/config.devnet.json:/home/node/packages/agents/relayer/config.json
+      - ${PWD}/docker/relayer/config.json:/home/node/packages/agents/relayer/config.json
 
   signer-relayer:
     container_name: signer-relayer
@@ -211,7 +211,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -231,7 +231,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -251,7 +251,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -271,7 +271,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -291,7 +291,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -311,7 +311,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -331,7 +331,7 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.devnet.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
       GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
       GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
@@ -342,7 +342,7 @@ services:
     container_name: cartographer-database
     image: ${DB_IMAGE}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     command: ["postgres"]
     environment:
       POSTGRES_PASSWORD: qwerty
@@ -372,7 +372,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.devnet.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: prover-sub
 
@@ -389,7 +389,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.devnet.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: prover-pub
 
@@ -406,7 +406,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.devnet.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: process
 
@@ -422,7 +422,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.devnet.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: propagate
 
@@ -438,6 +438,6 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.devnet.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: sendoutboundroot
