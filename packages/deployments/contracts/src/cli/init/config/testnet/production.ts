@@ -211,14 +211,14 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "WorkshopToken",
       canonical: {
         domain: "1735353714",
-        address: "0x1E6A05Dc5fc31A3F10E703e1369786C253E35Bb1",
+        address: "0x02E82fB078893EC64BC57e55Fe34f6669D8104BC",
         decimals: 18,
       },
       representations: {
         /// OPTIMISM-GOERLI
         "1735356532": {
-          local: "0x1E6A05Dc5fc31A3F10E703e1369786C253E35Bb1",
-          adopted: "0x1E6A05Dc5fc31A3F10E703e1369786C253E35Bb1",
+          local: "0x02E82fB078893EC64BC57e55Fe34f6669D8104BC",
+          adopted: "0x02E82fB078893EC64BC57e55Fe34f6669D8104BC",
         },
       },
     },
