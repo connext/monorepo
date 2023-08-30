@@ -43,7 +43,7 @@ chains_json=$(jq -n \
      --argjson chains_mainnet "$chains_mainnet" \
      --argjson chains_optimism "$chains_optimism" \
      --argjson chains_gnosis "$chains_gnosis" \
-     '{"1": $chains_mainnet, "10": $chains_optimism, "100": $chains_gnosis}'
+     '{"6648936": $chains_mainnet, "1869640809": $chains_optimism, "6778479": $chains_gnosis}'
      )
 
 echo "chains: $chains_json"
