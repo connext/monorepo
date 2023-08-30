@@ -693,7 +693,7 @@ sources:
   - name: Connext_Devnet_Xdai
     handler:
       graphql:
-        endpoint: "{env.GRAPH_DEVNET_GNOSIS}"
+        endpoint: "{env.GRAPH_DEVNET_XDAI}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:

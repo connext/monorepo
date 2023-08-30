@@ -21,7 +21,7 @@ export const create = async (
   const networks = names
     .filter((name) => {
       const result = getNetwork(name, prefixOverride ? "production" : env);
-      return !!result;
+      return !!result && (prefixOverride === "devnet" ? name.toLowerCase().includes("devnet") : true);
     })
     .map((name) => {
       const result = getNetwork(name, prefixOverride ? "production" : env);
@@ -34,7 +34,7 @@ export const create = async (
     assetId: {},
   };
   [...chaindata.values()].forEach((chainData) => {
-    if (networks.map((n) => n.replace("test_", "")).includes(chainData.network)) {
+    if (networks.map((n) => n.replace("test_", "").replace("devnet_", "")).includes(chainData.network)) {
       config.sources[chainData.domainId] = {
         domain: chainData.domainId,
         prefix: prefixOverride
