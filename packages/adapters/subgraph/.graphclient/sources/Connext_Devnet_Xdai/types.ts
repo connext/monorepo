@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextDevnetGnosisTypes {
+export namespace ConnextDevnetXdaiTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,18 +16,18 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  devnetgnosis_BigDecimal: any;
+  devnetxdai_BigDecimal: any;
   BigInt: any;
-  devnetgnosis_Bytes: any;
+  devnetxdai_Bytes: any;
 };
 
-export type devnetgnosis_AggregateRoot = {
+export type devnetxdai_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['devnetgnosis_Bytes'];
+  root: Scalars['devnetxdai_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type devnetgnosis_AggregateRoot_filter = {
+export type devnetxdai_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -36,12 +36,12 @@ export type devnetgnosis_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  root?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -51,38 +51,38 @@ export type devnetgnosis_AggregateRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_AggregateRoot_orderBy =
+export type devnetxdai_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
 
-export type devnetgnosis_Asset = {
+export type devnetxdai_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  key?: Maybe<Scalars['devnetxdai_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  canonicalId?: Maybe<Scalars['devnetxdai_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  localAsset?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['devnetxdai_Bytes']>;
+  localAsset?: Maybe<Scalars['devnetxdai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<devnetgnosis_AssetStatus>;
+  status?: Maybe<devnetxdai_AssetStatus>;
 };
 
-export type devnetgnosis_AssetBalance = {
+export type devnetxdai_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   supplied: Scalars['BigInt'];
   removed: Scalars['BigInt'];
-  router: devnetgnosis_Router;
-  asset: devnetgnosis_Asset;
+  router: devnetxdai_Router;
+  asset: devnetxdai_Asset;
   feesEarned: Scalars['BigInt'];
 };
 
-export type devnetgnosis_AssetBalance_filter = {
+export type devnetxdai_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -143,7 +143,7 @@ export type devnetgnosis_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<devnetgnosis_Router_filter>;
+  router_?: InputMaybe<devnetxdai_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -164,7 +164,7 @@ export type devnetgnosis_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<devnetgnosis_Asset_filter>;
+  asset_?: InputMaybe<devnetxdai_Asset_filter>;
   feesEarned?: InputMaybe<Scalars['BigInt']>;
   feesEarned_not?: InputMaybe<Scalars['BigInt']>;
   feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
@@ -174,10 +174,10 @@ export type devnetgnosis_AssetBalance_filter = {
   feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_AssetBalance_orderBy =
+export type devnetxdai_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'locked'
@@ -187,12 +187,12 @@ export type devnetgnosis_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
-export type devnetgnosis_AssetStatus = {
+export type devnetxdai_AssetStatus = {
   id: Scalars['ID'];
   status?: Maybe<Scalars['Boolean']>;
 };
 
-export type devnetgnosis_AssetStatus_filter = {
+export type devnetxdai_AssetStatus_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -206,14 +206,14 @@ export type devnetgnosis_AssetStatus_filter = {
   status_in?: InputMaybe<Array<Scalars['Boolean']>>;
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_AssetStatus_orderBy =
+export type devnetxdai_AssetStatus_orderBy =
   | 'id'
   | 'status';
 
-export type devnetgnosis_Asset_filter = {
+export type devnetxdai_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -222,12 +222,12 @@ export type devnetgnosis_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  key_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  key?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  key_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   decimal?: InputMaybe<Scalars['BigInt']>;
   decimal_not?: InputMaybe<Scalars['BigInt']>;
   decimal_gt?: InputMaybe<Scalars['BigInt']>;
@@ -236,12 +236,12 @@ export type devnetgnosis_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -250,18 +250,18 @@ export type devnetgnosis_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  localAsset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  localAsset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -290,12 +290,12 @@ export type devnetgnosis_Asset_filter = {
   status_ends_with_nocase?: InputMaybe<Scalars['String']>;
   status_not_ends_with?: InputMaybe<Scalars['String']>;
   status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  status_?: InputMaybe<devnetgnosis_AssetStatus_filter>;
+  status_?: InputMaybe<devnetxdai_AssetStatus_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_Asset_orderBy =
+export type devnetxdai_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
@@ -306,26 +306,26 @@ export type devnetgnosis_Asset_orderBy =
   | 'blockNumber'
   | 'status';
 
-export type devnetgnosis_BlockChangedFilter = {
+export type devnetxdai_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type devnetgnosis_Block_height = {
-  hash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+export type devnetxdai_Block_height = {
+  hash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type devnetgnosis_ConnectorMeta = {
+export type devnetxdai_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  rootManager?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  amb?: Maybe<Scalars['devnetxdai_Bytes']>;
+  rootManager?: Maybe<Scalars['devnetxdai_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['devnetxdai_Bytes']>;
 };
 
-export type devnetgnosis_ConnectorMeta_filter = {
+export type devnetxdai_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -350,29 +350,29 @@ export type devnetgnosis_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  amb_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  rootManager?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  amb?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  amb_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  rootManager?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_ConnectorMeta_orderBy =
+export type devnetxdai_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -380,57 +380,57 @@ export type devnetgnosis_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type devnetgnosis_DestinationTransfer = {
+export type devnetxdai_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: Maybe<Scalars['devnetxdai_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<devnetgnosis_TransferStatus>;
-  routers?: Maybe<Array<devnetgnosis_Router>>;
+  status?: Maybe<devnetxdai_TransferStatus>;
+  routers?: Maybe<Array<devnetxdai_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  delegate?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  to?: Maybe<Scalars['devnetxdai_Bytes']>;
+  delegate?: Maybe<Scalars['devnetxdai_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  callData?: Maybe<Scalars['devnetxdai_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
   bumpSlippageCount?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  originSender?: Maybe<Scalars['devnetxdai_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  asset?: Maybe<devnetgnosis_Asset>;
+  canonicalId?: Maybe<Scalars['devnetxdai_Bytes']>;
+  asset?: Maybe<devnetxdai_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  executedCaller?: Maybe<Scalars['devnetxdai_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedTxOrigin?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  executedTxOrigin?: Maybe<Scalars['devnetxdai_Bytes']>;
   executedTxNonce?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledTxOrigin?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  reconciledTxOrigin?: Maybe<Scalars['devnetxdai_Bytes']>;
   reconciledTxNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type devnetgnosis_DestinationTransferroutersArgs = {
+export type devnetxdai_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Router_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Router_filter>;
+  orderBy?: InputMaybe<devnetxdai_Router_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Router_filter>;
 };
 
-export type devnetgnosis_DestinationTransfer_filter = {
+export type devnetxdai_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -447,12 +447,12 @@ export type devnetgnosis_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -461,17 +461,17 @@ export type devnetgnosis_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<devnetgnosis_TransferStatus>;
-  status_not?: InputMaybe<devnetgnosis_TransferStatus>;
-  status_in?: InputMaybe<Array<devnetgnosis_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<devnetgnosis_TransferStatus>>;
+  status?: InputMaybe<devnetxdai_TransferStatus>;
+  status_not?: InputMaybe<devnetxdai_TransferStatus>;
+  status_in?: InputMaybe<Array<devnetxdai_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<devnetxdai_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<devnetgnosis_Router_filter>;
+  routers_?: InputMaybe<devnetxdai_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -496,28 +496,28 @@ export type devnetgnosis_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  to?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  callData?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -534,12 +534,12 @@ export type devnetgnosis_DestinationTransfer_filter = {
   bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  originSender?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -556,12 +556,12 @@ export type devnetgnosis_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -582,7 +582,7 @@ export type devnetgnosis_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<devnetgnosis_Asset_filter>;
+  asset_?: InputMaybe<devnetxdai_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -599,18 +599,18 @@ export type devnetgnosis_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -643,12 +643,12 @@ export type devnetgnosis_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTxOrigin?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTxOrigin_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTxOrigin_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  executedTxOrigin_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  executedTxOrigin_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  executedTxOrigin?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   executedTxNonce?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -657,18 +657,18 @@ export type devnetgnosis_DestinationTransfer_filter = {
   executedTxNonce_lte?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -701,12 +701,12 @@ export type devnetgnosis_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTxOrigin?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTxOrigin_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  reconciledTxOrigin_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  reconciledTxOrigin?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   reconciledTxNonce?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -716,10 +716,10 @@ export type devnetgnosis_DestinationTransfer_filter = {
   reconciledTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_DestinationTransfer_orderBy =
+export type devnetxdai_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -760,24 +760,24 @@ export type devnetgnosis_DestinationTransfer_orderBy =
   | 'reconciledTxNonce';
 
 /** Defines the order direction, either ascending or descending */
-export type devnetgnosis_OrderDirection =
+export type devnetxdai_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type devnetgnosis_OriginMessage = {
+export type devnetxdai_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: Maybe<Scalars['devnetxdai_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  leaf?: Maybe<Scalars['devnetxdai_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  root?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  message?: Maybe<Scalars['devnetxdai_Bytes']>;
+  root?: Maybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<devnetgnosis_RootCount>;
+  rootCount?: Maybe<devnetxdai_RootCount>;
 };
 
-export type devnetgnosis_OriginMessage_filter = {
+export type devnetxdai_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -786,12 +786,12 @@ export type devnetgnosis_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -800,12 +800,12 @@ export type devnetgnosis_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  leaf?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -814,24 +814,24 @@ export type devnetgnosis_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  message_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  message?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  message_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -860,12 +860,12 @@ export type devnetgnosis_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<devnetgnosis_RootCount_filter>;
+  rootCount_?: InputMaybe<devnetxdai_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_OriginMessage_orderBy =
+export type devnetxdai_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -877,51 +877,51 @@ export type devnetgnosis_OriginMessage_orderBy =
   | 'blockNumber'
   | 'rootCount';
 
-export type devnetgnosis_OriginTransfer = {
+export type devnetxdai_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: Maybe<Scalars['devnetxdai_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<devnetgnosis_TransferStatus>;
-  messageHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  status?: Maybe<devnetxdai_TransferStatus>;
+  messageHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  delegate?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  to?: Maybe<Scalars['devnetxdai_Bytes']>;
+  delegate?: Maybe<Scalars['devnetxdai_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  callData?: Maybe<Scalars['devnetxdai_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  originSender?: Maybe<Scalars['devnetxdai_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  asset?: Maybe<devnetgnosis_Asset>;
-  transactingAsset?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  message?: Maybe<devnetgnosis_OriginMessage>;
+  canonicalId?: Maybe<Scalars['devnetxdai_Bytes']>;
+  asset?: Maybe<devnetxdai_Asset>;
+  transactingAsset?: Maybe<Scalars['devnetxdai_Bytes']>;
+  message?: Maybe<devnetxdai_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
-  relayerFees?: Maybe<Array<devnetgnosis_RelayerFee>>;
-  initialRelayerFeeAsset?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  caller?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  relayerFees?: Maybe<Array<devnetxdai_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['devnetxdai_Bytes']>;
+  caller?: Maybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  txOrigin?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  txOrigin?: Maybe<Scalars['devnetxdai_Bytes']>;
   txNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type devnetgnosis_OriginTransferrelayerFeesArgs = {
+export type devnetxdai_OriginTransferrelayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RelayerFee_filter>;
+  orderBy?: InputMaybe<devnetxdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RelayerFee_filter>;
 };
 
-export type devnetgnosis_OriginTransfer_filter = {
+export type devnetxdai_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -938,12 +938,12 @@ export type devnetgnosis_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  transferId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -952,16 +952,16 @@ export type devnetgnosis_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<devnetgnosis_TransferStatus>;
-  status_not?: InputMaybe<devnetgnosis_TransferStatus>;
-  status_in?: InputMaybe<Array<devnetgnosis_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<devnetgnosis_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  status?: InputMaybe<devnetxdai_TransferStatus>;
+  status_not?: InputMaybe<devnetxdai_TransferStatus>;
+  status_in?: InputMaybe<Array<devnetxdai_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<devnetxdai_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -986,28 +986,28 @@ export type devnetgnosis_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  to?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  callData?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1016,12 +1016,12 @@ export type devnetgnosis_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  originSender?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1038,12 +1038,12 @@ export type devnetgnosis_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -1064,13 +1064,13 @@ export type devnetgnosis_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<devnetgnosis_Asset_filter>;
-  transactingAsset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  asset_?: InputMaybe<devnetxdai_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1091,7 +1091,7 @@ export type devnetgnosis_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<devnetgnosis_OriginMessage_filter>;
+  message_?: InputMaybe<devnetxdai_OriginMessage_filter>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1106,25 +1106,25 @@ export type devnetgnosis_OriginTransfer_filter = {
   relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  relayerFees_?: InputMaybe<devnetgnosis_RelayerFee_filter>;
-  initialRelayerFeeAsset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  initialRelayerFeeAsset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  relayerFees_?: InputMaybe<devnetxdai_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1157,12 +1157,12 @@ export type devnetgnosis_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  txOrigin?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  txOrigin_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  txOrigin_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  txOrigin_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  txOrigin_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  txOrigin_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  txOrigin?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   txNonce?: InputMaybe<Scalars['BigInt']>;
   txNonce_not?: InputMaybe<Scalars['BigInt']>;
   txNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1172,10 +1172,10 @@ export type devnetgnosis_OriginTransfer_filter = {
   txNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_OriginTransfer_orderBy =
+export type devnetxdai_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1210,389 +1210,389 @@ export type devnetgnosis_OriginTransfer_orderBy =
   | 'txNonce';
 
 export type Query = {
-  devnetgnosis_asset?: Maybe<devnetgnosis_Asset>;
-  devnetgnosis_assets: Array<devnetgnosis_Asset>;
-  devnetgnosis_assetStatus?: Maybe<devnetgnosis_AssetStatus>;
-  devnetgnosis_assetStatuses: Array<devnetgnosis_AssetStatus>;
-  devnetgnosis_assetBalance?: Maybe<devnetgnosis_AssetBalance>;
-  devnetgnosis_assetBalances: Array<devnetgnosis_AssetBalance>;
-  devnetgnosis_router?: Maybe<devnetgnosis_Router>;
-  devnetgnosis_routers: Array<devnetgnosis_Router>;
-  devnetgnosis_routerDailyTVL?: Maybe<devnetgnosis_RouterDailyTVL>;
-  devnetgnosis_routerDailyTVLs: Array<devnetgnosis_RouterDailyTVL>;
-  devnetgnosis_setting?: Maybe<devnetgnosis_Setting>;
-  devnetgnosis_settings: Array<devnetgnosis_Setting>;
-  devnetgnosis_relayer?: Maybe<devnetgnosis_Relayer>;
-  devnetgnosis_relayers: Array<devnetgnosis_Relayer>;
-  devnetgnosis_sequencer?: Maybe<devnetgnosis_Sequencer>;
-  devnetgnosis_sequencers: Array<devnetgnosis_Sequencer>;
-  devnetgnosis_relayerFee?: Maybe<devnetgnosis_RelayerFee>;
-  devnetgnosis_relayerFees: Array<devnetgnosis_RelayerFee>;
-  devnetgnosis_originTransfer?: Maybe<devnetgnosis_OriginTransfer>;
-  devnetgnosis_originTransfers: Array<devnetgnosis_OriginTransfer>;
-  devnetgnosis_destinationTransfer?: Maybe<devnetgnosis_DestinationTransfer>;
-  devnetgnosis_destinationTransfers: Array<devnetgnosis_DestinationTransfer>;
-  devnetgnosis_originMessage?: Maybe<devnetgnosis_OriginMessage>;
-  devnetgnosis_originMessages: Array<devnetgnosis_OriginMessage>;
-  devnetgnosis_aggregateRoot?: Maybe<devnetgnosis_AggregateRoot>;
-  devnetgnosis_aggregateRoots: Array<devnetgnosis_AggregateRoot>;
-  devnetgnosis_connectorMeta?: Maybe<devnetgnosis_ConnectorMeta>;
-  devnetgnosis_connectorMetas: Array<devnetgnosis_ConnectorMeta>;
-  devnetgnosis_rootCount?: Maybe<devnetgnosis_RootCount>;
-  devnetgnosis_rootCounts: Array<devnetgnosis_RootCount>;
-  devnetgnosis_rootMessageSent?: Maybe<devnetgnosis_RootMessageSent>;
-  devnetgnosis_rootMessageSents: Array<devnetgnosis_RootMessageSent>;
-  devnetgnosis_relayerFeesIncrease?: Maybe<devnetgnosis_RelayerFeesIncrease>;
-  devnetgnosis_relayerFeesIncreases: Array<devnetgnosis_RelayerFeesIncrease>;
-  devnetgnosis_slippageUpdate?: Maybe<devnetgnosis_SlippageUpdate>;
-  devnetgnosis_slippageUpdates: Array<devnetgnosis_SlippageUpdate>;
+  devnetxdai_asset?: Maybe<devnetxdai_Asset>;
+  devnetxdai_assets: Array<devnetxdai_Asset>;
+  devnetxdai_assetStatus?: Maybe<devnetxdai_AssetStatus>;
+  devnetxdai_assetStatuses: Array<devnetxdai_AssetStatus>;
+  devnetxdai_assetBalance?: Maybe<devnetxdai_AssetBalance>;
+  devnetxdai_assetBalances: Array<devnetxdai_AssetBalance>;
+  devnetxdai_router?: Maybe<devnetxdai_Router>;
+  devnetxdai_routers: Array<devnetxdai_Router>;
+  devnetxdai_routerDailyTVL?: Maybe<devnetxdai_RouterDailyTVL>;
+  devnetxdai_routerDailyTVLs: Array<devnetxdai_RouterDailyTVL>;
+  devnetxdai_setting?: Maybe<devnetxdai_Setting>;
+  devnetxdai_settings: Array<devnetxdai_Setting>;
+  devnetxdai_relayer?: Maybe<devnetxdai_Relayer>;
+  devnetxdai_relayers: Array<devnetxdai_Relayer>;
+  devnetxdai_sequencer?: Maybe<devnetxdai_Sequencer>;
+  devnetxdai_sequencers: Array<devnetxdai_Sequencer>;
+  devnetxdai_relayerFee?: Maybe<devnetxdai_RelayerFee>;
+  devnetxdai_relayerFees: Array<devnetxdai_RelayerFee>;
+  devnetxdai_originTransfer?: Maybe<devnetxdai_OriginTransfer>;
+  devnetxdai_originTransfers: Array<devnetxdai_OriginTransfer>;
+  devnetxdai_destinationTransfer?: Maybe<devnetxdai_DestinationTransfer>;
+  devnetxdai_destinationTransfers: Array<devnetxdai_DestinationTransfer>;
+  devnetxdai_originMessage?: Maybe<devnetxdai_OriginMessage>;
+  devnetxdai_originMessages: Array<devnetxdai_OriginMessage>;
+  devnetxdai_aggregateRoot?: Maybe<devnetxdai_AggregateRoot>;
+  devnetxdai_aggregateRoots: Array<devnetxdai_AggregateRoot>;
+  devnetxdai_connectorMeta?: Maybe<devnetxdai_ConnectorMeta>;
+  devnetxdai_connectorMetas: Array<devnetxdai_ConnectorMeta>;
+  devnetxdai_rootCount?: Maybe<devnetxdai_RootCount>;
+  devnetxdai_rootCounts: Array<devnetxdai_RootCount>;
+  devnetxdai_rootMessageSent?: Maybe<devnetxdai_RootMessageSent>;
+  devnetxdai_rootMessageSents: Array<devnetxdai_RootMessageSent>;
+  devnetxdai_relayerFeesIncrease?: Maybe<devnetxdai_RelayerFeesIncrease>;
+  devnetxdai_relayerFeesIncreases: Array<devnetxdai_RelayerFeesIncrease>;
+  devnetxdai_slippageUpdate?: Maybe<devnetxdai_SlippageUpdate>;
+  devnetxdai_slippageUpdates: Array<devnetxdai_SlippageUpdate>;
   /** Access to subgraph metadata */
-  devnetgnosis__meta?: Maybe<devnetgnosis__Meta_>;
+  devnetxdai__meta?: Maybe<devnetxdai__Meta_>;
 };
 
 
-export type Querydevnetgnosis_assetArgs = {
+export type Querydevnetxdai_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_assetsArgs = {
+export type Querydevnetxdai_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Asset_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Asset_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Asset_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Asset_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_assetStatusArgs = {
+export type Querydevnetxdai_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_assetStatusesArgs = {
+export type Querydevnetxdai_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AssetStatus_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AssetStatus_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_assetBalanceArgs = {
+export type Querydevnetxdai_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_assetBalancesArgs = {
+export type Querydevnetxdai_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AssetBalance_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AssetBalance_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_routerArgs = {
+export type Querydevnetxdai_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_routersArgs = {
+export type Querydevnetxdai_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Router_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Router_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Router_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Router_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_routerDailyTVLArgs = {
+export type Querydevnetxdai_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_routerDailyTVLsArgs = {
+export type Querydevnetxdai_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RouterDailyTVL_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RouterDailyTVL_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_settingArgs = {
+export type Querydevnetxdai_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_settingsArgs = {
+export type Querydevnetxdai_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Setting_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Setting_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Setting_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Setting_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayerArgs = {
+export type Querydevnetxdai_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayersArgs = {
+export type Querydevnetxdai_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Relayer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Relayer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Relayer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Relayer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_sequencerArgs = {
+export type Querydevnetxdai_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_sequencersArgs = {
+export type Querydevnetxdai_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Sequencer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Sequencer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayerFeeArgs = {
+export type Querydevnetxdai_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayerFeesArgs = {
+export type Querydevnetxdai_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RelayerFee_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RelayerFee_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_originTransferArgs = {
+export type Querydevnetxdai_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_originTransfersArgs = {
+export type Querydevnetxdai_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_OriginTransfer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_OriginTransfer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_destinationTransferArgs = {
+export type Querydevnetxdai_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_destinationTransfersArgs = {
+export type Querydevnetxdai_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_DestinationTransfer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_DestinationTransfer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_originMessageArgs = {
+export type Querydevnetxdai_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_originMessagesArgs = {
+export type Querydevnetxdai_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_OriginMessage_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_OriginMessage_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_aggregateRootArgs = {
+export type Querydevnetxdai_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_aggregateRootsArgs = {
+export type Querydevnetxdai_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AggregateRoot_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AggregateRoot_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_connectorMetaArgs = {
+export type Querydevnetxdai_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_connectorMetasArgs = {
+export type Querydevnetxdai_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_ConnectorMeta_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_ConnectorMeta_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_rootCountArgs = {
+export type Querydevnetxdai_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_rootCountsArgs = {
+export type Querydevnetxdai_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RootCount_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RootCount_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RootCount_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RootCount_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_rootMessageSentArgs = {
+export type Querydevnetxdai_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_rootMessageSentsArgs = {
+export type Querydevnetxdai_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RootMessageSent_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RootMessageSent_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayerFeesIncreaseArgs = {
+export type Querydevnetxdai_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_relayerFeesIncreasesArgs = {
+export type Querydevnetxdai_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_slippageUpdateArgs = {
+export type Querydevnetxdai_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis_slippageUpdatesArgs = {
+export type Querydevnetxdai_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_SlippageUpdate_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_SlippageUpdate_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querydevnetgnosis__metaArgs = {
-  block?: InputMaybe<devnetgnosis_Block_height>;
+export type Querydevnetxdai__metaArgs = {
+  block?: InputMaybe<devnetxdai_Block_height>;
 };
 
-export type devnetgnosis_Relayer = {
+export type devnetxdai_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  relayer?: Maybe<Scalars['devnetxdai_Bytes']>;
 };
 
-export type devnetgnosis_RelayerFee = {
+export type devnetxdai_RelayerFee = {
   id: Scalars['ID'];
-  transfer: devnetgnosis_OriginTransfer;
+  transfer: devnetxdai_OriginTransfer;
   fee: Scalars['BigInt'];
-  asset: Scalars['devnetgnosis_Bytes'];
+  asset: Scalars['devnetxdai_Bytes'];
 };
 
-export type devnetgnosis_RelayerFee_filter = {
+export type devnetxdai_RelayerFee_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1621,7 +1621,7 @@ export type devnetgnosis_RelayerFee_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<devnetgnosis_OriginTransfer_filter>;
+  transfer_?: InputMaybe<devnetxdai_OriginTransfer_filter>;
   fee?: InputMaybe<Scalars['BigInt']>;
   fee_not?: InputMaybe<Scalars['BigInt']>;
   fee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1630,36 +1630,36 @@ export type devnetgnosis_RelayerFee_filter = {
   fee_lte?: InputMaybe<Scalars['BigInt']>;
   fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  asset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_RelayerFee_orderBy =
+export type devnetxdai_RelayerFee_orderBy =
   | 'id'
   | 'transfer'
   | 'fee'
   | 'asset';
 
-export type devnetgnosis_RelayerFeesIncrease = {
+export type devnetxdai_RelayerFeesIncrease = {
   id: Scalars['ID'];
-  transfer: devnetgnosis_OriginTransfer;
+  transfer: devnetxdai_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
-  asset?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  caller: Scalars['devnetgnosis_Bytes'];
-  transactionHash: Scalars['devnetgnosis_Bytes'];
+  asset?: Maybe<Scalars['devnetxdai_Bytes']>;
+  caller: Scalars['devnetxdai_Bytes'];
+  transactionHash: Scalars['devnetxdai_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type devnetgnosis_RelayerFeesIncrease_filter = {
+export type devnetxdai_RelayerFeesIncrease_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1688,7 +1688,7 @@ export type devnetgnosis_RelayerFeesIncrease_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<devnetgnosis_OriginTransfer_filter>;
+  transfer_?: InputMaybe<devnetxdai_OriginTransfer_filter>;
   increase?: InputMaybe<Scalars['BigInt']>;
   increase_not?: InputMaybe<Scalars['BigInt']>;
   increase_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1697,24 +1697,24 @@ export type devnetgnosis_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  asset?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1748,10 +1748,10 @@ export type devnetgnosis_RelayerFeesIncrease_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_RelayerFeesIncrease_orderBy =
+export type devnetxdai_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'increase'
@@ -1763,7 +1763,7 @@ export type devnetgnosis_RelayerFeesIncrease_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type devnetgnosis_Relayer_filter = {
+export type devnetxdai_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1776,27 +1776,27 @@ export type devnetgnosis_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  relayer?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_Relayer_orderBy =
+export type devnetxdai_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type devnetgnosis_RootCount = {
+export type devnetxdai_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type devnetgnosis_RootCount_filter = {
+export type devnetxdai_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1814,28 +1814,28 @@ export type devnetgnosis_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_RootCount_orderBy =
+export type devnetxdai_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type devnetgnosis_RootMessageSent = {
+export type devnetxdai_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  root?: Maybe<Scalars['devnetxdai_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  caller?: Maybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: Maybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type devnetgnosis_RootMessageSent_filter = {
+export type devnetxdai_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1860,12 +1860,12 @@ export type devnetgnosis_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  root?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1874,18 +1874,18 @@ export type devnetgnosis_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  caller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1919,10 +1919,10 @@ export type devnetgnosis_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_RootMessageSent_orderBy =
+export type devnetxdai_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -1935,34 +1935,34 @@ export type devnetgnosis_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type devnetgnosis_Router = {
+export type devnetxdai_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  recipient?: Maybe<Scalars['devnetgnosis_Bytes']>;
-  proposedOwner?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  owner?: Maybe<Scalars['devnetxdai_Bytes']>;
+  recipient?: Maybe<Scalars['devnetxdai_Bytes']>;
+  proposedOwner?: Maybe<Scalars['devnetxdai_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<devnetgnosis_AssetBalance>;
+  assetBalances: Array<devnetxdai_AssetBalance>;
 };
 
 
-export type devnetgnosis_RouterassetBalancesArgs = {
+export type devnetxdai_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AssetBalance_filter>;
+  orderBy?: InputMaybe<devnetxdai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AssetBalance_filter>;
 };
 
-export type devnetgnosis_RouterDailyTVL = {
+export type devnetxdai_RouterDailyTVL = {
   id: Scalars['ID'];
-  router: devnetgnosis_Router;
-  asset: devnetgnosis_Asset;
+  router: devnetxdai_Router;
+  asset: devnetxdai_Asset;
   timestamp: Scalars['BigInt'];
   balance: Scalars['BigInt'];
 };
 
-export type devnetgnosis_RouterDailyTVL_filter = {
+export type devnetxdai_RouterDailyTVL_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1991,7 +1991,7 @@ export type devnetgnosis_RouterDailyTVL_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<devnetgnosis_Router_filter>;
+  router_?: InputMaybe<devnetxdai_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2012,7 +2012,7 @@ export type devnetgnosis_RouterDailyTVL_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<devnetgnosis_Asset_filter>;
+  asset_?: InputMaybe<devnetxdai_Asset_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2030,17 +2030,17 @@ export type devnetgnosis_RouterDailyTVL_filter = {
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_RouterDailyTVL_orderBy =
+export type devnetxdai_RouterDailyTVL_orderBy =
   | 'id'
   | 'router'
   | 'asset'
   | 'timestamp'
   | 'balance';
 
-export type devnetgnosis_Router_filter = {
+export type devnetxdai_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2053,24 +2053,24 @@ export type devnetgnosis_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  owner_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  recipient?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  owner?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  owner_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  recipient?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2079,12 +2079,12 @@ export type devnetgnosis_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<devnetgnosis_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<devnetxdai_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_Router_orderBy =
+export type devnetxdai_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -2093,13 +2093,13 @@ export type devnetgnosis_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type devnetgnosis_Sequencer = {
+export type devnetxdai_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  sequencer?: Maybe<Scalars['devnetxdai_Bytes']>;
 };
 
-export type devnetgnosis_Sequencer_filter = {
+export type devnetxdai_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2112,28 +2112,28 @@ export type devnetgnosis_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  sequencer?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_Sequencer_orderBy =
+export type devnetxdai_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type devnetgnosis_Setting = {
+export type devnetxdai_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['devnetgnosis_Bytes'];
+  caller: Scalars['devnetxdai_Bytes'];
 };
 
-export type devnetgnosis_Setting_filter = {
+export type devnetxdai_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2150,34 +2150,34 @@ export type devnetgnosis_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  caller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_Setting_orderBy =
+export type devnetxdai_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type devnetgnosis_SlippageUpdate = {
+export type devnetxdai_SlippageUpdate = {
   id: Scalars['ID'];
-  transfer: devnetgnosis_DestinationTransfer;
+  transfer: devnetxdai_DestinationTransfer;
   slippage: Scalars['BigInt'];
-  caller: Scalars['devnetgnosis_Bytes'];
-  transactionHash: Scalars['devnetgnosis_Bytes'];
+  caller: Scalars['devnetxdai_Bytes'];
+  transactionHash: Scalars['devnetxdai_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type devnetgnosis_SlippageUpdate_filter = {
+export type devnetxdai_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2206,7 +2206,7 @@ export type devnetgnosis_SlippageUpdate_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<devnetgnosis_DestinationTransfer_filter>;
+  transfer_?: InputMaybe<devnetxdai_DestinationTransfer_filter>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2215,18 +2215,18 @@ export type devnetgnosis_SlippageUpdate_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetgnosis_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['devnetgnosis_Bytes']>;
+  caller?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['devnetxdai_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['devnetxdai_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2260,10 +2260,10 @@ export type devnetgnosis_SlippageUpdate_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<devnetgnosis_BlockChangedFilter>;
+  _change_block?: InputMaybe<devnetxdai_BlockChangedFilter>;
 };
 
-export type devnetgnosis_SlippageUpdate_orderBy =
+export type devnetxdai_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
   | 'slippage'
@@ -2275,391 +2275,391 @@ export type devnetgnosis_SlippageUpdate_orderBy =
   | 'blockNumber';
 
 export type Subscription = {
-  devnetgnosis_asset?: Maybe<devnetgnosis_Asset>;
-  devnetgnosis_assets: Array<devnetgnosis_Asset>;
-  devnetgnosis_assetStatus?: Maybe<devnetgnosis_AssetStatus>;
-  devnetgnosis_assetStatuses: Array<devnetgnosis_AssetStatus>;
-  devnetgnosis_assetBalance?: Maybe<devnetgnosis_AssetBalance>;
-  devnetgnosis_assetBalances: Array<devnetgnosis_AssetBalance>;
-  devnetgnosis_router?: Maybe<devnetgnosis_Router>;
-  devnetgnosis_routers: Array<devnetgnosis_Router>;
-  devnetgnosis_routerDailyTVL?: Maybe<devnetgnosis_RouterDailyTVL>;
-  devnetgnosis_routerDailyTVLs: Array<devnetgnosis_RouterDailyTVL>;
-  devnetgnosis_setting?: Maybe<devnetgnosis_Setting>;
-  devnetgnosis_settings: Array<devnetgnosis_Setting>;
-  devnetgnosis_relayer?: Maybe<devnetgnosis_Relayer>;
-  devnetgnosis_relayers: Array<devnetgnosis_Relayer>;
-  devnetgnosis_sequencer?: Maybe<devnetgnosis_Sequencer>;
-  devnetgnosis_sequencers: Array<devnetgnosis_Sequencer>;
-  devnetgnosis_relayerFee?: Maybe<devnetgnosis_RelayerFee>;
-  devnetgnosis_relayerFees: Array<devnetgnosis_RelayerFee>;
-  devnetgnosis_originTransfer?: Maybe<devnetgnosis_OriginTransfer>;
-  devnetgnosis_originTransfers: Array<devnetgnosis_OriginTransfer>;
-  devnetgnosis_destinationTransfer?: Maybe<devnetgnosis_DestinationTransfer>;
-  devnetgnosis_destinationTransfers: Array<devnetgnosis_DestinationTransfer>;
-  devnetgnosis_originMessage?: Maybe<devnetgnosis_OriginMessage>;
-  devnetgnosis_originMessages: Array<devnetgnosis_OriginMessage>;
-  devnetgnosis_aggregateRoot?: Maybe<devnetgnosis_AggregateRoot>;
-  devnetgnosis_aggregateRoots: Array<devnetgnosis_AggregateRoot>;
-  devnetgnosis_connectorMeta?: Maybe<devnetgnosis_ConnectorMeta>;
-  devnetgnosis_connectorMetas: Array<devnetgnosis_ConnectorMeta>;
-  devnetgnosis_rootCount?: Maybe<devnetgnosis_RootCount>;
-  devnetgnosis_rootCounts: Array<devnetgnosis_RootCount>;
-  devnetgnosis_rootMessageSent?: Maybe<devnetgnosis_RootMessageSent>;
-  devnetgnosis_rootMessageSents: Array<devnetgnosis_RootMessageSent>;
-  devnetgnosis_relayerFeesIncrease?: Maybe<devnetgnosis_RelayerFeesIncrease>;
-  devnetgnosis_relayerFeesIncreases: Array<devnetgnosis_RelayerFeesIncrease>;
-  devnetgnosis_slippageUpdate?: Maybe<devnetgnosis_SlippageUpdate>;
-  devnetgnosis_slippageUpdates: Array<devnetgnosis_SlippageUpdate>;
+  devnetxdai_asset?: Maybe<devnetxdai_Asset>;
+  devnetxdai_assets: Array<devnetxdai_Asset>;
+  devnetxdai_assetStatus?: Maybe<devnetxdai_AssetStatus>;
+  devnetxdai_assetStatuses: Array<devnetxdai_AssetStatus>;
+  devnetxdai_assetBalance?: Maybe<devnetxdai_AssetBalance>;
+  devnetxdai_assetBalances: Array<devnetxdai_AssetBalance>;
+  devnetxdai_router?: Maybe<devnetxdai_Router>;
+  devnetxdai_routers: Array<devnetxdai_Router>;
+  devnetxdai_routerDailyTVL?: Maybe<devnetxdai_RouterDailyTVL>;
+  devnetxdai_routerDailyTVLs: Array<devnetxdai_RouterDailyTVL>;
+  devnetxdai_setting?: Maybe<devnetxdai_Setting>;
+  devnetxdai_settings: Array<devnetxdai_Setting>;
+  devnetxdai_relayer?: Maybe<devnetxdai_Relayer>;
+  devnetxdai_relayers: Array<devnetxdai_Relayer>;
+  devnetxdai_sequencer?: Maybe<devnetxdai_Sequencer>;
+  devnetxdai_sequencers: Array<devnetxdai_Sequencer>;
+  devnetxdai_relayerFee?: Maybe<devnetxdai_RelayerFee>;
+  devnetxdai_relayerFees: Array<devnetxdai_RelayerFee>;
+  devnetxdai_originTransfer?: Maybe<devnetxdai_OriginTransfer>;
+  devnetxdai_originTransfers: Array<devnetxdai_OriginTransfer>;
+  devnetxdai_destinationTransfer?: Maybe<devnetxdai_DestinationTransfer>;
+  devnetxdai_destinationTransfers: Array<devnetxdai_DestinationTransfer>;
+  devnetxdai_originMessage?: Maybe<devnetxdai_OriginMessage>;
+  devnetxdai_originMessages: Array<devnetxdai_OriginMessage>;
+  devnetxdai_aggregateRoot?: Maybe<devnetxdai_AggregateRoot>;
+  devnetxdai_aggregateRoots: Array<devnetxdai_AggregateRoot>;
+  devnetxdai_connectorMeta?: Maybe<devnetxdai_ConnectorMeta>;
+  devnetxdai_connectorMetas: Array<devnetxdai_ConnectorMeta>;
+  devnetxdai_rootCount?: Maybe<devnetxdai_RootCount>;
+  devnetxdai_rootCounts: Array<devnetxdai_RootCount>;
+  devnetxdai_rootMessageSent?: Maybe<devnetxdai_RootMessageSent>;
+  devnetxdai_rootMessageSents: Array<devnetxdai_RootMessageSent>;
+  devnetxdai_relayerFeesIncrease?: Maybe<devnetxdai_RelayerFeesIncrease>;
+  devnetxdai_relayerFeesIncreases: Array<devnetxdai_RelayerFeesIncrease>;
+  devnetxdai_slippageUpdate?: Maybe<devnetxdai_SlippageUpdate>;
+  devnetxdai_slippageUpdates: Array<devnetxdai_SlippageUpdate>;
   /** Access to subgraph metadata */
-  devnetgnosis__meta?: Maybe<devnetgnosis__Meta_>;
+  devnetxdai__meta?: Maybe<devnetxdai__Meta_>;
 };
 
 
-export type Subscriptiondevnetgnosis_assetArgs = {
+export type Subscriptiondevnetxdai_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_assetsArgs = {
+export type Subscriptiondevnetxdai_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Asset_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Asset_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Asset_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Asset_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_assetStatusArgs = {
+export type Subscriptiondevnetxdai_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_assetStatusesArgs = {
+export type Subscriptiondevnetxdai_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AssetStatus_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AssetStatus_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_assetBalanceArgs = {
+export type Subscriptiondevnetxdai_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_assetBalancesArgs = {
+export type Subscriptiondevnetxdai_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AssetBalance_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AssetBalance_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_routerArgs = {
+export type Subscriptiondevnetxdai_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_routersArgs = {
+export type Subscriptiondevnetxdai_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Router_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Router_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Router_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Router_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_routerDailyTVLArgs = {
+export type Subscriptiondevnetxdai_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_routerDailyTVLsArgs = {
+export type Subscriptiondevnetxdai_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RouterDailyTVL_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RouterDailyTVL_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_settingArgs = {
+export type Subscriptiondevnetxdai_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_settingsArgs = {
+export type Subscriptiondevnetxdai_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Setting_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Setting_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Setting_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Setting_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayerArgs = {
+export type Subscriptiondevnetxdai_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayersArgs = {
+export type Subscriptiondevnetxdai_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Relayer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Relayer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Relayer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Relayer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_sequencerArgs = {
+export type Subscriptiondevnetxdai_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_sequencersArgs = {
+export type Subscriptiondevnetxdai_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_Sequencer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_Sequencer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayerFeeArgs = {
+export type Subscriptiondevnetxdai_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayerFeesArgs = {
+export type Subscriptiondevnetxdai_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RelayerFee_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RelayerFee_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_originTransferArgs = {
+export type Subscriptiondevnetxdai_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_originTransfersArgs = {
+export type Subscriptiondevnetxdai_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_OriginTransfer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_OriginTransfer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_destinationTransferArgs = {
+export type Subscriptiondevnetxdai_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_destinationTransfersArgs = {
+export type Subscriptiondevnetxdai_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_DestinationTransfer_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_DestinationTransfer_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_originMessageArgs = {
+export type Subscriptiondevnetxdai_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_originMessagesArgs = {
+export type Subscriptiondevnetxdai_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_OriginMessage_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_OriginMessage_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_aggregateRootArgs = {
+export type Subscriptiondevnetxdai_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_aggregateRootsArgs = {
+export type Subscriptiondevnetxdai_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_AggregateRoot_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_AggregateRoot_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_connectorMetaArgs = {
+export type Subscriptiondevnetxdai_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_connectorMetasArgs = {
+export type Subscriptiondevnetxdai_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_ConnectorMeta_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_ConnectorMeta_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_rootCountArgs = {
+export type Subscriptiondevnetxdai_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_rootCountsArgs = {
+export type Subscriptiondevnetxdai_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RootCount_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RootCount_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RootCount_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RootCount_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_rootMessageSentArgs = {
+export type Subscriptiondevnetxdai_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_rootMessageSentsArgs = {
+export type Subscriptiondevnetxdai_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RootMessageSent_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RootMessageSent_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayerFeesIncreaseArgs = {
+export type Subscriptiondevnetxdai_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_relayerFeesIncreasesArgs = {
+export type Subscriptiondevnetxdai_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_slippageUpdateArgs = {
+export type Subscriptiondevnetxdai_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis_slippageUpdatesArgs = {
+export type Subscriptiondevnetxdai_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<devnetgnosis_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<devnetgnosis_OrderDirection>;
-  where?: InputMaybe<devnetgnosis_SlippageUpdate_filter>;
-  block?: InputMaybe<devnetgnosis_Block_height>;
+  orderBy?: InputMaybe<devnetxdai_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<devnetxdai_OrderDirection>;
+  where?: InputMaybe<devnetxdai_SlippageUpdate_filter>;
+  block?: InputMaybe<devnetxdai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptiondevnetgnosis__metaArgs = {
-  block?: InputMaybe<devnetgnosis_Block_height>;
+export type Subscriptiondevnetxdai__metaArgs = {
+  block?: InputMaybe<devnetxdai_Block_height>;
 };
 
-export type devnetgnosis_TransferStatus =
+export type devnetxdai_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type devnetgnosis__Block_ = {
+export type devnetxdai__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['devnetgnosis_Bytes']>;
+  hash?: Maybe<Scalars['devnetxdai_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type devnetgnosis__Meta_ = {
+export type devnetxdai__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -2667,7 +2667,7 @@ export type devnetgnosis__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: devnetgnosis__Block_;
+  block: devnetxdai__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -2682,79 +2682,79 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  devnetgnosis_asset: InContextSdkMethod<Query['devnetgnosis_asset'], Querydevnetgnosis_assetArgs, MeshContext>,
+  devnetxdai_asset: InContextSdkMethod<Query['devnetxdai_asset'], Querydevnetxdai_assetArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assets: InContextSdkMethod<Query['devnetgnosis_assets'], Querydevnetgnosis_assetsArgs, MeshContext>,
+  devnetxdai_assets: InContextSdkMethod<Query['devnetxdai_assets'], Querydevnetxdai_assetsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetStatus: InContextSdkMethod<Query['devnetgnosis_assetStatus'], Querydevnetgnosis_assetStatusArgs, MeshContext>,
+  devnetxdai_assetStatus: InContextSdkMethod<Query['devnetxdai_assetStatus'], Querydevnetxdai_assetStatusArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetStatuses: InContextSdkMethod<Query['devnetgnosis_assetStatuses'], Querydevnetgnosis_assetStatusesArgs, MeshContext>,
+  devnetxdai_assetStatuses: InContextSdkMethod<Query['devnetxdai_assetStatuses'], Querydevnetxdai_assetStatusesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetBalance: InContextSdkMethod<Query['devnetgnosis_assetBalance'], Querydevnetgnosis_assetBalanceArgs, MeshContext>,
+  devnetxdai_assetBalance: InContextSdkMethod<Query['devnetxdai_assetBalance'], Querydevnetxdai_assetBalanceArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetBalances: InContextSdkMethod<Query['devnetgnosis_assetBalances'], Querydevnetgnosis_assetBalancesArgs, MeshContext>,
+  devnetxdai_assetBalances: InContextSdkMethod<Query['devnetxdai_assetBalances'], Querydevnetxdai_assetBalancesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_router: InContextSdkMethod<Query['devnetgnosis_router'], Querydevnetgnosis_routerArgs, MeshContext>,
+  devnetxdai_router: InContextSdkMethod<Query['devnetxdai_router'], Querydevnetxdai_routerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routers: InContextSdkMethod<Query['devnetgnosis_routers'], Querydevnetgnosis_routersArgs, MeshContext>,
+  devnetxdai_routers: InContextSdkMethod<Query['devnetxdai_routers'], Querydevnetxdai_routersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routerDailyTVL: InContextSdkMethod<Query['devnetgnosis_routerDailyTVL'], Querydevnetgnosis_routerDailyTVLArgs, MeshContext>,
+  devnetxdai_routerDailyTVL: InContextSdkMethod<Query['devnetxdai_routerDailyTVL'], Querydevnetxdai_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routerDailyTVLs: InContextSdkMethod<Query['devnetgnosis_routerDailyTVLs'], Querydevnetgnosis_routerDailyTVLsArgs, MeshContext>,
+  devnetxdai_routerDailyTVLs: InContextSdkMethod<Query['devnetxdai_routerDailyTVLs'], Querydevnetxdai_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_setting: InContextSdkMethod<Query['devnetgnosis_setting'], Querydevnetgnosis_settingArgs, MeshContext>,
+  devnetxdai_setting: InContextSdkMethod<Query['devnetxdai_setting'], Querydevnetxdai_settingArgs, MeshContext>,
   /** null **/
-  devnetgnosis_settings: InContextSdkMethod<Query['devnetgnosis_settings'], Querydevnetgnosis_settingsArgs, MeshContext>,
+  devnetxdai_settings: InContextSdkMethod<Query['devnetxdai_settings'], Querydevnetxdai_settingsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayer: InContextSdkMethod<Query['devnetgnosis_relayer'], Querydevnetgnosis_relayerArgs, MeshContext>,
+  devnetxdai_relayer: InContextSdkMethod<Query['devnetxdai_relayer'], Querydevnetxdai_relayerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayers: InContextSdkMethod<Query['devnetgnosis_relayers'], Querydevnetgnosis_relayersArgs, MeshContext>,
+  devnetxdai_relayers: InContextSdkMethod<Query['devnetxdai_relayers'], Querydevnetxdai_relayersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_sequencer: InContextSdkMethod<Query['devnetgnosis_sequencer'], Querydevnetgnosis_sequencerArgs, MeshContext>,
+  devnetxdai_sequencer: InContextSdkMethod<Query['devnetxdai_sequencer'], Querydevnetxdai_sequencerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_sequencers: InContextSdkMethod<Query['devnetgnosis_sequencers'], Querydevnetgnosis_sequencersArgs, MeshContext>,
+  devnetxdai_sequencers: InContextSdkMethod<Query['devnetxdai_sequencers'], Querydevnetxdai_sequencersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFee: InContextSdkMethod<Query['devnetgnosis_relayerFee'], Querydevnetgnosis_relayerFeeArgs, MeshContext>,
+  devnetxdai_relayerFee: InContextSdkMethod<Query['devnetxdai_relayerFee'], Querydevnetxdai_relayerFeeArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFees: InContextSdkMethod<Query['devnetgnosis_relayerFees'], Querydevnetgnosis_relayerFeesArgs, MeshContext>,
+  devnetxdai_relayerFees: InContextSdkMethod<Query['devnetxdai_relayerFees'], Querydevnetxdai_relayerFeesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originTransfer: InContextSdkMethod<Query['devnetgnosis_originTransfer'], Querydevnetgnosis_originTransferArgs, MeshContext>,
+  devnetxdai_originTransfer: InContextSdkMethod<Query['devnetxdai_originTransfer'], Querydevnetxdai_originTransferArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originTransfers: InContextSdkMethod<Query['devnetgnosis_originTransfers'], Querydevnetgnosis_originTransfersArgs, MeshContext>,
+  devnetxdai_originTransfers: InContextSdkMethod<Query['devnetxdai_originTransfers'], Querydevnetxdai_originTransfersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_destinationTransfer: InContextSdkMethod<Query['devnetgnosis_destinationTransfer'], Querydevnetgnosis_destinationTransferArgs, MeshContext>,
+  devnetxdai_destinationTransfer: InContextSdkMethod<Query['devnetxdai_destinationTransfer'], Querydevnetxdai_destinationTransferArgs, MeshContext>,
   /** null **/
-  devnetgnosis_destinationTransfers: InContextSdkMethod<Query['devnetgnosis_destinationTransfers'], Querydevnetgnosis_destinationTransfersArgs, MeshContext>,
+  devnetxdai_destinationTransfers: InContextSdkMethod<Query['devnetxdai_destinationTransfers'], Querydevnetxdai_destinationTransfersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originMessage: InContextSdkMethod<Query['devnetgnosis_originMessage'], Querydevnetgnosis_originMessageArgs, MeshContext>,
+  devnetxdai_originMessage: InContextSdkMethod<Query['devnetxdai_originMessage'], Querydevnetxdai_originMessageArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originMessages: InContextSdkMethod<Query['devnetgnosis_originMessages'], Querydevnetgnosis_originMessagesArgs, MeshContext>,
+  devnetxdai_originMessages: InContextSdkMethod<Query['devnetxdai_originMessages'], Querydevnetxdai_originMessagesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_aggregateRoot: InContextSdkMethod<Query['devnetgnosis_aggregateRoot'], Querydevnetgnosis_aggregateRootArgs, MeshContext>,
+  devnetxdai_aggregateRoot: InContextSdkMethod<Query['devnetxdai_aggregateRoot'], Querydevnetxdai_aggregateRootArgs, MeshContext>,
   /** null **/
-  devnetgnosis_aggregateRoots: InContextSdkMethod<Query['devnetgnosis_aggregateRoots'], Querydevnetgnosis_aggregateRootsArgs, MeshContext>,
+  devnetxdai_aggregateRoots: InContextSdkMethod<Query['devnetxdai_aggregateRoots'], Querydevnetxdai_aggregateRootsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_connectorMeta: InContextSdkMethod<Query['devnetgnosis_connectorMeta'], Querydevnetgnosis_connectorMetaArgs, MeshContext>,
+  devnetxdai_connectorMeta: InContextSdkMethod<Query['devnetxdai_connectorMeta'], Querydevnetxdai_connectorMetaArgs, MeshContext>,
   /** null **/
-  devnetgnosis_connectorMetas: InContextSdkMethod<Query['devnetgnosis_connectorMetas'], Querydevnetgnosis_connectorMetasArgs, MeshContext>,
+  devnetxdai_connectorMetas: InContextSdkMethod<Query['devnetxdai_connectorMetas'], Querydevnetxdai_connectorMetasArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootCount: InContextSdkMethod<Query['devnetgnosis_rootCount'], Querydevnetgnosis_rootCountArgs, MeshContext>,
+  devnetxdai_rootCount: InContextSdkMethod<Query['devnetxdai_rootCount'], Querydevnetxdai_rootCountArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootCounts: InContextSdkMethod<Query['devnetgnosis_rootCounts'], Querydevnetgnosis_rootCountsArgs, MeshContext>,
+  devnetxdai_rootCounts: InContextSdkMethod<Query['devnetxdai_rootCounts'], Querydevnetxdai_rootCountsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootMessageSent: InContextSdkMethod<Query['devnetgnosis_rootMessageSent'], Querydevnetgnosis_rootMessageSentArgs, MeshContext>,
+  devnetxdai_rootMessageSent: InContextSdkMethod<Query['devnetxdai_rootMessageSent'], Querydevnetxdai_rootMessageSentArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootMessageSents: InContextSdkMethod<Query['devnetgnosis_rootMessageSents'], Querydevnetgnosis_rootMessageSentsArgs, MeshContext>,
+  devnetxdai_rootMessageSents: InContextSdkMethod<Query['devnetxdai_rootMessageSents'], Querydevnetxdai_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFeesIncrease: InContextSdkMethod<Query['devnetgnosis_relayerFeesIncrease'], Querydevnetgnosis_relayerFeesIncreaseArgs, MeshContext>,
+  devnetxdai_relayerFeesIncrease: InContextSdkMethod<Query['devnetxdai_relayerFeesIncrease'], Querydevnetxdai_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFeesIncreases: InContextSdkMethod<Query['devnetgnosis_relayerFeesIncreases'], Querydevnetgnosis_relayerFeesIncreasesArgs, MeshContext>,
+  devnetxdai_relayerFeesIncreases: InContextSdkMethod<Query['devnetxdai_relayerFeesIncreases'], Querydevnetxdai_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_slippageUpdate: InContextSdkMethod<Query['devnetgnosis_slippageUpdate'], Querydevnetgnosis_slippageUpdateArgs, MeshContext>,
+  devnetxdai_slippageUpdate: InContextSdkMethod<Query['devnetxdai_slippageUpdate'], Querydevnetxdai_slippageUpdateArgs, MeshContext>,
   /** null **/
-  devnetgnosis_slippageUpdates: InContextSdkMethod<Query['devnetgnosis_slippageUpdates'], Querydevnetgnosis_slippageUpdatesArgs, MeshContext>,
+  devnetxdai_slippageUpdates: InContextSdkMethod<Query['devnetxdai_slippageUpdates'], Querydevnetxdai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  devnetgnosis__meta: InContextSdkMethod<Query['devnetgnosis__meta'], Querydevnetgnosis__metaArgs, MeshContext>
+  devnetxdai__meta: InContextSdkMethod<Query['devnetxdai__meta'], Querydevnetxdai__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -2763,83 +2763,83 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  devnetgnosis_asset: InContextSdkMethod<Subscription['devnetgnosis_asset'], Subscriptiondevnetgnosis_assetArgs, MeshContext>,
+  devnetxdai_asset: InContextSdkMethod<Subscription['devnetxdai_asset'], Subscriptiondevnetxdai_assetArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assets: InContextSdkMethod<Subscription['devnetgnosis_assets'], Subscriptiondevnetgnosis_assetsArgs, MeshContext>,
+  devnetxdai_assets: InContextSdkMethod<Subscription['devnetxdai_assets'], Subscriptiondevnetxdai_assetsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetStatus: InContextSdkMethod<Subscription['devnetgnosis_assetStatus'], Subscriptiondevnetgnosis_assetStatusArgs, MeshContext>,
+  devnetxdai_assetStatus: InContextSdkMethod<Subscription['devnetxdai_assetStatus'], Subscriptiondevnetxdai_assetStatusArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetStatuses: InContextSdkMethod<Subscription['devnetgnosis_assetStatuses'], Subscriptiondevnetgnosis_assetStatusesArgs, MeshContext>,
+  devnetxdai_assetStatuses: InContextSdkMethod<Subscription['devnetxdai_assetStatuses'], Subscriptiondevnetxdai_assetStatusesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetBalance: InContextSdkMethod<Subscription['devnetgnosis_assetBalance'], Subscriptiondevnetgnosis_assetBalanceArgs, MeshContext>,
+  devnetxdai_assetBalance: InContextSdkMethod<Subscription['devnetxdai_assetBalance'], Subscriptiondevnetxdai_assetBalanceArgs, MeshContext>,
   /** null **/
-  devnetgnosis_assetBalances: InContextSdkMethod<Subscription['devnetgnosis_assetBalances'], Subscriptiondevnetgnosis_assetBalancesArgs, MeshContext>,
+  devnetxdai_assetBalances: InContextSdkMethod<Subscription['devnetxdai_assetBalances'], Subscriptiondevnetxdai_assetBalancesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_router: InContextSdkMethod<Subscription['devnetgnosis_router'], Subscriptiondevnetgnosis_routerArgs, MeshContext>,
+  devnetxdai_router: InContextSdkMethod<Subscription['devnetxdai_router'], Subscriptiondevnetxdai_routerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routers: InContextSdkMethod<Subscription['devnetgnosis_routers'], Subscriptiondevnetgnosis_routersArgs, MeshContext>,
+  devnetxdai_routers: InContextSdkMethod<Subscription['devnetxdai_routers'], Subscriptiondevnetxdai_routersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routerDailyTVL: InContextSdkMethod<Subscription['devnetgnosis_routerDailyTVL'], Subscriptiondevnetgnosis_routerDailyTVLArgs, MeshContext>,
+  devnetxdai_routerDailyTVL: InContextSdkMethod<Subscription['devnetxdai_routerDailyTVL'], Subscriptiondevnetxdai_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  devnetgnosis_routerDailyTVLs: InContextSdkMethod<Subscription['devnetgnosis_routerDailyTVLs'], Subscriptiondevnetgnosis_routerDailyTVLsArgs, MeshContext>,
+  devnetxdai_routerDailyTVLs: InContextSdkMethod<Subscription['devnetxdai_routerDailyTVLs'], Subscriptiondevnetxdai_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_setting: InContextSdkMethod<Subscription['devnetgnosis_setting'], Subscriptiondevnetgnosis_settingArgs, MeshContext>,
+  devnetxdai_setting: InContextSdkMethod<Subscription['devnetxdai_setting'], Subscriptiondevnetxdai_settingArgs, MeshContext>,
   /** null **/
-  devnetgnosis_settings: InContextSdkMethod<Subscription['devnetgnosis_settings'], Subscriptiondevnetgnosis_settingsArgs, MeshContext>,
+  devnetxdai_settings: InContextSdkMethod<Subscription['devnetxdai_settings'], Subscriptiondevnetxdai_settingsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayer: InContextSdkMethod<Subscription['devnetgnosis_relayer'], Subscriptiondevnetgnosis_relayerArgs, MeshContext>,
+  devnetxdai_relayer: InContextSdkMethod<Subscription['devnetxdai_relayer'], Subscriptiondevnetxdai_relayerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayers: InContextSdkMethod<Subscription['devnetgnosis_relayers'], Subscriptiondevnetgnosis_relayersArgs, MeshContext>,
+  devnetxdai_relayers: InContextSdkMethod<Subscription['devnetxdai_relayers'], Subscriptiondevnetxdai_relayersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_sequencer: InContextSdkMethod<Subscription['devnetgnosis_sequencer'], Subscriptiondevnetgnosis_sequencerArgs, MeshContext>,
+  devnetxdai_sequencer: InContextSdkMethod<Subscription['devnetxdai_sequencer'], Subscriptiondevnetxdai_sequencerArgs, MeshContext>,
   /** null **/
-  devnetgnosis_sequencers: InContextSdkMethod<Subscription['devnetgnosis_sequencers'], Subscriptiondevnetgnosis_sequencersArgs, MeshContext>,
+  devnetxdai_sequencers: InContextSdkMethod<Subscription['devnetxdai_sequencers'], Subscriptiondevnetxdai_sequencersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFee: InContextSdkMethod<Subscription['devnetgnosis_relayerFee'], Subscriptiondevnetgnosis_relayerFeeArgs, MeshContext>,
+  devnetxdai_relayerFee: InContextSdkMethod<Subscription['devnetxdai_relayerFee'], Subscriptiondevnetxdai_relayerFeeArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFees: InContextSdkMethod<Subscription['devnetgnosis_relayerFees'], Subscriptiondevnetgnosis_relayerFeesArgs, MeshContext>,
+  devnetxdai_relayerFees: InContextSdkMethod<Subscription['devnetxdai_relayerFees'], Subscriptiondevnetxdai_relayerFeesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originTransfer: InContextSdkMethod<Subscription['devnetgnosis_originTransfer'], Subscriptiondevnetgnosis_originTransferArgs, MeshContext>,
+  devnetxdai_originTransfer: InContextSdkMethod<Subscription['devnetxdai_originTransfer'], Subscriptiondevnetxdai_originTransferArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originTransfers: InContextSdkMethod<Subscription['devnetgnosis_originTransfers'], Subscriptiondevnetgnosis_originTransfersArgs, MeshContext>,
+  devnetxdai_originTransfers: InContextSdkMethod<Subscription['devnetxdai_originTransfers'], Subscriptiondevnetxdai_originTransfersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_destinationTransfer: InContextSdkMethod<Subscription['devnetgnosis_destinationTransfer'], Subscriptiondevnetgnosis_destinationTransferArgs, MeshContext>,
+  devnetxdai_destinationTransfer: InContextSdkMethod<Subscription['devnetxdai_destinationTransfer'], Subscriptiondevnetxdai_destinationTransferArgs, MeshContext>,
   /** null **/
-  devnetgnosis_destinationTransfers: InContextSdkMethod<Subscription['devnetgnosis_destinationTransfers'], Subscriptiondevnetgnosis_destinationTransfersArgs, MeshContext>,
+  devnetxdai_destinationTransfers: InContextSdkMethod<Subscription['devnetxdai_destinationTransfers'], Subscriptiondevnetxdai_destinationTransfersArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originMessage: InContextSdkMethod<Subscription['devnetgnosis_originMessage'], Subscriptiondevnetgnosis_originMessageArgs, MeshContext>,
+  devnetxdai_originMessage: InContextSdkMethod<Subscription['devnetxdai_originMessage'], Subscriptiondevnetxdai_originMessageArgs, MeshContext>,
   /** null **/
-  devnetgnosis_originMessages: InContextSdkMethod<Subscription['devnetgnosis_originMessages'], Subscriptiondevnetgnosis_originMessagesArgs, MeshContext>,
+  devnetxdai_originMessages: InContextSdkMethod<Subscription['devnetxdai_originMessages'], Subscriptiondevnetxdai_originMessagesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_aggregateRoot: InContextSdkMethod<Subscription['devnetgnosis_aggregateRoot'], Subscriptiondevnetgnosis_aggregateRootArgs, MeshContext>,
+  devnetxdai_aggregateRoot: InContextSdkMethod<Subscription['devnetxdai_aggregateRoot'], Subscriptiondevnetxdai_aggregateRootArgs, MeshContext>,
   /** null **/
-  devnetgnosis_aggregateRoots: InContextSdkMethod<Subscription['devnetgnosis_aggregateRoots'], Subscriptiondevnetgnosis_aggregateRootsArgs, MeshContext>,
+  devnetxdai_aggregateRoots: InContextSdkMethod<Subscription['devnetxdai_aggregateRoots'], Subscriptiondevnetxdai_aggregateRootsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_connectorMeta: InContextSdkMethod<Subscription['devnetgnosis_connectorMeta'], Subscriptiondevnetgnosis_connectorMetaArgs, MeshContext>,
+  devnetxdai_connectorMeta: InContextSdkMethod<Subscription['devnetxdai_connectorMeta'], Subscriptiondevnetxdai_connectorMetaArgs, MeshContext>,
   /** null **/
-  devnetgnosis_connectorMetas: InContextSdkMethod<Subscription['devnetgnosis_connectorMetas'], Subscriptiondevnetgnosis_connectorMetasArgs, MeshContext>,
+  devnetxdai_connectorMetas: InContextSdkMethod<Subscription['devnetxdai_connectorMetas'], Subscriptiondevnetxdai_connectorMetasArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootCount: InContextSdkMethod<Subscription['devnetgnosis_rootCount'], Subscriptiondevnetgnosis_rootCountArgs, MeshContext>,
+  devnetxdai_rootCount: InContextSdkMethod<Subscription['devnetxdai_rootCount'], Subscriptiondevnetxdai_rootCountArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootCounts: InContextSdkMethod<Subscription['devnetgnosis_rootCounts'], Subscriptiondevnetgnosis_rootCountsArgs, MeshContext>,
+  devnetxdai_rootCounts: InContextSdkMethod<Subscription['devnetxdai_rootCounts'], Subscriptiondevnetxdai_rootCountsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootMessageSent: InContextSdkMethod<Subscription['devnetgnosis_rootMessageSent'], Subscriptiondevnetgnosis_rootMessageSentArgs, MeshContext>,
+  devnetxdai_rootMessageSent: InContextSdkMethod<Subscription['devnetxdai_rootMessageSent'], Subscriptiondevnetxdai_rootMessageSentArgs, MeshContext>,
   /** null **/
-  devnetgnosis_rootMessageSents: InContextSdkMethod<Subscription['devnetgnosis_rootMessageSents'], Subscriptiondevnetgnosis_rootMessageSentsArgs, MeshContext>,
+  devnetxdai_rootMessageSents: InContextSdkMethod<Subscription['devnetxdai_rootMessageSents'], Subscriptiondevnetxdai_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFeesIncrease: InContextSdkMethod<Subscription['devnetgnosis_relayerFeesIncrease'], Subscriptiondevnetgnosis_relayerFeesIncreaseArgs, MeshContext>,
+  devnetxdai_relayerFeesIncrease: InContextSdkMethod<Subscription['devnetxdai_relayerFeesIncrease'], Subscriptiondevnetxdai_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  devnetgnosis_relayerFeesIncreases: InContextSdkMethod<Subscription['devnetgnosis_relayerFeesIncreases'], Subscriptiondevnetgnosis_relayerFeesIncreasesArgs, MeshContext>,
+  devnetxdai_relayerFeesIncreases: InContextSdkMethod<Subscription['devnetxdai_relayerFeesIncreases'], Subscriptiondevnetxdai_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  devnetgnosis_slippageUpdate: InContextSdkMethod<Subscription['devnetgnosis_slippageUpdate'], Subscriptiondevnetgnosis_slippageUpdateArgs, MeshContext>,
+  devnetxdai_slippageUpdate: InContextSdkMethod<Subscription['devnetxdai_slippageUpdate'], Subscriptiondevnetxdai_slippageUpdateArgs, MeshContext>,
   /** null **/
-  devnetgnosis_slippageUpdates: InContextSdkMethod<Subscription['devnetgnosis_slippageUpdates'], Subscriptiondevnetgnosis_slippageUpdatesArgs, MeshContext>,
+  devnetxdai_slippageUpdates: InContextSdkMethod<Subscription['devnetxdai_slippageUpdates'], Subscriptiondevnetxdai_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  devnetgnosis__meta: InContextSdkMethod<Subscription['devnetgnosis__meta'], Subscriptiondevnetgnosis__metaArgs, MeshContext>
+  devnetxdai__meta: InContextSdkMethod<Subscription['devnetxdai__meta'], Subscriptiondevnetxdai__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_Devnet_Gnosis"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_Devnet_Xdai"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
