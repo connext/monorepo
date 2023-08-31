@@ -75,21 +75,21 @@ docker compose -f docker-compose.devnets.yaml up -d --force-recreate
 sleep 5
 #####
 
-# ##### Delete previous devnet deployment records if they exist.
-# rm -rf -- packages/deployments/contracts/deployments/tenderly-mainnet
-# rm -rf -- packages/deployments/contracts/deployments/tenderly-optimism
-# rm -rf -- packages/deployments/contracts/deployments/tenderly-gnosis
-# #####
+##### Delete previous devnet deployment records if they exist.
+rm -rf -- packages/deployments/contracts/deployments/tenderly-mainnet
+rm -rf -- packages/deployments/contracts/deployments/tenderly-optimism
+rm -rf -- packages/deployments/contracts/deployments/tenderly-gnosis
+#####
 
-# ##### Contract Deployments
-# echo "Deploying contracts to the devnet"
-# yarn workspace @connext/smart-contracts devnet:deploy --network all
-# echo "Deployed contracts to the devnet"
+##### Contract Deployments
+echo "Deploying contracts to the devnet"
+yarn workspace @connext/smart-contracts devnet:deploy --network all
+echo "Deployed contracts to the devnet"
 
-# echo "Initializing contracts - devnet"
-# yarn workspace @connext/smart-contracts devnet:init --network all
-# echo "Initialized contracts - devnet"
-# #####
+echo "Initializing contracts - devnet"
+yarn workspace @connext/smart-contracts devnet:init --network all
+echo "Initialized contracts - devnet"
+#####
 
 ##### Subgraph Deployments
 echo "Building subgraph for the hub chain - mainnet-devnet..."

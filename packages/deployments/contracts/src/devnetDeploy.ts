@@ -1,5 +1,5 @@
 import util from "util";
-import { exec as _exec } from "child_process";
+import { exec as _exec, spawn } from "child_process";
 
 import { config as dotenvConfig } from "dotenv";
 import { Wallet } from "ethers";
@@ -29,6 +29,33 @@ const chainConfigs = [
 
 const optionDefinitions = [{ name: "network", type: String, defaultValue: "all" }];
 
+const runCommand = (command: string) => {
+  return new Promise((resolve, reject) => {
+    const childProcess = spawn(command, {
+      stdio: "inherit",
+      shell: true,
+    });
+    let stdout = "";
+    let stderr = "";
+
+    childProcess.stdout?.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    childProcess.stderr?.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    childProcess.on("close", (code) => {
+      if (code === 0) {
+        resolve({ stdout, stderr });
+      } else {
+        reject(new Error(`Command failed with code ${code}`));
+      }
+    });
+  });
+};
+
 const deployToDevnets = async () => {
   let cmdArgs: any;
   try {
@@ -51,6 +78,7 @@ const deployToDevnets = async () => {
 
   const configs = network === "all" ? chainConfigs : [chainConfigs.find((c) => c.network === network)!];
 
+  const commands = [];
   for (const config of configs) {
     //funds to sender
     const { stdout } = await exec(
@@ -71,11 +99,13 @@ const deployToDevnets = async () => {
     }
 
     const deployCmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv`;
-    const syncCmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} --slow -v`;
+    const syncCmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} -v`;
     const exportCmd = `run export`;
 
-    _exec(`${deployCmd} && ${syncCmd} && ${exportCmd}`)?.stdout?.pipe(process.stdout);
+    commands.push(runCommand(`${deployCmd} && ${syncCmd} && ${exportCmd}`));
   }
+
+  await Promise.all(commands);
 };
 
 deployToDevnets();
