@@ -55,6 +55,7 @@ abstract contract DiamondDeployer is Deployer, DiamondHelper {
 
     connextDiamondProxy = new Connext(msg.sender, address(diamondInit), initCallData, getFacetCuts());
     save("Connext_DiamondProxy", address(connextDiamondProxy));
+    save("Connext", address(connextDiamondProxy));
     console.log("Connext_DiamondProxy deployed at %s", address(connextDiamondProxy));
 
     return address(connextDiamondProxy);
