@@ -297,6 +297,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0x53cA5b3D36a06D7432098e9AFc22F39C4848516A",
         decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         // optimism
