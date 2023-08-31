@@ -335,7 +335,43 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
         },
       },
-    }
+    },
+    {
+      name: "NEXT",
+      canonical: {
+        domain: "6648936",
+        address: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+          adopted: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+          adopted: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+          adopted: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        },
+        // bsc
+        "6450786": {
+          local: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+          adopted: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        },
+        // gnosis
+        "6778479": {
+          local: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+          adopted: "0xE040b16c668ee3A8faf6328b870CFEB4903C1F49",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
