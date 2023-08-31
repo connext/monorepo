@@ -290,6 +290,42 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "TVOTES",
+      canonical: {
+        // mainnet
+        domain: "6648936",
+        address: "0x53cA5b3D36a06D7432098e9AFc22F39C4848516A",
+        decimals: 18,
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x60e391DBB9B3a324d8fE1e7d8047A98D0619Cd2B",
+          adopted: "0x60e391DBB9B3a324d8fE1e7d8047A98D0619Cd2B",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x008B59Ff5364045337994c00eFc7aD1c562bB629",
+          adopted: "0x008B59Ff5364045337994c00eFc7aD1c562bB629",
+        },
+        // bsc
+        "6450786": {
+          local: "0xDF97CadbcCeE9cfdB12A3e9BB7663E6753A71a0C",
+          adopted: "0xDF97CadbcCeE9cfdB12A3e9BB7663E6753A71a0C",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x8B988a5e3C1C7f5230102606EAeFe421e2CD9A10",
+          adopted: "0x8B988a5e3C1C7f5230102606EAeFe421e2CD9A10",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xA6fc0c22ca188970152fcb00Ac3646d278fb5188",
+          adopted: "0xA6fc0c22ca188970152fcb00Ac3646d278fb5188",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
