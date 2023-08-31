@@ -13,6 +13,9 @@ LOCALHOST="127.0.0.1"
 NETWORK="devnet"
 
 ##### Devnet Deployments
+echo "Updating tenderly cli..."
+sh ./install-tenderly-cli.sh
+
 echo "Starting devnets..."
 MAINNET_DEVNET_RPC_URL=$(tenderly devnet spawn-rpc --project $TENDERLY_PROJECT_SLUG --template $TENDERLY_MAINNET_DEVNET_TEMPLATE --account $TENDERLY_ACCOUNT_ID  --access_key $TENDERLY_ACCESS_KEY 2>&1)
 OPTIMISM_DEVNET_RPC_URL=$(tenderly devnet spawn-rpc --project $TENDERLY_PROJECT_SLUG --template $TENDERLY_OPTIMISM_DEVNET_TEMPLATE --account $TENDERLY_ACCOUNT_ID  --access_key $TENDERLY_ACCESS_KEY 2>&1)
