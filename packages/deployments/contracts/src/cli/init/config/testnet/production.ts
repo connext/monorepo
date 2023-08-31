@@ -156,7 +156,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "xDappRadar",
       canonical: {
         domain: "1735353714",
-        address: "0x369e5C58F6c09c1CE947CA313f03c0d558B77b3e",
+        address: "0x4c781E4D22cfaAdA520cAe4aF9097C5ecf9C3A71",
         decimals: 18,
       },
       representations: {
