@@ -205,7 +205,7 @@ module "sequencer_publisher" {
   loadbalancer_port        = 80
   cpu                      = 2048
   memory                   = 4096
-  instance_count           = 1
+  instance_count           = 10
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -246,7 +246,7 @@ module "sequencer_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 256
   memory                   = 1024
-  instance_count           = 10
+  instance_count           = 100
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -262,7 +262,7 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
+  min_capacity     = 100
   max_capacity     = 100
 }
 
@@ -337,7 +337,7 @@ module "lighthouse_prover_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 4096
   memory                   = 8192
-  instance_count           = 10
+  instance_count           = 50
   timeout                  = 290
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -352,7 +352,7 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.lighthouse_prover_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  min_capacity               = 10
+  min_capacity               = 50
   max_capacity               = 200
   avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 15
@@ -579,7 +579,7 @@ module "relayer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
-  node_type                     = "cache.t2.medium"
+  node_type                     = "cache.r4.large"
   public_redis                  = true
 }
 
