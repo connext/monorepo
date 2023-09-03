@@ -101,19 +101,23 @@ locals {
         excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"],
+        excludeListFromRelayerFee = ["0x91533b1bBBE84a3Bf6409787cA6A6515080a6F74"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"],
+        excludeListFromRelayerFee = ["0x91533b1bBBE84a3Bf6409787cA6A6515080a6F74"]
       }
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"],
+        excludeListFromRelayerFee = ["0x91533b1bBBE84a3Bf6409787cA6A6515080a6F74"]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
+        excludeListFromRelayerFee = ["0x83e8Cf4A51035665BAF97DdB0cf03b565AC76B44"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
