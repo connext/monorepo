@@ -335,7 +335,43 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
         },
       },
-    }
+    },
+    {
+      name: "NEXT",
+      canonical: {
+        domain: "6648936",
+        address: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        decimals: 18,
+        cap: utils.parseUnits("500000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // bsc
+        "6450786": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {

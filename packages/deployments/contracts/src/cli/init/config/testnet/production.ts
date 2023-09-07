@@ -222,6 +222,31 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "NEXT",
+      canonical: {
+        domain: "1735353714",
+        address: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        },
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
