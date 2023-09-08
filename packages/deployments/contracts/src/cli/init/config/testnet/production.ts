@@ -136,7 +136,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "ALCX",
       canonical: {
         domain: "1735353714",
-        address: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        address: "0xb46eE2E4165F629b4aBCE04B7Eb4237f951AC66F",
         decimals: 18,
       },
       representations: {
