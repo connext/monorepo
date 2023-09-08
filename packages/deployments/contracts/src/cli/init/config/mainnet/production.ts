@@ -284,6 +284,27 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "ALCX",
+      canonical: {
+        domain: "6648936",
+        address: "0xdbdb4d16eda451d0503b854cf79d55697f90c8df",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
       name: "XOC",
       // polygon
       canonical: {
