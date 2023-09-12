@@ -78,6 +78,21 @@ export const hardhatNetworks = {
       hub: "local_1337",
     },
   },
+  tenderly_mainnet: {
+    accounts: { mnemonic },
+    chainId: 1,
+    url: process.env.MAINNET_DEVNET_RPC_URL,
+  },
+  tenderly_optimism: {
+    accounts: { mnemonic },
+    chainId: 10,
+    url: process.env.OPTIMISM_DEVNET_RPC_URL,
+  },
+  tenderly_gnosis: {
+    accounts: { mnemonic },
+    chainId: 100,
+    url: process.env.GNOSIS_DEVNET_RPC_URL,
+  },
   mainnet: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 1,
