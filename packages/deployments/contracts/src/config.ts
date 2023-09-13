@@ -78,20 +78,26 @@ export const hardhatNetworks = {
       hub: "local_1337",
     },
   },
-  tenderly_mainnet: {
+  "tenderly-mainnet": {
     accounts: { mnemonic },
     chainId: 1,
     url: process.env.MAINNET_DEVNET_RPC_URL,
   },
-  tenderly_optimism: {
+  "tenderly-optimism": {
     accounts: { mnemonic },
     chainId: 10,
     url: process.env.OPTIMISM_DEVNET_RPC_URL,
+    companionNetworks: {
+      hub: "tenderly-mainnet",
+    },
   },
-  tenderly_gnosis: {
+  "tenderly-gnosis": {
     accounts: { mnemonic },
     chainId: 100,
     url: process.env.GNOSIS_DEVNET_RPC_URL,
+    companionNetworks: {
+      hub: "tenderly-mainnet",
+    },
   },
   mainnet: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
