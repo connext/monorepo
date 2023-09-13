@@ -54,7 +54,7 @@ const generateConfigForDevnets = async () => {
   const jsonToWrite = { ...preConfig, chains };
 
   try {
-    fs.writeFileSync(configPath, jsonToWrite.toString(), { encoding: "utf-8" });
+    fs.writeFileSync(configPath, JSON.stringify(jsonToWrite), { encoding: "utf-8" });
   } catch (e: unknown) {
     console.error("Error writing config file!");
   }
