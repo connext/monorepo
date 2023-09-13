@@ -65,7 +65,7 @@ const runInit = async () => {
     },
   };
 
-  fs.writeFileSync("devnet-init.json", JSON.stringify(initConfig, null, "  "));
+  fs.writeFileSync("devnet.init.json", JSON.stringify(initConfig, null, "  "));
 
   const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network devnet --env production --apply false`;
   await runCommand(cmd);

@@ -6,7 +6,7 @@ export const exportAll = async (): Promise<void> => {
   console.log("Exporting all deployments to deployments.json....");
   const { all, devnets } = loadAllDeployments();
   fs.writeFileSync("deployments.json", JSON.stringify(all, null, "  "));
-  fs.writeFileSync("devnet-deployments.json", JSON.stringify(devnets, null, "  "));
+  fs.writeFileSync("devnet.deployments.json", JSON.stringify(devnets, null, "  "));
 };
 
 export function loadAllDeployments() {

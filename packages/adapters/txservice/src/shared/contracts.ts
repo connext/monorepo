@@ -1,6 +1,6 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/smart-contracts/deployments.json";
-import _contractDeploymentsDevnet from "@connext/smart-contracts/devnet-deployments.json";
+import _contractDeploymentsDevnet from "@connext/smart-contracts/devnet.deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   Connext as TConnext,

@@ -2,7 +2,7 @@ import * as zk from "zksync-web3";
 import { Contract, providers, Wallet } from "ethers";
 
 import _Deployments from "../../deployments.json";
-import _DevnetDeployments from "../../devnet-deployments.json";
+import _DevnetDeployments from "../../devnet.deployments.json";
 import { ConnextInterface } from "../contracts";
 
 import { Deployment } from "./types";
