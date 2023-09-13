@@ -1,90 +1,74 @@
-import util from "util";
-import { exec as _exec, spawn } from "child_process";
-
+import fs from "fs";
 import { config as dotenvConfig } from "dotenv";
-import { Wallet } from "ethers";
+import { Wallet, utils } from "ethers";
 import commandLineArgs from "command-line-args";
+
+import { InitConfig } from "./cli/init/helpers";
+import { getContract } from "./cli/helpers";
+import { runCommand } from ".";
 
 dotenvConfig();
 
-const exec = util.promisify(_exec);
-
-const { MAINNET_DEVNET_RPC_URL, OPTIMISM_DEVNET_RPC_URL, GNOSIS_DEVNET_RPC_URL, MNEMONIC, TENDERLY_ACCOUNT_ID } =
-  process.env;
-
-const optionDefinitions = [{ name: "network", type: String, defaultValue: "all" }];
-
-const chainConfigs = [
-  {
-    network: "mainnet",
-    rpc: MAINNET_DEVNET_RPC_URL,
-  },
-  {
-    network: "optimism",
-    rpc: OPTIMISM_DEVNET_RPC_URL,
-  },
-  {
-    network: "gnosis",
-    rpc: GNOSIS_DEVNET_RPC_URL,
-  },
-];
-
-const runCommand = (command: string) => {
-  return new Promise((resolve, reject) => {
-    const childProcess = spawn(command, {
-      stdio: "inherit",
-      shell: true,
-    });
-    let stdout = "";
-    let stderr = "";
-
-    childProcess.stdout?.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    childProcess.stderr?.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    childProcess.on("close", (code) => {
-      if (code === 0) {
-        resolve({ stdout, stderr });
-      } else {
-        reject(new Error(`Command failed with code ${code}`));
-      }
-    });
-  });
-};
+const { MNEMONIC } = process.env;
 
 const runInit = async () => {
-  let cmdArgs: any;
-  try {
-    cmdArgs = commandLineArgs(optionDefinitions);
-  } catch (err: any) {
-    throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
-  }
-
-  // Validate command line arguments
-  const { network } = cmdArgs;
-
-  if (network != "all" && !chainConfigs.map((c) => c.network).includes(network as string)) {
-    throw new Error(
-      `Network should be either all, ${chainConfigs.map((c) => c.network).join(",")}, network: ${network}`,
-    );
-  }
-
   const sender = Wallet.fromMnemonic(MNEMONIC!).address;
   console.log("deployer", sender);
 
-  const configs = network === "all" ? chainConfigs : [chainConfigs.find((c) => c.network === network)!];
+  // Generate init.json file
+  const initConfig: InitConfig = {
+    hub: "6648936",
+    supportedDomains: [
+      "6648936", // MAINNET
+      "1869640809", // OPTIMISM
+      "6778479", // GNOSIS
+    ],
+    assets: [
+      {
+        name: "TEST",
+        canonical: {
+          domain: "6648936",
+          address: getContract("TestERC20", "1", false, undefined, true).address,
+          decimals: 18,
+          cap: utils.parseEther("1000000000").toString(),
+        },
+        representations: {
+          "1869640809": {
+            local: getContract("TestERC20", "10", false, undefined, true).address,
+            adopted: getContract("TestERC20", "10", false, undefined, true).address,
+          },
+          "6778479": {
+            local: getContract("TestERC20", "100", false, undefined, true).address,
+            adopted: getContract("TestERC20", "100", false, undefined, true).address,
+          },
+        },
+      },
+    ],
+    agents: {
+      relayerFeeVaults: {
+        "6648936": sender,
+        "1869640809": sender,
+        "6778479": sender,
+      },
+      watchers: {
+        allowlist: [sender],
+      },
+      routers: {
+        allowlist: [sender],
+      },
+      sequencers: {
+        allowlist: [sender],
+      },
+      relayers: {
+        allowlist: [sender],
+      },
+    },
+  };
 
-  const commands = [];
-  for (const config of configs) {
-    const cmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Initialize.s.sol  --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv`;
-    commands.push(runCommand(cmd));
-  }
+  fs.writeFileSync("devnet-init.json", JSON.stringify(initConfig, null, "  "));
 
-  await Promise.all(commands);
+  const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network devnet --env production --apply false`;
+  await runCommand(cmd);
 };
 
 runInit();

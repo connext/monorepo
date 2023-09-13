@@ -7,6 +7,7 @@ import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
+import { spawn } from "child_process";
 
 export type Env = "staging" | "production" | "local";
 
@@ -49,13 +50,15 @@ export const ProtocolNetworks: Record<string, string> = {
   "100": ProtocolNetwork.MAINNET,
 };
 
+export const isDevnetName = (_name: string): boolean => {
+  return _name.includes("tenderly");
+};
+
 export const getProtocolNetwork = (_chain: string | number, _name: string | undefined): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
   // If chain name is tenderly-*, use devnet
-  return _name && _name.includes("tenderly")
-    ? ProtocolNetwork.DEVNET
-    : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+  return _name && isDevnetName(_name) ? ProtocolNetwork.DEVNET : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 
 export type RelayerProxyConfig = {
@@ -397,4 +400,31 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   ).connect(deployer);
 
   return proxy as unknown as T;
+};
+
+export const runCommand = (command: string) => {
+  return new Promise((resolve, reject) => {
+    const childProcess = spawn(command, {
+      stdio: "inherit",
+      shell: true,
+    });
+    let stdout = "";
+    let stderr = "";
+
+    childProcess.stdout?.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    childProcess.stderr?.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    childProcess.on("close", (code) => {
+      if (code === 0) {
+        resolve({ stdout, stderr });
+      } else {
+        reject(new Error(`Command failed with code ${code}`));
+      }
+    });
+  });
 };

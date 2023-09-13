@@ -58,15 +58,18 @@ export const sanitizeAndInit = async () => {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  if (!["testnet", "mainnet"].includes(network as string)) {
+  if (!["devnet", "testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
   }
 
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT. DRYRUN: ${!apply}`);
 
+  const isDevnet = network === "devnet";
+  console.log(`IS DEVNET: `, isDevnet);
+
   // Read init.json if exists
-  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
+  const path = process.env.INIT_CONFIG_FILE ?? (isDevnet ? "devnet-init.json" : "init.json");
   let overrideConfig: any;
   if (fs.existsSync(path)) {
     const json = fs.readFileSync(path, { encoding: "utf-8" });
@@ -186,6 +189,7 @@ export const sanitizeAndInit = async () => {
       chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
       isHub,
       useStaging,
+      isDevnet,
     });
 
     // TODO: all agents should also be configured per-network
