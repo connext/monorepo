@@ -136,6 +136,44 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       },
     },
   },
+  devnet: {
+    hub: 1,
+    configs: {
+      1: {
+        prefix: "Admin",
+        networkName: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
+      10: {
+        prefix: "Admin",
+        networkName: "Optimism",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
+      100: {
+        prefix: "Admin",
+        networkName: "Gnosis",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
+    },
+  },
   testnet: {
     hub: 5, // Goerli hub.
     configs: {
