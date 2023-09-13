@@ -229,7 +229,13 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
     uint32 _mirrorDomain,
     address _rootManager
   ) public broadcast returns (address) {
-    AdminHubConnector adminConnector = new AdminHubConnector(_domain, _mirrorDomain, _rootManager);
+    AdminHubConnector adminConnector = new AdminHubConnector(
+      _domain,
+      _mirrorDomain,
+      address(0),
+      _rootManager,
+      address(0)
+    );
 
     save(_connectorName, address(adminConnector));
     console.log("%s deployed at %s", _connectorName, address(adminConnector));
