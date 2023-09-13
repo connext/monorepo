@@ -81,12 +81,12 @@ export const hardhatNetworks = {
   "tenderly-mainnet": {
     accounts: { mnemonic },
     chainId: 1,
-    url: process.env.MAINNET_DEVNET_RPC_URL,
+    url: process.env.MAINNET_DEVNET_RPC_URL || "http://localhost:8545",
   },
   "tenderly-optimism": {
     accounts: { mnemonic },
     chainId: 10,
-    url: process.env.OPTIMISM_DEVNET_RPC_URL,
+    url: process.env.OPTIMISM_DEVNET_RPC_URL || "http://localhost:8545",
     companionNetworks: {
       hub: "tenderly-mainnet",
     },
@@ -94,7 +94,7 @@ export const hardhatNetworks = {
   "tenderly-gnosis": {
     accounts: { mnemonic },
     chainId: 100,
-    url: process.env.GNOSIS_DEVNET_RPC_URL,
+    url: process.env.GNOSIS_DEVNET_RPC_URL || "http://localhost:8545",
     companionNetworks: {
       hub: "tenderly-mainnet",
     },

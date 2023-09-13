@@ -18,6 +18,7 @@
     "src/**/*.ts",
     "./artifacts",
     "./deployments.json",
+    "./devnet.deployments.json",
     "./abi/**/*.json",
     "src/init/*.ts"
   ],

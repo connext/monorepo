@@ -95,7 +95,7 @@ yarn workspace @connext/smart-contracts devnet:deploy --network all
 echo "Deployed contracts to the devnet"
 
 echo "Initializing contracts - devnet"
-yarn workspace @connext/smart-contracts devnet:init --network all
+yarn workspace @connext/smart-contracts devnet:init
 echo "Initialized contracts - devnet"
 #####
 

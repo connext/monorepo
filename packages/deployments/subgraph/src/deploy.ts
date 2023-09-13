@@ -5,6 +5,7 @@ import util from "util";
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
 import contractDeployments from "@connext/smart-contracts/deployments.json";
+import contractDeploymentsDevnet from "@connext/smart-contracts/devnet.deployments.json";
 import { utils } from "ethers";
 
 const exec = util.promisify(_exec);
@@ -81,8 +82,9 @@ const run = async () => {
         const source = n.source.find((s) => s.name === ds.name);
         if (source) {
           if (!utils.isAddress(source.address) || !source.startBlock) {
-            const networkName = `${configFile.includes("devnet") ? "tenderly-" : ""}${n.network}`;
-            const deployment = Object.values(contractDeployments)
+            const isDevnet = configFile.includes("devnet");
+            const networkName = `${isDevnet ? "tenderly-" : ""}${n.network}`;
+            const deployment = Object.values(isDevnet ? contractDeploymentsDevnet : contractDeployments)
               .flat()
               .find((d: any) => d.name === networkName);
             if (!deployment) {

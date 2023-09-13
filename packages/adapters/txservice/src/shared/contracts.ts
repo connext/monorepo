@@ -1,5 +1,6 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/smart-contracts/deployments.json";
+import _contractDeploymentsDevnet from "@connext/smart-contracts/devnet.deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   Connext as TConnext,
@@ -34,26 +35,15 @@ export type Network = "mainnet" | "testnet" | "local" | "devnet";
 /**
  * Helper to allow easy mocking
  */
-export const _getContractDeployments = (): Record<string, Record<string, any>> => {
-  return _contractDeployments as any;
+export const _getContractDeployments = (network?: string): Record<string, Record<string, any>> => {
+  return (network === "devnet" ? _contractDeploymentsDevnet : _contractDeployments) as any;
 };
 
 export const _getDeployedContract = (chainId: number, name: string, network?: string): any => {
-  const record = _getContractDeployments()[chainId.toString()] ?? [];
+  const record = _getContractDeployments(network)[chainId.toString()] ?? [];
 
   if (!record.length) {
     return undefined;
-  }
-
-  switch (network) {
-    case "devnet":
-      return record.find((r: any) => r.name.includes("tenderly"))?.contracts[name];
-    case "local":
-    case "mainnet":
-    case "testnet":
-      return record.find((r: any) => !r.name.includes("tenderly"))?.contracts[name];
-    default:
-      break;
   }
 
   return record[0]?.contracts ? record[0]?.contracts[name] : undefined;

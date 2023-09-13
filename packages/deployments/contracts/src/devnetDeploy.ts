@@ -1,9 +1,10 @@
 import util from "util";
-import { exec as _exec, spawn } from "child_process";
-
+import { exec as _exec } from "child_process";
 import { config as dotenvConfig } from "dotenv";
 import { Wallet } from "ethers";
 import commandLineArgs from "command-line-args";
+
+import { runCommand } from ".";
 
 dotenvConfig();
 
@@ -29,33 +30,6 @@ const chainConfigs = [
 
 const optionDefinitions = [{ name: "network", type: String, defaultValue: "all" }];
 
-const runCommand = (command: string) => {
-  return new Promise((resolve, reject) => {
-    const childProcess = spawn(command, {
-      stdio: "inherit",
-      shell: true,
-    });
-    let stdout = "";
-    let stderr = "";
-
-    childProcess.stdout?.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    childProcess.stderr?.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    childProcess.on("close", (code) => {
-      if (code === 0) {
-        resolve({ stdout, stderr });
-      } else {
-        reject(new Error(`Command failed with code ${code}`));
-      }
-    });
-  });
-};
-
 const deployToDevnets = async () => {
   let cmdArgs: any;
   try {
@@ -78,7 +52,6 @@ const deployToDevnets = async () => {
 
   const configs = network === "all" ? chainConfigs : [chainConfigs.find((c) => c.network === network)!];
 
-  const commands = [];
   for (const config of configs) {
     //funds to sender
     const { stdout } = await exec(
@@ -99,11 +72,10 @@ const deployToDevnets = async () => {
     }
 
     const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
+    const exportCmd = `run export`;
 
-    commands.push(runCommand(`${deployCmd}`));
+    await runCommand(`${deployCmd} && ${exportCmd}`);
   }
-
-  await Promise.all(commands);
 };
 
 deployToDevnets();
