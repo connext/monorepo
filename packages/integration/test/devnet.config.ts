@@ -9,6 +9,11 @@ const generateConfigForDevnets = async () => {
   const cmdArg = process.argv.slice(2);
   const agent = cmdArg[0];
 
+  if (!agent) {
+    console.error("Specify an agent name (router,sequencer,lighthouse...) ");
+    return;
+  }
+
   // Read the contents from the pre-compiled config file.
   const configPath = `../../../docker/${agent}/config.json`;
   let preConfig: any = {};
