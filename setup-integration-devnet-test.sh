@@ -69,6 +69,14 @@ for dir_path in "${config_dir_paths[@]}"; do
 done
 #####
 
+# Extract deployed addresses into docker config
+echo "Updating docker config with the deployed contract addresses for router, sequencer and lighthouse"
+yarn workspace @connext/nxtp-integration gen:devnet:config router
+yarn workspace @connext/nxtp-integration gen:devnet:config sequencer
+yarn workspace @connext/nxtp-integration gen:devnet:config lighthouse
+echo "Updating docker config done"
+#####
+
 ##### IPFS, postgres, graph nodes.
 echo "Starting ipfs, postgres and graph-node..."
 docker compose -f docker-compose.devnets.yaml up -d --force-recreate
