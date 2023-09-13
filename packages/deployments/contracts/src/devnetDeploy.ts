@@ -98,11 +98,9 @@ const deployToDevnets = async () => {
       throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const deployCmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --rpc-url ${config.rpc} --broadcast --slow --mnemonics "${MNEMONIC}" --sender ${sender}  -vvv`;
-    const syncCmd = `DEPLOYMENT_CONTEXT=tenderly-${config.network} forge script scripts/Deploy.s.sol --sig 'sync()' --rpc-url ${config.rpc} -v`;
-    const exportCmd = `run export`;
+    const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
 
-    commands.push(runCommand(`${deployCmd} && ${syncCmd} && ${exportCmd}`));
+    commands.push(runCommand(`${deployCmd}`));
   }
 
   await Promise.all(commands);
