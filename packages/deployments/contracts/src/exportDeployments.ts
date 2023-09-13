@@ -4,57 +4,55 @@ import path from "path";
 
 export const exportAll = async (): Promise<void> => {
   console.log("Exporting all deployments to deployments.json....");
-  const all = loadAllDeployments();
+  const { all, devnets } = loadAllDeployments();
   fs.writeFileSync("deployments.json", JSON.stringify(all, null, "  "));
+  fs.writeFileSync("devnet-deployments.json", JSON.stringify(devnets, null, "  "));
 };
 
 export function loadAllDeployments() {
   const networksFound: { [networkName: string]: any } = {};
   const all: any = {};
+  const devnets: any = {};
   const deploymentsPath = path.resolve("deployments");
   const isDevnetDeploy = (name: string) => name.includes("tenderly") || name.includes("fork");
-  fs.readdirSync(deploymentsPath)
-    .sort((a, b) => {
-      // Mainnet should be index 0
-      if (isDevnetDeploy(a) && !isDevnetDeploy(b)) return 1;
-      if (!isDevnetDeploy(a) && isDevnetDeploy(b)) return -1;
-      if (a < b) {
-        return -1;
+  fs.readdirSync(deploymentsPath).forEach((fileName) => {
+    const fPath = path.resolve(deploymentsPath, fileName);
+    const stats = fs.statSync(fPath);
+    let name = fileName;
+    if (stats.isDirectory()) {
+      let chainIdFound: string;
+      const chainIdFilepath = path.join(fPath, ".chainId");
+      if (fs.existsSync(chainIdFilepath)) {
+        chainIdFound = fs.readFileSync(chainIdFilepath).toString().trim();
+        name = fileName;
+      } else {
+        throw new Error(`You also need to create a '.chainId' file in the folder with the chainId`);
       }
-      if (a > b) {
-        return 1;
-      }
-      return 0;
-    })
-    .forEach((fileName) => {
-      const fPath = path.resolve(deploymentsPath, fileName);
-      const stats = fs.statSync(fPath);
-      let name = fileName;
-      if (stats.isDirectory()) {
-        let chainIdFound: string;
-        const chainIdFilepath = path.join(fPath, ".chainId");
-        if (fs.existsSync(chainIdFilepath)) {
-          chainIdFound = fs.readFileSync(chainIdFilepath).toString().trim();
-          name = fileName;
-        } else {
-          throw new Error(`You also need to create a '.chainId' file in the folder with the chainId`);
-        }
 
+      const contracts = loadDeployments(deploymentsPath, fileName);
+      const network = {
+        name,
+        chainId: chainIdFound,
+        contracts,
+      };
+      networksFound[name] = network;
+      if (!isDevnetDeploy(fileName)) {
         if (!all[chainIdFound]) {
           all[chainIdFound] = [];
         }
-        const contracts = loadDeployments(deploymentsPath, fileName);
-        const network = {
-          name,
-          chainId: chainIdFound,
-          contracts,
-        };
-        networksFound[name] = network;
-        all[chainIdFound].push(network);
-      }
-    });
 
-  return all;
+        all[chainIdFound].push(network);
+      } else {
+        if (!devnets[chainIdFound]) {
+          devnets[chainIdFound] = [];
+        }
+
+        devnets[chainIdFound].push(network);
+      }
+    }
+  });
+
+  return { all, devnets };
 }
 
 function loadDeployments(deploymentsPath: string, subPath: string) {
@@ -74,7 +72,7 @@ function loadDeployments(deploymentsPath: string, subPath: string) {
     });
 
   for (const fileName of fileNames) {
-    if (fileName.substr(fileName.length - 5) === ".json") {
+    if (fileName.slice(fileName.length - 5) === ".json") {
       const deploymentFileName = path.join(deployPath, fileName);
       let deployment = JSON.parse(fs.readFileSync(deploymentFileName).toString());
 
