@@ -69,7 +69,7 @@ export const sanitizeAndInit = async () => {
   console.log(`IS DEVNET: `, isDevnet);
 
   // Read init.json if exists
-  const path = process.env.INIT_CONFIG_FILE ?? (isDevnet ? "devnet-init.json" : "init.json");
+  const path = process.env.INIT_CONFIG_FILE ?? (isDevnet ? "devnet.init.json" : "init.json");
   let overrideConfig: any;
   if (fs.existsSync(path)) {
     const json = fs.readFileSync(path, { encoding: "utf-8" });

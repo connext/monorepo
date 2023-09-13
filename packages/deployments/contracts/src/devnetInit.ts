@@ -1,6 +1,6 @@
 import fs from "fs";
 import { config as dotenvConfig } from "dotenv";
-import { Wallet, utils } from "ethers";
+import { Wallet, constants, utils } from "ethers";
 import commandLineArgs from "command-line-args";
 
 import { InitConfig } from "./cli/init/helpers";
@@ -34,11 +34,11 @@ const runInit = async () => {
         },
         representations: {
           "1869640809": {
-            local: getContract("TestERC20", "10", false, undefined, true).address,
+            local: "",
             adopted: getContract("TestERC20", "10", false, undefined, true).address,
           },
           "6778479": {
-            local: getContract("TestERC20", "100", false, undefined, true).address,
+            local: "",
             adopted: getContract("TestERC20", "100", false, undefined, true).address,
           },
         },
@@ -67,7 +67,7 @@ const runInit = async () => {
 
   fs.writeFileSync("devnet.init.json", JSON.stringify(initConfig, null, "  "));
 
-  const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network devnet --env production --apply false`;
+  const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network devnet --env production --apply true`;
   await runCommand(cmd);
 };
 
