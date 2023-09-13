@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AdminHubConnector } from "./AdminHubConnector";
+export type { AdminSpokeConnector } from "./AdminSpokeConnector";

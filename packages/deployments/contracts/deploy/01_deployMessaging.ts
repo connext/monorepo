@@ -127,20 +127,23 @@ const handleDeployHub = async (
   // Deploy MainnetSpokeConnector.
   const connectorName = getConnectorName(protocol, protocol.hub);
   console.log(`Deploying ${connectorName}...`);
-  const deployment = await hre.deployments.deploy(getDeploymentName(connectorName), {
-    contract: connectorName,
-    from: deployer.address,
-    args: formatConnectorArgs(protocol, {
-      connectorChainId: protocol.hub,
-      deploymentChainId: protocol.hub,
-      mirrorChainId: protocol.hub,
-      rootManager: rootManager.address,
-      merkleManager: merkleTreeManagerForSpoke.address,
-      watcherManager: watcherManager.address,
-    }),
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
+  const deployment = await hre.deployments.deploy(
+    getDeploymentName(connectorName, undefined, protocol.configs[protocol.hub].networkName),
+    {
+      contract: connectorName,
+      from: deployer.address,
+      args: formatConnectorArgs(protocol, {
+        connectorChainId: protocol.hub,
+        deploymentChainId: protocol.hub,
+        mirrorChainId: protocol.hub,
+        rootManager: rootManager.address,
+        merkleManager: merkleTreeManagerForSpoke.address,
+        watcherManager: watcherManager.address,
+      }),
+      skipIfAlreadyDeployed: true,
+      log: true,
+    },
+  );
   console.log(`${connectorName} deployed to ${deployment.address}`);
 
   // setArborist for Spoke to Merkle
@@ -219,7 +222,8 @@ const handleDeploySpoke = async (
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
       !contract.includes("Consensys") &&
-      !contract.includes("Wormhole")) ||
+      !contract.includes("Wormhole") &&
+      !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
     return;
@@ -312,7 +316,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
@@ -341,5 +345,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Messaging", "prod", "local", "mainnet"];
+func.tags = ["Messaging", "prod", "local", "mainnet", "devnet"];
 func.dependencies = [];

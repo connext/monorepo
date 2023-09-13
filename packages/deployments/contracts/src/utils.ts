@@ -22,6 +22,7 @@ export enum ProtocolNetwork {
   MAINNET = "mainnet",
   TESTNET = "testnet",
   LOCAL = "local",
+  DEVNET = "devnet",
 }
 
 export const ProtocolNetworks: Record<string, string> = {
@@ -48,10 +49,13 @@ export const ProtocolNetworks: Record<string, string> = {
   "100": ProtocolNetwork.MAINNET,
 };
 
-export const getProtocolNetwork = (_chain: string | number): string => {
+export const getProtocolNetwork = (_chain: string | number, _name: string | undefined): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+  // If chain name is tenderly-*, use devnet
+  return _name && _name.includes("tenderly")
+    ? ProtocolNetwork.DEVNET
+    : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 
 export type RelayerProxyConfig = {
@@ -79,7 +83,9 @@ export const getConnectorName = (
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === deployChainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+    config.hub === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
+      ? HUB_PREFIX
+      : SPOKE_PREFIX
   }Connector`;
 };
 
@@ -90,9 +96,16 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
   const env = mustGetEnv(_env);
   let contractName = _contractName;
 
-  if (contractName.includes("Wormhole")) {
-    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
-    contractName = contractName.replace("Wormhole", networkName);
+  const networkName = _networkName
+    ? _networkName.charAt(0).toUpperCase() + _networkName.slice(1).toLowerCase()
+    : undefined;
+
+  if (/^(?=.*Wormhole)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Wormhole/g, networkName!);
+  }
+
+  if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Admin/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
