@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
 
@@ -7,6 +8,18 @@ import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json"
 const generateConfigForDevnets = async () => {
   const cmdArg = process.argv.slice(2);
   const agent = cmdArg[0];
+
+  // Read the contents from the pre-compiled config file.
+  const configPath = `../../../docker/${agent}/config.json`;
+  let preConfig: any = {};
+  try {
+    if (fs.existsSync(configPath)) {
+      preConfig = JSON.parse(fs.readFileSync(configPath, { encoding: "utf-8" }));
+    }
+  } catch (e: unknown) {
+    console.error("Error reading config file!");
+    return;
+  }
 
   // Reassemble the json by extracting necessary data from the deployments file.
   const deployments = devnetDeployments as Record<string, any>;
@@ -20,6 +33,7 @@ const generateConfigForDevnets = async () => {
     const assets = [{ name: "TEST", address: deploymentsForChain.contracts.TestERC20 }];
     const domainId = chainIdToDomain(+chainId);
     chains[domainId] = {
+      providers: preConfig[domainId].providers,
       deployments: {
         connext: connextAddress,
         relayerProxy: relayerProxyAddress,
@@ -28,7 +42,13 @@ const generateConfigForDevnets = async () => {
     };
   }
 
-  // Read the template config for the `agentName` agent.
+  const jsonToWrite = { ...preConfig, chains };
+
+  try {
+    fs.writeFileSync(configPath, jsonToWrite.toString(), { encoding: "utf-8" });
+  } catch (e: unknown) {
+    console.error("Error writing config file!");
+  }
 };
 
 generateConfigForDevnets();
