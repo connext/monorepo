@@ -1,7 +1,7 @@
 ## AWS Infrastructure
 
 This folder contains all the code necessary to deploy a sequencer and router server to a highly-available
-ecs cluster, with its required dependencies. Namely:
+ecs cluster, with required dependencies. Namely:
 
 - Fully configured load balancing, port forwarding, and TLS
 - Autoscaling with ECS on [Fargate](https://aws.amazon.com/fargate/)
