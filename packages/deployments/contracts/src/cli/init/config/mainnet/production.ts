@@ -340,9 +340,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "RADAR",
       canonical: {
         domain: "6648936",
-        address: "0x44709a920fCcF795fbC57BAA433cc3dd53C44DbE",
+        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
         decimals: 18,
-        // cap: utils.parseUnits("10000000", 18).toString(),
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
        /// BSC
