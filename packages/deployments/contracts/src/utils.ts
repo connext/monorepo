@@ -308,7 +308,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
 
   // get data + factories
-  const factory = await hre.ethers.getContractFactory(name, deployer.address);
+  const factory = await hre.ethers.getContractFactory(name);
   const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Get controller deployment

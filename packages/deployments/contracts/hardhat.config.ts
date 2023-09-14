@@ -65,7 +65,9 @@ import "./tasks/connector/addSpokeRootToAggregate";
 import "./tasks/connector/wormholeDeliver";
 import { hardhatNetworks } from "./src/config";
 
-tdly.setup();
+tdly.setup({
+  automaticVerifications: true,
+});
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -192,6 +194,7 @@ const config: HardhatUserConfig = {
   tenderly: {
     username: process.env.TENDERLY_ACCOUNT_ID!,
     project: process.env.TENDERLY_PROJECT_SLUG!,
+    accessKey: process.env.TENDERLY_ACCESS_KEY!,
     privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
   },
   typechain: {
