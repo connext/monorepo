@@ -75,9 +75,9 @@ const deployToDevnets = async () => {
     const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
 
     if (config.network === "mainnet") {
-      await runCommand(deployCmd);
+      await runCommand(deployCmd, 3);
     } else {
-      commands.push(runCommand(deployCmd));
+      commands.push(runCommand(deployCmd, 3));
     }
   }
 
@@ -85,7 +85,7 @@ const deployToDevnets = async () => {
   await Promise.all(commands);
 
   const exportCmd = `run export`;
-  await runCommand(exportCmd);
+  await runCommand(exportCmd, 3);
 };
 
 deployToDevnets();
