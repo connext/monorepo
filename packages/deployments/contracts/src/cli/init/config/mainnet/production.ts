@@ -337,7 +337,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "RADAR",
+      name: "xRADAR",
       canonical: {
         domain: "6648936",
         address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
