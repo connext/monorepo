@@ -69,13 +69,6 @@ for dir_path in "${config_dir_paths[@]}"; do
 done
 #####
 
-# Extract deployed addresses into docker config
-echo "Updating docker config with the deployed contract addresses for router, sequencer and lighthouse"
-yarn workspace @connext/nxtp-integration gen:devnet:config router
-yarn workspace @connext/nxtp-integration gen:devnet:config sequencer
-yarn workspace @connext/nxtp-integration gen:devnet:config lighthouse
-echo "Updating docker config done"
-#####
 
 ##### IPFS, postgres, graph nodes.
 echo "Starting ipfs, postgres and graph-node..."
@@ -135,6 +128,14 @@ echo "Deploying subgraph to the hub chain - gnosis-devnet..."
 yarn workspace @connext/nxtp-subgraph create:devnet_v0_gnosis --node http://localhost:7020/
 yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_gnosis --node http://localhost:7020/ -l v0.0.1
 echo "Deployed subgraph to the gnosis-devnet"
+#####
+
+# Extract deployed addresses into docker config
+echo "Updating docker config with the deployed contract addresses for router, sequencer and lighthouse"
+yarn workspace @connext/nxtp-integration gen:devnet:config router
+yarn workspace @connext/nxtp-integration gen:devnet:config sequencer
+yarn workspace @connext/nxtp-integration gen:devnet:config lighthouse
+echo "Updating docker config done"
 #####
 
 ##### Off-Chain Agents
