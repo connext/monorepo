@@ -66,7 +66,7 @@ import "./tasks/connector/wormholeDeliver";
 import { hardhatNetworks } from "./src/config";
 
 tdly.setup({
-  automaticVerifications: true,
+  automaticVerifications: false,
 });
 
 const config: HardhatUserConfig = {
