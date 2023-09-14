@@ -1,9 +1,10 @@
 import * as fs from "fs";
 import path from "path";
+
 import { chainIdToDomain } from "@connext/nxtp-utils";
 import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
 
-const connectorNamesByChains: Record<string, string1> = {
+const connectorNamesByChains: Record<string, string> = {
   "1": "MainnetSpokeConnector",
   "10": "OptimismSpokeConnector",
   "100": "GnosisSpokeConnector",
@@ -53,7 +54,7 @@ const generateConfigForDevnets = async () => {
       deployments: {
         connext: connextAddress,
         relayerProxy: relayerProxyAddress,
-        spokeConnector: deploymentsForChain.contracts[spokeConnectorName],
+        spokeConnector: deploymentsForChain.contracts[spokeConnectorName].address,
       },
       assets,
     };
