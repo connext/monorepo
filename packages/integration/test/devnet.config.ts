@@ -3,6 +3,11 @@ import path from "path";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
 
+const connectorNamesByChains: Record<string, string1> = {
+  "1": "MainnetSpokeConnector",
+  "10": "OptimismSpokeConnector",
+  "100": "GnosisSpokeConnector",
+};
 /**
  * Generates the config.json dynamically for agents(router, sequencer and lighthouse).
  */
@@ -39,13 +44,16 @@ const generateConfigForDevnets = async () => {
     const relayerProxyAddress = deploymentsForChain.contracts.RelayerProxyHub
       ? deploymentsForChain.contracts.RelayerProxyHub.address
       : deploymentsForChain.contracts.RelayerProxy.address;
+    const spokeConnectorName = connectorNamesByChains[chainId];
     const assets = [{ name: "TEST", address: deploymentsForChain.contracts.TestERC20.address }];
     const domainId = chainIdToDomain(+chainId);
+
     chains[domainId] = {
       providers: preConfig.chains[domainId].providers,
       deployments: {
         connext: connextAddress,
         relayerProxy: relayerProxyAddress,
+        spokeConnector: deploymentsForChain.contracts[spokeConnectorName],
       },
       assets,
     };
