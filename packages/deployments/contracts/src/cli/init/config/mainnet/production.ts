@@ -230,21 +230,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x49000f5e208349D2fA678263418e21365208E498",
           adopted: "0x49000f5e208349D2fA678263418e21365208E498",
         },
-        // polygon
-        "1886350457": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // bnb
-        "6450786": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // gnosis
-        "6778479": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
       },
     },
     {
@@ -265,21 +250,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1869640809": {
           local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
           adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
-        },
-        // polygon
-        "1886350457": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // bnb
-        "6450786": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // gnosis
-        "6778479": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
         },
       },
     },
@@ -320,58 +290,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
-    {
-      name: "BTRST",
-      canonical: {
-        domain: "6648936",
-        address: "0x799ebfABE77a6E34311eeEe9825190B9ECe32824",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// POLYGON
-        "1886350457": {
-          local: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
-          adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
-        },
-      },
-    },
-    {
-      name: "NEXT",
-      canonical: {
-        domain: "6648936",
-        address: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        decimals: 18,
-        cap: utils.parseUnits("500000000", 18).toString(),
-      },
-      representations: {
-        // optimism
-        "1869640809": {
-          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        },
-        // arbitrum one
-        "1634886255": {
-          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        },
-        // polygon
-        "1886350457": {
-          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        },
-        // bsc
-        "6450786": {
-          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        },
-        // gnosis
-        "6778479": {
-          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
-        },
-      },
-    },
   ],
   agents: {
     relayerFeeVaults: {
@@ -387,8 +305,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
-        "0x76cf58ce587bc928fcc5ad895555fd040e06c61a", // BTRST
-        "0x5d527765252003AceE6545416F6a9C8D15ae8402", // 01node
         "0x49a9E7ec76Bc8fDF658d09557305170d9F01D2fA", // BlockTech 3
         "0x6273c0965A1dB4F8A6277d490B4fD48715a42b96", // Xocalatl
         "0x9584Eb0356a380b25D7ED2C14c54De58a25f2581", // Mike Nai

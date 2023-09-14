@@ -485,7 +485,10 @@ export class SdkBase extends SdkShared {
       canonicalId: transfer.canonical_id,
     };
 
-    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [transferInfo, _newSlippage]);
+    const data = this.contracts.connext.encodeFunctionData("forceUpdateSlippage", [
+      transferInfo,
+      utils.parseUnits(_newSlippage),
+    ]);
 
     const txRequest = {
       to: ConnextContractAddress,

@@ -353,7 +353,17 @@ sources:
   - name: Connext_Mainnet
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DfD1tZSmDtjCGC2LeYEQbVzj9j8kNqKAQEsYL27Vg6Sw"
             retry: 2
@@ -373,7 +383,17 @@ sources:
   - name: Connext_Optimism
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
             retry: 2
@@ -393,7 +413,17 @@ sources:
   - name: Connext_Polygon
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6NccoNRo22DgB7oCHaG7U5MxvfYXcCERRN1oVtCWm32x"
             retry: 5
@@ -413,7 +443,17 @@ sources:
   - name: Connext_ArbitrumOne
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DNQfRxJou184r5YagTz9HUQST5URsY2WdYkegH9Rrdkf"
             retry: 5
@@ -433,7 +473,17 @@ sources:
   - name: Connext_Bnb
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
             retry: 2
@@ -453,7 +503,17 @@ sources:
   - name: Connext_Xdai
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
           - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
             retry: 2

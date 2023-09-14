@@ -505,7 +505,7 @@ describe("SdkPool", () => {
       stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
 
       const originAmount = BigNumber.from(100_000);
-      const originSlippage = "0"; // 0% in BPS
+      const originSlippage = "0"; // 10% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
@@ -523,77 +523,32 @@ describe("SdkPool", () => {
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
 
-    it("happy: should work with local origin asset and adopted destination asset, 6 and 18 decimals respectively", async () => {
-      const localAsset6Decimals = { ...localAsset, decimals: 6 };
-      const adoptedAsset18Decimals = { ...adoptedAsset, decimals: 18 };
-      const mockPoolDifferentDecimals = {
-        ...mockPool,
-        local: localAsset6Decimals,
-        adopted: adoptedAsset18Decimals,
+    it("happy: should work with 6 decimals local asset and 18 decimals adopted asset", async () => {
+      const pool: Pool = {
+        domainId: mock.domain.A,
+        name: "TSTB Pool",
+        symbol: "TSTB-TSTA",
+        local: localAsset,
+        adopted: adoptedAsset,
+        lpTokenAddress: utils.formatBytes32String("asdf"),
+        canonicalHash: utils.formatBytes32String("13337"),
+        swapFee: "4000000",
+        balances: [BigNumber.from("706924186329"), BigNumber.from("749171899882428175742051")],
+        decimals: [6, 18],
+        invariant: BigNumber.from("1456093034430419725194080"),
+        initialA: BigNumber.from("20000"),
+        initialATime: 0,
+        futureA: BigNumber.from("20000"),
+        futureATime: 0,
+        currentA: BigNumber.from("20000"),
+        adminFee: "0",
       };
 
-      // return destination pool
-      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPoolDifferentDecimals);
+      const originAmount = BigNumber.from(1_000);
+      const receivedAmount = originAmount.mul(BigNumber.from(10).pow(12)).mul(9).div(10); // assume swap ate 10%
 
-      const originAmount = BigNumber.from(100_000);
-      const originSlippage = "0"; // 0% in BPS
-
-      const originAmountAfterRouterFee = originAmount.sub(originAmount.mul(feeBps).div(10000)); // router takes 0.05%
-
-      const destinationAmountAfterSwap = originAmountAfterRouterFee.mul(9).div(10); // assume swap ate 10%;
-      const destinationAmountAfterSwapConverted = destinationAmountAfterSwap.mul(BigNumber.from(10).pow(12)); // to 18 decimals
-      const destinationSlippage = "1000"; // 10% in BPS
-
-      stub(sdkPool, "calculateSwapLocal")
-        .onCall(0) // swap once for destination pool
-        .resolves(destinationAmountAfterSwapConverted);
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
-      const res = await sdkPool.calculateAmountReceived(
-        mockPoolDifferentDecimals.domainId,
-        mockPoolDifferentDecimals.domainId,
-        mockPoolDifferentDecimals.local.address,
-        originAmount,
-      );
-
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
-    });
-
-    it("happy: should work with adopted origin asset and local destination asset, 18 and 6 decimals respectively", async () => {
-      const localAsset6Decimals = { ...localAsset, decimals: 6 };
-      const adoptedAsset18Decimals = { ...adoptedAsset, decimals: 18 };
-      const mockPoolDifferentDecimals = {
-        ...mockPool,
-        local: localAsset6Decimals,
-        adopted: adoptedAsset18Decimals,
-      };
-
-      // return origin pool
-      stub(sdkPool, "getPool").onCall(0).resolves(mockPoolDifferentDecimals).onCall(1).resolves(undefined);
-
-      const originAmount = BigNumber.from(10).pow(18);
-      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
-      const originAmountAfterSwapConverted = originAmountAfterSwap.div(BigNumber.from(10).pow(12)); // to 6 decimals
-      const originSlippage = "1000"; // 10% in BPS
-      const destinationSlippage = "0"; // 0% in BPS
-
-      stub(sdkPool, "calculateSwapLocal")
-        .onCall(0) // swap once for origin pool
-        .resolves(originAmountAfterSwapConverted);
-      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
-      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
-
-      const res = await sdkPool.calculateAmountReceived(
-        mockPoolDifferentDecimals.domainId,
-        mockPoolDifferentDecimals.domainId,
-        mockPoolDifferentDecimals.adopted.address,
-        originAmount,
-      );
-
-      expect(res.originSlippage.toString()).to.equal(originSlippage);
-      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+      const res = await sdkPool.calculateSwapLocal(mock.domain.A, pool, pool.local.address, 0, 1, originAmount);
+      expect(res.gt(receivedAmount)).to.equal(true);
     });
   });
 

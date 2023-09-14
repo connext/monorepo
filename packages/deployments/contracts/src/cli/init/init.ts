@@ -102,8 +102,7 @@ export const sanitizeAndInit = async () => {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
     const configuredDomains = domains.filter((domain) => assetDomains.includes(domain));
-    const isSubset = configuredDomains.every((item) => domains.includes(item));
-    if (!isSubset) {
+    if (JSON.stringify(configuredDomains.sort()) != JSON.stringify(domains.sort())) {
       throw new Error(
         `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${
           asset.canonical.address
@@ -387,7 +386,6 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         if (!adopteds[key]) {
           adopteds[key] = [];
         }
-        if (!value) return;
         value.adopted === constants.AddressZero ? "" : adopteds[key].push(value.adopted);
         if (!value.local) {
           return;
@@ -543,7 +541,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         // TODO: Blacklist/remove sequencers.
       }
 
-      /// MARK - Routers
+      //   /// MARK - Routers
       if (protocol.agents.routers) {
         if (protocol.agents.routers.allowlist) {
           console.log("\n\nWHITELIST ROUTERS");

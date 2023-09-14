@@ -211,13 +211,8 @@ export class SdkPool extends SdkShared {
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
-   * @param checkFastLiquidity - (optional) Check for fast liquidity availability. False will assume fast liquidity is available.
-   * @returns
-   *    - amountReceived: Estimated amount received in the decimal precision of the final destination token.
-   *    - originSlippage: Slippage for the origin swap (0 if no swap) in BPS. Negative values indicate positive slippage.
-   *    - destinationSlippage: Slippage for the destination swap (0 if no swap) in BPS. Negative values indicate positive slippage.
-   *    - routerFee: Fee taken by the router in the amount of the local origin asset.
-   *    - isFastPath: Boolean indicating if the fast liquidity path is available.
+   * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
+   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
     originDomain: string,
@@ -253,18 +248,10 @@ export class SdkPool extends SdkShared {
       throw new Error("Origin token cannot be bridged to any token on this destination domain");
     }
 
-    /**
-     * ------------------------------------
-     * Origin-side calculations
-     * ------------------------------------
-     */
-
-    let originAmountReceived = amount;
-    let originSlippage = BigNumber.from(0);
-
     // Swap IFF supplied origin token is an adopted asset
+    let originAmountReceived = amount;
     if (!isNextAsset && originPool) {
-      const originAmountReceivedAfterSwap = await this.calculateSwapLocal(
+      originAmountReceived = await this.calculateSwapLocal(
         originDomain,
         originPool,
         _originTokenAddress,
@@ -272,102 +259,55 @@ export class SdkPool extends SdkShared {
         originPool.local.index,
         amount,
       );
-
-      // Pool assets may have different decimals
-      const originLocalDecimals = originPool.local.decimals;
-      const originAdoptedDecimals = originPool.adopted.decimals;
-
-      // Convert decimals to the higher precision
-      const higherPrecisionDecimals = Math.max(originLocalDecimals, originAdoptedDecimals);
-      const originAmountReceivedConverted = BigNumber.from(originAmountReceived).mul(
-        BigNumber.from(10).pow(higherPrecisionDecimals - originAdoptedDecimals),
-      );
-      const originAmountReceivedAfterSwapConverted = originAmountReceivedAfterSwap.mul(
-        BigNumber.from(10).pow(higherPrecisionDecimals - originLocalDecimals),
-      );
-
-      originSlippage = BigNumber.from(
-        originAmountReceivedConverted
-          .sub(originAmountReceivedAfterSwapConverted ?? originAmountReceivedConverted)
-          .mul(10000)
-          .div(originAmountReceivedConverted),
-      );
-
-      // Convert origin amount received post-swap to the local decimal precision
-      originAmountReceived = originAmountReceivedAfterSwapConverted.div(
-        BigNumber.from(10).pow(higherPrecisionDecimals - originLocalDecimals),
-      );
     }
 
-    /**
-     * ------------------------------------
-     * Router / fast liquidity calculations
-     * ------------------------------------
-     */
-
-    // Determine if fast liquidity is available (pre-destination-swap amount)
-    let isFastPath = true;
-    if (checkFastLiquidity) {
-      const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
-      if (activeLiquidity?.length > 0) {
-        const total_balance: string = activeLiquidity[0].total_balance.toString();
-        isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(originAmountReceived);
-      }
-    }
-
-    // Subtract router fee if fast liquidity is available
+    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
     const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
     const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
-    if (isFastPath) {
-      originAmountReceived = BigNumber.from(originAmountReceived).sub(routerFee);
-    }
-
-    /**
-     * ------------------------------------
-     * Destination-side calculations
-     * ------------------------------------
-     */
 
     const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
-    let destinationAmountReceived = originAmountReceived;
-    let destinationSlippage = BigNumber.from(0);
+    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
+    let destinationAmountReceived = destinationAmount;
+
+    const promises: Promise<any>[] = [];
 
     // Swap IFF desired destination token is an adopted asset
     if (!receiveLocal && destinationPool) {
-      const destinationAmountReceivedAfterSwap = await this.calculateSwapLocal(
-        destinationDomain,
-        destinationPool,
-        destinationAssetData.local,
-        destinationPool.local.index,
-        destinationPool.adopted.index,
-        destinationAmountReceived,
+      promises.push(
+        this.calculateSwapLocal(
+          destinationDomain,
+          destinationPool,
+          destinationAssetData.local,
+          destinationPool.local.index,
+          destinationPool.adopted.index,
+          destinationAmount,
+        ),
       );
-
-      // Pool assets may have different decimals
-      const destinationLocalDecimals = destinationPool.local.decimals;
-      const destinationAdoptedDecimals = destinationPool.adopted.decimals;
-
-      // Convert decimals to the higher precision
-      const higherPrecisionDecimals = Math.max(destinationLocalDecimals, destinationAdoptedDecimals);
-      const destinationAmountReceivedConverted = BigNumber.from(destinationAmountReceived).mul(
-        BigNumber.from(10).pow(higherPrecisionDecimals - destinationLocalDecimals),
-      );
-      const destinationAmountReceivedAfterSwapConverted = destinationAmountReceivedAfterSwap.mul(
-        BigNumber.from(10).pow(higherPrecisionDecimals - destinationAdoptedDecimals),
-      );
-
-      destinationSlippage = BigNumber.from(
-        destinationAmountReceivedConverted
-          .sub(destinationAmountReceivedAfterSwapConverted ?? destinationAmountReceivedConverted)
-          .mul(10000)
-          .div(destinationAmountReceivedConverted),
-      );
-
-      // Convert destination amount received post-swap to the adopted decimal precision
-      destinationAmountReceived = destinationAmountReceivedAfterSwapConverted.div(
-        BigNumber.from(10).pow(higherPrecisionDecimals - destinationAdoptedDecimals),
-      );
+    } else {
+      promises.push(Promise.resolve(undefined));
     }
+
+    // Determine if fast liquidity is available (pre-destination-swap amount)
+    if (checkFastLiquidity) {
+      promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
+    }
+
+    const [destinationAmountReceivedSwap, activeLiquidity] = await Promise.all(promises);
+    destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
+
+    // Default true, set to false if fast liquidity is not available
+    let isFastPath = true;
+    if (activeLiquidity?.length > 0) {
+      const total_balance: string = activeLiquidity[0].total_balance.toString();
+      isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(destinationAmount);
+    }
+
+    const destinationSlippage = BigNumber.from(
+      destinationAmount
+        .sub(destinationAmountReceived ?? destinationAmount)
+        .mul(10000)
+        .div(destinationAmount),
+    );
 
     return {
       amountReceived: destinationAmountReceived,

@@ -81,7 +81,6 @@ export const setupAsset = async (args: {
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
-    if (!representation) continue;
     const stableswapPool = constants.AddressZero;
 
     const network = networks.find((n) => n.domain === domain);
