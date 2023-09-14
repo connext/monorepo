@@ -72,10 +72,12 @@ const deployToDevnets = async () => {
     }
 
     const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
-    const exportCmd = `run export`;
 
-    await runCommand(`${deployCmd} && ${exportCmd}`);
+    await runCommand(deployCmd);
   }
+
+  const exportCmd = `run export`;
+  await runCommand(exportCmd);
 };
 
 deployToDevnets();

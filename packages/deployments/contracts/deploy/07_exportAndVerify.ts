@@ -1,7 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-
-import { exportAll } from "../src/exportDeployments";
+import { runCommand } from "../src";
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -13,7 +12,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // await hre.run("export", {
   //   exportAll: "./deployments.json",
   // });
-  exportAll();
+  await runCommand("run export");
 
   await hre.run("etherscan-verify", {
     solcInput: true,
