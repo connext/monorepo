@@ -16,10 +16,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
 
   router-subscriber:
     container_name: router-subscriber
@@ -37,10 +34,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
 
   router-executor:
     container_name: router-executor
@@ -56,10 +50,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/executor/:/home/node/agents/executor/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
 
   signer-router:
     container_name: signer-router
@@ -94,10 +85,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
 
   sequencer-publisher:
     container_name: sequencer-publisher
@@ -113,10 +101,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
 
   sequencer-subscriber:
     container_name: sequencer-subscriber
@@ -132,10 +117,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
 
   signer-sequencer:
     container_name: signer-sequencer
@@ -177,7 +159,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
-      - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
+      - ${PWD}/docker/relayer/config.json:/home/node/packages/agents/relayer/config.json
 
   signer-relayer:
     container_name: signer-relayer
@@ -211,10 +193,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: routers
 
@@ -231,10 +211,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: transfers
 
@@ -251,10 +229,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: messages
 
@@ -271,10 +247,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: roots
 
@@ -291,10 +265,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: stableswap
 
@@ -311,10 +283,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: messagestatus
 
@@ -331,10 +301,8 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: prices
 
@@ -342,7 +310,7 @@ services:
     container_name: cartographer-database
     image: ${DB_IMAGE}
     ports:
-      - "5432:5432"
+      - "5435:5432"
     command: ["postgres"]
     environment:
       POSTGRES_PASSWORD: qwerty
@@ -372,7 +340,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: prover-sub
 
@@ -389,7 +357,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: prover-pub
 
@@ -406,7 +374,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: process
 
@@ -422,7 +390,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: propagate
 
@@ -438,6 +406,6 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
     environment:
       LIGHTHOUSE_SERVICE: sendoutboundroot

@@ -49,26 +49,42 @@ echo "Initialized contracts..."
 
 
 ##### Subgraph Deployments
-echo "Building subgraph..."
-yarn workspace @connext/nxtp-subgraph prepare:local_1337
+echo "Building subgraph for the hub chain - mainnet-local..."
+yarn workspace @connext/nxtp-subgraph prepare:local:hub
 yarn workspace @connext/nxtp-subgraph codegen
-echo "Built subgraph"
+echo "Built subgraph for the hub chain"
 
-echo "Deploying subgraph to 1337..."
-yarn workspace @connext/nxtp-subgraph create-local-1337
-yarn workspace @connext/nxtp-subgraph deploy-local-1337 -l v0.0.1
-echo "Deployed subgraph to 1337"
+echo "Deploying subgraph to the hub chain - mainnet-devnet..."
+yarn workspace @connext/nxtp-subgraph create:local:hub:mainnet
+yarn workspace @connext/nxtp-subgraph deploy:local:hub:mainnet
 
-echo "Building subgraph..."
-yarn workspace @connext/nxtp-subgraph prepare:local_1338
+yarn workspace @connext/nxtp-subgraph prepare:local:spoke:mainnet
 yarn workspace @connext/nxtp-subgraph codegen
-echo "Built subgraph"
+yarn workspace @connext/nxtp-subgraph create:local:spoke:mainnet
+yarn workspace @connext/nxtp-subgraph deploy:local:spoke:mainnet
+echo "Deployed subgraph to the hub chain - mainnet-local"
 
-echo "Deploying subgraph to 1338..."
-yarn workspace @connext/nxtp-subgraph create-local-1338
-yarn workspace @connext/nxtp-subgraph deploy-local-1338 -l v0.0.1
-echo "Deployed subgraph to 1338"
+echo "Building subgraph for the spoke chain - optimism-local"
+yarn workspace @connext/nxtp-subgraph prepare:local:spoke:optimism
+yarn workspace @connext/nxtp-subgraph codegen
+echo "Built subgraph for the spoke chain - optimism-local"
+
+echo "Deploying subgraph to the spoke chain - optimism-local..."
+yarn workspace @connext/nxtp-subgraph create:local:spoke:optimism
+yarn workspace @connext/nxtp-subgraph deploy:local:spoke:optimism
+echo "Deployed subgraphs to the optimism-local"
+
+echo "Building subgraph for the spoke chain - arbitrum-local"
+yarn workspace @connext/nxtp-subgraph prepare:local:spoke:arbitrum
+yarn workspace @connext/nxtp-subgraph codegen
+echo "Built subgraph for the spoke chain - arbitrum-local"
+
+echo "Deploying subgraph to the spoke chain - arbitrum-local..."
+yarn workspace @connext/nxtp-subgraph create:local:spoke:arbitrum
+yarn workspace @connext/nxtp-subgraph deploy:local:spoke:arbitrum
+echo "Deployed subgraph to the arbitrum-local"
 #####
+
 
 ##### Off-Chain Agents
 echo "Starting services and off-chain agents..."

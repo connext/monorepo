@@ -10,6 +10,7 @@ services:
     image: ghcr.io/connext/anvil:latest
     ports:
       - "8547:8545"
+
   local-optimism:
     environment:
       - MNEMONIC=$MNEMONIC
@@ -19,6 +20,7 @@ services:
     image: ghcr.io/connext/anvil:latest
     ports:
       - "8548:8545"
+
   local-arbitrum:
     environment:
       - MNEMONIC=$MNEMONIC

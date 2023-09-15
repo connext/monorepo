@@ -124,7 +124,7 @@ yarn workspace @connext/nxtp-subgraph prepare:devnet:amarok-runtime-v0 gnosis
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the spoke chain - gnosis-devnet"
 
-echo "Deploying subgraph to the hub chain - gnosis-devnet..."
+echo "Deploying subgraph to the spoke chain - gnosis-devnet..."
 yarn workspace @connext/nxtp-subgraph create:devnet_v0_gnosis --node http://localhost:7020/
 yarn workspace @connext/nxtp-subgraph deploy:devnet_v0_gnosis --node http://localhost:7020/ -l v0.0.1
 echo "Deployed subgraph to the gnosis-devnet"
