@@ -4,8 +4,9 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
-import contractDeployments from "@connext/smart-contracts/deployments.json";
-import contractDeploymentsDevnet from "@connext/smart-contracts/devnet.deployments.json";
+import mainnetDeployments from "@connext/smart-contracts/deployments.json";
+import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
+import localDeployments from "@connext/smart-contracts/local.deployments.json";
 import { utils } from "ethers";
 
 const exec = util.promisify(_exec);
@@ -83,8 +84,18 @@ const run = async () => {
         if (source) {
           if (!utils.isAddress(source.address) || !source.startBlock) {
             const isDevnet = configFile.includes("devnet");
-            const networkName = `${isDevnet ? "devnet-" : ""}${n.network}`;
-            const deployment = Object.values(isDevnet ? contractDeploymentsDevnet : contractDeployments)
+            const networkPrefix = configFile.includes("devnet")
+              ? "devnet"
+              : configFile.includes("local")
+              ? "local"
+              : "";
+            const contractDeployments = configFile.includes("devnet")
+              ? devnetDeployments
+              : configFile.includes("local")
+              ? localDeployments
+              : mainnetDeployments;
+            const networkName = `${networkPrefix}${n.network}`;
+            const deployment = Object.values(contractDeployments)
               .flat()
               .find((d: any) => d.name === networkName);
             if (!deployment) {
