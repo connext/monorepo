@@ -287,7 +287,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "ALCX",
       canonical: {
         domain: "6648936",
-        address: "0xdbdb4d16eda451d0503b854cf79d55697f90c8df",
+        address: "0x63Ea258E6938851bB2229561C53BBBe62c637012",
         decimals: 18,
         cap: utils.parseUnits("10000000", 18).toString(),
       },
