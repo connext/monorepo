@@ -51,13 +51,13 @@ export const ProtocolNetworks: Record<string, string> = {
 };
 
 export const isDevnetName = (_name: string): boolean => {
-  return _name.includes("tenderly");
+  return _name.includes("devnet");
 };
 
 export const getProtocolNetwork = (_chain: string | number, _name: string | undefined): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  // If chain name is tenderly-*, use devnet
+  // If chain name is devnet-*, use devnet
   return _name && isDevnetName(_name) ? ProtocolNetwork.DEVNET : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 

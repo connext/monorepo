@@ -8,5 +8,5 @@ init.json
 artifacts-zk
 cache-zk
 deployments/*_fork
-deployments/tenderly-*
+deployments/devnet-*
 broadcast

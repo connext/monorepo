@@ -83,7 +83,7 @@ const run = async () => {
         if (source) {
           if (!utils.isAddress(source.address) || !source.startBlock) {
             const isDevnet = configFile.includes("devnet");
-            const networkName = `${isDevnet ? "tenderly-" : ""}${n.network}`;
+            const networkName = `${isDevnet ? "devnet-" : ""}${n.network}`;
             const deployment = Object.values(isDevnet ? contractDeploymentsDevnet : contractDeployments)
               .flat()
               .find((d: any) => d.name === networkName);

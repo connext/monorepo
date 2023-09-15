@@ -14,7 +14,7 @@ export function loadAllDeployments() {
   const all: any = {};
   const devnets: any = {};
   const deploymentsPath = path.resolve("deployments");
-  const isDevnetDeploy = (name: string) => name.includes("tenderly") || name.includes("fork");
+  const isDevnetDeploy = (name: string) => name.includes("devnet") || name.includes("fork");
   fs.readdirSync(deploymentsPath).forEach((fileName) => {
     const fPath = path.resolve(deploymentsPath, fileName);
     const stats = fs.statSync(fPath);

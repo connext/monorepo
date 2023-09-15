@@ -72,7 +72,7 @@ const deployToDevnets = async () => {
       throw new Error(`failed to tenderly_setBalance, ${sender}, ${config.network}`);
     }
 
-    const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
+    const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network devnet-${config.network}`;
 
     if (config.network === "mainnet") {
       await runCommand(deployCmd, 3);

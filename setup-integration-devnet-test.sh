@@ -77,9 +77,9 @@ sleep 5
 #####
 
 ##### Delete previous devnet deployment records if they exist.
-rm -rf -- packages/deployments/contracts/deployments/tenderly-mainnet
-rm -rf -- packages/deployments/contracts/deployments/tenderly-optimism
-rm -rf -- packages/deployments/contracts/deployments/tenderly-gnosis
+rm -rf -- packages/deployments/contracts/deployments/devnet-mainnet
+rm -rf -- packages/deployments/contracts/deployments/devnet-optimism
+rm -rf -- packages/deployments/contracts/deployments/devnet-gnosis
 #####
 
 ##### Contract Deployments
