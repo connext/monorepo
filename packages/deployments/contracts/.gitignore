@@ -9,4 +9,5 @@ artifacts-zk
 cache-zk
 deployments/*_fork
 deployments/devnet-*
+deployments/local-*
 broadcast
