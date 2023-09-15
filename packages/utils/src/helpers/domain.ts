@@ -35,11 +35,13 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59140, 0x636f6e74], // Consensys zkEvm test (cont interpreted as int) 1668247156
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   // local
+  [1337, 133712],
+  [1338, 133812],
+  [13337, 13337],
+  [13338, 13338],
   [31337, 31337],
   [31338, 31338],
   [31339, 31339],
-  [13337, 13337],
-  [13338, 13338],
 ]);
 
 /**
