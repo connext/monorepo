@@ -1,11 +1,10 @@
 import fs from "fs";
 import { config as dotenvConfig } from "dotenv";
-import { Wallet, constants, utils } from "ethers";
-import commandLineArgs from "command-line-args";
+import { Wallet, utils } from "ethers";
 
-import { InitConfig } from "./cli/init/helpers";
-import { getContract } from "./cli/helpers";
-import { runCommand } from ".";
+import { InitConfig } from "../cli/init/helpers";
+import { getContract } from "../cli/helpers";
+import { runCommand } from "..";
 
 dotenvConfig();
 

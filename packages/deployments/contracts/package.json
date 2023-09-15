@@ -26,9 +26,9 @@
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
-    "spawn-devnet": "ts-node ./src/spawnDevnet.ts",
-    "devnet:deploy": "ts-node ./src/devnetDeploy.ts",
-    "devnet:init": "ts-node ./src/devnetInit.ts",
+    "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",
+    "devnet:deploy": "ts-node ./src/devnet/devnetDeploy.ts",
+    "devnet:init": "ts-node ./src/devnet/devnetInit.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",
