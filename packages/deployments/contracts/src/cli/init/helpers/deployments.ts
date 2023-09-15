@@ -11,9 +11,9 @@ export const getDeployments = (args: {
   chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider | zk.Provider; zksync: boolean };
   isHub: boolean;
   useStaging: boolean;
-  isDevnet?: boolean;
+  network?: string;
 }): DomainDeployments => {
-  const { chainInfo, isHub, useStaging, deployer: _deployer, isDevnet } = args;
+  const { chainInfo, isHub, useStaging, deployer: _deployer, network } = args;
   const chain = chainInfo.chain;
 
   let deployer;
@@ -25,38 +25,38 @@ export const getDeployments = (args: {
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = isHub
-    ? getHubConnectors(+chain, useStaging ? "staging" : "production", deployer, isDevnet)
-    : [getSpokeConnector(+chain, useStaging ? "staging" : "production", deployer, isDevnet)];
+    ? getHubConnectors(+chain, useStaging ? "staging" : "production", deployer, network)
+    : [getSpokeConnector(+chain, useStaging ? "staging" : "production", deployer, network)];
 
   return {
-    Connext: getContract("Connext_DiamondProxy", chain, useStaging, deployer, isDevnet),
+    Connext: getContract("Connext_DiamondProxy", chain, useStaging, deployer, network),
     messaging: isHub
       ? {
-          RootManager: getContract("RootManager", chain, useStaging, deployer, isDevnet),
-          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer, isDevnet),
-          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, isDevnet),
+          RootManager: getContract("RootManager", chain, useStaging, deployer, network),
+          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer, network),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, network),
           HubConnectors: connectors,
           MerkleTreeManagerForRoot: getContract(
             "MerkleTreeManagerRootUpgradeBeaconProxy",
             chain,
             useStaging,
             deployer,
-            isDevnet,
+            network,
           ),
           MerkleTreeManagerForSpoke: getContract(
             "MerkleTreeManagerSpokeUpgradeBeaconProxy",
             chain,
             useStaging,
             deployer,
-            isDevnet,
+            network,
           ),
-          RelayerProxy: getContract("RelayerProxyHub", chain, useStaging, deployer, isDevnet),
+          RelayerProxy: getContract("RelayerProxyHub", chain, useStaging, deployer, network),
         }
       : {
           SpokeConnector: connectors[0],
-          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy", chain, useStaging, deployer, isDevnet),
-          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, isDevnet),
-          RelayerProxy: getContract("RelayerProxy", chain, useStaging, deployer, isDevnet),
+          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy", chain, useStaging, deployer, network),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, network),
+          RelayerProxy: getContract("RelayerProxy", chain, useStaging, deployer, network),
         },
   };
 };

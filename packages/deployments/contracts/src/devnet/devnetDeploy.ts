@@ -4,7 +4,7 @@ import { config as dotenvConfig } from "dotenv";
 import { Wallet } from "ethers";
 import commandLineArgs from "command-line-args";
 
-import { runCommand } from ".";
+import { runCommand } from "..";
 
 dotenvConfig();
 

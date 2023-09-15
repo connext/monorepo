@@ -3,12 +3,15 @@ import { Contract, providers, Wallet } from "ethers";
 
 import _Deployments from "../../deployments.json";
 import _DevnetDeployments from "../../devnet.deployments.json";
+import _LocalDeployments from "../../local.deployments.json";
 import { ConnextInterface } from "../contracts";
 
 import { Deployment } from "./types";
+import { ProtocolNetwork } from "..";
 
 const Deployments = _Deployments as any;
 const DevnetDeployments = _DevnetDeployments as any;
+const LocalDeployments = _LocalDeployments as any;
 
 // Custom function to format lookup by env and double check that the contract retrieved is not null.
 export const getContract = (
@@ -16,9 +19,9 @@ export const getContract = (
   chain: string,
   useStaging: boolean,
   connection?: Wallet | providers.JsonRpcProvider | zk.Wallet,
-  isDevnet?: boolean,
+  network?: string,
 ): Deployment => {
-  const contracts = getDeployedContracts(+chain, isDevnet);
+  const contracts = getDeployedContracts(+chain, network);
 
   const envSuffix = useStaging ? "Staging" : "";
   const isConnext = name.includes("Connext");
@@ -56,9 +59,15 @@ export const getContract = (
   };
 };
 
-export const getDeployedContracts = (chainId: number, isDevnet?: boolean): { [contract: string]: any } => {
+export const getDeployedContracts = (chainId: number, network?: string): { [contract: string]: any } => {
   // get list of all deployments for chain
-  const [deployments] = isDevnet ? DevnetDeployments[chainId] : Deployments[chainId];
+  const [deployments] = (
+    network === ProtocolNetwork.LOCAL
+      ? LocalDeployments
+      : network === ProtocolNetwork.DEVNET
+      ? DevnetDeployments
+      : Deployments
+  )[chainId];
   if (!deployments) {
     throw new Error(`No deployments found for chain ${chainId}!`);
   }
@@ -73,9 +82,9 @@ export const getHubConnectors = (
   chainId: number,
   env: string,
   connection?: providers.JsonRpcProvider | Wallet,
-  isDevnet?: boolean,
+  network?: string,
 ): Deployment[] => {
-  const contracts = getDeployedContracts(chainId, isDevnet);
+  const contracts = getDeployedContracts(chainId, network);
 
   const suffix = env === "staging" ? "Staging" : "";
 
@@ -104,9 +113,9 @@ export const getSpokeConnector = (
   chainId: number,
   env: string,
   connection?: providers.JsonRpcProvider | Wallet,
-  isDevnet?: boolean,
+  network?: string,
 ): Deployment => {
-  const contracts = getDeployedContracts(chainId, isDevnet);
+  const contracts = getDeployedContracts(chainId, network);
 
   const suffix = env === "staging" ? "Staging" : "";
 

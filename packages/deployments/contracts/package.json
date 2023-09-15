@@ -29,6 +29,7 @@
     "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",
     "devnet:deploy": "ts-node ./src/devnet/devnetDeploy.ts",
     "devnet:init": "ts-node ./src/devnet/devnetInit.ts",
+    "local:init": "ts-node ./src/localnet/localInit.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",

@@ -83,7 +83,6 @@ const run = async () => {
         const source = n.source.find((s) => s.name === ds.name);
         if (source) {
           if (!utils.isAddress(source.address) || !source.startBlock) {
-            const isDevnet = configFile.includes("devnet");
             const networkPrefix = configFile.includes("devnet")
               ? "devnet"
               : configFile.includes("local")

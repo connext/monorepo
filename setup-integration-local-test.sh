@@ -27,19 +27,26 @@ sleep 5
 
 ##### Contract Deployments
 echo "Deploying contracts to local-mainnet..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=31337 ETH_PROVIDER_URL=http://${LOCALHOST}:8547 yarn workspace @connext/smart-contracts hardhat deploy --network local-mainnet --tags local
+yarn workspace @connext/smart-contracts hardhat deploy --network local-mainnet --tags local
 echo "Deployed contracts to local-mainnet"
 
 echo "Deploying contracts to local-optimism..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=31338 ETH_PROVIDER_URL=http://${LOCALHOST}:8548 yarn workspace @connext/smart-contracts hardhat deploy --network local-optimism --tags local
+yarn workspace @connext/smart-contracts hardhat deploy --network local-optimism --tags local
 echo "Deployed contracts to local-optimism"
 
 echo "Deploying contracts to local-arbitrum..."
-MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=31339 ETH_PROVIDER_URL=http://${LOCALHOST}:8549 yarn workspace @connext/smart-contracts hardhat deploy --network local-arbitrum --tags local
+yarn workspace @connext/smart-contracts hardhat deploy --network local-arbitrum --tags local
 echo "Deployed contracts to local-arbtirum"
 
 yarn workspace @connext/smart-contracts run export
 #####
+
+##### Contract Deployments
+echo "Initializing contracts..."
+yarn workspace @connext/smart-contracts run local:init
+echo "Initialized contracts..."
+#####
+
 
 ##### Subgraph Deployments
 echo "Building subgraph..."

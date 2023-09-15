@@ -16,38 +16,38 @@ const runInit = async () => {
 
   // Generate init.json file
   const initConfig: InitConfig = {
-    hub: "6648936",
+    hub: "31337",
     supportedDomains: [
-      "6648936", // MAINNET
-      "1869640809", // OPTIMISM
-      "6778479", // GNOSIS
+      "31337", // MAINNET
+      "31338", // OPTIMISM
+      "31339", // ARBITRUM
     ],
     assets: [
       {
         name: "TEST",
         canonical: {
-          domain: "6648936",
-          address: getContract("TestERC20", "1", false, undefined, ProtocolNetwork.DEVNET).address,
+          domain: "31337",
+          address: getContract("TestERC20", "31337", false, undefined, ProtocolNetwork.LOCAL).address,
           decimals: 18,
           cap: utils.parseEther("1000000000").toString(),
         },
         representations: {
-          "1869640809": {
+          "31338": {
             local: "",
-            adopted: getContract("TestERC20", "10", false, undefined, ProtocolNetwork.DEVNET).address,
+            adopted: getContract("TestERC20", "31338", false, undefined, ProtocolNetwork.LOCAL).address,
           },
-          "6778479": {
+          "31339": {
             local: "",
-            adopted: getContract("TestERC20", "100", false, undefined, ProtocolNetwork.DEVNET).address,
+            adopted: getContract("TestERC20", "31339", false, undefined, ProtocolNetwork.LOCAL).address,
           },
         },
       },
     ],
     agents: {
       relayerFeeVaults: {
-        "6648936": sender,
-        "1869640809": sender,
-        "6778479": sender,
+        "31337": sender,
+        "31338": sender,
+        "31339": sender,
       },
       watchers: {
         allowlist: [sender],
@@ -64,9 +64,9 @@ const runInit = async () => {
     },
   };
 
-  fs.writeFileSync("devnet.init.json", JSON.stringify(initConfig, null, "  "));
+  fs.writeFileSync("local.init.json", JSON.stringify(initConfig, null, "  "));
 
-  const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network devnet --env production --apply true`;
+  const cmd = `yarn workspace @connext/smart-contracts run initialize --name all --network local --env production --apply true`;
   await runCommand(cmd);
 };
 
