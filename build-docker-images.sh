@@ -28,3 +28,6 @@ docker build --tag cartographer:latest --file ./docker/cartographer/poller/Docke
 
 echo "Docker: building db image..."
 docker build --tag db:latest --file ./docker/db/Dockerfile .
+
+echo "Docker: building anvil chain image..."
+docker build --tag anvil:latest --file ./docker/anvil/Dockerfile .
