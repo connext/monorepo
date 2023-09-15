@@ -2,6 +2,7 @@ import { gql } from "graphql-request";
 import {
   SubgraphQueryMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTimestampMetaParams,
 } from "@connext/nxtp-utils";
 
@@ -566,7 +567,7 @@ const originTransferQueryString = (
       destinationDomain_in: [${destinationDomains}]
       ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: ${limit ?? 1000},
+    first: ${limit ?? 100},
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -743,6 +744,15 @@ const originTransfersByIDsQueryString = (prefix: string, transferIDs: string[], 
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
 };
 
+const originTransfersByNoncesQueryString = (prefix: string, nonces: string[], maxBlockNumber?: number) => {
+  return `${prefix}_originTransfers(
+    where: {
+      nonce_in: [${nonces}],
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+  ) {${ORIGIN_TRANSFER_ENTITY}}`;
+};
+
 export const getOriginTransfersByIDsCombinedQuery = (
   params: Map<string, SubgraphQueryByTransferIDsMetaParams>,
 ): string => {
@@ -756,6 +766,31 @@ export const getOriginTransfersByIDsCombinedQuery = (
       combinedQuery += originTransfersByIDsQueryString(
         prefix,
         params.get(domain)!.transferIDs.map((id) => `"${id}"`),
+        params.get(domain)!.maxBlockNumber,
+      );
+    }
+  }
+
+  return gql`
+    query GetOriginTransfers {
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getOriginTransfersByNoncesCombinedQuery = (
+  params: Map<string, SubgraphQueryByNoncesMetaParams>,
+): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (params.has(domain)) {
+      combinedQuery += originTransfersByNoncesQueryString(
+        prefix,
+        params.get(domain)!.nonces.map((nonce) => `${nonce}`),
         params.get(domain)!.maxBlockNumber,
       );
     }

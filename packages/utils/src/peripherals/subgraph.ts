@@ -18,3 +18,8 @@ export type SubgraphQueryByTransferIDsMetaParams = {
   maxBlockNumber: number;
   transferIDs: string[];
 };
+
+export type SubgraphQueryByNoncesMetaParams = {
+  maxBlockNumber: number;
+  nonces: string[];
+};
