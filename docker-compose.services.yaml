@@ -17,6 +17,11 @@ services:
     volumes:
       - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
       - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   router-subscriber:
     container_name: router-subscriber
@@ -35,6 +40,11 @@ services:
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
       - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   router-executor:
     container_name: router-executor
@@ -51,6 +61,11 @@ services:
     volumes:
       - ${PWD}/docker/router/executor/:/home/node/agents/executor/
       - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   signer-router:
     container_name: signer-router
@@ -86,6 +101,11 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   sequencer-publisher:
     container_name: sequencer-publisher
@@ -102,6 +122,11 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   sequencer-subscriber:
     container_name: sequencer-subscriber
@@ -118,6 +143,11 @@ services:
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
       - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   signer-sequencer:
     container_name: signer-sequencer
@@ -195,6 +225,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: routers
 
@@ -213,6 +247,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: transfers
 
@@ -231,6 +269,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: messages
 
@@ -249,6 +291,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: roots
 
@@ -267,6 +313,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: stableswap
 
@@ -285,6 +335,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: messagestatus
 
@@ -303,6 +357,10 @@ services:
     volumes:
       - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
       CARTOGRAPHER_SERVICE: prices
 

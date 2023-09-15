@@ -3,6 +3,7 @@ import path from "path";
 
 import { chainIdToDomain } from "@connext/nxtp-utils";
 import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
+import localDeployments from "@connext/smart-contracts/local.deployments.json";
 
 const connectorNamesByChains: Record<string, string> = {
   "1": "MainnetSpokeConnector",
@@ -12,14 +13,20 @@ const connectorNamesByChains: Record<string, string> = {
 /**
  * Generates the config.json dynamically for agents(router, sequencer and lighthouse).
  */
-const generateConfigForDevnets = async () => {
+const generateConfig = async () => {
   console.log("Started generating configs for devnets");
 
   const cmdArg = process.argv.slice(2);
-  const agent = cmdArg[0];
+  const agent = cmdArg[0]; // router, sequencer, lighthouse
+  const network = cmdArg[1]; // devnet, local
 
   if (!agent) {
     console.error("Specify an agent name (router,sequencer,lighthouse...) ");
+    return;
+  }
+
+  if (network != "devnet" && network != "local") {
+    console.error("Unsupported network");
     return;
   }
 
@@ -36,7 +43,7 @@ const generateConfigForDevnets = async () => {
   }
 
   // Reassemble the json by extracting necessary data from the deployments file.
-  const deployments = devnetDeployments as Record<string, any>;
+  const deployments = (network == "devnet" ? devnetDeployments : localDeployments) as Record<string, any>;
   const chains: Record<string, any> = {};
   const chainIds = Object.keys(deployments);
   for (const chainId of chainIds) {
@@ -69,4 +76,4 @@ const generateConfigForDevnets = async () => {
   }
 };
 
-generateConfigForDevnets();
+generateConfig();

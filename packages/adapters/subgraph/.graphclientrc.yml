@@ -612,93 +612,60 @@ sources:
 
   #####################################################
   # LOCAL
-  - name: Connext_Local1337
+  - name: Hub_Local_Mainnet
     handler:
       graphql:
-        endpoint: "{env.GRAPH_1337_ENDPOINT}"
+        endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: local1337_
+          value: localmainnet_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Local1338
+  - name: Connext_Local_Spoke_Mainnet
     handler:
       graphql:
-        endpoint: "{env.GRAPH_1338_ENDPOINT}"
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: local1338_
+          value: localmainnet_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-
-  #####################################################
-  # DEVNETS
-  - name: Hub_Devnet_Mainnet
+  - name: Connext_Local_Spoke_Optimism
     handler:
       graphql:
-        endpoint: "{env.GRAPH_DEVNET_HUB_MAINNET}"
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: devnetmainnet_
+          value: localoptimism_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Devnet_Mainnet
+  - name: Connext_Local_Spoke_Arbitrum
     handler:
       graphql:
-        endpoint: "{env.GRAPH_DEVNET_MAINNET}"
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: devnetmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Devnet_Optimism
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_DEVNET_OPTIMISM}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: devnetoptimism_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Devnet_Xdai
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_DEVNET_XDAI}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: devnetxdai_
+          value: localarbitrum_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
