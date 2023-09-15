@@ -38,6 +38,7 @@ echo "Deploying contracts to local-arbitrum..."
 MNEMONIC=${DEFAULT_MNEMONIC} ENV=production CHAIN_ID=31339 ETH_PROVIDER_URL=http://${LOCALHOST}:8549 yarn workspace @connext/smart-contracts hardhat deploy --network local-arbitrum --tags local
 echo "Deployed contracts to local-arbtirum"
 
+yarn workspace @connext/smart-contracts run export
 #####
 
 ##### Subgraph Deployments

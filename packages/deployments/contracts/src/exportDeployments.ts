@@ -4,17 +4,22 @@ import path from "path";
 
 export const exportAll = async (): Promise<void> => {
   console.log("Exporting all deployments to deployments.json....");
-  const { all, devnets } = loadAllDeployments();
+  const { all, devnets, local } = loadAllDeployments();
   fs.writeFileSync("deployments.json", JSON.stringify(all, null, "  "));
   fs.writeFileSync("devnet.deployments.json", JSON.stringify(devnets, null, "  "));
+  fs.writeFileSync("local.deployments.json", JSON.stringify(local, null, "  "));
 };
 
 export function loadAllDeployments() {
   const networksFound: { [networkName: string]: any } = {};
   const all: any = {};
   const devnets: any = {};
+  const local: any = {};
   const deploymentsPath = path.resolve("deployments");
+
   const isDevnetDeploy = (name: string) => name.includes("devnet") || name.includes("fork");
+  const isLocalDeploy = (name: string) => name.includes("local");
+
   fs.readdirSync(deploymentsPath).forEach((fileName) => {
     const fPath = path.resolve(deploymentsPath, fileName);
     const stats = fs.statSync(fPath);
@@ -36,23 +41,29 @@ export function loadAllDeployments() {
         contracts,
       };
       networksFound[name] = network;
-      if (!isDevnetDeploy(fileName)) {
-        if (!all[chainIdFound]) {
-          all[chainIdFound] = [];
-        }
-
-        all[chainIdFound].push(network);
-      } else {
+      if (isDevnetDeploy(fileName)) {
         if (!devnets[chainIdFound]) {
           devnets[chainIdFound] = [];
         }
 
         devnets[chainIdFound].push(network);
+      } else if (isLocalDeploy(fileName)) {
+        if (!local[chainIdFound]) {
+          local[chainIdFound] = [];
+        }
+
+        local[chainIdFound].push(network);
+      } else {
+        if (!all[chainIdFound]) {
+          all[chainIdFound] = [];
+        }
+
+        all[chainIdFound].push(network);
       }
     }
   });
 
-  return { all, devnets };
+  return { all, devnets, local };
 }
 
 function loadDeployments(deploymentsPath: string, subPath: string) {
