@@ -106,10 +106,11 @@ export const getFacetsToDeploy = (zksync: boolean) => [
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
-    hub: 1337,
+    hub: 31337,
     configs: {
-      1337: {
-        prefix: "Mainnet",
+      31337: {
+        prefix: "Admin",
+        networkName: "Mainnet",
         ambs: {
           hub: constants.AddressZero,
           spoke: constants.AddressZero,
@@ -118,21 +119,27 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      1338: {
-        prefix: "Optimism",
+      31338: {
+        prefix: "Admin",
+        networkName: "Optimism",
         ambs: {
-          hub: OPTIMISM_AMB.hub,
-          spoke: OPTIMISM_AMB.spoke,
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
-            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
-          },
+      },
+      31339: {
+        prefix: "Admin",
+        networkName: "Arbitrum",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
     },
   },

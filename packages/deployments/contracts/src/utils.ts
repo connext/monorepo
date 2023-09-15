@@ -31,6 +31,10 @@ export const ProtocolNetworks: Record<string, string> = {
   "1337": ProtocolNetwork.LOCAL,
   "1338": ProtocolNetwork.LOCAL,
 
+  "31337": ProtocolNetwork.LOCAL,
+  "31338": ProtocolNetwork.LOCAL,
+  "31339": ProtocolNetwork.LOCAL,
+
   // testnets
   "5": ProtocolNetwork.TESTNET,
   "420": ProtocolNetwork.TESTNET,
