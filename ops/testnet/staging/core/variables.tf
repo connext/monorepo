@@ -187,6 +187,9 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
+variable "linea_node" {
+  type = string
+}
 variable "watcher_web3_signer_private_key" {
   type = string
 }
