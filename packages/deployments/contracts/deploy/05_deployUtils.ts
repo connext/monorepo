@@ -4,7 +4,7 @@ import { Wallet } from "ethers";
 
 import { getContract } from "../src/cli/helpers";
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
-import { isDevnetName } from "../src";
+import { getProtocolNetwork, isDevnetName } from "../src";
 
 // Helper for deploying a utility contract below and handling proper logs, etc.
 const deployContract = async (params: {
@@ -74,7 +74,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     chain.toString(),
     false,
     undefined,
-    isDevnetName(hre.network.name),
+    getProtocolNetwork(chain, hre.network.name),
   );
   const wrappedETH = WRAPPED_ETH_MAP.get(chain);
   if (!wrappedETH) {
