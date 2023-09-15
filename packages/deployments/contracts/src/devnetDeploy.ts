@@ -52,6 +52,7 @@ const deployToDevnets = async () => {
 
   const configs = network === "all" ? chainConfigs : [chainConfigs.find((c) => c.network === network)!];
 
+  const commands = [];
   for (const config of configs) {
     //funds to sender
     const { stdout } = await exec(
@@ -73,11 +74,18 @@ const deployToDevnets = async () => {
 
     const deployCmd = `yarn workspace @connext/smart-contracts hardhat deploy --tags devnet --network tenderly-${config.network}`;
 
-    await runCommand(deployCmd);
+    if (config.network === "mainnet") {
+      await runCommand(deployCmd, 3);
+    } else {
+      commands.push(runCommand(deployCmd, 3));
+    }
   }
 
+  // Deploy spoke chains at once
+  await Promise.all(commands);
+
   const exportCmd = `run export`;
-  await runCommand(exportCmd);
+  await runCommand(exportCmd, 3);
 };
 
 deployToDevnets();

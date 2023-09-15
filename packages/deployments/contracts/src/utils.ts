@@ -308,7 +308,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
 
   // get data + factories
-  const factory = await hre.ethers.getContractFactory(name, deployer.address);
+  const factory = await hre.ethers.getContractFactory(name);
   const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Get controller deployment
@@ -402,29 +402,36 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   return proxy as unknown as T;
 };
 
-export const runCommand = (command: string) => {
+export const runCommand = (command: string, maxRetries: number = 1) => {
   return new Promise((resolve, reject) => {
-    const childProcess = spawn(command, {
-      stdio: "inherit",
-      shell: true,
-    });
-    let stdout = "";
-    let stderr = "";
+    let retryCount = 0;
 
-    childProcess.stdout?.on("data", (data) => {
-      stdout += data.toString();
-    });
+    function spawnChildProcess() {
+      const childProcess = spawn(command, {
+        stdio: "inherit",
+        shell: true,
+      });
 
-    childProcess.stderr?.on("data", (data) => {
-      stderr += data.toString();
-    });
+      childProcess.stdout?.on("data", (data) => {});
 
-    childProcess.on("close", (code) => {
-      if (code === 0) {
-        resolve({ stdout, stderr });
-      } else {
-        reject(new Error(`Command failed with code ${code}`));
-      }
-    });
+      childProcess.stderr?.on("data", (data) => {});
+
+      childProcess.on("exit", (code) => {
+        if (code === 0) {
+          resolve({});
+        } else {
+          console.error(`Child Process exited with code ${code}`);
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying (attempt ${retryCount})...`);
+            spawnChildProcess(); // Retry the child process
+          } else {
+            reject(new Error(`Command failed with code ${code}, Maximum retry count (${maxRetries}) reached.`));
+          }
+        }
+      });
+    }
+
+    spawnChildProcess(); // Start the initial child process
   });
 };
