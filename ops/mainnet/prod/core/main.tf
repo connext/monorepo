@@ -568,7 +568,7 @@ module "sequencer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
-  node_type                     = "cache.t2.medium"
+  node_type                     = "cache.r4.large"
   public_redis                  = true
 }
 
@@ -592,7 +592,7 @@ module "relayer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
-  node_type                     = "cache.t2.medium"
+  node_type                     = "cache.r4.large"
   public_redis                  = true
 }
 

@@ -260,7 +260,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       messageRootIndex,
     ]);
 
-    const { taskId } = await sendWithRelayerWithBackup(
+    const { taskId, relayerType } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
       destinationSpokeConnector,
@@ -272,18 +272,19 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
     if (taskId) {
-      await cache.messages.removePending(
+      await cache.messages.addTaskPending(
+        taskId,
+        relayerType,
         originDomain,
         destinationDomain,
         provenMessages.map((it) => it.leaf),
       );
+      const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
+      await cache.messages.setStatus(statuses);
 
       return;
     }
   } catch (err: unknown) {
     logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
-
-  const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
-  await cache.messages.setStatus(statuses);
 };
