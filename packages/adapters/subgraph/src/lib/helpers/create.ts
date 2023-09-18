@@ -17,6 +17,8 @@ export const create = async (
 ): Promise<SubgraphMap> => {
   const names = await getSubgraphNames();
 
+  console.log({ env, prefixOverride });
+
   // Parse the Network names from the subgraph prefix names in the mesh config.
   const networks = names
     .filter((name) => {
@@ -33,6 +35,8 @@ export const create = async (
     supported: {},
     assetId: {},
   };
+  console.log({ networks });
+  console.log({ chainData: [...chaindata.values()] });
   [...chaindata.values()].forEach((chainData) => {
     if (networks.map((n) => n.replace("test_", "").replace("devnet_", "")).includes(chainData.network)) {
       config.sources[chainData.domainId] = {
@@ -49,6 +53,9 @@ export const create = async (
       config.supported[chainData.domainId] = false;
     }
   });
+
+  console.log("sources: ", config.sources);
+  console.log(config.sources);
 
   // Log any domains that were given in chaindata but not configured in the mesh config.
   const unsupportedDomains = Object.keys(config.supported).filter((domain) => !config.supported[domain]);
