@@ -93,7 +93,7 @@ const run = async () => {
               : configFile.includes("local")
               ? localDeployments
               : mainnetDeployments;
-            const networkName = `${networkPrefix}${n.network}`;
+            const networkName = `${networkPrefix}-${n.network}`;
             const deployment = Object.values(contractDeployments)
               .flat()
               .find((d: any) => d.name === networkName);
