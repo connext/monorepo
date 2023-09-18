@@ -14,7 +14,7 @@
         "name": "SpokeConnector",
         "address": "",
         "startBlock": 0,
-        "contractName": "MainnetpokeConnector"
+        "contractName": "MainnetSpokeConnector"
       },
       {
         "name": "MerkleTreeManager",
