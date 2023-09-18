@@ -6,9 +6,9 @@ import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json"
 import localDeployments from "@connext/smart-contracts/local.deployments.json";
 
 const connectorNamesByChains: Record<string, string> = {
-  "1": "MainnetSpokeConnector",
-  "10": "OptimismSpokeConnector",
-  "100": "GnosisSpokeConnector",
+  "31337": "MainnetSpokeConnector",
+  "31338": "OptimismSpokeConnector",
+  "31339": "ArbitrumSpokeConnector",
 };
 /**
  * Generates the config.json dynamically for agents(router, sequencer and lighthouse).
