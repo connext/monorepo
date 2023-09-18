@@ -54,7 +54,7 @@ yarn workspace @connext/nxtp-subgraph prepare:local:hub
 yarn workspace @connext/nxtp-subgraph codegen
 echo "Built subgraph for the hub chain"
 
-echo "Deploying subgraph to the hub chain - mainnet-devnet..."
+echo "Deploying subgraph to the hub chain - mainnet-local..."
 yarn workspace @connext/nxtp-subgraph create:local:hub:mainnet
 yarn workspace @connext/nxtp-subgraph deploy:local:hub:mainnet
 
