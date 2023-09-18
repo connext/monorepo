@@ -627,7 +627,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_LocalMainnet
+  - name: Connext_Local_Mainnet
     handler:
       graphql:
         endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
@@ -642,7 +642,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_LocalOptimism
+  - name: Connext_Local_Optimism
     handler:
       graphql:
         endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
@@ -657,7 +657,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_LocalArbitrum
+  - name: Connext_Local_ArbitrumOne
     handler:
       graphql:
         endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
@@ -665,7 +665,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: localarbitrum_
+          value: localarbitrumone_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

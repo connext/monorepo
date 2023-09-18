@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextLocalArbitrumTypes {
+export namespace ConnextLocalArbitrumOneTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,18 +16,18 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  localarbitrum_BigDecimal: any;
+  localarbitrumone_BigDecimal: any;
   BigInt: any;
-  localarbitrum_Bytes: any;
+  localarbitrumone_Bytes: any;
 };
 
-export type localarbitrum_AggregateRoot = {
+export type localarbitrumone_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['localarbitrum_Bytes'];
+  root: Scalars['localarbitrumone_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localarbitrum_AggregateRoot_filter = {
+export type localarbitrumone_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -36,12 +36,12 @@ export type localarbitrum_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  root?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -51,38 +51,38 @@ export type localarbitrum_AggregateRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_AggregateRoot_orderBy =
+export type localarbitrumone_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
 
-export type localarbitrum_Asset = {
+export type localarbitrumone_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['localarbitrum_Bytes']>;
+  key?: Maybe<Scalars['localarbitrumone_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localarbitrum_Bytes']>;
+  canonicalId?: Maybe<Scalars['localarbitrumone_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['localarbitrum_Bytes']>;
-  localAsset?: Maybe<Scalars['localarbitrum_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  localAsset?: Maybe<Scalars['localarbitrumone_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localarbitrum_AssetStatus>;
+  status?: Maybe<localarbitrumone_AssetStatus>;
 };
 
-export type localarbitrum_AssetBalance = {
+export type localarbitrumone_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   supplied: Scalars['BigInt'];
   removed: Scalars['BigInt'];
-  router: localarbitrum_Router;
-  asset: localarbitrum_Asset;
+  router: localarbitrumone_Router;
+  asset: localarbitrumone_Asset;
   feesEarned: Scalars['BigInt'];
 };
 
-export type localarbitrum_AssetBalance_filter = {
+export type localarbitrumone_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -143,7 +143,7 @@ export type localarbitrum_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<localarbitrum_Router_filter>;
+  router_?: InputMaybe<localarbitrumone_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -164,7 +164,7 @@ export type localarbitrum_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localarbitrum_Asset_filter>;
+  asset_?: InputMaybe<localarbitrumone_Asset_filter>;
   feesEarned?: InputMaybe<Scalars['BigInt']>;
   feesEarned_not?: InputMaybe<Scalars['BigInt']>;
   feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
@@ -174,10 +174,10 @@ export type localarbitrum_AssetBalance_filter = {
   feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_AssetBalance_orderBy =
+export type localarbitrumone_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'locked'
@@ -187,12 +187,12 @@ export type localarbitrum_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
-export type localarbitrum_AssetStatus = {
+export type localarbitrumone_AssetStatus = {
   id: Scalars['ID'];
   status?: Maybe<Scalars['Boolean']>;
 };
 
-export type localarbitrum_AssetStatus_filter = {
+export type localarbitrumone_AssetStatus_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -206,14 +206,14 @@ export type localarbitrum_AssetStatus_filter = {
   status_in?: InputMaybe<Array<Scalars['Boolean']>>;
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_AssetStatus_orderBy =
+export type localarbitrumone_AssetStatus_orderBy =
   | 'id'
   | 'status';
 
-export type localarbitrum_Asset_filter = {
+export type localarbitrumone_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -222,12 +222,12 @@ export type localarbitrum_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  key_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  key?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  key_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   decimal?: InputMaybe<Scalars['BigInt']>;
   decimal_not?: InputMaybe<Scalars['BigInt']>;
   decimal_gt?: InputMaybe<Scalars['BigInt']>;
@@ -236,12 +236,12 @@ export type localarbitrum_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -250,18 +250,18 @@ export type localarbitrum_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  localAsset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  localAsset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -290,12 +290,12 @@ export type localarbitrum_Asset_filter = {
   status_ends_with_nocase?: InputMaybe<Scalars['String']>;
   status_not_ends_with?: InputMaybe<Scalars['String']>;
   status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  status_?: InputMaybe<localarbitrum_AssetStatus_filter>;
+  status_?: InputMaybe<localarbitrumone_AssetStatus_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_Asset_orderBy =
+export type localarbitrumone_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
@@ -306,26 +306,26 @@ export type localarbitrum_Asset_orderBy =
   | 'blockNumber'
   | 'status';
 
-export type localarbitrum_BlockChangedFilter = {
+export type localarbitrumone_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type localarbitrum_Block_height = {
-  hash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+export type localarbitrumone_Block_height = {
+  hash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type localarbitrum_ConnectorMeta = {
+export type localarbitrumone_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['localarbitrum_Bytes']>;
-  rootManager?: Maybe<Scalars['localarbitrum_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['localarbitrum_Bytes']>;
+  amb?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  rootManager?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['localarbitrumone_Bytes']>;
 };
 
-export type localarbitrum_ConnectorMeta_filter = {
+export type localarbitrumone_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -350,29 +350,29 @@ export type localarbitrum_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  amb_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  rootManager?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  amb?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  amb_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  rootManager?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_ConnectorMeta_orderBy =
+export type localarbitrumone_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -380,57 +380,57 @@ export type localarbitrum_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type localarbitrum_DestinationTransfer = {
+export type localarbitrumone_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: Maybe<Scalars['localarbitrumone_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localarbitrum_TransferStatus>;
-  routers?: Maybe<Array<localarbitrum_Router>>;
+  status?: Maybe<localarbitrumone_TransferStatus>;
+  routers?: Maybe<Array<localarbitrumone_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['localarbitrum_Bytes']>;
-  delegate?: Maybe<Scalars['localarbitrum_Bytes']>;
+  to?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  delegate?: Maybe<Scalars['localarbitrumone_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['localarbitrum_Bytes']>;
+  callData?: Maybe<Scalars['localarbitrumone_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
   bumpSlippageCount?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['localarbitrum_Bytes']>;
+  originSender?: Maybe<Scalars['localarbitrumone_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localarbitrum_Bytes']>;
-  asset?: Maybe<localarbitrum_Asset>;
+  canonicalId?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  asset?: Maybe<localarbitrumone_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['localarbitrum_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  executedCaller?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedTxOrigin?: Maybe<Scalars['localarbitrum_Bytes']>;
+  executedTxOrigin?: Maybe<Scalars['localarbitrumone_Bytes']>;
   executedTxNonce?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledTxOrigin?: Maybe<Scalars['localarbitrum_Bytes']>;
+  reconciledTxOrigin?: Maybe<Scalars['localarbitrumone_Bytes']>;
   reconciledTxNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type localarbitrum_DestinationTransferroutersArgs = {
+export type localarbitrumone_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Router_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Router_filter>;
+  orderBy?: InputMaybe<localarbitrumone_Router_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Router_filter>;
 };
 
-export type localarbitrum_DestinationTransfer_filter = {
+export type localarbitrumone_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -447,12 +447,12 @@ export type localarbitrum_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -461,17 +461,17 @@ export type localarbitrum_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<localarbitrum_TransferStatus>;
-  status_not?: InputMaybe<localarbitrum_TransferStatus>;
-  status_in?: InputMaybe<Array<localarbitrum_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<localarbitrum_TransferStatus>>;
+  status?: InputMaybe<localarbitrumone_TransferStatus>;
+  status_not?: InputMaybe<localarbitrumone_TransferStatus>;
+  status_in?: InputMaybe<Array<localarbitrumone_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<localarbitrumone_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<localarbitrum_Router_filter>;
+  routers_?: InputMaybe<localarbitrumone_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -496,28 +496,28 @@ export type localarbitrum_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  to?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  callData?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -534,12 +534,12 @@ export type localarbitrum_DestinationTransfer_filter = {
   bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  originSender?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -556,12 +556,12 @@ export type localarbitrum_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -582,7 +582,7 @@ export type localarbitrum_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localarbitrum_Asset_filter>;
+  asset_?: InputMaybe<localarbitrumone_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -599,18 +599,18 @@ export type localarbitrum_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -643,12 +643,12 @@ export type localarbitrum_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTxOrigin?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTxOrigin_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTxOrigin_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  executedTxOrigin_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  executedTxOrigin_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  executedTxOrigin?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   executedTxNonce?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -657,18 +657,18 @@ export type localarbitrum_DestinationTransfer_filter = {
   executedTxNonce_lte?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -701,12 +701,12 @@ export type localarbitrum_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTxOrigin?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTxOrigin_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  reconciledTxOrigin_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  reconciledTxOrigin?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   reconciledTxNonce?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -716,10 +716,10 @@ export type localarbitrum_DestinationTransfer_filter = {
   reconciledTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_DestinationTransfer_orderBy =
+export type localarbitrumone_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -760,24 +760,24 @@ export type localarbitrum_DestinationTransfer_orderBy =
   | 'reconciledTxNonce';
 
 /** Defines the order direction, either ascending or descending */
-export type localarbitrum_OrderDirection =
+export type localarbitrumone_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type localarbitrum_OriginMessage = {
+export type localarbitrumone_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: Maybe<Scalars['localarbitrumone_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['localarbitrum_Bytes']>;
+  leaf?: Maybe<Scalars['localarbitrumone_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<Scalars['localarbitrum_Bytes']>;
-  root?: Maybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  message?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  root?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<localarbitrum_RootCount>;
+  rootCount?: Maybe<localarbitrumone_RootCount>;
 };
 
-export type localarbitrum_OriginMessage_filter = {
+export type localarbitrumone_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -786,12 +786,12 @@ export type localarbitrum_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -800,12 +800,12 @@ export type localarbitrum_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  leaf?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -814,24 +814,24 @@ export type localarbitrum_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  message_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  message?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  message_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -860,12 +860,12 @@ export type localarbitrum_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<localarbitrum_RootCount_filter>;
+  rootCount_?: InputMaybe<localarbitrumone_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_OriginMessage_orderBy =
+export type localarbitrumone_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -877,51 +877,51 @@ export type localarbitrum_OriginMessage_orderBy =
   | 'blockNumber'
   | 'rootCount';
 
-export type localarbitrum_OriginTransfer = {
+export type localarbitrumone_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: Maybe<Scalars['localarbitrumone_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localarbitrum_TransferStatus>;
-  messageHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  status?: Maybe<localarbitrumone_TransferStatus>;
+  messageHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['localarbitrum_Bytes']>;
-  delegate?: Maybe<Scalars['localarbitrum_Bytes']>;
+  to?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  delegate?: Maybe<Scalars['localarbitrumone_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['localarbitrum_Bytes']>;
+  callData?: Maybe<Scalars['localarbitrumone_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['localarbitrum_Bytes']>;
+  originSender?: Maybe<Scalars['localarbitrumone_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localarbitrum_Bytes']>;
-  asset?: Maybe<localarbitrum_Asset>;
-  transactingAsset?: Maybe<Scalars['localarbitrum_Bytes']>;
-  message?: Maybe<localarbitrum_OriginMessage>;
+  canonicalId?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  asset?: Maybe<localarbitrumone_Asset>;
+  transactingAsset?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  message?: Maybe<localarbitrumone_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
-  relayerFees?: Maybe<Array<localarbitrum_RelayerFee>>;
-  initialRelayerFeeAsset?: Maybe<Scalars['localarbitrum_Bytes']>;
-  caller?: Maybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  relayerFees?: Maybe<Array<localarbitrumone_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  caller?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  txOrigin?: Maybe<Scalars['localarbitrum_Bytes']>;
+  txOrigin?: Maybe<Scalars['localarbitrumone_Bytes']>;
   txNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type localarbitrum_OriginTransferrelayerFeesArgs = {
+export type localarbitrumone_OriginTransferrelayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RelayerFee_filter>;
+  orderBy?: InputMaybe<localarbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RelayerFee_filter>;
 };
 
-export type localarbitrum_OriginTransfer_filter = {
+export type localarbitrumone_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -938,12 +938,12 @@ export type localarbitrum_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  transferId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -952,16 +952,16 @@ export type localarbitrum_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<localarbitrum_TransferStatus>;
-  status_not?: InputMaybe<localarbitrum_TransferStatus>;
-  status_in?: InputMaybe<Array<localarbitrum_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<localarbitrum_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  status?: InputMaybe<localarbitrumone_TransferStatus>;
+  status_not?: InputMaybe<localarbitrumone_TransferStatus>;
+  status_in?: InputMaybe<Array<localarbitrumone_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<localarbitrumone_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -986,28 +986,28 @@ export type localarbitrum_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  to?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  callData?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1016,12 +1016,12 @@ export type localarbitrum_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  originSender?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1038,12 +1038,12 @@ export type localarbitrum_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -1064,13 +1064,13 @@ export type localarbitrum_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localarbitrum_Asset_filter>;
-  transactingAsset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  asset_?: InputMaybe<localarbitrumone_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1091,7 +1091,7 @@ export type localarbitrum_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<localarbitrum_OriginMessage_filter>;
+  message_?: InputMaybe<localarbitrumone_OriginMessage_filter>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1106,25 +1106,25 @@ export type localarbitrum_OriginTransfer_filter = {
   relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  relayerFees_?: InputMaybe<localarbitrum_RelayerFee_filter>;
-  initialRelayerFeeAsset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  initialRelayerFeeAsset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  relayerFees_?: InputMaybe<localarbitrumone_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1157,12 +1157,12 @@ export type localarbitrum_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  txOrigin?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  txOrigin_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  txOrigin_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  txOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  txOrigin_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  txOrigin_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  txOrigin?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   txNonce?: InputMaybe<Scalars['BigInt']>;
   txNonce_not?: InputMaybe<Scalars['BigInt']>;
   txNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1172,10 +1172,10 @@ export type localarbitrum_OriginTransfer_filter = {
   txNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_OriginTransfer_orderBy =
+export type localarbitrumone_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1210,389 +1210,389 @@ export type localarbitrum_OriginTransfer_orderBy =
   | 'txNonce';
 
 export type Query = {
-  localarbitrum_asset?: Maybe<localarbitrum_Asset>;
-  localarbitrum_assets: Array<localarbitrum_Asset>;
-  localarbitrum_assetStatus?: Maybe<localarbitrum_AssetStatus>;
-  localarbitrum_assetStatuses: Array<localarbitrum_AssetStatus>;
-  localarbitrum_assetBalance?: Maybe<localarbitrum_AssetBalance>;
-  localarbitrum_assetBalances: Array<localarbitrum_AssetBalance>;
-  localarbitrum_router?: Maybe<localarbitrum_Router>;
-  localarbitrum_routers: Array<localarbitrum_Router>;
-  localarbitrum_routerDailyTVL?: Maybe<localarbitrum_RouterDailyTVL>;
-  localarbitrum_routerDailyTVLs: Array<localarbitrum_RouterDailyTVL>;
-  localarbitrum_setting?: Maybe<localarbitrum_Setting>;
-  localarbitrum_settings: Array<localarbitrum_Setting>;
-  localarbitrum_relayer?: Maybe<localarbitrum_Relayer>;
-  localarbitrum_relayers: Array<localarbitrum_Relayer>;
-  localarbitrum_sequencer?: Maybe<localarbitrum_Sequencer>;
-  localarbitrum_sequencers: Array<localarbitrum_Sequencer>;
-  localarbitrum_relayerFee?: Maybe<localarbitrum_RelayerFee>;
-  localarbitrum_relayerFees: Array<localarbitrum_RelayerFee>;
-  localarbitrum_originTransfer?: Maybe<localarbitrum_OriginTransfer>;
-  localarbitrum_originTransfers: Array<localarbitrum_OriginTransfer>;
-  localarbitrum_destinationTransfer?: Maybe<localarbitrum_DestinationTransfer>;
-  localarbitrum_destinationTransfers: Array<localarbitrum_DestinationTransfer>;
-  localarbitrum_originMessage?: Maybe<localarbitrum_OriginMessage>;
-  localarbitrum_originMessages: Array<localarbitrum_OriginMessage>;
-  localarbitrum_aggregateRoot?: Maybe<localarbitrum_AggregateRoot>;
-  localarbitrum_aggregateRoots: Array<localarbitrum_AggregateRoot>;
-  localarbitrum_connectorMeta?: Maybe<localarbitrum_ConnectorMeta>;
-  localarbitrum_connectorMetas: Array<localarbitrum_ConnectorMeta>;
-  localarbitrum_rootCount?: Maybe<localarbitrum_RootCount>;
-  localarbitrum_rootCounts: Array<localarbitrum_RootCount>;
-  localarbitrum_rootMessageSent?: Maybe<localarbitrum_RootMessageSent>;
-  localarbitrum_rootMessageSents: Array<localarbitrum_RootMessageSent>;
-  localarbitrum_relayerFeesIncrease?: Maybe<localarbitrum_RelayerFeesIncrease>;
-  localarbitrum_relayerFeesIncreases: Array<localarbitrum_RelayerFeesIncrease>;
-  localarbitrum_slippageUpdate?: Maybe<localarbitrum_SlippageUpdate>;
-  localarbitrum_slippageUpdates: Array<localarbitrum_SlippageUpdate>;
+  localarbitrumone_asset?: Maybe<localarbitrumone_Asset>;
+  localarbitrumone_assets: Array<localarbitrumone_Asset>;
+  localarbitrumone_assetStatus?: Maybe<localarbitrumone_AssetStatus>;
+  localarbitrumone_assetStatuses: Array<localarbitrumone_AssetStatus>;
+  localarbitrumone_assetBalance?: Maybe<localarbitrumone_AssetBalance>;
+  localarbitrumone_assetBalances: Array<localarbitrumone_AssetBalance>;
+  localarbitrumone_router?: Maybe<localarbitrumone_Router>;
+  localarbitrumone_routers: Array<localarbitrumone_Router>;
+  localarbitrumone_routerDailyTVL?: Maybe<localarbitrumone_RouterDailyTVL>;
+  localarbitrumone_routerDailyTVLs: Array<localarbitrumone_RouterDailyTVL>;
+  localarbitrumone_setting?: Maybe<localarbitrumone_Setting>;
+  localarbitrumone_settings: Array<localarbitrumone_Setting>;
+  localarbitrumone_relayer?: Maybe<localarbitrumone_Relayer>;
+  localarbitrumone_relayers: Array<localarbitrumone_Relayer>;
+  localarbitrumone_sequencer?: Maybe<localarbitrumone_Sequencer>;
+  localarbitrumone_sequencers: Array<localarbitrumone_Sequencer>;
+  localarbitrumone_relayerFee?: Maybe<localarbitrumone_RelayerFee>;
+  localarbitrumone_relayerFees: Array<localarbitrumone_RelayerFee>;
+  localarbitrumone_originTransfer?: Maybe<localarbitrumone_OriginTransfer>;
+  localarbitrumone_originTransfers: Array<localarbitrumone_OriginTransfer>;
+  localarbitrumone_destinationTransfer?: Maybe<localarbitrumone_DestinationTransfer>;
+  localarbitrumone_destinationTransfers: Array<localarbitrumone_DestinationTransfer>;
+  localarbitrumone_originMessage?: Maybe<localarbitrumone_OriginMessage>;
+  localarbitrumone_originMessages: Array<localarbitrumone_OriginMessage>;
+  localarbitrumone_aggregateRoot?: Maybe<localarbitrumone_AggregateRoot>;
+  localarbitrumone_aggregateRoots: Array<localarbitrumone_AggregateRoot>;
+  localarbitrumone_connectorMeta?: Maybe<localarbitrumone_ConnectorMeta>;
+  localarbitrumone_connectorMetas: Array<localarbitrumone_ConnectorMeta>;
+  localarbitrumone_rootCount?: Maybe<localarbitrumone_RootCount>;
+  localarbitrumone_rootCounts: Array<localarbitrumone_RootCount>;
+  localarbitrumone_rootMessageSent?: Maybe<localarbitrumone_RootMessageSent>;
+  localarbitrumone_rootMessageSents: Array<localarbitrumone_RootMessageSent>;
+  localarbitrumone_relayerFeesIncrease?: Maybe<localarbitrumone_RelayerFeesIncrease>;
+  localarbitrumone_relayerFeesIncreases: Array<localarbitrumone_RelayerFeesIncrease>;
+  localarbitrumone_slippageUpdate?: Maybe<localarbitrumone_SlippageUpdate>;
+  localarbitrumone_slippageUpdates: Array<localarbitrumone_SlippageUpdate>;
   /** Access to subgraph metadata */
-  localarbitrum__meta?: Maybe<localarbitrum__Meta_>;
+  localarbitrumone__meta?: Maybe<localarbitrumone__Meta_>;
 };
 
 
-export type Querylocalarbitrum_assetArgs = {
+export type Querylocalarbitrumone_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_assetsArgs = {
+export type Querylocalarbitrumone_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Asset_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Asset_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Asset_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Asset_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_assetStatusArgs = {
+export type Querylocalarbitrumone_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_assetStatusesArgs = {
+export type Querylocalarbitrumone_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AssetStatus_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AssetStatus_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_assetBalanceArgs = {
+export type Querylocalarbitrumone_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_assetBalancesArgs = {
+export type Querylocalarbitrumone_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AssetBalance_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AssetBalance_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_routerArgs = {
+export type Querylocalarbitrumone_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_routersArgs = {
+export type Querylocalarbitrumone_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Router_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Router_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Router_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Router_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_routerDailyTVLArgs = {
+export type Querylocalarbitrumone_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_routerDailyTVLsArgs = {
+export type Querylocalarbitrumone_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RouterDailyTVL_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RouterDailyTVL_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_settingArgs = {
+export type Querylocalarbitrumone_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_settingsArgs = {
+export type Querylocalarbitrumone_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Setting_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Setting_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Setting_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Setting_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayerArgs = {
+export type Querylocalarbitrumone_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayersArgs = {
+export type Querylocalarbitrumone_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Relayer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Relayer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Relayer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Relayer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_sequencerArgs = {
+export type Querylocalarbitrumone_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_sequencersArgs = {
+export type Querylocalarbitrumone_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Sequencer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Sequencer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayerFeeArgs = {
+export type Querylocalarbitrumone_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayerFeesArgs = {
+export type Querylocalarbitrumone_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RelayerFee_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RelayerFee_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_originTransferArgs = {
+export type Querylocalarbitrumone_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_originTransfersArgs = {
+export type Querylocalarbitrumone_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_OriginTransfer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OriginTransfer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_destinationTransferArgs = {
+export type Querylocalarbitrumone_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_destinationTransfersArgs = {
+export type Querylocalarbitrumone_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_DestinationTransfer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_DestinationTransfer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_originMessageArgs = {
+export type Querylocalarbitrumone_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_originMessagesArgs = {
+export type Querylocalarbitrumone_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_OriginMessage_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OriginMessage_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_aggregateRootArgs = {
+export type Querylocalarbitrumone_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_aggregateRootsArgs = {
+export type Querylocalarbitrumone_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AggregateRoot_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AggregateRoot_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_connectorMetaArgs = {
+export type Querylocalarbitrumone_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_connectorMetasArgs = {
+export type Querylocalarbitrumone_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_ConnectorMeta_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_ConnectorMeta_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_rootCountArgs = {
+export type Querylocalarbitrumone_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_rootCountsArgs = {
+export type Querylocalarbitrumone_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RootCount_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RootCount_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RootCount_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RootCount_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_rootMessageSentArgs = {
+export type Querylocalarbitrumone_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_rootMessageSentsArgs = {
+export type Querylocalarbitrumone_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RootMessageSent_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RootMessageSent_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayerFeesIncreaseArgs = {
+export type Querylocalarbitrumone_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_relayerFeesIncreasesArgs = {
+export type Querylocalarbitrumone_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_slippageUpdateArgs = {
+export type Querylocalarbitrumone_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum_slippageUpdatesArgs = {
+export type Querylocalarbitrumone_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_SlippageUpdate_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalarbitrum__metaArgs = {
-  block?: InputMaybe<localarbitrum_Block_height>;
+export type Querylocalarbitrumone__metaArgs = {
+  block?: InputMaybe<localarbitrumone_Block_height>;
 };
 
-export type localarbitrum_Relayer = {
+export type localarbitrumone_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['localarbitrum_Bytes']>;
+  relayer?: Maybe<Scalars['localarbitrumone_Bytes']>;
 };
 
-export type localarbitrum_RelayerFee = {
+export type localarbitrumone_RelayerFee = {
   id: Scalars['ID'];
-  transfer: localarbitrum_OriginTransfer;
+  transfer: localarbitrumone_OriginTransfer;
   fee: Scalars['BigInt'];
-  asset: Scalars['localarbitrum_Bytes'];
+  asset: Scalars['localarbitrumone_Bytes'];
 };
 
-export type localarbitrum_RelayerFee_filter = {
+export type localarbitrumone_RelayerFee_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1621,7 +1621,7 @@ export type localarbitrum_RelayerFee_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localarbitrum_OriginTransfer_filter>;
+  transfer_?: InputMaybe<localarbitrumone_OriginTransfer_filter>;
   fee?: InputMaybe<Scalars['BigInt']>;
   fee_not?: InputMaybe<Scalars['BigInt']>;
   fee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1630,36 +1630,36 @@ export type localarbitrum_RelayerFee_filter = {
   fee_lte?: InputMaybe<Scalars['BigInt']>;
   fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  asset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_RelayerFee_orderBy =
+export type localarbitrumone_RelayerFee_orderBy =
   | 'id'
   | 'transfer'
   | 'fee'
   | 'asset';
 
-export type localarbitrum_RelayerFeesIncrease = {
+export type localarbitrumone_RelayerFeesIncrease = {
   id: Scalars['ID'];
-  transfer: localarbitrum_OriginTransfer;
+  transfer: localarbitrumone_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
-  asset?: Maybe<Scalars['localarbitrum_Bytes']>;
-  caller: Scalars['localarbitrum_Bytes'];
-  transactionHash: Scalars['localarbitrum_Bytes'];
+  asset?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  caller: Scalars['localarbitrumone_Bytes'];
+  transactionHash: Scalars['localarbitrumone_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localarbitrum_RelayerFeesIncrease_filter = {
+export type localarbitrumone_RelayerFeesIncrease_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1688,7 +1688,7 @@ export type localarbitrum_RelayerFeesIncrease_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localarbitrum_OriginTransfer_filter>;
+  transfer_?: InputMaybe<localarbitrumone_OriginTransfer_filter>;
   increase?: InputMaybe<Scalars['BigInt']>;
   increase_not?: InputMaybe<Scalars['BigInt']>;
   increase_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1697,24 +1697,24 @@ export type localarbitrum_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  asset?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1748,10 +1748,10 @@ export type localarbitrum_RelayerFeesIncrease_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_RelayerFeesIncrease_orderBy =
+export type localarbitrumone_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'increase'
@@ -1763,7 +1763,7 @@ export type localarbitrum_RelayerFeesIncrease_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type localarbitrum_Relayer_filter = {
+export type localarbitrumone_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1776,27 +1776,27 @@ export type localarbitrum_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  relayer?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_Relayer_orderBy =
+export type localarbitrumone_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type localarbitrum_RootCount = {
+export type localarbitrumone_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type localarbitrum_RootCount_filter = {
+export type localarbitrumone_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1814,28 +1814,28 @@ export type localarbitrum_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_RootCount_orderBy =
+export type localarbitrumone_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type localarbitrum_RootMessageSent = {
+export type localarbitrumone_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['localarbitrum_Bytes']>;
+  root?: Maybe<Scalars['localarbitrumone_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  caller?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type localarbitrum_RootMessageSent_filter = {
+export type localarbitrumone_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1860,12 +1860,12 @@ export type localarbitrum_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  root?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1874,18 +1874,18 @@ export type localarbitrum_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  caller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1919,10 +1919,10 @@ export type localarbitrum_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_RootMessageSent_orderBy =
+export type localarbitrumone_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -1935,34 +1935,34 @@ export type localarbitrum_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type localarbitrum_Router = {
+export type localarbitrumone_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['localarbitrum_Bytes']>;
-  recipient?: Maybe<Scalars['localarbitrum_Bytes']>;
-  proposedOwner?: Maybe<Scalars['localarbitrum_Bytes']>;
+  owner?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  recipient?: Maybe<Scalars['localarbitrumone_Bytes']>;
+  proposedOwner?: Maybe<Scalars['localarbitrumone_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<localarbitrum_AssetBalance>;
+  assetBalances: Array<localarbitrumone_AssetBalance>;
 };
 
 
-export type localarbitrum_RouterassetBalancesArgs = {
+export type localarbitrumone_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AssetBalance_filter>;
+  orderBy?: InputMaybe<localarbitrumone_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AssetBalance_filter>;
 };
 
-export type localarbitrum_RouterDailyTVL = {
+export type localarbitrumone_RouterDailyTVL = {
   id: Scalars['ID'];
-  router: localarbitrum_Router;
-  asset: localarbitrum_Asset;
+  router: localarbitrumone_Router;
+  asset: localarbitrumone_Asset;
   timestamp: Scalars['BigInt'];
   balance: Scalars['BigInt'];
 };
 
-export type localarbitrum_RouterDailyTVL_filter = {
+export type localarbitrumone_RouterDailyTVL_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1991,7 +1991,7 @@ export type localarbitrum_RouterDailyTVL_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<localarbitrum_Router_filter>;
+  router_?: InputMaybe<localarbitrumone_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2012,7 +2012,7 @@ export type localarbitrum_RouterDailyTVL_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localarbitrum_Asset_filter>;
+  asset_?: InputMaybe<localarbitrumone_Asset_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2030,17 +2030,17 @@ export type localarbitrum_RouterDailyTVL_filter = {
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_RouterDailyTVL_orderBy =
+export type localarbitrumone_RouterDailyTVL_orderBy =
   | 'id'
   | 'router'
   | 'asset'
   | 'timestamp'
   | 'balance';
 
-export type localarbitrum_Router_filter = {
+export type localarbitrumone_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2053,24 +2053,24 @@ export type localarbitrum_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  owner_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  recipient?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  owner?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  owner_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  recipient?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2079,12 +2079,12 @@ export type localarbitrum_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<localarbitrum_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<localarbitrumone_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_Router_orderBy =
+export type localarbitrumone_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -2093,13 +2093,13 @@ export type localarbitrum_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type localarbitrum_Sequencer = {
+export type localarbitrumone_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['localarbitrum_Bytes']>;
+  sequencer?: Maybe<Scalars['localarbitrumone_Bytes']>;
 };
 
-export type localarbitrum_Sequencer_filter = {
+export type localarbitrumone_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2112,28 +2112,28 @@ export type localarbitrum_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  sequencer?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_Sequencer_orderBy =
+export type localarbitrumone_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type localarbitrum_Setting = {
+export type localarbitrumone_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['localarbitrum_Bytes'];
+  caller: Scalars['localarbitrumone_Bytes'];
 };
 
-export type localarbitrum_Setting_filter = {
+export type localarbitrumone_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2150,34 +2150,34 @@ export type localarbitrum_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  caller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_Setting_orderBy =
+export type localarbitrumone_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type localarbitrum_SlippageUpdate = {
+export type localarbitrumone_SlippageUpdate = {
   id: Scalars['ID'];
-  transfer: localarbitrum_DestinationTransfer;
+  transfer: localarbitrumone_DestinationTransfer;
   slippage: Scalars['BigInt'];
-  caller: Scalars['localarbitrum_Bytes'];
-  transactionHash: Scalars['localarbitrum_Bytes'];
+  caller: Scalars['localarbitrumone_Bytes'];
+  transactionHash: Scalars['localarbitrumone_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localarbitrum_SlippageUpdate_filter = {
+export type localarbitrumone_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2206,7 +2206,7 @@ export type localarbitrum_SlippageUpdate_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localarbitrum_DestinationTransfer_filter>;
+  transfer_?: InputMaybe<localarbitrumone_DestinationTransfer_filter>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2215,18 +2215,18 @@ export type localarbitrum_SlippageUpdate_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrum_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrum_Bytes']>;
+  caller?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2260,10 +2260,10 @@ export type localarbitrum_SlippageUpdate_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localarbitrum_BlockChangedFilter>;
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
 };
 
-export type localarbitrum_SlippageUpdate_orderBy =
+export type localarbitrumone_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
   | 'slippage'
@@ -2275,391 +2275,391 @@ export type localarbitrum_SlippageUpdate_orderBy =
   | 'blockNumber';
 
 export type Subscription = {
-  localarbitrum_asset?: Maybe<localarbitrum_Asset>;
-  localarbitrum_assets: Array<localarbitrum_Asset>;
-  localarbitrum_assetStatus?: Maybe<localarbitrum_AssetStatus>;
-  localarbitrum_assetStatuses: Array<localarbitrum_AssetStatus>;
-  localarbitrum_assetBalance?: Maybe<localarbitrum_AssetBalance>;
-  localarbitrum_assetBalances: Array<localarbitrum_AssetBalance>;
-  localarbitrum_router?: Maybe<localarbitrum_Router>;
-  localarbitrum_routers: Array<localarbitrum_Router>;
-  localarbitrum_routerDailyTVL?: Maybe<localarbitrum_RouterDailyTVL>;
-  localarbitrum_routerDailyTVLs: Array<localarbitrum_RouterDailyTVL>;
-  localarbitrum_setting?: Maybe<localarbitrum_Setting>;
-  localarbitrum_settings: Array<localarbitrum_Setting>;
-  localarbitrum_relayer?: Maybe<localarbitrum_Relayer>;
-  localarbitrum_relayers: Array<localarbitrum_Relayer>;
-  localarbitrum_sequencer?: Maybe<localarbitrum_Sequencer>;
-  localarbitrum_sequencers: Array<localarbitrum_Sequencer>;
-  localarbitrum_relayerFee?: Maybe<localarbitrum_RelayerFee>;
-  localarbitrum_relayerFees: Array<localarbitrum_RelayerFee>;
-  localarbitrum_originTransfer?: Maybe<localarbitrum_OriginTransfer>;
-  localarbitrum_originTransfers: Array<localarbitrum_OriginTransfer>;
-  localarbitrum_destinationTransfer?: Maybe<localarbitrum_DestinationTransfer>;
-  localarbitrum_destinationTransfers: Array<localarbitrum_DestinationTransfer>;
-  localarbitrum_originMessage?: Maybe<localarbitrum_OriginMessage>;
-  localarbitrum_originMessages: Array<localarbitrum_OriginMessage>;
-  localarbitrum_aggregateRoot?: Maybe<localarbitrum_AggregateRoot>;
-  localarbitrum_aggregateRoots: Array<localarbitrum_AggregateRoot>;
-  localarbitrum_connectorMeta?: Maybe<localarbitrum_ConnectorMeta>;
-  localarbitrum_connectorMetas: Array<localarbitrum_ConnectorMeta>;
-  localarbitrum_rootCount?: Maybe<localarbitrum_RootCount>;
-  localarbitrum_rootCounts: Array<localarbitrum_RootCount>;
-  localarbitrum_rootMessageSent?: Maybe<localarbitrum_RootMessageSent>;
-  localarbitrum_rootMessageSents: Array<localarbitrum_RootMessageSent>;
-  localarbitrum_relayerFeesIncrease?: Maybe<localarbitrum_RelayerFeesIncrease>;
-  localarbitrum_relayerFeesIncreases: Array<localarbitrum_RelayerFeesIncrease>;
-  localarbitrum_slippageUpdate?: Maybe<localarbitrum_SlippageUpdate>;
-  localarbitrum_slippageUpdates: Array<localarbitrum_SlippageUpdate>;
+  localarbitrumone_asset?: Maybe<localarbitrumone_Asset>;
+  localarbitrumone_assets: Array<localarbitrumone_Asset>;
+  localarbitrumone_assetStatus?: Maybe<localarbitrumone_AssetStatus>;
+  localarbitrumone_assetStatuses: Array<localarbitrumone_AssetStatus>;
+  localarbitrumone_assetBalance?: Maybe<localarbitrumone_AssetBalance>;
+  localarbitrumone_assetBalances: Array<localarbitrumone_AssetBalance>;
+  localarbitrumone_router?: Maybe<localarbitrumone_Router>;
+  localarbitrumone_routers: Array<localarbitrumone_Router>;
+  localarbitrumone_routerDailyTVL?: Maybe<localarbitrumone_RouterDailyTVL>;
+  localarbitrumone_routerDailyTVLs: Array<localarbitrumone_RouterDailyTVL>;
+  localarbitrumone_setting?: Maybe<localarbitrumone_Setting>;
+  localarbitrumone_settings: Array<localarbitrumone_Setting>;
+  localarbitrumone_relayer?: Maybe<localarbitrumone_Relayer>;
+  localarbitrumone_relayers: Array<localarbitrumone_Relayer>;
+  localarbitrumone_sequencer?: Maybe<localarbitrumone_Sequencer>;
+  localarbitrumone_sequencers: Array<localarbitrumone_Sequencer>;
+  localarbitrumone_relayerFee?: Maybe<localarbitrumone_RelayerFee>;
+  localarbitrumone_relayerFees: Array<localarbitrumone_RelayerFee>;
+  localarbitrumone_originTransfer?: Maybe<localarbitrumone_OriginTransfer>;
+  localarbitrumone_originTransfers: Array<localarbitrumone_OriginTransfer>;
+  localarbitrumone_destinationTransfer?: Maybe<localarbitrumone_DestinationTransfer>;
+  localarbitrumone_destinationTransfers: Array<localarbitrumone_DestinationTransfer>;
+  localarbitrumone_originMessage?: Maybe<localarbitrumone_OriginMessage>;
+  localarbitrumone_originMessages: Array<localarbitrumone_OriginMessage>;
+  localarbitrumone_aggregateRoot?: Maybe<localarbitrumone_AggregateRoot>;
+  localarbitrumone_aggregateRoots: Array<localarbitrumone_AggregateRoot>;
+  localarbitrumone_connectorMeta?: Maybe<localarbitrumone_ConnectorMeta>;
+  localarbitrumone_connectorMetas: Array<localarbitrumone_ConnectorMeta>;
+  localarbitrumone_rootCount?: Maybe<localarbitrumone_RootCount>;
+  localarbitrumone_rootCounts: Array<localarbitrumone_RootCount>;
+  localarbitrumone_rootMessageSent?: Maybe<localarbitrumone_RootMessageSent>;
+  localarbitrumone_rootMessageSents: Array<localarbitrumone_RootMessageSent>;
+  localarbitrumone_relayerFeesIncrease?: Maybe<localarbitrumone_RelayerFeesIncrease>;
+  localarbitrumone_relayerFeesIncreases: Array<localarbitrumone_RelayerFeesIncrease>;
+  localarbitrumone_slippageUpdate?: Maybe<localarbitrumone_SlippageUpdate>;
+  localarbitrumone_slippageUpdates: Array<localarbitrumone_SlippageUpdate>;
   /** Access to subgraph metadata */
-  localarbitrum__meta?: Maybe<localarbitrum__Meta_>;
+  localarbitrumone__meta?: Maybe<localarbitrumone__Meta_>;
 };
 
 
-export type Subscriptionlocalarbitrum_assetArgs = {
+export type Subscriptionlocalarbitrumone_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_assetsArgs = {
+export type Subscriptionlocalarbitrumone_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Asset_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Asset_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Asset_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Asset_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_assetStatusArgs = {
+export type Subscriptionlocalarbitrumone_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_assetStatusesArgs = {
+export type Subscriptionlocalarbitrumone_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AssetStatus_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AssetStatus_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_assetBalanceArgs = {
+export type Subscriptionlocalarbitrumone_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_assetBalancesArgs = {
+export type Subscriptionlocalarbitrumone_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AssetBalance_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AssetBalance_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_routerArgs = {
+export type Subscriptionlocalarbitrumone_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_routersArgs = {
+export type Subscriptionlocalarbitrumone_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Router_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Router_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Router_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Router_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_routerDailyTVLArgs = {
+export type Subscriptionlocalarbitrumone_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_routerDailyTVLsArgs = {
+export type Subscriptionlocalarbitrumone_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RouterDailyTVL_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RouterDailyTVL_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_settingArgs = {
+export type Subscriptionlocalarbitrumone_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_settingsArgs = {
+export type Subscriptionlocalarbitrumone_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Setting_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Setting_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Setting_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Setting_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayerArgs = {
+export type Subscriptionlocalarbitrumone_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayersArgs = {
+export type Subscriptionlocalarbitrumone_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Relayer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Relayer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Relayer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Relayer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_sequencerArgs = {
+export type Subscriptionlocalarbitrumone_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_sequencersArgs = {
+export type Subscriptionlocalarbitrumone_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_Sequencer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_Sequencer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayerFeeArgs = {
+export type Subscriptionlocalarbitrumone_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayerFeesArgs = {
+export type Subscriptionlocalarbitrumone_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RelayerFee_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RelayerFee_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_originTransferArgs = {
+export type Subscriptionlocalarbitrumone_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_originTransfersArgs = {
+export type Subscriptionlocalarbitrumone_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_OriginTransfer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OriginTransfer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_destinationTransferArgs = {
+export type Subscriptionlocalarbitrumone_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_destinationTransfersArgs = {
+export type Subscriptionlocalarbitrumone_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_DestinationTransfer_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_DestinationTransfer_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_originMessageArgs = {
+export type Subscriptionlocalarbitrumone_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_originMessagesArgs = {
+export type Subscriptionlocalarbitrumone_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_OriginMessage_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OriginMessage_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_aggregateRootArgs = {
+export type Subscriptionlocalarbitrumone_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_aggregateRootsArgs = {
+export type Subscriptionlocalarbitrumone_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_AggregateRoot_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AggregateRoot_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_connectorMetaArgs = {
+export type Subscriptionlocalarbitrumone_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_connectorMetasArgs = {
+export type Subscriptionlocalarbitrumone_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_ConnectorMeta_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_ConnectorMeta_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_rootCountArgs = {
+export type Subscriptionlocalarbitrumone_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_rootCountsArgs = {
+export type Subscriptionlocalarbitrumone_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RootCount_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RootCount_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RootCount_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RootCount_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_rootMessageSentArgs = {
+export type Subscriptionlocalarbitrumone_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_rootMessageSentsArgs = {
+export type Subscriptionlocalarbitrumone_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RootMessageSent_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RootMessageSent_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayerFeesIncreaseArgs = {
+export type Subscriptionlocalarbitrumone_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_relayerFeesIncreasesArgs = {
+export type Subscriptionlocalarbitrumone_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_slippageUpdateArgs = {
+export type Subscriptionlocalarbitrumone_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localarbitrum_Block_height>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum_slippageUpdatesArgs = {
+export type Subscriptionlocalarbitrumone_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localarbitrum_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<localarbitrum_OrderDirection>;
-  where?: InputMaybe<localarbitrum_SlippageUpdate_filter>;
-  block?: InputMaybe<localarbitrum_Block_height>;
+  orderBy?: InputMaybe<localarbitrumone_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalarbitrum__metaArgs = {
-  block?: InputMaybe<localarbitrum_Block_height>;
+export type Subscriptionlocalarbitrumone__metaArgs = {
+  block?: InputMaybe<localarbitrumone_Block_height>;
 };
 
-export type localarbitrum_TransferStatus =
+export type localarbitrumone_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type localarbitrum__Block_ = {
+export type localarbitrumone__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['localarbitrum_Bytes']>;
+  hash?: Maybe<Scalars['localarbitrumone_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type localarbitrum__Meta_ = {
+export type localarbitrumone__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -2667,7 +2667,7 @@ export type localarbitrum__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: localarbitrum__Block_;
+  block: localarbitrumone__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -2682,79 +2682,79 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  localarbitrum_asset: InContextSdkMethod<Query['localarbitrum_asset'], Querylocalarbitrum_assetArgs, MeshContext>,
+  localarbitrumone_asset: InContextSdkMethod<Query['localarbitrumone_asset'], Querylocalarbitrumone_assetArgs, MeshContext>,
   /** null **/
-  localarbitrum_assets: InContextSdkMethod<Query['localarbitrum_assets'], Querylocalarbitrum_assetsArgs, MeshContext>,
+  localarbitrumone_assets: InContextSdkMethod<Query['localarbitrumone_assets'], Querylocalarbitrumone_assetsArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetStatus: InContextSdkMethod<Query['localarbitrum_assetStatus'], Querylocalarbitrum_assetStatusArgs, MeshContext>,
+  localarbitrumone_assetStatus: InContextSdkMethod<Query['localarbitrumone_assetStatus'], Querylocalarbitrumone_assetStatusArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetStatuses: InContextSdkMethod<Query['localarbitrum_assetStatuses'], Querylocalarbitrum_assetStatusesArgs, MeshContext>,
+  localarbitrumone_assetStatuses: InContextSdkMethod<Query['localarbitrumone_assetStatuses'], Querylocalarbitrumone_assetStatusesArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetBalance: InContextSdkMethod<Query['localarbitrum_assetBalance'], Querylocalarbitrum_assetBalanceArgs, MeshContext>,
+  localarbitrumone_assetBalance: InContextSdkMethod<Query['localarbitrumone_assetBalance'], Querylocalarbitrumone_assetBalanceArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetBalances: InContextSdkMethod<Query['localarbitrum_assetBalances'], Querylocalarbitrum_assetBalancesArgs, MeshContext>,
+  localarbitrumone_assetBalances: InContextSdkMethod<Query['localarbitrumone_assetBalances'], Querylocalarbitrumone_assetBalancesArgs, MeshContext>,
   /** null **/
-  localarbitrum_router: InContextSdkMethod<Query['localarbitrum_router'], Querylocalarbitrum_routerArgs, MeshContext>,
+  localarbitrumone_router: InContextSdkMethod<Query['localarbitrumone_router'], Querylocalarbitrumone_routerArgs, MeshContext>,
   /** null **/
-  localarbitrum_routers: InContextSdkMethod<Query['localarbitrum_routers'], Querylocalarbitrum_routersArgs, MeshContext>,
+  localarbitrumone_routers: InContextSdkMethod<Query['localarbitrumone_routers'], Querylocalarbitrumone_routersArgs, MeshContext>,
   /** null **/
-  localarbitrum_routerDailyTVL: InContextSdkMethod<Query['localarbitrum_routerDailyTVL'], Querylocalarbitrum_routerDailyTVLArgs, MeshContext>,
+  localarbitrumone_routerDailyTVL: InContextSdkMethod<Query['localarbitrumone_routerDailyTVL'], Querylocalarbitrumone_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  localarbitrum_routerDailyTVLs: InContextSdkMethod<Query['localarbitrum_routerDailyTVLs'], Querylocalarbitrum_routerDailyTVLsArgs, MeshContext>,
+  localarbitrumone_routerDailyTVLs: InContextSdkMethod<Query['localarbitrumone_routerDailyTVLs'], Querylocalarbitrumone_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  localarbitrum_setting: InContextSdkMethod<Query['localarbitrum_setting'], Querylocalarbitrum_settingArgs, MeshContext>,
+  localarbitrumone_setting: InContextSdkMethod<Query['localarbitrumone_setting'], Querylocalarbitrumone_settingArgs, MeshContext>,
   /** null **/
-  localarbitrum_settings: InContextSdkMethod<Query['localarbitrum_settings'], Querylocalarbitrum_settingsArgs, MeshContext>,
+  localarbitrumone_settings: InContextSdkMethod<Query['localarbitrumone_settings'], Querylocalarbitrumone_settingsArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayer: InContextSdkMethod<Query['localarbitrum_relayer'], Querylocalarbitrum_relayerArgs, MeshContext>,
+  localarbitrumone_relayer: InContextSdkMethod<Query['localarbitrumone_relayer'], Querylocalarbitrumone_relayerArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayers: InContextSdkMethod<Query['localarbitrum_relayers'], Querylocalarbitrum_relayersArgs, MeshContext>,
+  localarbitrumone_relayers: InContextSdkMethod<Query['localarbitrumone_relayers'], Querylocalarbitrumone_relayersArgs, MeshContext>,
   /** null **/
-  localarbitrum_sequencer: InContextSdkMethod<Query['localarbitrum_sequencer'], Querylocalarbitrum_sequencerArgs, MeshContext>,
+  localarbitrumone_sequencer: InContextSdkMethod<Query['localarbitrumone_sequencer'], Querylocalarbitrumone_sequencerArgs, MeshContext>,
   /** null **/
-  localarbitrum_sequencers: InContextSdkMethod<Query['localarbitrum_sequencers'], Querylocalarbitrum_sequencersArgs, MeshContext>,
+  localarbitrumone_sequencers: InContextSdkMethod<Query['localarbitrumone_sequencers'], Querylocalarbitrumone_sequencersArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFee: InContextSdkMethod<Query['localarbitrum_relayerFee'], Querylocalarbitrum_relayerFeeArgs, MeshContext>,
+  localarbitrumone_relayerFee: InContextSdkMethod<Query['localarbitrumone_relayerFee'], Querylocalarbitrumone_relayerFeeArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFees: InContextSdkMethod<Query['localarbitrum_relayerFees'], Querylocalarbitrum_relayerFeesArgs, MeshContext>,
+  localarbitrumone_relayerFees: InContextSdkMethod<Query['localarbitrumone_relayerFees'], Querylocalarbitrumone_relayerFeesArgs, MeshContext>,
   /** null **/
-  localarbitrum_originTransfer: InContextSdkMethod<Query['localarbitrum_originTransfer'], Querylocalarbitrum_originTransferArgs, MeshContext>,
+  localarbitrumone_originTransfer: InContextSdkMethod<Query['localarbitrumone_originTransfer'], Querylocalarbitrumone_originTransferArgs, MeshContext>,
   /** null **/
-  localarbitrum_originTransfers: InContextSdkMethod<Query['localarbitrum_originTransfers'], Querylocalarbitrum_originTransfersArgs, MeshContext>,
+  localarbitrumone_originTransfers: InContextSdkMethod<Query['localarbitrumone_originTransfers'], Querylocalarbitrumone_originTransfersArgs, MeshContext>,
   /** null **/
-  localarbitrum_destinationTransfer: InContextSdkMethod<Query['localarbitrum_destinationTransfer'], Querylocalarbitrum_destinationTransferArgs, MeshContext>,
+  localarbitrumone_destinationTransfer: InContextSdkMethod<Query['localarbitrumone_destinationTransfer'], Querylocalarbitrumone_destinationTransferArgs, MeshContext>,
   /** null **/
-  localarbitrum_destinationTransfers: InContextSdkMethod<Query['localarbitrum_destinationTransfers'], Querylocalarbitrum_destinationTransfersArgs, MeshContext>,
+  localarbitrumone_destinationTransfers: InContextSdkMethod<Query['localarbitrumone_destinationTransfers'], Querylocalarbitrumone_destinationTransfersArgs, MeshContext>,
   /** null **/
-  localarbitrum_originMessage: InContextSdkMethod<Query['localarbitrum_originMessage'], Querylocalarbitrum_originMessageArgs, MeshContext>,
+  localarbitrumone_originMessage: InContextSdkMethod<Query['localarbitrumone_originMessage'], Querylocalarbitrumone_originMessageArgs, MeshContext>,
   /** null **/
-  localarbitrum_originMessages: InContextSdkMethod<Query['localarbitrum_originMessages'], Querylocalarbitrum_originMessagesArgs, MeshContext>,
+  localarbitrumone_originMessages: InContextSdkMethod<Query['localarbitrumone_originMessages'], Querylocalarbitrumone_originMessagesArgs, MeshContext>,
   /** null **/
-  localarbitrum_aggregateRoot: InContextSdkMethod<Query['localarbitrum_aggregateRoot'], Querylocalarbitrum_aggregateRootArgs, MeshContext>,
+  localarbitrumone_aggregateRoot: InContextSdkMethod<Query['localarbitrumone_aggregateRoot'], Querylocalarbitrumone_aggregateRootArgs, MeshContext>,
   /** null **/
-  localarbitrum_aggregateRoots: InContextSdkMethod<Query['localarbitrum_aggregateRoots'], Querylocalarbitrum_aggregateRootsArgs, MeshContext>,
+  localarbitrumone_aggregateRoots: InContextSdkMethod<Query['localarbitrumone_aggregateRoots'], Querylocalarbitrumone_aggregateRootsArgs, MeshContext>,
   /** null **/
-  localarbitrum_connectorMeta: InContextSdkMethod<Query['localarbitrum_connectorMeta'], Querylocalarbitrum_connectorMetaArgs, MeshContext>,
+  localarbitrumone_connectorMeta: InContextSdkMethod<Query['localarbitrumone_connectorMeta'], Querylocalarbitrumone_connectorMetaArgs, MeshContext>,
   /** null **/
-  localarbitrum_connectorMetas: InContextSdkMethod<Query['localarbitrum_connectorMetas'], Querylocalarbitrum_connectorMetasArgs, MeshContext>,
+  localarbitrumone_connectorMetas: InContextSdkMethod<Query['localarbitrumone_connectorMetas'], Querylocalarbitrumone_connectorMetasArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootCount: InContextSdkMethod<Query['localarbitrum_rootCount'], Querylocalarbitrum_rootCountArgs, MeshContext>,
+  localarbitrumone_rootCount: InContextSdkMethod<Query['localarbitrumone_rootCount'], Querylocalarbitrumone_rootCountArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootCounts: InContextSdkMethod<Query['localarbitrum_rootCounts'], Querylocalarbitrum_rootCountsArgs, MeshContext>,
+  localarbitrumone_rootCounts: InContextSdkMethod<Query['localarbitrumone_rootCounts'], Querylocalarbitrumone_rootCountsArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootMessageSent: InContextSdkMethod<Query['localarbitrum_rootMessageSent'], Querylocalarbitrum_rootMessageSentArgs, MeshContext>,
+  localarbitrumone_rootMessageSent: InContextSdkMethod<Query['localarbitrumone_rootMessageSent'], Querylocalarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootMessageSents: InContextSdkMethod<Query['localarbitrum_rootMessageSents'], Querylocalarbitrum_rootMessageSentsArgs, MeshContext>,
+  localarbitrumone_rootMessageSents: InContextSdkMethod<Query['localarbitrumone_rootMessageSents'], Querylocalarbitrumone_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFeesIncrease: InContextSdkMethod<Query['localarbitrum_relayerFeesIncrease'], Querylocalarbitrum_relayerFeesIncreaseArgs, MeshContext>,
+  localarbitrumone_relayerFeesIncrease: InContextSdkMethod<Query['localarbitrumone_relayerFeesIncrease'], Querylocalarbitrumone_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFeesIncreases: InContextSdkMethod<Query['localarbitrum_relayerFeesIncreases'], Querylocalarbitrum_relayerFeesIncreasesArgs, MeshContext>,
+  localarbitrumone_relayerFeesIncreases: InContextSdkMethod<Query['localarbitrumone_relayerFeesIncreases'], Querylocalarbitrumone_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  localarbitrum_slippageUpdate: InContextSdkMethod<Query['localarbitrum_slippageUpdate'], Querylocalarbitrum_slippageUpdateArgs, MeshContext>,
+  localarbitrumone_slippageUpdate: InContextSdkMethod<Query['localarbitrumone_slippageUpdate'], Querylocalarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
-  localarbitrum_slippageUpdates: InContextSdkMethod<Query['localarbitrum_slippageUpdates'], Querylocalarbitrum_slippageUpdatesArgs, MeshContext>,
+  localarbitrumone_slippageUpdates: InContextSdkMethod<Query['localarbitrumone_slippageUpdates'], Querylocalarbitrumone_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  localarbitrum__meta: InContextSdkMethod<Query['localarbitrum__meta'], Querylocalarbitrum__metaArgs, MeshContext>
+  localarbitrumone__meta: InContextSdkMethod<Query['localarbitrumone__meta'], Querylocalarbitrumone__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -2763,83 +2763,83 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  localarbitrum_asset: InContextSdkMethod<Subscription['localarbitrum_asset'], Subscriptionlocalarbitrum_assetArgs, MeshContext>,
+  localarbitrumone_asset: InContextSdkMethod<Subscription['localarbitrumone_asset'], Subscriptionlocalarbitrumone_assetArgs, MeshContext>,
   /** null **/
-  localarbitrum_assets: InContextSdkMethod<Subscription['localarbitrum_assets'], Subscriptionlocalarbitrum_assetsArgs, MeshContext>,
+  localarbitrumone_assets: InContextSdkMethod<Subscription['localarbitrumone_assets'], Subscriptionlocalarbitrumone_assetsArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetStatus: InContextSdkMethod<Subscription['localarbitrum_assetStatus'], Subscriptionlocalarbitrum_assetStatusArgs, MeshContext>,
+  localarbitrumone_assetStatus: InContextSdkMethod<Subscription['localarbitrumone_assetStatus'], Subscriptionlocalarbitrumone_assetStatusArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetStatuses: InContextSdkMethod<Subscription['localarbitrum_assetStatuses'], Subscriptionlocalarbitrum_assetStatusesArgs, MeshContext>,
+  localarbitrumone_assetStatuses: InContextSdkMethod<Subscription['localarbitrumone_assetStatuses'], Subscriptionlocalarbitrumone_assetStatusesArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetBalance: InContextSdkMethod<Subscription['localarbitrum_assetBalance'], Subscriptionlocalarbitrum_assetBalanceArgs, MeshContext>,
+  localarbitrumone_assetBalance: InContextSdkMethod<Subscription['localarbitrumone_assetBalance'], Subscriptionlocalarbitrumone_assetBalanceArgs, MeshContext>,
   /** null **/
-  localarbitrum_assetBalances: InContextSdkMethod<Subscription['localarbitrum_assetBalances'], Subscriptionlocalarbitrum_assetBalancesArgs, MeshContext>,
+  localarbitrumone_assetBalances: InContextSdkMethod<Subscription['localarbitrumone_assetBalances'], Subscriptionlocalarbitrumone_assetBalancesArgs, MeshContext>,
   /** null **/
-  localarbitrum_router: InContextSdkMethod<Subscription['localarbitrum_router'], Subscriptionlocalarbitrum_routerArgs, MeshContext>,
+  localarbitrumone_router: InContextSdkMethod<Subscription['localarbitrumone_router'], Subscriptionlocalarbitrumone_routerArgs, MeshContext>,
   /** null **/
-  localarbitrum_routers: InContextSdkMethod<Subscription['localarbitrum_routers'], Subscriptionlocalarbitrum_routersArgs, MeshContext>,
+  localarbitrumone_routers: InContextSdkMethod<Subscription['localarbitrumone_routers'], Subscriptionlocalarbitrumone_routersArgs, MeshContext>,
   /** null **/
-  localarbitrum_routerDailyTVL: InContextSdkMethod<Subscription['localarbitrum_routerDailyTVL'], Subscriptionlocalarbitrum_routerDailyTVLArgs, MeshContext>,
+  localarbitrumone_routerDailyTVL: InContextSdkMethod<Subscription['localarbitrumone_routerDailyTVL'], Subscriptionlocalarbitrumone_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  localarbitrum_routerDailyTVLs: InContextSdkMethod<Subscription['localarbitrum_routerDailyTVLs'], Subscriptionlocalarbitrum_routerDailyTVLsArgs, MeshContext>,
+  localarbitrumone_routerDailyTVLs: InContextSdkMethod<Subscription['localarbitrumone_routerDailyTVLs'], Subscriptionlocalarbitrumone_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  localarbitrum_setting: InContextSdkMethod<Subscription['localarbitrum_setting'], Subscriptionlocalarbitrum_settingArgs, MeshContext>,
+  localarbitrumone_setting: InContextSdkMethod<Subscription['localarbitrumone_setting'], Subscriptionlocalarbitrumone_settingArgs, MeshContext>,
   /** null **/
-  localarbitrum_settings: InContextSdkMethod<Subscription['localarbitrum_settings'], Subscriptionlocalarbitrum_settingsArgs, MeshContext>,
+  localarbitrumone_settings: InContextSdkMethod<Subscription['localarbitrumone_settings'], Subscriptionlocalarbitrumone_settingsArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayer: InContextSdkMethod<Subscription['localarbitrum_relayer'], Subscriptionlocalarbitrum_relayerArgs, MeshContext>,
+  localarbitrumone_relayer: InContextSdkMethod<Subscription['localarbitrumone_relayer'], Subscriptionlocalarbitrumone_relayerArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayers: InContextSdkMethod<Subscription['localarbitrum_relayers'], Subscriptionlocalarbitrum_relayersArgs, MeshContext>,
+  localarbitrumone_relayers: InContextSdkMethod<Subscription['localarbitrumone_relayers'], Subscriptionlocalarbitrumone_relayersArgs, MeshContext>,
   /** null **/
-  localarbitrum_sequencer: InContextSdkMethod<Subscription['localarbitrum_sequencer'], Subscriptionlocalarbitrum_sequencerArgs, MeshContext>,
+  localarbitrumone_sequencer: InContextSdkMethod<Subscription['localarbitrumone_sequencer'], Subscriptionlocalarbitrumone_sequencerArgs, MeshContext>,
   /** null **/
-  localarbitrum_sequencers: InContextSdkMethod<Subscription['localarbitrum_sequencers'], Subscriptionlocalarbitrum_sequencersArgs, MeshContext>,
+  localarbitrumone_sequencers: InContextSdkMethod<Subscription['localarbitrumone_sequencers'], Subscriptionlocalarbitrumone_sequencersArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFee: InContextSdkMethod<Subscription['localarbitrum_relayerFee'], Subscriptionlocalarbitrum_relayerFeeArgs, MeshContext>,
+  localarbitrumone_relayerFee: InContextSdkMethod<Subscription['localarbitrumone_relayerFee'], Subscriptionlocalarbitrumone_relayerFeeArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFees: InContextSdkMethod<Subscription['localarbitrum_relayerFees'], Subscriptionlocalarbitrum_relayerFeesArgs, MeshContext>,
+  localarbitrumone_relayerFees: InContextSdkMethod<Subscription['localarbitrumone_relayerFees'], Subscriptionlocalarbitrumone_relayerFeesArgs, MeshContext>,
   /** null **/
-  localarbitrum_originTransfer: InContextSdkMethod<Subscription['localarbitrum_originTransfer'], Subscriptionlocalarbitrum_originTransferArgs, MeshContext>,
+  localarbitrumone_originTransfer: InContextSdkMethod<Subscription['localarbitrumone_originTransfer'], Subscriptionlocalarbitrumone_originTransferArgs, MeshContext>,
   /** null **/
-  localarbitrum_originTransfers: InContextSdkMethod<Subscription['localarbitrum_originTransfers'], Subscriptionlocalarbitrum_originTransfersArgs, MeshContext>,
+  localarbitrumone_originTransfers: InContextSdkMethod<Subscription['localarbitrumone_originTransfers'], Subscriptionlocalarbitrumone_originTransfersArgs, MeshContext>,
   /** null **/
-  localarbitrum_destinationTransfer: InContextSdkMethod<Subscription['localarbitrum_destinationTransfer'], Subscriptionlocalarbitrum_destinationTransferArgs, MeshContext>,
+  localarbitrumone_destinationTransfer: InContextSdkMethod<Subscription['localarbitrumone_destinationTransfer'], Subscriptionlocalarbitrumone_destinationTransferArgs, MeshContext>,
   /** null **/
-  localarbitrum_destinationTransfers: InContextSdkMethod<Subscription['localarbitrum_destinationTransfers'], Subscriptionlocalarbitrum_destinationTransfersArgs, MeshContext>,
+  localarbitrumone_destinationTransfers: InContextSdkMethod<Subscription['localarbitrumone_destinationTransfers'], Subscriptionlocalarbitrumone_destinationTransfersArgs, MeshContext>,
   /** null **/
-  localarbitrum_originMessage: InContextSdkMethod<Subscription['localarbitrum_originMessage'], Subscriptionlocalarbitrum_originMessageArgs, MeshContext>,
+  localarbitrumone_originMessage: InContextSdkMethod<Subscription['localarbitrumone_originMessage'], Subscriptionlocalarbitrumone_originMessageArgs, MeshContext>,
   /** null **/
-  localarbitrum_originMessages: InContextSdkMethod<Subscription['localarbitrum_originMessages'], Subscriptionlocalarbitrum_originMessagesArgs, MeshContext>,
+  localarbitrumone_originMessages: InContextSdkMethod<Subscription['localarbitrumone_originMessages'], Subscriptionlocalarbitrumone_originMessagesArgs, MeshContext>,
   /** null **/
-  localarbitrum_aggregateRoot: InContextSdkMethod<Subscription['localarbitrum_aggregateRoot'], Subscriptionlocalarbitrum_aggregateRootArgs, MeshContext>,
+  localarbitrumone_aggregateRoot: InContextSdkMethod<Subscription['localarbitrumone_aggregateRoot'], Subscriptionlocalarbitrumone_aggregateRootArgs, MeshContext>,
   /** null **/
-  localarbitrum_aggregateRoots: InContextSdkMethod<Subscription['localarbitrum_aggregateRoots'], Subscriptionlocalarbitrum_aggregateRootsArgs, MeshContext>,
+  localarbitrumone_aggregateRoots: InContextSdkMethod<Subscription['localarbitrumone_aggregateRoots'], Subscriptionlocalarbitrumone_aggregateRootsArgs, MeshContext>,
   /** null **/
-  localarbitrum_connectorMeta: InContextSdkMethod<Subscription['localarbitrum_connectorMeta'], Subscriptionlocalarbitrum_connectorMetaArgs, MeshContext>,
+  localarbitrumone_connectorMeta: InContextSdkMethod<Subscription['localarbitrumone_connectorMeta'], Subscriptionlocalarbitrumone_connectorMetaArgs, MeshContext>,
   /** null **/
-  localarbitrum_connectorMetas: InContextSdkMethod<Subscription['localarbitrum_connectorMetas'], Subscriptionlocalarbitrum_connectorMetasArgs, MeshContext>,
+  localarbitrumone_connectorMetas: InContextSdkMethod<Subscription['localarbitrumone_connectorMetas'], Subscriptionlocalarbitrumone_connectorMetasArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootCount: InContextSdkMethod<Subscription['localarbitrum_rootCount'], Subscriptionlocalarbitrum_rootCountArgs, MeshContext>,
+  localarbitrumone_rootCount: InContextSdkMethod<Subscription['localarbitrumone_rootCount'], Subscriptionlocalarbitrumone_rootCountArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootCounts: InContextSdkMethod<Subscription['localarbitrum_rootCounts'], Subscriptionlocalarbitrum_rootCountsArgs, MeshContext>,
+  localarbitrumone_rootCounts: InContextSdkMethod<Subscription['localarbitrumone_rootCounts'], Subscriptionlocalarbitrumone_rootCountsArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootMessageSent: InContextSdkMethod<Subscription['localarbitrum_rootMessageSent'], Subscriptionlocalarbitrum_rootMessageSentArgs, MeshContext>,
+  localarbitrumone_rootMessageSent: InContextSdkMethod<Subscription['localarbitrumone_rootMessageSent'], Subscriptionlocalarbitrumone_rootMessageSentArgs, MeshContext>,
   /** null **/
-  localarbitrum_rootMessageSents: InContextSdkMethod<Subscription['localarbitrum_rootMessageSents'], Subscriptionlocalarbitrum_rootMessageSentsArgs, MeshContext>,
+  localarbitrumone_rootMessageSents: InContextSdkMethod<Subscription['localarbitrumone_rootMessageSents'], Subscriptionlocalarbitrumone_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFeesIncrease: InContextSdkMethod<Subscription['localarbitrum_relayerFeesIncrease'], Subscriptionlocalarbitrum_relayerFeesIncreaseArgs, MeshContext>,
+  localarbitrumone_relayerFeesIncrease: InContextSdkMethod<Subscription['localarbitrumone_relayerFeesIncrease'], Subscriptionlocalarbitrumone_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  localarbitrum_relayerFeesIncreases: InContextSdkMethod<Subscription['localarbitrum_relayerFeesIncreases'], Subscriptionlocalarbitrum_relayerFeesIncreasesArgs, MeshContext>,
+  localarbitrumone_relayerFeesIncreases: InContextSdkMethod<Subscription['localarbitrumone_relayerFeesIncreases'], Subscriptionlocalarbitrumone_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  localarbitrum_slippageUpdate: InContextSdkMethod<Subscription['localarbitrum_slippageUpdate'], Subscriptionlocalarbitrum_slippageUpdateArgs, MeshContext>,
+  localarbitrumone_slippageUpdate: InContextSdkMethod<Subscription['localarbitrumone_slippageUpdate'], Subscriptionlocalarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
-  localarbitrum_slippageUpdates: InContextSdkMethod<Subscription['localarbitrum_slippageUpdates'], Subscriptionlocalarbitrum_slippageUpdatesArgs, MeshContext>,
+  localarbitrumone_slippageUpdates: InContextSdkMethod<Subscription['localarbitrumone_slippageUpdates'], Subscriptionlocalarbitrumone_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  localarbitrum__meta: InContextSdkMethod<Subscription['localarbitrum__meta'], Subscriptionlocalarbitrum__metaArgs, MeshContext>
+  localarbitrumone__meta: InContextSdkMethod<Subscription['localarbitrumone__meta'], Subscriptionlocalarbitrumone__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_LocalArbitrum"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_Local_ArbitrumOne"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
