@@ -62,11 +62,6 @@
   },
   {
     "inputs": [],
-    "name": "NotCrossChainCall",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ProposedOwnable__onlyOwner_notOwner",
     "type": "error"
   },
@@ -188,25 +183,6 @@
       }
     ],
     "name": "AggregateRootVerified",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "previous",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "current",
-        "type": "address"
-      }
-    ],
-    "name": "AliasedSenderUpdated",
     "type": "event"
   },
   {
@@ -678,19 +654,6 @@
     "name": "addSender",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "aliasedSender",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1175,6 +1138,24 @@
       }
     ],
     "name": "send",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_encodedData",
+        "type": "bytes"
+      }
+    ],
+    "name": "sendMessage",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"

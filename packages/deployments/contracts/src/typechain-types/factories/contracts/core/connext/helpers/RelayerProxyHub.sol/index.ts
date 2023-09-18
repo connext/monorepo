@@ -5,6 +5,5 @@ export { IArbitrumHubConnector__factory } from "./IArbitrumHubConnector__factory
 export { IGnosisHubConnector__factory } from "./IGnosisHubConnector__factory";
 export { IOptimismHubConnector__factory } from "./IOptimismHubConnector__factory";
 export { IPolygonHubConnector__factory } from "./IPolygonHubConnector__factory";
-export { IRootManager__factory } from "./IRootManager__factory";
 export { IZkSyncHubConnector__factory } from "./IZkSyncHubConnector__factory";
 export { RelayerProxyHub__factory } from "./RelayerProxyHub__factory";

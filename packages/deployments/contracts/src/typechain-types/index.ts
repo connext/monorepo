@@ -116,8 +116,6 @@ export type { IOptimismHubConnector } from "./contracts/core/connext/helpers/Rel
 export { IOptimismHubConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxyHub.sol/IOptimismHubConnector__factory";
 export type { IPolygonHubConnector } from "./contracts/core/connext/helpers/RelayerProxyHub.sol/IPolygonHubConnector";
 export { IPolygonHubConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxyHub.sol/IPolygonHubConnector__factory";
-export type { IRootManager } from "./contracts/core/connext/helpers/RelayerProxyHub.sol/IRootManager";
-export { IRootManager__factory } from "./factories/contracts/core/connext/helpers/RelayerProxyHub.sol/IRootManager__factory";
 export type { IZkSyncHubConnector } from "./contracts/core/connext/helpers/RelayerProxyHub.sol/IZkSyncHubConnector";
 export { IZkSyncHubConnector__factory } from "./factories/contracts/core/connext/helpers/RelayerProxyHub.sol/IZkSyncHubConnector__factory";
 export type { RelayerProxyHub } from "./contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub";
@@ -272,6 +270,8 @@ export type { IHubConnector } from "./contracts/messaging/interfaces/IHubConnect
 export { IHubConnector__factory } from "./factories/contracts/messaging/interfaces/IHubConnector__factory";
 export type { IMessageRecipient } from "./contracts/messaging/interfaces/IMessageRecipient";
 export { IMessageRecipient__factory } from "./factories/contracts/messaging/interfaces/IMessageRecipient__factory";
+export type { IRootManager } from "./contracts/messaging/interfaces/IRootManager";
+export { IRootManager__factory } from "./factories/contracts/messaging/interfaces/IRootManager__factory";
 export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexer";
 export { DomainIndexer__factory } from "./factories/contracts/messaging/libraries/DomainIndexer__factory";
 export type { MerkleLib } from "./contracts/messaging/libraries/MerkleLib";
