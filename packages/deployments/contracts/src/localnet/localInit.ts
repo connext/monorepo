@@ -53,13 +53,13 @@ const runInit = async () => {
         allowlist: [sender],
       },
       routers: {
-        allowlist: [sender],
+        allowlist: ["0x821aEa9a577a9b44299B9c15c88cf3087F3b5544"], // private key: 0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c
       },
       sequencers: {
-        allowlist: [sender],
+        allowlist: ["0xf17f52151EbEF6C7334FAD080c5704D77216b732"], // private key: 0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f
       },
       relayers: {
-        allowlist: [sender],
+        allowlist: ["0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef"], // private key: 0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1
       },
     },
   };
