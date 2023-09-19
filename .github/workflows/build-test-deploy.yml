@@ -1022,7 +1022,6 @@ jobs:
         working-directory: ./ops/testnet/staging/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -1087,7 +1086,6 @@ jobs:
         working-directory: ./ops/testnet/staging/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -1162,7 +1160,6 @@ jobs:
         working-directory: ./ops/testnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1231,7 +1228,6 @@ jobs:
         working-directory: ./ops/testnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1300,7 +1296,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1364,7 +1359,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
