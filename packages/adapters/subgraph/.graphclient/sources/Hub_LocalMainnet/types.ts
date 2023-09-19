@@ -1294,7 +1294,7 @@ export type _SubgraphErrorPolicy_ =
   };
 
   export type Context = {
-      ["Hub_Local_Mainnet"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Hub_LocalMainnet"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }

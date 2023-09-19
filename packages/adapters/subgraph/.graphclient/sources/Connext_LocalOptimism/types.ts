@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextLocalMainnetTypes {
+export namespace ConnextLocalOptimismTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,18 +16,18 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  localmainnet_BigDecimal: any;
+  localoptimism_BigDecimal: any;
   BigInt: any;
-  localmainnet_Bytes: any;
+  localoptimism_Bytes: any;
 };
 
-export type localmainnet_AggregateRoot = {
+export type localoptimism_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['localmainnet_Bytes'];
+  root: Scalars['localoptimism_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localmainnet_AggregateRoot_filter = {
+export type localoptimism_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -36,12 +36,12 @@ export type localmainnet_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  root?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -51,38 +51,38 @@ export type localmainnet_AggregateRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_AggregateRoot_orderBy =
+export type localoptimism_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
 
-export type localmainnet_Asset = {
+export type localoptimism_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['localmainnet_Bytes']>;
+  key?: Maybe<Scalars['localoptimism_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localmainnet_Bytes']>;
+  canonicalId?: Maybe<Scalars['localoptimism_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['localmainnet_Bytes']>;
-  localAsset?: Maybe<Scalars['localmainnet_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['localoptimism_Bytes']>;
+  localAsset?: Maybe<Scalars['localoptimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localmainnet_AssetStatus>;
+  status?: Maybe<localoptimism_AssetStatus>;
 };
 
-export type localmainnet_AssetBalance = {
+export type localoptimism_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   supplied: Scalars['BigInt'];
   removed: Scalars['BigInt'];
-  router: localmainnet_Router;
-  asset: localmainnet_Asset;
+  router: localoptimism_Router;
+  asset: localoptimism_Asset;
   feesEarned: Scalars['BigInt'];
 };
 
-export type localmainnet_AssetBalance_filter = {
+export type localoptimism_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -143,7 +143,7 @@ export type localmainnet_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<localmainnet_Router_filter>;
+  router_?: InputMaybe<localoptimism_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -164,7 +164,7 @@ export type localmainnet_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localmainnet_Asset_filter>;
+  asset_?: InputMaybe<localoptimism_Asset_filter>;
   feesEarned?: InputMaybe<Scalars['BigInt']>;
   feesEarned_not?: InputMaybe<Scalars['BigInt']>;
   feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
@@ -174,10 +174,10 @@ export type localmainnet_AssetBalance_filter = {
   feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_AssetBalance_orderBy =
+export type localoptimism_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'locked'
@@ -187,12 +187,12 @@ export type localmainnet_AssetBalance_orderBy =
   | 'asset'
   | 'feesEarned';
 
-export type localmainnet_AssetStatus = {
+export type localoptimism_AssetStatus = {
   id: Scalars['ID'];
   status?: Maybe<Scalars['Boolean']>;
 };
 
-export type localmainnet_AssetStatus_filter = {
+export type localoptimism_AssetStatus_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -206,14 +206,14 @@ export type localmainnet_AssetStatus_filter = {
   status_in?: InputMaybe<Array<Scalars['Boolean']>>;
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_AssetStatus_orderBy =
+export type localoptimism_AssetStatus_orderBy =
   | 'id'
   | 'status';
 
-export type localmainnet_Asset_filter = {
+export type localoptimism_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -222,12 +222,12 @@ export type localmainnet_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  key_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  key?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  key_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   decimal?: InputMaybe<Scalars['BigInt']>;
   decimal_not?: InputMaybe<Scalars['BigInt']>;
   decimal_gt?: InputMaybe<Scalars['BigInt']>;
@@ -236,12 +236,12 @@ export type localmainnet_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -250,18 +250,18 @@ export type localmainnet_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  localAsset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  localAsset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -290,12 +290,12 @@ export type localmainnet_Asset_filter = {
   status_ends_with_nocase?: InputMaybe<Scalars['String']>;
   status_not_ends_with?: InputMaybe<Scalars['String']>;
   status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  status_?: InputMaybe<localmainnet_AssetStatus_filter>;
+  status_?: InputMaybe<localoptimism_AssetStatus_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_Asset_orderBy =
+export type localoptimism_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
@@ -306,26 +306,26 @@ export type localmainnet_Asset_orderBy =
   | 'blockNumber'
   | 'status';
 
-export type localmainnet_BlockChangedFilter = {
+export type localoptimism_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type localmainnet_Block_height = {
-  hash?: InputMaybe<Scalars['localmainnet_Bytes']>;
+export type localoptimism_Block_height = {
+  hash?: InputMaybe<Scalars['localoptimism_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type localmainnet_ConnectorMeta = {
+export type localoptimism_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['localmainnet_Bytes']>;
-  rootManager?: Maybe<Scalars['localmainnet_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['localmainnet_Bytes']>;
+  amb?: Maybe<Scalars['localoptimism_Bytes']>;
+  rootManager?: Maybe<Scalars['localoptimism_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['localoptimism_Bytes']>;
 };
 
-export type localmainnet_ConnectorMeta_filter = {
+export type localoptimism_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -350,29 +350,29 @@ export type localmainnet_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  amb_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  rootManager?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  amb?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  amb_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  rootManager?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_ConnectorMeta_orderBy =
+export type localoptimism_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -380,57 +380,57 @@ export type localmainnet_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type localmainnet_DestinationTransfer = {
+export type localoptimism_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['localmainnet_Bytes']>;
+  transferId?: Maybe<Scalars['localoptimism_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localmainnet_TransferStatus>;
-  routers?: Maybe<Array<localmainnet_Router>>;
+  status?: Maybe<localoptimism_TransferStatus>;
+  routers?: Maybe<Array<localoptimism_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['localmainnet_Bytes']>;
-  delegate?: Maybe<Scalars['localmainnet_Bytes']>;
+  to?: Maybe<Scalars['localoptimism_Bytes']>;
+  delegate?: Maybe<Scalars['localoptimism_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['localmainnet_Bytes']>;
+  callData?: Maybe<Scalars['localoptimism_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
   bumpSlippageCount?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['localmainnet_Bytes']>;
+  originSender?: Maybe<Scalars['localoptimism_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localmainnet_Bytes']>;
-  asset?: Maybe<localmainnet_Asset>;
+  canonicalId?: Maybe<Scalars['localoptimism_Bytes']>;
+  asset?: Maybe<localoptimism_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['localmainnet_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  executedCaller?: Maybe<Scalars['localoptimism_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['localoptimism_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedTxOrigin?: Maybe<Scalars['localmainnet_Bytes']>;
+  executedTxOrigin?: Maybe<Scalars['localoptimism_Bytes']>;
   executedTxNonce?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['localmainnet_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['localoptimism_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['localoptimism_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledTxOrigin?: Maybe<Scalars['localmainnet_Bytes']>;
+  reconciledTxOrigin?: Maybe<Scalars['localoptimism_Bytes']>;
   reconciledTxNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type localmainnet_DestinationTransferroutersArgs = {
+export type localoptimism_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Router_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Router_filter>;
+  orderBy?: InputMaybe<localoptimism_Router_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Router_filter>;
 };
 
-export type localmainnet_DestinationTransfer_filter = {
+export type localoptimism_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -447,12 +447,12 @@ export type localmainnet_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transferId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -461,17 +461,17 @@ export type localmainnet_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<localmainnet_TransferStatus>;
-  status_not?: InputMaybe<localmainnet_TransferStatus>;
-  status_in?: InputMaybe<Array<localmainnet_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<localmainnet_TransferStatus>>;
+  status?: InputMaybe<localoptimism_TransferStatus>;
+  status_not?: InputMaybe<localoptimism_TransferStatus>;
+  status_in?: InputMaybe<Array<localoptimism_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<localoptimism_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<localmainnet_Router_filter>;
+  routers_?: InputMaybe<localoptimism_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -496,28 +496,28 @@ export type localmainnet_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  to?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  callData?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -534,12 +534,12 @@ export type localmainnet_DestinationTransfer_filter = {
   bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  originSender?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -556,12 +556,12 @@ export type localmainnet_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -582,7 +582,7 @@ export type localmainnet_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localmainnet_Asset_filter>;
+  asset_?: InputMaybe<localoptimism_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -599,18 +599,18 @@ export type localmainnet_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -643,12 +643,12 @@ export type localmainnet_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTxOrigin?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTxOrigin_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTxOrigin_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  executedTxOrigin_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  executedTxOrigin_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  executedTxOrigin?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   executedTxNonce?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -657,18 +657,18 @@ export type localmainnet_DestinationTransfer_filter = {
   executedTxNonce_lte?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -701,12 +701,12 @@ export type localmainnet_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTxOrigin?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTxOrigin_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  reconciledTxOrigin_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  reconciledTxOrigin?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   reconciledTxNonce?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -716,10 +716,10 @@ export type localmainnet_DestinationTransfer_filter = {
   reconciledTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_DestinationTransfer_orderBy =
+export type localoptimism_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -760,24 +760,24 @@ export type localmainnet_DestinationTransfer_orderBy =
   | 'reconciledTxNonce';
 
 /** Defines the order direction, either ascending or descending */
-export type localmainnet_OrderDirection =
+export type localoptimism_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type localmainnet_OriginMessage = {
+export type localoptimism_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['localmainnet_Bytes']>;
+  transferId?: Maybe<Scalars['localoptimism_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['localmainnet_Bytes']>;
+  leaf?: Maybe<Scalars['localoptimism_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<Scalars['localmainnet_Bytes']>;
-  root?: Maybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  message?: Maybe<Scalars['localoptimism_Bytes']>;
+  root?: Maybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['localoptimism_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<localmainnet_RootCount>;
+  rootCount?: Maybe<localoptimism_RootCount>;
 };
 
-export type localmainnet_OriginMessage_filter = {
+export type localoptimism_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -786,12 +786,12 @@ export type localmainnet_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transferId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -800,12 +800,12 @@ export type localmainnet_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  leaf?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -814,24 +814,24 @@ export type localmainnet_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  message_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  message?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  message_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -860,12 +860,12 @@ export type localmainnet_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<localmainnet_RootCount_filter>;
+  rootCount_?: InputMaybe<localoptimism_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_OriginMessage_orderBy =
+export type localoptimism_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -877,51 +877,51 @@ export type localmainnet_OriginMessage_orderBy =
   | 'blockNumber'
   | 'rootCount';
 
-export type localmainnet_OriginTransfer = {
+export type localoptimism_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['localmainnet_Bytes']>;
+  transferId?: Maybe<Scalars['localoptimism_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<localmainnet_TransferStatus>;
-  messageHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  status?: Maybe<localoptimism_TransferStatus>;
+  messageHash?: Maybe<Scalars['localoptimism_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['localmainnet_Bytes']>;
-  delegate?: Maybe<Scalars['localmainnet_Bytes']>;
+  to?: Maybe<Scalars['localoptimism_Bytes']>;
+  delegate?: Maybe<Scalars['localoptimism_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['localmainnet_Bytes']>;
+  callData?: Maybe<Scalars['localoptimism_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['localmainnet_Bytes']>;
+  originSender?: Maybe<Scalars['localoptimism_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['localmainnet_Bytes']>;
-  asset?: Maybe<localmainnet_Asset>;
-  transactingAsset?: Maybe<Scalars['localmainnet_Bytes']>;
-  message?: Maybe<localmainnet_OriginMessage>;
+  canonicalId?: Maybe<Scalars['localoptimism_Bytes']>;
+  asset?: Maybe<localoptimism_Asset>;
+  transactingAsset?: Maybe<Scalars['localoptimism_Bytes']>;
+  message?: Maybe<localoptimism_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
-  relayerFees?: Maybe<Array<localmainnet_RelayerFee>>;
-  initialRelayerFeeAsset?: Maybe<Scalars['localmainnet_Bytes']>;
-  caller?: Maybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  relayerFees?: Maybe<Array<localoptimism_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['localoptimism_Bytes']>;
+  caller?: Maybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['localoptimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  txOrigin?: Maybe<Scalars['localmainnet_Bytes']>;
+  txOrigin?: Maybe<Scalars['localoptimism_Bytes']>;
   txNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type localmainnet_OriginTransferrelayerFeesArgs = {
+export type localoptimism_OriginTransferrelayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RelayerFee_filter>;
+  orderBy?: InputMaybe<localoptimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RelayerFee_filter>;
 };
 
-export type localmainnet_OriginTransfer_filter = {
+export type localoptimism_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -938,12 +938,12 @@ export type localmainnet_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transferId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -952,16 +952,16 @@ export type localmainnet_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<localmainnet_TransferStatus>;
-  status_not?: InputMaybe<localmainnet_TransferStatus>;
-  status_in?: InputMaybe<Array<localmainnet_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<localmainnet_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  status?: InputMaybe<localoptimism_TransferStatus>;
+  status_not?: InputMaybe<localoptimism_TransferStatus>;
+  status_in?: InputMaybe<Array<localoptimism_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<localoptimism_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -986,28 +986,28 @@ export type localmainnet_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  to?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  callData?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1016,12 +1016,12 @@ export type localmainnet_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  originSender?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1038,12 +1038,12 @@ export type localmainnet_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -1064,13 +1064,13 @@ export type localmainnet_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localmainnet_Asset_filter>;
-  transactingAsset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  asset_?: InputMaybe<localoptimism_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1091,7 +1091,7 @@ export type localmainnet_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<localmainnet_OriginMessage_filter>;
+  message_?: InputMaybe<localoptimism_OriginMessage_filter>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1106,25 +1106,25 @@ export type localmainnet_OriginTransfer_filter = {
   relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  relayerFees_?: InputMaybe<localmainnet_RelayerFee_filter>;
-  initialRelayerFeeAsset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  initialRelayerFeeAsset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  relayerFees_?: InputMaybe<localoptimism_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1157,12 +1157,12 @@ export type localmainnet_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  txOrigin?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  txOrigin_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  txOrigin_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  txOrigin_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  txOrigin_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  txOrigin_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  txOrigin?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   txNonce?: InputMaybe<Scalars['BigInt']>;
   txNonce_not?: InputMaybe<Scalars['BigInt']>;
   txNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1172,10 +1172,10 @@ export type localmainnet_OriginTransfer_filter = {
   txNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_OriginTransfer_orderBy =
+export type localoptimism_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1210,389 +1210,389 @@ export type localmainnet_OriginTransfer_orderBy =
   | 'txNonce';
 
 export type Query = {
-  localmainnet_asset?: Maybe<localmainnet_Asset>;
-  localmainnet_assets: Array<localmainnet_Asset>;
-  localmainnet_assetStatus?: Maybe<localmainnet_AssetStatus>;
-  localmainnet_assetStatuses: Array<localmainnet_AssetStatus>;
-  localmainnet_assetBalance?: Maybe<localmainnet_AssetBalance>;
-  localmainnet_assetBalances: Array<localmainnet_AssetBalance>;
-  localmainnet_router?: Maybe<localmainnet_Router>;
-  localmainnet_routers: Array<localmainnet_Router>;
-  localmainnet_routerDailyTVL?: Maybe<localmainnet_RouterDailyTVL>;
-  localmainnet_routerDailyTVLs: Array<localmainnet_RouterDailyTVL>;
-  localmainnet_setting?: Maybe<localmainnet_Setting>;
-  localmainnet_settings: Array<localmainnet_Setting>;
-  localmainnet_relayer?: Maybe<localmainnet_Relayer>;
-  localmainnet_relayers: Array<localmainnet_Relayer>;
-  localmainnet_sequencer?: Maybe<localmainnet_Sequencer>;
-  localmainnet_sequencers: Array<localmainnet_Sequencer>;
-  localmainnet_relayerFee?: Maybe<localmainnet_RelayerFee>;
-  localmainnet_relayerFees: Array<localmainnet_RelayerFee>;
-  localmainnet_originTransfer?: Maybe<localmainnet_OriginTransfer>;
-  localmainnet_originTransfers: Array<localmainnet_OriginTransfer>;
-  localmainnet_destinationTransfer?: Maybe<localmainnet_DestinationTransfer>;
-  localmainnet_destinationTransfers: Array<localmainnet_DestinationTransfer>;
-  localmainnet_originMessage?: Maybe<localmainnet_OriginMessage>;
-  localmainnet_originMessages: Array<localmainnet_OriginMessage>;
-  localmainnet_aggregateRoot?: Maybe<localmainnet_AggregateRoot>;
-  localmainnet_aggregateRoots: Array<localmainnet_AggregateRoot>;
-  localmainnet_connectorMeta?: Maybe<localmainnet_ConnectorMeta>;
-  localmainnet_connectorMetas: Array<localmainnet_ConnectorMeta>;
-  localmainnet_rootCount?: Maybe<localmainnet_RootCount>;
-  localmainnet_rootCounts: Array<localmainnet_RootCount>;
-  localmainnet_rootMessageSent?: Maybe<localmainnet_RootMessageSent>;
-  localmainnet_rootMessageSents: Array<localmainnet_RootMessageSent>;
-  localmainnet_relayerFeesIncrease?: Maybe<localmainnet_RelayerFeesIncrease>;
-  localmainnet_relayerFeesIncreases: Array<localmainnet_RelayerFeesIncrease>;
-  localmainnet_slippageUpdate?: Maybe<localmainnet_SlippageUpdate>;
-  localmainnet_slippageUpdates: Array<localmainnet_SlippageUpdate>;
+  localoptimism_asset?: Maybe<localoptimism_Asset>;
+  localoptimism_assets: Array<localoptimism_Asset>;
+  localoptimism_assetStatus?: Maybe<localoptimism_AssetStatus>;
+  localoptimism_assetStatuses: Array<localoptimism_AssetStatus>;
+  localoptimism_assetBalance?: Maybe<localoptimism_AssetBalance>;
+  localoptimism_assetBalances: Array<localoptimism_AssetBalance>;
+  localoptimism_router?: Maybe<localoptimism_Router>;
+  localoptimism_routers: Array<localoptimism_Router>;
+  localoptimism_routerDailyTVL?: Maybe<localoptimism_RouterDailyTVL>;
+  localoptimism_routerDailyTVLs: Array<localoptimism_RouterDailyTVL>;
+  localoptimism_setting?: Maybe<localoptimism_Setting>;
+  localoptimism_settings: Array<localoptimism_Setting>;
+  localoptimism_relayer?: Maybe<localoptimism_Relayer>;
+  localoptimism_relayers: Array<localoptimism_Relayer>;
+  localoptimism_sequencer?: Maybe<localoptimism_Sequencer>;
+  localoptimism_sequencers: Array<localoptimism_Sequencer>;
+  localoptimism_relayerFee?: Maybe<localoptimism_RelayerFee>;
+  localoptimism_relayerFees: Array<localoptimism_RelayerFee>;
+  localoptimism_originTransfer?: Maybe<localoptimism_OriginTransfer>;
+  localoptimism_originTransfers: Array<localoptimism_OriginTransfer>;
+  localoptimism_destinationTransfer?: Maybe<localoptimism_DestinationTransfer>;
+  localoptimism_destinationTransfers: Array<localoptimism_DestinationTransfer>;
+  localoptimism_originMessage?: Maybe<localoptimism_OriginMessage>;
+  localoptimism_originMessages: Array<localoptimism_OriginMessage>;
+  localoptimism_aggregateRoot?: Maybe<localoptimism_AggregateRoot>;
+  localoptimism_aggregateRoots: Array<localoptimism_AggregateRoot>;
+  localoptimism_connectorMeta?: Maybe<localoptimism_ConnectorMeta>;
+  localoptimism_connectorMetas: Array<localoptimism_ConnectorMeta>;
+  localoptimism_rootCount?: Maybe<localoptimism_RootCount>;
+  localoptimism_rootCounts: Array<localoptimism_RootCount>;
+  localoptimism_rootMessageSent?: Maybe<localoptimism_RootMessageSent>;
+  localoptimism_rootMessageSents: Array<localoptimism_RootMessageSent>;
+  localoptimism_relayerFeesIncrease?: Maybe<localoptimism_RelayerFeesIncrease>;
+  localoptimism_relayerFeesIncreases: Array<localoptimism_RelayerFeesIncrease>;
+  localoptimism_slippageUpdate?: Maybe<localoptimism_SlippageUpdate>;
+  localoptimism_slippageUpdates: Array<localoptimism_SlippageUpdate>;
   /** Access to subgraph metadata */
-  localmainnet__meta?: Maybe<localmainnet__Meta_>;
+  localoptimism__meta?: Maybe<localoptimism__Meta_>;
 };
 
 
-export type Querylocalmainnet_assetArgs = {
+export type Querylocaloptimism_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_assetsArgs = {
+export type Querylocaloptimism_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Asset_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Asset_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Asset_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Asset_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_assetStatusArgs = {
+export type Querylocaloptimism_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_assetStatusesArgs = {
+export type Querylocaloptimism_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AssetStatus_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AssetStatus_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_assetBalanceArgs = {
+export type Querylocaloptimism_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_assetBalancesArgs = {
+export type Querylocaloptimism_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AssetBalance_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AssetBalance_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_routerArgs = {
+export type Querylocaloptimism_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_routersArgs = {
+export type Querylocaloptimism_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Router_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Router_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Router_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Router_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_routerDailyTVLArgs = {
+export type Querylocaloptimism_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_routerDailyTVLsArgs = {
+export type Querylocaloptimism_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RouterDailyTVL_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RouterDailyTVL_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_settingArgs = {
+export type Querylocaloptimism_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_settingsArgs = {
+export type Querylocaloptimism_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Setting_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Setting_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Setting_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Setting_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayerArgs = {
+export type Querylocaloptimism_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayersArgs = {
+export type Querylocaloptimism_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Relayer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Relayer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Relayer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Relayer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_sequencerArgs = {
+export type Querylocaloptimism_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_sequencersArgs = {
+export type Querylocaloptimism_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Sequencer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Sequencer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayerFeeArgs = {
+export type Querylocaloptimism_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayerFeesArgs = {
+export type Querylocaloptimism_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RelayerFee_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RelayerFee_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_originTransferArgs = {
+export type Querylocaloptimism_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_originTransfersArgs = {
+export type Querylocaloptimism_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_OriginTransfer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_OriginTransfer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_destinationTransferArgs = {
+export type Querylocaloptimism_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_destinationTransfersArgs = {
+export type Querylocaloptimism_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_DestinationTransfer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_DestinationTransfer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_originMessageArgs = {
+export type Querylocaloptimism_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_originMessagesArgs = {
+export type Querylocaloptimism_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_OriginMessage_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_OriginMessage_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_aggregateRootArgs = {
+export type Querylocaloptimism_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_aggregateRootsArgs = {
+export type Querylocaloptimism_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AggregateRoot_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AggregateRoot_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_connectorMetaArgs = {
+export type Querylocaloptimism_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_connectorMetasArgs = {
+export type Querylocaloptimism_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_ConnectorMeta_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_ConnectorMeta_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_rootCountArgs = {
+export type Querylocaloptimism_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_rootCountsArgs = {
+export type Querylocaloptimism_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RootCount_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RootCount_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RootCount_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RootCount_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_rootMessageSentArgs = {
+export type Querylocaloptimism_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_rootMessageSentsArgs = {
+export type Querylocaloptimism_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RootMessageSent_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RootMessageSent_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayerFeesIncreaseArgs = {
+export type Querylocaloptimism_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_relayerFeesIncreasesArgs = {
+export type Querylocaloptimism_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_slippageUpdateArgs = {
+export type Querylocaloptimism_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet_slippageUpdatesArgs = {
+export type Querylocaloptimism_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_SlippageUpdate_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_SlippageUpdate_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querylocalmainnet__metaArgs = {
-  block?: InputMaybe<localmainnet_Block_height>;
+export type Querylocaloptimism__metaArgs = {
+  block?: InputMaybe<localoptimism_Block_height>;
 };
 
-export type localmainnet_Relayer = {
+export type localoptimism_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['localmainnet_Bytes']>;
+  relayer?: Maybe<Scalars['localoptimism_Bytes']>;
 };
 
-export type localmainnet_RelayerFee = {
+export type localoptimism_RelayerFee = {
   id: Scalars['ID'];
-  transfer: localmainnet_OriginTransfer;
+  transfer: localoptimism_OriginTransfer;
   fee: Scalars['BigInt'];
-  asset: Scalars['localmainnet_Bytes'];
+  asset: Scalars['localoptimism_Bytes'];
 };
 
-export type localmainnet_RelayerFee_filter = {
+export type localoptimism_RelayerFee_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1621,7 +1621,7 @@ export type localmainnet_RelayerFee_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localmainnet_OriginTransfer_filter>;
+  transfer_?: InputMaybe<localoptimism_OriginTransfer_filter>;
   fee?: InputMaybe<Scalars['BigInt']>;
   fee_not?: InputMaybe<Scalars['BigInt']>;
   fee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1630,36 +1630,36 @@ export type localmainnet_RelayerFee_filter = {
   fee_lte?: InputMaybe<Scalars['BigInt']>;
   fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  asset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_RelayerFee_orderBy =
+export type localoptimism_RelayerFee_orderBy =
   | 'id'
   | 'transfer'
   | 'fee'
   | 'asset';
 
-export type localmainnet_RelayerFeesIncrease = {
+export type localoptimism_RelayerFeesIncrease = {
   id: Scalars['ID'];
-  transfer: localmainnet_OriginTransfer;
+  transfer: localoptimism_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
-  asset?: Maybe<Scalars['localmainnet_Bytes']>;
-  caller: Scalars['localmainnet_Bytes'];
-  transactionHash: Scalars['localmainnet_Bytes'];
+  asset?: Maybe<Scalars['localoptimism_Bytes']>;
+  caller: Scalars['localoptimism_Bytes'];
+  transactionHash: Scalars['localoptimism_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localmainnet_RelayerFeesIncrease_filter = {
+export type localoptimism_RelayerFeesIncrease_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1688,7 +1688,7 @@ export type localmainnet_RelayerFeesIncrease_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localmainnet_OriginTransfer_filter>;
+  transfer_?: InputMaybe<localoptimism_OriginTransfer_filter>;
   increase?: InputMaybe<Scalars['BigInt']>;
   increase_not?: InputMaybe<Scalars['BigInt']>;
   increase_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1697,24 +1697,24 @@ export type localmainnet_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  asset?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1748,10 +1748,10 @@ export type localmainnet_RelayerFeesIncrease_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_RelayerFeesIncrease_orderBy =
+export type localoptimism_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'increase'
@@ -1763,7 +1763,7 @@ export type localmainnet_RelayerFeesIncrease_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type localmainnet_Relayer_filter = {
+export type localoptimism_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1776,27 +1776,27 @@ export type localmainnet_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  relayer?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_Relayer_orderBy =
+export type localoptimism_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type localmainnet_RootCount = {
+export type localoptimism_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type localmainnet_RootCount_filter = {
+export type localoptimism_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1814,28 +1814,28 @@ export type localmainnet_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_RootCount_orderBy =
+export type localoptimism_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type localmainnet_RootMessageSent = {
+export type localoptimism_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['localmainnet_Bytes']>;
+  root?: Maybe<Scalars['localoptimism_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: Maybe<Scalars['localmainnet_Bytes']>;
+  caller?: Maybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: Maybe<Scalars['localoptimism_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type localmainnet_RootMessageSent_filter = {
+export type localoptimism_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1860,12 +1860,12 @@ export type localmainnet_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  root?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1874,18 +1874,18 @@ export type localmainnet_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1919,10 +1919,10 @@ export type localmainnet_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_RootMessageSent_orderBy =
+export type localoptimism_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -1935,34 +1935,34 @@ export type localmainnet_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type localmainnet_Router = {
+export type localoptimism_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['localmainnet_Bytes']>;
-  recipient?: Maybe<Scalars['localmainnet_Bytes']>;
-  proposedOwner?: Maybe<Scalars['localmainnet_Bytes']>;
+  owner?: Maybe<Scalars['localoptimism_Bytes']>;
+  recipient?: Maybe<Scalars['localoptimism_Bytes']>;
+  proposedOwner?: Maybe<Scalars['localoptimism_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<localmainnet_AssetBalance>;
+  assetBalances: Array<localoptimism_AssetBalance>;
 };
 
 
-export type localmainnet_RouterassetBalancesArgs = {
+export type localoptimism_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AssetBalance_filter>;
+  orderBy?: InputMaybe<localoptimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AssetBalance_filter>;
 };
 
-export type localmainnet_RouterDailyTVL = {
+export type localoptimism_RouterDailyTVL = {
   id: Scalars['ID'];
-  router: localmainnet_Router;
-  asset: localmainnet_Asset;
+  router: localoptimism_Router;
+  asset: localoptimism_Asset;
   timestamp: Scalars['BigInt'];
   balance: Scalars['BigInt'];
 };
 
-export type localmainnet_RouterDailyTVL_filter = {
+export type localoptimism_RouterDailyTVL_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1991,7 +1991,7 @@ export type localmainnet_RouterDailyTVL_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<localmainnet_Router_filter>;
+  router_?: InputMaybe<localoptimism_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2012,7 +2012,7 @@ export type localmainnet_RouterDailyTVL_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<localmainnet_Asset_filter>;
+  asset_?: InputMaybe<localoptimism_Asset_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2030,17 +2030,17 @@ export type localmainnet_RouterDailyTVL_filter = {
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_RouterDailyTVL_orderBy =
+export type localoptimism_RouterDailyTVL_orderBy =
   | 'id'
   | 'router'
   | 'asset'
   | 'timestamp'
   | 'balance';
 
-export type localmainnet_Router_filter = {
+export type localoptimism_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2053,24 +2053,24 @@ export type localmainnet_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  owner_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  recipient?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  owner?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  owner_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  recipient?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2079,12 +2079,12 @@ export type localmainnet_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<localmainnet_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<localoptimism_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_Router_orderBy =
+export type localoptimism_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -2093,13 +2093,13 @@ export type localmainnet_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type localmainnet_Sequencer = {
+export type localoptimism_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['localmainnet_Bytes']>;
+  sequencer?: Maybe<Scalars['localoptimism_Bytes']>;
 };
 
-export type localmainnet_Sequencer_filter = {
+export type localoptimism_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2112,28 +2112,28 @@ export type localmainnet_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  sequencer?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_Sequencer_orderBy =
+export type localoptimism_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type localmainnet_Setting = {
+export type localoptimism_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['localmainnet_Bytes'];
+  caller: Scalars['localoptimism_Bytes'];
 };
 
-export type localmainnet_Setting_filter = {
+export type localoptimism_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2150,34 +2150,34 @@ export type localmainnet_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_Setting_orderBy =
+export type localoptimism_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type localmainnet_SlippageUpdate = {
+export type localoptimism_SlippageUpdate = {
   id: Scalars['ID'];
-  transfer: localmainnet_DestinationTransfer;
+  transfer: localoptimism_DestinationTransfer;
   slippage: Scalars['BigInt'];
-  caller: Scalars['localmainnet_Bytes'];
-  transactionHash: Scalars['localmainnet_Bytes'];
+  caller: Scalars['localoptimism_Bytes'];
+  transactionHash: Scalars['localoptimism_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type localmainnet_SlippageUpdate_filter = {
+export type localoptimism_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2206,7 +2206,7 @@ export type localmainnet_SlippageUpdate_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<localmainnet_DestinationTransfer_filter>;
+  transfer_?: InputMaybe<localoptimism_DestinationTransfer_filter>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2215,18 +2215,18 @@ export type localmainnet_SlippageUpdate_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localoptimism_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localoptimism_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2260,10 +2260,10 @@ export type localmainnet_SlippageUpdate_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  _change_block?: InputMaybe<localoptimism_BlockChangedFilter>;
 };
 
-export type localmainnet_SlippageUpdate_orderBy =
+export type localoptimism_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
   | 'slippage'
@@ -2275,391 +2275,391 @@ export type localmainnet_SlippageUpdate_orderBy =
   | 'blockNumber';
 
 export type Subscription = {
-  localmainnet_asset?: Maybe<localmainnet_Asset>;
-  localmainnet_assets: Array<localmainnet_Asset>;
-  localmainnet_assetStatus?: Maybe<localmainnet_AssetStatus>;
-  localmainnet_assetStatuses: Array<localmainnet_AssetStatus>;
-  localmainnet_assetBalance?: Maybe<localmainnet_AssetBalance>;
-  localmainnet_assetBalances: Array<localmainnet_AssetBalance>;
-  localmainnet_router?: Maybe<localmainnet_Router>;
-  localmainnet_routers: Array<localmainnet_Router>;
-  localmainnet_routerDailyTVL?: Maybe<localmainnet_RouterDailyTVL>;
-  localmainnet_routerDailyTVLs: Array<localmainnet_RouterDailyTVL>;
-  localmainnet_setting?: Maybe<localmainnet_Setting>;
-  localmainnet_settings: Array<localmainnet_Setting>;
-  localmainnet_relayer?: Maybe<localmainnet_Relayer>;
-  localmainnet_relayers: Array<localmainnet_Relayer>;
-  localmainnet_sequencer?: Maybe<localmainnet_Sequencer>;
-  localmainnet_sequencers: Array<localmainnet_Sequencer>;
-  localmainnet_relayerFee?: Maybe<localmainnet_RelayerFee>;
-  localmainnet_relayerFees: Array<localmainnet_RelayerFee>;
-  localmainnet_originTransfer?: Maybe<localmainnet_OriginTransfer>;
-  localmainnet_originTransfers: Array<localmainnet_OriginTransfer>;
-  localmainnet_destinationTransfer?: Maybe<localmainnet_DestinationTransfer>;
-  localmainnet_destinationTransfers: Array<localmainnet_DestinationTransfer>;
-  localmainnet_originMessage?: Maybe<localmainnet_OriginMessage>;
-  localmainnet_originMessages: Array<localmainnet_OriginMessage>;
-  localmainnet_aggregateRoot?: Maybe<localmainnet_AggregateRoot>;
-  localmainnet_aggregateRoots: Array<localmainnet_AggregateRoot>;
-  localmainnet_connectorMeta?: Maybe<localmainnet_ConnectorMeta>;
-  localmainnet_connectorMetas: Array<localmainnet_ConnectorMeta>;
-  localmainnet_rootCount?: Maybe<localmainnet_RootCount>;
-  localmainnet_rootCounts: Array<localmainnet_RootCount>;
-  localmainnet_rootMessageSent?: Maybe<localmainnet_RootMessageSent>;
-  localmainnet_rootMessageSents: Array<localmainnet_RootMessageSent>;
-  localmainnet_relayerFeesIncrease?: Maybe<localmainnet_RelayerFeesIncrease>;
-  localmainnet_relayerFeesIncreases: Array<localmainnet_RelayerFeesIncrease>;
-  localmainnet_slippageUpdate?: Maybe<localmainnet_SlippageUpdate>;
-  localmainnet_slippageUpdates: Array<localmainnet_SlippageUpdate>;
+  localoptimism_asset?: Maybe<localoptimism_Asset>;
+  localoptimism_assets: Array<localoptimism_Asset>;
+  localoptimism_assetStatus?: Maybe<localoptimism_AssetStatus>;
+  localoptimism_assetStatuses: Array<localoptimism_AssetStatus>;
+  localoptimism_assetBalance?: Maybe<localoptimism_AssetBalance>;
+  localoptimism_assetBalances: Array<localoptimism_AssetBalance>;
+  localoptimism_router?: Maybe<localoptimism_Router>;
+  localoptimism_routers: Array<localoptimism_Router>;
+  localoptimism_routerDailyTVL?: Maybe<localoptimism_RouterDailyTVL>;
+  localoptimism_routerDailyTVLs: Array<localoptimism_RouterDailyTVL>;
+  localoptimism_setting?: Maybe<localoptimism_Setting>;
+  localoptimism_settings: Array<localoptimism_Setting>;
+  localoptimism_relayer?: Maybe<localoptimism_Relayer>;
+  localoptimism_relayers: Array<localoptimism_Relayer>;
+  localoptimism_sequencer?: Maybe<localoptimism_Sequencer>;
+  localoptimism_sequencers: Array<localoptimism_Sequencer>;
+  localoptimism_relayerFee?: Maybe<localoptimism_RelayerFee>;
+  localoptimism_relayerFees: Array<localoptimism_RelayerFee>;
+  localoptimism_originTransfer?: Maybe<localoptimism_OriginTransfer>;
+  localoptimism_originTransfers: Array<localoptimism_OriginTransfer>;
+  localoptimism_destinationTransfer?: Maybe<localoptimism_DestinationTransfer>;
+  localoptimism_destinationTransfers: Array<localoptimism_DestinationTransfer>;
+  localoptimism_originMessage?: Maybe<localoptimism_OriginMessage>;
+  localoptimism_originMessages: Array<localoptimism_OriginMessage>;
+  localoptimism_aggregateRoot?: Maybe<localoptimism_AggregateRoot>;
+  localoptimism_aggregateRoots: Array<localoptimism_AggregateRoot>;
+  localoptimism_connectorMeta?: Maybe<localoptimism_ConnectorMeta>;
+  localoptimism_connectorMetas: Array<localoptimism_ConnectorMeta>;
+  localoptimism_rootCount?: Maybe<localoptimism_RootCount>;
+  localoptimism_rootCounts: Array<localoptimism_RootCount>;
+  localoptimism_rootMessageSent?: Maybe<localoptimism_RootMessageSent>;
+  localoptimism_rootMessageSents: Array<localoptimism_RootMessageSent>;
+  localoptimism_relayerFeesIncrease?: Maybe<localoptimism_RelayerFeesIncrease>;
+  localoptimism_relayerFeesIncreases: Array<localoptimism_RelayerFeesIncrease>;
+  localoptimism_slippageUpdate?: Maybe<localoptimism_SlippageUpdate>;
+  localoptimism_slippageUpdates: Array<localoptimism_SlippageUpdate>;
   /** Access to subgraph metadata */
-  localmainnet__meta?: Maybe<localmainnet__Meta_>;
+  localoptimism__meta?: Maybe<localoptimism__Meta_>;
 };
 
 
-export type Subscriptionlocalmainnet_assetArgs = {
+export type Subscriptionlocaloptimism_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_assetsArgs = {
+export type Subscriptionlocaloptimism_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Asset_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Asset_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Asset_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Asset_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_assetStatusArgs = {
+export type Subscriptionlocaloptimism_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_assetStatusesArgs = {
+export type Subscriptionlocaloptimism_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AssetStatus_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AssetStatus_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_assetBalanceArgs = {
+export type Subscriptionlocaloptimism_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_assetBalancesArgs = {
+export type Subscriptionlocaloptimism_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AssetBalance_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AssetBalance_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_routerArgs = {
+export type Subscriptionlocaloptimism_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_routersArgs = {
+export type Subscriptionlocaloptimism_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Router_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Router_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Router_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Router_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_routerDailyTVLArgs = {
+export type Subscriptionlocaloptimism_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_routerDailyTVLsArgs = {
+export type Subscriptionlocaloptimism_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RouterDailyTVL_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RouterDailyTVL_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_settingArgs = {
+export type Subscriptionlocaloptimism_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_settingsArgs = {
+export type Subscriptionlocaloptimism_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Setting_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Setting_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Setting_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Setting_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayerArgs = {
+export type Subscriptionlocaloptimism_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayersArgs = {
+export type Subscriptionlocaloptimism_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Relayer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Relayer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Relayer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Relayer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_sequencerArgs = {
+export type Subscriptionlocaloptimism_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_sequencersArgs = {
+export type Subscriptionlocaloptimism_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_Sequencer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_Sequencer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayerFeeArgs = {
+export type Subscriptionlocaloptimism_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayerFeesArgs = {
+export type Subscriptionlocaloptimism_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RelayerFee_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RelayerFee_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_originTransferArgs = {
+export type Subscriptionlocaloptimism_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_originTransfersArgs = {
+export type Subscriptionlocaloptimism_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_OriginTransfer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_OriginTransfer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_destinationTransferArgs = {
+export type Subscriptionlocaloptimism_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_destinationTransfersArgs = {
+export type Subscriptionlocaloptimism_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_DestinationTransfer_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_DestinationTransfer_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_originMessageArgs = {
+export type Subscriptionlocaloptimism_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_originMessagesArgs = {
+export type Subscriptionlocaloptimism_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_OriginMessage_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_OriginMessage_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_aggregateRootArgs = {
+export type Subscriptionlocaloptimism_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_aggregateRootsArgs = {
+export type Subscriptionlocaloptimism_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_AggregateRoot_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_AggregateRoot_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_connectorMetaArgs = {
+export type Subscriptionlocaloptimism_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_connectorMetasArgs = {
+export type Subscriptionlocaloptimism_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_ConnectorMeta_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_ConnectorMeta_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_rootCountArgs = {
+export type Subscriptionlocaloptimism_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_rootCountsArgs = {
+export type Subscriptionlocaloptimism_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RootCount_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RootCount_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RootCount_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RootCount_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_rootMessageSentArgs = {
+export type Subscriptionlocaloptimism_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_rootMessageSentsArgs = {
+export type Subscriptionlocaloptimism_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RootMessageSent_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RootMessageSent_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayerFeesIncreaseArgs = {
+export type Subscriptionlocaloptimism_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_relayerFeesIncreasesArgs = {
+export type Subscriptionlocaloptimism_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_slippageUpdateArgs = {
+export type Subscriptionlocaloptimism_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<localmainnet_Block_height>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet_slippageUpdatesArgs = {
+export type Subscriptionlocaloptimism_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<localmainnet_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
-  where?: InputMaybe<localmainnet_SlippageUpdate_filter>;
-  block?: InputMaybe<localmainnet_Block_height>;
+  orderBy?: InputMaybe<localoptimism_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<localoptimism_OrderDirection>;
+  where?: InputMaybe<localoptimism_SlippageUpdate_filter>;
+  block?: InputMaybe<localoptimism_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionlocalmainnet__metaArgs = {
-  block?: InputMaybe<localmainnet_Block_height>;
+export type Subscriptionlocaloptimism__metaArgs = {
+  block?: InputMaybe<localoptimism_Block_height>;
 };
 
-export type localmainnet_TransferStatus =
+export type localoptimism_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type localmainnet__Block_ = {
+export type localoptimism__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['localmainnet_Bytes']>;
+  hash?: Maybe<Scalars['localoptimism_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
 };
 
 /** The type for the top-level _meta field */
-export type localmainnet__Meta_ = {
+export type localoptimism__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -2667,7 +2667,7 @@ export type localmainnet__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: localmainnet__Block_;
+  block: localoptimism__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -2682,79 +2682,79 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  localmainnet_asset: InContextSdkMethod<Query['localmainnet_asset'], Querylocalmainnet_assetArgs, MeshContext>,
+  localoptimism_asset: InContextSdkMethod<Query['localoptimism_asset'], Querylocaloptimism_assetArgs, MeshContext>,
   /** null **/
-  localmainnet_assets: InContextSdkMethod<Query['localmainnet_assets'], Querylocalmainnet_assetsArgs, MeshContext>,
+  localoptimism_assets: InContextSdkMethod<Query['localoptimism_assets'], Querylocaloptimism_assetsArgs, MeshContext>,
   /** null **/
-  localmainnet_assetStatus: InContextSdkMethod<Query['localmainnet_assetStatus'], Querylocalmainnet_assetStatusArgs, MeshContext>,
+  localoptimism_assetStatus: InContextSdkMethod<Query['localoptimism_assetStatus'], Querylocaloptimism_assetStatusArgs, MeshContext>,
   /** null **/
-  localmainnet_assetStatuses: InContextSdkMethod<Query['localmainnet_assetStatuses'], Querylocalmainnet_assetStatusesArgs, MeshContext>,
+  localoptimism_assetStatuses: InContextSdkMethod<Query['localoptimism_assetStatuses'], Querylocaloptimism_assetStatusesArgs, MeshContext>,
   /** null **/
-  localmainnet_assetBalance: InContextSdkMethod<Query['localmainnet_assetBalance'], Querylocalmainnet_assetBalanceArgs, MeshContext>,
+  localoptimism_assetBalance: InContextSdkMethod<Query['localoptimism_assetBalance'], Querylocaloptimism_assetBalanceArgs, MeshContext>,
   /** null **/
-  localmainnet_assetBalances: InContextSdkMethod<Query['localmainnet_assetBalances'], Querylocalmainnet_assetBalancesArgs, MeshContext>,
+  localoptimism_assetBalances: InContextSdkMethod<Query['localoptimism_assetBalances'], Querylocaloptimism_assetBalancesArgs, MeshContext>,
   /** null **/
-  localmainnet_router: InContextSdkMethod<Query['localmainnet_router'], Querylocalmainnet_routerArgs, MeshContext>,
+  localoptimism_router: InContextSdkMethod<Query['localoptimism_router'], Querylocaloptimism_routerArgs, MeshContext>,
   /** null **/
-  localmainnet_routers: InContextSdkMethod<Query['localmainnet_routers'], Querylocalmainnet_routersArgs, MeshContext>,
+  localoptimism_routers: InContextSdkMethod<Query['localoptimism_routers'], Querylocaloptimism_routersArgs, MeshContext>,
   /** null **/
-  localmainnet_routerDailyTVL: InContextSdkMethod<Query['localmainnet_routerDailyTVL'], Querylocalmainnet_routerDailyTVLArgs, MeshContext>,
+  localoptimism_routerDailyTVL: InContextSdkMethod<Query['localoptimism_routerDailyTVL'], Querylocaloptimism_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  localmainnet_routerDailyTVLs: InContextSdkMethod<Query['localmainnet_routerDailyTVLs'], Querylocalmainnet_routerDailyTVLsArgs, MeshContext>,
+  localoptimism_routerDailyTVLs: InContextSdkMethod<Query['localoptimism_routerDailyTVLs'], Querylocaloptimism_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  localmainnet_setting: InContextSdkMethod<Query['localmainnet_setting'], Querylocalmainnet_settingArgs, MeshContext>,
+  localoptimism_setting: InContextSdkMethod<Query['localoptimism_setting'], Querylocaloptimism_settingArgs, MeshContext>,
   /** null **/
-  localmainnet_settings: InContextSdkMethod<Query['localmainnet_settings'], Querylocalmainnet_settingsArgs, MeshContext>,
+  localoptimism_settings: InContextSdkMethod<Query['localoptimism_settings'], Querylocaloptimism_settingsArgs, MeshContext>,
   /** null **/
-  localmainnet_relayer: InContextSdkMethod<Query['localmainnet_relayer'], Querylocalmainnet_relayerArgs, MeshContext>,
+  localoptimism_relayer: InContextSdkMethod<Query['localoptimism_relayer'], Querylocaloptimism_relayerArgs, MeshContext>,
   /** null **/
-  localmainnet_relayers: InContextSdkMethod<Query['localmainnet_relayers'], Querylocalmainnet_relayersArgs, MeshContext>,
+  localoptimism_relayers: InContextSdkMethod<Query['localoptimism_relayers'], Querylocaloptimism_relayersArgs, MeshContext>,
   /** null **/
-  localmainnet_sequencer: InContextSdkMethod<Query['localmainnet_sequencer'], Querylocalmainnet_sequencerArgs, MeshContext>,
+  localoptimism_sequencer: InContextSdkMethod<Query['localoptimism_sequencer'], Querylocaloptimism_sequencerArgs, MeshContext>,
   /** null **/
-  localmainnet_sequencers: InContextSdkMethod<Query['localmainnet_sequencers'], Querylocalmainnet_sequencersArgs, MeshContext>,
+  localoptimism_sequencers: InContextSdkMethod<Query['localoptimism_sequencers'], Querylocaloptimism_sequencersArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFee: InContextSdkMethod<Query['localmainnet_relayerFee'], Querylocalmainnet_relayerFeeArgs, MeshContext>,
+  localoptimism_relayerFee: InContextSdkMethod<Query['localoptimism_relayerFee'], Querylocaloptimism_relayerFeeArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFees: InContextSdkMethod<Query['localmainnet_relayerFees'], Querylocalmainnet_relayerFeesArgs, MeshContext>,
+  localoptimism_relayerFees: InContextSdkMethod<Query['localoptimism_relayerFees'], Querylocaloptimism_relayerFeesArgs, MeshContext>,
   /** null **/
-  localmainnet_originTransfer: InContextSdkMethod<Query['localmainnet_originTransfer'], Querylocalmainnet_originTransferArgs, MeshContext>,
+  localoptimism_originTransfer: InContextSdkMethod<Query['localoptimism_originTransfer'], Querylocaloptimism_originTransferArgs, MeshContext>,
   /** null **/
-  localmainnet_originTransfers: InContextSdkMethod<Query['localmainnet_originTransfers'], Querylocalmainnet_originTransfersArgs, MeshContext>,
+  localoptimism_originTransfers: InContextSdkMethod<Query['localoptimism_originTransfers'], Querylocaloptimism_originTransfersArgs, MeshContext>,
   /** null **/
-  localmainnet_destinationTransfer: InContextSdkMethod<Query['localmainnet_destinationTransfer'], Querylocalmainnet_destinationTransferArgs, MeshContext>,
+  localoptimism_destinationTransfer: InContextSdkMethod<Query['localoptimism_destinationTransfer'], Querylocaloptimism_destinationTransferArgs, MeshContext>,
   /** null **/
-  localmainnet_destinationTransfers: InContextSdkMethod<Query['localmainnet_destinationTransfers'], Querylocalmainnet_destinationTransfersArgs, MeshContext>,
+  localoptimism_destinationTransfers: InContextSdkMethod<Query['localoptimism_destinationTransfers'], Querylocaloptimism_destinationTransfersArgs, MeshContext>,
   /** null **/
-  localmainnet_originMessage: InContextSdkMethod<Query['localmainnet_originMessage'], Querylocalmainnet_originMessageArgs, MeshContext>,
+  localoptimism_originMessage: InContextSdkMethod<Query['localoptimism_originMessage'], Querylocaloptimism_originMessageArgs, MeshContext>,
   /** null **/
-  localmainnet_originMessages: InContextSdkMethod<Query['localmainnet_originMessages'], Querylocalmainnet_originMessagesArgs, MeshContext>,
+  localoptimism_originMessages: InContextSdkMethod<Query['localoptimism_originMessages'], Querylocaloptimism_originMessagesArgs, MeshContext>,
   /** null **/
-  localmainnet_aggregateRoot: InContextSdkMethod<Query['localmainnet_aggregateRoot'], Querylocalmainnet_aggregateRootArgs, MeshContext>,
+  localoptimism_aggregateRoot: InContextSdkMethod<Query['localoptimism_aggregateRoot'], Querylocaloptimism_aggregateRootArgs, MeshContext>,
   /** null **/
-  localmainnet_aggregateRoots: InContextSdkMethod<Query['localmainnet_aggregateRoots'], Querylocalmainnet_aggregateRootsArgs, MeshContext>,
+  localoptimism_aggregateRoots: InContextSdkMethod<Query['localoptimism_aggregateRoots'], Querylocaloptimism_aggregateRootsArgs, MeshContext>,
   /** null **/
-  localmainnet_connectorMeta: InContextSdkMethod<Query['localmainnet_connectorMeta'], Querylocalmainnet_connectorMetaArgs, MeshContext>,
+  localoptimism_connectorMeta: InContextSdkMethod<Query['localoptimism_connectorMeta'], Querylocaloptimism_connectorMetaArgs, MeshContext>,
   /** null **/
-  localmainnet_connectorMetas: InContextSdkMethod<Query['localmainnet_connectorMetas'], Querylocalmainnet_connectorMetasArgs, MeshContext>,
+  localoptimism_connectorMetas: InContextSdkMethod<Query['localoptimism_connectorMetas'], Querylocaloptimism_connectorMetasArgs, MeshContext>,
   /** null **/
-  localmainnet_rootCount: InContextSdkMethod<Query['localmainnet_rootCount'], Querylocalmainnet_rootCountArgs, MeshContext>,
+  localoptimism_rootCount: InContextSdkMethod<Query['localoptimism_rootCount'], Querylocaloptimism_rootCountArgs, MeshContext>,
   /** null **/
-  localmainnet_rootCounts: InContextSdkMethod<Query['localmainnet_rootCounts'], Querylocalmainnet_rootCountsArgs, MeshContext>,
+  localoptimism_rootCounts: InContextSdkMethod<Query['localoptimism_rootCounts'], Querylocaloptimism_rootCountsArgs, MeshContext>,
   /** null **/
-  localmainnet_rootMessageSent: InContextSdkMethod<Query['localmainnet_rootMessageSent'], Querylocalmainnet_rootMessageSentArgs, MeshContext>,
+  localoptimism_rootMessageSent: InContextSdkMethod<Query['localoptimism_rootMessageSent'], Querylocaloptimism_rootMessageSentArgs, MeshContext>,
   /** null **/
-  localmainnet_rootMessageSents: InContextSdkMethod<Query['localmainnet_rootMessageSents'], Querylocalmainnet_rootMessageSentsArgs, MeshContext>,
+  localoptimism_rootMessageSents: InContextSdkMethod<Query['localoptimism_rootMessageSents'], Querylocaloptimism_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFeesIncrease: InContextSdkMethod<Query['localmainnet_relayerFeesIncrease'], Querylocalmainnet_relayerFeesIncreaseArgs, MeshContext>,
+  localoptimism_relayerFeesIncrease: InContextSdkMethod<Query['localoptimism_relayerFeesIncrease'], Querylocaloptimism_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFeesIncreases: InContextSdkMethod<Query['localmainnet_relayerFeesIncreases'], Querylocalmainnet_relayerFeesIncreasesArgs, MeshContext>,
+  localoptimism_relayerFeesIncreases: InContextSdkMethod<Query['localoptimism_relayerFeesIncreases'], Querylocaloptimism_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  localmainnet_slippageUpdate: InContextSdkMethod<Query['localmainnet_slippageUpdate'], Querylocalmainnet_slippageUpdateArgs, MeshContext>,
+  localoptimism_slippageUpdate: InContextSdkMethod<Query['localoptimism_slippageUpdate'], Querylocaloptimism_slippageUpdateArgs, MeshContext>,
   /** null **/
-  localmainnet_slippageUpdates: InContextSdkMethod<Query['localmainnet_slippageUpdates'], Querylocalmainnet_slippageUpdatesArgs, MeshContext>,
+  localoptimism_slippageUpdates: InContextSdkMethod<Query['localoptimism_slippageUpdates'], Querylocaloptimism_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  localmainnet__meta: InContextSdkMethod<Query['localmainnet__meta'], Querylocalmainnet__metaArgs, MeshContext>
+  localoptimism__meta: InContextSdkMethod<Query['localoptimism__meta'], Querylocaloptimism__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -2763,83 +2763,83 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  localmainnet_asset: InContextSdkMethod<Subscription['localmainnet_asset'], Subscriptionlocalmainnet_assetArgs, MeshContext>,
+  localoptimism_asset: InContextSdkMethod<Subscription['localoptimism_asset'], Subscriptionlocaloptimism_assetArgs, MeshContext>,
   /** null **/
-  localmainnet_assets: InContextSdkMethod<Subscription['localmainnet_assets'], Subscriptionlocalmainnet_assetsArgs, MeshContext>,
+  localoptimism_assets: InContextSdkMethod<Subscription['localoptimism_assets'], Subscriptionlocaloptimism_assetsArgs, MeshContext>,
   /** null **/
-  localmainnet_assetStatus: InContextSdkMethod<Subscription['localmainnet_assetStatus'], Subscriptionlocalmainnet_assetStatusArgs, MeshContext>,
+  localoptimism_assetStatus: InContextSdkMethod<Subscription['localoptimism_assetStatus'], Subscriptionlocaloptimism_assetStatusArgs, MeshContext>,
   /** null **/
-  localmainnet_assetStatuses: InContextSdkMethod<Subscription['localmainnet_assetStatuses'], Subscriptionlocalmainnet_assetStatusesArgs, MeshContext>,
+  localoptimism_assetStatuses: InContextSdkMethod<Subscription['localoptimism_assetStatuses'], Subscriptionlocaloptimism_assetStatusesArgs, MeshContext>,
   /** null **/
-  localmainnet_assetBalance: InContextSdkMethod<Subscription['localmainnet_assetBalance'], Subscriptionlocalmainnet_assetBalanceArgs, MeshContext>,
+  localoptimism_assetBalance: InContextSdkMethod<Subscription['localoptimism_assetBalance'], Subscriptionlocaloptimism_assetBalanceArgs, MeshContext>,
   /** null **/
-  localmainnet_assetBalances: InContextSdkMethod<Subscription['localmainnet_assetBalances'], Subscriptionlocalmainnet_assetBalancesArgs, MeshContext>,
+  localoptimism_assetBalances: InContextSdkMethod<Subscription['localoptimism_assetBalances'], Subscriptionlocaloptimism_assetBalancesArgs, MeshContext>,
   /** null **/
-  localmainnet_router: InContextSdkMethod<Subscription['localmainnet_router'], Subscriptionlocalmainnet_routerArgs, MeshContext>,
+  localoptimism_router: InContextSdkMethod<Subscription['localoptimism_router'], Subscriptionlocaloptimism_routerArgs, MeshContext>,
   /** null **/
-  localmainnet_routers: InContextSdkMethod<Subscription['localmainnet_routers'], Subscriptionlocalmainnet_routersArgs, MeshContext>,
+  localoptimism_routers: InContextSdkMethod<Subscription['localoptimism_routers'], Subscriptionlocaloptimism_routersArgs, MeshContext>,
   /** null **/
-  localmainnet_routerDailyTVL: InContextSdkMethod<Subscription['localmainnet_routerDailyTVL'], Subscriptionlocalmainnet_routerDailyTVLArgs, MeshContext>,
+  localoptimism_routerDailyTVL: InContextSdkMethod<Subscription['localoptimism_routerDailyTVL'], Subscriptionlocaloptimism_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  localmainnet_routerDailyTVLs: InContextSdkMethod<Subscription['localmainnet_routerDailyTVLs'], Subscriptionlocalmainnet_routerDailyTVLsArgs, MeshContext>,
+  localoptimism_routerDailyTVLs: InContextSdkMethod<Subscription['localoptimism_routerDailyTVLs'], Subscriptionlocaloptimism_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  localmainnet_setting: InContextSdkMethod<Subscription['localmainnet_setting'], Subscriptionlocalmainnet_settingArgs, MeshContext>,
+  localoptimism_setting: InContextSdkMethod<Subscription['localoptimism_setting'], Subscriptionlocaloptimism_settingArgs, MeshContext>,
   /** null **/
-  localmainnet_settings: InContextSdkMethod<Subscription['localmainnet_settings'], Subscriptionlocalmainnet_settingsArgs, MeshContext>,
+  localoptimism_settings: InContextSdkMethod<Subscription['localoptimism_settings'], Subscriptionlocaloptimism_settingsArgs, MeshContext>,
   /** null **/
-  localmainnet_relayer: InContextSdkMethod<Subscription['localmainnet_relayer'], Subscriptionlocalmainnet_relayerArgs, MeshContext>,
+  localoptimism_relayer: InContextSdkMethod<Subscription['localoptimism_relayer'], Subscriptionlocaloptimism_relayerArgs, MeshContext>,
   /** null **/
-  localmainnet_relayers: InContextSdkMethod<Subscription['localmainnet_relayers'], Subscriptionlocalmainnet_relayersArgs, MeshContext>,
+  localoptimism_relayers: InContextSdkMethod<Subscription['localoptimism_relayers'], Subscriptionlocaloptimism_relayersArgs, MeshContext>,
   /** null **/
-  localmainnet_sequencer: InContextSdkMethod<Subscription['localmainnet_sequencer'], Subscriptionlocalmainnet_sequencerArgs, MeshContext>,
+  localoptimism_sequencer: InContextSdkMethod<Subscription['localoptimism_sequencer'], Subscriptionlocaloptimism_sequencerArgs, MeshContext>,
   /** null **/
-  localmainnet_sequencers: InContextSdkMethod<Subscription['localmainnet_sequencers'], Subscriptionlocalmainnet_sequencersArgs, MeshContext>,
+  localoptimism_sequencers: InContextSdkMethod<Subscription['localoptimism_sequencers'], Subscriptionlocaloptimism_sequencersArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFee: InContextSdkMethod<Subscription['localmainnet_relayerFee'], Subscriptionlocalmainnet_relayerFeeArgs, MeshContext>,
+  localoptimism_relayerFee: InContextSdkMethod<Subscription['localoptimism_relayerFee'], Subscriptionlocaloptimism_relayerFeeArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFees: InContextSdkMethod<Subscription['localmainnet_relayerFees'], Subscriptionlocalmainnet_relayerFeesArgs, MeshContext>,
+  localoptimism_relayerFees: InContextSdkMethod<Subscription['localoptimism_relayerFees'], Subscriptionlocaloptimism_relayerFeesArgs, MeshContext>,
   /** null **/
-  localmainnet_originTransfer: InContextSdkMethod<Subscription['localmainnet_originTransfer'], Subscriptionlocalmainnet_originTransferArgs, MeshContext>,
+  localoptimism_originTransfer: InContextSdkMethod<Subscription['localoptimism_originTransfer'], Subscriptionlocaloptimism_originTransferArgs, MeshContext>,
   /** null **/
-  localmainnet_originTransfers: InContextSdkMethod<Subscription['localmainnet_originTransfers'], Subscriptionlocalmainnet_originTransfersArgs, MeshContext>,
+  localoptimism_originTransfers: InContextSdkMethod<Subscription['localoptimism_originTransfers'], Subscriptionlocaloptimism_originTransfersArgs, MeshContext>,
   /** null **/
-  localmainnet_destinationTransfer: InContextSdkMethod<Subscription['localmainnet_destinationTransfer'], Subscriptionlocalmainnet_destinationTransferArgs, MeshContext>,
+  localoptimism_destinationTransfer: InContextSdkMethod<Subscription['localoptimism_destinationTransfer'], Subscriptionlocaloptimism_destinationTransferArgs, MeshContext>,
   /** null **/
-  localmainnet_destinationTransfers: InContextSdkMethod<Subscription['localmainnet_destinationTransfers'], Subscriptionlocalmainnet_destinationTransfersArgs, MeshContext>,
+  localoptimism_destinationTransfers: InContextSdkMethod<Subscription['localoptimism_destinationTransfers'], Subscriptionlocaloptimism_destinationTransfersArgs, MeshContext>,
   /** null **/
-  localmainnet_originMessage: InContextSdkMethod<Subscription['localmainnet_originMessage'], Subscriptionlocalmainnet_originMessageArgs, MeshContext>,
+  localoptimism_originMessage: InContextSdkMethod<Subscription['localoptimism_originMessage'], Subscriptionlocaloptimism_originMessageArgs, MeshContext>,
   /** null **/
-  localmainnet_originMessages: InContextSdkMethod<Subscription['localmainnet_originMessages'], Subscriptionlocalmainnet_originMessagesArgs, MeshContext>,
+  localoptimism_originMessages: InContextSdkMethod<Subscription['localoptimism_originMessages'], Subscriptionlocaloptimism_originMessagesArgs, MeshContext>,
   /** null **/
-  localmainnet_aggregateRoot: InContextSdkMethod<Subscription['localmainnet_aggregateRoot'], Subscriptionlocalmainnet_aggregateRootArgs, MeshContext>,
+  localoptimism_aggregateRoot: InContextSdkMethod<Subscription['localoptimism_aggregateRoot'], Subscriptionlocaloptimism_aggregateRootArgs, MeshContext>,
   /** null **/
-  localmainnet_aggregateRoots: InContextSdkMethod<Subscription['localmainnet_aggregateRoots'], Subscriptionlocalmainnet_aggregateRootsArgs, MeshContext>,
+  localoptimism_aggregateRoots: InContextSdkMethod<Subscription['localoptimism_aggregateRoots'], Subscriptionlocaloptimism_aggregateRootsArgs, MeshContext>,
   /** null **/
-  localmainnet_connectorMeta: InContextSdkMethod<Subscription['localmainnet_connectorMeta'], Subscriptionlocalmainnet_connectorMetaArgs, MeshContext>,
+  localoptimism_connectorMeta: InContextSdkMethod<Subscription['localoptimism_connectorMeta'], Subscriptionlocaloptimism_connectorMetaArgs, MeshContext>,
   /** null **/
-  localmainnet_connectorMetas: InContextSdkMethod<Subscription['localmainnet_connectorMetas'], Subscriptionlocalmainnet_connectorMetasArgs, MeshContext>,
+  localoptimism_connectorMetas: InContextSdkMethod<Subscription['localoptimism_connectorMetas'], Subscriptionlocaloptimism_connectorMetasArgs, MeshContext>,
   /** null **/
-  localmainnet_rootCount: InContextSdkMethod<Subscription['localmainnet_rootCount'], Subscriptionlocalmainnet_rootCountArgs, MeshContext>,
+  localoptimism_rootCount: InContextSdkMethod<Subscription['localoptimism_rootCount'], Subscriptionlocaloptimism_rootCountArgs, MeshContext>,
   /** null **/
-  localmainnet_rootCounts: InContextSdkMethod<Subscription['localmainnet_rootCounts'], Subscriptionlocalmainnet_rootCountsArgs, MeshContext>,
+  localoptimism_rootCounts: InContextSdkMethod<Subscription['localoptimism_rootCounts'], Subscriptionlocaloptimism_rootCountsArgs, MeshContext>,
   /** null **/
-  localmainnet_rootMessageSent: InContextSdkMethod<Subscription['localmainnet_rootMessageSent'], Subscriptionlocalmainnet_rootMessageSentArgs, MeshContext>,
+  localoptimism_rootMessageSent: InContextSdkMethod<Subscription['localoptimism_rootMessageSent'], Subscriptionlocaloptimism_rootMessageSentArgs, MeshContext>,
   /** null **/
-  localmainnet_rootMessageSents: InContextSdkMethod<Subscription['localmainnet_rootMessageSents'], Subscriptionlocalmainnet_rootMessageSentsArgs, MeshContext>,
+  localoptimism_rootMessageSents: InContextSdkMethod<Subscription['localoptimism_rootMessageSents'], Subscriptionlocaloptimism_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFeesIncrease: InContextSdkMethod<Subscription['localmainnet_relayerFeesIncrease'], Subscriptionlocalmainnet_relayerFeesIncreaseArgs, MeshContext>,
+  localoptimism_relayerFeesIncrease: InContextSdkMethod<Subscription['localoptimism_relayerFeesIncrease'], Subscriptionlocaloptimism_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  localmainnet_relayerFeesIncreases: InContextSdkMethod<Subscription['localmainnet_relayerFeesIncreases'], Subscriptionlocalmainnet_relayerFeesIncreasesArgs, MeshContext>,
+  localoptimism_relayerFeesIncreases: InContextSdkMethod<Subscription['localoptimism_relayerFeesIncreases'], Subscriptionlocaloptimism_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  localmainnet_slippageUpdate: InContextSdkMethod<Subscription['localmainnet_slippageUpdate'], Subscriptionlocalmainnet_slippageUpdateArgs, MeshContext>,
+  localoptimism_slippageUpdate: InContextSdkMethod<Subscription['localoptimism_slippageUpdate'], Subscriptionlocaloptimism_slippageUpdateArgs, MeshContext>,
   /** null **/
-  localmainnet_slippageUpdates: InContextSdkMethod<Subscription['localmainnet_slippageUpdates'], Subscriptionlocalmainnet_slippageUpdatesArgs, MeshContext>,
+  localoptimism_slippageUpdates: InContextSdkMethod<Subscription['localoptimism_slippageUpdates'], Subscriptionlocaloptimism_slippageUpdatesArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  localmainnet__meta: InContextSdkMethod<Subscription['localmainnet__meta'], Subscriptionlocalmainnet__metaArgs, MeshContext>
+  localoptimism__meta: InContextSdkMethod<Subscription['localoptimism__meta'], Subscriptionlocaloptimism__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_Local_Mainnet"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_LocalOptimism"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }

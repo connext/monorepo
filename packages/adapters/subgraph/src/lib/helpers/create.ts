@@ -21,19 +21,23 @@ export const create = async (
   const networks = names
     .filter((name) => {
       const result = getNetwork(name, prefixOverride ? "production" : env);
-      return !!result && (prefixOverride === "devnet" ? name.toLowerCase().includes("devnet") : true);
+      return (
+        !!result &&
+        (prefixOverride === "devnet" || prefixOverride === "local" ? name.toLowerCase().includes(prefixOverride) : true)
+      );
     })
     .map((name) => {
       const result = getNetwork(name, prefixOverride ? "production" : env);
       // Should be the first match group.
       return result![1].toLowerCase();
     });
+
   const config: SubgraphMap = {
     sources: {},
     supported: {},
     assetId: {},
   };
-  const _networks = networks.map((n) => n.replace("test_", "").replace("devnet_", "").replace("local_", ""));
+  const _networks = networks.map((n) => n.replace("test_", "").replace("devnet_", ""));
   [...chaindata.values()].forEach((chainData) => {
     if (_networks.includes(chainData.network)) {
       config.sources[chainData.domainId] = {

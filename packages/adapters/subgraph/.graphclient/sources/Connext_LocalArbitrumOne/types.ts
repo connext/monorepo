@@ -2839,7 +2839,7 @@ export type _SubgraphErrorPolicy_ =
   };
 
   export type Context = {
-      ["Connext_Local_ArbitrumOne"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_LocalArbitrumOne"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
