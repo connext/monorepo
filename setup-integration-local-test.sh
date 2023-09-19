@@ -138,3 +138,8 @@ echo "Starting services and off-chain agents..."
 docker compose -f docker-compose.services.yaml up -d --force-recreate
 sleep 5
 #####
+
+# Setup db schema
+echo "Setup db schema..."
+yarn workspace @connext/nxtp-adapters-database dbmate -url $DATABASE_URL up
+#####
