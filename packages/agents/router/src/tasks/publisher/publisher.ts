@@ -37,6 +37,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
     context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
+    context.logger.debug("Chain Data", requestContext, methodContext, context.chainData);
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
