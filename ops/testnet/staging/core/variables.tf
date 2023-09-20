@@ -39,7 +39,7 @@ variable "full_image_name_router_subscriber" {
 
 variable "full_image_name_router_executor" {
   type        = string
-  description = "router image name"
+  description = "router executor image name"
   default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
 }
 
@@ -65,12 +65,6 @@ variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
   default     = "ghcr.io/connext/sequencer-subscriber:sha-b5bb49a"
-}
-
-variable "full_image_name_router_executor" {
-  type        = string
-  description = "executor image name"
-  default     = "ghcr.io/connext/router-executor:sha-7855c40"
 }
 
 variable "full_image_name_relayer" {
