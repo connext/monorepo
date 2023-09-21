@@ -68,18 +68,18 @@
     "source": [
       {
         "name": "Connext",
-        "address": "0xfE802eB0B5Cd853Fd0fa98587bae475f79F58Ec2",
-        "startBlock": 3161618
+        "address": "0xFdE071b64Aef55Ae95C5A48153e8aB8B24F5a051",
+        "startBlock": 42766502
       },
       {
         "name": "SpokeConnector",
-        "address": "0x2F9122bd3992d8D6e9B61F987C3B0C2736C1Ab6e",
-        "startBlock": 17934934
+        "address": "0x398dE29A62560ba60cdF9a1C6D8308B2eA3aD6db",
+        "startBlock": 42766435
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xF3FBEd97D01919fB7a403Bd3Db60e106Df7cCbF7",
-        "startBlock": 3161606
+        "address": "0x088E13F4d4dfB42cEA17312fD8a36e9d317F49EC",
+        "startBlock": 42766421
       }
     ]
   }
