@@ -51,8 +51,6 @@ export const getDeployedConnextContract = (
   console.log("DEPLOYMENTS", _getContractDeployments());
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
-  console.log("CONNEXT Contracts", JSON.stringify(record[0]?.contracts));
-  console.log("CONNEXT Contract", JSON.stringify(contract));
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
