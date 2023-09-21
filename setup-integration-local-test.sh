@@ -7,6 +7,8 @@ set +a
 echo ".env contents loaded"
 #####
 
+#For M* macs set the default platform to linux/amd64
+# export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 ##### Config Variables
 LOCALHOST="127.0.0.1"
