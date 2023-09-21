@@ -16,20 +16,20 @@ import { SdkBase, SdkUtils } from "@connext/sdk-core";
 import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
 import { expect } from "chai";
 /**
- * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local_1337 and local_1338
+ * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local-optimism and local-arbitrum
  * deployment step being a dependency for running these tests. If these imports are moved to a .ts file, `integrations` module will likely
- * be unable to build as local_1337 and local_1338 deployment files are not kept in the repository.
+ * be unable to build as local-optimism and local-arbitrum deployment files are not kept in the repository.
  *
  * If it's showing errors below, run `setup_integration_test.sh` script (in root) to generate the deployments.
  *
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
-// Local 1338 deployment imports:
-import Connext_DiamondProxy_1338 from "@connext/smart-contracts/deployments/local_1338/Connext_DiamondProxy.json";
-import TestERC20_1338 from "@connext/smart-contracts/deployments/local_1338/TestERC20.json";
-// Local 1337 deployment imports:
-import Connext_DiamondProxy_1337 from "@connext/smart-contracts/deployments/local_1337/Connext_DiamondProxy.json";
-import TestERC20_1337 from "@connext/smart-contracts/deployments/local_1337/TestERC20.json";
+// Local Arbitrum deployment imports: chain-id: 31339
+import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
+import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
+// Local Optimism deployment imports: chain id: 31338
+import Connext_DiamondProxy_Optimism from "@connext/smart-contracts/deployments/local-optimism/Connext_DiamondProxy.json";
+import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optimism/TestERC20.json";
 import { ConnextInterface } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
@@ -52,15 +52,15 @@ type Deployments = {
 export const getDeployments = (_chain: string | number): Deployments => {
   const chain = _chain.toString();
   let result: Deployments;
-  if (chain === "1337") {
+  if (chain === "31338") {
     result = {
-      Connext: Connext_DiamondProxy_1337.address,
-      TestERC20: TestERC20_1337.address,
+      Connext: Connext_DiamondProxy_Optimism.address,
+      TestERC20: TestERC20_Optimism.address,
     };
-  } else if (chain === "1338") {
+  } else if (chain === "31339") {
     result = {
-      Connext: Connext_DiamondProxy_1338.address,
-      TestERC20: TestERC20_1338.address,
+      Connext: Connext_DiamondProxy_Arbitrum.address,
+      TestERC20: TestERC20_Arbitrum.address,
     };
   } else {
     throw new Error(`Chain ${chain} not supported! Cannot retrieve contract deployment addresses for that chain.`);
