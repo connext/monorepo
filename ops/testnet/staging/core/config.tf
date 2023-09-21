@@ -104,12 +104,12 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://testnet.era.zksync.dev"]
+      # }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -260,12 +260,12 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://testnet.era.zksync.dev"]
+      # }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -294,12 +294,12 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://testnet.era.zksync.dev"]
+      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -367,9 +367,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://rpc.goerli.linea.build/"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://rpc.goerli.linea.build/"]
+      # }
       # "2053862260" = {
       #  providers = ["https://testnet.era.zksync.dev"]
       # }
