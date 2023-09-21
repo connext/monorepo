@@ -220,8 +220,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         gelatoRelayer,
         feeCollector,
         KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
-        constants.AddressZero,
-        AUTONOLAS_PRIORITY,
       ],
     });
 
