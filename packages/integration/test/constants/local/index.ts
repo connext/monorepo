@@ -33,15 +33,15 @@ export const PARAMETERS = {
     },
   },
   A: {
-    DOMAIN: "133712",
-    CHAIN: 1337,
-    RPC: ["http://localhost:8547"],
+    DOMAIN: "31338",
+    CHAIN: 31338,
+    RPC: ["http://localhost:8548"],
     DEPLOYMENTS: null, // Must be set at runtime!
   },
   B: {
-    DOMAIN: "133812",
-    CHAIN: 1338,
-    RPC: ["http://localhost:8546"],
+    DOMAIN: "31339",
+    CHAIN: 31339,
+    RPC: ["http://localhost:8549"],
     DEPLOYMENTS: null, // Must be set at runtime!
   },
 };
