@@ -1,7 +1,8 @@
-import { createLoggingContext, Logger } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger, ERC20Abi } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/smart-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
+import { DEPLOYER_WALLET } from "../../constants/local";
 
 // Add liquidity for router in `localAsset` on each domain.
 export const addLiquidity = async (
@@ -35,13 +36,26 @@ export const addLiquidity = async (
     });
     const [localAsset] = ConnextInterface.decodeFunctionResult("getLocalAndAdoptedToken", encodedLocalAndAdoptedAsset);
 
-    console.log({ domain, localAsset });
-
-    const allowanceData = getErc20Interface().encodeFunctionData("allowance", [domain.router, domain.Connext]);
+    const allowanceData = getErc20Interface().encodeFunctionData("allowance", [
+      DEPLOYER_WALLET.address,
+      domain.Connext,
+    ]);
     const encoded = await txService.readTx({ domain: +domain.domain, data: allowanceData, to: localAsset });
     const [allowance] = getErc20Interface().decodeFunctionResult("allowance", encoded);
 
+    const _balanceData = getErc20Interface().encodeFunctionData("balanceOf", [DEPLOYER_WALLET.address]);
+    const _encodedBalanceData = await txService.readTx({
+      domain: +domain.domain,
+      data: _balanceData,
+      to: localAsset,
+    });
+    const deployerBalance = getErc20Interface().decodeFunctionResult("balanceOf", _encodedBalanceData);
+    console.log({ domain, localAsset, allowance: allowance.toString() });
+
     if (BigNumber.from(allowance.toString()).lt(domain.amount)) {
+      if (BigNumber.from(deployerBalance.toString()).lt(domain.amount)) {
+        throw new Error("You don't have enough amount to add liquidity. Please `xcallIntoLocal` first");
+      }
       console.log("Sending approval txs...");
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.Connext, domain.amount]);
       await txService.sendTx({ domain: +domain.domain, to: localAsset, data: approveData, value: 0 }, requestContext);

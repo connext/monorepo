@@ -156,7 +156,6 @@ const sendXCall = async (
   logger.info("Formatting XCall.");
   const { asset, amount, ...callParams } = xparams;
   const xcallData: XCallArgs = {
-    origin: PARAMETERS.A.DOMAIN,
     to: callParams.to ?? PARAMETERS.AGENTS.USER.address,
     destination: callParams.destinationDomain ?? PARAMETERS.B.DOMAIN,
     delegate: PARAMETERS.AGENTS.USER.address,
@@ -328,6 +327,8 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
 };
 
 const onchainSetup = async (sdkBase: SdkBase) => {
+  logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
+
   logger.info("Setting up router...");
   // Setup router for both the owner and recipient. MUST be called with the router account.
   await setupRouter(
