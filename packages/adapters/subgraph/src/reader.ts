@@ -1020,7 +1020,8 @@ export class SubgraphReader {
 
     const response = await execute(rootManagerModeQuery);
     const values = [...response.values()];
-    return parser.rootManagerMode(values[0][0]);
+    // Initial state of the root manager is slow mode
+    return values[0][0] ? parser.rootManagerMode(values[0][0]) : { id: "ROOT_MANAGER_MODE_ID", mode: "SLOW_MODE" };
   }
   /**
    * Gets all the received roots starting with blocknumber for a given domain
