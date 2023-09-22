@@ -457,17 +457,14 @@ describe("LOCAL:E2E", () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
     // Ensure automine is off.
-    await originProvider.send("evm_setAutomine", [false]);
-    await destinationProvider.send("evm_setAutomine", [false]);
+    // await originProvider.send("evm_setAutomine", [true]);
+    // await destinationProvider.send("evm_setAutomine", [true]);
 
     // Fund the user and relayer agents some ETH.
-    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
-    await originProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
-    await destinationProvider.send("hardhat_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
-    await destinationProvider.send("hardhat_setBalance", [
-      PARAMETERS.AGENTS.RELAYER.address,
-      "0x84595161401484A000000",
-    ]);
+    await originProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+    await originProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
+    await destinationProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+    await destinationProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
 
     // Sanity checks: make sure addresses configured are correct by checking to make sure contracts are deployed
     // at those addresses (using `getCode`).
