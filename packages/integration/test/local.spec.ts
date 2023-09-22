@@ -24,12 +24,16 @@ import { expect } from "chai";
  *
  * We use these imports to retrieve the deployment addresses dynamically at runtime, so the PARAMETERS config does not need to be hardcoded.
  */
-// Local Arbitrum deployment imports: chain-id: 31339
-import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
-import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
+// Local Mainnet deployment imports: chain-id: 31337
+import Connext_DiamondProxy_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/Connext_DiamondProxy.json";
+import TestERC20_Mainnet from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
 // Local Optimism deployment imports: chain id: 31338
 import Connext_DiamondProxy_Optimism from "@connext/smart-contracts/deployments/local-optimism/Connext_DiamondProxy.json";
 import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optimism/TestERC20.json";
+// Local Arbitrum deployment imports: chain-id: 31339
+import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
+import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
+
 import { ConnextInterface } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
@@ -44,6 +48,20 @@ type Deployments = {
   TestERC20: string;
 };
 
+const LocalDeployments: Record<string, Deployments> = {
+  "31337": {
+    Connext: Connext_DiamondProxy_Mainnet.address,
+    TestERC20: TestERC20_Mainnet.address,
+  },
+  "31338": {
+    Connext: Connext_DiamondProxy_Optimism.address,
+    TestERC20: TestERC20_Optimism.address,
+  },
+  "31339": {
+    Connext: Connext_DiamondProxy_Arbitrum.address,
+    TestERC20: TestERC20_Arbitrum.address,
+  },
+};
 /**
  * Get deployments needed for E2E test for the specified chain.
  * @param _chain - Local chain for which we are getting deployment addresses.
@@ -51,18 +69,9 @@ type Deployments = {
  */
 export const getDeployments = (_chain: string | number): Deployments => {
   const chain = _chain.toString();
-  let result: Deployments;
-  if (chain === "31338") {
-    result = {
-      Connext: Connext_DiamondProxy_Optimism.address,
-      TestERC20: TestERC20_Optimism.address,
-    };
-  } else if (chain === "31339") {
-    result = {
-      Connext: Connext_DiamondProxy_Arbitrum.address,
-      TestERC20: TestERC20_Arbitrum.address,
-    };
-  } else {
+
+  const result: Deployments = LocalDeployments[chain] ?? undefined;
+  if (!result) {
     throw new Error(`Chain ${chain} not supported! Cannot retrieve contract deployment addresses for that chain.`);
   }
   console.log(`Retrieved deployments for chain ${chain}:`, result);
