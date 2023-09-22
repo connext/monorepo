@@ -182,8 +182,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// MUMBAI
         "9991": {
-          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
-          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
         },
       },
     },
