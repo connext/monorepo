@@ -26,7 +26,7 @@ import { expect } from "chai";
  */
 // Local Mainnet deployment imports: chain-id: 31337
 import Connext_DiamondProxy_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/Connext_DiamondProxy.json";
-import TestERC20_Mainnet from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
+import TestERC20_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/TestERC20.json";
 // Local Optimism deployment imports: chain id: 31338
 import Connext_DiamondProxy_Optimism from "@connext/smart-contracts/deployments/local-optimism/Connext_DiamondProxy.json";
 import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optimism/TestERC20.json";
@@ -34,10 +34,10 @@ import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optim
 import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
 import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
 
-import { ConnextInterface } from "@connext/smart-contracts";
+import { ConnextInterface, canonizeId } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
-import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
+import { setupRouter, addLiquidity, addRelayer } from "./helpers/local";
 import {
   DEPLOYER_WALLET,
   ROUTER_WALLET,
@@ -87,6 +87,10 @@ export const getDeployments = (_chain: string | number): Deployments => {
 // Add deployment addresses to the config PARAMETERS constant.
 const PARAMETERS = {
   ..._PARAMETERS,
+  HUB: {
+    ..._PARAMETERS.HUB,
+    DEPLOYMENTS: getDeployments(_PARAMETERS.HUB.CHAIN),
+  },
   A: {
     ..._PARAMETERS.A,
     DEPLOYMENTS: getDeployments(_PARAMETERS.A.CHAIN),
@@ -324,11 +328,8 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
 };
 
 const onchainSetup = async (sdkBase: SdkBase) => {
-  // TODO: Mirror connectors set up for messaging
-  // TODO: Allowlist messaging routers as callers of dispatch?
-  // TODO: Approve relayers as caller for connectors and root manager?
-
   logger.info("Setting up router...");
+  // Setup router for both the owner and recipient. MUST be called with the router account.
   await setupRouter(
     PARAMETERS.AGENTS.ROUTER.address,
     [
@@ -337,47 +338,26 @@ const onchainSetup = async (sdkBase: SdkBase) => {
     ],
     routerTxService,
   );
-  logger.info("Set up router.");
-
-  logger.info("Setting up assets...");
-  await setupAsset(
-    { domain: PARAMETERS.A.DOMAIN, tokenAddress: PARAMETERS.A.DEPLOYMENTS.TestERC20 },
-    [
-      {
-        domain: PARAMETERS.A.DOMAIN,
-        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
-        // NOTE: Same as local; this means we won't be doing any swaps.
-        adopted: constants.AddressZero,
-        local: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-      },
-      {
-        domain: PARAMETERS.B.DOMAIN,
-        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
-        // NOTE: Same as local; this means we won't be doing any swaps.
-        adopted: constants.AddressZero,
-        local: PARAMETERS.B.DEPLOYMENTS.TestERC20,
-      },
-    ],
-    deployerTxService,
-    logger,
-  );
-  logger.info("Set up assets.");
+  logger.info("Set up router done!");
 
   logger.info(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
+  const canonicalId = utils.hexlify(canonizeId(PARAMETERS.HUB.DEPLOYMENTS.TestERC20));
   await addLiquidity(
     [
       {
         domain: PARAMETERS.A.DOMAIN,
         amount: utils.parseEther("100").toString(),
         router: PARAMETERS.AGENTS.ROUTER.address,
-        asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
+        canonicalId: canonicalId,
+        canonicalDomain: PARAMETERS.HUB.DOMAIN,
         Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
       },
       {
         domain: PARAMETERS.B.DOMAIN,
         amount: utils.parseEther("100").toString(),
         router: PARAMETERS.AGENTS.ROUTER.address,
-        asset: PARAMETERS.B.DEPLOYMENTS.TestERC20,
+        canonicalId: canonicalId,
+        canonicalDomain: PARAMETERS.HUB.DOMAIN,
         Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
       },
     ],

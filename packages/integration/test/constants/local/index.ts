@@ -33,6 +33,12 @@ export const PARAMETERS = {
       signer: DEPLOYER_WALLET,
     },
   },
+  HUB: {
+    DOMAIN: "31337",
+    CHAIN: 31337,
+    RPC: ["http://localhost:8547"],
+    DEPLOYMENTS: null, // Must be set at runtime!
+  },
   A: {
     DOMAIN: "31338",
     CHAIN: 31338,
