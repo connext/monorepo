@@ -38,7 +38,13 @@ import { ConnextInterface } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { setupRouter, setupAsset, addLiquidity, addRelayer } from "./helpers/local";
-import { DEPLOYER_WALLET, PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY, USER_WALLET } from "./constants/local";
+import {
+  DEPLOYER_WALLET,
+  ROUTER_WALLET,
+  PARAMETERS as _PARAMETERS,
+  SUBG_POLL_PARITY,
+  USER_WALLET,
+} from "./constants/local";
 import { addSequencer } from "./helpers/local/addSequencer";
 
 export const logger = new Logger({ name: "e2e" });
@@ -117,6 +123,21 @@ const userTxService = new TransactionService(
     },
   },
   USER_WALLET,
+  true,
+);
+const routerTxService = new TransactionService(
+  logger,
+  {
+    [PARAMETERS.A.DOMAIN]: {
+      providers: PARAMETERS.A.RPC,
+      confirmations: 1,
+    },
+    [PARAMETERS.B.DOMAIN]: {
+      providers: PARAMETERS.B.RPC,
+      confirmations: 1,
+    },
+  },
+  ROUTER_WALLET,
   true,
 );
 
@@ -314,7 +335,7 @@ const onchainSetup = async (sdkBase: SdkBase) => {
       { Connext: PARAMETERS.A.DEPLOYMENTS.Connext, domain: PARAMETERS.A.DOMAIN },
       { Connext: PARAMETERS.B.DEPLOYMENTS.Connext, domain: PARAMETERS.B.DOMAIN },
     ],
-    deployerTxService,
+    routerTxService,
   );
   logger.info("Set up router.");
 

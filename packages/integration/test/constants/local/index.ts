@@ -9,6 +9,7 @@ export const DEPLOYER_WALLET = Wallet.fromMnemonic(
 export const USER_WALLET = Wallet.fromMnemonic(
   "define various win open delay annual edge wait embark fire brain novel",
 );
+export const ROUTER_WALLET = new Wallet("0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c");
 
 export const PARAMETERS = {
   ENVIRONMENT: "production",
