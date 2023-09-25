@@ -29,6 +29,9 @@ import { expect } from "chai";
 import Connext_DiamondProxy_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/Connext_DiamondProxy.json";
 import TestERC20_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/TestERC20.json";
 import SpokeConnector_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/MainnetSpokeConnector.json";
+import RootManager_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/RootManager.json";
+import HubConnector_Optimism from "@connext/smart-contracts/deployments/local-mainnet/OptimismHubConnector.json";
+import HubConnector_Arbitrum from "@connext/smart-contracts/deployments/local-mainnet/ArbitrumHubConnector.json";
 // Local Optimism deployment imports: chain id: 31338
 import Connext_DiamondProxy_Optimism from "@connext/smart-contracts/deployments/local-optimism/Connext_DiamondProxy.json";
 import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optimism/TestERC20.json";
@@ -38,7 +41,13 @@ import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/
 import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
 import SpokeConnector_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/ArbitrumSpokeConnector.json";
 
-import { ConnextInterface, SpokeConnectorInterface, canonizeId } from "@connext/smart-contracts";
+import {
+  ConnextInterface,
+  AdminSpokeConnectorInterface,
+  AdminHubConnectorInterface,
+  RootManagerInterface,
+  canonizeId,
+} from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { setupRouter, addLiquidity, addRelayer } from "./helpers/local";
@@ -57,6 +66,9 @@ type Deployments = {
   Connext: string;
   TestERC20: string;
   SpokeConnector: string;
+  HubConnectorA?: string;
+  HubConnectorB?: string;
+  RootManager?: string;
 };
 
 const LocalDeployments: Record<string, Deployments> = {
@@ -64,6 +76,9 @@ const LocalDeployments: Record<string, Deployments> = {
     Connext: Connext_DiamondProxy_Mainnet.address,
     TestERC20: TestERC20_Mainnet.address,
     SpokeConnector: SpokeConnector_Mainnet.address,
+    RootManager: RootManager_Mainnet.address,
+    HubConnectorA: HubConnector_Optimism.address,
+    HubConnectorB: HubConnector_Arbitrum.address,
   },
   "31338": {
     Connext: Connext_DiamondProxy_Optimism.address,
@@ -171,9 +186,8 @@ const sendXCall = async (
     amount: amount ?? "1000",
     slippage: callParams.slippage ?? "9000",
     callData: callParams.callData ?? "0x",
-    receiveLocal: callParams.receiveLocal ?? false,
   };
-  const tx = await sdkBase.xcall(xcallData);
+  const tx = await sdkBase.xcall({ ...xcallData, receiveLocal: callParams.receiveLocal });
 
   logger.info("Sending XCall...");
   let receipt: providers.TransactionReceipt;
@@ -347,13 +361,13 @@ const getLocalDeploymentPrefix = (domain: string) => {
   }
 };
 
-const sendMessageFromSpoke = async () => {
-  const requestContext = createRequestContext(sendMessageFromSpoke.name);
+const addSpokeRootToAggregate = async (data: string) => {
+  const requestContext = createRequestContext(addSpokeRootToAggregate.name);
 
-  const sendMessageData = SpokeConnectorInterface.encodeFunctionData("send", ["0x"]);
+  const sendMessageData = AdminHubConnectorInterface.encodeFunctionData("addSpokeRootToAggregate", [data]);
 
   await deployerTxService.sendTx(
-    { to: PARAMETERS.A.DEPLOYMENTS.SpokeConnector, data: sendMessageData, value: 0, domain: +PARAMETERS.A.DOMAIN },
+    { to: PARAMETERS.HUB.DEPLOYMENTS.HubConnectorA!, data: sendMessageData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
     requestContext,
   );
 };
@@ -369,12 +383,20 @@ const propagate = async () => {
   ]);
 
   await deployerTxService.sendTx(
-    { to: PARAMETERS.HUB.DEPLOYMENTS.RootManager, data: propagateData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
+    { to: PARAMETERS.HUB.DEPLOYMENTS.RootManager!, data: propagateData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
     requestContext,
   );
 };
 
-const receiveRootAtSpoke = async () => {};
+const receiveHubAggregateRoot = async (data: string) => {
+  const requestContext = createRequestContext(receiveHubAggregateRoot.name);
+  const sendMessageData = AdminSpokeConnectorInterface.encodeFunctionData("receiveHubAggregateRoot", [data]);
+
+  await deployerTxService.sendTx(
+    { to: PARAMETERS.B.DEPLOYMENTS.SpokeConnector, data: sendMessageData, value: 0, domain: +PARAMETERS.B.DOMAIN },
+    requestContext,
+  );
+};
 
 const onchainSetup = async (sdkBase: SdkBase) => {
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
@@ -387,17 +409,18 @@ const onchainSetup = async (sdkBase: SdkBase) => {
 
   console.log(receipt, xcallData);
 
-  logger.info("send the root from spoke domain to hub domain");
-  await sendMessageFromSpoke();
-
-  logger.info("TODO: receive message at hub domain");
-  // await receiveMessageAtHub();
+  logger.info("add the spokeRoot at hub(Note: Admin Connector");
+  /// TODO: get the data from the above xcall, i.e message root of spoke domain
+  const spokeRootData = "0x";
+  await addSpokeRootToAggregate(spokeRootData);
 
   logger.info("propagate the aggregated root to spoke domains");
   await propagate();
 
   logger.info("Receive the aggregated root on both spoke domains on AdminSpokeConnector");
-  await receiveRootAtSpoke;
+  /// TODO: figure out the data required for this function
+  const aggregateRootData = "0x";
+  await receiveHubAggregateRoot(aggregateRootData);
 
   logger.info("Setting up router...");
   // Setup router for both the owner and recipient. MUST be called with the router account.
