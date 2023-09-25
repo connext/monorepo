@@ -10,6 +10,7 @@ import {
   convertFromDbTransfer,
   XTransfer,
   XTransferStatus,
+  createRequestContext,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
 import { SdkBase, SdkUtils } from "@connext/sdk-core";
@@ -27,14 +28,17 @@ import { expect } from "chai";
 // Local Mainnet deployment imports: chain-id: 31337
 import Connext_DiamondProxy_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/Connext_DiamondProxy.json";
 import TestERC20_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/TestERC20.json";
+import SpokeConnector_Mainnet from "@connext/smart-contracts/deployments/local-mainnet/MainnetSpokeConnector.json";
 // Local Optimism deployment imports: chain id: 31338
 import Connext_DiamondProxy_Optimism from "@connext/smart-contracts/deployments/local-optimism/Connext_DiamondProxy.json";
 import TestERC20_Optimism from "@connext/smart-contracts/deployments/local-optimism/TestERC20.json";
+import SpokeConnector_Optimism from "@connext/smart-contracts/deployments/local-optimism/OptimismSpokeConnector.json";
 // Local Arbitrum deployment imports: chain-id: 31339
 import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
 import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
+import SpokeConnector_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/ArbitrumSpokeConnector.json";
 
-import { ConnextInterface, canonizeId } from "@connext/smart-contracts";
+import { ConnextInterface, SpokeConnectorInterface, canonizeId } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import { setupRouter, addLiquidity, addRelayer } from "./helpers/local";
@@ -52,20 +56,24 @@ export const logger = new Logger({ name: "e2e" });
 type Deployments = {
   Connext: string;
   TestERC20: string;
+  SpokeConnector: string;
 };
 
 const LocalDeployments: Record<string, Deployments> = {
   "31337": {
     Connext: Connext_DiamondProxy_Mainnet.address,
     TestERC20: TestERC20_Mainnet.address,
+    SpokeConnector: SpokeConnector_Mainnet.address,
   },
   "31338": {
     Connext: Connext_DiamondProxy_Optimism.address,
     TestERC20: TestERC20_Optimism.address,
+    SpokeConnector: SpokeConnector_Optimism.address,
   },
   "31339": {
     Connext: Connext_DiamondProxy_Arbitrum.address,
     TestERC20: TestERC20_Arbitrum.address,
+    SpokeConnector: SpokeConnector_Arbitrum.address,
   },
 };
 /**
@@ -163,6 +171,7 @@ const sendXCall = async (
     amount: amount ?? "1000",
     slippage: callParams.slippage ?? "9000",
     callData: callParams.callData ?? "0x",
+    receiveLocal: callParams.receiveLocal ?? false,
   };
   const tx = await sdkBase.xcall(xcallData);
 
@@ -326,8 +335,69 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
   return xTransfer;
 };
 
+const getLocalDeploymentPrefix = (domain: string) => {
+  if (domain === "31337") {
+    return "Mainnet";
+  } else if (domain === "31338") {
+    return "Optimism";
+  } else if (domain === "31339") {
+    return "Arbitrum";
+  } else {
+    throw new Error("domain not under local");
+  }
+};
+
+const sendMessageFromSpoke = async () => {
+  const requestContext = createRequestContext(sendMessageFromSpoke.name);
+
+  const sendMessageData = SpokeConnectorInterface.encodeFunctionData("send", ["0x"]);
+
+  await deployerTxService.sendTx(
+    { to: PARAMETERS.A.DEPLOYMENTS.SpokeConnector, data: sendMessageData, value: 0, domain: +PARAMETERS.A.DOMAIN },
+    requestContext,
+  );
+};
+
+// const receiveMessageAtHub = async () => {}
+
+const propagate = async () => {
+  const requestContext = createRequestContext(propagate.name);
+  const propagateData = RootManagerInterface.encodeFunctionData("propagate", [
+    [PARAMETERS.A.DEPLOYMENTS.SpokeConnector, PARAMETERS.B.DEPLOYMENTS.SpokeConnector],
+    ["0", "0"],
+    ["0x", "0x"],
+  ]);
+
+  await deployerTxService.sendTx(
+    { to: PARAMETERS.HUB.DEPLOYMENTS.RootManager, data: propagateData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
+    requestContext,
+  );
+};
+
+const receiveRootAtSpoke = async () => {};
+
 const onchainSetup = async (sdkBase: SdkBase) => {
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
+  const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+  const { receipt, xcallData } = await sendXCall(
+    sdkBase,
+    { receiveLocal: true },
+    PARAMETERS.AGENTS.USER.signer.connect(originProvider),
+  );
+
+  console.log(receipt, xcallData);
+
+  logger.info("send the root from spoke domain to hub domain");
+  await sendMessageFromSpoke();
+
+  logger.info("TODO: receive message at hub domain");
+  // await receiveMessageAtHub();
+
+  logger.info("propagate the aggregated root to spoke domains");
+  await propagate();
+
+  logger.info("Receive the aggregated root on both spoke domains on AdminSpokeConnector");
+  await receiveRootAtSpoke;
 
   logger.info("Setting up router...");
   // Setup router for both the owner and recipient. MUST be called with the router account.
