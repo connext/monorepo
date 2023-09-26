@@ -4,8 +4,8 @@ import {
   AdminSpokeConnectorInterface,
   AdminHubConnectorInterface,
   RootManagerInterface,
-  canonizeId,
 } from "@connext/smart-contracts";
+import { BigNumber } from "ethers";
 
 /**
  * Sends the spoke root via AMB.
@@ -15,16 +15,25 @@ import {
 export const sendSpokeRootToHub = async (
   spokeRootData: { domain: string; to: string },
   txService: TransactionService,
-) => {
+): Promise<string> => {
   const { requestContext } = createLoggingContext(sendSpokeRootToHub.name);
+  const encodedOutboundRoot = await txService.readTx({
+    domain: +spokeRootData.domain,
+    data: AdminSpokeConnectorInterface.encodeFunctionData("outboundRoot"),
+    to: spokeRootData.to,
+  });
+  const [outboundRoot] = AdminSpokeConnectorInterface.decodeFunctionResult("outboundRoot", encodedOutboundRoot);
   const sendData = AdminSpokeConnectorInterface.encodeFunctionData("send", ["0x"]);
-  console.log(`Sending the spoke root to hub... domain: ${spokeRootData.domain}, spokeConnector: ${spokeRootData.to}`);
+  console.log(
+    `Sending the spoke root to hub... domain: ${spokeRootData.domain}, spokeConnector: ${spokeRootData.to}, outboundRoot: ${outboundRoot}`,
+  );
   const receipt = await txService.sendTx(
     { domain: +spokeRootData.domain, to: spokeRootData.to, data: sendData, value: 0 },
     requestContext,
   );
 
   console.log(`Sent the spoke root, tx: ${receipt.transactionHash}`);
+  return outboundRoot;
 };
 
 /**
@@ -37,7 +46,36 @@ export const receiveSpokeRootOnHub = async () => {};
  *
  * The onchain events are needed for the message processing on offchain
  */
-export const propagateAggregatedRootToSpokes = async () => {};
+export const propagateAggregatedRootToSpokes = async (
+  propagateData: {
+    domain: string;
+    to: string;
+    connectors: string[];
+    fees: string[];
+    encodedData: string[];
+  },
+  txService: TransactionService,
+) => {
+  const { requestContext } = createLoggingContext(propagateAggregatedRootToSpokes.name);
+  const txData = RootManagerInterface.encodeFunctionData("propagate", [
+    propagateData.connectors,
+    propagateData.fees,
+    propagateData.encodedData,
+  ]);
+  console.log(
+    `Propagating aggregated root to hub connectors... domain: ${propagateData.domain}, RootManager: ${propagateData.to}`,
+  );
+  const value = propagateData.fees.reduce((acc, cur) => {
+    return BigNumber.from(acc).add(BigNumber.from(cur));
+  }, BigNumber.from("0"));
+
+  const receipt = await txService.sendTx(
+    { domain: +propagateData.domain, to: propagateData.to, data: txData, value: value },
+    requestContext,
+  );
+
+  console.log(`Sent the spoke root, tx: ${receipt.transactionHash}`);
+};
 
 /**
  * Receives the aggregated root from the hub domain on AdminSpokeConnector

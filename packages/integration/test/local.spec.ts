@@ -46,7 +46,15 @@ import {
 } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
-import { setupRouter, addLiquidity, addRelayer, sendXCall, sendSpokeRootToHub } from "./helpers/local";
+import {
+  setupRouter,
+  addLiquidity,
+  addRelayer,
+  sendXCall,
+  sendSpokeRootToHub,
+  receiveSpokeRootOnHub,
+  propagateAggregatedRootToSpokes,
+} from "./helpers/local";
 import {
   DEPLOYER_WALLET,
   ROUTER_WALLET,
@@ -376,7 +384,20 @@ const onchainSetup = async (sdkBase: SdkBase) => {
   await sendSpokeRootToHub(spokeRootData, deployerTxService);
 
   logger.info("propagate the aggregated root to spoke domains");
-  await propagate();
+  await propagateAggregatedRootToSpokes(
+    {
+      domain: PARAMETERS.HUB.DOMAIN,
+      to: mainnetDeployments.RootManager!,
+      connectors: [
+        mainnetDeployments.SpokeConnector,
+        mainnetDeployments.HubConnectorA!,
+        mainnetDeployments.HubConnectorB!,
+      ],
+      fees: ["0", "0", "0"],
+      encodedData: ["0x", "0x", "0x"],
+    },
+    deployerTxService,
+  );
 
   logger.info("Receive the aggregated root on both spoke domains on AdminSpokeConnector");
   /// TODO: figure out the data required for this function
