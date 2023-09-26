@@ -23,7 +23,7 @@
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
     "@connext/sdk-core": "workspace:*",
-    "@pancakeswap/sdk": "^5.0.0",
+    "@pancakeswap/sdk": "^4.0.0",
     "@sinclair/typebox": "0.25.21",
     "@swapr/sdk": "^1.9.0",
     "@uniswap/sdk": "^3.0.3",
