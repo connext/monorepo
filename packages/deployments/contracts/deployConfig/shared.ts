@@ -109,7 +109,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
     hub: 31337,
     configs: {
       31337: {
-        prefix: "Admin",
+        prefix: "AdminMainnet",
         networkName: "Mainnet",
         ambs: {
           hub: constants.AddressZero,

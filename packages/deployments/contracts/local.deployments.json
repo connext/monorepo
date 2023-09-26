@@ -16274,19 +16274,6 @@
             {
               "inputs": [
                 {
-                  "internalType": "bytes",
-                  "name": "_data",
-                  "type": "bytes"
-                }
-              ],
-              "name": "receiveHubAggregateRoot",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
                   "internalType": "bytes32",
                   "name": "_fraudulentRoot",
                   "type": "bytes32"
@@ -16339,6 +16326,24 @@
                 }
               ],
               "name": "send",
+              "outputs": [],
+              "stateMutability": "payable",
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "internalType": "bytes",
+                  "name": "_data",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "_encodedData",
+                  "type": "bytes"
+                }
+              ],
+              "name": "sendMessage",
               "outputs": [],
               "stateMutability": "payable",
               "type": "function"
@@ -21145,7 +21150,7 @@
           "blockNumber": 6
         },
         "RoutersFacet": {
-          "address": "0x76A93A846547c46B45971ec0B22d9c0E884E9cf6",
+          "address": "0x97477e71B0dacd9581bf43bEcC1DB95d6b0A998E",
           "abi": [
             {
               "inputs": [],
@@ -46483,7 +46488,7 @@
           "blockNumber": 24
         },
         "RoutersFacet": {
-          "address": "0x76A93A846547c46B45971ec0B22d9c0E884E9cf6",
+          "address": "0x97477e71B0dacd9581bf43bEcC1DB95d6b0A998E",
           "abi": [
             {
               "inputs": [],
@@ -71821,7 +71826,7 @@
           "blockNumber": 24
         },
         "RoutersFacet": {
-          "address": "0x76A93A846547c46B45971ec0B22d9c0E884E9cf6",
+          "address": "0x97477e71B0dacd9581bf43bEcC1DB95d6b0A998E",
           "abi": [
             {
               "inputs": [],

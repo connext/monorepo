@@ -109,9 +109,9 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
 
   if (/^(?=.*Wormhole)(?=.*Connector)/.test(contractName)) {
     contractName = contractName.replace(/Wormhole/g, networkName!);
-  }
-
-  if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
+  } else if (/^(?=.*AdminMainnet)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/AdminMainnet/g, networkName!);
+  } else if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
     contractName = contractName.replace(/Admin/g, networkName!);
   }
 
