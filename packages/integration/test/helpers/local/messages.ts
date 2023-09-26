@@ -20,4 +20,4 @@ export const propagateAggregatedRootToSpokes = async () => {};
 /**
  * Receives the aggregated root from the hub domain on AdminSpokeConnector
  */
-export const receiveAggregatedRootonSpoke = async () => {};
+export const receiveAggregatedRootOnSpoke = async () => {};
