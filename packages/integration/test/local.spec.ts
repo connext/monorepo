@@ -4,8 +4,6 @@ import {
   Logger,
   ExecuteFastApiGetExecStatusResponse,
   SequencerApiErrorResponse,
-  XCallArgs,
-  TransferInfo,
   ERC20Abi,
   convertFromDbTransfer,
   XTransfer,
@@ -50,7 +48,7 @@ import {
 } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
-import { setupRouter, addLiquidity, addRelayer } from "./helpers/local";
+import { setupRouter, addLiquidity, addRelayer, sendXCall } from "./helpers/local";
 import {
   DEPLOYER_WALLET,
   ROUTER_WALLET,
@@ -167,67 +165,6 @@ const routerTxService = new TransactionService(
   ROUTER_WALLET,
   true,
 );
-
-const sendXCall = async (
-  sdkBase: SdkBase,
-  xparams: Partial<TransferInfo & { asset: string; amount: string }> = {},
-  signer?: Wallet,
-): Promise<{
-  receipt: providers.TransactionReceipt;
-  xcallData: XCallArgs;
-}> => {
-  logger.info("Formatting XCall.");
-  const { asset, amount, ...callParams } = xparams;
-  const xcallData: XCallArgs = {
-    to: callParams.to ?? PARAMETERS.AGENTS.USER.address,
-    destination: callParams.destinationDomain ?? PARAMETERS.B.DOMAIN,
-    delegate: PARAMETERS.AGENTS.USER.address,
-    asset: asset ?? PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    amount: amount ?? "1000",
-    slippage: callParams.slippage ?? "9000",
-    callData: callParams.callData ?? "0x",
-  };
-  const tx = await sdkBase.xcall({ ...xcallData, receiveLocal: callParams.receiveLocal });
-
-  logger.info("Sending XCall...");
-  let receipt: providers.TransactionReceipt;
-  if (signer) {
-    const res = await signer.sendTransaction({
-      to: tx.to!,
-      value: tx.value ?? 0,
-      data: utils.hexlify(tx.data!),
-      chainId: PARAMETERS.A.CHAIN,
-    });
-    receipt = await res.wait(1);
-  } else {
-    receipt = await userTxService.sendTx(
-      { to: tx.to!, value: tx.value ?? 0, data: utils.hexlify(tx.data!), domain: PARAMETERS.A.DOMAIN },
-      requestContext,
-    );
-  }
-
-  logger.info("XCall sent!", undefined, undefined, {
-    hash: receipt.transactionHash,
-    confirmations: receipt.confirmations,
-    blockNumber: receipt.blockNumber,
-    logs: receipt.logs
-      .map((event) => {
-        try {
-          const result = ConnextInterface.parseLog(event);
-          return {
-            name: result.eventFragment.name,
-            signature: result.signature,
-            topic: result.topic,
-            rargs: result.args,
-          };
-        } catch (e: unknown) {
-          return undefined;
-        }
-      })
-      .filter((event) => !!event),
-  });
-  return { receipt, xcallData };
-};
 
 const getTransferByTransactionHash = async (
   sdkUtils: SdkUtils,
@@ -349,18 +286,6 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
   return xTransfer;
 };
 
-const getLocalDeploymentPrefix = (domain: string) => {
-  if (domain === "31337") {
-    return "Mainnet";
-  } else if (domain === "31338") {
-    return "Optimism";
-  } else if (domain === "31339") {
-    return "Arbitrum";
-  } else {
-    throw new Error("domain not under local");
-  }
-};
-
 const addSpokeRootToAggregate = async (data: string) => {
   const requestContext = createRequestContext(addSpokeRootToAggregate.name);
 
@@ -371,8 +296,6 @@ const addSpokeRootToAggregate = async (data: string) => {
     requestContext,
   );
 };
-
-// const receiveMessageAtHub = async () => {}
 
 const propagate = async () => {
   const requestContext = createRequestContext(propagate.name);
@@ -400,7 +323,21 @@ const receiveHubAggregateRoot = async (data: string) => {
 
 const onchainSetup = async (sdkBase: SdkBase) => {
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
-  const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
+  const mainnetDeployments = getDeployments(PARAMETERS.HUB.DOMAIN);
+  const optimismDeployments = getDeployments(PARAMETERS.A.DOMAIN);
+  const arbitrumDeployments = getDeployments(PARAMETERS.B.DOMAIN);
+  const xcallParams = {
+    // TransferInfo
+    destination: PARAMETERS.A.DOMAIN,
+    to: PARAMETERS.AGENTS.DEPLOYER.address,
+    asset: mainnetDeployments.TestERC20,
+    delegate: PARAMETERS.AGENTS.DEPLOYER.address,
+    amount: utils.parseEther("10000").toString(),
+    slippage: "300",
+    callData: "0x",
+    relayerFee: utils.parseUnits("1", 17).toString(),
+    receiveLocal: true,
+  };
   const { receipt, xcallData } = await sendXCall(
     sdkBase,
     { receiveLocal: true },
