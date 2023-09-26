@@ -142,6 +142,7 @@ sleep 5
 #####
 
 # Setup db schema
+DATABASE_URL="postgresql://postgres:qwerty@127.0.0.1:5435/connext?sslmode=disable"
 echo "Setup db schema..."
 yarn workspace @connext/nxtp-adapters-database dbmate -url $DATABASE_URL up
 #####
