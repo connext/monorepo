@@ -11,8 +11,8 @@ import {
   createRequestContext,
 } from "@connext/nxtp-utils";
 import { TransactionService, getConnextInterface } from "@connext/nxtp-txservice";
-import { SdkBase, SdkUtils } from "@connext/sdk-core";
-import { BigNumber, constants, Contract, ContractInterface, providers, utils, Wallet } from "ethers";
+import { SdkBase, SdkUtils, SdkXCallParams } from "@connext/sdk-core";
+import { BigNumber, constants, Contract, ContractInterface, providers, utils } from "ethers";
 import { expect } from "chai";
 /**
  * NOTE: These deployment imports must be kept here (or any .ts file that won't be transpiled/compiled) due to local-optimism and local-arbitrum
@@ -40,7 +40,6 @@ import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbit
 import SpokeConnector_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/ArbitrumSpokeConnector.json";
 
 import {
-  ConnextInterface,
   AdminSpokeConnectorInterface,
   AdminHubConnectorInterface,
   RootManagerInterface,
@@ -322,12 +321,28 @@ const receiveHubAggregateRoot = async (data: string) => {
 };
 
 const onchainSetup = async (sdkBase: SdkBase) => {
+  logger.info("Minting TEST tokens for setup");
+  for (const key of ["HUB", "A", "B"]) {
+    const deployments = getDeployments((PARAMETERS as any)[key].DOMAIN);
+    const rpcUrl = (PARAMETERS as any)[key].RPC[0] as string;
+    const signer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
+    const tokenContract = new Contract(deployments.TestERC20, ERC20Abi, signer);
+    const assetBalance = await tokenContract.balanceOf(signer.address);
+    if (BigNumber.from(assetBalance).isZero()) {
+      const tx = await tokenContract.mint(signer.address, utils.parseEther("10000000"));
+      await tx.wait();
+      const afterBalance = await tokenContract.balanceOf(signer.address);
+      console.log({ before: assetBalance.toString(), after: afterBalance.toString() });
+    }
+  }
+
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
   const mainnetDeployments = getDeployments(PARAMETERS.HUB.DOMAIN);
   const optimismDeployments = getDeployments(PARAMETERS.A.DOMAIN);
   const arbitrumDeployments = getDeployments(PARAMETERS.B.DOMAIN);
-  const xcallParams = {
+  const xcallParams: SdkXCallParams = {
     // TransferInfo
+    origin: PARAMETERS.HUB.DOMAIN,
     destination: PARAMETERS.A.DOMAIN,
     to: PARAMETERS.AGENTS.DEPLOYER.address,
     asset: mainnetDeployments.TestERC20,
@@ -338,11 +353,9 @@ const onchainSetup = async (sdkBase: SdkBase) => {
     relayerFee: utils.parseUnits("1", 17).toString(),
     receiveLocal: true,
   };
-  const { receipt, xcallData } = await sendXCall(
-    sdkBase,
-    { receiveLocal: true },
-    PARAMETERS.AGENTS.USER.signer.connect(originProvider),
-  );
+  const hubDomainProvider = new providers.JsonRpcProvider(PARAMETERS.HUB.RPC[0]);
+  const deployerSignerOnHub = PARAMETERS.AGENTS.DEPLOYER.signer.connect(hubDomainProvider);
+  const { receipt, xcallData } = await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
 
   console.log(receipt, xcallData);
 
@@ -537,6 +550,20 @@ describe("LOCAL:E2E", () => {
             stableSwap: constants.AddressZero,
           },
         },
+        [PARAMETERS.HUB.DOMAIN]: {
+          assets: [
+            {
+              address: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
+              name: "TestERC20",
+              symbol: "TEST",
+            },
+          ],
+          providers: PARAMETERS.HUB.RPC,
+          deployments: {
+            connext: PARAMETERS.HUB.DEPLOYMENTS.Connext,
+            stableSwap: constants.AddressZero,
+          },
+        },
       },
       cartographerUrl: PARAMETERS.AGENTS.CARTOGRAPHER.url,
       environment: PARAMETERS.ENVIRONMENT as "production" | "staging",
@@ -550,7 +577,7 @@ describe("LOCAL:E2E", () => {
     await onchainSetup(sdkBase);
   });
 
-  it.only("handles fast liquidity transfer", async () => {
+  it("handles fast liquidity transfer", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
@@ -617,7 +644,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it.only("works for address(0) and 0-value transfers", async () => {
+  it("works for address(0) and 0-value transfers", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,

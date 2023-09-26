@@ -1,7 +1,8 @@
-import { createLoggingContext, Logger, ERC20Abi } from "@connext/nxtp-utils";
+import { createLoggingContext, Logger } from "@connext/nxtp-utils";
 import { ConnextInterface } from "@connext/smart-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber, utils } from "ethers";
+
 import { DEPLOYER_WALLET } from "../../constants/local";
 
 // Add liquidity for router in `localAsset` on each domain.

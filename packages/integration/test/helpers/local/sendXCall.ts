@@ -3,8 +3,6 @@ import { SdkBase, SdkXCallParams } from "@connext/sdk-core";
 import { providers, utils, Wallet } from "ethers";
 import { ConnextInterface } from "@connext/smart-contracts";
 
-import { PARAMETERS } from "../../constants/local";
-
 export const logger = new Logger({ name: "e2e" });
 
 export const sendXCall = async (
@@ -16,6 +14,7 @@ export const sendXCall = async (
   xcallData: XCallArgs;
 }> => {
   logger.info("Formatting XCall.", undefined, undefined, { xcallParams });
+
   const tx = await sdkBase.xcall(xcallParams);
 
   logger.info("Sending XCall...");
@@ -23,7 +22,7 @@ export const sendXCall = async (
     to: tx.to!,
     value: tx.value ?? 0,
     data: utils.hexlify(tx.data!),
-    chainId: PARAMETERS.A.CHAIN,
+    chainId: +xcallParams.origin,
   });
   const receipt: providers.TransactionReceipt = await res.wait(1);
 
