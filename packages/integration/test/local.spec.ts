@@ -38,7 +38,6 @@ import SpokeConnector_Optimism from "@connext/smart-contracts/deployments/local-
 import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
 import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
 import SpokeConnector_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/ArbitrumSpokeConnector.json";
-
 import {
   AdminSpokeConnectorInterface,
   AdminHubConnectorInterface,
@@ -47,7 +46,7 @@ import {
 } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
-import { setupRouter, addLiquidity, addRelayer, sendXCall } from "./helpers/local";
+import { setupRouter, addLiquidity, addRelayer, sendXCall, sendSpokeRootToHub } from "./helpers/local";
 import {
   DEPLOYER_WALLET,
   ROUTER_WALLET,
@@ -124,6 +123,10 @@ const PARAMETERS = {
 const deployerTxService = new TransactionService(
   logger,
   {
+    [PARAMETERS.HUB.DOMAIN]: {
+      providers: PARAMETERS.HUB.RPC,
+      confirmations: 1,
+    },
     [PARAMETERS.A.DOMAIN]: {
       providers: PARAMETERS.A.RPC,
       confirmations: 1,
@@ -139,6 +142,9 @@ const deployerTxService = new TransactionService(
 const userTxService = new TransactionService(
   logger,
   {
+    [PARAMETERS.HUB.DOMAIN]: {
+      providers: PARAMETERS.HUB.RPC,
+    },
     [PARAMETERS.A.DOMAIN]: {
       providers: PARAMETERS.A.RPC,
     },
@@ -152,6 +158,10 @@ const userTxService = new TransactionService(
 const routerTxService = new TransactionService(
   logger,
   {
+    [PARAMETERS.HUB.DOMAIN]: {
+      providers: PARAMETERS.HUB.RPC,
+      confirmations: 1,
+    },
     [PARAMETERS.A.DOMAIN]: {
       providers: PARAMETERS.A.RPC,
       confirmations: 1,
@@ -285,17 +295,6 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
   return xTransfer;
 };
 
-const addSpokeRootToAggregate = async (data: string) => {
-  const requestContext = createRequestContext(addSpokeRootToAggregate.name);
-
-  const sendMessageData = AdminHubConnectorInterface.encodeFunctionData("addSpokeRootToAggregate", [data]);
-
-  await deployerTxService.sendTx(
-    { to: PARAMETERS.HUB.DEPLOYMENTS.HubConnectorA!, data: sendMessageData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
-    requestContext,
-  );
-};
-
 const propagate = async () => {
   const requestContext = createRequestContext(propagate.name);
   const propagateData = RootManagerInterface.encodeFunctionData("propagate", [
@@ -370,11 +369,11 @@ const onchainSetup = async (sdkBase: SdkBase) => {
 
     await res.wait(1);
   }
-  const { receipt, xcallData } = await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
+  await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
 
-  logger.info("Send the spokeRoot by an AMB");
-  const spokeRootData = "0x";
-  await addSpokeRootToAggregate(spokeRootData);
+  logger.info("Sending the spoke root to the hub");
+  const spokeRootData = { domain: PARAMETERS.HUB.DOMAIN, to: mainnetDeployments.SpokeConnector };
+  await sendSpokeRootToHub(spokeRootData, deployerTxService);
 
   logger.info("propagate the aggregated root to spoke domains");
   await propagate();
