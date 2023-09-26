@@ -44,3 +44,4 @@ packages/deployments/contracts/deployments/local_1338
 packages/deployments/contracts/cuts.json
 packages/deployments/contracts/proposals.json
 packages/deployments/contracts/devnet.init.json
+packages/deployments/contracts/local.developments.json
