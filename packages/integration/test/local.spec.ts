@@ -372,9 +372,7 @@ const onchainSetup = async (sdkBase: SdkBase) => {
   }
   const { receipt, xcallData } = await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
 
-  console.log(receipt, xcallData);
-
-  logger.info("add the spokeRoot at hub(Note: Admin Connector");
+  logger.info("Send the spokeRoot by an AMB");
   /// TODO: get the data from the above xcall, i.e message root of spoke domain
   const spokeRootData = "0x";
   await addSpokeRootToAggregate(spokeRootData);
