@@ -355,6 +355,21 @@ const onchainSetup = async (sdkBase: SdkBase) => {
   };
   const hubDomainProvider = new providers.JsonRpcProvider(PARAMETERS.HUB.RPC[0]);
   const deployerSignerOnHub = PARAMETERS.AGENTS.DEPLOYER.signer.connect(hubDomainProvider);
+  const approveReceipt = await sdkBase.approveIfNeeded(
+    PARAMETERS.HUB.DOMAIN,
+    mainnetDeployments.TestERC20,
+    utils.parseEther("10000000000000").toString(),
+  );
+  if (approveReceipt) {
+    const res = await deployerSignerOnHub.sendTransaction({
+      to: mainnetDeployments.TestERC20,
+      value: 0,
+      data: utils.hexlify(approveReceipt.data!),
+      chainId: PARAMETERS.HUB.CHAIN,
+    });
+
+    await res.wait(1);
+  }
   const { receipt, xcallData } = await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
 
   console.log(receipt, xcallData);
