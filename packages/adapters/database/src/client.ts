@@ -480,6 +480,16 @@ export const getRootMessages = async (
   return messages.map(convertFromDbRootMessage);
 };
 
+export const getRootMessage = async (
+  spoke_domain: string,
+  root: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.select("root_messages", { spoke_domain, root }).run(poolToUse);
+  return message ? convertFromDbRootMessage(message[0]) : undefined;
+};
+
 export const saveAggregatedRoots = async (
   _roots: AggregatedRoot[],
   _pool?: Pool | db.TxnClientForRepeatableRead,

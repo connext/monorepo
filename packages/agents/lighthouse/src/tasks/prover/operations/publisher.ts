@@ -10,6 +10,7 @@ import {
   getNtpTimeSeconds,
   ExecStatus,
   RelayerTaskStatus,
+  ModeType,
 } from "@connext/nxtp-utils";
 
 import {
@@ -19,6 +20,7 @@ import {
   NoMessageRootCount,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
+  NoDomainInSnapshot,
 } from "../../../errors";
 import { getContext } from "../prover";
 import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
@@ -134,6 +136,7 @@ export const enqueue = async () => {
     logger,
     adapters: { database, mqClient, cache },
     config,
+    mode,
   } = getContext();
   const channel = await mqClient.createChannel();
   await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
@@ -172,15 +175,43 @@ export const enqueue = async () => {
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
+              let latestMessageRoot: RootMessage | undefined = undefined;
+              const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
               try {
-                let latestMessageRoot: RootMessage | undefined = undefined;
-                const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
-                for (const destAggregateRoot of curDestAggRoots) {
-                  latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
-                  if (latestMessageRoot) break;
-                }
-                if (!latestMessageRoot) {
-                  throw new NoTargetMessageRoot(originDomain);
+                // Slowmode
+                if (mode == ModeType.SlowMode) {
+                  // Slowmode
+                  for (const destAggregateRoot of curDestAggRoots) {
+                    latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
+                    if (latestMessageRoot) break;
+                  }
+                  if (!latestMessageRoot) {
+                    throw new NoTargetMessageRoot(originDomain);
+                  }
+                } else {
+                  // Optimistic mode
+                  const snapshot = await database.getPendingAggregateRoot(targetAggregateRoot.root);
+                  if (snapshot) {
+                    logger.debug("Got pending snapshot", requestContext, methodContext, {
+                      snapshot,
+                      destinationDomain,
+                    });
+                  } else {
+                    logger.debug("No pending snapshot to process.", requestContext, methodContext, {
+                      snapshot,
+                      destinationDomain,
+                    });
+                    return;
+                  }
+                  const domainIndex = snapshot.domains.indexOf(originDomain);
+                  if (domainIndex === -1) {
+                    throw new NoDomainInSnapshot(originDomain, snapshot);
+                  }
+                  const messageRoot = snapshot.roots[domainIndex];
+                  latestMessageRoot = await database.getRootMessage(originDomain, messageRoot);
+                  if (!latestMessageRoot) {
+                    throw new NoTargetMessageRoot(originDomain);
+                  }
                 }
 
                 const targetMessageRoot = latestMessageRoot.root;

@@ -21,7 +21,6 @@ import { ProverContext } from "./context";
 import { enqueue, consume } from "./operations";
 import { bindHealthServer } from "./bindings";
 import { acquireLock, prefetch, releaseLock } from "./operations/publisher";
-import { proveAndProcessOpMode } from "./operations/proveAndProcess";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: ProverContext = {} as any;
@@ -154,12 +153,11 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
   try {
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
-      context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      await proveAndProcessOpMode();
+      context.logger.info("Prover started in Optimistic Mode", requestContext, methodContext);
+      context.mode = ModeType.OptimisticMode;
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
-      context.logger.info("In Slow Mode", requestContext, methodContext);
-      // TODO: Refactor for merge
-      // await proveAndProcess();
+      context.logger.info("Prover started in Slow Mode", requestContext, methodContext);
+      context.mode = ModeType.SlowMode;
     } else {
       throw new Error(`Unknown mode detected: ${rootManagerMode}`);
     }
@@ -168,7 +166,6 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     }
   } catch (e: unknown) {
     console.error("Error starting Prover. Sad! :(", e);
-  } finally {
     await closeDatabase();
     process.exit();
   }
