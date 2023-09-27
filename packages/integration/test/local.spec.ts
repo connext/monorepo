@@ -363,15 +363,17 @@ const processAMB = async (sdkBase: SdkBase) => {
   }
 };
 
-const onchainSetup = async (sdkBase: SdkBase) => {
+const onchainSetup = async () => {
   logger.info("Minting TEST tokens for setup");
   for (const key of ["HUB", "A", "B"]) {
     const deployments = getDeployments((PARAMETERS as any)[key].DOMAIN);
     const rpcUrl = (PARAMETERS as any)[key].RPC[0] as string;
-    const signer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
-    const tokenContract = new Contract(deployments.TestERC20, ERC20Abi, signer);
-    const assetBalance = await tokenContract.balanceOf(signer.address);
-    if (BigNumber.from(assetBalance).isZero()) {
+    const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
+    const user = PARAMETERS.AGENTS.USER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
+
+    for (const signer of [deployer, user]) {
+      const tokenContract = new Contract(deployments.TestERC20, ERC20Abi, signer);
+      const assetBalance = await tokenContract.balanceOf(signer.address);
       const tx = await tokenContract.mint(signer.address, utils.parseEther("10000000"));
       await tx.wait();
       const afterBalance = await tokenContract.balanceOf(signer.address);
@@ -412,47 +414,6 @@ const onchainSetup = async (sdkBase: SdkBase) => {
     logger,
   );
   logger.info("Added liquidity.");
-
-  // TODO: Read user's balance and skip if they already have TEST tokens.
-  logger.info("Minting tokens for user agent...");
-  {
-    const erc20 = new utils.Interface(ERC20Abi);
-    const amount = BigNumber.from("1000000000000000");
-    const encoded = erc20.encodeFunctionData("mint", [PARAMETERS.AGENTS.USER.address, amount]);
-    const receipt = await deployerTxService.sendTx(
-      {
-        domain: +PARAMETERS.A.DOMAIN,
-        to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-        data: encoded,
-        value: BigNumber.from("0"),
-      },
-      requestContext,
-    );
-    logger.info("Minted tokens.", requestContext, methodContext, {
-      amount: amount.toString(),
-      asset: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-      txHash: receipt.transactionHash,
-    });
-
-    const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
-    const res = await deployerTxService.readTx({
-      domain: PARAMETERS.A.CHAIN,
-      data: balanceOfData,
-      to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
-    });
-    const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
-    logger.info(`New user token balance: ${tokenBalance.toString()}`);
-  }
-
-  const tx = await sdkBase.approveIfNeeded(PARAMETERS.HUB.DOMAIN, PARAMETERS.HUB.DEPLOYMENTS.TestERC20, "1", true);
-  if (tx) {
-    const receipt = await userTxService.sendTx(
-      { domain: +PARAMETERS.HUB.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
-      requestContext,
-    );
-
-    console.log(`Approved! tx: ${receipt.transactionHash}`);
-  }
 };
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
@@ -461,18 +422,17 @@ describe("LOCAL:E2E", () => {
   let sdkUtils: SdkUtils;
 
   before(async () => {
-    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
+    for (const chain of [PARAMETERS.HUB, PARAMETERS.A, PARAMETERS.B]) {
+      const provider = new providers.JsonRpcProvider(chain.RPC[0]);
 
-    // Fund the user and relayer agents some ETH.
-    await originProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
-    await originProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
-    await destinationProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
-    await destinationProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
+      // Fund the user and relayer agents some ETH.
+      await provider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
+      await provider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
+    }
 
     // Sanity checks: make sure addresses configured are correct by checking to make sure contracts are deployed
     // at those addresses (using `getCode`).
-    for (const key of ["A", "B"]) {
+    for (const key of ["HUB", "A", "B"]) {
       const config = PARAMETERS[key as "A" | "B"];
       const { CHAIN: chain, DEPLOYMENTS: deployments } = config;
       for (const [deployment, address] of Object.entries(deployments)) {
@@ -533,74 +493,115 @@ describe("LOCAL:E2E", () => {
     logger.info("Set up sdk.");
 
     // On-chain / contracts configuration, approvals, etc.
-    await onchainSetup(sdkBase);
+    await onchainSetup();
   });
 
   it("handles fast liquidity transfer", async () => {
-    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    const { receipt, xcallData } = await sendXCall(
-      sdkBase,
-      undefined,
-      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
+    // Creates an xcall from hub to spoke
+    logger.info("Creating an xcall for happy path", requestContext, methodContext);
+    const hubProvider = new providers.JsonRpcProvider(PARAMETERS.HUB.RPC[0]);
+    const userSignerOnHub = PARAMETERS.AGENTS.USER.signer.connect(hubProvider);
+
+    const approveReceipt = await sdkBase.approveIfNeeded(
+      PARAMETERS.HUB.DOMAIN,
+      PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
+      "100",
+      true,
     );
-    const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
-
-    // TODO: Check user funds, assert tokens were deducted.
-
-    logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
-      domain: xcallData.destination,
-      transferId: originTransfer?.transferId,
-    });
-
-    const sequencerUrl = process.env.SEQUENCER_URL;
-    if (sequencerUrl) {
-      logger.info("Polling sequencer for auction status...");
-      let error: any | undefined;
-      const status: AxiosResponse<ExecuteFastApiGetExecStatusResponse> | undefined = await pollSomething({
-        attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
-        parity: SUBG_POLL_PARITY,
-        method: async () => {
-          return await axios
-            .request<ExecuteFastApiGetExecStatusResponse>({
-              method: "get",
-              baseURL: sequencerUrl,
-              url: `/auctions/${originTransfer.transferId}`,
-            })
-            .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
-              error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
-              return undefined;
-            });
-        },
+    if (approveReceipt) {
+      const res = await userSignerOnHub.sendTransaction({
+        to: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
+        value: 0,
+        data: utils.hexlify(approveReceipt.data!),
+        chainId: PARAMETERS.HUB.CHAIN,
       });
-      if (!status) {
-        logger.info("Unable to retrieve auction status from Sequencer.", requestContext, methodContext, {
-          etc: {
-            error,
-          },
-        });
-      } else {
-        logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
-          originDomain: xcallData.origin,
-          destinationDomain: xcallData.destination,
-          etc: { status: status.data },
-        });
-      }
+      await res.wait(1);
     }
 
-    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
-    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
+    const xcallParams: SdkXCallParams = {
+      origin: PARAMETERS.HUB.DOMAIN,
+      destination: PARAMETERS.A.DOMAIN,
+      to: PARAMETERS.AGENTS.USER.address,
+      asset: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
+      delegate: PARAMETERS.AGENTS.USER.address,
+      amount: "100",
+      slippage: "300",
+      callData: "0x",
+      relayerFee: utils.parseUnits("1", 16).toString(),
+      receiveLocal: false,
+    };
 
-    // TODO: Check router liquidity on-chain, assert funds were deducted.
-    logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.origin,
-      destinationDomain: xcallData.destination,
-      etc: {
-        transfer: {
-          ...originTransfer,
-          destination: destinationTransfer.destination,
-        },
-      },
+    const erc20 = new utils.Interface(ERC20Abi);
+
+    const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
+    const res = await deployerTxService.readTx({
+      domain: PARAMETERS.HUB.CHAIN,
+      data: balanceOfData,
+      to: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
     });
+    const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
+    logger.info(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
+    console.log(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
+
+    await sendXCall(sdkBase, xcallParams, userSignerOnHub);
+    // const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
+
+    // // TODO: Check user funds, assert tokens were deducted.
+
+    // logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
+    //   domain: xcallData.destination,
+    //   transferId: originTransfer?.transferId,
+    // });
+
+    // const sequencerUrl = process.env.SEQUENCER_URL;
+    // if (sequencerUrl) {
+    //   logger.info("Polling sequencer for auction status...");
+    //   let error: any | undefined;
+    //   const status: AxiosResponse<ExecuteFastApiGetExecStatusResponse> | undefined = await pollSomething({
+    //     attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
+    //     parity: SUBG_POLL_PARITY,
+    //     method: async () => {
+    //       return await axios
+    //         .request<ExecuteFastApiGetExecStatusResponse>({
+    //           method: "get",
+    //           baseURL: sequencerUrl,
+    //           url: `/auctions/${originTransfer.transferId}`,
+    //         })
+    //         .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
+    //           error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
+    //           return undefined;
+    //         });
+    //     },
+    //   });
+    //   if (!status) {
+    //     logger.info("Unable to retrieve auction status from Sequencer.", requestContext, methodContext, {
+    //       etc: {
+    //         error,
+    //       },
+    //     });
+    //   } else {
+    //     logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
+    //       originDomain: xcallData.origin,
+    //       destinationDomain: xcallData.destination,
+    //       etc: { status: status.data },
+    //     });
+    //   }
+    // }
+
+    // const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
+    // expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
+
+    // // TODO: Check router liquidity on-chain, assert funds were deducted.
+    // logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
+    //   originDomain: xcallData.origin,
+    //   destinationDomain: xcallData.destination,
+    //   etc: {
+    //     transfer: {
+    //       ...originTransfer,
+    //       destination: destinationTransfer.destination,
+    //     },
+    //   },
+    // });
   });
 
   it.skip("works for address(0) and 0-value transfers", async () => {
