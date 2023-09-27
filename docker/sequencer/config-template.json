@@ -37,8 +37,9 @@
       { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
     ],
     "queues": [
-      { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
-      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "31337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "31338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "31339", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
       {
         "name": "http",
         "limit": 1,
@@ -47,8 +48,9 @@
       }
     ],
     "bindings": [
-      { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },
-      { "exchange": "sequencerX", "target": "1338", "keys": ["1338"] },
+      { "exchange": "sequencerX", "target": "31337", "keys": ["31337"] },
+      { "exchange": "sequencerX", "target": "31338", "keys": ["31338"] },
+      { "exchange": "sequencerX", "target": "31339", "keys": ["31339"] },
       {
         "exchange": "sequencerX",
         "target": "http",
