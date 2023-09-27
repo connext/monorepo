@@ -102,8 +102,7 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
-  // TODO: need to make this hardcoded value configurable
-  const delayBlocks = 100;
+  const delayBlocks = protocol.configs[protocol.hub].delayBlocks;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
