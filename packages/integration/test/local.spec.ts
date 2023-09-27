@@ -6,7 +6,6 @@ import {
   ERC20Abi,
   XTransferStatus,
 } from "@connext/nxtp-utils";
-
 import { SdkBase, SdkUtils, SdkXCallParams } from "@connext/sdk-core";
 import { constants, providers, utils } from "ethers";
 import { expect } from "chai";
@@ -20,14 +19,9 @@ import {
   onchainSetup,
   getTransferByTransactionHash,
   getTransferById,
+  processAMB,
 } from "./helpers/local";
-import {
-  DEPLOYER_WALLET,
-  ROUTER_WALLET,
-  PARAMETERS as _PARAMETERS,
-  SUBG_POLL_PARITY,
-  USER_WALLET,
-} from "./constants/local";
+import { SUBG_POLL_PARITY } from "./constants/local";
 
 const { requestContext, methodContext } = createLoggingContext("e2e");
 describe("LOCAL:E2E", () => {
@@ -157,6 +151,8 @@ describe("LOCAL:E2E", () => {
     console.log(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
 
     await sendXCall(sdkBase, xcallParams, userSignerOnHub);
+
+    await processAMB(PARAMETERS.HUB);
   });
 
   it.skip("works for address(0) and 0-value transfers", async () => {
