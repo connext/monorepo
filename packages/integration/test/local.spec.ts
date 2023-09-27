@@ -303,30 +303,6 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
   return xTransfer;
 };
 
-const propagate = async () => {
-  const requestContext = createRequestContext(propagate.name);
-  const propagateData = RootManagerInterface.encodeFunctionData("propagate", [
-    [PARAMETERS.A.DEPLOYMENTS.SpokeConnector, PARAMETERS.B.DEPLOYMENTS.SpokeConnector],
-    ["0", "0"],
-    ["0x", "0x"],
-  ]);
-
-  await deployerTxService.sendTx(
-    { to: PARAMETERS.HUB.DEPLOYMENTS.RootManager!, data: propagateData, value: 0, domain: +PARAMETERS.HUB.DOMAIN },
-    requestContext,
-  );
-};
-
-const receiveHubAggregateRoot = async (data: string) => {
-  const requestContext = createRequestContext(receiveHubAggregateRoot.name);
-  const sendMessageData = AdminSpokeConnectorInterface.encodeFunctionData("receiveHubAggregateRoot", [data]);
-
-  await deployerTxService.sendTx(
-    { to: PARAMETERS.B.DEPLOYMENTS.SpokeConnector, data: sendMessageData, value: 0, domain: +PARAMETERS.B.DOMAIN },
-    requestContext,
-  );
-};
-
 const onchainSetup = async (sdkBase: SdkBase) => {
   logger.info("Minting TEST tokens for setup");
   for (const key of ["HUB", "A", "B"]) {
@@ -389,14 +365,15 @@ const onchainSetup = async (sdkBase: SdkBase) => {
       domain: PARAMETERS.HUB.DOMAIN,
       to: mainnetDeployments.RootManager!,
       connectors: [
-        mainnetDeployments.SpokeConnector,
-        mainnetDeployments.HubConnectorA!,
         mainnetDeployments.HubConnectorB!,
+        mainnetDeployments.HubConnectorA!,
+        mainnetDeployments.SpokeConnector,
       ],
       fees: ["0", "0", "0"],
       encodedData: ["0x", "0x", "0x"],
     },
     deployerTxService,
+    deployerSignerOnHub,
   );
 
   logger.info("Receive the aggregated root on both spoke domains on AdminSpokeConnector");

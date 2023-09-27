@@ -5,7 +5,7 @@ import {
   AdminHubConnectorInterface,
   RootManagerInterface,
 } from "@connext/smart-contracts";
-import { BigNumber } from "ethers";
+import { BigNumber, Signer, providers } from "ethers";
 
 /**
  * Sends the spoke root via AMB.
@@ -32,7 +32,7 @@ export const sendSpokeRootToHub = async (
     requestContext,
   );
 
-  console.log(`Sent the spoke root, tx: ${receipt.transactionHash}`);
+  console.log(`Sent the spoke root, tx: `, receipt);
   return outboundRoot;
 };
 
@@ -55,26 +55,43 @@ export const propagateAggregatedRootToSpokes = async (
     encodedData: string[];
   },
   txService: TransactionService,
+  signer: Signer,
 ) => {
   const { requestContext } = createLoggingContext(propagateAggregatedRootToSpokes.name);
+
+  // mine blocks before dequeue as delay blocks
+  await (signer.provider! as providers.JsonRpcProvider).send("anvil_mine", [10]);
+
+  const encodeLastPropagated = await txService.readTx({
+    domain: +propagateData.domain,
+    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot"),
+    to: propagateData.to,
+  });
+  const [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);
+  console.log(`Last propagated root: ${lastPropagated}`);
+
   const txData = RootManagerInterface.encodeFunctionData("propagate", [
     propagateData.connectors,
     propagateData.fees,
     propagateData.encodedData,
   ]);
-  console.log(
-    `Propagating aggregated root to hub connectors... domain: ${propagateData.domain}, RootManager: ${propagateData.to}`,
-  );
   const value = propagateData.fees.reduce((acc, cur) => {
     return BigNumber.from(acc).add(BigNumber.from(cur));
   }, BigNumber.from("0"));
+
+  console.log(
+    `Propagating aggregated root to hub connectors... domain: ${propagateData.domain}, RootManager: ${
+      propagateData.to
+    }, value: ${value.toString()}`,
+  );
+  console.log(`propagateData: `, propagateData);
 
   const receipt = await txService.sendTx(
     { domain: +propagateData.domain, to: propagateData.to, data: txData, value: value },
     requestContext,
   );
 
-  console.log(`Sent the spoke root, tx: ${receipt.transactionHash}`);
+  console.log(`Propagated tx: `, receipt);
 };
 
 /**
