@@ -384,7 +384,6 @@ const onchainSetup = async (sdkBase: SdkBase) => {
         root: propagatedRoot,
       },
       deployerTxService,
-      PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(chain.RPC[0])),
     );
   }
 

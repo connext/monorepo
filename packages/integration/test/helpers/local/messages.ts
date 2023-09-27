@@ -6,6 +6,7 @@ import {
   RootManagerInterface,
 } from "@connext/smart-contracts";
 import { BigNumber, Signer, providers } from "ethers";
+import { PARAMETERS } from "../../constants/local";
 
 /**
  * Sends the spoke root via AMB.
@@ -121,7 +122,6 @@ export const receiveAggregatedRootOnSpoke = async (
     root: string;
   },
   txService: TransactionService,
-  signer: Signer,
 ) => {
   const { requestContext } = createLoggingContext(receiveAggregatedRootOnSpoke.name);
 
@@ -130,13 +130,9 @@ export const receiveAggregatedRootOnSpoke = async (
   console.log(
     `Set aggregated root to spoke connector... domain: ${data.domain}, SpokeConnector: ${data.to}, root: ${data.root}`,
   );
-  console.log(txService.getProvider(+data.domain));
-  //const receipt = await txService.sendTx({ domain: +data.domain, to: data.to, data: txData, value: 0 }, requestContext);
-  const tx = await signer.sendTransaction({
-    to: data.to,
-    data: txData,
-    value: 0,
-  });
-  const receipt = await tx.wait(1);
+  const receipt = await txService.sendTx(
+    { domain: +data.domain, to: data.to, data: txData, value: 0, from: PARAMETERS.AGENTS.DEPLOYER.address },
+    requestContext,
+  );
   console.log(`Receive aggregated root tx: `, receipt);
 };
