@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -69,6 +70,11 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
       });
     }
     context.adapters.contracts = contractDeployments;
+    context.adapters.subgraph = await SubgraphReader.create(
+      chainData,
+      context.config.environment,
+      context.config.subgraphPrefix as string,
+    );
 
     context.logger.info("Process from root boot complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
