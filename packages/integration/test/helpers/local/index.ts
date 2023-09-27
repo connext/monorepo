@@ -4,3 +4,7 @@ export * from "./setupRouter";
 export * from "./addRelayer";
 export * from "./sendXCall";
 export * from "./messages";
+export * from "./logger";
+export * from "./onchainSetup";
+export * from "./transfers";
+export * from "./processAMB";
