@@ -33,11 +33,11 @@ const runInit = async () => {
         },
         representations: {
           "31338": {
-            local: "",
+            local: getContract("TestERC20", "31338", false, undefined, ProtocolNetwork.LOCAL).address,
             adopted: getContract("TestERC20", "31338", false, undefined, ProtocolNetwork.LOCAL).address,
           },
           "31339": {
-            local: "",
+            local: getContract("TestERC20", "31339", false, undefined, ProtocolNetwork.LOCAL).address,
             adopted: getContract("TestERC20", "31339", false, undefined, ProtocolNetwork.LOCAL).address,
           },
         },
