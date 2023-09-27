@@ -56,18 +56,26 @@ export const propagateAggregatedRootToSpokes = async (
   },
   txService: TransactionService,
   signer: Signer,
-) => {
+): Promise<string> => {
   const { requestContext } = createLoggingContext(propagateAggregatedRootToSpokes.name);
 
-  // mine blocks before dequeue as delay blocks
-  await (signer.provider! as providers.JsonRpcProvider).send("anvil_mine", [10]);
+  const encodeDelayBlocks = await txService.readTx({
+    domain: +propagateData.domain,
+    data: RootManagerInterface.encodeFunctionData("delayBlocks"),
+    to: propagateData.to,
+  });
+  const [delayBlocks] = RootManagerInterface.decodeFunctionResult("delayBlocks", encodeDelayBlocks);
+  console.log(`RootManager Delay Blocks: ${delayBlocks}`);
 
-  const encodeLastPropagated = await txService.readTx({
+  // mine blocks before dequeue as delay blocks
+  await (signer.provider! as providers.JsonRpcProvider).send("anvil_mine", [delayBlocks * 1 + 1]);
+
+  let encodeLastPropagated = await txService.readTx({
     domain: +propagateData.domain,
     data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot"),
     to: propagateData.to,
   });
-  const [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);
+  let [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);
   console.log(`Last propagated root: ${lastPropagated}`);
 
   const txData = RootManagerInterface.encodeFunctionData("propagate", [
@@ -90,11 +98,45 @@ export const propagateAggregatedRootToSpokes = async (
     { domain: +propagateData.domain, to: propagateData.to, data: txData, value: value },
     requestContext,
   );
-
   console.log(`Propagated tx: `, receipt);
+
+  encodeLastPropagated = await txService.readTx({
+    domain: +propagateData.domain,
+    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot"),
+    to: propagateData.to,
+  });
+  [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);
+  console.log(`Last propagated root: ${lastPropagated}`);
+
+  return lastPropagated;
 };
 
 /**
  * Receives the aggregated root from the hub domain on AdminSpokeConnector
  */
-export const receiveAggregatedRootOnSpoke = async () => {};
+export const receiveAggregatedRootOnSpoke = async (
+  data: {
+    domain: string;
+    to: string;
+    root: string;
+  },
+  txService: TransactionService,
+  signer: Signer,
+) => {
+  const { requestContext } = createLoggingContext(receiveAggregatedRootOnSpoke.name);
+
+  const txData = AdminSpokeConnectorInterface.encodeFunctionData("receiveHubAggregateRoot", [data.root]);
+
+  console.log(
+    `Set aggregated root to spoke connector... domain: ${data.domain}, SpokeConnector: ${data.to}, root: ${data.root}`,
+  );
+  console.log(txService.getProvider(+data.domain));
+  //const receipt = await txService.sendTx({ domain: +data.domain, to: data.to, data: txData, value: 0 }, requestContext);
+  const tx = await signer.sendTransaction({
+    to: data.to,
+    data: txData,
+    value: 0,
+  });
+  const receipt = await tx.wait(1);
+  console.log(`Receive aggregated root tx: `, receipt);
+};

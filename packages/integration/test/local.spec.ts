@@ -54,6 +54,7 @@ import {
   sendSpokeRootToHub,
   receiveSpokeRootOnHub,
   propagateAggregatedRootToSpokes,
+  receiveAggregatedRootOnSpoke,
 } from "./helpers/local";
 import {
   DEPLOYER_WALLET,
@@ -321,8 +322,6 @@ const onchainSetup = async (sdkBase: SdkBase) => {
 
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
   const mainnetDeployments = getDeployments(PARAMETERS.HUB.DOMAIN);
-  const optimismDeployments = getDeployments(PARAMETERS.A.DOMAIN);
-  const arbitrumDeployments = getDeployments(PARAMETERS.B.DOMAIN);
   const xcallParams: SdkXCallParams = {
     // TransferInfo
     origin: PARAMETERS.HUB.DOMAIN,
@@ -360,14 +359,14 @@ const onchainSetup = async (sdkBase: SdkBase) => {
   await sendSpokeRootToHub(spokeRootData, deployerTxService);
 
   logger.info("propagate the aggregated root to spoke domains");
-  await propagateAggregatedRootToSpokes(
+  const propagatedRoot = await propagateAggregatedRootToSpokes(
     {
       domain: PARAMETERS.HUB.DOMAIN,
-      to: mainnetDeployments.RootManager!,
+      to: PARAMETERS.HUB.DEPLOYMENTS.RootManager!,
       connectors: [
-        mainnetDeployments.HubConnectorB!,
-        mainnetDeployments.HubConnectorA!,
-        mainnetDeployments.SpokeConnector,
+        PARAMETERS.HUB.DEPLOYMENTS.HubConnectorB!,
+        PARAMETERS.HUB.DEPLOYMENTS.HubConnectorA!,
+        PARAMETERS.HUB.DEPLOYMENTS.SpokeConnector,
       ],
       fees: ["0", "0", "0"],
       encodedData: ["0x", "0x", "0x"],
@@ -377,9 +376,17 @@ const onchainSetup = async (sdkBase: SdkBase) => {
   );
 
   logger.info("Receive the aggregated root on both spoke domains on AdminSpokeConnector");
-  /// TODO: figure out the data required for this function
-  const aggregateRootData = "0x";
-  await receiveHubAggregateRoot(aggregateRootData);
+  for (const chain of [PARAMETERS.A, PARAMETERS.B]) {
+    await receiveAggregatedRootOnSpoke(
+      {
+        domain: chain.DOMAIN,
+        to: chain.DEPLOYMENTS.SpokeConnector,
+        root: propagatedRoot,
+      },
+      deployerTxService,
+      PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(chain.RPC[0])),
+    );
+  }
 
   logger.info("Setting up router...");
   // Setup router for both the owner and recipient. MUST be called with the router account.
