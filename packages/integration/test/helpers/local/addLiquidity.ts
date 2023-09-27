@@ -3,7 +3,7 @@ import { ConnextInterface } from "@connext/smart-contracts";
 import { getErc20Interface, TransactionService } from "@connext/nxtp-txservice";
 import { BigNumber, utils } from "ethers";
 
-import { DEPLOYER_WALLET } from "../../constants/local";
+import { DEPLOYER_WALLET, PARAMETERS } from "../../constants/local";
 
 // Add liquidity for router in `localAsset` on each domain.
 export const addLiquidity = async (
@@ -59,7 +59,16 @@ export const addLiquidity = async (
       }
       console.log("Sending approval txs...");
       const approveData = getErc20Interface().encodeFunctionData("approve", [domain.Connext, domain.amount]);
-      await txService.sendTx({ domain: +domain.domain, to: localAsset, data: approveData, value: 0 }, requestContext);
+      await txService.sendTx(
+        {
+          domain: +domain.domain,
+          to: localAsset,
+          data: approveData,
+          value: 0,
+          from: PARAMETERS.AGENTS.DEPLOYER.address,
+        },
+        requestContext,
+      );
       console.log("Sending approval txs done!");
     }
 
@@ -75,6 +84,7 @@ export const addLiquidity = async (
         to: domain.Connext,
         data: addLiquidityData,
         value: 0,
+        from: PARAMETERS.AGENTS.DEPLOYER.address,
       },
       requestContext,
     );

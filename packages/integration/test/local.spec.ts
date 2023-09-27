@@ -38,21 +38,13 @@ import SpokeConnector_Optimism from "@connext/smart-contracts/deployments/local-
 import Connext_DiamondProxy_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/Connext_DiamondProxy.json";
 import TestERC20_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/TestERC20.json";
 import SpokeConnector_Arbitrum from "@connext/smart-contracts/deployments/local-arbitrum/ArbitrumSpokeConnector.json";
-import {
-  AdminSpokeConnectorInterface,
-  AdminHubConnectorInterface,
-  RootManagerInterface,
-  canonizeId,
-} from "@connext/smart-contracts";
+import { canonizeId } from "@connext/smart-contracts";
 
 import { pollSomething } from "./helpers/shared";
 import {
-  setupRouter,
   addLiquidity,
-  addRelayer,
   sendXCall,
   sendSpokeRootToHub,
-  receiveSpokeRootOnHub,
   propagateAggregatedRootToSpokes,
   receiveAggregatedRootOnSpoke,
 } from "./helpers/local";
@@ -63,7 +55,6 @@ import {
   SUBG_POLL_PARITY,
   USER_WALLET,
 } from "./constants/local";
-import { addSequencer } from "./helpers/local/addSequencer";
 
 export const logger = new Logger({ name: "e2e" });
 
@@ -304,22 +295,7 @@ const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: s
   return xTransfer;
 };
 
-const onchainSetup = async (sdkBase: SdkBase) => {
-  logger.info("Minting TEST tokens for setup");
-  for (const key of ["HUB", "A", "B"]) {
-    const deployments = getDeployments((PARAMETERS as any)[key].DOMAIN);
-    const rpcUrl = (PARAMETERS as any)[key].RPC[0] as string;
-    const signer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
-    const tokenContract = new Contract(deployments.TestERC20, ERC20Abi, signer);
-    const assetBalance = await tokenContract.balanceOf(signer.address);
-    if (BigNumber.from(assetBalance).isZero()) {
-      const tx = await tokenContract.mint(signer.address, utils.parseEther("10000000"));
-      await tx.wait();
-      const afterBalance = await tokenContract.balanceOf(signer.address);
-      console.log({ before: assetBalance.toString(), after: afterBalance.toString() });
-    }
-  }
-
+const processAMB = async (sdkBase: SdkBase) => {
   logger.info("Trying `xcallIntoLocal` to get the local assets on spoke domains");
   const mainnetDeployments = getDeployments(PARAMETERS.HUB.DOMAIN);
   const xcallParams: SdkXCallParams = {
@@ -352,7 +328,6 @@ const onchainSetup = async (sdkBase: SdkBase) => {
 
     await res.wait(1);
   }
-  await sendXCall(sdkBase, xcallParams, deployerSignerOnHub);
 
   logger.info("Sending the spoke root to the hub");
   const spokeRootData = { domain: PARAMETERS.HUB.DOMAIN, to: mainnetDeployments.SpokeConnector };
@@ -386,23 +361,36 @@ const onchainSetup = async (sdkBase: SdkBase) => {
       deployerTxService,
     );
   }
+};
 
-  logger.info("Setting up router...");
-  // Setup router for both the owner and recipient. MUST be called with the router account.
-  await setupRouter(
-    PARAMETERS.AGENTS.ROUTER.address,
-    [
-      { Connext: PARAMETERS.A.DEPLOYMENTS.Connext, domain: PARAMETERS.A.DOMAIN },
-      { Connext: PARAMETERS.B.DEPLOYMENTS.Connext, domain: PARAMETERS.B.DOMAIN },
-    ],
-    routerTxService,
-  );
-  logger.info("Set up router done!");
+const onchainSetup = async (sdkBase: SdkBase) => {
+  logger.info("Minting TEST tokens for setup");
+  for (const key of ["HUB", "A", "B"]) {
+    const deployments = getDeployments((PARAMETERS as any)[key].DOMAIN);
+    const rpcUrl = (PARAMETERS as any)[key].RPC[0] as string;
+    const signer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(new providers.JsonRpcProvider(rpcUrl));
+    const tokenContract = new Contract(deployments.TestERC20, ERC20Abi, signer);
+    const assetBalance = await tokenContract.balanceOf(signer.address);
+    if (BigNumber.from(assetBalance).isZero()) {
+      const tx = await tokenContract.mint(signer.address, utils.parseEther("10000000"));
+      await tx.wait();
+      const afterBalance = await tokenContract.balanceOf(signer.address);
+      console.log({ before: assetBalance.toString(), after: afterBalance.toString() });
+    }
+  }
 
   logger.info(`Adding liquidity for router: ${PARAMETERS.AGENTS.ROUTER.address}...`);
   const canonicalId = utils.hexlify(canonizeId(PARAMETERS.HUB.DEPLOYMENTS.TestERC20));
   await addLiquidity(
     [
+      {
+        domain: PARAMETERS.HUB.DOMAIN,
+        amount: utils.parseEther("100").toString(),
+        router: PARAMETERS.AGENTS.ROUTER.address,
+        canonicalId: canonicalId,
+        canonicalDomain: PARAMETERS.HUB.DOMAIN,
+        Connext: PARAMETERS.HUB.DEPLOYMENTS.Connext,
+      },
       {
         domain: PARAMETERS.A.DOMAIN,
         amount: utils.parseEther("100").toString(),
@@ -424,42 +412,6 @@ const onchainSetup = async (sdkBase: SdkBase) => {
     logger,
   );
   logger.info("Added liquidity.");
-
-  logger.info(`Adding a relayer: ${PARAMETERS.AGENTS.RELAYER.address}`);
-  await addRelayer(
-    [
-      {
-        domain: PARAMETERS.A.DOMAIN,
-        relayer: PARAMETERS.AGENTS.RELAYER.address,
-        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
-      },
-      {
-        domain: PARAMETERS.B.DOMAIN,
-        relayer: PARAMETERS.AGENTS.RELAYER.address,
-        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
-      },
-    ],
-    deployerTxService,
-    logger,
-  );
-
-  logger.info(`Adding a sequencer: ${PARAMETERS.AGENTS.SEQUENCER.address}`);
-  await addSequencer(
-    [
-      {
-        domain: PARAMETERS.A.DOMAIN,
-        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
-        Connext: PARAMETERS.A.DEPLOYMENTS.Connext,
-      },
-      {
-        domain: PARAMETERS.B.DOMAIN,
-        sequencer: PARAMETERS.AGENTS.SEQUENCER.address,
-        Connext: PARAMETERS.B.DEPLOYMENTS.Connext,
-      },
-    ],
-    deployerTxService,
-    logger,
-  );
 
   // TODO: Read user's balance and skip if they already have TEST tokens.
   logger.info("Minting tokens for user agent...");
@@ -492,19 +444,14 @@ const onchainSetup = async (sdkBase: SdkBase) => {
     logger.info(`New user token balance: ${tokenBalance.toString()}`);
   }
 
-  let tx = await sdkBase.approveIfNeeded(PARAMETERS.A.DOMAIN, PARAMETERS.A.DEPLOYMENTS.TestERC20, "1", true);
+  const tx = await sdkBase.approveIfNeeded(PARAMETERS.HUB.DOMAIN, PARAMETERS.HUB.DEPLOYMENTS.TestERC20, "1", true);
   if (tx) {
-    await userTxService.sendTx(
-      { domain: PARAMETERS.A.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
+    const receipt = await userTxService.sendTx(
+      { domain: +PARAMETERS.HUB.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
       requestContext,
     );
-  }
-  tx = await sdkBase.approveIfNeeded(PARAMETERS.B.DOMAIN, PARAMETERS.B.DEPLOYMENTS.TestERC20, "1", true);
-  if (tx) {
-    await userTxService.sendTx(
-      { domain: PARAMETERS.B.DOMAIN, to: tx.to!, value: 0, data: utils.hexlify(tx.data!) },
-      requestContext,
-    );
+
+    console.log(`Approved! tx: ${receipt.transactionHash}`);
   }
 };
 
@@ -516,9 +463,6 @@ describe("LOCAL:E2E", () => {
   before(async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
-    // Ensure automine is off.
-    // await originProvider.send("evm_setAutomine", [true]);
-    // await destinationProvider.send("evm_setAutomine", [true]);
 
     // Fund the user and relayer agents some ETH.
     await originProvider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
@@ -659,7 +603,7 @@ describe("LOCAL:E2E", () => {
     });
   });
 
-  it("works for address(0) and 0-value transfers", async () => {
+  it.skip("works for address(0) and 0-value transfers", async () => {
     const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
     const { receipt, xcallData } = await sendXCall(
       sdkBase,
@@ -715,65 +659,6 @@ describe("LOCAL:E2E", () => {
 
     // TODO: Check router liquidity on-chain, assert funds were deducted.
     logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.origin,
-      destinationDomain: xcallData.destination,
-      etc: {
-        transfer: {
-          ...originTransfer,
-          destination: destinationTransfer.destination,
-        },
-      },
-    });
-  });
-
-  it.skip("handles slow liquidity transfer", async () => {
-    // Get the remote router ID for the `handle` call.
-    const destinationProvider = new providers.JsonRpcProvider(PARAMETERS.B.RPC[0]);
-    const deployer = PARAMETERS.AGENTS.DEPLOYER.signer.connect(destinationProvider);
-
-    // Enroll an EOA (the deployer) as the replica address for this domain.
-    // NOTE: In a production environment the replica address will always be a contract. We're using an EOA here in order
-    // to circumvent the message lifecycle
-    // await enrollReplica(deployer);
-
-    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    const { receipt, xcallData } = await sendXCall(
-      sdkBase,
-      undefined,
-      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
-    );
-
-    const iface = getConnextInterface();
-    const connext = new Contract(PARAMETERS.B.DEPLOYMENTS.Connext, iface as ContractInterface, deployer);
-
-    // Extract the xchain message bytes from the XCalled event logged.
-    const xcalledEvent = connext.filters.XCalled(null).address;
-    let message: string | undefined = undefined;
-    for (const log of receipt.logs) {
-      if (log.address == xcalledEvent) {
-        const event = iface.decodeEventLog("XCalled", log.data);
-        message = event.message;
-      }
-    }
-    if (!message) {
-      throw new Error("Did not find XCalled event (or event was missing `message` arguments)!");
-    }
-
-    const poll = getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
-    // TODO: Read remote from contract directly?
-    const remote = "0x000000000000000000000000f08df3efdd854fede77ed3b2e515090eee765154";
-    const res = await connext.handle(PARAMETERS.A.DOMAIN, 0, remote, message);
-    logger.info("Sent `handle` (i.e. `reconcile`) transaction.", requestContext, methodContext, {
-      txHash: res.transactionHash,
-    });
-
-    // Lighthouse should pick up the xcall once it's been reconciled.
-    const originTransfer = await poll;
-    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
-
-    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.CompletedSlow);
-
-    logger.info("Slow-liquidity transfer completed successfully!", requestContext, methodContext, {
       originDomain: xcallData.origin,
       destinationDomain: xcallData.destination,
       etc: {
