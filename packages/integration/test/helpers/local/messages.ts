@@ -40,7 +40,29 @@ export const sendSpokeRootToHub = async (
 /**
  * Receives the spoke root on AdminHubConnector
  */
-export const receiveSpokeRootOnHub = async () => {};
+export const receiveSpokeRootOnHub = async (
+  spokeRootData: { domain: string; to: string; root: string },
+  txService: TransactionService,
+) => {
+  const { requestContext } = createLoggingContext(receiveSpokeRootOnHub.name);
+
+  const txData = AdminHubConnectorInterface.encodeFunctionData("addSpokeRootToAggregate", [spokeRootData.root]);
+  console.log(
+    `Adding the spoke root to hub... domain: ${spokeRootData.domain}, hubConnector: ${spokeRootData.to}, root: ${spokeRootData.root}`,
+  );
+  const receipt = await txService.sendTx(
+    {
+      domain: +spokeRootData.domain,
+      to: spokeRootData.to,
+      data: txData,
+      value: 0,
+      from: PARAMETERS.AGENTS.DEPLOYER.address,
+    },
+    requestContext,
+  );
+
+  console.log(`Added the spoke root, tx: `, receipt);
+};
 
 /**
  * Sends the aggregated root to the spoke domains via AMBs.

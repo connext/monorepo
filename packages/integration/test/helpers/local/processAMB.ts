@@ -1,6 +1,11 @@
 import { providers } from "ethers";
 
-import { sendSpokeRootToHub, propagateAggregatedRootToSpokes, receiveAggregatedRootOnSpoke } from "../../helpers/local";
+import {
+  sendSpokeRootToHub,
+  propagateAggregatedRootToSpokes,
+  receiveAggregatedRootOnSpoke,
+  receiveSpokeRootOnHub,
+} from "../../helpers/local";
 import { logger } from "./logger";
 import { PARAMETERS, deployerTxService } from "./onchainSetup";
 
@@ -10,7 +15,22 @@ export const processAMB = async (origin: any) => {
 
   logger.info("Sending the spoke root to the hub");
   const spokeRootData = { domain: origin.DOMAIN, to: origin.DEPLOYMENTS.SpokeConnector };
-  await sendSpokeRootToHub(spokeRootData, deployerTxService);
+  const outboundRoot = await sendSpokeRootToHub(spokeRootData, deployerTxService);
+
+  if (origin.DOMAIN !== PARAMETERS.HUB.DOMAIN) {
+    // If origin domain is not hub, need to set spoke root to hub.
+    await receiveSpokeRootOnHub(
+      {
+        domain: PARAMETERS.HUB.DOMAIN,
+        to:
+          origin.DOMAIN === PARAMETERS.A.DOMAIN
+            ? PARAMETERS.HUB.DEPLOYMENTS.HubConnectorA!
+            : PARAMETERS.HUB.DEPLOYMENTS.HubConnectorB!,
+        root: outboundRoot,
+      },
+      deployerTxService,
+    );
+  }
 
   logger.info("propagate the aggregated root to spoke domains");
   const propagatedRoot = await propagateAggregatedRootToSpokes(
