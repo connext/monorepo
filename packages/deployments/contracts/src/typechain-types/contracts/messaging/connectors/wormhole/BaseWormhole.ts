@@ -13,9 +13,19 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../common";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "../../../../common";
 
 export interface BaseWormholeInterface extends utils.Interface {
   functions: {
@@ -52,43 +62,97 @@ export interface BaseWormholeInterface extends utils.Interface {
       | "renounceOwnership"
       | "renounced"
       | "setGasCap"
-      | "setRefundAddress",
+      | "setRefundAddress"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "MIRROR_WORMHOLE_ID", values?: undefined): string;
-  encodeFunctionData(functionFragment: "acceptProposedOwner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_WORMHOLE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "processedWhMessages", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "proposeNewOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "processedWhMessages",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(functionFragment: "proposedTimestamp", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "quoteEVMDeliveryPrice",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>],
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "refundAddress", values?: undefined): string;
-  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "refundAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(functionFragment: "setGasCap", values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: "setRefundAddress", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRefundAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "MIRROR_WORMHOLE_ID", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "acceptProposedOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_WORMHOLE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "processedWhMessages", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proposeNewOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "processedWhMessages",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proposedTimestamp", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "quoteEVMDeliveryPrice", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "refundAddress", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "quoteEVMDeliveryPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "refundAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setRefundAddress", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setRefundAddress",
+    data: BytesLike
+  ): Result;
 
   events: {
     "GasCapUpdated(uint256,uint256)": EventFragment;
@@ -107,32 +171,47 @@ export interface GasCapUpdatedEventObject {
   _previous: BigNumber;
   _updated: BigNumber;
 }
-export type GasCapUpdatedEvent = TypedEvent<[BigNumber, BigNumber], GasCapUpdatedEventObject>;
+export type GasCapUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasCapUpdatedEventObject
+>;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
-export type OwnershipProposedEvent = TypedEvent<[string], OwnershipProposedEventObject>;
+export type OwnershipProposedEvent = TypedEvent<
+  [string],
+  OwnershipProposedEventObject
+>;
 
-export type OwnershipProposedEventFilter = TypedEventFilter<OwnershipProposedEvent>;
+export type OwnershipProposedEventFilter =
+  TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
 }
-export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface RefundAddressUpdatedEventObject {
   previous: string;
   updated: string;
 }
-export type RefundAddressUpdatedEvent = TypedEvent<[string, string], RefundAddressUpdatedEventObject>;
+export type RefundAddressUpdatedEvent = TypedEvent<
+  [string, string],
+  RefundAddressUpdatedEventObject
+>;
 
-export type RefundAddressUpdatedEventFilter = TypedEventFilter<RefundAddressUpdatedEvent>;
+export type RefundAddressUpdatedEventFilter =
+  TypedEventFilter<RefundAddressUpdatedEvent>;
 
 export interface BaseWormhole extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -144,12 +223,16 @@ export interface BaseWormhole extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -159,7 +242,9 @@ export interface BaseWormhole extends BaseContract {
   functions: {
     MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<[number]>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -167,11 +252,14 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    processedWhMessages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
+    processedWhMessages(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
@@ -181,29 +269,33 @@ export interface BaseWormhole extends BaseContract {
     quoteEVMDeliveryPrice(
       _gasLimit: PromiseOrValue<BigNumberish>,
       _amb: PromiseOrValue<string>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber] & { _cost: BigNumber }>;
 
     refundAddress(overrides?: CallOverrides): Promise<[string]>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRefundAddress(
       _updated: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<number>;
 
-  acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -211,11 +303,14 @@ export interface BaseWormhole extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  processedWhMessages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+  processedWhMessages(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
@@ -225,23 +320,25 @@ export interface BaseWormhole extends BaseContract {
   quoteEVMDeliveryPrice(
     _gasLimit: PromiseOrValue<BigNumberish>,
     _amb: PromiseOrValue<string>,
-    overrides?: CallOverrides,
+    overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   refundAddress(overrides?: CallOverrides): Promise<string>;
 
-  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   setGasCap(
     _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRefundAddress(
     _updated: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -255,9 +352,15 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    processedWhMessages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+    processedWhMessages(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    proposeNewOwner(newlyProposed: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -266,7 +369,7 @@ export interface BaseWormhole extends BaseContract {
     quoteEVMDeliveryPrice(
       _gasLimit: PromiseOrValue<BigNumberish>,
       _amb: PromiseOrValue<string>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     refundAddress(overrides?: CallOverrides): Promise<string>;
@@ -275,41 +378,56 @@ export interface BaseWormhole extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    setGasCap(_gasCap: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setRefundAddress(_updated: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    setRefundAddress(
+      _updated: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
-    "GasCapUpdated(uint256,uint256)"(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+    "GasCapUpdated(uint256,uint256)"(
+      _previous?: null,
+      _updated?: null
+    ): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
-    "OwnershipProposed(address)"(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
-    OwnershipProposed(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
+    "OwnershipProposed(address)"(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+    OwnershipProposed(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
     "RefundAddressUpdated(address,address)"(
       previous?: PromiseOrValue<string> | null,
-      updated?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
     ): RefundAddressUpdatedEventFilter;
     RefundAddressUpdated(
       previous?: PromiseOrValue<string> | null,
-      updated?: PromiseOrValue<string> | null,
+      updated?: PromiseOrValue<string> | null
     ): RefundAddressUpdatedEventFilter;
   };
 
   estimateGas: {
     MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -317,11 +435,14 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    processedWhMessages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    processedWhMessages(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
@@ -331,30 +452,36 @@ export interface BaseWormhole extends BaseContract {
     quoteEVMDeliveryPrice(
       _gasLimit: PromiseOrValue<BigNumberish>,
       _amb: PromiseOrValue<string>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     refundAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRefundAddress(
       _updated: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    MIRROR_WORMHOLE_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    MIRROR_WORMHOLE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -362,11 +489,14 @@ export interface BaseWormhole extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    processedWhMessages(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    processedWhMessages(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -376,23 +506,25 @@ export interface BaseWormhole extends BaseContract {
     quoteEVMDeliveryPrice(
       _gasLimit: PromiseOrValue<BigNumberish>,
       _amb: PromiseOrValue<string>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     refundAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRefundAddress(
       _updated: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
