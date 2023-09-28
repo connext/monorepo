@@ -23,7 +23,7 @@ import type {
   PromiseOrValue,
 } from "../../../../../common";
 
-export declare namespace IOptimismHubConnector {
+export declare namespace Types {
   export type WithdrawalTransactionStruct = {
     nonce: PromiseOrValue<BigNumberish>;
     sender: PromiseOrValue<string>;
@@ -76,9 +76,9 @@ export interface IOptimismHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "processMessageFromRoot",
     values: [
-      IOptimismHubConnector.WithdrawalTransactionStruct,
+      Types.WithdrawalTransactionStruct,
       PromiseOrValue<BigNumberish>,
-      IOptimismHubConnector.OutputRootProofStruct,
+      Types.OutputRootProofStruct,
       PromiseOrValue<BytesLike>[]
     ]
   ): string;
@@ -119,27 +119,27 @@ export interface IOptimismHubConnector extends BaseContract {
 
   functions: {
     processMessageFromRoot(
-      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _tx: Types.WithdrawalTransactionStruct,
       _l2OutputIndex: PromiseOrValue<BigNumberish>,
-      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _outputRootProof: Types.OutputRootProofStruct,
       _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   processMessageFromRoot(
-    _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+    _tx: Types.WithdrawalTransactionStruct,
     _l2OutputIndex: PromiseOrValue<BigNumberish>,
-    _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+    _outputRootProof: Types.OutputRootProofStruct,
     _withdrawalProof: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     processMessageFromRoot(
-      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _tx: Types.WithdrawalTransactionStruct,
       _l2OutputIndex: PromiseOrValue<BigNumberish>,
-      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _outputRootProof: Types.OutputRootProofStruct,
       _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
@@ -149,9 +149,9 @@ export interface IOptimismHubConnector extends BaseContract {
 
   estimateGas: {
     processMessageFromRoot(
-      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _tx: Types.WithdrawalTransactionStruct,
       _l2OutputIndex: PromiseOrValue<BigNumberish>,
-      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _outputRootProof: Types.OutputRootProofStruct,
       _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -159,9 +159,9 @@ export interface IOptimismHubConnector extends BaseContract {
 
   populateTransaction: {
     processMessageFromRoot(
-      _tx: IOptimismHubConnector.WithdrawalTransactionStruct,
+      _tx: Types.WithdrawalTransactionStruct,
       _l2OutputIndex: PromiseOrValue<BigNumberish>,
-      _outputRootProof: IOptimismHubConnector.OutputRootProofStruct,
+      _outputRootProof: Types.OutputRootProofStruct,
       _withdrawalProof: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

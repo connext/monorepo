@@ -3,7 +3,6 @@
 /* eslint-disable */
 export * as access from "./access";
 export * as crosschain from "./crosschain";
-export * as governance from "./governance";
 export * as interfaces from "./interfaces";
 export * as proxy from "./proxy";
 export * as security from "./security";
