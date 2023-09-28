@@ -2,7 +2,7 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, chainIdToDomain, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
@@ -19,6 +19,7 @@ dotenvConfig();
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
+    spokeMerkleTree: TAddress,
     spokeConnector: TAddress,
     relayerProxy: TAddress,
   }),
@@ -244,6 +245,7 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
+  const hubChain = chainIdToDomain(+nxtpConfig.hubDomain);
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
@@ -264,6 +266,23 @@ export const getEnvConfig = (
             throw new Error(
               `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
             );
+          }
+          return res.address;
+        })(),
+
+      spokeMerkleTree:
+        chainConfig.deployments?.spokeMerkleTree ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.spokeMerkleTreeManager(
+                chainDataForChain.chainId,
+                hubChain === chainDataForChain.chainId,
+                contractPostfix,
+              )
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No spoke MerkleTreeManager contract address for domain ${domainId}`);
           }
           return res.address;
         })(),

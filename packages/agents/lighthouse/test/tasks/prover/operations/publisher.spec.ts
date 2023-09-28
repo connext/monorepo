@@ -110,7 +110,7 @@ describe("Operations: Publisher", () => {
   describe("#createBrokerMessage", () => {
     it("create a broker message successfully", async () => {
       (proverCtxMock.adapters.chainreader.readTx as SinonStub).onFirstCall().resolves("0x");
-      (proverCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([0]);
+      (proverCtxMock.adapters.contracts.merkleTreeManager.decodeFunctionResult as SinonStub).returns([0]);
       const brokerMessage = await createBrokerMessage(
         mockBrokerMesage.messages,
         mockBrokerMesage.originDomain,
@@ -142,7 +142,7 @@ describe("Operations: Publisher", () => {
     it("return empty message if no messages to enqueue", async () => {
       (proverCtxMock.adapters.chainreader.readTx as SinonStub).onFirstCall().resolves("0x");
       (proverCtxMock.adapters.chainreader.readTx as SinonStub).onSecondCall().resolves("0x");
-      (proverCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([2]);
+      (proverCtxMock.adapters.contracts.merkleTreeManager.decodeFunctionResult as SinonStub).returns([2]);
 
       const brokerMessage = await createBrokerMessage(
         mockBrokerMesage.messages,

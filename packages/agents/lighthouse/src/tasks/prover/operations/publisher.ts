@@ -366,8 +366,8 @@ export const createBrokerMessage = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
 
-  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-  if (!destinationSpokeConnector) {
+  const destinationSpokeMerkle = config.chains[destinationDomain]?.deployments.spokeMerkleTree;
+  if (!destinationSpokeMerkle) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
 
@@ -378,15 +378,15 @@ export const createBrokerMessage = async (
   const messages: XMessage[] = [];
   const processedMessages: XMessage[] = [];
   for (const message of _messages) {
-    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    const messageEncodedData = contracts.merkleTreeManager.encodeFunctionData("leaves", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
         domain: +destinationDomain,
-        to: destinationSpokeConnector,
+        to: destinationSpokeMerkle,
         data: messageEncodedData,
       });
 
-      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      const [messageStatus] = contracts.merkleTreeManager.decodeFunctionResult("leaves", messageResultData);
       if (messageStatus == 0) messages.push(message);
       else if (messageStatus == 2)
         processedMessages.push({
