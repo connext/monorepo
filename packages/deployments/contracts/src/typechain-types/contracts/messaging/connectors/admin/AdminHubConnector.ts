@@ -14,19 +14,9 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type {
-  TypedEventFilter,
-  TypedEvent,
-  TypedListener,
-  OnEvent,
-  PromiseOrValue,
-} from "../../../../common";
+import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../common";
 
 export interface AdminHubConnectorInterface extends utils.Interface {
   functions: {
@@ -71,126 +61,51 @@ export interface AdminHubConnectorInterface extends utils.Interface {
       | "sendMessage"
       | "setMirrorConnector"
       | "verifySender"
-      | "withdrawFunds"
+      | "withdrawFunds",
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "MIRROR_DOMAIN",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROOT_MANAGER",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "acceptProposedOwner",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addSpokeRootToAggregate",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "MIRROR_DOMAIN", values?: undefined): string;
+  encodeFunctionData(functionFragment: "ROOT_MANAGER", values?: undefined): string;
+  encodeFunctionData(functionFragment: "acceptProposedOwner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "addSpokeRootToAggregate", values: [PromiseOrValue<BytesLike>]): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "mirrorConnector",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "mirrorConnector", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "processMessage",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposeNewOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "processMessage", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "proposeNewOwner", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "proposedTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "proposedTimestamp", values?: undefined): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendMessage",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
   ): string;
-  encodeFunctionData(
-    functionFragment: "setMirrorConnector",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "verifySender",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdrawFunds",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "setMirrorConnector", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "verifySender", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "withdrawFunds", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "MIRROR_DOMAIN",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROOT_MANAGER",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "acceptProposedOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "addSpokeRootToAggregate",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "MIRROR_DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "ROOT_MANAGER", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "acceptProposedOwner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addSpokeRootToAggregate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "mirrorConnector",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "mirrorConnector", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "processMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposeNewOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "processMessage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposeNewOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proposedTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "proposedTimestamp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "sendMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMirrorConnector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifySender",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawFunds",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "sendMessage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setMirrorConnector", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "verifySender", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "withdrawFunds", data: BytesLike): Result;
 
   events: {
     "FundsWithdrawn(address,uint256)": EventFragment;
@@ -215,10 +130,7 @@ export interface FundsWithdrawnEventObject {
   to: string;
   amount: BigNumber;
 }
-export type FundsWithdrawnEvent = TypedEvent<
-  [string, BigNumber],
-  FundsWithdrawnEventObject
->;
+export type FundsWithdrawnEvent = TypedEvent<[string, BigNumber], FundsWithdrawnEventObject>;
 
 export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
@@ -226,23 +138,16 @@ export interface MessageProcessedEventObject {
   data: string;
   caller: string;
 }
-export type MessageProcessedEvent = TypedEvent<
-  [string, string],
-  MessageProcessedEventObject
->;
+export type MessageProcessedEvent = TypedEvent<[string, string], MessageProcessedEventObject>;
 
-export type MessageProcessedEventFilter =
-  TypedEventFilter<MessageProcessedEvent>;
+export type MessageProcessedEventFilter = TypedEventFilter<MessageProcessedEvent>;
 
 export interface MessageSentEventObject {
   data: string;
   encodedData: string;
   caller: string;
 }
-export type MessageSentEvent = TypedEvent<
-  [string, string, string],
-  MessageSentEventObject
->;
+export type MessageSentEvent = TypedEvent<[string, string, string], MessageSentEventObject>;
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
@@ -250,13 +155,9 @@ export interface MirrorConnectorUpdatedEventObject {
   previous: string;
   current: string;
 }
-export type MirrorConnectorUpdatedEvent = TypedEvent<
-  [string, string],
-  MirrorConnectorUpdatedEventObject
->;
+export type MirrorConnectorUpdatedEvent = TypedEvent<[string, string], MirrorConnectorUpdatedEventObject>;
 
-export type MirrorConnectorUpdatedEventFilter =
-  TypedEventFilter<MirrorConnectorUpdatedEvent>;
+export type MirrorConnectorUpdatedEventFilter = TypedEventFilter<MirrorConnectorUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -265,35 +166,24 @@ export interface NewConnectorEventObject {
   rootManager: string;
   mirrorConnector: string;
 }
-export type NewConnectorEvent = TypedEvent<
-  [number, number, string, string, string],
-  NewConnectorEventObject
->;
+export type NewConnectorEvent = TypedEvent<[number, number, string, string, string], NewConnectorEventObject>;
 
 export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
-export type OwnershipProposedEvent = TypedEvent<
-  [string],
-  OwnershipProposedEventObject
->;
+export type OwnershipProposedEvent = TypedEvent<[string], OwnershipProposedEventObject>;
 
-export type OwnershipProposedEventFilter =
-  TypedEventFilter<OwnershipProposedEvent>;
+export type OwnershipProposedEventFilter = TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
 }
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
+export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface AdminHubConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -305,16 +195,12 @@ export interface AdminHubConnector extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -330,13 +216,11 @@ export interface AdminHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     addSpokeRootToAggregate(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -347,43 +231,41 @@ export interface AdminHubConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<ContractTransaction>;
   };
 
@@ -395,13 +277,11 @@ export interface AdminHubConnector extends BaseContract {
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
-  acceptProposedOwner(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   addSpokeRootToAggregate(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -412,43 +292,41 @@ export interface AdminHubConnector extends BaseContract {
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   sendMessage(
     _data: PromiseOrValue<BytesLike>,
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   verifySender(
     _expected: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   withdrawFunds(
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -462,10 +340,7 @@ export interface AdminHubConnector extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    addSpokeRootToAggregate(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addSpokeRootToAggregate(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -473,15 +348,9 @@ export interface AdminHubConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    processMessage(
-      _data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    processMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
-    proposeNewOwner(
-      newlyProposed: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    proposeNewOwner(newlyProposed: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -494,90 +363,54 @@ export interface AdminHubConnector extends BaseContract {
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
-    setMirrorConnector(
-      _mirrorConnector: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setMirrorConnector(_mirrorConnector: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
-    verifySender(
-      _expected: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    verifySender(_expected: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-    withdrawFunds(
-      _to: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    withdrawFunds(_to: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
-    "FundsWithdrawn(address,uint256)"(
-      to?: PromiseOrValue<string> | null,
-      amount?: null
-    ): FundsWithdrawnEventFilter;
-    FundsWithdrawn(
-      to?: PromiseOrValue<string> | null,
-      amount?: null
-    ): FundsWithdrawnEventFilter;
+    "FundsWithdrawn(address,uint256)"(to?: PromiseOrValue<string> | null, amount?: null): FundsWithdrawnEventFilter;
+    FundsWithdrawn(to?: PromiseOrValue<string> | null, amount?: null): FundsWithdrawnEventFilter;
 
-    "MessageProcessed(bytes,address)"(
-      data?: null,
-      caller?: null
-    ): MessageProcessedEventFilter;
+    "MessageProcessed(bytes,address)"(data?: null, caller?: null): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
-    MessageSent(
-      data?: null,
-      encodedData?: null,
-      caller?: null
-    ): MessageSentEventFilter;
+    "MessageSent(bytes,bytes,address)"(data?: null, encodedData?: null, caller?: null): MessageSentEventFilter;
+    MessageSent(data?: null, encodedData?: null, caller?: null): MessageSentEventFilter;
 
-    "MirrorConnectorUpdated(address,address)"(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
-    MirrorConnectorUpdated(
-      previous?: null,
-      current?: null
-    ): MirrorConnectorUpdatedEventFilter;
+    "MirrorConnectorUpdated(address,address)"(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
+    MirrorConnectorUpdated(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null
+      mirrorConnector?: null,
     ): NewConnectorEventFilter;
     NewConnector(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null
+      mirrorConnector?: null,
     ): NewConnectorEventFilter;
 
-    "OwnershipProposed(address)"(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
-    OwnershipProposed(
-      proposedOwner?: PromiseOrValue<string> | null
-    ): OwnershipProposedEventFilter;
+    "OwnershipProposed(address)"(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
+    OwnershipProposed(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
+      newOwner?: PromiseOrValue<string> | null,
     ): OwnershipTransferredEventFilter;
   };
 
@@ -590,13 +423,11 @@ export interface AdminHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     addSpokeRootToAggregate(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -607,43 +438,41 @@ export interface AdminHubConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<BigNumber>;
   };
 
@@ -656,13 +485,11 @@ export interface AdminHubConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptProposedOwner(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     addSpokeRootToAggregate(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -673,43 +500,41 @@ export interface AdminHubConnector extends BaseContract {
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sendMessage(
       _data: PromiseOrValue<BytesLike>,
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
     ): Promise<PopulatedTransaction>;
   };
 }

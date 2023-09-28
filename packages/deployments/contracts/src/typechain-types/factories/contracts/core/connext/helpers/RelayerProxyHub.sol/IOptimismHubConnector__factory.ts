@@ -99,14 +99,7 @@ export class IOptimismHubConnector__factory {
   static createInterface(): IOptimismHubConnectorInterface {
     return new utils.Interface(_abi) as IOptimismHubConnectorInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IOptimismHubConnector {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IOptimismHubConnector;
+  static connect(address: string, signerOrProvider: Signer | Provider): IOptimismHubConnector {
+    return new Contract(address, _abi, signerOrProvider) as IOptimismHubConnector;
   }
 }

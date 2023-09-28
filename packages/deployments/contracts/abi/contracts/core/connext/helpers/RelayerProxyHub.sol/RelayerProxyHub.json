@@ -1,5 +1,5 @@
 [
-  "constructor(address _connext, address _spokeConnector, address _gelatoRelayer, address _feeCollector, address _keep3r, address _rootManager, address _autonolas, uint256 _propagateCooldown, uint256 _proposeAggregateRootCooldown, address[] _hubConnectors, uint32[] _hubConnectorChains)",
+  "constructor(address _connext, address _spokeConnector, address _gelatoRelayer, address _feeCollector, address _keep3r, address _rootManager, address _autonolas, uint256 _propagateCooldown, address[] _hubConnectors, uint32[] _hubConnectorChains)",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
   "error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed()",

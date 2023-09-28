@@ -51,6 +51,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   uint32[] _hubConnectorChains = new uint32[](10);
   uint256 SIGNER_PK = 0xa11ce;
   address SIGNER = vm.addr(0xa11ce);
+  address _rootManager = address(12312);
   address _autonolas = address(134325213);
   uint256 _propagateCooldown = 12321222;
   address _hubConnector = address(123444412);
@@ -73,6 +74,12 @@ contract RelayerProxyHubTest is ForgeHelper {
 
     vm.expectEmit(true, true, true, true);
     emit FeeCollectorChanged(_feeCollector, address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit AutonolasChanged(_autonolas, address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit HubConnectorChanged(_hubConnector, address(0), _chain);
 
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);

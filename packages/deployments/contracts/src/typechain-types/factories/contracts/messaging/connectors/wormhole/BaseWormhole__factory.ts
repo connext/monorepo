@@ -322,10 +322,7 @@ export class BaseWormhole__factory {
   static createInterface(): BaseWormholeInterface {
     return new utils.Interface(_abi) as BaseWormholeInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): BaseWormhole {
+  static connect(address: string, signerOrProvider: Signer | Provider): BaseWormhole {
     return new Contract(address, _abi, signerOrProvider) as BaseWormhole;
   }
 }
