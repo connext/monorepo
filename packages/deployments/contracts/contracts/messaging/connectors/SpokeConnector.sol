@@ -187,6 +187,35 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   mapping(uint256 => bytes32) public snapshotRoots;
 
+  /**
+   * @notice The resulting hash of keccaking the proposed aggregate root, the timestamp at which it was finalized in the root manager
+   *      and the block at which the time to dispute it ends.
+   * @dev Set to 0x1 to prevent someone from calling finalize() the moment the contract is deployed.
+   */
+  bytes32 public proposedAggregateRootHash = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+  /*
+    @notice The number of blocks off-chain agents have to dispute a given proposal.
+  */
+  uint256 public disputeBlocks;
+
+  /**
+   * @notice Hash used to keep the proposal slot warm once a given proposal has been finalized.
+   * @dev It also represents the empty state. This means if a proposal holds this hash, it's deemed empty.
+   */
+  bytes32 public constant FINALIZED_HASH = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+  /**
+   * @notice True if the system is working in optimistic mode. Otherwise is working in slow mode
+   */
+  bool public optimisticMode;
+
+  /**
+   * @notice This is used for the `onlyProposers` modifier, which gates who
+   * can propose new roots using `proposeAggregateRoot`.
+   */
+  mapping(address => bool) public allowlistedProposers;
+
   // ============ Modifiers ============
 
   /**
