@@ -265,8 +265,8 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 100
+  min_capacity     = 5 
+  max_capacity     = 5 
 }
 
 
@@ -355,8 +355,8 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.lighthouse_prover_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  min_capacity               = 10
-  max_capacity               = 200
+  min_capacity               = 2 
+  max_capacity               = 5 
   avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 15
 }
