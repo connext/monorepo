@@ -85,9 +85,8 @@ jobs:
       - name: Migrate Database
         run: yarn workspace @connext/nxtp-adapters-database dbmate up
 
-      # TODO ADD THIS BACK
-      # - name: Yarn test
-      #   run: yarn test:all
+      - name: Yarn test
+        run: yarn test:all
 
       - name: Yarn lint
         env:
