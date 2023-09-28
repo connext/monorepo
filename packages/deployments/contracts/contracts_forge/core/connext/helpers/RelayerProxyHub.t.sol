@@ -51,7 +51,6 @@ contract RelayerProxyHubTest is ForgeHelper {
   uint32[] _hubConnectorChains = new uint32[](10);
   uint256 SIGNER_PK = 0xa11ce;
   address SIGNER = vm.addr(0xa11ce);
-  address _rootManager = address(12312);
   address _autonolas = address(134325213);
   uint256 _propagateCooldown = 12321222;
   address _hubConnector = address(123444412);
@@ -66,27 +65,6 @@ contract RelayerProxyHubTest is ForgeHelper {
   }
 
   function utils_deployAndAssert() public {
-    vm.expectEmit(true, true, true, true);
-    emit ConnextChanged(_connext, address(0));
-
-    vm.expectEmit(true, true, true, true);
-    emit SpokeConnectorChanged(_spokeConnector, address(0));
-
-    vm.expectEmit(true, true, true, true);
-    emit FeeCollectorChanged(_feeCollector, address(0));
-
-    vm.expectEmit(true, true, true, true);
-    emit AutonolasChanged(_autonolas, address(0));
-
-    vm.expectEmit(true, true, true, true);
-    emit HubConnectorChanged(_hubConnector, address(0), _chain);
-
-    vm.expectEmit(true, true, true, true);
-    emit RelayerAdded(_gelatoRelayer);
-
-    vm.expectEmit(true, true, true, true);
-    emit AutonolasChanged(_autonolas, address(0));
-
     _hubConnectors[0] = address(100);
     _hubConnectors[1] = address(1);
     _hubConnectors[2] = address(2);
@@ -107,6 +85,26 @@ contract RelayerProxyHubTest is ForgeHelper {
     _hubConnectorChains[7] = ChainIDs.ZKSYNC_TEST;
     _hubConnectorChains[8] = ChainIDs.POLYGON_POS;
     _hubConnectorChains[9] = ChainIDs.MUMBAI;
+
+    vm.expectEmit(true, true, true, true);
+    emit ConnextChanged(_connext, address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit SpokeConnectorChanged(_spokeConnector, address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit FeeCollectorChanged(_feeCollector, address(0));
+
+    vm.expectEmit(true, true, true, true);
+    emit RelayerAdded(_gelatoRelayer);
+
+    vm.expectEmit(true, true, true, true);
+    emit AutonolasChanged(_autonolas, address(0));
+
+    for (uint256 i; i < _hubConnectors.length; i++) {
+      vm.expectEmit(true, true, true, true);
+      emit HubConnectorChanged(_hubConnectors[i], address(0), _hubConnectorChains[i]);
+    }
 
     vm.prank(OWNER);
     proxy = new RelayerProxyHub(
