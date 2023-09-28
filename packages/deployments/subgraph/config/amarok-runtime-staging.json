@@ -10,13 +10,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x74Ac0Bf5466e233f73591E57FdfbEEEAaB7363D6",
-        "startBlock": 9717684
+        "address": "0x49e6a0F45f137A53829140992f4979BfCcCC2ED3",
+        "startBlock": 9771352
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xAb95D438A8674d7E344500c599770E754201Fc9C",
-        "startBlock": 9717686
+        "address": "0x3e8da1fa6F650e473f396E26E8830ad2D20fD54d",
+        "startBlock": 9771351
       }
     ]
   },
@@ -31,13 +31,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x44C8808B03E8843612238a571E03e5A40018EEaA",
-        "startBlock": 14925706
+        "address": "0xB4F412c7184C1C9086420a885F9453547ae0CC8D",
+        "startBlock": 15218890
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x20E88bE518820E652C7c835E9f869F9631DD0f3c",
-        "startBlock": 14925583
+        "address": "0x97335A4357f07ECa6a5DA70a18434Ea6c55EAC00",
+        "startBlock": 15218887
       }
     ]
   },
@@ -52,13 +52,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x65F4D21dA324447F3BF2424A90Be45337bc3314b",
-        "startBlock": 40344339
+        "address": "0x86280029ff3fab51255e44FB5f6126f594B229e5",
+        "startBlock": 40592811
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xB012472617974fD1b464F2d7d05d28d4b177Cd12",
-        "startBlock": 40344332
+        "address": "0xAF683a6E9E2D59e478330eCa6d02D489324d9A86",
+        "startBlock": 40592808
       }
     ]
   },
@@ -73,13 +73,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x398dE29A62560ba60cdF9a1C6D8308B2eA3aD6db",
-        "startBlock": 42766435
+        "address": "0x419F1Feb51bED7F2A1305afAebEE4C38eeAac878",
+        "startBlock": 44134357
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x088E13F4d4dfB42cEA17312fD8a36e9d317F49EC",
-        "startBlock": 42766421
+        "address": "0x33a22C77a1E301a1101f3F977985CeFD0e4f6231",
+        "startBlock": 44134353
       }
     ]
   }

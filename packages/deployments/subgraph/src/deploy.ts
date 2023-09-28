@@ -35,7 +35,7 @@ const run = async () => {
   const cmdNetwork = cmdArg[2];
 
   // forth argument is access token: <subgraph deployer access token>
-  const accessToken = "66a8f764ba2d4c2da056f5f8cd62ddb7"; //cmdArg[3];
+  const accessToken = cmdArg[3];
 
   if (!contractVersion) {
     console.log("please add contract version, checkout readme for more");

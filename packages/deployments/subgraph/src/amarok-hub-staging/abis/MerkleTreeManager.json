@@ -6,6 +6,11 @@
   },
   {
     "inputs": [],
+    "name": "MerkleTreeManager__renounceOwnership_prohibited",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "MerkleTreeManager__setArborist_alreadyArborist",
     "type": "error"
   },
@@ -225,6 +230,25 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "_domain",
+        "type": "uint32"
+      }
+    ],
+    "name": "incrementNonce",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "_nonce",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_arborist",
         "type": "address"
@@ -263,7 +287,7 @@
     "inputs": [
       {
         "internalType": "bytes32[]",
-        "name": "leaves",
+        "name": "_leaves",
         "type": "bytes32[]"
       }
     ],
@@ -281,6 +305,70 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "leaves",
+    "outputs": [
+      {
+        "internalType": "enum MerkleTreeManager.LeafStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_leaf",
+        "type": "bytes32"
+      }
+    ],
+    "name": "markAsProcessed",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_leaf",
+        "type": "bytes32"
+      }
+    ],
+    "name": "markAsProven",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "name": "nonces",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
