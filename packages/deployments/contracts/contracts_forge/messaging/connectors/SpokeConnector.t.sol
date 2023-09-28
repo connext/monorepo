@@ -181,7 +181,7 @@ contract SpokeConnector_General is Base {
 
 contract SpokeConnector_Dispatch is Base {
   event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
-  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  event Dispatch(bytes32 indexed leaf, uint256 indexed index, bytes32 indexed root, bytes message);
 
   address allowedCaller = makeAddr("allowedCaller");
   uint256 snapshotId = SnapshotId.getLastCompletedSnapshotId();
@@ -288,7 +288,12 @@ contract SpokeConnector_Dispatch is Base {
     // set snapshot root to zero to guarantee that dispatch will save the snapshot root in storage
     MockSpokeConnector(payable(address(spokeConnector))).setSnapshotRoot(snapshotId, bytes32(0));
 
+    // get starting root + count
+    bytes32 _startingRoot = MockSpokeConnector(payable(address(spokeConnector))).outboundRoot();
+    uint256 _startingCount = MockSpokeConnector(payable(address(spokeConnector))).count();
+
     vm.expectEmit(true, true, true, true);
+    emit SnapshotRootSaved(snapshotId, _startingRoot, _startingCount);
 
     bytes memory _message = abi.encodePacked(
       _originDomain,
@@ -301,6 +306,7 @@ contract SpokeConnector_Dispatch is Base {
     bytes32 _messageHash = keccak256(_message);
     vm.mockCall(address(_merkle), abi.encodeWithSignature("insert(bytes32)", _messageHash), abi.encode(_root, _count));
 
+    vm.expectEmit(true, true, true, true);
     emit Dispatch(_messageHash, _count - 1, _root, _message);
 
     vm.prank(allowedCaller);

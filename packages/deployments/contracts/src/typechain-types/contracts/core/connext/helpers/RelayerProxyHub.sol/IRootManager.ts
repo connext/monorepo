@@ -26,15 +26,17 @@ import type {
 
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
+    "allowlistedProposers(address)": FunctionFragment;
     "dequeue()": FunctionFragment;
     "finalizeAndPropagate(address[],uint256[],bytes[],bytes32,uint256)": FunctionFragment;
-    "lastPropagatedRoot()": FunctionFragment;
+    "lastPropagatedRoot(uint32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[])": FunctionFragment;
     "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[])": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "allowlistedProposers"
       | "dequeue"
       | "finalizeAndPropagate"
       | "lastPropagatedRoot"
@@ -42,6 +44,10 @@ export interface IRootManagerInterface extends utils.Interface {
       | "proposeAggregateRoot"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "allowlistedProposers",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "dequeue", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "finalizeAndPropagate",
@@ -55,7 +61,7 @@ export interface IRootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "lastPropagatedRoot",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "propagate",
@@ -75,6 +81,10 @@ export interface IRootManagerInterface extends utils.Interface {
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "allowlistedProposers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "dequeue", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "finalizeAndPropagate",
@@ -120,6 +130,11 @@ export interface IRootManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -133,7 +148,10 @@ export interface IRootManager extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<[string]>;
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -151,6 +169,11 @@ export interface IRootManager extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  allowlistedProposers(
+    _proposer: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   dequeue(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -164,7 +187,10 @@ export interface IRootManager extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+  lastPropagatedRoot(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   propagate(
     _connectors: PromiseOrValue<string>[],
@@ -182,6 +208,11 @@ export interface IRootManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     dequeue(overrides?: CallOverrides): Promise<[string, BigNumber]>;
 
     finalizeAndPropagate(
@@ -193,7 +224,10 @@ export interface IRootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -214,6 +248,11 @@ export interface IRootManager extends BaseContract {
   filters: {};
 
   estimateGas: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -227,7 +266,10 @@ export interface IRootManager extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<BigNumber>;
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -246,6 +288,11 @@ export interface IRootManager extends BaseContract {
   };
 
   populateTransaction: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -260,6 +307,7 @@ export interface IRootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

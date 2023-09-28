@@ -105,7 +105,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "root",
         type: "bytes32",
@@ -118,7 +118,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "root",
         type: "bytes32",
@@ -163,19 +163,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "leaf",
         type: "bytes32",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "uint256",
         name: "index",
         type: "uint256",
       },
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "root",
         type: "bytes32",
@@ -383,7 +383,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes32",
         name: "leaf",
         type: "bytes32",
@@ -427,7 +427,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
@@ -440,7 +440,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
@@ -775,25 +775,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    name: "messages",
-    outputs: [
-      {
-        internalType: "enum SpokeConnector.MessageStatus",
-        name: "",
-        type: "uint8",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "mirrorConnector",
     outputs: [
@@ -801,25 +782,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
-      },
-    ],
-    name: "nonces",
-    outputs: [
-      {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
       },
     ],
     stateMutability: "view",

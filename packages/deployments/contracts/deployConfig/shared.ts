@@ -256,31 +256,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      97: {
-        prefix: "Multichain",
-        networkName: "Chapel",
-        ambs: {
-          // AnyCallV6Proxy on goerli
-          // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-          hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-          // AnyCallV6Proxy on chapel/bsc testnet
-          // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-          spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            mirrorChainId: "97",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-          spoke: {
-            mirrorChainId: "5",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-        },
-      },
+      // // FIXME: wormhole relayer deployment not listed in docs for goerli
+      // // address used is core bridge; different from mainnet so this testnet is skipped
+      // 97: {
+      //   prefix: "Wormhole",
+      //   networkName: "Chapel",
+      //   ambs: {
+      //     // Wormhole Core bridge
+      //     hub: "0x706abc4E45D419950511e474C7B9Ed348A4a716c",
+      //     // Wormhole Relayer on BNB Chapel Chain
+      //     spoke: "0x80aC94316391752A193C1c47E27D382b507c93F3",
+      //   },
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   custom: {
+      //     hub: {
+      //       gasCap: "300000", // gas limit for receiveWormholeMessages on bnb
+      //       mirrorChainId: "4", // bsc wormhole chainId: 4
+      //     },
+      //     spoke: {
+      //       gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
+      //       mirrorChainId: "2", // mainnet wormhole chainid: 2
+      //     },
+      //   },
+      // },
       1442: {
         prefix: "PolygonZk",
         ambs: {

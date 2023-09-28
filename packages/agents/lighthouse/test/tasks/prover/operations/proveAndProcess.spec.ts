@@ -32,7 +32,7 @@ describe("Operations: ProveAndProcess", () => {
     });
 
     it("should process messages", async () => {
-      (proverCtxMock.adapters.database.getLatestAggregateRoot as SinonStub).resolves(mockReceivedRoot);
+      (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves(mockReceivedRoot);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getUnProcessedMessagesByIndex as SinonStub)
         .onFirstCall()

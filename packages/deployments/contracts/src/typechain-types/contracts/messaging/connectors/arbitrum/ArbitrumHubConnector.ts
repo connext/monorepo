@@ -85,6 +85,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "setMaxSubmissionCostCap(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -116,6 +117,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
       | "setMaxSubmissionCostCap"
       | "setMirrorConnector"
       | "verifySender"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -206,6 +208,10 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
@@ -285,8 +291,13 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "GasPriceCapUpdated(uint256,uint256)": EventFragment;
     "MaxGasCapUpdated(uint256,uint256)": EventFragment;
     "MaxSubmissionCapUpdated(uint256,uint256)": EventFragment;
@@ -299,6 +310,7 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
     "RetryableTicketCreated(uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasPriceCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxGasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxSubmissionCapUpdated"): EventFragment;
@@ -310,6 +322,17 @@ export interface ArbitrumHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RetryableTicketCreated"): EventFragment;
 }
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface GasPriceCapUpdatedEventObject {
   _previous: BigNumber;
@@ -551,6 +574,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -647,6 +675,11 @@ export interface ArbitrumHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
 
@@ -737,9 +770,23 @@ export interface ArbitrumHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
     "GasPriceCapUpdated(uint256,uint256)"(
       _previous?: null,
       _updated?: null
@@ -926,6 +973,11 @@ export interface ArbitrumHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1022,6 +1074,11 @@ export interface ArbitrumHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

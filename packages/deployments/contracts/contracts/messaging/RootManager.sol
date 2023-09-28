@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
 import {ProposedOwnable} from "../shared/ProposedOwnable.sol";
 
 import {IRootManager} from "./interfaces/IRootManager.sol";
@@ -122,6 +124,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_slowPropagate__OldAggregateRoot();
 
+  error RootManager_sendRootToHub__NoMessageSent();
+
   error RootManager_finalize__InvalidInputHash();
 
   error RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
@@ -131,6 +135,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   error RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
 
   error RootManager_constructor__DisputeBlocksLowerThanMin();
+
+  error RootManager__renounceOwnership_prohibited();
 
   // ============ Properties ============
 
@@ -179,10 +185,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   bool public optimisticMode;
 
   /**
-   * @notice The last aggregate root we propagated to spoke chains. Used to prevent sending redundant
+   * @notice The last aggregate root we propagated to spoke chains (mapping keyed on domain). Used to prevent sending redundant
    * aggregate roots in `propagate`.
    */
-  bytes32 public lastPropagatedRoot;
+  mapping(uint32 => bytes32) public lastPropagatedRoot;
 
   /**
    * @notice The last finalized aggregate root in optimistic mode.
@@ -318,7 +324,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
-    emit MinDisputeBlocksUpdated(_minDisputeBlocks, minDisputeBlocks);
+    emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
     minDisputeBlocks = _minDisputeBlocks;
   }
 
@@ -329,7 +335,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function setDisputeBlocks(uint256 _disputeBlocks) public onlyOwner {
     if (_disputeBlocks < minDisputeBlocks) revert RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
     if (_disputeBlocks == disputeBlocks) revert RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
-    emit DisputeBlocksUpdated(_disputeBlocks, disputeBlocks);
+    emit DisputeBlocksUpdated(disputeBlocks, _disputeBlocks);
     disputeBlocks = _disputeBlocks;
   }
 
@@ -339,7 +345,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
-    emit DelayBlocksUpdated(_delayBlocks, delayBlocks);
+    emit DelayBlocksUpdated(delayBlocks, _delayBlocks);
     delayBlocks = _delayBlocks;
   }
 
@@ -392,7 +398,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @dev Renounce ownership should be impossible as long as watchers can freely remove connectors
    * and only the owner can add them back
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
+    revert RootManager__renounceOwnership_prohibited();
+  }
 
   // ============ Public Functions ============
 
@@ -570,12 +578,18 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     uint256[] calldata _fees,
     bytes[] memory _encodedData
   ) internal {
-    // Sanity check: make sure we are not propagating a redundant aggregate root.
-    require(_aggregateRoot != lastPropagatedRoot, "redundant root");
-    lastPropagatedRoot = _aggregateRoot;
-
-    uint256 sum = msg.value;
+    uint256 refund = msg.value;
+    bool sent;
     for (uint32 i; i < _connectors.length; ) {
+      // Sanity check: skip propagating a redundant aggregate root.
+      bytes32 previous = lastPropagatedRoot[domains[i]];
+      if (previous == _aggregateRoot) {
+        unchecked {
+          ++i;
+        }
+        continue;
+      }
+
       // Try to send the message with appropriate encoded data and fees
       // Continue on revert, but emit an event
       try
@@ -584,7 +598,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
         // NOTE: This will ensure there is sufficient msg.value for all fees before calling `sendMessage`
         // This will revert as soon as there are insufficient fees for call i, even if call n > i has
         // sufficient budget, this function will revert
-        sum -= _fees[i];
+        refund -= _fees[i];
+        // mark that the message was sent
+        sent = true;
+        // Set the last propagated root
+        lastPropagatedRoot[domains[i]] = _aggregateRoot;
       } catch {
         emit PropagateFailed(domains[i], _connectors[i]);
       }
@@ -592,6 +610,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
       unchecked {
         ++i;
       }
+    }
+
+    // Ensure *a* message was sent to prevent excess relayer spend
+    if (!sent) {
+      revert RootManager_sendRootToHub__NoMessageSent();
+    }
+
+    // Refund caller
+    if (refund > 0) {
+      Address.sendValue(payable(msg.sender), refund);
     }
   }
 

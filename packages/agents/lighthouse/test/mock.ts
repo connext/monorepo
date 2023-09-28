@@ -150,6 +150,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
         },
       },
@@ -157,6 +158,7 @@ export const mock = {
         providers: ["http://example.com"],
         deployments: {
           spokeConnector: mkAddress("0xfedcba321"),
+          spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
         },
       },
@@ -173,6 +175,7 @@ export const mock = {
     },
     environment: "staging",
     database: { url: "postgres://localhost:5432/lighthouse" },
+    databaseWriter: { url: "postgres://localhost:5432/lighthouse" },
     healthUrls: {},
     hubDomain: mock.domain.A,
     relayers: [
@@ -248,6 +251,10 @@ export const mock = {
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
       spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
 
+      const merkleTreeManager = createStubInstance(utils.Interface);
+      spokeConnector.encodeFunctionData.returns(encodedDataMock);
+      spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
@@ -256,6 +263,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        merkleTreeManager: merkleTreeManager as unknown as ConnextContractInterfaces["merkleTreeManager"],
         relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
         multisend: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["multisend"],
         unwrapper: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["unwrapper"],
@@ -268,6 +276,7 @@ export const mock = {
         hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        spokeMerkleTreeManager: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         multisend: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         unwrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
@@ -304,6 +313,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
+        spokeMerkleTreeManager: (_: number) => ({ address: mkAddress("bbbcccdddaaa"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
         multisend: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),

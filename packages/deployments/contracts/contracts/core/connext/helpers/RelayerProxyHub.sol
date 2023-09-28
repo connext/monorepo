@@ -6,9 +6,41 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
+import {ChainIDs} from "../libraries/ChainIDs.sol";
+import {Types} from "../../../messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {RootManager} from "../../../messaging/RootManager.sol";
+
 import {RelayerProxy} from "./RelayerProxy.sol";
+
+interface IRootManager {
+  function lastPropagatedRoot(uint32 _domain) external view returns (bytes32);
+
+  function propagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData
+  ) external payable;
+
+  function dequeue() external returns (bytes32, uint256);
+
+  function proposeAggregateRoot(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains
+  ) external;
+
+  function allowlistedProposers(address _proposer) external view returns (bool);
+
+  function finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external payable;
+}
 
 interface IGnosisHubConnector {
   struct GnosisRootMessageData {
@@ -50,26 +82,10 @@ interface IArbitrumHubConnector {
 }
 
 interface IOptimismHubConnector {
-  struct OutputRootProof {
-    bytes32 version;
-    bytes32 stateRoot;
-    bytes32 messagePasserStorageRoot;
-    bytes32 latestBlockhash;
-  }
-
-  struct WithdrawalTransaction {
-    uint256 nonce;
-    address sender;
-    address target;
-    uint256 value;
-    uint256 gasLimit;
-    bytes data;
-  }
-
   struct OptimismRootMessageData {
-    WithdrawalTransaction _tx;
+    Types.WithdrawalTransaction _tx;
     uint256 _l2OutputIndex;
-    OutputRootProof _outputRootProof;
+    Types.OutputRootProof _outputRootProof;
     bytes[] _withdrawalProof;
   }
 
@@ -78,9 +94,9 @@ interface IOptimismHubConnector {
    * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
    */
   function processMessageFromRoot(
-    WithdrawalTransaction memory _tx,
+    Types.WithdrawalTransaction memory _tx,
     uint256 _l2OutputIndex,
-    OutputRootProof calldata _outputRootProof,
+    Types.OutputRootProof calldata _outputRootProof,
     bytes[] calldata _withdrawalProof
   ) external;
 }
@@ -119,12 +135,13 @@ interface IZkSyncHubConnector {
  * Gelato's legacy relayer network. The contract stores native assets and pays them to the relayer on function call.
  */
 contract RelayerProxyHub is RelayerProxy {
+  using ECDSA for bytes32;
   // ============ Properties ============
 
   /**
    * @notice Address of the RootManager contract
    */
-  RootManager public rootManager;
+  IRootManager public rootManager;
 
   /**
    * @notice Delay for the propagate function
@@ -197,6 +214,16 @@ contract RelayerProxyHub is RelayerProxy {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
 
   /**
+   * @notice Emitted when the cooldown period for proposeAggregateRoot is updated
+   * @param proposeAggregateRootCooldown New cooldown period
+   * @param oldProposeAggregateRootCooldown Old cooldown period
+   */
+  event ProposeAggregateRootCooldownChanged(
+    uint256 proposeAggregateRootCooldown,
+    uint256 oldProposeAggregateRootCooldown
+  );
+
+  /**
    * @notice Emitted when a new hub connector is updated
    * @param hubConnector New hub connector address
    * @param oldHubConnector Old hub connector address
@@ -225,6 +252,7 @@ contract RelayerProxyHub is RelayerProxy {
   error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
   error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
+  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
 
   // ============ Modifiers ============
   /**
@@ -266,11 +294,13 @@ contract RelayerProxyHub is RelayerProxy {
     address _rootManager,
     address _autonolas,
     uint256 _propagateCooldown,
+    uint256 _proposeAggregateRootCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
   ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
+    _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
     _setAutonolas(_autonolas);
     for (uint256 i = 0; i < _hubConnectors.length; i++) {
       _setHubConnector(_hubConnectors[i], _hubConnectorChains[i]);
@@ -328,9 +358,16 @@ contract RelayerProxyHub is RelayerProxy {
    *
    * @return True if the RootManager has a workable root.
    */
-  function propagateWorkable() public returns (bool) {
+  function propagateWorkable(uint32[] memory domains) public returns (bool) {
     (bytes32 _aggregateRoot, ) = rootManager.dequeue();
-    return (rootManager.lastPropagatedRoot() != _aggregateRoot) && _propagateCooledDown();
+    bool updatedRoot = false;
+    for (uint256 i; i < domains.length; i++) {
+      updatedRoot = rootManager.lastPropagatedRoot(domains[i]) != _aggregateRoot;
+      if (updatedRoot) {
+        break;
+      }
+    }
+    return updatedRoot && _propagateCooledDown();
   }
 
   /**
@@ -381,6 +418,21 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
+   * Wraps the call to processFromRoot() on RootManager. Only allowed to be called by registered relayer.
+   *
+   * @param _encodedData Array of encoded data for HubConnector function.
+   * @param _fromChain Chain ID of the chain the message is coming from.
+   * @param _l2Hash Hash of the message on the L2 chain.
+   */
+  function processFromRoot(
+    bytes calldata _encodedData,
+    uint32 _fromChain,
+    bytes32 _l2Hash
+  ) external onlyRelayer nonReentrant {
+    _processFromRoot(_encodedData, _fromChain, _l2Hash);
+  }
+
+  /**
    * Wraps the call to processFromRoot() on RootManager and pays with Keep3r credits. Only allowed to be called
    * by registered Keep3r.
    *
@@ -428,11 +480,15 @@ contract RelayerProxyHub is RelayerProxy {
       );
     }
 
+    lastProposeAggregateRootAt = block.timestamp;
+
     // Validate the signer
     _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
 
     // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+
+    lastProposeAggregateRootAt = block.timestamp;
   }
 
   /**
@@ -454,23 +510,29 @@ contract RelayerProxyHub is RelayerProxy {
     isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
     validateAndPayWithCredits(msg.sender)
     nonReentrant
+    returns (uint256 _fee)
   {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
-    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+    _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
     lastPropagateAt = block.timestamp;
   }
 
   // ============ Internal Functions ============
   function _setRootManager(address _rootManager) internal {
     emit RootManagerChanged(_rootManager, address(rootManager));
-    rootManager = RootManager(_rootManager);
+    rootManager = IRootManager(_rootManager);
   }
 
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
     emit PropagateCooldownChanged(_propagateCooldown, propagateCooldown);
     propagateCooldown = _propagateCooldown;
+  }
+
+  function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
+    emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
+    proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
   }
 
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
@@ -504,7 +566,7 @@ contract RelayerProxyHub is RelayerProxy {
     // Get the payload
     bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
     // Recover signer
-    address signer = ECDSA.recover(ECDSA.toEthSignedMessageHash(payload), _signature);
+    address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
       revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
     }
@@ -571,15 +633,13 @@ contract RelayerProxyHub is RelayerProxy {
 
     processedRootMessages[fromChain][l2Hash] = true;
 
-    if (fromChain == 100 || fromChain == 10200) {
+    if (fromChain == ChainIDs.GNOSIS || fromChain == ChainIDs.GNOSIS_CHIADO) {
       IGnosisHubConnector.GnosisRootMessageData memory data = abi.decode(
         encodedData,
         (IGnosisHubConnector.GnosisRootMessageData)
       );
       IGnosisHubConnector(hubConnectors[fromChain]).executeSignatures(data._data, data._signatures);
-    }
-
-    if (fromChain == 42161 || fromChain == 421613) {
+    } else if (fromChain == ChainIDs.ARBITRUM_ONE || fromChain == ChainIDs.ARBITRUM_GOERLI) {
       IArbitrumHubConnector.ArbitrumRootMessageData memory data = abi.decode(
         encodedData,
         (IArbitrumHubConnector.ArbitrumRootMessageData)
@@ -592,9 +652,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._index,
         data._message
       );
-    }
-
-    if (fromChain == 10 || fromChain == 420) {
+    } else if (fromChain == ChainIDs.OPTIMISM || fromChain == ChainIDs.OPTIMISM_GOERLI) {
       IOptimismHubConnector.OptimismRootMessageData memory data = abi.decode(
         encodedData,
         (IOptimismHubConnector.OptimismRootMessageData)
@@ -605,9 +663,7 @@ contract RelayerProxyHub is RelayerProxy {
         data._outputRootProof,
         data._withdrawalProof
       );
-    }
-
-    if (fromChain == 324 || fromChain == 280) {
+    } else if (fromChain == ChainIDs.ZKSYNC || fromChain == ChainIDs.ZKSYNC_TEST) {
       IZkSyncHubConnector.ZkSyncRootMessageData memory data = abi.decode(
         encodedData,
         (IZkSyncHubConnector.ZkSyncRootMessageData)
@@ -619,10 +675,10 @@ contract RelayerProxyHub is RelayerProxy {
         data._message,
         data._proof
       );
-    }
-
-    if (fromChain == 137 || fromChain == 80001) {
+    } else if (fromChain == ChainIDs.POLYGON_POS || fromChain == ChainIDs.MUMBAI) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
+    } else {
+      revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
     }
   }
 }

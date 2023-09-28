@@ -54,6 +54,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "FundsWithdrawn",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes",
         name: "data",
@@ -399,6 +418,19 @@ const _abi = [
         type: "bool",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawFunds",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

@@ -68,6 +68,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+    ],
+    name: "GasFloorUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "proposedOwner",
@@ -119,6 +138,32 @@ const _abi = [
   {
     inputs: [],
     name: "delay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "floor",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "gasCap",
     outputs: [
       {
         internalType: "uint256",
@@ -210,6 +255,19 @@ const _abi = [
       },
     ],
     name: "setGasCap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_floor",
+        type: "uint256",
+      },
+    ],
+    name: "setGasFloor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

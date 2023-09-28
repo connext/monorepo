@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 import {TypedMemView} from "../../shared/libraries/TypedMemView.sol";
 import {ExcessivelySafeCall} from "../../shared/libraries/ExcessivelySafeCall.sol";
@@ -23,7 +22,7 @@ import {ConnectorManager} from "./ConnectorManager.sol";
  * @title SpokeConnector
  * @author Connext Labs, Inc.
  * @notice This contract implements the messaging functions needed on the spoke-side of a given AMB.
- * The SpokeConnector extends the HubConnector functionality by being able to send, store, and prove
+ * The SpokeConnector extends the Connector functionality by being able to send, store, and prove
  * messages.
  *
  * @dev If you are deploying this contract to mainnet, then the mirror values stored in the HubConnector
@@ -39,50 +38,78 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Events ============
 
-  event SenderAdded(address sender);
+  /**
+   * @notice Emitted when a new sender is whitelisted for messaging
+   * @param sender Whitelisted address
+   */
+  event SenderAdded(address indexed sender);
 
-  event SenderRemoved(address sender);
+  /**
+   * @notice Emitted when a new sender is de-whitelisted for messaging
+   * @param sender Removed address
+   */
+  event SenderRemoved(address indexed sender);
 
-  event AggregateRootReceived(bytes32 root);
+  /**
+   * @notice Emitted when a new aggregate root is delivered from the hub
+   * @param root Delivered root
+   */
+  event AggregateRootReceived(bytes32 indexed root);
 
-  event AggregateRootRemoved(bytes32 root);
+  /**
+   * @notice Emitted when a proposed aggregate root is removed by admin
+   * @param root Removed root
+   */
+  event AggregateRootRemoved(bytes32 indexed root);
 
+  /**
+   * @notice Emitted when an aggregate root has made it through the fraud period
+   * without being disputed
+   * @param root Newly verified root
+   */
   event AggregateRootVerified(bytes32 indexed root);
 
-  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  /**
+   * @notice Emitted when a message is sent (leaf added to outbound root)
+   * @param leaf The hash added to tree
+   * @param index The index of the leaf
+   * @param root The updated outbound root after insertion
+   * @param message The raw message body
+   */
+  event Dispatch(bytes32 indexed leaf, uint256 indexed index, bytes32 indexed root, bytes message);
 
-  event Process(bytes32 leaf, bool success, bytes returnData);
+  /**
+   * @notice Emitted when a message is handled (this is the destination domain)
+   * @param leaf The leaf processed
+   * @param success Whether `handle` call on recipient is successful
+   * @param returnData The data returned from the `handle` call on recipient
+   */
+  event Process(bytes32 indexed leaf, bool success, bytes returnData);
 
+  /**
+   * @notice Emitted when the admin updates the delay blocks
+   * @param updated The new delay blocks
+   * @param caller The msg.sender of transaction
+   */
   event DelayBlocksUpdated(uint256 indexed updated, address caller);
 
   event SnapshotRootSaved(uint256 indexed snapshotId, bytes32 indexed root, uint256 indexed count);
 
   /**
-   * @notice Emitted when funds are withdrawn by the admin
-   * @dev See comments in `withdrawFunds`
-   * @param to The recipient of the funds
-   * @param amount The amount withdrawn
+   * @notice Emitted when a message (outbound root from different spoke) is proven
+   * against the aggregate root
+   * @param leaf The proven leaf
+   * @param aggregateRoot The root the leaf was proven against
+   * @param aggregateIndex Position of leaf in the aggregate root
    */
-  event FundsWithdrawn(address indexed to, uint256 amount);
-
   event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex);
 
   // ============ Structs ============
 
-  // Status of Message:
-  //   0 - None - message has not been proven or processed
-  //   1 - Proven - message inclusion proof has been validated
-  //   2 - Processed - message has been dispatched to recipient
-  enum MessageStatus {
-    None,
-    Proven,
-    Processed
-  }
-
   /**
    * Struct for submitting a proof for a given message. Used in `proveAndProcess` below.
    * @param message Bytes of message to be processed. The hash of this message is considered the leaf.
-   * @param proof Merkle proof of inclusion for given leaf.
+   * @param path Path in tree for given leaf.
    * @param index Index of leaf in home's merkle tree.
    */
   struct Proof {
@@ -149,20 +176,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   mapping(bytes32 => bool) public sentMessageRoots;
 
   /**
+   * @notice Records all whitelisted senders
    * @dev This is used for the `onlyAllowlistedSender` modifier, which gates who
    * can send messages using `dispatch`.
    */
   mapping(address => bool) public allowlistedSenders;
-
-  /**
-   * @notice domain => next available nonce for the domain.
-   */
-  mapping(uint32 => uint32) public nonces;
-
-  /**
-   * @notice Mapping of message leaves to MessageStatus, keyed on leaf.
-   */
-  mapping(bytes32 => MessageStatus) public messages;
 
   /**
    * @notice Mapping of the snapshot roots for a specific index. Used for data availability for off-chain scripts
@@ -171,6 +189,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   // ============ Modifiers ============
 
+  /**
+   * @notice Ensures the msg.sender is allowlisted
+   */
   modifier onlyAllowlistedSender() {
     require(allowlistedSenders[msg.sender], "!allowlisted");
     _;
@@ -225,8 +246,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Adds a sender to the allowlist.
    * @dev Only allowlisted routers (senders) can call `dispatch`.
+   * @param _sender Sender to whitelist
    */
   function addSender(address _sender) public onlyOwner {
+    require(!allowlistedSenders[_sender], "allowed");
     allowlistedSenders[_sender] = true;
     emit SenderAdded(_sender);
   }
@@ -234,8 +257,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Removes a sender from the allowlist.
    * @dev Only allowlisted routers (senders) can call `dispatch`.
+   * @param _sender Sender to remove from whitelist
    */
   function removeSender(address _sender) public onlyOwner {
+    require(allowlistedSenders[_sender], "!allowed");
     delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
   }
@@ -243,6 +268,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
+   * @param _delayBlocks Updated delay block value
    */
   function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
@@ -263,7 +289,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   /**
    * @notice Manually remove a pending aggregateRoot by owner if the contract is paused.
-   * @dev This method is required for handling fraud cases in the current construction.
+   * @dev This method is required for handling fraud cases in the current construction. Specifically,
+   * this will protect against a fraudulent aggregate root getting transported, not fraudulent
+   * roots that constitute a given aggregate root (i.e. can protect against fraudulent
+   * hub -> spoke transport, not spoke -> hub transport).
    * @param _fraudulentRoot Target fraudulent root that should be erased from the
    * `pendingAggregateRoots` mapping.
    */
@@ -275,25 +304,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice This function should be callable by owner, and send funds trapped on
-   * a connector to the provided recipient.
-   * @dev Withdraws the entire balance of the contract.
-   *
-   * @param _to The recipient of the funds withdrawn
-   */
-  function withdrawFunds(address _to) public onlyOwner {
-    uint256 amount = address(this).balance;
-    Address.sendValue(payable(_to), amount);
-    emit FundsWithdrawn(_to, amount);
-  }
-
-  /**
    * @notice Remove ability to renounce ownership
    * @dev Renounce ownership should be impossible as long as it is impossible in the
    * WatcherClient, and as long as only the owner can remove pending roots in case of
    * fraud.
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
+    require(false, "prohibited");
+  }
 
   // ============ Public Functions ============
 
@@ -314,15 +332,17 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   /**
-   * @notice This returns the root of all messages with the origin domain as this domain (i.e.
-   * all outbound messages)
+   * @notice This dispatches outbound root to hub via AMB
+   * @param _encodedData Data needed to send crosschain message by associated amb
    */
   function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
+    // mark as sent
+    sentMessageRoots[root] = true;
+    // call internal function
     bytes memory _data = abi.encodePacked(root);
     _sendMessage(_data, _encodedData);
-    sentMessageRoots[root] = true;
     emit MessageSent(_data, _encodedData, msg.sender);
   }
 
@@ -336,6 +356,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * happens before adding the new message to the tree.
    *
    * NOTE: okay to leave dispatch operational when paused as pause is designed for crosschain interactions
+   * @param _destinationDomain Domain message is intended for
+   * @param _recipientAddress Address for message recipient
+   * @param _messageBody Message contents
    */
   function dispatch(
     uint32 _destinationDomain,
@@ -352,7 +375,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     }
 
     // Get the next nonce for the destination domain, then increment it.
-    uint32 _nonce = nonces[_destinationDomain]++;
+    uint32 _nonce = MERKLE.incrementNonce(_destinationDomain);
 
     // Format the message into packed bytes.
     bytes memory _message = Message.formatMessage(
@@ -423,7 +446,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // Handle proving this message root is included in the target aggregate root.
     proveMessageRoot(_messageRoot, _aggregateRoot, _aggregatePath, _aggregateIndex);
     // Assuming the inbound message root was proven, the first message is now considered proven.
-    messages[_messageHash] = MessageStatus.Proven;
+    MERKLE.markAsProven(_messageHash);
 
     // Now we handle proving all remaining messages in the batch - they should all share the same
     // inbound root!
@@ -434,7 +457,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
       // Make sure this root matches the validated inbound root.
       require(_calculatedRoot == _messageRoot, "!sharedRoot");
       // Message is proven!
-      messages[_messageHash] = MessageStatus.Proven;
+      MERKLE.markAsProven(_messageHash);
 
       unchecked {
         ++i;
@@ -473,10 +496,10 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   // ============ Private Functions ============
 
   /**
-   * @notice This is either called by the Connector (AKA `this`) on the spoke (L2) chain after retrieving
-   * latest `aggregateRoot` from the AMB (sourced from mainnet) OR called by the AMB directly.
+   * @notice Called to accept aggregate root dispatched from the RootManager on the hub.
    * @dev Must check the msg.sender on the origin chain to ensure only the root manager is passing
    * these roots.
+   * @param _newRoot Received aggregate
    */
   function receiveAggregateRoot(bytes32 _newRoot) internal {
     require(_newRoot != bytes32(""), "new root empty");
@@ -523,7 +546,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   /**
    * @notice Checks whether a given message is valid. If so, calculates the expected inbound root from an
    * origin chain given a leaf (message hash), the index of the leaf, and the merkle proof of inclusion.
-   * @dev Reverts if message's MessageStatus != None (i.e. if message was already proven or processed).
+   * @dev Reverts if message's LeafStatus != None (i.e. if message was already proven or processed).
    *
    * @param _messageHash Leaf (message hash) that requires proving.
    * @param _messagePath Merkle path of inclusion for the leaf.
@@ -536,7 +559,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint256 _messageIndex
   ) internal view returns (bytes32) {
     // Ensure that the given message has not already been proven and processed.
-    require(messages[_messageHash] == MessageStatus.None, "!MessageStatus.None");
+    require(MERKLE.leaves(_messageHash) == MerkleTreeManager.LeafStatus.None, "!LeafStatus.None");
     // Calculate the expected inbound root from the message origin based on the proof.
     // NOTE: Assuming a valid message was submitted with correct path/index, this should be an inbound root
     // that the hub has received. If the message were invalid, the root calculated here would not exist in the
@@ -595,12 +618,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     require(_m.destination() == DOMAIN, "!destination");
     // ensure message has been proven
     bytes32 _messageHash = _m.keccak();
-    require(messages[_messageHash] == MessageStatus.Proven, "!proven");
     // check re-entrancy guard
     // require(entered == 1, "!reentrant");
     // entered = 0;
     // update message status as processed
-    messages[_messageHash] = MessageStatus.Processed;
+    MERKLE.markAsProcessed(_messageHash);
     // A call running out of gas TYPICALLY errors the whole tx. We want to
     // a) ensure the call has a sufficient amount of gas to make a
     //    meaningful state change.

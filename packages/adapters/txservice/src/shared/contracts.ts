@@ -6,6 +6,7 @@ import {
   ConnextPriceOracle as TConnextPriceOracle,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
+  MerkleTreeManager as TMerkleTreeManager,
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
   RootManager as TRootManager,
@@ -17,6 +18,7 @@ import PriceOracleAbi from "@connext/smart-contracts/abi/contracts/core/connext/
 import ConnextAbi from "@connext/smart-contracts/abi/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import StableSwapAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import SpokeConnectorAbi from "@connext/smart-contracts/abi/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import MerkleTreeManagerAbi from "@connext/smart-contracts/abi/contracts/messaging/MerkleTreeManager.sol/MerkleTreeManager.json";
 import RelayerProxyAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
 import RelayerProxyHubAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
 import MultiSendAbi from "@connext/smart-contracts/abi/contracts/shared/libraries/Multisend.sol/MultiSend.json";
@@ -98,6 +100,18 @@ export const getDeployedSpokeConnecterContract = (
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
   const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}SpokeConnector${postfix}`] : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedMerkleRootManagerContract = (
+  chainId: number,
+  isHub: boolean,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts
+    ? record[0]?.contracts[`MerkleTreeManager${isHub ? "Spoke" : ""}UpgradeBeaconProxy${postfix}`]
+    : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -192,6 +206,12 @@ export type SpokeConnectorDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type MerkleTreeManagerDeploymentGetter = (
+  chainId: number,
+  isHub: boolean,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type AmbDeploymentGetter = (
   chainId: number,
   prefix: string,
@@ -218,6 +238,7 @@ export type ConnextContractDeployments = {
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
+  spokeMerkleTreeManager: MerkleTreeManagerDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
   unwrapper: UnwrapperContractDeploymentGetter;
@@ -229,6 +250,7 @@ export const contractDeployments: ConnextContractDeployments = {
   priceOracle: getDeployedPriceOracleContract,
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
+  spokeMerkleTreeManager: getDeployedMerkleRootManagerContract,
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
   unwrapper: getDeployedUnwrapperContract,
@@ -257,6 +279,9 @@ export const getStableSwapInterface = () => new utils.Interface(StableSwapAbi) a
 
 export const getSpokeConnectorInterface = () => new utils.Interface(SpokeConnectorAbi) as TSpokeConnector["interface"];
 
+export const getMerkleTreeManagerInterface = () =>
+  new utils.Interface(MerkleTreeManagerAbi) as TMerkleTreeManager["interface"];
+
 export const getRootManagerInterface = () => new utils.Interface(RootManagerAbi) as TRootManager["interface"];
 
 export const getMultisendInterface = () => new utils.Interface(MultiSendAbi) as TMultisend["interface"];
@@ -269,6 +294,7 @@ export type ConnextContractInterfaces = {
   priceOracle: TConnextPriceOracle["interface"];
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
+  merkleTreeManager: TMerkleTreeManager["interface"];
   rootManager: TRootManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
@@ -282,6 +308,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
+  merkleTreeManager: getMerkleTreeManagerInterface(),
   rootManager: getRootManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),

@@ -63,9 +63,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
-    "messages(bytes32)": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
-    "nonces(uint32)": FunctionFragment;
     "onMessageReceived(address,uint32,bytes)": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -118,9 +116,7 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
-      | "messages"
       | "mirrorConnector"
-      | "nonces"
       | "onMessageReceived"
       | "outboundRoot"
       | "owner"
@@ -218,16 +214,8 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "messages",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nonces",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "onMessageReceived",
@@ -389,12 +377,10 @@ export interface PolygonZkSpokeConnectorInterface extends utils.Interface {
     functionFragment: "localDomain",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "messages", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onMessageReceived",
     data: BytesLike
@@ -853,17 +839,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
 
     onMessageReceived(
       originAddress: PromiseOrValue<string>,
@@ -1043,17 +1019,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
   localDomain(overrides?: CallOverrides): Promise<number>;
 
-  messages(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<number>;
-
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-  nonces(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
 
   onMessageReceived(
     originAddress: PromiseOrValue<string>,
@@ -1231,17 +1197,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<number>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<number>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
 
     onMessageReceived(
       originAddress: PromiseOrValue<string>,
@@ -1363,14 +1319,18 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
   filters: {
     "AggregateRootReceived(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootReceivedEventFilter;
-    AggregateRootReceived(root?: null): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
 
     "AggregateRootRemoved(bytes32)"(
-      root?: null
+      root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootRemovedEventFilter;
-    AggregateRootRemoved(root?: null): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
 
     "AggregateRootVerified(bytes32)"(
       root?: PromiseOrValue<BytesLike> | null
@@ -1389,15 +1349,15 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
     Dispatch(
-      leaf?: null,
-      index?: null,
-      root?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
+      index?: PromiseOrValue<BigNumberish> | null,
+      root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
 
@@ -1482,11 +1442,15 @@ export interface PolygonZkSpokeConnector extends BaseContract {
     Paused(account?: null): PausedEventFilter;
 
     "Process(bytes32,bool,bytes)"(
-      leaf?: null,
+      leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
       returnData?: null
     ): ProcessEventFilter;
-    Process(leaf?: null, success?: null, returnData?: null): ProcessEventFilter;
+    Process(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      success?: null,
+      returnData?: null
+    ): ProcessEventFilter;
 
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
@@ -1497,11 +1461,17 @@ export interface PolygonZkSpokeConnector extends BaseContract {
       newRateLimit?: null
     ): SendRateLimitUpdatedEventFilter;
 
-    "SenderAdded(address)"(sender?: null): SenderAddedEventFilter;
-    SenderAdded(sender?: null): SenderAddedEventFilter;
+    "SenderAdded(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderAddedEventFilter;
+    SenderAdded(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
 
-    "SenderRemoved(address)"(sender?: null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: null): SenderRemovedEventFilter;
+    "SenderRemoved(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
+    SenderRemoved(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
 
     "SnapshotRootSaved(uint256,bytes32,uint256)"(
       snapshotId?: PromiseOrValue<BigNumberish> | null,
@@ -1580,17 +1550,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     onMessageReceived(
       originAddress: PromiseOrValue<string>,
@@ -1775,17 +1735,7 @@ export interface PolygonZkSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    messages(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    nonces(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     onMessageReceived(
       originAddress: PromiseOrValue<string>,

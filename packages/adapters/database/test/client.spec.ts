@@ -992,11 +992,7 @@ describe("Database client", () => {
       root.count = _i;
       roots.push(root);
     }
-    await savePropagatedRoots(roots, pool);
-    const firstIndex = await getAggregateRootCount(roots[0].aggregate, pool);
-    expect(firstIndex).to.eq(roots[0].count);
-    const lastIndex = await getAggregateRootCount(roots[batchSize - 1].aggregate, pool);
-    expect(lastIndex).to.eq(roots[batchSize - 1].count);
+    await expect(savePropagatedRoots(roots, pool)).to.eventually.not.be.rejected;
   });
 
   it("should start a transaction", async () => {

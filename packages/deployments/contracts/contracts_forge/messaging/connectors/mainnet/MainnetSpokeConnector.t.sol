@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {MainnetSpokeConnector} from "../../../../contracts/messaging/connectors/mainnet/MainnetSpokeConnector.sol";
-import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {SpokeConnector, Connector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
@@ -82,5 +82,13 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
 
     vm.prank(_rootManager);
     MainnetSpokeConnector(_l1Connector).sendMessage(_data, bytes(""));
+  }
+
+  // ============ MainnetSpokeConnector.processMessage ============
+  function test_MainnetSpokeConnector__processMessage_reverts() public {
+    vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
+
+    vm.prank(_amb);
+    MainnetSpokeConnector(_l1Connector).processMessage(bytes(""));
   }
 }

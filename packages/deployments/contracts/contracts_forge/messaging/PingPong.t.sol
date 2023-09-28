@@ -234,6 +234,7 @@ contract PingPong is ConnectorHelper {
     (bytes32 expectedRoot, uint256 expectedCount) = referenceSpokeTree.insert(messageHash);
     // Get initial count.
     uint256 initialCount = SpokeConnector(payable(_originConnectors.spoke)).MERKLE().count();
+
     vm.expectEmit(true, true, true, true);
     emit LeafInserted(expectedRoot, expectedCount, messageHash);
 

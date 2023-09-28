@@ -19,6 +19,25 @@ contract ReverterConnector {
   }
 }
 
+contract ReentrantConnector {
+  address[] public connectors;
+
+  uint256 public count;
+
+  function addConnector(address _connector) external payable {
+    connectors.push(_connector);
+  }
+
+  function sendMessage(bytes memory, bytes memory) external payable {
+    count++;
+    uint256[] memory _fees = new uint256[](1);
+    _fees[0] = 0;
+    bytes[] memory _extra = new bytes[](1);
+    _extra[0] = bytes("");
+    RootManager(msg.sender).propagate(connectors, _fees, _extra);
+  }
+}
+
 contract RootManagerForTest is DomainIndexer, RootManager {
   using QueueLib for QueueLib.Queue;
 
@@ -85,7 +104,7 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     address[] calldata _connectors,
     uint256[] calldata _fees,
     bytes[] memory _encodedData
-  ) public {
+  ) public payable {
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
   }
 
@@ -93,8 +112,8 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     domains = _domains;
   }
 
-  function forTest_setLastPropagatedRoot(bytes32 _root) public {
-    lastPropagatedRoot = _root;
+  function forTest_setLastPropagatedRoot(uint32 _domain, bytes32 _root) public {
+    lastPropagatedRoot[_domain] = _root;
   }
 
   function forTest_pause() public {
@@ -366,6 +385,28 @@ contract RootManager_General is Base {
     assertEq(_rootManager.getPendingInboundRootsCount(), 0);
   }
 
+  function test_RootManager__propagate_shouldRefundExcessFees() public {
+    _rootManager.forTest_setOptimisticMode(false);
+    uint256 numSpokes = 20;
+    utils_generateAndAddConnectors(numSpokes, true, true);
+    assertEq(_rootManager.getPendingInboundRootsCount(), numSpokes);
+
+    // Get the original balance of caller
+    address caller = address(12312323);
+    uint256 excess = 10 ether;
+    vm.deal(caller, excess);
+    uint256 start = caller.balance;
+
+    // Fast forward delayBlocks number of blocks so all of the inbound roots are considered verified.
+    vm.roll(block.number + _rootManager.delayBlocks());
+
+    vm.prank(caller);
+    _rootManager.propagate{value: excess}(_connectors, _fees, _encodedData);
+    assertEq(_rootManager.getPendingInboundRootsCount(), 0);
+    // total fees == 0, so balance sent to propagate should not be deducted
+    assertEq(caller.balance, start);
+  }
+
   function test_RootManager__propagate_shouldRevertIfRedundantRoot(bytes32 inbound) public {
     _rootManager.forTest_setOptimisticMode(false);
     uint256 numSpokes = 20;
@@ -380,11 +421,14 @@ contract RootManager_General is Base {
     bytes32 currentRoot = MerkleTreeManager(_merkle).root();
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
-    assertEq(_rootManager.lastPropagatedRoot(), currentRoot);
+    for (uint256 i; i < numSpokes; i++) {
+      // Expect a call to every hub connector!
+      assertEq(_rootManager.lastPropagatedRoot(_rootManager.domains(i)), currentRoot);
+    }
 
     // The current root has already been sent, the following call should revert since sending
     // again would be redundant.
-    vm.expectRevert(bytes("redundant root"));
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
@@ -662,7 +706,7 @@ contract RootManager_SetDelayBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit DelayBlocksUpdated(newDelayBlocks, _prevDelayBlocks);
+    emit DelayBlocksUpdated(_prevDelayBlocks, newDelayBlocks);
 
     _rootManager.setDelayBlocks(newDelayBlocks);
   }
@@ -700,7 +744,7 @@ contract RootManager_SetMinDisputeBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit MinDisputeBlocksUpdated(newMinDisputeBlocks, _prevMinDisputeBlocks);
+    emit MinDisputeBlocksUpdated(_prevMinDisputeBlocks, newMinDisputeBlocks);
 
     _rootManager.setMinDisputeBlocks(newMinDisputeBlocks);
   }
@@ -746,7 +790,7 @@ contract RootManager_SetDisputeBlocks is Base {
     vm.prank(owner);
 
     vm.expectEmit(true, true, true, true);
-    emit DisputeBlocksUpdated(newDisputeBlocks, _prevDisputeBlocks);
+    emit DisputeBlocksUpdated(_prevDisputeBlocks, newDisputeBlocks);
 
     _rootManager.setDisputeBlocks(newDisputeBlocks);
   }
@@ -1189,9 +1233,12 @@ contract RootManager_SendRootToHubs is Base {
   }
 
   function test_revertIfRedundantRoot(bytes32 aggregateRoot) public {
-    _rootManager.forTest_setLastPropagatedRoot(aggregateRoot);
+    _rootManager.forTest_setDomains(_domains);
+    for (uint256 i = 0; i < _connectors.length; i++) {
+      _rootManager.forTest_setLastPropagatedRoot(_domains[i], aggregateRoot);
+    }
 
-    vm.expectRevert(bytes("redundant root"));
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 
@@ -1255,6 +1302,108 @@ contract RootManager_SendRootToHubs is Base {
 
     vm.expectRevert(stdError.arithmeticError);
     // sends 0 eth
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
+  }
+
+  function test_revertIfNoneRootsWereSendBecauseOfRevert(bytes32 aggregateRoot, uint32 reverterDomain) public {
+    vm.assume(aggregateRoot > _finalizedHash && reverterDomain > 0);
+
+    // Create reverter connector
+    ReverterConnector reverterConnector = new ReverterConnector();
+
+    // Create _sendRootToHubs args
+    uint32[] memory domains = new uint32[](1);
+    domains[0] = reverterDomain;
+
+    address[] memory connectors = new address[](1);
+    connectors[0] = address(reverterConnector);
+
+    uint256[] memory fees = new uint256[](1);
+    fees[0] = 0;
+
+    bytes[] memory encodedData = new bytes[](1);
+    encodedData[0] = bytes("");
+
+    // Set domains with reverter domain only
+    _rootManager.forTest_setDomains(domains);
+
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
+
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, connectors, fees, encodedData);
+  }
+
+  function test_revertIfRootAlreadySentToEveryHub(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot > _finalizedHash);
+
+    // Set every lastPropagatedRoot as the aggregateRoot that needs to be sent.
+    for (uint256 i = 0; i < _domains.length; i++) {
+      _rootManager.forTest_setLastPropagatedRoot(_domains[i], aggregateRoot);
+    }
+
+    // Set domains
+    _rootManager.forTest_setDomains(_domains);
+
+    vm.expectRevert(RootManager.RootManager_sendRootToHub__NoMessageSent.selector);
+
+    _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
+  }
+
+  function test_refundUser(bytes32 aggregateRoot, uint32 reverterDomain) public {
+    vm.assume(aggregateRoot > _finalizedHash);
+
+    // Ensure that the fuzzed revertereDomain is never equal to one of the valid domains.
+    for (uint256 i = 0; i < _domains.length; i++) {
+      vm.assume(_domains[i] != reverterDomain);
+    }
+
+    // Mock calls for the valid connectors
+    for (uint256 i = 0; i < _connectors.length; i++) {
+      vm.mockCall(_connectors[i], abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+    }
+
+    // Create reverter connector
+    ReverterConnector reverterConnector = new ReverterConnector();
+
+    // Add the reverter domain + connector to arrays
+    _domains.push(reverterDomain);
+    _connectors.push(address(reverterConnector));
+    _encodedData.push(bytes(""));
+
+    uint256[] memory fees = new uint256[](3);
+    fees[0] = 1 ether;
+    fees[1] = 1 ether;
+    fees[2] = 1 ether;
+
+    // Set domains with reverter domain included
+    _rootManager.forTest_setDomains(_domains);
+
+    // Set stranger balance to 3 eth.
+    vm.deal(stranger, 3 ether);
+
+    vm.prank(stranger);
+    _rootManager.forTest_sendRootToHubs{value: 3 ether}(aggregateRoot, _connectors, fees, _encodedData);
+
+    // Since 1 of 3 sendMessage calls to the hub will fail, user should be refunded by the cost of one sendMessage (1 eth)
+    assertEq(stranger.balance, 1 ether);
+  }
+
+  function test_shouldSendMissingRoot(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot > _finalizedHash);
+
+    uint32 alreadySentDomain = _domains[0];
+    address missingSentConnector = _connectors[1]; // domain[1]
+
+    // Set lastPropagatedRoot of alreadySentDomain as it was already propagated.
+    _rootManager.forTest_setLastPropagatedRoot(alreadySentDomain, aggregateRoot);
+
+    // set domains
+    _rootManager.forTest_setDomains(_domains);
+
+    // Mock *a* call for the missingSentDomain
+    vm.mockCall(missingSentConnector, abi.encodeWithSelector(IHubConnector.sendMessage.selector), abi.encode());
+
+    // first domain of domains should already be set as propagated but the second domain should not to ensure that
+    // only the missing domain gets called.
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 }

@@ -81,6 +81,56 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "TypedMemView__index_indexMoreThan32Bytes",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "loc",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "len",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "slice",
+        "type": "uint256"
+      }
+    ],
+    "name": "TypedMemView__index_overrun",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsWithdrawn",
+    "type": "event"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -306,6 +356,19 @@
   {
     "inputs": [],
     "name": "delay",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gasCap",
     "outputs": [
       {
         "internalType": "uint256",
@@ -575,6 +638,19 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      }
+    ],
+    "name": "withdrawFunds",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

@@ -88,7 +88,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     // If message has been removed. Skip processing it.
     if (!cache.messages.getMessage(message.leaf)) continue;
 
-    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    const messageEncodedData = contracts.merkleTreeManager.encodeFunctionData("leaves", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
         domain: +destinationDomain,
@@ -96,7 +96,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         data: messageEncodedData,
       });
 
-      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      const [messageStatus] = contracts.merkleTreeManager.decodeFunctionResult("leaves", messageResultData);
       if (messageStatus == 0) {
         logger.debug("Message still unprocessed onchain", requestContext, methodContext, message.leaf);
       } else if (messageStatus == 2) {
