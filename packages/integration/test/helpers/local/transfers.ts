@@ -23,16 +23,17 @@ export const getTransferByTransactionHash = async (
     parity: SUBG_POLL_PARITY,
     method: async () => {
       try {
-        const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
-        if (dbTransfer.length === 0) {
-          logger.info("No results! Waiting for next loop...");
-          return undefined;
-        }
-        const transfer = convertFromDbTransfer(dbTransfer[0]);
-        logger.info("Transfer found!", undefined, undefined, { transfer });
-        if (transfer.origin!.xcall!.transactionHash) {
-          return transfer;
-        }
+        // const dbTransfer = await sdkUtils.getTransferByTransactionHash(transactionHash);
+        // if (dbTransfer.length === 0) {
+        //   logger.info("No results! Waiting for next loop...");
+        //   return undefined;
+        // }
+        // const transfer = convertFromDbTransfer(dbTransfer[0]);
+        // logger.info("Transfer found!", undefined, undefined, { transfer });
+        // if (transfer.origin!.xcall!.transactionHash) {
+        //   return transfer;
+        // }
+        return undefined;
       } catch (e: unknown) {
         console.warn(e);
         logger.info("Waiting for next loop...");
@@ -76,27 +77,28 @@ export const getTransferById = async (sdkUtils: SdkUtils, domain: string, transf
     parity: SUBG_POLL_PARITY,
     method: async () => {
       try {
-        const dbTransfer = await sdkUtils.getTransferById(transferId);
-        if (dbTransfer.length === 0) {
-          logger.info("No results! Waiting for next loop...");
-          return undefined;
-        }
-        const transfer = convertFromDbTransfer(dbTransfer[0]);
+        // const dbTransfer = await sdkUtils.getTransferById(transferId);
+        // if (dbTransfer.length === 0) {
+        //   logger.info("No results! Waiting for next loop...");
+        //   return undefined;
+        // }
+        return undefined;
+        // const transfer = convertFromDbTransfer(dbTransfer[0]);
 
-        if (transfer.destination?.reconcile?.transactionHash) {
-          logger.info("Transfer was reconciled.", requestContext, methodContext, {
-            domain,
-            hash: transfer.destination!.reconcile!.transactionHash,
-          });
-        }
+        // if (transfer.destination?.reconcile?.transactionHash) {
+        //   logger.info("Transfer was reconciled.", requestContext, methodContext, {
+        //     domain,
+        //     hash: transfer.destination!.reconcile!.transactionHash,
+        //   });
+        // }
 
-        if (transfer.destination?.execute?.transactionHash) {
-          logger.info("Transfer was executed.", requestContext, methodContext, {
-            domain,
-            hash: transfer.destination!.reconcile!.transactionHash,
-          });
-          return transfer;
-        }
+        // if (transfer.destination?.execute?.transactionHash) {
+        //   logger.info("Transfer was executed.", requestContext, methodContext, {
+        //     domain,
+        //     hash: transfer.destination!.reconcile!.transactionHash,
+        //   });
+        //   return transfer;
+        // }
       } catch (e: unknown) {
         console.warn(e);
         logger.info("Waiting for next loop...");
