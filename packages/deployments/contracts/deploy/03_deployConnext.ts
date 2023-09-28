@@ -152,7 +152,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       from: deployer.address,
       owner: deployer.address,
       log: true,
-      facets: facetsToDeploy,
+      facets: facetsToDeploy.filter((f) => !f.name.includes("LoupeFacet")),
       diamondContract: "ConnextDiamond",
       defaultOwnershipFacet: false,
       defaultCutFacet: false,
@@ -203,6 +203,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         rootManager.address,
         constants.AddressZero,
         PROPAGATE_COOLDOWN,
+        PROPAGATE_COOLDOWN, // propose cooldown
         hubConnectors,
         chains,
       ],
