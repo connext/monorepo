@@ -2,7 +2,7 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, chainIdToDomain, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, domainToChainId, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
@@ -245,7 +245,7 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
-  const hubChain = chainIdToDomain(+nxtpConfig.hubDomain);
+  const hubChain = domainToChainId(+nxtpConfig.hubDomain);
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
