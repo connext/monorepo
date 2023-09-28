@@ -994,7 +994,7 @@ describe("Database client", () => {
     }
     await savePropagatedRoots(roots, pool);
     const firstIndex = await getAggregateRootCount(roots[0].aggregate, pool);
-    expect(firstIndex).to.eq(roots[0].count);
+    expect(firstIndex ?? 0).to.eq(roots[0].count ?? 0);
     const lastIndex = await getAggregateRootCount(roots[batchSize - 1].aggregate, pool);
     expect(lastIndex).to.eq(roots[batchSize - 1].count);
   });

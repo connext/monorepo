@@ -1,5 +1,5 @@
 import { ChainReader, ConnextContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, Logger, ModeType, RelayerType } from "@connext/nxtp-utils";
+import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Database } from "@connext/nxtp-adapters-database";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
