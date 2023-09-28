@@ -7,7 +7,6 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
-    "1668247156", /// CONSENSYS-ZKEVM-TEST
   ],
   assets: [
     {
@@ -31,53 +30,48 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
           adopted: "0xDC805eAaaBd6F68904cA706C221c72F8a8a68F9f",
         },
-        /// ZKSYNC-TEST
-        "2053862260": {
-          local: "0x7C1412e456ad60B8ee458c4eb3A9852C3e389353",
-          adopted: "0x7C1412e456ad60B8ee458c4eb3A9852C3e389353",
-        },
-        /// CONSENSYS-ZKEVM-TEST
-        "1668247156": {
-          local: "0xB706319D37b945727E71ae0d4353699d19112576",
-          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
-        },
       },
     },
-    {
-      name: "WETH",
-      canonical: {
-        domain: "1735353714",
-        address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-        decimals: 18,
-      },
-      representations: {
-        "1735356532": {
-          local: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
-          adopted: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
-        },
-        "9991": {
-          local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-          adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
-        },
-        // / ARBITRUM-GOERLI
-        "1734439522": {
-          local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-          adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
-        },
-        /// ZKSYNC-TEST
-        "2053862260": {
-          local: "0xbef9DE2c456895cdafB0ecB764d2DedFF58ed157",
-          adopted: "0xbef9DE2c456895cdafB0ecB764d2DedFF58ed157",
-        },
-        /// CONSENSYS-ZKEVM-TEST
-        "1668247156": {
-          local: "0xB706319D37b945727E71ae0d4353699d19112576",
-          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
-        },
-      },
-    },
+    // {
+    //   name: "WETH",
+    //   canonical: {
+    //     domain: "1735353714",
+    //     address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+    //     decimals: 18,
+    //   },
+    //   representations: {
+    //     "1735356532": {
+    //       local: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+    //       adopted: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
+    //     },
+    //     "9991": {
+    //       local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+    //       adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+    //     },
+    //     // / ARBITRUM-GOERLI
+    //     "1734439522": {
+    //       local: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+    //       adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+    //     },
+    //   },
+    // },
   ],
   agents: {
+    relayerFeeVaults: {
+      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735353714": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735356532": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1734439522": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "9991": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "2053862260": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1668247156": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1887071092": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    },
     watchers: {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },

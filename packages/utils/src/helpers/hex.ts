@@ -109,3 +109,24 @@ export function canonizeId(data?: utils.BytesLike): Uint8Array {
   }
   return utils.zeroPad(buf, 32);
 }
+
+/**
+ * Converts an ID of 20 or 32 bytes to the corresponding EVM Address.
+ *
+ * For 32-byte IDs this enforces the EVM convention of using the LAST 20 bytes.
+ *
+ * @param data The data to truncate
+ * @returns A 20-byte, 0x-prepended hex string representing the EVM Address
+ * @throws if the data is not 20 or 32 bytes
+ */
+export function evmId(data: utils.BytesLike): string {
+  const u8a = utils.arrayify(data);
+
+  if (u8a.length === 32) {
+    return utils.hexlify(u8a.slice(12, 32));
+  } else if (u8a.length === 20) {
+    return utils.hexlify(u8a);
+  } else {
+    throw new Error(`Invalid id length. expected 20 or 32. Got ${u8a.length}`);
+  }
+}

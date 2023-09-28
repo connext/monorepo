@@ -3,6 +3,7 @@ export type SubgraphQueryMetaParams = {
   latestNonce: number;
   destinationDomains?: string[];
   orderDirection?: "asc" | "desc";
+  limit?: number;
 };
 
 export type SubgraphQueryByTimestampMetaParams = {
@@ -10,9 +11,15 @@ export type SubgraphQueryByTimestampMetaParams = {
   fromTimestamp: number;
   destinationDomains?: string[];
   orderDirection?: "asc" | "desc";
+  limit?: number;
 };
 
 export type SubgraphQueryByTransferIDsMetaParams = {
   maxBlockNumber: number;
   transferIDs: string[];
+};
+
+export type SubgraphQueryByNoncesMetaParams = {
+  maxBlockNumber: number;
+  nonces: string[];
 };

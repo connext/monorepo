@@ -24,7 +24,7 @@ export const TChainDeployments = Type.Object({
 export type ChainDeployments = Static<typeof TChainDeployments>;
 
 export const TChainConfig = Type.Object({
-  providers: Type.Array(Type.String()),
+  providers: Type.Optional(Type.Array(Type.String())),
   gasStations: Type.Optional(Type.Array(Type.String())),
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
   chainId: Type.Optional(Type.Number()),
@@ -155,8 +155,6 @@ export const getEnvConfig = (
   return nxtpConfig;
 };
 
-let nxtpConfig: SdkConfig | undefined;
-
 /**
  * Caches and returns the environment config
  *
@@ -171,7 +169,7 @@ export const getConfig = async (
   if (!chainData) {
     chainData = await getChainData();
   }
-  nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
+  const nxtpConfig = getEnvConfig(_nxtpConfig, chainData, deployments);
   return { nxtpConfig: nxtpConfig, chainData: chainData };
 };
 

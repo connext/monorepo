@@ -9,6 +9,7 @@ import {
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   RootMessage,
@@ -24,6 +25,7 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   RouterDailyTVL,
+  StableSwapTransfer,
   SnapshotRoot,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
@@ -39,6 +41,7 @@ import {
   getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
   getOriginTransfersByIdsQuery,
+  getOriginTransfersByNoncesCombinedQuery,
   getOriginTransfersByIdsFallbackQuery,
   getOriginTransfersQuery,
   getOriginTransfersFallbackQuery,
@@ -50,8 +53,8 @@ import {
   getOriginTransfersByIDsCombinedQuery,
   getDestinationTransfersByIDsCombinedQuery,
   getOriginTransfersByNonceQuery,
-  getDestinationTransfersByExecutedTimestampQuery,
-  getDestinationTransfersByDomainAndReconcileTimestampQuery,
+  getDestinationTransfersByExecutedNonceQuery,
+  getDestinationTransfersByDomainAndReconcileNonceQuery,
   getOriginMessagesByDomainAndIndexQuery,
   getSentRootMessagesByDomainAndBlockQuery,
   getConnectorMetaQuery,
@@ -67,6 +70,7 @@ import {
   getAggregatedRootsByDomainQuery,
   getAssetsByLocalsQuery,
   getAssetsQuery,
+  getLpTransfersQuery,
   getPoolEventsQuery,
   getPropagatedRootsQuery,
   getRelayerFeesIncreasesQuery,
@@ -443,11 +447,11 @@ export class SubgraphReader {
     return originTransfers;
   }
 
-  public async getDestinationTransfersByExecutedTimestamp(
-    params: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getDestinationTransfersByExecutedNonce(
+    params: Map<string, SubgraphQueryMetaParams>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByExecutedTimestampQuery(params);
+    const xcalledXQuery = getDestinationTransfersByExecutedNonceQuery(params);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -516,12 +520,32 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getDestinationTransfersByDomainAndReconcileTimestamp(
-    param: SubgraphQueryByTimestampMetaParams,
+  public async getOriginTransfersByNonces(params: Map<string, SubgraphQueryByNoncesMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const { config } = getContext();
+    const xcalledXQuery = getOriginTransfersByNoncesCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
+
+    return originTransfers;
+  }
+
+  public async getDestinationTransfersByDomainAndReconcileNonce(
+    param: SubgraphQueryMetaParams,
     domain: string,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
-    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileTimestampQuery(param, domain);
+    const xcalledXQuery = getDestinationTransfersByDomainAndReconcileNonceQuery(param, domain);
     const response = await execute(xcalledXQuery);
 
     const transfers: any[] = [];
@@ -547,6 +571,7 @@ export class SubgraphReader {
     txIdsByDestinationDomain: Map<string, string[]>;
     allTxById: Map<string, XTransfer>;
     latestNonces: Map<string, number>;
+    txByOriginDomain: Map<string, XTransfer[]>;
   }> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
@@ -559,35 +584,31 @@ export class SubgraphReader {
     }
     const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const txByOriginDomain: Map<string, XTransfer[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     const latestNonces: Map<string, number> = new Map();
 
     for (const domain of response.keys()) {
       const value = response.get(domain);
       const xtransfersByDomain = (value ?? [])[0];
+      const originTransfers: XTransfer[] = [];
       for (const xtransfer of xtransfersByDomain) {
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
 
-          // do not add more than 100 entries to each destination domain
-          // this result is used to query the subgraph by ID and the query will
-          // truncate the list if it is too long
-          if (txIds.length >= 100) {
-            continue;
-          }
           txIds.push(`"${xtransfer.transferId as string}"`);
         } else {
           txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
         }
-        allTxById.set(
-          xtransfer.transferId as string,
-          parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]),
-        );
+        const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
+        allTxById.set(xtransfer.transferId as string, originTransfer);
         latestNonces.set(domain, xtransfer.nonce as number);
+        originTransfers.push(originTransfer);
       }
+      txByOriginDomain.set(domain, originTransfers);
     }
 
-    return { txIdsByDestinationDomain, allTxById, latestNonces };
+    return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
   }
 
   public async getDestinationXCalls(
@@ -716,7 +737,7 @@ export class SubgraphReader {
    * Gets all the origin message starting with index for a given domain
    */
   public async getOriginMessagesByDomain(
-    params: { domain: string; offset: number; limit: number }[],
+    params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
   ): Promise<OriginMessage[]> {
     const { parser, execute } = getHelpers();
     const originMessageQuery = getOriginMessagesByDomainAndIndexQuery(params);
@@ -999,7 +1020,8 @@ export class SubgraphReader {
 
     const response = await execute(rootManagerModeQuery);
     const values = [...response.values()];
-    return parser.rootManagerMode(values[0][0]);
+    // Initial state of the root manager is slow mode
+    return values[0][0] ? parser.rootManagerMode(values[0][0]) : { id: "ROOT_MANAGER_MODE_ID", mode: "SLOW_MODE" };
   }
   /**
    * Gets all the received roots starting with blocknumber for a given domain
@@ -1059,8 +1081,8 @@ export class SubgraphReader {
     return pools;
   }
 
-  public async getStableSwapExchangeByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapExchangeByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
   ): Promise<StableSwapExchange[]> {
     const { execute, parser } = getHelpers();
     const exchangeQuery = getSwapExchangesQuery(agents);
@@ -1085,8 +1107,8 @@ export class SubgraphReader {
     return domainExchanges;
   }
 
-  public async getStableSwapPoolEventsByDomainAndTimestamp(
-    agents: Map<string, SubgraphQueryByTimestampMetaParams>,
+  public async getStableSwapPoolEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
     addOrRemove: "add" | "remove" = "add",
   ): Promise<StableSwapPoolEvent[]> {
     const { execute, parser } = getHelpers();
@@ -1108,6 +1130,32 @@ export class SubgraphReader {
       .flat()
       .filter((x: any) => !!x)
       .map(parser.stableSwapPoolEvent);
+
+    return domainEvents;
+  }
+
+  public async getStableSwapLpTransferEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
+  ): Promise<StableSwapTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const transfersQuery = getLpTransfersQuery(agents);
+    const response = await execute(transfersQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: StableSwapTransfer[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.stableSwapLpTransfer);
 
     return domainEvents;
   }

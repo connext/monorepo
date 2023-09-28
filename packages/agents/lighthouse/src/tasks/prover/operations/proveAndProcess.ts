@@ -31,6 +31,7 @@ import {
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
+import { DEFAULT_PROVER_BATCH_SIZE } from "../../../config";
 
 export type ProofStruct = {
   message: string;
@@ -56,12 +57,15 @@ export const proveAndProcess = async () => {
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        const curDestAggRoot: ReceivedAggregateRoot | undefined = await database.getLatestAggregateRoot(
+        const curDestAggRoots: ReceivedAggregateRoot[] | undefined = await database.getLatestAggregateRoots(
           destinationDomain,
+          1, //limit
         );
-        if (!curDestAggRoot) {
+
+        if (!curDestAggRoots || curDestAggRoots.length == 0) {
           throw new NoReceivedAggregateRoot(destinationDomain);
         }
+        const curDestAggRoot = curDestAggRoots[0];
         logger.debug("Got latest aggregate root for domain", requestContext, methodContext, {
           destinationDomain,
           curDestAggRoot,
@@ -101,7 +105,7 @@ export const proveAndProcess = async () => {
                     destinationDomain,
                     latestMessageRoot.count,
                     offset,
-                    config.proverBatchSize,
+                    config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE,
                   );
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
@@ -179,7 +183,7 @@ export const processMessages = async (
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader },
+    adapters: { contracts, relayers, database, databaseWriter, chainreader, cache },
     config,
     chainData,
   } = getContext();
@@ -228,12 +232,28 @@ export const processMessages = async (
   }
 
   // Count of leafs in aggregate tree at targetAggregateRoot.
-  const spokeStore = new SpokeDBHelper(originDomain, messageRootCount + 1, database);
+  const spokeStore = new SpokeDBHelper(
+    originDomain,
+    messageRootCount + 1,
+    {
+      reader: database,
+      writer: databaseWriter,
+    },
+    cache.messages,
+  );
 
   //Switch for optimistic hub
   const hubStore: DBHelper = snapshot
     ? new OptimisticHubDBHelper(opRoots, aggregateRootCount)
-    : new HubDBHelper("hub", aggregateRootCount, database);
+    : new HubDBHelper(
+        "hub",
+        aggregateRootCount,
+        {
+          reader: database,
+          writer: databaseWriter,
+        },
+        cache.messages,
+      );
 
   const spokeSMT = new SparseMerkleTree(spokeStore);
   const hubSMT = new SparseMerkleTree(hubStore);
@@ -397,8 +417,21 @@ export const proveAndProcessOpMode = async () => {
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        //TODO: Should get the latest snapshot for which the aggregate was recieved on the destination domain
-        const snapshot = await database.getPendingAggregateRoot(destinationDomain);
+        const curDestAggRoots: ReceivedAggregateRoot[] | undefined = await database.getLatestAggregateRoots(
+          destinationDomain,
+          1, //limit
+        );
+        if (!curDestAggRoots || curDestAggRoots.length == 0) {
+          throw new NoReceivedAggregateRoot(destinationDomain);
+        }
+        const curDestAggRoot = curDestAggRoots[0];
+        logger.debug("Got latest aggregate root for domain", requestContext, methodContext, {
+          destinationDomain,
+          curDestAggRoot,
+        });
+        // TODO: As an improvement we could mark snapshots as processed: true to avoid iteraing
+        //  over fully processed snapshots.
+        const snapshot = await database.getPendingAggregateRoot(curDestAggRoot.root);
         if (snapshot) {
           logger.debug("Got pending snapshot", requestContext, methodContext, {
             snapshot,
@@ -415,7 +448,6 @@ export const proveAndProcessOpMode = async () => {
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
-              // const messageRoots = [];
               const domainIndex = snapshot.domains.indexOf(originDomain);
               if (domainIndex === -1) {
                 throw new NoDomainInSnapshot(originDomain, snapshot);
@@ -442,7 +474,7 @@ export const proveAndProcessOpMode = async () => {
                     destinationDomain,
                     message.origin.index,
                     offset,
-                    config.proverBatchSize,
+                    config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE,
                   );
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",

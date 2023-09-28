@@ -10,6 +10,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
+
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -179,7 +200,8 @@ CREATE TABLE public.stableswap_exchanges (
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
     balances numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
-    fee numeric DEFAULT 0 NOT NULL
+    fee numeric DEFAULT 0 NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -202,7 +224,8 @@ CREATE TABLE public.stableswap_pool_events (
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     "timestamp" integer NOT NULL,
-    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL
+    fees numeric[] DEFAULT ARRAY[]::numeric[] NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -325,7 +348,9 @@ CREATE TABLE public.transfers (
     execute_simulation_network character varying(255),
     error_message character varying(255),
     message_status character varying(255),
-    relayer_fees jsonb
+    relayer_fees jsonb,
+    execute_tx_nonce numeric DEFAULT 0 NOT NULL,
+    reconcile_tx_nonce numeric DEFAULT 0 NOT NULL
 );
 
 
@@ -464,10 +489,10 @@ CREATE VIEW public.transfers_with_price AS
 
 
 --
--- Name: daily_transfer_volume; Type: VIEW; Schema: public; Owner: -
+-- Name: daily_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.daily_transfer_volume AS
+CREATE MATERIALIZED VIEW public.daily_transfer_volume AS
  SELECT tf.status,
     (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_date,
     tf.origin_domain AS origin_chain,
@@ -476,9 +501,11 @@ CREATE VIEW public.daily_transfer_volume AS
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
+    sum(tf.usd_amount) AS usd_volume,
+    row_number() OVER () AS id
    FROM public.transfers_with_price tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
+  WITH NO DATA;
 
 
 --
@@ -561,10 +588,10 @@ CREATE VIEW public.hourly_transfer_metrics AS
 
 
 --
--- Name: hourly_transfer_volume; Type: VIEW; Schema: public; Owner: -
+-- Name: hourly_transfer_volume; Type: MATERIALIZED VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.hourly_transfer_volume AS
+CREATE MATERIALIZED VIEW public.hourly_transfer_volume AS
  SELECT tf.status,
     date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision)) AS transfer_hour,
     tf.origin_domain AS origin_chain,
@@ -573,9 +600,11 @@ CREATE VIEW public.hourly_transfer_volume AS
     tf.origin_transacting_asset AS asset,
     sum((tf.origin_transacting_amount)::numeric) AS volume,
     avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
+    sum(tf.usd_amount) AS usd_volume,
+    row_number() OVER () AS id
    FROM public.transfers_with_price tf
-  GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset;
+  GROUP BY tf.status, (date_trunc('hour'::text, to_timestamp((tf.xcall_timestamp)::double precision))), tf.origin_domain, tf.destination_domain, (regexp_replace((tf.routers)::text, '[\{\}]'::text, ''::text, 'g'::text)), tf.origin_transacting_asset
+  WITH NO DATA;
 
 
 --
@@ -597,11 +626,12 @@ CREATE TABLE public.messages (
     leaf character(66) NOT NULL,
     origin_domain character varying(255) NOT NULL,
     destination_domain character varying(255),
-    index numeric,
+    index numeric NOT NULL,
     root character(66),
     message character varying,
     processed boolean DEFAULT false,
-    return_data character varying(255)
+    return_data character varying(255),
+    transfer_id character(66)
 );
 
 
@@ -781,31 +811,38 @@ CREATE TABLE public.snapshots (
 
 
 --
--- Name: stableswap_lp_balances; Type: VIEW; Schema: public; Owner: -
+-- Name: stableswap_lp_balances; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE VIEW public.stableswap_lp_balances AS
- SELECT e.pool_id,
-    e.domain,
-    e.provider,
-    sum(
-        CASE
-            WHEN (e.action = 'Add'::public.action_type) THEN e.lp_token_amount
-            WHEN (e.action = 'Remove'::public.action_type) THEN (('-1'::integer)::numeric * e.lp_token_amount)
-            ELSE NULL::numeric
-        END) AS balance,
-    sum(
-        CASE
-            WHEN (e.action = 'Add'::public.action_type) THEN 1
-            ELSE 0
-        END) AS add_count,
-    sum(
-        CASE
-            WHEN (e.action = 'Remove'::public.action_type) THEN 1
-            ELSE 0
-        END) AS remove_count
-   FROM public.stableswap_pool_events e
-  GROUP BY e.pool_id, e.domain, e.provider;
+CREATE TABLE public.stableswap_lp_balances (
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    provider character(42) NOT NULL,
+    lp_token character(42) NOT NULL,
+    balance numeric NOT NULL,
+    last_timestamp integer NOT NULL
+);
+
+
+--
+-- Name: stableswap_lp_transfers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.stableswap_lp_transfers (
+    id character varying(255) NOT NULL,
+    pool_id character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    lp_token character(42) NOT NULL,
+    from_address character(42) NOT NULL,
+    to_address character(42) NOT NULL,
+    pooled_tokens text[],
+    amount numeric NOT NULL,
+    balances numeric[],
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -844,22 +881,6 @@ CREATE VIEW public.transfer_count AS
     tf.origin_transacting_asset AS asset,
     count(tf.transfer_id) AS transfer_count
    FROM public.transfers tf
-  GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
-
-
---
--- Name: transfer_volume; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.transfer_volume AS
- SELECT tf.status,
-    (date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date AS transfer_day,
-    tf.origin_domain AS origin_chain,
-    tf.origin_transacting_asset AS asset,
-    sum((tf.origin_transacting_amount)::numeric) AS volume,
-    avg(tf.asset_usd_price) AS avg_price,
-    sum(tf.usd_amount) AS usd_volume
-   FROM public.transfers_with_price tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
 
 
@@ -1102,7 +1123,7 @@ ALTER TABLE ONLY public.merkle_cache
 --
 
 ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT messages_pkey PRIMARY KEY (leaf);
+    ADD CONSTRAINT messages_pkey PRIMARY KEY (origin_domain, index);
 
 
 --
@@ -1178,6 +1199,22 @@ ALTER TABLE ONLY public.stableswap_exchanges
 
 
 --
+-- Name: stableswap_lp_balances stableswap_lp_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lp_balances
+    ADD CONSTRAINT stableswap_lp_balances_pkey PRIMARY KEY (pool_id, domain, provider);
+
+
+--
+-- Name: stableswap_lp_transfers stableswap_lp_transfers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.stableswap_lp_transfers
+    ADD CONSTRAINT stableswap_lp_transfers_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stableswap_pool_events stableswap_pool_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1206,6 +1243,41 @@ ALTER TABLE ONLY public.transfers
 --
 
 CREATE INDEX asset_prices_timestamp ON public.asset_prices USING btree ("timestamp");
+
+
+--
+-- Name: daily_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX daily_transfer_volume_id_idx ON public.daily_transfer_volume USING btree (id);
+
+
+--
+-- Name: hourly_transfer_volume_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hourly_transfer_volume_id_idx ON public.hourly_transfer_volume USING btree (id);
+
+
+--
+-- Name: idx_daily_transfer_volume_transfer_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_daily_transfer_volume_transfer_date ON public.daily_transfer_volume USING btree (transfer_date);
+
+
+--
+-- Name: idx_hourly_transfer_volume_transfer_hour; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_volume USING btree (transfer_hour);
+
+
+--
+-- Name: messages_domain_leaf_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_domain_leaf_idx ON public.messages USING btree (origin_domain, leaf);
 
 
 --
@@ -1251,6 +1323,13 @@ CREATE INDEX transfers_destination_domain_update_time_idx ON public.transfers US
 
 
 --
+-- Name: transfers_origin_domain_nonce_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_origin_domain_nonce_idx ON public.transfers USING btree (origin_domain, nonce);
+
+
+--
 -- Name: transfers_origin_domain_xcall_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1269,6 +1348,20 @@ CREATE INDEX transfers_status_xcall_timestamp_idx ON public.transfers USING btre
 --
 
 CREATE INDEX transfers_xcall_timestamp ON public.transfers USING btree (xcall_timestamp);
+
+
+--
+-- Name: transfers_xcall_transaction_hash_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_xcall_transaction_hash_idx ON public.transfers USING btree (xcall_transaction_hash);
+
+
+--
+-- Name: transfers_xcall_tx_origin_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX transfers_xcall_tx_origin_idx ON public.transfers USING btree (xcall_tx_origin);
 
 
 --
@@ -1293,6 +1386,32 @@ ALTER TABLE ONLY public.asset_balances
 ALTER TABLE ONLY public.asset_balances
     ADD CONSTRAINT fk_router FOREIGN KEY (router_address) REFERENCES public.routers(address);
 
+
+--
+-- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: -
+--
+
+CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: -
+--
+
+CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: -
+--
+
+ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
 
 --
 -- PostgreSQL database dump complete
@@ -1367,4 +1486,15 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230412090505'),
     ('20230414101408'),
     ('20230420031450'),
-    ('20230420035031');
+    ('20230420035031'),
+    ('20230508151158'),
+    ('20230509112648'),
+    ('20230509123037'),
+    ('20230509165732'),
+    ('20230510210620'),
+    ('20230519155643'),
+    ('20230523134345'),
+    ('20230530074124'),
+    ('20230608135754'),
+    ('20230608174759'),
+    ('20230613125451');

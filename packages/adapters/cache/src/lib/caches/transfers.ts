@@ -204,8 +204,9 @@ export class TransfersCache extends Cache {
    *
    * @param domain - Domain to get pending transfers for.
    */
-  public async getPending(domain: string): Promise<string[]> {
-    return JSON.parse((await this.data.hget(`${this.prefix}:pending`, domain)) ?? "[]");
+  public async getPending(domain: string, offset = 0, limit = 100): Promise<string[]> {
+    const transferIds = await this.data.lrange(`${this.prefix}:pending:${domain}`, offset, offset + limit - 1);
+    return transferIds;
   }
 
   /**
@@ -215,10 +216,7 @@ export class TransfersCache extends Cache {
    * @param transferId - The transfer ID to add to the list of pending transfers.
    */
   private async addPending(domain: string, transferId: string) {
-    const currentPending = await this.getPending(domain);
-    if (!currentPending.includes(transferId)) {
-      await this.data.hset(`${this.prefix}:pending`, domain, JSON.stringify([...currentPending, transferId]));
-    }
+    await this.data.rpush(`${this.prefix}:pending:${domain}`, transferId);
   }
 
   /**
@@ -230,14 +228,48 @@ export class TransfersCache extends Cache {
    * list of pending transfers.
    */
   private async removePending(domain: string, transferId: string): Promise<boolean> {
-    const currentPending = await this.getPending(domain);
-    const index = currentPending.findIndex((id) => id === transferId);
-    if (index >= 0) {
-      currentPending.splice(index, 1);
-      await this.data.hset(`${this.prefix}:pending`, domain, JSON.stringify(currentPending));
-      return true;
+    const res = await this.data.lrem(`${this.prefix}:pending:${domain}`, 0, transferId);
+    if (res > 0) return true;
+    else return false;
+  }
+
+  /**
+   * Add a list of nonces missing from the subgraph result for the secondary poller.
+   * @param domain - The domain where the missing txs happened.
+   * @param nonces - The list of nonce.
+   */
+  public async addMissingNonces(domain: string, nonces: number[]) {
+    for (const nonce of nonces) {
+      await this.data.rpush(`${this.prefix}:missing:${domain}`, nonce.toString());
     }
-    return false;
+  }
+
+  /**
+   * Get the missing nonces on a given domain.
+   *
+   * @param domain - The domain where the missing txs happened.
+   * @param offset - The start index.
+   * @param limit - The number of records you wanna get.
+   * @returns The list of nonce.
+   */
+  public async getMissingNonces(domain: string, offset = 0, limit = 100): Promise<string[]> {
+    const nonces = await this.data.lrange(`${this.prefix}:missing:${domain}`, offset, offset + limit - 1);
+    return nonces;
+  }
+
+  /**
+   * Remove missing nonces in the cache.
+   * @param domain - The target domain.
+   * @param nonces - The list of nonces you're gonna remove.
+   * @returns - The number of items removed in the cache.
+   */
+  public async removeMissingNonces(domain: string, nonces: number[]): Promise<number> {
+    let sum = 0;
+    for (const nonce of nonces) {
+      const res = await this.data.lrem(`${this.prefix}:missing:${domain}`, 0, nonce.toString());
+      sum += res;
+    }
+    return sum;
   }
 
   /// MARK - Errors
@@ -286,11 +318,11 @@ export class TransfersCache extends Cache {
    */
   public async setBidStatus(transferId: string): Promise<number> {
     const currentBid = await this.getBidStatus(transferId);
-    const attempt = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const attempts = currentBid ? (currentBid.attempts >= 1 ? currentBid.attempts + 1 : 1) : 1;
+    const timestamp = currentBid ? currentBid.timestamp : getNtpTimeSeconds().toString();
     const currrentStatus: BidStatus = {
-      // Update the timestamp to current time
-      timestamp: getNtpTimeSeconds().toString(),
-      attempts: attempt,
+      timestamp,
+      attempts,
     };
     return await this.data.hset(`${this.prefix}:status`, transferId, JSON.stringify(currrentStatus));
   }

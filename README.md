@@ -112,7 +112,7 @@ And Make sure you are on the latest yarn version:
 
 - `yarn set version berry`
 
-To set up the containers, use Docker. *If Docker is not already installed on your system, you can easily install it by clicking [here](https://www.docker.com).*
+To set up the containers, use Docker. _If Docker is not already installed on your system, you can easily install it by clicking [here](https://www.docker.com)._
 
 Try running `yarn` to update everything. If you have issues, try deleting `node_modules` and `yarn.lock`. After deleting `yarn.lock` run `touch yarn.lock` since it does not like if there is no lock file.
 

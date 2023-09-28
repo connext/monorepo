@@ -4,7 +4,8 @@ yarn
 yarn build:all
 echo "Build done."
 
-echo "Docker: building sequencer-publisher and sequencer-subscriber images..."
+echo "Docker: building sequencer-server, sequencer-publisher and sequencer-subscriber images..."
+docker build --tag sequencer-server:latest --file ./docker/sequencer/server/Dockerfile .
 docker build --tag sequencer-publisher:latest --file ./docker/sequencer/publisher/Dockerfile .
 docker build --tag sequencer-subscriber:latest --file ./docker/sequencer/subscriber/Dockerfile .
 
@@ -22,3 +23,6 @@ docker build --tag lighthouse:latest --file ./docker/lighthouse/Dockerfile .
 echo "Docker: building cartographer-transfers and cartographer-routers images..."
 docker build --tag cartographer-transfers:latest --file ./docker/cartographer/transfers/Dockerfile .
 docker build --tag cartographer-routers:latest --file ./docker/cartographer/routers/Dockerfile .
+
+echo "Docker: building db image..."
+docker build --tag db:latest --file ./docker/db/Dockerfile .

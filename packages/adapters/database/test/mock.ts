@@ -1,7 +1,13 @@
 import { mkAddress, mkHash, mock } from "@connext/nxtp-utils";
+import { Pool } from "pg";
 import { stub } from "sinon";
 
 import { Database } from "../src/index";
+
+export const mockDatabasePool = (): Pool => {
+  let pool: Pool = undefined as any;
+  return pool;
+};
 
 export const mockDatabase = (): Database => {
   return {
@@ -10,6 +16,7 @@ export const mockDatabase = (): Database => {
     getTransfersByStatus: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithDestinationPending: stub().resolves([mock.entity.xtransfer()]),
     getTransfersWithOriginPending: stub().resolves([mock.entity.xtransfer()]),
+    getPendingTransfersByDomains: stub().resolves([mock.entity.xtransfer()]),
     getCompletedTransfersByMessageHashes: stub().resolves([mock.entity.xtransfer()]),
     saveCheckPoint: stub().resolves(),
     saveMessages: stub().resolves(),
@@ -17,16 +24,19 @@ export const mockDatabase = (): Database => {
     saveRouterBalances: stub().resolves(),
     saveSentRootMessages: stub().resolves(),
     saveTransfers: stub().resolves(),
+    deleteNonExistTransfers: stub().resolves([]),
     transaction: stub().yields(null),
     getUnProcessedMessages: stub().resolves([]),
     getUnProcessedMessagesByIndex: stub().resolves([]),
+    getUnProcessedMessagesByDomains: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
     getMessageRootAggregatedFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
     getLatestMessageRoot: stub().resolves(),
-    getLatestAggregateRoot: stub().resolves(),
+    getLatestAggregateRoots: stub().resolves(),
+    getMessageRootStatusFromIndex: stub().resolves(),
     getSpokeNode: stub().resolves(),
     getSpokeNodes: stub().resolves([]),
     getHubNode: stub().resolves(),
@@ -39,6 +49,8 @@ export const mockDatabase = (): Database => {
     increaseBackoff: stub().resolves(),
     saveStableSwapPool: stub().resolves(),
     saveStableSwapExchange: stub().resolves(),
+    saveStableSwapTransfers: stub().resolves(),
+    saveStableSwapLpBalances: stub().resolves(),
     resetBackoffs: stub().resolves(),
     saveStableSwapPoolEvent: stub().resolves(),
     updateErrorStatus: stub().resolves(),
@@ -60,5 +72,6 @@ export const mockDatabase = (): Database => {
         adoptedAsset: mkAddress("0xb"),
       }),
     ]),
+    deleteCache: stub().resolves(),
   };
 };

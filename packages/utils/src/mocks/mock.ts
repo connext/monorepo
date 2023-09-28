@@ -27,6 +27,8 @@ import {
   Asset,
   XTransferMessageStatus,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -338,6 +340,7 @@ export const mock = {
                       gasLimit: "80000",
                       blockNumber: 5651345,
                       txOrigin: user,
+                      txNonce: Math.floor(Date.now() / 1000 - 30) * 10000,
                     }
                   : undefined,
 
@@ -351,6 +354,7 @@ export const mock = {
                       gasLimit: "100000",
                       blockNumber: 5651390,
                       txOrigin: user,
+                      txNonce: Math.floor(Date.now() / 1000) * 10000,
                     }
                   : undefined,
             }
@@ -504,6 +508,7 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
       ...overrides,
     }),
     stableswapPoolEvent: (overrides: Partial<StableSwapPoolEvent> = {}): StableSwapPoolEvent => ({
@@ -522,6 +527,32 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       transactionHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
+      ...overrides,
+    }),
+    stableSwapLpTransfer: (overrides: Partial<StableSwapTransfer> = {}): StableSwapTransfer => ({
+      id: `${mock.domain.A}-${getRandomBytes32()}-1`,
+      poolId: getRandomBytes32(),
+      domain: mock.domain.A,
+      lpToken: getRandomAddress(),
+      fromAddress: getRandomAddress(),
+      toAddress: getRandomAddress(),
+      pooledTokens: [getRandomAddress(), getRandomAddress()],
+      amount: 200,
+      balances: [200, 200],
+      blockNumber: Math.floor(Date.now() / 1000),
+      transactionHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      nonce: Math.floor(Date.now() * 10),
+      ...overrides,
+    }),
+    stableSwapLpBalance: (overrides: Partial<StableSwapLpBalance> = {}): StableSwapLpBalance => ({
+      poolId: getRandomBytes32(),
+      domain: mock.domain.A,
+      lpToken: getRandomAddress(),
+      provider: getRandomAddress(),
+      balance: 200,
+      lastTimestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
   },

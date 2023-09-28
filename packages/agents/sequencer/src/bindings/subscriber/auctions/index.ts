@@ -1,114 +1,97 @@
-import { spawn } from "child_process";
-
-import { ExecStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+import Broker from "amqplib";
+import { ExecStatus, XTransferErrorStatus, createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../../sequencer";
 import { Message, MessageType } from "../../../lib/entities";
+import { executeFastPathData, executeSlowPathData } from "../../../lib/operations/execute";
+import { updateTask } from "../../../lib/operations/tasks";
+import { NoBidsSent, NotEnoughRelayerFee, SlippageToleranceExceeded } from "../../../lib/errors";
 
-export const bindSubscriber = async (queueName: string) => {
+export const bindSubscriber = async (queueName: string, channel: Broker.Channel) => {
   const {
     logger,
-    config,
-    adapters: { cache, mqClient },
+    adapters: { database, cache },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(bindSubscriber.name, undefined, "");
-  logger.info("Binding subscriber for queue", requestContext, methodContext, { queue: queueName });
-  try {
-    // Spawn job handler
-    mqClient.handle(queueName, async function (msg) {
-      try {
-        const termSignals: NodeJS.Signals[] = ["SIGTERM", "SIGINT"];
-        const message: Message = msg.body as Message;
+  const logginContext = createLoggingContext(bindSubscriber.name, undefined, "");
+  logger.info("Binding subscriber for queue", logginContext.requestContext, logginContext.methodContext, {
+    queue: queueName,
+  });
+  channel.consume(
+    queueName,
+    async function (consumeMessage) {
+      if (consumeMessage) {
+        const { transferId, type: messageType } = JSON.parse(consumeMessage.content.toString()) as Message;
+        const { requestContext, methodContext } = createLoggingContext("Subscriber.consume", undefined, transferId);
+        logger.info("Executing the transfer", requestContext, methodContext, { transferId, messageType });
 
-        // No ack and requeue if message has no trasfer id
-        if (!message.transferId) {
-          logger.error("Message has no transfer ID", requestContext, methodContext, undefined, {
-            queue: queueName,
-            message: msg,
-          });
-          return;
+        if (messageType === MessageType.ExecuteFast) {
+          await cache.auctions.setExecStatus(transferId, ExecStatus.Dequeued);
+        } else {
+          await cache.executors.setExecStatus(transferId, ExecStatus.Dequeued);
         }
 
-        requestContext.transferId = message.transferId;
+        try {
+          const { taskId } =
+            messageType === MessageType.ExecuteFast
+              ? await executeFastPathData(transferId, requestContext)
+              : await executeSlowPathData(transferId, messageType, requestContext);
 
-        /// Mark - Executer
-        // if message.transferId, then call executer with it's type either Fast or Slow
-        logger.debug("Spawning executer for transfer", requestContext, methodContext, msg.body);
-        const child = spawn(process.argv[0], ["dist/executer.js", message.transferId, message.type], {
-          timeout: config.messageQueue.executerTimeout,
-        });
-        logger.info("Spawned child", requestContext, methodContext, child);
-        child.on("spawn", async () => {
-          logger.info("Child Spawn Event", requestContext, methodContext, {
-            transferId: message.transferId,
-          });
-        });
-        child.on("error", async (err) => {
-          logger.info("Child error", requestContext, methodContext, {
-            transferId: message.transferId,
-            error: err,
-          });
-        });
-
-        child.stdout.on("data", (data) => {
-          console.log(`${data}`);
-        });
-
-        child.stderr.on("data", (data) => {
-          console.log(`${data}`);
-        });
-
-        child.on("exit", async (code, signal) => {
-          logger.debug("Executer exited", requestContext, methodContext, {
-            transferId: message.transferId,
-            code: code,
-            signal: signal,
-          });
-          if ((code == null || code == 0) && (signal == null || termSignals.includes(signal))) {
-            // ACK on success
-            // Validate transfer is sent to relayer before ACK
-            const dataCache = message.type === MessageType.ExecuteFast ? cache.auctions : cache.executors;
-            const status = await dataCache.getExecStatus(message.transferId);
-            const task = await dataCache.getMetaTxTask(message.transferId);
-            if ((task?.taskId && status == ExecStatus.Sent) || status == ExecStatus.Completed) {
-              msg.ack();
-              logger.info("Transfer ACKed", requestContext, methodContext, {
-                transferId: message.transferId,
-                status,
-              });
-            } else {
-              msg.reject();
-              logger.info("Transfer Rejected", requestContext, methodContext, {
-                transferId: message.transferId,
-                status,
-              });
-            }
-            if (message.type === MessageType.ExecuteFast) {
-              await cache.auctions.pruneAuctionData(message.transferId);
-              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
-            } else {
-              await cache.executors.pruneExecutorData(message.transferId);
-            }
+          if (taskId) {
+            await updateTask(transferId, messageType);
           } else {
-            // No ack and requeue if child exits with error
-            if (message.type === MessageType.ExecuteFast) {
-              await cache.auctions.setExecStatus(message.transferId, ExecStatus.None);
+            // Current execution failed without taskId or error
+            // Should reset status to allow future attempts
+            if (messageType === MessageType.ExecuteFast) {
+              await cache.auctions.setExecStatus(transferId, ExecStatus.None);
+            } else {
+              await cache.executors.setExecStatus(transferId, ExecStatus.None);
             }
-            msg.reject();
-            logger.info("Error executing transfer. Message dropped", requestContext, methodContext, {
-              transferId: message.transferId,
+          }
+          channel.ack(consumeMessage);
+        } catch (error: any) {
+          const errorObj = jsonifyError(error as Error);
+          logger.error("Error executing:", requestContext, methodContext, errorObj);
+
+          let errorName: XTransferErrorStatus = XTransferErrorStatus.ExecutionError;
+          switch (errorObj.type) {
+            case SlippageToleranceExceeded.name: {
+              errorName = XTransferErrorStatus.LowSlippage;
+              break;
+            }
+            case NotEnoughRelayerFee.name: {
+              errorName = XTransferErrorStatus.LowRelayerFee;
+              break;
+            }
+            case NoBidsSent.name: {
+              errorName = XTransferErrorStatus.NoBidsReceived;
+              break;
+            }
+          }
+          try {
+            await database.updateErrorStatus(transferId, errorName);
+          } catch (e: unknown) {
+            logger.error("Database error:updateErrorStatus", requestContext, methodContext, undefined, {
+              transferId,
+              error: e,
             });
           }
-        });
-      } catch (error: any) {
-        logger.error("Error for message!", requestContext, methodContext, jsonifyError(error as Error), {
-          queue: queueName,
-          message: msg,
-        });
+
+          // increase backoff in case error is one of slippage or relayer fee
+          if (messageType === MessageType.ExecuteSlow) {
+            try {
+              await database.increaseBackoff(transferId);
+            } catch (e: unknown) {
+              logger.error("Database error:increaseBackoff", requestContext, methodContext, undefined, {
+                transferId,
+                error: e,
+              });
+            }
+          }
+
+          channel.reject(consumeMessage, false);
+        }
       }
-    });
-  } catch (e: unknown) {
-    logger.error("Error while binding subscriber", requestContext, methodContext, jsonifyError(e as Error));
-    mqClient.close();
-  }
+    },
+    { noAck: false },
+  );
 };

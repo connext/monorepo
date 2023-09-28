@@ -1,10 +1,9 @@
-import { providers, constants, BigNumber } from "ethers";
+import { providers, constants, BigNumber, utils } from "ethers";
 import { domainToChainId } from "@connext/nxtp-utils";
 
 import { SwapAndXCallParams } from "../../types";
 import { getSwapAndXCallInterface } from "../../interfaces";
-import { DEPLOYED_ADDRESSES } from "../../helpers/address";
-import { OriginSwapDataFns, OriginSwapperPerDomain } from "../../helpers";
+import { OriginSwapDataFns, OriginSwapperPerDomain, DEPLOYED_ADDRESSES } from "../../helpers";
 
 /**
  * Prepares `SwapAndXCall` inputs and encodes the calldata. Returns `providers.TransactionRequest` object to be sent to the RPC provider.
@@ -59,11 +58,14 @@ export const prepareSwapAndXCall = async (
 
     const swapAndXCallAddress = DEPLOYED_ADDRESSES.swapandxcall[originDomain];
     if (!swapAndXCallAddress) {
-      throw new Error(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      console.log(`SwapAndXCall contract not deployed on domain: ${originDomain}`);
+      return txRequest;
     }
 
-    const originRoute =
-      _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress));
+    const isSameAsset = utils.getAddress(toAsset) === utils.getAddress(fromAsset);
+    const originRoute = !isSameAsset
+      ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress))
+      : null;
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
     let swapAndXCallData: string;
@@ -80,16 +82,14 @@ export const prepareSwapAndXCall = async (
         fromAsset,
         toAsset,
         BigNumber.from(amountIn),
-        originRoute.swapper,
-        originRoute.swapData,
+        originRoute ? originRoute.swapper : constants.AddressZero,
+        originRoute ? originRoute.swapData : "0x",
         destinationDomain,
         to,
         delegate,
         slippage,
         callData,
       ];
-
-      console.log({ formattedArguments });
 
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
         "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes)",
@@ -112,8 +112,8 @@ export const prepareSwapAndXCall = async (
         fromAsset,
         toAsset,
         BigNumber.from(amountIn),
-        originRoute.swapper,
-        originRoute.swapData,
+        originRoute ? originRoute.swapper : constants.AddressZero,
+        originRoute ? originRoute.swapData : "0x",
         destinationDomain,
         to,
         delegate,
@@ -121,8 +121,6 @@ export const prepareSwapAndXCall = async (
         callData,
         relayerFeeInTransactingAsset.toString(),
       ];
-
-      console.log({ formattedArguments });
 
       swapAndXCallData = swapAndXCallInterface.encodeFunctionData(
         "swapAndXCall(address,address,uint256,address,bytes,uint32,address,address,uint256,bytes,uint256)",
@@ -154,7 +152,7 @@ export const prepareSwapAndXCall = async (
  *
  * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
-const calculateRouteForSwapAndXCall = async (
+export const calculateRouteForSwapAndXCall = async (
   domainId: string,
   fromAsset: string,
   toAsset: string,

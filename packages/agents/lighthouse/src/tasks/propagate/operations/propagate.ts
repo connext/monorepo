@@ -123,7 +123,7 @@ export const finalizeAndPropagate = async () => {
     logger,
     config,
     chainData,
-    adapters: { chainreader, contracts, relayers, subgraph },
+    adapters: { chainreader, contracts, relayers, subgraph, database },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
   logger.info("Starting propagate operation", requestContext, methodContext);
@@ -161,6 +161,46 @@ export const finalizeAndPropagate = async () => {
     }
   }
 
+  const currentSnapshot = await database.getCurrentProposedSnapshot();
+
+  if (!currentSnapshot) {
+    //Throw
+    logger.info("No current proposed snapshot found. Ending run.", requestContext, methodContext);
+    return;
+  }
+
+  const _proposedAggregateRoot = currentSnapshot.aggregateRoot;
+  const _endOfDispute = currentSnapshot.endOfDispute;
+  const latestBlockNumbers = await subgraph.getLatestBlockNumber([config.hubDomain]);
+  let latestBlockNumber: number | undefined = undefined;
+  if (latestBlockNumbers.has(config.hubDomain)) {
+    latestBlockNumber = latestBlockNumbers.get(config.hubDomain)!;
+  }
+
+  if (!latestBlockNumber) {
+    logger.error("Error getting the latestBlockNumber for hub domain.", requestContext, methodContext, undefined, {
+      hubDomain: config.hubDomain,
+      latestBlockNumber,
+      latestBlockNumbers,
+    });
+    return;
+  }
+
+  if (_endOfDispute > latestBlockNumber) {
+    logger.error(
+      "Dispute window is still active. End of dispute block is ahead of latest block",
+      requestContext,
+      methodContext,
+      undefined,
+      {
+        proposedSnapshot: currentSnapshot,
+        latestBlockNumber,
+        _endOfDispute,
+      },
+    );
+    return;
+  }
+
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
@@ -168,15 +208,16 @@ export const finalizeAndPropagate = async () => {
     _connectors,
     _fees,
     _encodedData,
+    _proposedAggregateRoot,
+    _endOfDispute,
   });
 
-  // TODO:
-  // const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("propagate", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagateKeep3r", [
     _connectors,
     _fees,
     _encodedData,
-    fee,
+    _proposedAggregateRoot,
+    _endOfDispute,
   ]);
 
   try {
@@ -190,7 +231,7 @@ export const finalizeAndPropagate = async () => {
       logger,
       requestContext,
     );
-    logger.info("Propagate tx sent", requestContext, methodContext, { taskId });
+    logger.info("finalizeAndPropagateKeep3r tx sent", requestContext, methodContext, { taskId });
   } catch (e: unknown) {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,

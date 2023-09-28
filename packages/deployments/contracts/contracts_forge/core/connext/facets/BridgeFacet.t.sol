@@ -125,6 +125,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // default cap is v high
     _cap = 100_000 ether;
+
+    vm.stopPrank();
   }
 
   // ============ Utils ============
@@ -857,8 +859,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedSequencers[sequencer] = true;
 
     // test revert
-    vm.prank(LibDiamond.contractOwner());
     vm.expectRevert(BridgeFacet.BridgeFacet__addSequencer_alreadyApproved.selector);
+    vm.prank(LibDiamond.contractOwner());
     this.addSequencer(sequencer);
   }
 

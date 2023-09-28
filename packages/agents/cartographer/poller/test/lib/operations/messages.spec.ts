@@ -47,27 +47,17 @@ describe("Message operations", () => {
     it("initial conditions", async () => {
       (mockContext.adapters.subgraph.getOriginMessagesByDomain as SinonStub).resolves([]);
       await retrieveOriginMessages();
-      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(mockContext.domains.length);
-      expect(mockContext.adapters.database.saveMessages as SinonStub).to.be.calledWithExactly([]);
+      expect(mockContext.adapters.database.saveMessages as SinonStub).callCount(0);
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledWithExactly(
         "message_" + mockContext.domains[0],
-      );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(mockContext.domains.length);
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "message_" + mockContext.domains[0],
-        0,
-      );
-      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
-        "message_" + mockContext.domains[1],
-        0,
       );
     });
   });
 
   describe("#updateMessages", () => {
     it("should work", async () => {
-      (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([
+      (mockContext.adapters.database.getUnProcessedMessagesByDomains as SinonStub).resolves([
         mock.entity.xMessage(),
         mock.entity.xMessage(),
       ]);
@@ -78,7 +68,10 @@ describe("Message operations", () => {
     it("should work", async () => {
       const pendingMessage1 = mock.entity.xMessage({ leaf: "0x1" });
       const pendingMessage2 = mock.entity.xMessage({ leaf: "0x2" });
-      (mockContext.adapters.database.getUnProcessedMessages as SinonStub).resolves([pendingMessage1, pendingMessage2]);
+      (mockContext.adapters.database.getUnProcessedMessagesByDomains as SinonStub).resolves([
+        pendingMessage1,
+        pendingMessage2,
+      ]);
 
       const transfer1 = mock.entity.xtransfer({ messageHash: pendingMessage1.leaf });
       const transfer2 = mock.entity.xtransfer({ messageHash: pendingMessage2.leaf });

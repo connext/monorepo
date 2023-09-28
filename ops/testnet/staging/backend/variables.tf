@@ -31,6 +31,13 @@ variable "cartographer_image_tag" {
   default     = "latest"
 }
 
+variable "full_image_name_sdk_server" {
+  type        = string
+  description = "sdk-server image name"
+  default     = "latest"
+}
+
+
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }

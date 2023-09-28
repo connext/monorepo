@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "nxtp-terraform-testnet-staging-core"
-    key    = "state/"
+    key    = "state"
     region = "us-east-1"
   }
 }
@@ -10,6 +10,7 @@ provider "aws" {
   region = var.region
 }
 
+
 # Fetch AZs in the current region
 data "aws_availability_zones" "available" {}
 
@@ -17,9 +18,11 @@ data "aws_iam_role" "ecr_admin_role" {
   name = "erc_admin_role"
 }
 
+
 data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
+
 
 module "router_subscriber" {
   source                   = "../../../modules/service"
@@ -156,6 +159,35 @@ module "centralised_message_queue" {
   rmq_mgt_password    = var.rmq_mgt_password
 }
 
+module "sequencer_server" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  docker_image             = var.full_image_name_sequencer_server
+  container_family         = "sequencer-server"
+  health_check_path        = "/ping"
+  container_port           = 8081
+  loadbalancer_port        = 80
+  cpu                      = 1024
+  memory                   = 2048
+  instance_count           = 1
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = local.sequencer_env_vars
+}
+
 module "sequencer_publisher" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -172,7 +204,7 @@ module "sequencer_publisher" {
   docker_image             = var.full_image_name_sequencer_publisher
   container_family         = "sequencer-publisher"
   health_check_path        = "/ping"
-  container_port           = 8081
+  container_port           = 8082
   loadbalancer_port        = 80
   cpu                      = 1024
   memory                   = 2048
@@ -183,6 +215,17 @@ module "sequencer_publisher" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.sequencer_env_vars
+}
+
+module "sequencer_publisher_auto_scaling" {
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.sequencer_publisher.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 300
 }
 
 module "sequencer_subscriber" {
@@ -202,10 +245,10 @@ module "sequencer_subscriber" {
   docker_image             = var.full_image_name_sequencer_subscriber
   container_family         = "sequencer-subscriber"
   health_check_path        = "/ping"
-  container_port           = 8082
+  container_port           = 8083
   loadbalancer_port        = 80
-  cpu                      = 4096
-  memory                   = 8192
+  cpu                      = 256
+  memory                   = 1024
   instance_count           = 5
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -222,7 +265,10 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 100
 }
+
 
 module "sequencer_web3signer" {
   source                   = "../../../modules/service"
@@ -261,9 +307,58 @@ module "lighthouse_prover_cron" {
   container_family    = "lighthouse-prover"
   environment         = var.environment
   stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
-  schedule_expression = "rate(30 minutes)"
-  memory_size         = 512
+  container_env_vars = merge(local.lighthouse_env_vars, {
+    LIGHTHOUSE_SERVICE = "prover-pub"
+  })
+  schedule_expression    = "rate(5 minutes)"
+  timeout                = 300
+  memory_size            = 10240
+  lambda_in_vpc          = true
+  private_subnets        = module.network.private_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+
+}
+
+module "lighthouse_prover_subscriber" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  private_subnets          = module.network.private_subnets
+  lb_subnets               = module.network.public_subnets
+  internal_lb              = false
+  docker_image             = var.full_image_name_lighthouse_prover_subscriber
+  container_family         = "lighthouse-prover-subscriber"
+  health_check_path        = "/ping"
+  container_port           = 7072
+  loadbalancer_port        = 80
+  cpu                      = 1024
+  memory                   = 2048
+  instance_count           = 2
+  timeout                  = 180
+  ingress_cdir_blocks      = ["0.0.0.0/0"]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
+}
+module "lighthouse_prover_subscriber_auto_scaling" {
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  min_capacity               = 10
+  max_capacity               = 200
+  avg_cpu_utilization_target = 10
+  avg_mem_utilization_target = 15
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -287,8 +382,8 @@ module "lighthouse_propagate_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
+  memory_size         = 2048
   schedule_expression = "rate(30 minutes)"
-  memory_size         = 1024
 }
 
 module "lighthouse_sendoutboundroot_cron" {
@@ -314,6 +409,7 @@ module "lighthouse_propose_cron" {
   schedule_expression = "rate(30 minutes)"
   memory_size         = 512
 }
+
 
 module "relayer" {
   source                   = "../../../modules/service"
@@ -473,6 +569,7 @@ module "sequencer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
+  public_redis                  = true
 }
 
 module "router_cache" {
@@ -483,6 +580,7 @@ module "router_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
+  public_redis                  = true
 }
 
 module "relayer_cache" {
@@ -490,6 +588,17 @@ module "relayer_cache" {
   stage                         = var.stage
   environment                   = var.environment
   family                        = "relayer"
+  sg_id                         = module.network.ecs_task_sg
+  vpc_id                        = module.network.vpc_id
+  cache_subnet_group_subnet_ids = module.network.public_subnets
+  public_redis                  = true
+}
+
+module "lighthouse_cache" {
+  source                        = "../../../modules/redis"
+  stage                         = var.stage
+  environment                   = var.environment
+  family                        = "lighthouse"
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets

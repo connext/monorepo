@@ -18,8 +18,10 @@ import {
   RelayerFeesIncrease,
   SlippageUpdate,
   StableSwapPoolEvent,
+  StableSwapTransfer,
   PoolActionType,
   RouterDailyTVL,
+  isValidBytes32,
   Snapshot,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
@@ -237,6 +239,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
             txOrigin: entity.executedTxOrigin,
+            txNonce: BigNumber.from(entity.executedTxNonce ?? "0").toNumber(),
           }
         : undefined,
 
@@ -251,6 +254,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.reconciledGasLimit,
             blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
             txOrigin: entity.reconciledTxOrigin,
+            txNonce: BigNumber.from(entity.reconciledTxNonce ?? "0").toNumber(),
           }
         : undefined,
     },
@@ -323,12 +327,13 @@ export const rootMessage = (entity: any): RootMessage => {
       });
     }
   }
-
+  const [idRoot, ...idRest] = entity.id.split("-");
   return {
-    id: entity.id,
+    id: isValidBytes32(idRoot) ? entity.id : [`0x${idRoot.slice(-64)}`].concat(idRest as string[]).join("-"),
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
-    root: entity.root,
+    // root will be final 32 if not 32 bytes
+    root: isValidBytes32(entity.root) ? entity.root : `0x${entity.root.slice(-64)}`,
     caller: entity.caller,
     transactionHash: entity.transactionHash,
     timestamp: entity.timestamp,
@@ -389,7 +394,7 @@ export const proposedRoot = (entity: any): Snapshot => {
   if (!entity) {
     throw new NxtpError("Subgraph `proposedRoot` entity parser: proposedRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "endOfDispute", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
+  for (const field of ["id", "disputeCliff", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -400,7 +405,7 @@ export const proposedRoot = (entity: any): Snapshot => {
 
   return {
     id: entity.id,
-    endOfDispute: entity.endOfDispute,
+    endOfDispute: entity.disputeCliff,
     aggregateRoot: entity.aggregateRoot,
     roots: entity.snapshotsRoots,
     domains: entity.domains,
@@ -634,6 +639,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
@@ -665,6 +671,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     fee,
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };
@@ -687,6 +694,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     "block",
     "transaction",
     "timestamp",
+    "nonce",
   ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
@@ -720,6 +728,54 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     lpTokenAmount: +utils.formatEther(String(entity.lpTokenAmount)),
     blockNumber: BigNumber.from(entity.block).toNumber(),
     timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
+    transactionHash: entity.transaction,
+  };
+};
+
+export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: stableSwapLpTransfer, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "token",
+    "domain",
+    "from",
+    "to",
+    "fromBalance",
+    "toBalance",
+    "amount",
+    "block",
+    "transaction",
+    "timestamp",
+    "nonce",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  const balances = [+entity.fromBalance, +entity.toBalance];
+
+  return {
+    id: `${entity.domain}-${entity.id}`,
+    domain: entity.domain,
+    poolId: entity.token.stableSwap.key,
+    lpToken: entity.token.address,
+    pooledTokens: entity.token.stableSwap.pooledTokens,
+    fromAddress: entity.from,
+    toAddress: entity.to,
+    amount: +entity.amount,
+    balances,
+    blockNumber: BigNumber.from(entity.block).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
     transactionHash: entity.transaction,
   };
 };

@@ -39,8 +39,20 @@ variable "full_image_name_router_subscriber" {
 
 variable "full_image_name_router_executor" {
   type        = string
-  description = "router image name"
+  description = "router executor image name"
   default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
+}
+
+variable "full_image_name_lighthouse_prover_subscriber" {
+  type        = string
+  description = "lighthouse subscriber image name"
+  default     = "ghcr.io/connext/lighthouse-subscriber:sha-b5bb49a"
+}
+
+variable "full_image_name_sequencer_server" {
+  type        = string
+  description = "sequencer image name"
+  default     = "ghcr.io/connext/sequencer-server:sha-b5bb49a"
 }
 
 variable "full_image_name_sequencer_publisher" {
@@ -96,6 +108,7 @@ variable "rmq_mgt_user" {
 }
 
 
+
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
@@ -109,6 +122,14 @@ variable "goerli_alchemy_key_1" {
 }
 
 variable "optgoerli_alchemy_key_0" {
+  type = string
+}
+
+variable "optgoerli_alchemy_key_for_lh" {
+  type = string
+}
+
+variable "mumbai_alchemy_key_0" {
   type = string
 }
 
@@ -128,7 +149,7 @@ variable "blast_key" {
   type = string
 }
 
-variable "dd_api_key" {
+variable "infura_key" {
   type = string
 }
 
@@ -137,6 +158,10 @@ variable "router_web3_signer_private_key" {
 }
 
 variable "sequencer_web3_signer_private_key" {
+  type = string
+}
+
+variable "dd_api_key" {
   type = string
 }
 
@@ -162,6 +187,9 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
+variable "linea_node" {
+  type = string
+}
 variable "watcher_web3_signer_private_key" {
   type = string
 }
@@ -187,6 +215,6 @@ variable "betteruptime_api_key" {
 }
 
 variable "betteruptime_requester_email" {
-  type = string
-  default = "layne@connext.network"
+  type    = string
+  default = "layne@proximalabs.io"
 }

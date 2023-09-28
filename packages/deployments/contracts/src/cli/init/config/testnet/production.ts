@@ -1,5 +1,3 @@
-import { utils } from "ethers";
-
 import { InitConfig } from "../../helpers";
 
 export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
@@ -53,80 +51,219 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "WETH",
+      name: "WMATIC",
       canonical: {
-        domain: "1735353714",
-        address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        domain: "9991",
+        address: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
         decimals: 18,
       },
       representations: {
         "1735356532": {
-          local: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
-          adopted: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        "1735353714": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
         "9991": {
-          local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
-          adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
         /// ARBITRUM-GOERLI
         "1734439522": {
-          adopted: "0x1346786E6A5e07b90184a1Ba58E55444b99DC4A2",
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
         /// ZKSYNC-TEST
         "2053862260": {
-          local: "0xbef9DE2c456895cdafB0ecB764d2DedFF58ed157",
-          adopted: "0xbef9DE2c456895cdafB0ecB764d2DedFF58ed157",
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
         /// CONSENSYS-ZKEVM-TEST
         "1668247156": {
-          local: "0xB706319D37b945727E71ae0d4353699d19112576",
-          adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
+          local: "0xcAA61BCAe7D37Fe9C33c0D8671448254eef44D63",
+          adopted: "0xcAA61BCAe7D37Fe9C33c0D8671448254eef44D63",
         },
         /// POLYGON-ZKEVM-TEST
         "1887071092": {
-          adopted: "0xeE589e91401066068AF129B0005aC3EF69E3fdB4",
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
         },
       },
     },
     {
-      name: "HARD",
+      name: "nextAlUSD",
       canonical: {
         domain: "1735353714",
-        address: "0x5c8279211C48abb8b2c104b493561e1EcFB9a595",
+        address: "0x990162AFaA06f591c03DD36ECBDa24A8A80F2D0c",
         decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
+          adopted: "0xF87510F1E63E29BB69d9D35D0365E8CaCe609a8C",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
+          adopted: "0xFDd72CB8477d3Ae2D00a6F9516324c529dfC395A",
+        },
+      },
+    },
+    {
+      name: "nextAlETH",
+      canonical: {
+        domain: "1735353714",
+        address: "0xF6DD52cdF1614Cd649077Aa283840657617faa07",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
+          adopted: "0x1F563a8BE28acdCc5546543a227aFb9373586eD0",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
+          adopted: "0x40E4b6A2D89fF4206dB843B614bBe2694876D640",
+        },
+      },
+    },
+    {
+      name: "ALCX",
+      canonical: {
+        domain: "1735353714",
+        address: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
+        },
+      },
+    },
+    {
+      name: "xDappRadar",
+      canonical: {
+        domain: "1735353714",
+        address: "0x4c781E4D22cfaAdA520cAe4aF9097C5ecf9C3A71",
+        decimals: 18,
       },
       representations: {
         /// OPTIMISM-GOERLI
         "1735356532": {
-          adopted: "0x1956831c14d2e193386159837644F193D12b2755",
-          local: "0x1956831c14d2e193386159837644F193D12b2755",
+          local: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
+          adopted: "0xb6932c8363354df7620a7a7bF3a933A253015cA3",
         },
         /// MUMBAI
         "9991": {
-          adopted: "0xfA2F9cE589b30F1E4C8Bf20BcB496032087baaF0",
-          local: "0xfA2F9cE589b30F1E4C8Bf20BcB496032087baaF0",
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+        },
+      },
+    },
+    {
+      name: "BTRST",
+      canonical: {
+        domain: "1735353714",
+        address: "0x39e09359F5a7396937504Eb2766722e2bf4650e8",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+        },
+      },
+    },
+    {
+      name: "xTokenFrontend",
+      canonical: {
+        domain: "1735353714",
+        address: "0x6984384D6abE16221769BD9400de72b8F4Aa572C",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM-GOERLI
+        "1734439522": {
+          local: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
+          adopted: "0x7E9D498a970B7786ea923Fb8643FBbF62Efa5037",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
+          adopted: "0xf5f1424dD3B78f64B18A085C8D7AEa5E124bf168",
+        },
+      },
+    },
+    {
+      name: "xMonoTest",
+      canonical: {
+        domain: "1735353714",
+        address: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+          adopted: "0x026dD7034AD81D2BEEc7F9d77DC5fDd6f55BaEF3",
+        },
+      },
+    },
+    {
+      name: "NEXT",
+      canonical: {
+        domain: "1735353714",
+        address: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
         },
         /// ARBITRUM-GOERLI
         "1734439522": {
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        /// ZKSYNC-TEST
-        "2053862260": {
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        /// CONSENSYS-ZKEVM-TEST
-        "1668247156": {
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        /// POLYGON-ZKEVM-TEST
-        "1887071092": {
-          adopted: "0x0000000000000000000000000000000000000000",
+          local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+          adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
         },
       },
     },
   ],
   agents: {
+    relayerFeeVaults: {
+      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735353714": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1735356532": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1734439522": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "9991": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "2053862260": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1668247156": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1887071092": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    },
     watchers: {
       allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
     },
@@ -144,6 +281,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync)
         "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
         "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato
         "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934", // connext relayer

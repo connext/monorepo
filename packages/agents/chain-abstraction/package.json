@@ -1,6 +1,6 @@
 {
   "name": "@connext/chain-abstraction",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A package to make it easy to integrate arbitrary DEXes on both origin/destination domains",
   "author": "Connext",
   "license": "MIT",
@@ -22,7 +22,14 @@
   ],
   "dependencies": {
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/sdk-core": "workspace:*",
+    "@pancakeswap/sdk": "^5.0.0",
     "@sinclair/typebox": "0.25.21",
+    "@swapr/sdk": "^1.9.0",
+    "@uniswap/sdk": "^3.0.3",
+    "@uniswap/sdk-core": "^3.2.6",
+    "@uniswap/smart-order-router": "^3.13.4",
+    "@uniswap/v3-sdk": "^3.9.0",
     "ethers": "5.7.2",
     "isomorphic-fetch": "^3.0.0",
     "memoizee": "0.4.15",

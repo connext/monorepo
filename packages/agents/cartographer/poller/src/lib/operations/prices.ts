@@ -92,41 +92,43 @@ export const updateHistoricAssetPrices = async () => {
 
   const latestTimestamp =
     (await database.getCheckPoint("asset_price_timestamp_" + canonicalDomain)) || ASSET_PRICE_START_TIMESTAMP;
-  const toTimestamp = latestTimestamp + 90 * 24 * 3600;
+  const toTimestamp = Math.min(latestTimestamp + 90 * 24 * 3600, getNtpTimeSeconds());
 
-  for (const asset of assetsOnCanonical) {
-    let response: any;
-    try {
-      response = await axiosGet(`https://api.coingecko.com/api/v3/coins/${asset.coingeckoId}/market_chart/range`, {
-        params: { from: latestTimestamp, to: toTimestamp, vs_currency: "usd" },
-      });
-      if (response && response.data) {
-        logger.debug("Got historical prices from Coingecko API", requestContext, methodContext, {
-          coingeckoId: asset.coingeckoId,
-          from: latestTimestamp,
-          to: toTimestamp,
-          length: response.data.prices.length,
+  if (latestTimestamp < toTimestamp) {
+    for (const asset of assetsOnCanonical) {
+      let response: any;
+      try {
+        response = await axiosGet(`https://api.coingecko.com/api/v3/coins/${asset.coingeckoId}/market_chart/range`, {
+          params: { from: latestTimestamp, to: toTimestamp, vs_currency: "usd" },
         });
+        if (response && response.data) {
+          logger.debug("Got historical prices from Coingecko API", requestContext, methodContext, {
+            coingeckoId: asset.coingeckoId,
+            from: latestTimestamp,
+            to: toTimestamp,
+            length: response.data.prices.length,
+          });
 
-        const prices = response.data.prices as unknown as [number, number][];
-        const assetPrices: AssetPrice[] = prices.map(([timestamp, price]) => {
-          return {
-            canonicalId: asset.canonicalId,
-            canonicalDomain: asset.canonicalDomain,
-            timestamp: Math.floor(timestamp / 1000),
-            price: price,
-          };
+          const prices = response.data.prices as unknown as [number, number][];
+          const assetPrices: AssetPrice[] = prices.map(([timestamp, price]) => {
+            return {
+              canonicalId: asset.canonicalId,
+              canonicalDomain: asset.canonicalDomain,
+              timestamp: Math.floor(timestamp / 1000),
+              price: price,
+            };
+          });
+
+          await database.saveAssetPrice(assetPrices);
+          await database.saveCheckPoint("asset_price_timestamp_" + canonicalDomain, toTimestamp);
+          logger.debug("Saved Asset Prices", requestContext, methodContext, { assetPrices });
+        }
+      } catch (e: unknown) {
+        logger.debug("Coingecko API not responding correctly", requestContext, methodContext, {
+          res: response ? (response?.data ? response.data : response) : undefined,
+          error: jsonifyError(e as NxtpError),
         });
-
-        await database.saveAssetPrice(assetPrices);
-        await database.saveCheckPoint("asset_price_timestamp_" + canonicalDomain, toTimestamp);
-        logger.debug("Saved Asset Prices", requestContext, methodContext, { assetPrices });
       }
-    } catch (e: unknown) {
-      logger.debug("Coingecko API not responding correctly", requestContext, methodContext, {
-        res: response ? (response?.data ? response.data : response) : undefined,
-        error: jsonifyError(e as NxtpError),
-      });
     }
   }
 };

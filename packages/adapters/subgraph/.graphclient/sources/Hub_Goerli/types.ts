@@ -19,6 +19,7 @@ export type Scalars = {
   goerli_BigDecimal: any;
   BigInt: any;
   goerli_Bytes: any;
+  goerli_Int8: any;
 };
 
 export type goerli_AggregatedMessageRoot = {

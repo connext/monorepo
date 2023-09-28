@@ -1,5 +1,13 @@
 import { Signer, Wallet, BigNumber, providers } from "ethers";
-import { arrayify, solidityKeccak256, splitSignature, verifyMessage } from "ethers/lib/utils";
+import {
+  _TypedDataEncoder,
+  arrayify,
+  joinSignature,
+  keccak256,
+  solidityKeccak256,
+  splitSignature,
+  verifyMessage,
+} from "ethers/lib/utils";
 
 import { encodeRouterPathPayload, encodeSequencerPermitPayload } from ".";
 
@@ -107,4 +115,35 @@ export const getRouterPathHashToSign = (transferId: string, pathLength: string):
 export const recoverRouterPathPayload = (transferId: string, pathLength: string, signature: string): string => {
   const hashed = getRouterPathHashToSign(transferId, pathLength);
   return verifyMessage(arrayify(hashed), signature);
+};
+
+export type EIP712Domain = {
+  name: string;
+  version: string;
+  chainId: number;
+  verifyingContract: string;
+};
+
+/**
+ * Returns the signature of the encoded EIP712 message for a given `domain`
+ * @param domain - The given domain
+ * @param structHash - The encoded EIP712 message.
+ *
+ *  Take a look at both onchain/offchain stuff to figure out how to generate the `structHash`.
+ *   [onchain] - (https://github.com/connext/connext-integration/blob/main/contracts/integration/Instadapp/InstadappAdapter.sol)
+ *   [offchain] - (https://github.com/connext/connext-integration/blob/main/test/cli.ts#L46)
+ *
+ * @param signer - The Ethereum Signer
+ * @returns - The signature
+ */
+export const generateEIP712Signature = (domain: EIP712Domain, structHash: string, signer: Wallet): string => {
+  const domainSeparator = _TypedDataEncoder.hashDomain(domain);
+  const digest = solidityKeccak256(
+    ["string", "bytes32", "bytes32"],
+    ["\x19\x01", domainSeparator, keccak256(structHash)],
+  );
+  const signingKey = signer._signingKey();
+  const signature = signingKey.signDigest(digest);
+  const joinedSignature = joinSignature(signature);
+  return joinedSignature;
 };

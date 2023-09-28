@@ -6,6 +6,7 @@ import {
   OriginTransfer,
   SubgraphQueryMetaParams,
   SubgraphQueryByTimestampMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   mock,
@@ -283,6 +284,27 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getOriginTransfersByNonces", () => {
+    it("should return the origin transfers", async () => {
+      response.set("1111", [[mockOriginTransferEntity]]);
+      response.set("3331", [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByNoncesMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, nonces: ["1"] });
+      agents.set("3331", { maxBlockNumber: 99999999, nonces: ["1"] });
+
+      expect(await subgraphReader.getOriginTransfersByNonces(agents)).to.be.deep.eq([
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      ]);
+    });
+  });
+
   describe("#getDestinationTransfersById", () => {
     it("should return the destination transfers", async () => {
       response.set("1111", [[mockDestinationTransferEntity]]);
@@ -368,28 +390,28 @@ describe("SubgraphReader", () => {
       response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
-      agents.set("3331", { maxBlockNumber: 99999999, fromTimestamp: 1 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
+      agents.set("3331", { maxBlockNumber: 99999999, latestNonce: 1 });
 
-      expect(await subgraphReader.getDestinationTransfersByExecutedTimestamp(agents)).to.be.deep.eq([
+      expect(await subgraphReader.getDestinationTransfersByExecutedNonce(agents)).to.be.deep.eq([
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
       ]);
     });
   });
 
-  describe("#getDestinationTransfersByDomainAndReconcileTimestamp", () => {
+  describe("#getDestinationTransfersByDomainAndReconcileNonce", () => {
     it("should return the destination transfers across the multichains", async () => {
       response.set("1111", [[mockDestinationTransferEntity]]);
       response.set("3331", [[mockDestinationTransferEntity]]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
 
       expect(
-        await subgraphReader.getDestinationTransfersByDomainAndReconcileTimestamp(agents.get("1111")!, "1111"),
+        await subgraphReader.getDestinationTransfersByDomainAndReconcileNonce(agents.get("1111")!, "1111"),
       ).to.be.deep.eq([
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "1111" }),
         ParserFns.destinationTransfer({ ...mockDestinationTransferEntity, destinationDomain: "3331" }),
@@ -736,14 +758,15 @@ describe("SubgraphReader", () => {
         block: "25792350",
         timestamp: "1672823480",
         transaction: mkBytes32("0xa"),
+        nonce: "16728234800001",
       };
       response.set("1111", [exchange]);
       executeStub.resolves(response);
 
-      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
-      agents.set("1111", { maxBlockNumber: 99999999, fromTimestamp: 0 });
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0 });
 
-      const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndTimestamp(agents);
+      const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndNonce(agents);
       expect(swapExchange).to.be.deep.eq([ParserFns.stableSwapExchange(exchange)]);
     });
   });

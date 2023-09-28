@@ -56,11 +56,22 @@
     ],
     "queues": [
       { "name": "1337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
-      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 }
+      { "name": "1338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      {
+        "name": "http",
+        "limit": 1,
+        "queueLimit": 100000,
+        "subscribe": true
+      }
     ],
     "bindings": [
       { "exchange": "sequencerX", "target": "1337", "keys": ["1337"] },
-      { "exchange": "sequencerX", "target": "1338", "keys": ["1338"] }
+      { "exchange": "sequencerX", "target": "1338", "keys": ["1338"] },
+      {
+        "exchange": "sequencerX",
+        "target": "http",
+        "keys": ["http"]
+      }
     ],
     "executerTimeout": 300000,
     "publisher": "sequencerX"

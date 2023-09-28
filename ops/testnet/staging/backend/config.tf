@@ -20,13 +20,54 @@ locals {
     { name = "STAGE", value = var.stage }
   ]
 
+  sdk_server_env_vars = [
+    { name = "SDK_SERVER_CONFIG", value = local.local_sdk_server_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
+
+  local_sdk_server_config = jsonencode({
+    logLevel = "debug"
+    chains = {
+      "1735356532" = {
+        providers = ["https://goerli.optimism.io/"]
+      }
+      "1735353714" = {
+        providers = ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"]
+      }
+      "9991" = {
+        providers = ["https://rpc.ankr.com/polygon_mumbai"]
+      }
+    }
+
+    # The following are defined in variables.tf and don't map to the
+    # definitions of environment and network in agent configs.
+    environment = var.stage
+    network     = var.environment
+
+    redis = {
+      enabled        = true
+      expirationTime = 10
+      host           = module.sdk_server_cache.redis_instance_address,
+      port           = module.sdk_server_cache.redis_instance_port
+    }
+
+    server = {
+      http = {
+        host = "0.0.0.0"
+        port = 8080
+      }
+    }
+  })
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735356532" = {}
-      "1735353714" = {}
-      "9991"       = {}
-      "1734439522" = {}
+      "1735356532" = { confirmations = 1 }
+      "1735353714" = { confirmations = 10 }
+      "9991"       = { confirmations = 200 }
+      "1734439522" = { confirmations = 1 }
     }
     environment = var.stage
   })

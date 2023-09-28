@@ -11,19 +11,29 @@ export const updateMessageStatus = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateMessageStatus.name);
 
   for (const domain of domains) {
-    const limit = 100;
-    logger.debug("Updating message status", requestContext, methodContext, { domain, limit });
-    const pendingTransfersByMessageStatus = await database.getPendingTransfersByMessageStatus(domain, 0, limit);
-    const updatedTransfers = await Promise.all(
-      pendingTransfersByMessageStatus.map(async (transfer) => {
-        const messageStatus = await getMessageStatus(transfer);
-        const _transfer = transfer;
-        if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
-        return _transfer;
-      }),
-    );
+    const limit = 1000;
+    let end = false;
+    let offset = 0;
+    while (!end) {
+      logger.debug("Updating message status", requestContext, methodContext, { domain, offset, limit });
+      const pendingTransfersByMessageStatus = await database.getPendingTransfersByMessageStatus(domain, offset, limit);
+      const updatedTransfers = await Promise.all(
+        pendingTransfersByMessageStatus.map(async (transfer) => {
+          const messageStatus = await getMessageStatus(transfer);
+          const _transfer = transfer;
+          if (_transfer.origin) _transfer.origin!.messageStatus = messageStatus;
+          return _transfer;
+        }),
+      );
 
-    await database.saveTransfers(updatedTransfers);
+      await database.saveTransfers(updatedTransfers);
+      offset += pendingTransfersByMessageStatus.length;
+      if (pendingTransfersByMessageStatus.length < limit) {
+        end = true;
+        break;
+      }
+    }
+    logger.debug("Updated message status for domain", requestContext, methodContext, { domain });
   }
 };
 
@@ -45,31 +55,27 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     // A message has been proven and processed
     return XTransferMessageStatus.Processed;
   }
-  const rootMessages = await database.getMessageRootsFromIndex(transfer.xparams.originDomain, message.origin.index);
-  if (rootMessages.length == 0) {
+  const rootMessageStatus = await database.getMessageRootStatusFromIndex(
+    transfer.xparams.originDomain,
+    message.origin.index,
+  );
+  if (rootMessageStatus.processedCount + rootMessageStatus.unprocessedCount == 0) {
     // there are 2 possible reasons
     // 1. sendOutboundRoot didn't happen on the spoke domain
     // 2. sendOutboundRoot happened but the root_messages table sync might still be in progress.
     return XTransferMessageStatus.XCalled;
   }
   // const processed = rootMessage.processed;
-  const processed = rootMessages.map((i) => i.processed).includes(true);
-  if (!processed) {
+  if (rootMessageStatus.processedCount === 0) {
     // A root message exist. this means sendOutboundRoot task executed on the spoke domain
     // 1. A spoke root got sent to the hub domain, the root might still be getting processed by AMB/LH processFromRoot task
-    // 2. A spoke root got arrived at the hub domain, the root_me ssages table sync might still be in progress
+    // 2. A spoke root got arrived at the hub domain, the root_messages table sync might still be in progress
 
     return XTransferMessageStatus.SpokeRootSent;
   }
 
   // A message root from the spoke domain got arrived at the hub domain successfully
-  let aggregateRoot: string | undefined = undefined;
-  for (const rootMessage of rootMessages) {
-    aggregateRoot = await database.getAggregateRoot(rootMessage.root);
-    if (aggregateRoot) break;
-  }
-  //const aggregateRoot = await database.getAggregateRoot(rootMessage.root);
-  if (!aggregateRoot) {
+  if (rootMessageStatus.aggregatedCount === 0) {
     // An aggregated root doesn't exist.
     // 1. A message root arrived at the hub domain but has been neither dequeued/propagated
     // 2. The aggregateRoot got propagated on-chain but either of both subgraph and carto sync might still be in progress
@@ -82,7 +88,7 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
   let messageStatus: XTransferMessageStatus = XTransferMessageStatus.AggregateRootPropagated;
   const receivedAggregateRoot = await database.getAggregateRootByRootAndDomain(
     transfer.xparams.destinationDomain,
-    aggregateRoot,
+    rootMessageStatus.lastAggregatedRoot!,
   );
 
   if (receivedAggregateRoot) {

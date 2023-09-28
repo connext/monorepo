@@ -21,6 +21,9 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
+  RootMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -29,7 +32,9 @@ import {
   getTransfersByStatus,
   getTransfersWithOriginPending,
   getTransfersWithDestinationPending,
+  getPendingTransfersByDomains,
   saveTransfers,
+  deleteNonExistTransfers,
   saveRouterBalances,
   saveMessages,
   saveSentRootMessages,
@@ -38,6 +43,7 @@ import {
   getCheckPoint,
   transaction,
   getRootMessages,
+  getRootMessage,
   saveAggregatedRoots,
   savePropagatedRoots,
   saveSnapshotRoots,
@@ -47,6 +53,7 @@ import {
   saveReceivedAggregateRoot,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
+  getUnProcessedMessagesByDomains,
   getAggregateRoot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
@@ -54,12 +61,14 @@ import {
   getBaseAggregateRoot,
   getMessageRootIndex,
   getLatestMessageRoot,
-  getLatestAggregateRoot,
+  getLatestAggregateRoots,
   getPendingAggregateRoot,
+  getCurrentProposedSnapshot,
   getPendingSnapshots,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
   getMessageRootCount,
+  getMessageRootStatusFromIndex,
   getSpokeNode,
   getSpokeNodes,
   getHubNode,
@@ -72,9 +81,11 @@ import {
   increaseBackoff,
   saveStableSwapExchange,
   saveStableSwapPool,
+  saveStableSwapPoolEvent,
+  saveStableSwapLpBalances,
+  saveStableSwapTransfers,
   resetBackoffs,
   updateErrorStatus,
-  saveStableSwapPoolEvent,
   saveRouterDailyTVL,
   updateSlippage,
   markRootMessagesProcessed,
@@ -85,6 +96,7 @@ import {
   saveAssets,
   getAssets,
   saveAssetPrice,
+  deleteCache,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -96,6 +108,7 @@ export type Checkpoints = {
 
 export type Database = {
   saveTransfers: (xtransfers: XTransfer[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  deleteNonExistTransfers: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
   getTransfersByStatus: (
     status: XTransferStatus,
     limit: number,
@@ -103,6 +116,14 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XTransfer[]>;
+  getPendingTransfersByDomains: (
+    origin_domain: string,
+    destination_domain: string,
+    limit: number,
+    offset: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<string[]>;
   getTransfersWithOriginPending: (
     domain: string,
     limit: number,
@@ -130,6 +151,11 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<RootMessage[]>;
+  getRootMessage: (
+    spoke_domain: string,
+    root: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessage | undefined>;
   saveSentRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveProcessedRootMessages: (messages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
   saveCheckPoint: (check: string, point: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -152,13 +178,23 @@ export type Database = {
     origin_domain: string,
     limit?: number,
     offset?: number,
+    startIndex?: number,
+    orderDirection?: "ASC" | "DESC",
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<XMessage[]>;
+  getUnProcessedMessagesByDomains: (
+    origin_domain: string,
+    destination_domain: string,
+    limit?: number,
+    offset?: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage[]>;
   getUnProcessedMessagesByIndex: (
     origin_domain: string,
     destination_domain: string,
-    index: number,
+    startIndex: number,
+    endIndex: number,
     offset: number,
     limit?: number,
     orderDirection?: "ASC" | "DESC",
@@ -171,6 +207,7 @@ export type Database = {
   ) => Promise<number | undefined>;
   getAggregateRoots: (count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
   getBaseAggregateRoot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
+  getCurrentProposedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
   getMessageRootIndex: (
     domain: string,
     messageRoot: string,
@@ -181,13 +218,14 @@ export type Database = {
     aggregate_root: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<RootMessage | undefined>;
-  getLatestAggregateRoot: (
+  getLatestAggregateRoots: (
     domain: string,
+    limit: number,
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<ReceivedAggregateRoot | undefined>;
+  ) => Promise<ReceivedAggregateRoot[]>;
   getPendingAggregateRoot: (
-    destinationDomain: string,
+    aggregate_root: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<Snapshot | undefined>;
   getPendingSnapshots: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<SnapshotRoot[]>;
@@ -212,6 +250,11 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<number | undefined>;
+  getMessageRootStatusFromIndex: (
+    domain: string,
+    index: number,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<RootMessageStatus>;
   getSpokeNode: (
     domain: string,
     index: number,
@@ -223,6 +266,7 @@ export type Database = {
     start: number,
     end: number,
     count: number,
+    pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getHubNode: (index: number, count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
@@ -230,6 +274,7 @@ export type Database = {
     start: number,
     end: number,
     count: number,
+    pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getOptimisticHubNode: (
@@ -241,6 +286,7 @@ export type Database = {
     start: number,
     end: number,
     count: number,
+    pageSize?: number,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<string[]>;
   getRoot: (domain: string, path: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
@@ -255,6 +301,14 @@ export type Database = {
   updateErrorStatus: (transferId: string, error: XTransferErrorStatus) => Promise<void>;
   saveStableSwapPoolEvent: (
     _poolEvents: StableSwapPoolEvent[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapTransfers: (
+    _transfers: StableSwapTransfer[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  saveStableSwapLpBalances: (
+    _transfers: StableSwapLpBalance[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
   markRootMessagesProcessed: (rootMessages: RootMessage[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
@@ -285,6 +339,7 @@ export type Database = {
     messageRoot: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
+  deleteCache: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -302,9 +357,11 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
 
   return {
     saveTransfers,
+    deleteNonExistTransfers,
     getTransfersByStatus,
     getTransfersWithOriginPending,
     getTransfersWithDestinationPending,
+    getPendingTransfersByDomains,
     getCompletedTransfersByMessageHashes,
     saveRouterBalances,
     saveAssets,
@@ -312,6 +369,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveAssetPrice,
     saveMessages,
     getRootMessages,
+    getRootMessage,
     saveSentRootMessages,
     saveProcessedRootMessages,
     saveCheckPoint,
@@ -325,6 +383,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     savePropagatedOptimisticRoots,
     saveReceivedAggregateRoot,
     getUnProcessedMessages,
+    getUnProcessedMessagesByDomains,
     getUnProcessedMessagesByIndex,
     getAggregateRoot,
     getAggregateRootByRootAndDomain,
@@ -333,12 +392,14 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getBaseAggregateRoot,
     getMessageRootIndex,
     getLatestMessageRoot,
-    getLatestAggregateRoot,
+    getLatestAggregateRoots,
     getPendingAggregateRoot,
+    getCurrentProposedSnapshot,
     getPendingSnapshots,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
     getMessageRootCount,
+    getMessageRootStatusFromIndex,
     getSpokeNode,
     getSpokeNodes,
     getHubNode,
@@ -351,6 +412,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     resetBackoffs,
     saveStableSwapPool,
     saveStableSwapExchange,
+    saveStableSwapTransfers,
+    saveStableSwapLpBalances,
     updateErrorStatus,
     saveStableSwapPoolEvent,
     markRootMessagesProcessed,
@@ -360,9 +423,104 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getPendingTransfersByMessageStatus,
     getMessageByLeaf,
     getMessageByRoot,
+    deleteCache,
   };
 };
 
-export const closeDatabase = async (): Promise<void> => {
+// Get a database and pool instance
+export const getDatabaseAndPool = async (
+  databaseUrl: string,
+  logger: Logger,
+): Promise<{ pool: Pool; database: Database }> => {
+  const _pool = new Pool({ connectionString: databaseUrl, idleTimeoutMillis: 3000, allowExitOnIdle: true });
+  _pool.on("error", (err: Error) => logger.error("Database error", undefined, undefined, jsonifyError(err))); // don't let a pg restart kill your app
+
+  try {
+    await _pool.query("SELECT NOW()");
+  } catch (e: unknown) {
+    logger.error("Database connection error", undefined, undefined, jsonifyError(e as Error));
+    throw new Error("Database connection error");
+  }
+
+  return {
+    pool: _pool,
+    database: {
+      saveTransfers,
+      deleteNonExistTransfers,
+      getTransfersByStatus,
+      getTransfersWithOriginPending,
+      getTransfersWithDestinationPending,
+      getPendingTransfersByDomains,
+      getCompletedTransfersByMessageHashes,
+      saveRouterBalances,
+      saveAssets,
+      getAssets,
+      saveAssetPrice,
+      saveMessages,
+      getRootMessages,
+      getRootMessage,
+      saveSentRootMessages,
+      saveProcessedRootMessages,
+      saveCheckPoint,
+      getCheckPoint,
+      transaction,
+      saveAggregatedRoots,
+      savePropagatedRoots,
+      saveSnapshotRoots,
+      saveProposedSnapshots,
+      saveFinalizedRoots,
+      savePropagatedOptimisticRoots,
+      saveReceivedAggregateRoot,
+      getUnProcessedMessages,
+      getUnProcessedMessagesByDomains,
+      getUnProcessedMessagesByIndex,
+      getAggregateRoot,
+      getAggregateRootByRootAndDomain,
+      getAggregateRootCount,
+      getAggregateRoots,
+      getBaseAggregateRoot,
+      getMessageRootIndex,
+      getLatestMessageRoot,
+      getLatestAggregateRoots,
+      getPendingAggregateRoot,
+      getCurrentProposedSnapshot,
+      getPendingSnapshots,
+      getMessageRootAggregatedFromIndex,
+      getMessageRootsFromIndex,
+      getMessageRootCount,
+      getMessageRootStatusFromIndex,
+      getSpokeNode,
+      getSpokeNodes,
+      getHubNode,
+      getHubNodes,
+      getOptimisticHubNode,
+      getOptimisticHubNodes,
+      getRoot,
+      putRoot,
+      increaseBackoff,
+      resetBackoffs,
+      saveStableSwapPool,
+      saveStableSwapExchange,
+      saveStableSwapTransfers,
+      saveStableSwapLpBalances,
+      updateErrorStatus,
+      saveStableSwapPoolEvent,
+      markRootMessagesProcessed,
+      saveRouterDailyTVL,
+      updateSlippage,
+      updateExecuteSimulationData,
+      getPendingTransfersByMessageStatus,
+      getMessageByLeaf,
+      getMessageByRoot,
+      deleteCache,
+    },
+  };
+};
+
+// Overload to close the given pool as well
+export const closeDatabase = async (_pool?: Pool): Promise<void> => {
   await pool.end();
+  if (_pool) {
+    await _pool.end();
+  }
 };

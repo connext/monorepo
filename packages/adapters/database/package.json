@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-database",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "adapter for handling communication with Redis cache for nxtp protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./coverage ./node_modules",
     "tsp": "yarn run tsp:root \"$@\" --cwd $(pwd)",
-    "docker:start:postgres": "docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_PASSWORD=qwerty postgres",
+    "docker:start:postgres": "docker run --name cartographer-db --rm -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=qwerty ghcr.io/connext/database:sha-fa66dca",
     "zapatos": "zapatos",
     "dbmate": "dbmate",
     "version": "yarn version"
@@ -42,5 +42,5 @@
     "typescript": "4.9.5"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
-  "stableVersion": "0.2.0-alpha.29"
+  "stableVersion": "2.0.0"
 }

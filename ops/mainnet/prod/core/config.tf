@@ -1,4 +1,11 @@
 locals {
+  base_domain              = "connext.ninja"
+  default_db_endpoint      = "db.${var.environment}.${local.base_domain}"
+  read_replica_db_endpoint = "db_read_replica.${var.environment}.${local.base_domain}"
+  default_db_url           = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.default_db_endpoint}:5432/connext"
+  read_replica_db_url      = "postgresql://${var.postgres_user}:${var.postgres_password}@${local.read_replica_db_endpoint}:5432/connext"
+
+
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
     { name = "ENVIRONMENT", value = var.environment },
@@ -24,6 +31,13 @@ locals {
     DD_LAMBDA_HANDLER = "packages/agents/lighthouse/dist/index.handler"
     GRAPH_API_KEY     = var.graph_api_key
   }
+  lighthouse_prover_subscriber_env_vars = [
+    { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
@@ -77,7 +91,7 @@ locals {
     }
 
     server = {
-      adminToken = var.admin_token_router
+      adminToken = var.admin_token_sequencer
     }
 
     logLevel = "debug"
@@ -87,19 +101,23 @@ locals {
         excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"],
+        excludeListFromRelayerFee = ["0x9D9ce29Dc7812ccb63aB14EA987B52d9aF053Eb3"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"],
+        excludeListFromRelayerFee = ["0x83e8Cf4A51035665BAF97DdB0cf03b565AC76B44"]
       }
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"],
+        excludeListFromRelayerFee = ["0xE6B7aB9EBCfBF1A72E489ff00CdF9C6473ff6224"]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
+        excludeListFromRelayerFee = ["0x6D4D82aE73DC9059Ac83B085b2505e00b5eF8511"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -118,7 +136,7 @@ locals {
     relayerFeeTolerance = 60
     environment         = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+      url = local.default_db_url
     }
     messageQueue = {
       connection = {
@@ -135,43 +153,54 @@ locals {
       ]
       queues = [
         {
+          name       = "http"
+          limit      = 100
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
           name       = "6648936"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1869640809"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1886350457"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1634886255"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6450786"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "6778479"
           limit      = 1
-          queueLimit = 10000
+          queueLimit = 1000000
           subscribe  = true
         },
       ]
       bindings = [
+        {
+          exchange = "sequencerX"
+          target   = "http"
+          keys     = ["http"]
+        },
         {
           exchange = "sequencerX"
           target   = "6648936"
@@ -204,6 +233,7 @@ locals {
         },
       ]
       executerTimeout = 300000
+      prefetch        = 1
       publisher       = "sequencerX"
     }
   })
@@ -214,7 +244,7 @@ locals {
       port = module.router_cache.redis_instance_port
     }
     logLevel     = "debug"
-    sequencerUrl = "https://${module.sequencer_publisher.service_endpoint}"
+    sequencerUrl = "https://${module.sequencer_server.service_endpoint}"
     server = {
       adminToken = var.admin_token_router
       pub = {
@@ -257,31 +287,38 @@ locals {
   })
 
   local_lighthouse_config = jsonencode({
+    redis = {
+      host = module.lighthouse_cache.redis_instance_address,
+      port = module.lighthouse_cache.redis_instance_port
+    }
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]
       },
       "1886350457" = {
-        providers = ["https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
       },
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc"]
       },
       "6450786" = {
-        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
     database = {
-      url = "postgresql://${var.postgres_user}:${var.postgres_password}@db.mainnet.connext.ninja:5432/connext"
+      url = local.read_replica_db_url
+    }
+    databaseWriter = {
+      url = local.default_db_url
     }
     relayers = [
       {
@@ -302,8 +339,28 @@ locals {
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
       propose          = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propose_heartbeat}"
     }
-    hubDomain       = "6648936"
-    proverBatchSize = 1
+    hubDomain = "6648936"
+    proverBatchSize = {
+      "6648936"    = 10,
+      "1869640809" = 10,
+      "1886350457" = 10,
+      "1634886255" = 10,
+      "6450786"    = 10,
+      "6778479"    = 10
+    }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+      prefetchSize = 1
+    }
   })
 
   local_relayer_config = jsonencode({

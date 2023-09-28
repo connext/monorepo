@@ -9,14 +9,15 @@ import {
   DEFAULT_ROUTER_FEE,
   getNtpTimeSeconds,
   jsonifyError,
+  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import memoize from "memoizee";
 
 import { SdkConfig, getConfig } from "./config";
-import { SignerAddressMissing, ParamsInvalid } from "./lib/errors";
+import { SignerAddressMissing, ParamsInvalid, ProviderMissing } from "./lib/errors";
 import { validateUri, axiosGetRequest } from "./lib/helpers";
-import { Pool, PoolAsset, AssetData } from "./interfaces";
+import { Pool, PoolAsset, AssetData, Options } from "./interfaces";
 import { PriceFeed } from "./lib/priceFeed";
 import { SdkShared } from "./sdkShared";
 
@@ -76,7 +77,7 @@ export class SdkPool extends SdkShared {
       ? _logger.child({ name: "SdkPool" })
       : new Logger({ name: "SdkPool", level: nxtpConfig.logLevel });
 
-    return this._instance || (this._instance = new SdkPool(nxtpConfig, logger, chainData));
+    return (this._instance = new SdkPool(nxtpConfig, logger, chainData));
   }
 
   // ------------------- Utils ------------------- //
@@ -107,11 +108,17 @@ export class SdkPool extends SdkShared {
     tokenIndexFrom: number,
     tokenIndexTo: number,
     amount: BigNumberish,
+    options?: Options,
   ): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -146,9 +153,11 @@ export class SdkPool extends SdkShared {
       const xp = pool.balances.map((balance: BigNumber, index: number) =>
         balance.mul(BigNumber.from(10).pow(18 - pool.decimals[index])),
       );
-      const x = xp[tokenIndexFrom].add(amount);
+      const x = xp[tokenIndexFrom].add(
+        BigNumber.from(amount).mul(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexFrom])),
+      );
       const y = this.getSwapOut(pool, x, xp, tokenIndexFrom, tokenIndexTo);
-      const dy = xp[tokenIndexTo].sub(y);
+      const dy = xp[tokenIndexTo].sub(y).div(BigNumber.from(10).pow(18 - pool.decimals[tokenIndexTo]));
       const dyFee = fee ? dy.mul(fee).div(BigNumber.from(1e10)) : 0;
       minAmount = dy.gt(dyFee) ? dy.sub(dyFee) : BigNumber.from(0);
     } else {
@@ -202,8 +211,13 @@ export class SdkPool extends SdkShared {
    * @param originTokenAddress - The address of the token to be bridged from origin.
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
-   * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
-   * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
+   * @param checkFastLiquidity - (optional) Check for fast liquidity availability. False will assume fast liquidity is available.
+   * @returns
+   *    - amountReceived: Estimated amount received in the decimal precision of the final destination token.
+   *    - originSlippage: Slippage for the origin swap (0 if no swap) in BPS. Negative values indicate positive slippage.
+   *    - destinationSlippage: Slippage for the destination swap (0 if no swap) in BPS. Negative values indicate positive slippage.
+   *    - routerFee: Fee taken by the router in the amount of the local origin asset.
+   *    - isFastPath: Boolean indicating if the fast liquidity path is available.
    */
   async calculateAmountReceived(
     originDomain: string,
@@ -239,10 +253,18 @@ export class SdkPool extends SdkShared {
       throw new Error("Origin token cannot be bridged to any token on this destination domain");
     }
 
-    // Swap IFF supplied origin token is an adopted asset
+    /**
+     * ------------------------------------
+     * Origin-side calculations
+     * ------------------------------------
+     */
+
     let originAmountReceived = amount;
+    let originSlippage = BigNumber.from(0);
+
+    // Swap IFF supplied origin token is an adopted asset
     if (!isNextAsset && originPool) {
-      originAmountReceived = await this.calculateSwapLocal(
+      const originAmountReceivedAfterSwap = await this.calculateSwapLocal(
         originDomain,
         originPool,
         _originTokenAddress,
@@ -250,49 +272,102 @@ export class SdkPool extends SdkShared {
         originPool.local.index,
         amount,
       );
-    }
 
-    const originSlippage = BigNumber.from(amount).sub(originAmountReceived).mul(10000).div(amount);
-    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
-    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
+      // Pool assets may have different decimals
+      const originLocalDecimals = originPool.local.decimals;
+      const originAdoptedDecimals = originPool.adopted.decimals;
 
-    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
-    const destinationAmount = BigNumber.from(originAmountReceived).sub(routerFee);
-    let destinationAmountReceived = destinationAmount;
+      // Convert decimals to the higher precision
+      const higherPrecisionDecimals = Math.max(originLocalDecimals, originAdoptedDecimals);
+      const originAmountReceivedConverted = BigNumber.from(originAmountReceived).mul(
+        BigNumber.from(10).pow(higherPrecisionDecimals - originAdoptedDecimals),
+      );
+      const originAmountReceivedAfterSwapConverted = originAmountReceivedAfterSwap.mul(
+        BigNumber.from(10).pow(higherPrecisionDecimals - originLocalDecimals),
+      );
 
-    const promises: Promise<any>[] = [];
+      originSlippage = BigNumber.from(
+        originAmountReceivedConverted
+          .sub(originAmountReceivedAfterSwapConverted ?? originAmountReceivedConverted)
+          .mul(10000)
+          .div(originAmountReceivedConverted),
+      );
 
-    // Swap IFF desired destination token is an adopted asset
-    if (!receiveLocal && destinationPool) {
-      promises.push(
-        this.calculateSwapLocal(
-          destinationDomain,
-          destinationPool,
-          destinationAssetData.local,
-          destinationPool.local.index,
-          destinationPool.adopted.index,
-          destinationAmount,
-        ),
+      // Convert origin amount received post-swap to the local decimal precision
+      originAmountReceived = originAmountReceivedAfterSwapConverted.div(
+        BigNumber.from(10).pow(higherPrecisionDecimals - originLocalDecimals),
       );
     }
 
+    /**
+     * ------------------------------------
+     * Router / fast liquidity calculations
+     * ------------------------------------
+     */
+
     // Determine if fast liquidity is available (pre-destination-swap amount)
-    if (checkFastLiquidity) {
-      promises.push(this.getActiveLiquidity(destinationDomain, destinationAssetData.local));
-    }
-
-    const [destinationAmountReceivedSwap, activeLiquidity] = await Promise.all(promises);
-    destinationAmountReceived = destinationAmountReceivedSwap ?? destinationAmountReceived;
-
-    // Default true, set to false if fast liquidity is not available
     let isFastPath = true;
-    if (activeLiquidity?.length > 0) {
-      const total_balance: string = activeLiquidity[0].total_balance.toString();
-      isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(destinationAmount);
+    if (checkFastLiquidity) {
+      const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
+      if (activeLiquidity?.length > 0) {
+        const total_balance: string = activeLiquidity[0].total_balance.toString();
+        isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(originAmountReceived);
+      }
     }
-    const destinationSlippage = BigNumber.from(
-      destinationAmount.sub(destinationAmountReceived).mul(10000).div(destinationAmount),
-    );
+
+    // Subtract router fee if fast liquidity is available
+    const feeBps = BigNumber.from(+DEFAULT_ROUTER_FEE * 100);
+    const routerFee = BigNumber.from(originAmountReceived).mul(feeBps).div(10000);
+    if (isFastPath) {
+      originAmountReceived = BigNumber.from(originAmountReceived).sub(routerFee);
+    }
+
+    /**
+     * ------------------------------------
+     * Destination-side calculations
+     * ------------------------------------
+     */
+
+    const destinationPool = await this.getPool(destinationDomain, destinationAssetData.local);
+    let destinationAmountReceived = originAmountReceived;
+    let destinationSlippage = BigNumber.from(0);
+
+    // Swap IFF desired destination token is an adopted asset
+    if (!receiveLocal && destinationPool) {
+      const destinationAmountReceivedAfterSwap = await this.calculateSwapLocal(
+        destinationDomain,
+        destinationPool,
+        destinationAssetData.local,
+        destinationPool.local.index,
+        destinationPool.adopted.index,
+        destinationAmountReceived,
+      );
+
+      // Pool assets may have different decimals
+      const destinationLocalDecimals = destinationPool.local.decimals;
+      const destinationAdoptedDecimals = destinationPool.adopted.decimals;
+
+      // Convert decimals to the higher precision
+      const higherPrecisionDecimals = Math.max(destinationLocalDecimals, destinationAdoptedDecimals);
+      const destinationAmountReceivedConverted = BigNumber.from(destinationAmountReceived).mul(
+        BigNumber.from(10).pow(higherPrecisionDecimals - destinationLocalDecimals),
+      );
+      const destinationAmountReceivedAfterSwapConverted = destinationAmountReceivedAfterSwap.mul(
+        BigNumber.from(10).pow(higherPrecisionDecimals - destinationAdoptedDecimals),
+      );
+
+      destinationSlippage = BigNumber.from(
+        destinationAmountReceivedConverted
+          .sub(destinationAmountReceivedAfterSwapConverted ?? destinationAmountReceivedConverted)
+          .mul(10000)
+          .div(destinationAmountReceivedConverted),
+      );
+
+      // Convert destination amount received post-swap to the adopted decimal precision
+      destinationAmountReceived = destinationAmountReceivedAfterSwapConverted.div(
+        BigNumber.from(10).pow(higherPrecisionDecimals - destinationAdoptedDecimals),
+      );
+    }
 
     return {
       amountReceived: destinationAmountReceived,
@@ -338,11 +413,17 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amounts: string[],
     isDeposit = true,
+    options?: Options,
   ): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -359,17 +440,27 @@ export class SdkPool extends SdkShared {
    * @param amount - The amount of the LP token to burn on withdrawal.
    * @returns Array containing amount of each underlying token returned, in correct index order.
    */
-  async calculateRemoveSwapLiquidity(domainId: string, tokenAddress: string, amount: string): Promise<BigNumber[]> {
+  async calculateRemoveSwapLiquidity(
+    domainId: string,
+    tokenAddress: string,
+    amount: string,
+    options?: Options,
+  ): Promise<BigNumber[]> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const amounts = await connextContract.calculateRemoveSwapLiquidity(key, amount);
 
-    return amounts;
+    return amounts.map((amount) => BigNumber.from(amount));
   }
 
   /**
@@ -386,11 +477,17 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amount: string,
     index: number,
+    options?: Options,
   ): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -444,11 +541,12 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [virtualPrice, lpTokenAmount] = await Promise.all([
-      this.getVirtualPrice(domainId, _tokenAddress),
+      this.getVirtualPrice(domainId, _tokenAddress, options),
       this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY]),
     ]);
 
@@ -481,12 +579,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [virtualPrice, lpTokenAmount] = await Promise.all([
       this.getVirtualPrice(domainId, _tokenAddress),
-      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY], false),
+      this.calculateTokenAmount(domainId, _tokenAddress, [amountX, amountY], false, options),
     ]);
 
     // Normalize to 18 decimals
@@ -518,12 +617,18 @@ export class SdkPool extends SdkShared {
     amountX: string,
     tokenX: string,
     tokenY: string,
+    options?: Options,
   ): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenX = utils.getAddress(tokenX);
     const _tokenY = utils.getAddress(tokenY);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, tokenX),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -584,10 +689,10 @@ export class SdkPool extends SdkShared {
    * @param tokenAddress - The address of the ERC20 token.
    * @returns The balance of the address.
    */
-  async getTokenSupply(domainId: string, tokenAddress: string): Promise<BigNumber> {
+  async getTokenSupply(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress, options);
     const amount = await erc20Contract.totalSupply();
 
     return amount;
@@ -601,10 +706,15 @@ export class SdkPool extends SdkShared {
    * @param userAddress - The address to get the balance of.
    * @returns The balance of the address.
    */
-  async getTokenUserBalance(domainId: string, tokenAddress: string, userAddress: string): Promise<BigNumber> {
+  async getTokenUserBalance(
+    domainId: string,
+    tokenAddress: string,
+    userAddress: string,
+    options?: Options,
+  ): Promise<BigNumber> {
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const erc20Contract = await this.getERC20(domainId, _tokenAddress);
+    const erc20Contract = await this.getERC20(domainId, _tokenAddress, options);
     const balance = await erc20Contract.balanceOf(userAddress);
 
     return balance;
@@ -665,11 +775,17 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     poolTokenAddress: string,
     _index?: number,
+    options?: Options,
   ): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, index, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       _index ?? this.getPoolTokenIndex(domainId, _tokenAddress, poolTokenAddress),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
@@ -707,11 +823,16 @@ export class SdkPool extends SdkShared {
    * @param index - The index of the token in the pool.
    * @returns The virtual price, scaled to the pool's decimal precision (10^18).
    */
-  async getVirtualPrice(domainId: string, tokenAddress: string): Promise<BigNumber> {
+  async getVirtualPrice(domainId: string, tokenAddress: string, options?: Options): Promise<BigNumber> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -900,9 +1021,15 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     minToMint = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.addLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, deadline });
+
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -912,7 +1039,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -941,9 +1068,15 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityOneToken.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const _tokenAddress = utils.getAddress(tokenAddress);
     const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
@@ -954,7 +1087,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -987,9 +1120,15 @@ export class SdkPool extends SdkShared {
     amount: string,
     minAmounts = ["0", "0"],
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidity.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amount, deadline });
+
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
@@ -999,7 +1138,7 @@ export class SdkPool extends SdkShared {
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -1027,19 +1166,25 @@ export class SdkPool extends SdkShared {
     amounts: string[],
     maxBurnAmount = "0",
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.removeLiquidityImbalance.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, amounts, maxBurnAmount, deadline });
 
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
     ]);
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
@@ -1050,7 +1195,9 @@ export class SdkPool extends SdkShared {
         this.logger.debug(`No Pool for token ${_tokenAddress} on domain ${domainId}`);
       }
       const poolData = poolDataResults[0]; // there should only be one pool
-      maxBurnAmount = (await this.getTokenUserBalance(domainId, String(poolData.lp_token), signerAddress)).toString();
+      maxBurnAmount = (
+        await this.getTokenUserBalance(domainId, String(poolData.lp_token), _signerAddress, options)
+      ).toString();
     }
 
     const txRequest = await connextContract.populateTransaction.removeSwapLiquidityImbalance(
@@ -1085,6 +1232,7 @@ export class SdkPool extends SdkShared {
     amount: string,
     minDy = 0,
     deadline = this.getDefaultDeadline(),
+    options?: Options,
   ): Promise<providers.TransactionRequest> {
     const { requestContext, methodContext } = createLoggingContext(this.swap.name);
     this.logger.info("Method start", requestContext, methodContext, {
@@ -1096,15 +1244,20 @@ export class SdkPool extends SdkShared {
       deadline,
     });
 
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
     const [connextContract, [canonicalDomain, canonicalId], tokenIndexFrom, tokenIndexTo] = await Promise.all([
-      this.getConnext(domainId),
+      this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
       this.getPoolTokenIndex(domainId, _tokenAddress, from),
       this.getPoolTokenIndex(domainId, _tokenAddress, to),
@@ -1171,22 +1324,25 @@ export class SdkPool extends SdkShared {
       const assetYAddress = utils.getAddress(String(poolData.pooled_tokens[1]));
       const checkSummedLocalAsset = utils.getAddress(asset.local);
 
+      const recordX = getAssetEntryFromChaindata(assetXAddress, domainId, this.chainData);
+      const recordY = getAssetEntryFromChaindata(assetYAddress, domainId, this.chainData);
+
       const assetX: PoolAsset = {
         address: assetXAddress,
-        name: this.chainData.get(domainId)?.assetId[assetXAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetXAddress]?.symbol ?? "",
+        name: recordX?.name ?? "",
+        symbol: recordX?.symbol ?? "",
         decimals: poolData.pool_token_decimals[0],
         index: 0,
-        balance: poolData.balances[0],
+        balance: BigNumber.from(poolData.balances[0]),
       };
 
       const assetY: PoolAsset = {
         address: assetYAddress,
-        name: this.chainData.get(domainId)?.assetId[assetYAddress]?.name ?? "",
-        symbol: this.chainData.get(domainId)?.assetId[assetYAddress]?.symbol ?? "",
+        name: recordY?.name ?? "",
+        symbol: recordY?.symbol ?? "",
         decimals: poolData.pool_token_decimals[1],
         index: 1,
-        balance: poolData.balances[1],
+        balance: BigNumber.from(poolData.balances[1]),
       };
 
       // Calculate Current A
@@ -1222,11 +1378,11 @@ export class SdkPool extends SdkShared {
         balances: poolData.balances.map((b: string) => BigNumber.from(b)),
         decimals: poolData.pool_token_decimals,
         invariant: BigNumber.from(poolData.invariant),
-        initialA: poolData.initial_a,
+        initialA: BigNumber.from(poolData.initial_a),
         initialATime: poolData.initial_a_time,
-        futureA: poolData.future_a,
+        futureA: BigNumber.from(poolData.future_a),
         futureATime: poolData.future_a_time,
-        currentA: currentA,
+        currentA: BigNumber.from(currentA),
         swapFee: poolData.swap_fee,
         adminFee: poolData.admin_fee,
       };
@@ -1245,6 +1401,7 @@ export class SdkPool extends SdkShared {
   async getUserPools(
     domainId: string,
     userAddress: string,
+    options?: Options,
   ): Promise<{ info: Pool; lpTokenBalance: BigNumber; poolTokenBalances: BigNumber[] }[]> {
     const { requestContext, methodContext } = createLoggingContext(this.getUserPools.name);
     this.logger.info("Method start", requestContext, methodContext, { domainId, userAddress });
@@ -1259,13 +1416,24 @@ export class SdkPool extends SdkShared {
           if (data.domain === domainId) {
             const pool = await this.getPool(domainId, data.local);
             if (pool) {
-              const lpTokenUserBalance = await this.getTokenUserBalance(domainId, pool.lpTokenAddress, userAddress);
+              const lpTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.lpTokenAddress,
+                userAddress,
+                options,
+              );
               const adoptedTokenUserBalance = await this.getTokenUserBalance(
                 domainId,
                 pool.adopted.address,
                 userAddress,
+                options,
               );
-              const localTokenUserBalance = await this.getTokenUserBalance(domainId, pool.local.address, userAddress);
+              const localTokenUserBalance = await this.getTokenUserBalance(
+                domainId,
+                pool.local.address,
+                userAddress,
+                options,
+              );
 
               if (lpTokenUserBalance.gt(0)) {
                 result.push({

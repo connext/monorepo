@@ -45,11 +45,10 @@ export const updateAssets = async () => {
 
   const assets: Asset[] = [];
   for (const domain of domains) {
-    const offset = await database.getCheckPoint("asset_" + domain);
     const limit = 100;
     logger.debug("Retrieving assets", requestContext, methodContext, {
       domain: domain,
-      offset: offset,
+      offset: 0,
       limit: limit,
     });
 

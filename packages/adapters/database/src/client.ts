@@ -11,6 +11,7 @@ import {
   convertFromDbAggregatedRoot,
   convertFromDbSnapshotRoot,
   convertFromDbReceivedAggregateRoot,
+  convertFromDbRootStatus,
   convertFromDbSnapshot,
   AggregatedRoot,
   PropagatedRoot,
@@ -28,6 +29,9 @@ import {
   OptimisticRootPropagated,
   SnapshotRoot,
   AssetPrice,
+  StableSwapTransfer,
+  StableSwapLpBalance,
+  RootMessageStatus,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -37,6 +41,7 @@ import { BigNumber } from "ethers";
 
 import { pool } from "./index";
 
+const DEFAULT_RECORDS_TO_STORE = 1000;
 // Max execution time backoff for a transfer
 const maxBackoff = 86400 * 7;
 
@@ -91,6 +96,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     execute_block_number: transfer.destination?.execute?.blockNumber,
     execute_origin_sender: transfer.destination?.execute?.originSender,
     execute_tx_origin: transfer.destination?.execute?.txOrigin,
+    execute_tx_nonce: transfer.destination?.execute?.txNonce,
 
     reconcile_caller: transfer.destination?.reconcile?.caller,
     reconcile_transaction_hash: transfer.destination?.reconcile?.transactionHash,
@@ -99,6 +105,7 @@ const convertToDbTransfer = (transfer: XTransfer): s.transfers.Insertable => {
     reconcile_gas_limit: transfer.destination?.reconcile?.gasLimit,
     reconcile_block_number: transfer.destination?.reconcile?.blockNumber,
     reconcile_tx_origin: transfer.destination?.reconcile?.txOrigin,
+    reconcile_tx_nonce: transfer.destination?.reconcile?.txNonce,
   };
 };
 
@@ -110,6 +117,7 @@ const convertToDbMessage = (message: XMessage): s.messages.Insertable => {
     index: message.origin?.index,
     root: message.origin?.root,
     message: message.origin?.message,
+    transfer_id: message.transferId,
     processed: message.destination?.processed,
     return_data: message.destination?.returnData,
   };
@@ -209,6 +217,7 @@ const convertToDbStableSwapExchange = (exchange: StableSwapExchange): s.stablesw
     block_number: exchange.blockNumber,
     transaction_hash: exchange.transactionHash,
     timestamp: exchange.timestamp,
+    nonce: exchange.nonce,
   };
 };
 
@@ -229,6 +238,36 @@ const convertToDbStableSwapPoolEvent = (event: StableSwapPoolEvent): s.stableswa
     block_number: event.blockNumber,
     transaction_hash: event.transactionHash,
     timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+const convertToDbStableSwapTransfer = (event: StableSwapTransfer): s.stableswap_lp_transfers.Insertable => {
+  return {
+    id: event.id,
+    pool_id: event.poolId,
+    domain: event.domain,
+    lp_token: event.lpToken,
+    from_address: event.fromAddress,
+    to_address: event.toAddress,
+    pooled_tokens: event.pooledTokens,
+    amount: event.amount,
+    balances: event.balances,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
+  };
+};
+
+const convertToDbStableSwapLpBalance = (event: StableSwapLpBalance): s.stableswap_lp_balances.Insertable => {
+  return {
+    pool_id: event.poolId,
+    domain: event.domain,
+    lp_token: event.lpToken,
+    provider: event.provider,
+    balance: event.balance,
+    last_timestamp: event.lastTimestamp,
   };
 };
 
@@ -264,56 +303,103 @@ const sanitizeNull = (obj: { [s: string]: any }): any => {
 };
 
 export const saveTransfers = async (
-  xtransfers: XTransfer[],
+  _xtransfers: XTransfer[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  let transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
 
-  const dbTransfers = await getTransfersByTransferIds(
-    xtransfers.map((xtransfer) => xtransfer.transferId),
-    poolToUse,
-  );
+  let start = 0;
+  let done = false;
+  while (!done) {
+    const xtransfers = _xtransfers.slice(start, start + DEFAULT_RECORDS_TO_STORE);
+    let transfers: s.transfers.Insertable[] = xtransfers.map(convertToDbTransfer).map(sanitizeNull);
+    const dbTransfers = await getTransfersByTransferIds(
+      xtransfers.map((xtransfer) => xtransfer.transferId),
+      poolToUse,
+    );
 
-  transfers = transfers.map((_transfer) => {
-    const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
+    transfers = transfers.map((_transfer) => {
+      const dbTransfer = dbTransfers.find((dbTransfer) => dbTransfer.transfer_id === _transfer.transfer_id);
 
-    if (dbTransfer !== undefined) {
-      // Special handling as boolean fields defualt to false, when upstream subgraph data is null
-      _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
-    }
+      if (dbTransfer !== undefined) {
+        // Special handling as boolean fields defualt to false, when upstream subgraph data is null
+        _transfer.receive_local = dbTransfer?.receive_local || _transfer.receive_local;
+      }
 
-    if (_transfer.status === undefined) {
-      _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
-    } else if (
-      _transfer.status == XTransferStatus.Executed ||
-      _transfer.status == XTransferStatus.CompletedFast ||
-      _transfer.status == XTransferStatus.CompletedSlow
-    ) {
-      _transfer.error_status = undefined;
-    }
+      if (_transfer.status === undefined) {
+        _transfer.status = dbTransfer?.status ? dbTransfer.status : XTransferStatus.XCalled;
+      } else if (
+        _transfer.status == XTransferStatus.Executed ||
+        _transfer.status == XTransferStatus.CompletedFast ||
+        _transfer.status == XTransferStatus.CompletedSlow
+      ) {
+        _transfer.error_status = undefined;
+      }
 
-    if (!_transfer.message_status) {
-      _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
-    }
+      if (!_transfer.message_status) {
+        _transfer.message_status = dbTransfer ? dbTransfer.message_status : XTransferMessageStatus.XCalled;
+      }
 
-    const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
-    return transfer;
-  });
+      const transfer: s.transfers.Insertable = { ...dbTransfer, ..._transfer };
+      return transfer;
+    });
 
-  // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
-  await db.upsert("transfers", transfers, ["transfer_id"]).run(poolToUse);
+    const uniqueTransfers = transfers.filter((transfer, index) => {
+      return transfers.findIndex((it) => it.transfer_id == transfer.transfer_id) === index;
+    });
+
+    // TODO: Perfomance implications to be evaluated. Upgrade to batching of configured batch size N.
+    await db.upsert("transfers", uniqueTransfers, ["transfer_id"]).run(poolToUse);
+
+    if (xtransfers.length == DEFAULT_RECORDS_TO_STORE) start += DEFAULT_RECORDS_TO_STORE;
+    else done = true;
+  }
+};
+
+export const deleteNonExistTransfers = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+  const result = await db.sql`WITH duplicates AS (
+        SELECT *,
+            ROW_NUMBER() OVER (
+              PARTITION BY origin_domain, nonce
+              ORDER BY xcall_timestamp desc nulls first) AS row_number
+        FROM transfers 
+        where nonce IS NOT NULL
+      )
+      DELETE FROM transfers
+      WHERE (transfer_id, origin_domain, nonce) IN (
+        SELECT transfer_id, origin_domain, nonce
+        FROM duplicates
+        WHERE row_number > 1
+      )
+      RETURNING *;
+  `.run(poolToUse);
+  return result.map((t) => t.transfer_id);
 };
 
 export const saveMessages = async (
-  xMessages: XMessage[],
+  _xMessages: XMessage[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   // The `xMessages` are the ones retrieved only from the origin or destination domain
   const poolToUse = _pool ?? pool;
-  const messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
 
-  await db.upsert("messages", messages, ["leaf"]).run(poolToUse);
+  let start = 0;
+  let done = false;
+  while (!done) {
+    const xMessages = _xMessages.slice(start, start + DEFAULT_RECORDS_TO_STORE);
+    const _messages: s.messages.Insertable[] = xMessages.map(convertToDbMessage).map(sanitizeNull);
+
+    const uniqueMessages = _messages.filter((_message, index) => {
+      return (
+        _messages.findIndex((it) => it.origin_domain == _message.origin_domain && it.index == _message.index) === index
+      );
+    });
+
+    await db.upsert("messages", uniqueMessages, ["origin_domain", "index"]).run(poolToUse);
+    if (xMessages.length == DEFAULT_RECORDS_TO_STORE) start += DEFAULT_RECORDS_TO_STORE;
+    else done = true;
+  }
 };
 
 export const saveSentRootMessages = async (
@@ -392,6 +478,16 @@ export const getRootMessages = async (
     })
     .run(poolToUse);
   return messages.map(convertFromDbRootMessage);
+};
+
+export const getRootMessage = async (
+  spoke_domain: string,
+  root: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessage | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const message = await db.select("root_messages", { spoke_domain, root }).run(poolToUse);
+  return message ? convertFromDbRootMessage(message[0]) : undefined;
 };
 
 export const saveAggregatedRoots = async (
@@ -550,6 +646,40 @@ export const getCompletedTransfersByMessageHashes = async (
   return x.map(convertFromDbTransfer);
 };
 
+export const getPendingTransfersByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit: number,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string[]> => {
+  const poolToUse = _pool ?? pool;
+
+  const transfers = await db
+    .select(
+      "transfers",
+      {
+        origin_domain,
+        destination_domain,
+        status: db.conditions.isNotIn(["CompletedFast", "CompletedSlow"]),
+        error_status: db.conditions.or(db.conditions.isNull, db.conditions.isIn(["NoBidsReceived"])),
+      },
+      {
+        offset,
+        limit,
+        order: [
+          { by: "update_time", direction: orderDirection },
+          { by: "nonce", direction: orderDirection },
+        ],
+      },
+    )
+    .run(poolToUse);
+
+  const transfer_ids = transfers.map((transfer) => transfer.transfer_id);
+  return transfer_ids;
+};
+
 export const saveRouterBalances = async (
   routerBalances: RouterBalance[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -671,6 +801,7 @@ export const getUnProcessedMessages = async (
   origin_domain: string,
   limit = 100,
   offset = 0,
+  startIndex = 0,
   orderDirection: "ASC" | "DESC" = "ASC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<XMessage[]> => {
@@ -678,7 +809,30 @@ export const getUnProcessedMessages = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain },
+      { processed: false, origin_domain, index: dc.gte(startIndex) },
+      {
+        limit,
+        offset,
+        order: { by: "index", direction: orderDirection },
+      },
+    )
+    .run(poolToUse);
+  return messages.map(convertFromDbMessage);
+};
+
+export const getUnProcessedMessagesByDomains = async (
+  origin_domain: string,
+  destination_domain: string,
+  limit = 100,
+  offset = 0,
+  orderDirection: "ASC" | "DESC" = "ASC",
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<XMessage[]> => {
+  const poolToUse = _pool ?? pool;
+  const messages = await db
+    .select(
+      "messages",
+      { processed: false, origin_domain, destination_domain },
       {
         limit,
         offset,
@@ -692,7 +846,8 @@ export const getUnProcessedMessages = async (
 export const getUnProcessedMessagesByIndex = async (
   origin_domain: string,
   destination_domain: string,
-  index: number,
+  startIndex: number,
+  endIndex: number,
   offset: number,
   limit = 100,
   orderDirection: "ASC" | "DESC" = "ASC",
@@ -702,7 +857,12 @@ export const getUnProcessedMessagesByIndex = async (
   const messages = await db
     .select(
       "messages",
-      { processed: false, origin_domain: origin_domain, destination_domain: destination_domain, index: dc.lte(index) },
+      {
+        processed: false,
+        origin_domain: origin_domain,
+        destination_domain: destination_domain,
+        index: dc.and(dc.gte(startIndex), dc.lte(endIndex)),
+      },
       { offset, limit, order: { by: "index", direction: orderDirection } },
     )
     .run(poolToUse);
@@ -804,30 +964,29 @@ export const getLatestMessageRoot = async (
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
 };
 
-export const getLatestAggregateRoot = async (
+export const getLatestAggregateRoots = async (
   domain: string,
+  limit = 1,
   orderDirection: "ASC" | "DESC" = "DESC",
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<ReceivedAggregateRoot | undefined> => {
+): Promise<ReceivedAggregateRoot[]> => {
   const poolToUse = _pool ?? pool;
-  const root = await db
-    .selectOne(
+  const roots = await db
+    .select(
       "received_aggregate_roots",
       { domain: domain },
-      { limit: 1, order: { by: "block_number", direction: orderDirection } },
+      { limit, order: { by: "block_number", direction: orderDirection } },
     )
     .run(poolToUse);
-  return root ? convertFromDbReceivedAggregateRoot(root) : undefined;
+  return roots.map(convertFromDbReceivedAggregateRoot);
 };
 
 export const getPendingAggregateRoot = async (
-  destinationDomain: string,
+  aggregate_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
-  // TODO: Join query the finds the latest aggregate root on the destination domains
-  //        and joins it snapshots to find the correcsponding snapshot
-  const snapshot = await db.selectOne("snapshots", { processed: false }, { limit: 1 }).run(poolToUse);
+  const snapshot = await db.selectOne("snapshots", { processed: false, aggregate_root }).run(poolToUse);
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
@@ -844,22 +1003,25 @@ export const saveProposedSnapshots = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<void> => {
   const poolToUse = _pool ?? pool;
-  const snapshots: s.snapshots.Insertable[] = _snapshots.map((m) => convertToDbSnapshot(m)).map(sanitizeNull);
+  const snapshots: s.snapshots.Insertable[] = _snapshots
+    .map((m) => {
+      m.status = "Proposed" as s.snapshot_status;
+      return convertToDbSnapshot(m);
+    })
+    .map(sanitizeNull);
 
   await db.upsert("snapshots", snapshots, ["id"]).run(poolToUse);
 };
 
-export const saveFinalizedRoots = async (
-  roots: OptimisticRootFinalized[],
+export const getCurrentProposedSnapshot = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<void> => {
+): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
 
-  await Promise.all(
-    roots.map(async (root) => {
-      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
-    }),
-  );
+  const snapshot = await db
+    .selectOne("snapshots", { status: "Proposed" }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
 export const savePropagatedOptimisticRoots = async (
@@ -871,6 +1033,19 @@ export const savePropagatedOptimisticRoots = async (
   await Promise.all(
     roots.map(async (root) => {
       await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+    }),
+  );
+};
+
+export const saveFinalizedRoots = async (
+  roots: OptimisticRootFinalized[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
     }),
   );
 };
@@ -920,7 +1095,7 @@ export const getMessageRootsFromIndex = async (
     s.root_messages.Selectable[]
   >`select * from ${"root_messages"} where ${{
     spoke_domain,
-  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 10`.run(poolToUse);
+  }} and ${{ leaf_count: dc.gte(index) }} order by ${"leaf_count"} asc nulls last limit 100`.run(poolToUse);
   return root.length > 0 ? root.map(convertFromDbRootMessage) : [];
 };
 
@@ -934,6 +1109,45 @@ export const getMessageRootCount = async (
   // This will be the count at the time messageRoot was sent
   const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
   return message ? convertFromDbMessage(message).origin?.index : undefined;
+};
+
+export const getMessageRootStatusFromIndex = async (
+  spoke_domain: string,
+  index: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<RootMessageStatus> => {
+  const poolToUse = _pool ?? pool;
+  // Find the processed, unprocessed count, aggregated root count that contains the index, for a given domain
+  const status = await db.sql<s.root_messages.SQL, s.root_messages.Selectable[]>`with cte as (
+    select *, aggregated.id as aggregated_id
+			from 
+				((select * from root_messages where ${{
+          spoke_domain,
+        }} and ${{ leaf_count: dc.gte(index) }}) as roots 
+					left join aggregated_roots as aggregated 
+					on roots.root=aggregated.received_root) 
+    )
+    select
+    COUNT(CASE WHEN processed=true THEN 1 END) AS processed_count, 
+    COUNT(CASE WHEN processed=false THEN 1 END) AS unprocessed_count, 
+    COUNT(CASE WHEN aggregated_id IS not null then 1 END) aggregated_count,
+    (
+        SELECT aggregated_id
+        FROM cte
+        ORDER BY domain_index desc nulls last
+        LIMIT 1
+      ) as last_aggregated_id
+    from 
+      cte
+  `.run(poolToUse);
+  return status.length > 0
+    ? convertFromDbRootStatus(status[0])
+    : {
+        processedCount: 0,
+        unprocessedCount: 0,
+        aggregatedCount: 0,
+        lastAggregatedRoot: undefined,
+      };
 };
 
 export const getMessageByRoot = async (
@@ -964,16 +1178,28 @@ export const getSpokeNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const messages = await db
-    .select(
-      "messages",
-      { origin_domain: domain, index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let messages: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subMessages = await db
+      .select(
+        "messages",
+        { origin_domain: domain, index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+    messages = messages.concat(subMessages);
+    if (subMessages.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return messages.map((message) => convertFromDbMessage(message).leaf);
 };
 
@@ -993,16 +1219,29 @@ export const getHubNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const roots = await db
-    .select(
-      "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "domain_index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let roots: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subRoots = await db
+      .select(
+        "aggregated_roots",
+        { domain_index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "domain_index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+
+    roots = roots.concat(subRoots);
+    if (subRoots.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
 
@@ -1023,16 +1262,29 @@ export const getOptimisticHubNodes = async (
   start: number,
   end: number,
   count: number,
+  pageSize = 10000,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<string[]> => {
   const poolToUse = _pool ?? pool;
-  const roots = await db
-    .select(
-      "aggregated_roots",
-      { domain_index: dc.and(dc.gte(start), dc.lte(end), dc.lt(count)) },
-      { order: { by: "domain_index", direction: "ASC" } },
-    )
-    .run(poolToUse);
+  let roots: any[] = [];
+  let _start = start;
+  let _end = end - start > pageSize ? start + pageSize - 1 : end;
+  let done = false;
+  while (!done) {
+    const subRoots = await db
+      .select(
+        "aggregated_roots",
+        { domain_index: dc.and(dc.gte(_start), dc.lte(_end), dc.lt(count)) },
+        { order: { by: "domain_index", direction: "ASC" } },
+      )
+      .run(poolToUse);
+
+    roots = roots.concat(subRoots);
+    if (subRoots.length == pageSize) {
+      _start += pageSize;
+      _end = end - _start > pageSize ? _start + pageSize - 1 : end;
+    } else done = true;
+  }
   return roots.map((root) => convertFromDbAggregatedRoot(root).receivedRoot);
 };
 
@@ -1055,6 +1307,11 @@ export const putRoot = async (
   const poolToUse = _pool ?? pool;
   const root = { domain: domain, domain_path: path, tree_root: hash };
   await db.upsert("merkle_cache", root, ["domain", "domain_path"], { updateColumns: [] }).run(poolToUse);
+};
+
+export const deleteCache = async (domain: string, _pool?: Pool | db.TxnClientForRepeatableRead): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  await db.deletes("merkle_cache", { domain }).run(poolToUse);
 };
 
 export const saveReceivedAggregateRoot = async (
@@ -1141,6 +1398,30 @@ export const saveStableSwapPoolEvent = async (
     .map(sanitizeNull);
 
   await db.upsert("stableswap_pool_events", poolEvents, ["id"]).run(poolToUse);
+};
+
+export const saveStableSwapTransfers = async (
+  _transfers: StableSwapTransfer[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const transfers: s.stableswap_lp_transfers.Insertable[] = _transfers
+    .map((m) => convertToDbStableSwapTransfer(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_lp_transfers", transfers, ["id"]).run(poolToUse);
+};
+
+export const saveStableSwapLpBalances = async (
+  _balances: StableSwapLpBalance[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const balances: s.stableswap_lp_balances.Insertable[] = _balances
+    .map((m) => convertToDbStableSwapLpBalance(m))
+    .map(sanitizeNull);
+
+  await db.upsert("stableswap_lp_balances", balances, ["pool_id", "domain", "provider"]).run(poolToUse);
 };
 
 export const saveRouterDailyTVL = async (

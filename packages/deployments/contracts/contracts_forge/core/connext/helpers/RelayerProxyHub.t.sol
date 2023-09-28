@@ -14,6 +14,12 @@ import {ChainIDs} from "../../../../contracts/core/connext/libraries/ChainIDs.so
 contract RelayerProxyHubTest is ForgeHelper {
   using ECDSA for bytes32;
 
+  enum AutonolasPriorityFunction {
+    Propagate,
+    ProcessFromRoot,
+    ProposeAggregateRoot,
+    FinalizeAndPropagate
+  }
   // ============ Events ============
   event FundsReceived(uint256 amount, uint256 balance);
 
@@ -30,6 +36,8 @@ contract RelayerProxyHubTest is ForgeHelper {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
   event RootManagerChanged(address rootManager, address oldRootManager);
   event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain);
+  event AutonolasChanged(address updated, address previous);
+  event AutonolasPriorityChanged(AutonolasPriorityFunction fn, uint8 updated, uint8 previous);
 
   // ============ Storage ============
   address OWNER = address(1);
@@ -43,6 +51,10 @@ contract RelayerProxyHubTest is ForgeHelper {
   uint32[] _hubConnectorChains = new uint32[](10);
   uint256 SIGNER_PK = 0xa11ce;
   address SIGNER = vm.addr(0xa11ce);
+  address _autonolas = address(134325213);
+  uint256 _propagateCooldown = 12321222;
+  address _hubConnector = address(123444412);
+  uint32 _chain = 123;
 
   RelayerProxyHub proxy;
 
@@ -64,6 +76,9 @@ contract RelayerProxyHubTest is ForgeHelper {
 
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);
+
+    vm.expectEmit(true, true, true, true);
+    emit AutonolasChanged(_autonolas, address(0));
 
     _hubConnectors[0] = address(100);
     _hubConnectors[1] = address(1);
@@ -94,8 +109,9 @@ contract RelayerProxyHubTest is ForgeHelper {
       _feeCollector,
       _keep3r,
       _rootManager,
-      300,
-      420,
+      _autonolas,
+      _propagateCooldown,
+      _propagateCooldown,
       _hubConnectors,
       _hubConnectorChains
     );
@@ -160,7 +176,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setPropagateCooldown_onlyOwner_works() public {
     vm.prank(OWNER);
     vm.expectEmit(true, true, true, true);
-    emit PropagateCooldownChanged(123, 300);
+    emit PropagateCooldownChanged(123, _propagateCooldown);
     proxy.setPropagateCooldown(123);
     assertEq(proxy.propagateCooldown(), 123);
   }
@@ -294,8 +310,8 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.expectRevert(
       abi.encodeWithSelector(
         RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
-        1648744712,
-        1648745012
+        block.timestamp,
+        proxy.lastPropagateAt() + _propagateCooldown
       )
     );
     vm.prank(_gelatoRelayer);
@@ -495,7 +511,7 @@ contract RelayerProxyHubTest is ForgeHelper {
       abi.encodeWithSelector(
         RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector,
         419,
-        420
+        _propagateCooldown
       )
     );
     vm.warp(419);
@@ -552,7 +568,11 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.assume(_time < 300);
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector, _time, 300)
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
+        _time,
+        _propagateCooldown
+      )
     );
     vm.warp(_time);
     vm.prank(_gelatoRelayer);

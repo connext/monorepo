@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish, Contract, constants, utils } from "ethers";
-import { ChainData, ERC20Abi } from "@connext/nxtp-utils";
+import { ChainData, ERC20Abi, getAssetEntryFromChaindata } from "@connext/nxtp-utils";
 import { parseUnits } from "ethers/lib/utils";
 
 import { canonizeId } from "../../../domain";
@@ -39,8 +39,8 @@ export const setupAsset = async (args: {
 
   let canonicalDecimals = asset.canonical.decimals;
   if (!canonicalDecimals) {
-    const chainInfo = chainData.get(asset.canonical.domain);
-    canonicalDecimals = chainInfo?.assetId[asset.canonical.address]?.decimals;
+    const record = getAssetEntryFromChaindata(asset.canonical.address, asset.canonical.domain, chainData);
+    canonicalDecimals = record?.decimals;
   }
 
   if (!canonicalDecimals) {
@@ -49,11 +49,15 @@ export const setupAsset = async (args: {
     );
   }
 
-  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenName = asset.name.startsWith(`next`) ? asset.name : `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
   if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
+  }
+
+  if (!canonicalDecimals) {
+    throw new Error(`Unable to find canonical decimals in config for ${asset.name}`);
   }
 
   await updateIfNeeded({
@@ -70,13 +74,14 @@ export const setupAsset = async (args: {
         tokenSymbol,
         asset.canonical.address,
         constants.AddressZero,
-        asset.canonical.cap,
+        asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
       ],
     },
   });
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
+    if (!representation) continue;
     const stableswapPool = constants.AddressZero;
 
     const network = networks.find((n) => n.domain === domain);
@@ -163,10 +168,12 @@ export const setupAsset = async (args: {
     }
 
     // After registering the asset, check pool status.
-    const [local, adopted] = await getValue<[string, string]>({
-      deployment: network.deployments.Connext,
-      read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
-    });
+    const [local, adopted] = apply
+      ? await getValue<[string, string]>({
+          deployment: network.deployments.Connext,
+          read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
+        })
+      : [representation.local ?? constants.AddressZero, representation.adopted];
 
     if (local.toLowerCase() === adopted.toLowerCase()) {
       // No pools are needed

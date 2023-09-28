@@ -1,8 +1,17 @@
 import { restore, reset, stub, SinonStub } from "sinon";
 import { BigNumber } from "ethers";
 
-import { getGelatoEstimatedFee, expect, isOracleActive, getGelatoOracles, getConversionRate } from "../../src";
+import {
+  getGelatoEstimatedFee,
+  _getGelatoEstimatedFee,
+  expect,
+  isOracleActive,
+  getGelatoOracles,
+  getConversionRate,
+} from "../../src";
 import * as AxiosFns from "../../src/helpers/axios";
+
+import { GelatoEstimatedFeeRequestError, GelatoConversionRateRequestError } from "../../src";
 
 export const mockGelatoSDKSuccessResponse = { taskId: "1" };
 
@@ -30,6 +39,24 @@ describe("Peripherals:Gelato", () => {
       expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("100"));
     });
 
+    it("should return zero if the request fails", async () => {
+      axiosGetStub.throws(new Error("Request failed!"));
+      expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("0"));
+    });
+  });
+
+  describe("#_getGelatoEstimatedFee", () => {
+    it("happy-1: should get fee estimation from gelato", async () => {
+      axiosGetStub.resolves({
+        status: 200,
+        data: {
+          estimatedFee: "100",
+        },
+      });
+
+      expect(await _getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("100"));
+    });
+
     it("happy-2: should get fee estimation from gelato with gasLimitL1", async () => {
       axiosGetStub.resolves({
         status: 200,
@@ -38,7 +65,7 @@ describe("Peripherals:Gelato", () => {
         },
       });
 
-      const res = await getGelatoEstimatedFee(1337, "0x", 100, true, 10);
+      const res = await _getGelatoEstimatedFee(1337, "0x", 100, true, 10);
       expect(axiosGetStub.getCall(0).args[1]).to.be.deep.eq({
         params: {
           paymentToken: "0x",
@@ -51,9 +78,9 @@ describe("Peripherals:Gelato", () => {
       expect(res).to.be.deep.eq(BigNumber.from("100"));
     });
 
-    it("should return zero value if the request fails", async () => {
+    it("should throw if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
-      expect(await getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.deep.eq(BigNumber.from("0"));
+      await expect(_getGelatoEstimatedFee(1337, "0x", 100, true)).to.be.rejectedWith(GelatoEstimatedFeeRequestError);
     });
   });
 
@@ -114,9 +141,9 @@ describe("Peripherals:Gelato", () => {
       expect(await getConversionRate(1337)).to.be.eq(5.5);
     });
 
-    it("should return 0 if the request fails", async () => {
+    it("should throw if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
-      expect(await getConversionRate(1337)).to.be.eq(0);
+      await expect(getConversionRate(1337)).to.be.rejectedWith(GelatoConversionRateRequestError);
     });
   });
 });
