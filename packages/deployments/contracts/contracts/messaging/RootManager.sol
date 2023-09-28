@@ -223,6 +223,22 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   mapping(address => bool) public allowlistedProposers;
 
+  /**
+   * @notice The list of valid aggregate roots for a given timestamp.
+   * @dev Each time a new aggregate root is generated or
+   * finalized, it will be added to this mapping using the block.timestamp as key.
+   * @dev This is only used as Data-Availability for off-chain agents. Especially for the Watchers that fetch the
+   * correct aggregate root from this contract in order to verify the data proposed on the Spoke Connectors.
+   * @dev rootTimestamp => aggregateRoot
+   */
+  mapping(uint256 => bytes32) public validAggregateRoots;
+
+  /**
+   * @notice Timestamp of the last aggregate root saved.
+   * @dev Used to ensure that the propagate function will send the latest aggregate root available.
+   */
+  uint256 public lastSavedAggregateRootTimestamp;
+
   // ============ Modifiers ============
 
   modifier onlyConnector(uint32 _domain) {
