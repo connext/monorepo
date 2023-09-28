@@ -1,5 +1,6 @@
 [
   "error MerkleLib__insert_treeIsFull()",
+  "error MerkleTreeManager__renounceOwnership_prohibited()",
   "error MerkleTreeManager__setArborist_alreadyArborist()",
   "error MerkleTreeManager__setArborist_zeroAddress()",
   "error ProposedOwnable__onlyOwner_notOwner()",

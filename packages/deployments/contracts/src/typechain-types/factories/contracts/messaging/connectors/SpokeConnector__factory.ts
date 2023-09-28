@@ -1212,7 +1212,10 @@ export class SpokeConnector__factory {
   static createInterface(): SpokeConnectorInterface {
     return new utils.Interface(_abi) as SpokeConnectorInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): SpokeConnector {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): SpokeConnector {
     return new Contract(address, _abi, signerOrProvider) as SpokeConnector;
   }
 }

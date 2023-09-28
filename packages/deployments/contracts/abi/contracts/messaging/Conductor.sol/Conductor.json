@@ -1,5 +1,6 @@
 [
   "constructor(address _owner)",
+  "error Conductor_addBypass__cannotBypassConductor()",
   "error Conductor_dequeue__notQueued(bytes32 key)",
   "error Conductor_execute__callFailed()",
   "error Conductor_execute__cannotBypass(bytes4 selector, address target)",

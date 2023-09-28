@@ -14,9 +14,19 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
-import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../../../common";
+import type {
+  TypedEventFilter,
+  TypedEvent,
+  TypedListener,
+  OnEvent,
+  PromiseOrValue,
+} from "../../../../common";
 
 export declare namespace SpokeConnector {
   export type ProofStruct = {
@@ -48,6 +58,8 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "floor()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "getLastCompletedSnapshotId()": FunctionFragment;
     "getSnapshotDuration()": FunctionFragment;
     "home()": FunctionFragment;
@@ -103,6 +115,8 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "floor"
+      | "gasCap"
       | "getLastCompletedSnapshotId"
       | "getSnapshotDuration"
       | "home"
@@ -139,123 +153,350 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
       | "unpause"
       | "verifySender"
       | "watcherManager"
-      | "withdrawFunds",
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
-  encodeFunctionData(functionFragment: "MIRROR_CHAIN_ID", values?: undefined): string;
-  encodeFunctionData(functionFragment: "MIRROR_DOMAIN", values?: undefined): string;
-  encodeFunctionData(functionFragment: "PROCESS_GAS", values?: undefined): string;
-  encodeFunctionData(functionFragment: "RESERVE_GAS", values?: undefined): string;
-  encodeFunctionData(functionFragment: "ROOT_MANAGER", values?: undefined): string;
-  encodeFunctionData(functionFragment: "acceptProposedOwner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "addSender", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "allowlistedSenders", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_CHAIN_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MIRROR_DOMAIN",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PROCESS_GAS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "RESERVE_GAS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROOT_MANAGER",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptProposedOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedSenders",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
-  encodeFunctionData(functionFragment: "delayBlocks", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "delayBlocks",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "dispatch",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>],
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "getLastCompletedSnapshotId", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getSnapshotDuration", values?: undefined): string;
+  encodeFunctionData(functionFragment: "floor", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getLastCompletedSnapshotId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSnapshotDuration",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "home", values?: undefined): string;
-  encodeFunctionData(functionFragment: "isReplica", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "lastSentBlock", values?: undefined): string;
-  encodeFunctionData(functionFragment: "localDomain", values?: undefined): string;
-  encodeFunctionData(functionFragment: "mirrorConnector", values?: undefined): string;
-  encodeFunctionData(functionFragment: "outboundRoot", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "isReplica",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastSentBlock",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "localDomain",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mirrorConnector",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "outboundRoot",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pendingAggregateRoots", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "processMessage", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "proposeNewOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "pendingAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processMessage",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeNewOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
-  encodeFunctionData(functionFragment: "proposedTimestamp", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedTimestamp",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proveAndProcess",
     values: [
       SpokeConnector.ProofStruct[],
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>[],
-      PromiseOrValue<BigNumberish>,
-    ],
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "provenAggregateRoots", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "provenMessageRoots", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "rateLimitBlocks", values?: undefined): string;
-  encodeFunctionData(functionFragment: "removePendingAggregateRoot", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "removeSender", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "provenAggregateRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "provenMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rateLimitBlocks",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removePendingAggregateRoot",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
-  encodeFunctionData(functionFragment: "send", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "sentMessageRoots", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "setDelayBlocks", values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: "setGasCap", values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: "setGasFloor", values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: "setMirrorConnector", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "setRateLimitBlocks", values: [PromiseOrValue<BigNumberish>]): string;
-  encodeFunctionData(functionFragment: "setWatcherManager", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "snapshotRoots", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "send",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sentMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setDelayBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGasFloor",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMirrorConnector",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRateLimitBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setWatcherManager",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "snapshotRoots",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
-  encodeFunctionData(functionFragment: "verifySender", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "watcherManager", values?: undefined): string;
-  encodeFunctionData(functionFragment: "withdrawFunds", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "verifySender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "watcherManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "MIRROR_CHAIN_ID", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "MIRROR_DOMAIN", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "PROCESS_GAS", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "RESERVE_GAS", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "ROOT_MANAGER", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "acceptProposedOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_CHAIN_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MIRROR_DOMAIN",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PROCESS_GAS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "RESERVE_GAS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROOT_MANAGER",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "allowlistedSenders", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedSenders",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "delayBlocks", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "delayBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getLastCompletedSnapshotId", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getSnapshotDuration", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "floor", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLastCompletedSnapshotId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSnapshotDuration",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "home", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isReplica", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "lastSentBlock", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "localDomain", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mirrorConnector", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "outboundRoot", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastSentBlock",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "localDomain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "outboundRoot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pendingAggregateRoots", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "processMessage", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proposeNewOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processMessage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeNewOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proposedTimestamp", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proveAndProcess", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "provenAggregateRoots", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "provenMessageRoots", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "rateLimitBlocks", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "removePendingAggregateRoot", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "removeSender", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proveAndProcess",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "provenAggregateRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "provenMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rateLimitBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removePendingAggregateRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeSender",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "sentMessageRoots", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setDelayBlocks", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sentMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDelayBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setGasFloor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setMirrorConnector", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setRateLimitBlocks", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setWatcherManager", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "snapshotRoots", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setGasFloor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRateLimitBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setWatcherManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "snapshotRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "verifySender", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "watcherManager", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withdrawFunds", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "verifySender",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "watcherManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AggregateRootReceived(bytes32)": EventFragment;
@@ -311,31 +552,47 @@ export interface GnosisSpokeConnectorInterface extends utils.Interface {
 export interface AggregateRootReceivedEventObject {
   root: string;
 }
-export type AggregateRootReceivedEvent = TypedEvent<[string], AggregateRootReceivedEventObject>;
+export type AggregateRootReceivedEvent = TypedEvent<
+  [string],
+  AggregateRootReceivedEventObject
+>;
 
-export type AggregateRootReceivedEventFilter = TypedEventFilter<AggregateRootReceivedEvent>;
+export type AggregateRootReceivedEventFilter =
+  TypedEventFilter<AggregateRootReceivedEvent>;
 
 export interface AggregateRootRemovedEventObject {
   root: string;
 }
-export type AggregateRootRemovedEvent = TypedEvent<[string], AggregateRootRemovedEventObject>;
+export type AggregateRootRemovedEvent = TypedEvent<
+  [string],
+  AggregateRootRemovedEventObject
+>;
 
-export type AggregateRootRemovedEventFilter = TypedEventFilter<AggregateRootRemovedEvent>;
+export type AggregateRootRemovedEventFilter =
+  TypedEventFilter<AggregateRootRemovedEvent>;
 
 export interface AggregateRootVerifiedEventObject {
   root: string;
 }
-export type AggregateRootVerifiedEvent = TypedEvent<[string], AggregateRootVerifiedEventObject>;
+export type AggregateRootVerifiedEvent = TypedEvent<
+  [string],
+  AggregateRootVerifiedEventObject
+>;
 
-export type AggregateRootVerifiedEventFilter = TypedEventFilter<AggregateRootVerifiedEvent>;
+export type AggregateRootVerifiedEventFilter =
+  TypedEventFilter<AggregateRootVerifiedEvent>;
 
 export interface DelayBlocksUpdatedEventObject {
   updated: BigNumber;
   caller: string;
 }
-export type DelayBlocksUpdatedEvent = TypedEvent<[BigNumber, string], DelayBlocksUpdatedEventObject>;
+export type DelayBlocksUpdatedEvent = TypedEvent<
+  [BigNumber, string],
+  DelayBlocksUpdatedEventObject
+>;
 
-export type DelayBlocksUpdatedEventFilter = TypedEventFilter<DelayBlocksUpdatedEvent>;
+export type DelayBlocksUpdatedEventFilter =
+  TypedEventFilter<DelayBlocksUpdatedEvent>;
 
 export interface DispatchEventObject {
   leaf: string;
@@ -343,7 +600,10 @@ export interface DispatchEventObject {
   root: string;
   message: string;
 }
-export type DispatchEvent = TypedEvent<[string, BigNumber, string, string], DispatchEventObject>;
+export type DispatchEvent = TypedEvent<
+  [string, BigNumber, string, string],
+  DispatchEventObject
+>;
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
 
@@ -351,7 +611,10 @@ export interface FundsWithdrawnEventObject {
   to: string;
   amount: BigNumber;
 }
-export type FundsWithdrawnEvent = TypedEvent<[string, BigNumber], FundsWithdrawnEventObject>;
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
 
 export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
@@ -359,7 +622,10 @@ export interface GasCapUpdatedEventObject {
   _previous: BigNumber;
   _updated: BigNumber;
 }
-export type GasCapUpdatedEvent = TypedEvent<[BigNumber, BigNumber], GasCapUpdatedEventObject>;
+export type GasCapUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasCapUpdatedEventObject
+>;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
 
@@ -367,7 +633,10 @@ export interface GasFloorUpdatedEventObject {
   previous: BigNumber;
   updated: BigNumber;
 }
-export type GasFloorUpdatedEvent = TypedEvent<[BigNumber, BigNumber], GasFloorUpdatedEventObject>;
+export type GasFloorUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasFloorUpdatedEventObject
+>;
 
 export type GasFloorUpdatedEventFilter = TypedEventFilter<GasFloorUpdatedEvent>;
 
@@ -375,16 +644,23 @@ export interface MessageProcessedEventObject {
   data: string;
   caller: string;
 }
-export type MessageProcessedEvent = TypedEvent<[string, string], MessageProcessedEventObject>;
+export type MessageProcessedEvent = TypedEvent<
+  [string, string],
+  MessageProcessedEventObject
+>;
 
-export type MessageProcessedEventFilter = TypedEventFilter<MessageProcessedEvent>;
+export type MessageProcessedEventFilter =
+  TypedEventFilter<MessageProcessedEvent>;
 
 export interface MessageProvenEventObject {
   leaf: string;
   aggregateRoot: string;
   aggregateIndex: BigNumber;
 }
-export type MessageProvenEvent = TypedEvent<[string, string, BigNumber], MessageProvenEventObject>;
+export type MessageProvenEvent = TypedEvent<
+  [string, string, BigNumber],
+  MessageProvenEventObject
+>;
 
 export type MessageProvenEventFilter = TypedEventFilter<MessageProvenEvent>;
 
@@ -393,7 +669,10 @@ export interface MessageSentEventObject {
   encodedData: string;
   caller: string;
 }
-export type MessageSentEvent = TypedEvent<[string, string, string], MessageSentEventObject>;
+export type MessageSentEvent = TypedEvent<
+  [string, string, string],
+  MessageSentEventObject
+>;
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
@@ -401,9 +680,13 @@ export interface MirrorConnectorUpdatedEventObject {
   previous: string;
   current: string;
 }
-export type MirrorConnectorUpdatedEvent = TypedEvent<[string, string], MirrorConnectorUpdatedEventObject>;
+export type MirrorConnectorUpdatedEvent = TypedEvent<
+  [string, string],
+  MirrorConnectorUpdatedEventObject
+>;
 
-export type MirrorConnectorUpdatedEventFilter = TypedEventFilter<MirrorConnectorUpdatedEvent>;
+export type MirrorConnectorUpdatedEventFilter =
+  TypedEventFilter<MirrorConnectorUpdatedEvent>;
 
 export interface NewConnectorEventObject {
   domain: number;
@@ -412,24 +695,35 @@ export interface NewConnectorEventObject {
   rootManager: string;
   mirrorConnector: string;
 }
-export type NewConnectorEvent = TypedEvent<[number, number, string, string, string], NewConnectorEventObject>;
+export type NewConnectorEvent = TypedEvent<
+  [number, number, string, string, string],
+  NewConnectorEventObject
+>;
 
 export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
 }
-export type OwnershipProposedEvent = TypedEvent<[string], OwnershipProposedEventObject>;
+export type OwnershipProposedEvent = TypedEvent<
+  [string],
+  OwnershipProposedEventObject
+>;
 
-export type OwnershipProposedEventFilter = TypedEventFilter<OwnershipProposedEvent>;
+export type OwnershipProposedEventFilter =
+  TypedEventFilter<OwnershipProposedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
 }
-export type OwnershipTransferredEvent = TypedEvent<[string, string], OwnershipTransferredEventObject>;
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface PausedEventObject {
   account: string;
@@ -443,7 +737,10 @@ export interface ProcessEventObject {
   success: boolean;
   returnData: string;
 }
-export type ProcessEvent = TypedEvent<[string, boolean, string], ProcessEventObject>;
+export type ProcessEvent = TypedEvent<
+  [string, boolean, string],
+  ProcessEventObject
+>;
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
 
@@ -451,9 +748,13 @@ export interface SendRateLimitUpdatedEventObject {
   updater: string;
   newRateLimit: BigNumber;
 }
-export type SendRateLimitUpdatedEvent = TypedEvent<[string, BigNumber], SendRateLimitUpdatedEventObject>;
+export type SendRateLimitUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  SendRateLimitUpdatedEventObject
+>;
 
-export type SendRateLimitUpdatedEventFilter = TypedEventFilter<SendRateLimitUpdatedEvent>;
+export type SendRateLimitUpdatedEventFilter =
+  TypedEventFilter<SendRateLimitUpdatedEvent>;
 
 export interface SenderAddedEventObject {
   sender: string;
@@ -474,9 +775,13 @@ export interface SnapshotRootSavedEventObject {
   root: string;
   count: BigNumber;
 }
-export type SnapshotRootSavedEvent = TypedEvent<[BigNumber, string, BigNumber], SnapshotRootSavedEventObject>;
+export type SnapshotRootSavedEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  SnapshotRootSavedEventObject
+>;
 
-export type SnapshotRootSavedEventFilter = TypedEventFilter<SnapshotRootSavedEvent>;
+export type SnapshotRootSavedEventFilter =
+  TypedEventFilter<SnapshotRootSavedEvent>;
 
 export interface UnpausedEventObject {
   account: string;
@@ -488,9 +793,13 @@ export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 export interface WatcherManagerChangedEventObject {
   watcherManager: string;
 }
-export type WatcherManagerChangedEvent = TypedEvent<[string], WatcherManagerChangedEventObject>;
+export type WatcherManagerChangedEvent = TypedEvent<
+  [string],
+  WatcherManagerChangedEventObject
+>;
 
-export type WatcherManagerChangedEventFilter = TypedEventFilter<WatcherManagerChangedEvent>;
+export type WatcherManagerChangedEventFilter =
+  TypedEventFilter<WatcherManagerChangedEvent>;
 
 export interface GnosisSpokeConnector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -502,12 +811,16 @@ export interface GnosisSpokeConnector extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
+    toBlock?: string | number | undefined
   ): Promise<Array<TEvent>>;
 
-  listeners<TEvent extends TypedEvent>(eventFilter?: TypedEventFilter<TEvent>): Array<TypedListener<TEvent>>;
+  listeners<TEvent extends TypedEvent>(
+    eventFilter?: TypedEventFilter<TEvent>
+  ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -531,14 +844,19 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<[string]>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    allowlistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -548,18 +866,27 @@ export interface GnosisSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    floor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getLastCompletedSnapshotId(
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[BigNumber] & { _lastCompletedSnapshotId: BigNumber }>;
 
-    getSnapshotDuration(overrides?: CallOverrides): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
+    getSnapshotDuration(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
 
     home(overrides?: CallOverrides): Promise<[string]>;
 
-    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
+    isReplica(
+      _potentialReplica: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     lastSentBlock(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -571,20 +898,25 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    pause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
-    pendingAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[BigNumber]>;
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
@@ -596,80 +928,96 @@ export interface GnosisSpokeConnector extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    provenAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
+    provenAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
-    provenMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    sentMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setGasFloor(
       _floor: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRateLimitBlocks(
       _rateLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    snapshotRoots(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string]>;
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
-    unpause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<[string]>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -689,14 +1037,19 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
-  acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  acceptProposedOwner(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   addSender(
     _sender: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  allowlistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+  allowlistedSenders(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -706,8 +1059,12 @@ export interface GnosisSpokeConnector extends BaseContract {
     _destinationDomain: PromiseOrValue<BigNumberish>,
     _recipientAddress: PromiseOrValue<BytesLike>,
     _messageBody: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
   getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -715,7 +1072,10 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   home(overrides?: CallOverrides): Promise<string>;
 
-  isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+  isReplica(
+    _potentialReplica: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -727,20 +1087,25 @@ export interface GnosisSpokeConnector extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  pause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  pause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
-  pendingAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+  pendingAggregateRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   processMessage(
     _data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
@@ -752,80 +1117,96 @@ export interface GnosisSpokeConnector extends BaseContract {
     _aggregateRoot: PromiseOrValue<BytesLike>,
     _aggregatePath: PromiseOrValue<BytesLike>[],
     _aggregateIndex: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  provenAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+  provenAggregateRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  provenMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+  provenMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeSender(
     _sender: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
   send(
     _encodedData: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  sentMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+  sentMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   setDelayBlocks(
     _delayBlocks: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setGasCap(
     _gasCap: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setGasFloor(
     _floor: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRateLimitBlocks(
     _rateLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setWatcherManager(
     _watcherManager: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  snapshotRoots(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
+  snapshotRoots(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
-  unpause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<ContractTransaction>;
+  unpause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   verifySender(
     _expected: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   watcherManager(overrides?: CallOverrides): Promise<string>;
 
   withdrawFunds(
     _to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> },
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -847,9 +1228,15 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
-    addSender(_sender: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    addSender(
+      _sender: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    allowlistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -859,8 +1246,12 @@ export interface GnosisSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<[string, string]>;
+
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -868,7 +1259,10 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<string>;
 
-    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+    isReplica(
+      _potentialReplica: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -884,11 +1278,20 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<boolean>;
 
-    pendingAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    processMessage(_data: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
+    processMessage(
+      _data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    proposeNewOwner(newlyProposed: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    proposeNewOwner(
+      newlyProposed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
 
@@ -899,133 +1302,229 @@ export interface GnosisSpokeConnector extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides,
+      overrides?: CallOverrides
     ): Promise<void>;
 
-    provenAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+    provenAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    provenMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removePendingAggregateRoot(_fraudulentRoot: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
+    removePendingAggregateRoot(
+      _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    removeSender(_sender: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    removeSender(
+      _sender: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
-    send(_encodedData: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
+    send(
+      _encodedData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    sentMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
-    setDelayBlocks(_delayBlocks: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    setDelayBlocks(
+      _delayBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setGasCap(_gasCap: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    setGasCap(
+      _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setGasFloor(_floor: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setMirrorConnector(_mirrorConnector: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    setMirrorConnector(
+      _mirrorConnector: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setRateLimitBlocks(_rateLimit: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    setRateLimitBlocks(
+      _rateLimit: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    setWatcherManager(_watcherManager: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    setWatcherManager(
+      _watcherManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    snapshotRoots(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
 
-    verifySender(_expected: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+    verifySender(
+      _expected: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     watcherManager(overrides?: CallOverrides): Promise<string>;
 
-    withdrawFunds(_to: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
-    "AggregateRootReceived(bytes32)"(root?: PromiseOrValue<BytesLike> | null): AggregateRootReceivedEventFilter;
-    AggregateRootReceived(root?: PromiseOrValue<BytesLike> | null): AggregateRootReceivedEventFilter;
+    "AggregateRootReceived(bytes32)"(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
+    AggregateRootReceived(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootReceivedEventFilter;
 
-    "AggregateRootRemoved(bytes32)"(root?: PromiseOrValue<BytesLike> | null): AggregateRootRemovedEventFilter;
-    AggregateRootRemoved(root?: PromiseOrValue<BytesLike> | null): AggregateRootRemovedEventFilter;
+    "AggregateRootRemoved(bytes32)"(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
+    AggregateRootRemoved(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootRemovedEventFilter;
 
-    "AggregateRootVerified(bytes32)"(root?: PromiseOrValue<BytesLike> | null): AggregateRootVerifiedEventFilter;
-    AggregateRootVerified(root?: PromiseOrValue<BytesLike> | null): AggregateRootVerifiedEventFilter;
+    "AggregateRootVerified(bytes32)"(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootVerifiedEventFilter;
+    AggregateRootVerified(
+      root?: PromiseOrValue<BytesLike> | null
+    ): AggregateRootVerifiedEventFilter;
 
     "DelayBlocksUpdated(uint256,address)"(
       updated?: PromiseOrValue<BigNumberish> | null,
-      caller?: null,
+      caller?: null
     ): DelayBlocksUpdatedEventFilter;
-    DelayBlocksUpdated(updated?: PromiseOrValue<BigNumberish> | null, caller?: null): DelayBlocksUpdatedEventFilter;
+    DelayBlocksUpdated(
+      updated?: PromiseOrValue<BigNumberish> | null,
+      caller?: null
+    ): DelayBlocksUpdatedEventFilter;
 
     "Dispatch(bytes32,uint256,bytes32,bytes)"(
       leaf?: PromiseOrValue<BytesLike> | null,
       index?: PromiseOrValue<BigNumberish> | null,
       root?: PromiseOrValue<BytesLike> | null,
-      message?: null,
+      message?: null
     ): DispatchEventFilter;
     Dispatch(
       leaf?: PromiseOrValue<BytesLike> | null,
       index?: PromiseOrValue<BigNumberish> | null,
       root?: PromiseOrValue<BytesLike> | null,
-      message?: null,
+      message?: null
     ): DispatchEventFilter;
 
-    "FundsWithdrawn(address,uint256)"(to?: PromiseOrValue<string> | null, amount?: null): FundsWithdrawnEventFilter;
-    FundsWithdrawn(to?: PromiseOrValue<string> | null, amount?: null): FundsWithdrawnEventFilter;
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
 
-    "GasCapUpdated(uint256,uint256)"(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+    "GasCapUpdated(uint256,uint256)"(
+      _previous?: null,
+      _updated?: null
+    ): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
 
-    "GasFloorUpdated(uint256,uint256)"(previous?: null, updated?: null): GasFloorUpdatedEventFilter;
-    GasFloorUpdated(previous?: null, updated?: null): GasFloorUpdatedEventFilter;
+    "GasFloorUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
+    GasFloorUpdated(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
 
-    "MessageProcessed(bytes,address)"(data?: null, caller?: null): MessageProcessedEventFilter;
+    "MessageProcessed(bytes,address)"(
+      data?: null,
+      caller?: null
+    ): MessageProcessedEventFilter;
     MessageProcessed(data?: null, caller?: null): MessageProcessedEventFilter;
 
     "MessageProven(bytes32,bytes32,uint256)"(
       leaf?: PromiseOrValue<BytesLike> | null,
       aggregateRoot?: PromiseOrValue<BytesLike> | null,
-      aggregateIndex?: null,
+      aggregateIndex?: null
     ): MessageProvenEventFilter;
     MessageProven(
       leaf?: PromiseOrValue<BytesLike> | null,
       aggregateRoot?: PromiseOrValue<BytesLike> | null,
-      aggregateIndex?: null,
+      aggregateIndex?: null
     ): MessageProvenEventFilter;
 
-    "MessageSent(bytes,bytes,address)"(data?: null, encodedData?: null, caller?: null): MessageSentEventFilter;
-    MessageSent(data?: null, encodedData?: null, caller?: null): MessageSentEventFilter;
+    "MessageSent(bytes,bytes,address)"(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
+    MessageSent(
+      data?: null,
+      encodedData?: null,
+      caller?: null
+    ): MessageSentEventFilter;
 
-    "MirrorConnectorUpdated(address,address)"(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
-    MirrorConnectorUpdated(previous?: null, current?: null): MirrorConnectorUpdatedEventFilter;
+    "MirrorConnectorUpdated(address,address)"(
+      previous?: null,
+      current?: null
+    ): MirrorConnectorUpdatedEventFilter;
+    MirrorConnectorUpdated(
+      previous?: null,
+      current?: null
+    ): MirrorConnectorUpdatedEventFilter;
 
     "NewConnector(uint32,uint32,address,address,address)"(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null,
+      mirrorConnector?: null
     ): NewConnectorEventFilter;
     NewConnector(
       domain?: PromiseOrValue<BigNumberish> | null,
       mirrorDomain?: PromiseOrValue<BigNumberish> | null,
       amb?: null,
       rootManager?: null,
-      mirrorConnector?: null,
+      mirrorConnector?: null
     ): NewConnectorEventFilter;
 
-    "OwnershipProposed(address)"(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
-    OwnershipProposed(proposedOwner?: PromiseOrValue<string> | null): OwnershipProposedEventFilter;
+    "OwnershipProposed(address)"(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
+    OwnershipProposed(
+      proposedOwner?: PromiseOrValue<string> | null
+    ): OwnershipProposedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
@@ -1034,46 +1533,55 @@ export interface GnosisSpokeConnector extends BaseContract {
     "Process(bytes32,bool,bytes)"(
       leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
-      returnData?: null,
+      returnData?: null
     ): ProcessEventFilter;
-    Process(leaf?: PromiseOrValue<BytesLike> | null, success?: null, returnData?: null): ProcessEventFilter;
+    Process(
+      leaf?: PromiseOrValue<BytesLike> | null,
+      success?: null,
+      returnData?: null
+    ): ProcessEventFilter;
 
-    "SendRateLimitUpdated(address,uint256)"(updater?: null, newRateLimit?: null): SendRateLimitUpdatedEventFilter;
-    SendRateLimitUpdated(updater?: null, newRateLimit?: null): SendRateLimitUpdatedEventFilter;
+    "SendRateLimitUpdated(address,uint256)"(
+      updater?: null,
+      newRateLimit?: null
+    ): SendRateLimitUpdatedEventFilter;
+    SendRateLimitUpdated(
+      updater?: null,
+      newRateLimit?: null
+    ): SendRateLimitUpdatedEventFilter;
 
-    "SenderAdded(address)"(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
+    "SenderAdded(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderAddedEventFilter;
     SenderAdded(sender?: PromiseOrValue<string> | null): SenderAddedEventFilter;
 
-    "SenderRemoved(address)"(sender?: PromiseOrValue<string> | null): SenderRemovedEventFilter;
-    SenderRemoved(sender?: PromiseOrValue<string> | null): SenderRemovedEventFilter;
+    "SenderRemoved(address)"(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
+    SenderRemoved(
+      sender?: PromiseOrValue<string> | null
+    ): SenderRemovedEventFilter;
 
     "SnapshotRootSaved(uint256,bytes32,uint256)"(
       snapshotId?: PromiseOrValue<BigNumberish> | null,
       root?: PromiseOrValue<BytesLike> | null,
-      count?: PromiseOrValue<BigNumberish> | null,
+      count?: PromiseOrValue<BigNumberish> | null
     ): SnapshotRootSavedEventFilter;
     SnapshotRootSaved(
       snapshotId?: PromiseOrValue<BigNumberish> | null,
       root?: PromiseOrValue<BytesLike> | null,
-      count?: PromiseOrValue<BigNumberish> | null,
-    ): SnapshotRootSavedEventFilter;
-
-    "SnapshotRootSaved(uint256,bytes32,uint256)"(
-      snapshotId?: PromiseOrValue<BigNumberish> | null,
-      root?: PromiseOrValue<BytesLike> | null,
-      count?: PromiseOrValue<BigNumberish> | null,
-    ): SnapshotRootSavedEventFilter;
-    SnapshotRootSaved(
-      snapshotId?: PromiseOrValue<BigNumberish> | null,
-      root?: PromiseOrValue<BytesLike> | null,
-      count?: PromiseOrValue<BigNumberish> | null,
+      count?: PromiseOrValue<BigNumberish> | null
     ): SnapshotRootSavedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
 
-    "WatcherManagerChanged(address)"(watcherManager?: null): WatcherManagerChangedEventFilter;
-    WatcherManagerChanged(watcherManager?: null): WatcherManagerChangedEventFilter;
+    "WatcherManagerChanged(address)"(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
+    WatcherManagerChanged(
+      watcherManager?: null
+    ): WatcherManagerChangedEventFilter;
   };
 
   estimateGas: {
@@ -1093,14 +1601,19 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<BigNumber>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    allowlistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1110,8 +1623,12 @@ export interface GnosisSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1119,7 +1636,10 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     home(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    isReplica(
+      _potentialReplica: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     lastSentBlock(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1131,20 +1651,25 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pendingAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1156,80 +1681,96 @@ export interface GnosisSpokeConnector extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    provenAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    provenAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    provenMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    sentMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setGasFloor(
       _floor: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRateLimitBlocks(
       _rateLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    snapshotRoots(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    unpause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<BigNumber>;
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     watcherManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -1250,14 +1791,19 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    acceptProposedOwner(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     addSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    allowlistedSenders(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    allowlistedSenders(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1267,16 +1813,27 @@ export interface GnosisSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    floor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getSnapshotDuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLastCompletedSnapshotId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSnapshotDuration(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     home(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    isReplica(_potentialReplica: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    isReplica(
+      _potentialReplica: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     lastSentBlock(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1288,20 +1845,25 @@ export interface GnosisSpokeConnector extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pendingAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    pendingAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     processMessage(
       _data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1313,80 +1875,96 @@ export interface GnosisSpokeConnector extends BaseContract {
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _aggregatePath: PromiseOrValue<BytesLike>[],
       _aggregateIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    provenAggregateRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    provenAggregateRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    provenMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    provenMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     rateLimitBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeSender(
       _sender: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     send(
       _encodedData: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> },
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    sentMessageRoots(arg0: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    sentMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setGasFloor(
       _floor: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRateLimitBlocks(
       _rateLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setWatcherManager(
       _watcherManager: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    snapshotRoots(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    snapshotRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    unpause(overrides?: Overrides & { from?: PromiseOrValue<string> }): Promise<PopulatedTransaction>;
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     verifySender(
       _expected: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     watcherManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     withdrawFunds(
       _to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> },
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

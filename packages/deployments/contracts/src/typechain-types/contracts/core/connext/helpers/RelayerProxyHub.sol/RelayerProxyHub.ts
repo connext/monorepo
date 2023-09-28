@@ -127,12 +127,13 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "lastPropagateAt()": FunctionFragment;
     "lastProposeAggregateRootAt()": FunctionFragment;
     "owner()": FunctionFragment;
+    "processFromRoot(bytes,uint32,bytes32)": FunctionFragment;
     "processFromRootKeep3r(bytes,uint32,bytes32)": FunctionFragment;
     "processedRootMessages(uint32,bytes32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[],uint256)": FunctionFragment;
     "propagateCooldown()": FunctionFragment;
     "propagateKeep3r(address[],uint256[],bytes[])": FunctionFragment;
-    "propagateWorkable()": FunctionFragment;
+    "propagateWorkable(uint32[])": FunctionFragment;
     "proposeAggregateRootCooldown()": FunctionFragment;
     "proposeAggregateRootKeep3r(uint256,bytes32,bytes32[],uint32[],bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -176,6 +177,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "lastPropagateAt"
       | "lastProposeAggregateRootAt"
       | "owner"
+      | "processFromRoot"
       | "processFromRootKeep3r"
       | "processedRootMessages"
       | "propagate"
@@ -263,6 +265,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "processFromRoot",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "processFromRootKeep3r",
     values: [
       PromiseOrValue<BytesLike>,
@@ -297,7 +307,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "propagateWorkable",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeAggregateRootCooldown",
@@ -443,6 +453,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "processFromRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "processFromRootKeep3r",
     data: BytesLike
   ): Result;
@@ -551,6 +565,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PropagateCooldownChanged(uint256,uint256)": EventFragment;
+    "ProposeAggregateRootCooldownChanged(uint256,uint256)": EventFragment;
     "RelayerAdded(address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
     "RootManagerChanged(address,address)": EventFragment;
@@ -569,6 +584,9 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PropagateCooldownChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ProposeAggregateRootCooldownChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootManagerChanged"): EventFragment;
@@ -716,6 +734,18 @@ export type PropagateCooldownChangedEvent = TypedEvent<
 export type PropagateCooldownChangedEventFilter =
   TypedEventFilter<PropagateCooldownChangedEvent>;
 
+export interface ProposeAggregateRootCooldownChangedEventObject {
+  proposeAggregateRootCooldown: BigNumber;
+  oldProposeAggregateRootCooldown: BigNumber;
+}
+export type ProposeAggregateRootCooldownChangedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  ProposeAggregateRootCooldownChangedEventObject
+>;
+
+export type ProposeAggregateRootCooldownChangedEventFilter =
+  TypedEventFilter<ProposeAggregateRootCooldownChangedEvent>;
+
 export interface RelayerAddedEventObject {
   relayer: string;
 }
@@ -841,6 +871,13 @@ export interface RelayerProxyHub extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
       _fromChain: PromiseOrValue<BigNumberish>,
@@ -872,6 +909,7 @@ export interface RelayerProxyHub extends BaseContract {
     ): Promise<ContractTransaction>;
 
     propagateWorkable(
+      domains: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1042,6 +1080,13 @@ export interface RelayerProxyHub extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  processFromRoot(
+    _encodedData: PromiseOrValue<BytesLike>,
+    _fromChain: PromiseOrValue<BigNumberish>,
+    _l2Hash: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   processFromRootKeep3r(
     _encodedData: PromiseOrValue<BytesLike>,
     _fromChain: PromiseOrValue<BigNumberish>,
@@ -1073,6 +1118,7 @@ export interface RelayerProxyHub extends BaseContract {
   ): Promise<ContractTransaction>;
 
   propagateWorkable(
+    domains: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1222,7 +1268,7 @@ export interface RelayerProxyHub extends BaseContract {
       _proposedAggregateRoot: PromiseOrValue<BytesLike>,
       _endOfDispute: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
@@ -1238,6 +1284,13 @@ export interface RelayerProxyHub extends BaseContract {
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
@@ -1269,7 +1322,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    propagateWorkable(overrides?: CallOverrides): Promise<boolean>;
+    propagateWorkable(
+      domains: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1474,6 +1530,15 @@ export interface RelayerProxyHub extends BaseContract {
       oldPropagateCooldown?: null
     ): PropagateCooldownChangedEventFilter;
 
+    "ProposeAggregateRootCooldownChanged(uint256,uint256)"(
+      proposeAggregateRootCooldown?: null,
+      oldProposeAggregateRootCooldown?: null
+    ): ProposeAggregateRootCooldownChangedEventFilter;
+    ProposeAggregateRootCooldownChanged(
+      proposeAggregateRootCooldown?: null,
+      oldProposeAggregateRootCooldown?: null
+    ): ProposeAggregateRootCooldownChangedEventFilter;
+
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
 
@@ -1557,6 +1622,13 @@ export interface RelayerProxyHub extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
       _fromChain: PromiseOrValue<BigNumberish>,
@@ -1588,6 +1660,7 @@ export interface RelayerProxyHub extends BaseContract {
     ): Promise<BigNumber>;
 
     propagateWorkable(
+      domains: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1759,6 +1832,13 @@ export interface RelayerProxyHub extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    processFromRoot(
+      _encodedData: PromiseOrValue<BytesLike>,
+      _fromChain: PromiseOrValue<BigNumberish>,
+      _l2Hash: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     processFromRootKeep3r(
       _encodedData: PromiseOrValue<BytesLike>,
       _fromChain: PromiseOrValue<BigNumberish>,
@@ -1790,6 +1870,7 @@ export interface RelayerProxyHub extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     propagateWorkable(
+      domains: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

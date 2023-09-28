@@ -59,7 +59,7 @@ export interface RootManagerInterface extends utils.Interface {
     "getSnapshotDuration()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
     "lastCountBeforeOpMode()": FunctionFragment;
-    "lastPropagatedRoot()": FunctionFragment;
+    "lastPropagatedRoot(uint32)": FunctionFragment;
     "minDisputeBlocks()": FunctionFragment;
     "optimisticMode()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -259,7 +259,7 @@ export interface RootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "lastPropagatedRoot",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "minDisputeBlocks",
@@ -979,7 +979,10 @@ export interface RootManager extends BaseContract {
 
     lastCountBeforeOpMode(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<[string]>;
+    lastPropagatedRoot(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     minDisputeBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1186,7 +1189,10 @@ export interface RootManager extends BaseContract {
 
   lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
 
-  lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+  lastPropagatedRoot(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1387,7 +1393,10 @@ export interface RootManager extends BaseContract {
 
     lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+    lastPropagatedRoot(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1788,7 +1797,10 @@ export interface RootManager extends BaseContract {
 
     lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<BigNumber>;
+    lastPropagatedRoot(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2003,6 +2015,7 @@ export interface RootManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     lastPropagatedRoot(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
