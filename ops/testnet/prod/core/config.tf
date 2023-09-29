@@ -98,7 +98,7 @@ locals {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
       }
       "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
+        providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -254,7 +254,7 @@ locals {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
       }
       "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
+        providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
@@ -367,7 +367,7 @@ locals {
         providers = ["https://rpc.goerli.linea.build/"]
       }
       # "2053862260" = {
-      #  providers = ["https://testnet.era.zksync.dev"]
+      #  providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       # }
     }
     environment   = var.stage
