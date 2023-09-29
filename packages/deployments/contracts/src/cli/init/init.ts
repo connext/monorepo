@@ -126,7 +126,8 @@ export const sanitizeAndInit = async () => {
     };
 
     for (const domain of domains) {
-      if (domain === hubDomain) continue;
+      // TODO: handle special case for setting up xERC20s with bogus canonical domain
+      // if (domain === hubDomain) continue;
       _extracted.representations[domain] = asset.representations[domain];
     }
 
@@ -160,46 +161,51 @@ export const sanitizeAndInit = async () => {
 
   // Get deployments for each domain if not specified in the config.
   for (const domain of domains) {
-    const chainId = domainToChainId(Number(domain));
+    // TODO: handle special case for setting up xERC20s with bogus canonical domain
+    if (Number(domain) != 11111) {
+      const chainId = domainToChainId(Number(domain));
 
-    const chainConfig = Object.values(filteredHardhatNetworks).find(
-      (networkConfig: any) => networkConfig["chainId"] == chainId,
-    ) as HttpNetworkUserConfig & { zksync: boolean | undefined };
+      const chainConfig = Object.values(filteredHardhatNetworks).find(
+        (networkConfig: any) => networkConfig["chainId"] == chainId,
+      ) as HttpNetworkUserConfig & { zksync: boolean | undefined };
 
-    if (!chainConfig || !chainConfig.url) {
-      throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
+      if (!chainConfig || !chainConfig.url) {
+        throw new Error(`Not configured network for chainId: ${chainId} in hardhat config`);
+      }
+
+      // Convert deployer from mnemonic to Wallet.
+      let deployer;
+      if (privateKey) {
+        deployer = chainConfig.zksync ? new zk.Wallet(privateKey) : new Wallet(privateKey);
+      } else {
+        deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
+      }
+      console.log("deployer: ", deployer.address);
+
+      const rpc = chainConfig.zksync
+        ? new zk.Provider(chainConfig.url)
+        : new providers.JsonRpcProvider(chainConfig.url);
+
+      const isHub = domain === hubDomain;
+      const deployments = getDeployments({
+        deployer,
+        chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
+        isHub,
+        useStaging,
+      });
+
+      // TODO: all agents should also be configured per-network
+      if (!initConfig.agents.relayerFeeVaults[domain]) {
+        throw new Error(`No relayer fee vault configured for ${domain}!`);
+      }
+      networks.push({
+        chain: chainId.toString(),
+        domain,
+        rpc,
+        deployments,
+        relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
+      });
     }
-
-    // Convert deployer from mnemonic to Wallet.
-    let deployer;
-    if (privateKey) {
-      deployer = chainConfig.zksync ? new zk.Wallet(privateKey) : new Wallet(privateKey);
-    } else {
-      deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
-    }
-    console.log("deployer: ", deployer.address);
-
-    const rpc = chainConfig.zksync ? new zk.Provider(chainConfig.url) : new providers.JsonRpcProvider(chainConfig.url);
-
-    const isHub = domain === hubDomain;
-    const deployments = getDeployments({
-      deployer,
-      chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
-      isHub,
-      useStaging,
-    });
-
-    // TODO: all agents should also be configured per-network
-    if (!initConfig.agents.relayerFeeVaults[domain]) {
-      throw new Error(`No relayer fee vault configured for ${domain}!`);
-    }
-    networks.push({
-      chain: chainId.toString(),
-      domain,
-      rpc,
-      deployments,
-      relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
-    });
   }
 
   const sanitized = {

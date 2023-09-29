@@ -29,13 +29,13 @@ export const setupAsset = async (args: {
   );
 
   // Set up the canonical asset on the canonical domain.
-  const home = networks.find((n) => n.domain === asset.canonical.domain);
-  if (!home) {
-    throw new Error(
-      `Could not find canonical domain network ${asset.canonical.domain} for asset ${asset.canonical.address} in` +
-        "the configured list of networks!",
-    );
-  }
+  // const home = networks.find((n) => n.domain === asset.canonical.domain);
+  // if (!home) {
+  //   throw new Error(
+  //     `Could not find canonical domain network ${asset.canonical.domain} for asset ${asset.canonical.address} in` +
+  //       "the configured list of networks!",
+  //   );
+  // }
 
   let canonicalDecimals = asset.canonical.decimals;
   if (!canonicalDecimals) {
@@ -52,32 +52,32 @@ export const setupAsset = async (args: {
   const tokenName = asset.name.startsWith(`next`) ? asset.name : `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
-  if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
-    throw new Error(`Must have nonzero cap on prod canonical domains`);
-  }
+  // if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
+  //   throw new Error(`Must have nonzero cap on prod canonical domains`);
+  // }
 
   if (!canonicalDecimals) {
     throw new Error(`Unable to find canonical decimals in config for ${asset.name}`);
   }
 
-  await updateIfNeeded({
-    apply,
-    deployment: home.deployments.Connext,
-    desired: asset.canonical.address,
-    read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-    write: {
-      method: "setupAsset",
-      args: [
-        [canonical.domain, canonical.id],
-        canonicalDecimals,
-        tokenName,
-        tokenSymbol,
-        asset.canonical.address,
-        constants.AddressZero,
-        asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
-      ],
-    },
-  });
+  // await updateIfNeeded({
+  //   apply,
+  //   deployment: home.deployments.Connext,
+  //   desired: asset.canonical.address,
+  //   read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+  //   write: {
+  //     method: "setupAsset",
+  //     args: [
+  //       [canonical.domain, canonical.id],
+  //       canonicalDecimals,
+  //       tokenName,
+  //       tokenSymbol,
+  //       asset.canonical.address,
+  //       constants.AddressZero,
+  //       asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
+  //     ],
+  //   },
+  // });
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
@@ -160,12 +160,12 @@ export const setupAsset = async (args: {
     }
 
     // NOTE: it is best practice to init + add liquidity in a single transaction to start the pool in a balanced state
-    if (apply && +home.chain === 1) {
-      // TODO: add liquidity with balance assertions; proper min to mint calculations; etc.
-      // Fixing this is useful in testnet, but on mainnets youre using safes anyway.
-      console.warn(`Must implement safe pool initialization. Skipping.`);
-      continue;
-    }
+    // if (apply && +home.chain === 1) {
+    //   // TODO: add liquidity with balance assertions; proper min to mint calculations; etc.
+    //   // Fixing this is useful in testnet, but on mainnets youre using safes anyway.
+    //   console.warn(`Must implement safe pool initialization. Skipping.`);
+    //   continue;
+    // }
 
     // After registering the asset, check pool status.
     const [local, adopted] = apply

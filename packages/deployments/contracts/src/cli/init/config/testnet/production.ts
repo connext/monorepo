@@ -7,6 +7,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
+    "11111",
     "2053862260", /// ZKSYNC-TEST
     "1668247156", /// CONSENSYS-ZKEVM-TEST
     "1887071092", /// POLYGON-ZKEVM-TEST
@@ -244,6 +245,32 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1734439522": {
           local: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
           adopted: "0x61E0589e12395c06F6A72e5B31f803e47185FC81",
+        },
+      },
+    },
+    {
+      name: "TST",
+      canonical: {
+        // Bogus domain
+        domain: "11111",
+        address: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        decimals: 18,
+      },
+      representations: {
+        /// GOERLI
+        "1735353714": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
         },
       },
     },
