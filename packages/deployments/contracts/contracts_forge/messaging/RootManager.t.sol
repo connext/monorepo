@@ -603,6 +603,7 @@ contract RootManager_ProposeAggregateRoot is Base {
 }
 
 contract RootManager_Finalize is Base {
+  event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
   event ProposedRootFinalized(bytes32 aggregateRoot);
 
   function test_revertIfSlowModeOn() public {
@@ -646,7 +647,7 @@ contract RootManager_Finalize is Base {
     _rootManager.finalize(_differentRoot, block.number + _disputeBlocks);
   }
 
-  function test_setFinalizedAggregateRoot(bytes32 aggregateRoot) public {
+  function test_saveAggregateRoot(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot != _finalizedHash);
     _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
     vm.roll(block.number + _disputeBlocks);
@@ -656,10 +657,49 @@ contract RootManager_Finalize is Base {
     _rootManager.finalize(aggregateRoot, block.number);
     bytes32 afterAggregateRootHash = _rootManager.proposedAggregateRootHash();
 
-    bytes32 finalizedAggregateRoot = _rootManager.finalizedOptimisticAggregateRoot();
+    uint256 _lastSavedRootTimestamp = _rootManager.lastSavedAggregateRootTimestamp();
+
+    bytes32 finalizedAggregateRoot = _rootManager.validAggregateRoots(_lastSavedRootTimestamp);
 
     assertEq(_previousAggregateRoot, finalizedAggregateRoot);
     assertEq(afterAggregateRootHash, _finalizedHash);
+  }
+
+  function test_setLastSavedAggregateRootTimestamp(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+    vm.roll(block.number + _disputeBlocks);
+
+    uint256 _expectedRootTimestamp = block.timestamp;
+
+    _rootManager.finalize(aggregateRoot, block.number);
+
+    uint256 _lastSavedRootTimestamp = _rootManager.lastSavedAggregateRootTimestamp();
+
+    assertEq(_lastSavedRootTimestamp, _expectedRootTimestamp);
+  }
+
+  function test_clearProposeHash(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+    vm.roll(block.number + _disputeBlocks);
+
+    _rootManager.finalize(aggregateRoot, block.number);
+
+    bytes32 _currentProposeHash = _rootManager.proposedAggregateRootHash();
+
+    assertEq(_currentProposeHash, _rootManager.FINALIZED_HASH());
+  }
+
+  function test_emitIfAggregateRootSaved(bytes32 aggregateRoot) public {
+    vm.assume(aggregateRoot != _finalizedHash);
+    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
+    vm.roll(block.number + _disputeBlocks);
+
+    vm.expectEmit(true, true, true, true);
+    emit AggregateRootSaved(aggregateRoot, block.timestamp);
+
+    _rootManager.finalize(aggregateRoot, block.number);
   }
 
   function test_emitIfProposedRootHasFinalized(bytes32 aggregateRoot) public {
