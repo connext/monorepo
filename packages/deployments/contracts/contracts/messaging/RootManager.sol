@@ -689,6 +689,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // aggregate root and count).
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
+    validAggregateRoots[block.timestamp] = _aggregateRoot;
+    lastSavedAggregateRootTimestamp = block.timestamp;
+
+    emit AggregateRootSaved(_aggregateRoot, block.timestamp);
     emit RootsAggregated(_aggregateRoot, _count, _verifiedInboundRoots);
 
     return (_aggregateRoot, _count);
