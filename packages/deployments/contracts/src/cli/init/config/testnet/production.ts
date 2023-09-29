@@ -274,6 +274,27 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "BOG",
+      canonical: {
+        /// GOERLI
+        domain: "1735353714",
+        address: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
