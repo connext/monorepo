@@ -606,6 +606,15 @@ export class SubgraphReader {
     allTxById: Map<string, XTransfer>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
 
@@ -654,6 +663,15 @@ export class SubgraphReader {
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
 
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
