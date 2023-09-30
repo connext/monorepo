@@ -470,6 +470,7 @@ type stagingmumbai_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: stagingmumbai_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: stagingmumbai_Bytes
   reconciledTransactionHash: stagingmumbai_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +478,7 @@ type stagingmumbai_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: stagingmumbai_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input stagingmumbai_DestinationTransfer_filter {
@@ -734,6 +736,14 @@ input stagingmumbai_DestinationTransfer_filter {
   executedTxOrigin_not_in: [stagingmumbai_Bytes!]
   executedTxOrigin_contains: stagingmumbai_Bytes
   executedTxOrigin_not_contains: stagingmumbai_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: stagingmumbai_Bytes
   reconciledCaller_not: stagingmumbai_Bytes
   reconciledCaller_gt: stagingmumbai_Bytes
@@ -796,6 +806,14 @@ input stagingmumbai_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [stagingmumbai_Bytes!]
   reconciledTxOrigin_contains: stagingmumbai_Bytes
   reconciledTxOrigin_not_contains: stagingmumbai_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
   and: [stagingmumbai_DestinationTransfer_filter]
@@ -840,6 +858,7 @@ enum stagingmumbai_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,6 +866,7 @@ enum stagingmumbai_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
 
 """
@@ -1031,6 +1051,7 @@ type stagingmumbai_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: stagingmumbai_Bytes
+  txNonce: BigInt
 }
 
 input stagingmumbai_OriginTransfer_filter {
@@ -1323,6 +1344,14 @@ input stagingmumbai_OriginTransfer_filter {
   txOrigin_not_in: [stagingmumbai_Bytes!]
   txOrigin_contains: stagingmumbai_Bytes
   txOrigin_not_contains: stagingmumbai_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
   and: [stagingmumbai_OriginTransfer_filter]
@@ -1378,6 +1407,7 @@ enum stagingmumbai_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1977,6 +2007,7 @@ enum stagingmumbai_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2131,6 +2162,7 @@ enum stagingmumbai_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2743,6 +2775,7 @@ enum stagingmumbai_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2750,6 +2783,7 @@ enum stagingmumbai_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
