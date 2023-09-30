@@ -253,9 +253,6 @@ locals {
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
       }
-      "2053862260" = {
-        providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
-      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
