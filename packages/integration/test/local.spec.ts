@@ -150,9 +150,28 @@ describe("LOCAL:E2E", () => {
     logger.info(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
     console.log(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
 
-    await sendXCall(sdkBase, xcallParams, userSignerOnHub);
+    const xcallRes = await sendXCall(sdkBase, xcallParams, userSignerOnHub);
 
     await processAMB(PARAMETERS.HUB);
+
+    const originTransfer = await getTransferByTransactionHash(
+      sdkUtils,
+      xcallParams.origin,
+      xcallRes.receipt.transactionHash,
+    );
+
+    logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
+      domain: xcallParams.destination,
+      transferId: originTransfer?.transferId,
+    });
+
+    const destinationTransfer = await getTransferById(sdkUtils, xcallParams.origin, originTransfer.transferId);
+
+    logger.info("Fast liquidity transfer completed successfully", requestContext, methodContext, {
+      originDomain: xcallParams.origin,
+      destinationDomain: xcallParams.destination,
+      status: destinationTransfer.destination?.status,
+    });
   });
 
   it.skip("works for address(0) and 0-value transfers", async () => {

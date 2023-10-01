@@ -389,6 +389,7 @@ services:
     depends_on:
       - cartographer-database
       - message-queue
+      - lighthouse-cache
     image: ${LIGHTHOUSE_IMAGE}
     restart: always
     logging:
@@ -406,6 +407,7 @@ services:
     depends_on:
       - cartographer-database
       - message-queue
+      - lighthouse-cache
     image: ${LIGHTHOUSE_IMAGE}
     restart: always
     logging:
@@ -418,51 +420,60 @@ services:
     environment:
       LIGHTHOUSE_SERVICE: prover-pub
 
-  lighthouse-process-from-root:
-    container_name: lighthouse-process-from-root
-    depends_on:
-      - cartographer-database
-      - message-queue
-    image: ${LIGHTHOUSE_IMAGE}
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
-    environment:
-      LIGHTHOUSE_SERVICE: process
+  lighthouse-cache:
+    container_name: lighthouse-cache
+    image: redis:latest
+    ports:
+      - "6382:6379"
 
-  lighthouse-propagate:
-    container_name: lighthouse-propagate
-    depends_on:
-      - cartographer-database
-    image: ${LIGHTHOUSE_IMAGE}
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
-    environment:
-      LIGHTHOUSE_SERVICE: propagate
+  # lighthouse-process-from-root:
+  #   container_name: lighthouse-process-from-root
+  #   depends_on:
+  #     - cartographer-database
+  #     - message-queue
+  #     - lighthouse-cache
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: process
 
-  lighthouse-sendoutboundroot:
-    container_name: lighthouse-sendoutboundroot
-    depends_on:
-      - cartographer-database
-    image: ${LIGHTHOUSE_IMAGE}
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
-    environment:
-      LIGHTHOUSE_SERVICE: sendoutboundroot
+  # lighthouse-propagate:
+  #   container_name: lighthouse-propagate
+  #   depends_on:
+  #     - cartographer-database
+  #     - lighthouse-cache
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: propagate
+
+  # lighthouse-sendoutboundroot:
+  #   container_name: lighthouse-sendoutboundroot
+  #   depends_on:
+  #     - cartographer-database
+  #     - lighthouse-cache
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: sendoutboundroot

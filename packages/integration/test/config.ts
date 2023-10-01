@@ -14,7 +14,7 @@ const connectorNamesByChains: Record<string, string> = {
  * Generates the config.json dynamically for agents(router, sequencer and lighthouse).
  */
 const generateConfig = async () => {
-  console.log("Started generating configs for devnets");
+  console.log("Started generating configs");
 
   const cmdArg = process.argv.slice(2);
   const agent = cmdArg[0]; // router, sequencer, lighthouse

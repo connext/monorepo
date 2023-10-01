@@ -5,7 +5,7 @@
     "port": 6379
   },
   "server": {
-    "adminToken": "a",
+    "adminToken": "xxx",
     "port": 8080
   },
   "web3SignerUrl": "http://signer-relayer:9000",
