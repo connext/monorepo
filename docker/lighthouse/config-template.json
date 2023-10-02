@@ -13,10 +13,10 @@
     "port": 6379
   },
   "database": {
-    "url": "postgres://postgres:qwerty@cartographer-database:5432?sslmode=disable"
+    "url": "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
   },
   "databaseWriter": {
-    "url": "postgres://postgres:qwerty@cartographer-database:5432?sslmode=disable"
+    "url": "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
   },
   "messageQueue": {
     "connection": {
