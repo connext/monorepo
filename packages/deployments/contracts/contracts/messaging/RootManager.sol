@@ -74,7 +74,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param aggregateRoot The aggregate root propagated
    * @param domainsHash The current domain hash
    */
-  event OptimisticRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
+  event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
   /**
    * @notice Emitted when a new aggregate root is proposed
@@ -127,10 +127,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_onlyProposer__NotWhitelistedProposer(address caller);
 
-  error RootManager_optimisticPropagate__ForbiddenOptimisticRoot();
-
-  error RootManager_slowPropagate__OldAggregateRoot();
-
   error RootManager_sendRootToHub__NoMessageSent();
 
   error RootManager_finalize__InvalidInputHash();
@@ -179,7 +175,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * After switching back to slow mode, if the count didnt change from previous slow mode, we consider the root as an old one since
    * probably lot of optimistic roots have been propagated.
    * Example: Propagation in slow mode happens, switch to Op Mode, multiple propagations happen, switch back to Slow mode.
-   * If at this point someone calls propagate and the queue is empty or non of elemenets are ready, _slowPropagate will
+   * If at this point someone calls propagate and the queue is empty or non of the elements are ready, propagate will
    * call the dequeue function which will return the old root and count before Op mode was activated. And since multiple
    * propagations happened while in optimistic mode, the lastPropagatedRoot will be different than the old but current MERKLE.root
    * which will lead to propagating a deprecated root.
@@ -510,7 +506,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice This is called by relayers to take the current aggregate tree root and propagate it to all
    * spoke domains (via their respective hub connectors).
    * @dev Should be called by relayers at a regular interval.
-   * Workflow is different depending on the mode the system is in.
+   * Workflow is slightly different depending on the mode the system is in.
    *
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
    * used here to reduce gas costs, and keep them static regardless of number of supported domains.
@@ -528,65 +524,14 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Sanity check: fees and encodedData lengths matches connectors length.
     require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
-    optimisticMode
-      ? _optimisticPropagate(_connectors, _fees, _encodedData)
-      : _slowPropagate(_connectors, _fees, _encodedData);
-  }
+    // If in slow mode, we dequeue to ensure that we add the inboundRoots that are ready.
+    if (!optimisticMode) dequeue();
 
-  /**
-   * @notice Function used to propagate the aggregate root when the system is in optimistic mode.
-   * @dev The root used is the already finalized optimistic root, this function does not use the MERKLE tree nor the
-   * pendingInboundRoots queue.
-   * Will set finalizedOptimisticAggregateRoot to FINALIZED_HASH.
-   * Emits a unique event.
-   * CRITICAL: This function does NOT check if _connectors sent to it are correct or not.
-   * Can always be called internally, since it doesn't check if the system is in optimistic mode or not.
-   * All the needed checks must be done before calling this function.
-   *
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
-   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _fees Array of fees in native token for an AMB if required
-   * @param _encodedData Array of encodedData: extra params for each AMB if required
-   */
-  function _optimisticPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) internal {
-    bytes32 _aggregateRoot = finalizedOptimisticAggregateRoot;
-    if (_aggregateRoot == FINALIZED_HASH) revert RootManager_optimisticPropagate__ForbiddenOptimisticRoot();
+    bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
 
-    finalizedOptimisticAggregateRoot = FINALIZED_HASH;
+    emit AggregateRootPropagated(_aggregateRoot, domainsHash);
 
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
-    emit OptimisticRootPropagated(_aggregateRoot, domainsHash);
-  }
-
-  /**
-   * @notice Function used to propagate the aggregate root when the system is in slow mode.
-   * @dev Will dequeue the elements that are ready on pendingInboundRoots queue and insert them in MERKLE tree to generate
-   * the new aggregate root that needs to be propagated.
-   * Will set the finalizedOptimisticAggregateRoot to FINALIZE_HASH in order to discard an old root with old inboundRoots.
-   * Emits a unique event.
-   * CRITICAL: This function does NOT check if _connectors sent to it are correct or not.
-   * Can always be called internally, since it doesn't check if the system is in slow mode or not.
-   * All the needed checks must be done before calling this function.
-   *
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
-   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _fees Array of fees in native token for an AMB if required
-   * @param _encodedData Array of encodedData: extra params for each AMB if required
-   */
-  function _slowPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) internal {
-    finalizedOptimisticAggregateRoot = FINALIZED_HASH;
-    (bytes32 _aggregateRoot, uint256 _currentCount) = dequeue();
-    if (_currentCount <= lastCountBeforeOpMode) revert RootManager_slowPropagate__OldAggregateRoot();
-    _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
-    emit RootPropagated(_aggregateRoot, _currentCount, domainsHash);
   }
 
   /**

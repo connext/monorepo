@@ -79,24 +79,17 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     proposedAggregateRootHash = FINALIZED_HASH;
   }
 
+  // TODO deprecated in v1.1. Should be removed
   function forTest_setFinalizedOptimisticRoot(bytes32 _aggregateRoot) public {
     finalizedOptimisticAggregateRoot = _aggregateRoot;
   }
 
-  function forTest_optimisticPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) public {
-    _optimisticPropagate(_connectors, _fees, _encodedData);
+  function forTest_setValidAggregateRoot(bytes32 _aggregateRoot, uint256 _timestamp) public {
+    validAggregateRoots[_timestamp] = _aggregateRoot;
   }
 
-  function forTest_slowPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) public {
-    _slowPropagate(_connectors, _fees, _encodedData);
+  function forTest_setLastSavedAggregateRootTimestamp(uint256 _timestamp) public {
+    lastSavedAggregateRootTimestamp = _timestamp;
   }
 
   function forTest_sendRootToHubs(
@@ -141,6 +134,8 @@ contract Base is ForgeHelper {
   event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
 
   event ProposedRootFinalized(bytes32 aggregateRoot);
+
+  event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
   // ============ Storage ============
   RootManagerForTest _rootManager;
@@ -1092,11 +1087,10 @@ contract RootManager_RemoveProposer is Base {
 }
 
 contract RootManager_Propagate is Base {
-  event OptimisticRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
-
-  function setUp() public virtual override {
-    super.setUp();
+  function test_revertIfContractPaused() public {
+    _rootManager.forTest_pause();
+    vm.expectRevert(bytes("Pausable: paused"));
+    _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
   function test_revertIfInvalidLengthsIfDifferentFeesAmounts(uint256[] calldata randomFees) public {
@@ -1115,156 +1109,22 @@ contract RootManager_Propagate is Base {
     _rootManager.propagate(_connectors, _fees, randomEncodedData);
   }
 
-  function test_callOptimisticPropagateFunction(bytes32 aggregateRoot) public {
+  function test_emitIfAggregateRootPropagated(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setOptimisticMode(true);
-    _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
+
+    uint256 _rootTimestamp = block.timestamp;
+    _rootManager.forTest_setLastSavedAggregateRootTimestamp(_rootTimestamp);
+    _rootManager.forTest_setValidAggregateRoot(aggregateRoot, _rootTimestamp);
 
     utils_generateAndAddConnectors(_connectors.length, false, true);
 
     bytes32 _domainsHash = _rootManager.domainsHash();
 
     vm.expectEmit(true, true, true, true);
-    emit OptimisticRootPropagated(aggregateRoot, _domainsHash);
+    emit AggregateRootPropagated(aggregateRoot, _domainsHash);
 
     _rootManager.propagate(_connectors, _fees, _encodedData);
-  }
-
-  function test_callSlowPropagateFunction(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > 0 && count > _rootManager.lastCountBeforeOpMode());
-    _rootManager.forTest_setOptimisticMode(false);
-
-    utils_generateAndAddConnectors(_connectors.length, false, true);
-
-    bytes32 _domainsHash = _rootManager.domainsHash();
-
-    vm.expectEmit(true, true, true, true);
-    emit RootPropagated(aggregateRoot, count, _domainsHash);
-
-    vm.mockCall(
-      _merkle,
-      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
-      abi.encode(aggregateRoot, count)
-    );
-
-    _rootManager.propagate(_connectors, _fees, _encodedData);
-  }
-}
-
-contract RootManager_OptimisticPropagate is Base {
-  event OptimisticRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
-
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
-  function test_revertIfImmediatePropagate() public {
-    vm.expectRevert(
-      abi.encodeWithSelector(RootManager.RootManager_optimisticPropagate__ForbiddenOptimisticRoot.selector)
-    );
-    _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
-  }
-
-  function test_revertIfFinalizedRootIsFinalizedHash() public {
-    _rootManager.forTest_setFinalizedOptimisticRoot(_finalizedHash);
-
-    vm.expectRevert(
-      abi.encodeWithSelector(RootManager.RootManager_optimisticPropagate__ForbiddenOptimisticRoot.selector)
-    );
-    _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
-  }
-
-  function test_deleteFinalizedData(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > _finalizedHash);
-    _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
-
-    utils_generateAndAddConnectors(_connectors.length, false, true);
-    _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
-
-    bytes32 _afterFinalizedRoot = _rootManager.finalizedOptimisticAggregateRoot();
-    assertEq(_afterFinalizedRoot, _finalizedHash);
-  }
-
-  function test_emitEventOptimisticRootPropagated(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot > _finalizedHash);
-    _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
-
-    utils_generateAndAddConnectors(_connectors.length, false, true);
-
-    bytes32 _domainsHash = _rootManager.domainsHash();
-
-    vm.expectEmit(true, true, true, true);
-    emit OptimisticRootPropagated(aggregateRoot, _domainsHash);
-
-    _rootManager.forTest_optimisticPropagate(_connectors, _fees, _encodedData);
-  }
-}
-
-contract RootManager_SlowPropagate is Base {
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
-
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
-  function test_revertIfLastCountIsGreaterThanCount(bytes32 aggregateRoot, uint256 lastCountBeforeOpMode) public {
-    // MERKLE.count will be zero for this example since the tree is new.
-    vm.assume(aggregateRoot > _finalizedHash && lastCountBeforeOpMode > 0);
-    _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
-
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
-    _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
-  }
-
-  function test_revertIfLastCountIsEqualToCount(bytes32 aggregateRoot, uint256 lastCountBeforeOpMode) public {
-    vm.assume(aggregateRoot > _finalizedHash && lastCountBeforeOpMode > 0);
-
-    vm.mockCall(
-      _merkle,
-      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
-      abi.encode(aggregateRoot, lastCountBeforeOpMode)
-    );
-
-    _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
-
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
-    _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
-  }
-
-  function test_deleteFinalizedOptimisticAggregateRoot(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > _finalizedHash && count > _rootManager.lastCountBeforeOpMode());
-    utils_generateAndAddConnectors(_connectors.length, false, true);
-    vm.mockCall(
-      _merkle,
-      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
-      abi.encode(aggregateRoot, count)
-    );
-
-    _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
-
-    _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
-
-    bytes32 _finalizedOptimisticRoot = _rootManager.finalizedOptimisticAggregateRoot();
-
-    assertEq(_finalizedOptimisticRoot, _finalizedHash);
-  }
-
-  function test_emitEventRootPropagated(bytes32 aggregateRoot, uint256 count) public {
-    vm.assume(aggregateRoot > _finalizedHash && count > _rootManager.lastCountBeforeOpMode());
-
-    utils_generateAndAddConnectors(_connectors.length, false, true);
-
-    bytes32 _domainsHash = _rootManager.domainsHash();
-
-    vm.expectEmit(true, true, true, true);
-    emit RootPropagated(aggregateRoot, count, _domainsHash);
-
-    vm.mockCall(
-      _merkle,
-      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
-      abi.encode(aggregateRoot, count)
-    );
-    _rootManager.forTest_slowPropagate(_connectors, _fees, _encodedData);
   }
 }
 
@@ -1320,14 +1180,11 @@ contract RootManager_SendRootToHubs is Base {
     _rootManager.forTest_sendRootToHubs(aggregateRoot, _connectors, _fees, _encodedData);
   }
 
-  function test_revertIfSendingIncorrectAmounOfEth(
-    bytes32 aggregateRoot,
-    uint32 newDomain,
-    address newConnector
-  ) public {
-    vm.assume(newDomain > 0);
+  function test_revertIfSendingIncorrectAmounOfEth(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot > _finalizedHash);
-    vm.assume(newConnector != address(0));
+
+    uint32 newDomain = uint32(1002);
+    address newConnector = address(1002);
 
     // Ensure that the fuzzed reverterDomain is never equal to one of the valid domains.
     for (uint256 i = 0; i < _domains.length; i++) {

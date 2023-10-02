@@ -101,7 +101,7 @@ contract ProposeFinalizePropagate is ForgeHelper {
     isSlow();
 
     // Should revert because no new messages have arrived
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_sendRootToHub__NoMessageSent.selector));
 
     // Propagate
     rootManager.propagate(connectors, fees, encodedData);
@@ -180,13 +180,13 @@ contract ProposeFinalizePropagate is ForgeHelper {
   }
 
   function test_RootManager__QueuedDequeueQueuedSwitch() external {
-    // Start in slowMode
     vm.mockCall(
       watcherManager,
       abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
       abi.encode(true)
     );
     vm.prank(watcher);
+    // Set in slowMode
     rootManager.activateSlowMode();
 
     // Checks that we are in slow mode
