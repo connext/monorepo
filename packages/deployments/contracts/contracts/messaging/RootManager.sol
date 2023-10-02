@@ -141,6 +141,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager__renounceOwnership_prohibited();
 
+  error RootManager_slowPropagate__OldAggregateRoot();
+
   // ============ Properties ============
 
   /**
@@ -518,7 +520,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
     // If in slow mode, we dequeue to ensure that we add the inboundRoots that are ready.
-    if (!optimisticMode) dequeue();
+    if (!optimisticMode) {
+      (, uint256 _currentCount) = dequeue();
+      if (_currentCount <= lastCountBeforeOpMode) revert RootManager_slowPropagate__OldAggregateRoot();
+    }
 
     bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
 

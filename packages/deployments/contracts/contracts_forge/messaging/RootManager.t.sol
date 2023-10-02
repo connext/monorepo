@@ -1104,6 +1104,41 @@ contract RootManager_Propagate is Base {
     _rootManager.propagate(_connectors, _fees, randomEncodedData);
   }
 
+  function test_revertIfLastCountIsGreaterThanCurrentCount(
+    bytes32 aggregateRoot,
+    uint256 lastCountBeforeOpMode
+  ) public {
+    // MERKLE.count will be zero for this example since the tree is new.
+    vm.assume(aggregateRoot > _finalizedHash);
+    vm.assume(lastCountBeforeOpMode > 0);
+
+    _rootManager.forTest_setOptimisticMode(false);
+    _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
+    _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
+
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+  }
+
+  function test_revertIfLastCountIsEqualThanCurrentCount(bytes32 aggregateRoot, uint256 lastCountBeforeOpMode) public {
+    // MERKLE.count will be zero for this example since the tree is new.
+    vm.assume(aggregateRoot > _finalizedHash);
+    vm.assume(lastCountBeforeOpMode > 0);
+
+    _rootManager.forTest_setOptimisticMode(false);
+    _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
+    _rootManager.forTest_setLastCountBeforeOpMode(lastCountBeforeOpMode);
+
+    vm.mockCall(
+      _merkle,
+      abi.encodeWithSelector(MerkleTreeManager.rootAndCount.selector),
+      abi.encode(aggregateRoot, lastCountBeforeOpMode)
+    );
+
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+  }
+
   function test_emitIfAggregateRootPropagated(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setOptimisticMode(true);
