@@ -32,6 +32,9 @@ describe("LOCAL:E2E", () => {
     for (const chain of [PARAMETERS.HUB, PARAMETERS.A, PARAMETERS.B]) {
       const provider = new providers.JsonRpcProvider(chain.RPC[0]);
 
+      // Ensure automine is off
+      await provider.send("evm_setAutomine", [false]);
+
       // Fund the user and relayer agents some ETH.
       await provider.send("anvil_setBalance", [PARAMETERS.AGENTS.USER.address, "0x84595161401484A000000"]);
       await provider.send("anvil_setBalance", [PARAMETERS.AGENTS.RELAYER.address, "0x84595161401484A000000"]);
