@@ -399,6 +399,43 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    // {
+    //   // TODO: remove after execution layer upgrade
+    //   name: "xRADAR",
+    //   canonical: {
+    //     domain: "6648936",
+    //     address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+    //     decimals: 18,
+    //     cap: utils.parseUnits("0", 18).toString(),
+    //   },
+    //   representations: {
+    //     /// BSC
+    //     "6450786": {
+    //       local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+    //       adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+    //     },
+    //   },
+    // },
+    {
+      name: "xRADAR",
+      canonical: {
+        domain: "11111",
+        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+          adopted: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        },
+        /// BSC
+        "6450786": {
+          local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+          adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
