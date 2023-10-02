@@ -18,6 +18,7 @@
   "databaseWriter": {
     "url": "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
   },
+  "hubDomain": "31337",
   "messageQueue": {
     "connection": {
       "uri": "amqp://guest:guest@message-queue:5672"
