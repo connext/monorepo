@@ -1,4 +1,4 @@
-import { convertFromDbTransfer, createLoggingContext, XTransfer } from "@connext/nxtp-utils";
+import { convertFromDbTransfer, createLoggingContext, XTransfer, XTransferStatus } from "@connext/nxtp-utils";
 import { SdkBase, SdkUtils, SdkXCallParams } from "@connext/sdk-core";
 import { pollSomething } from "../../helpers/shared";
 import { PARAMETERS as _PARAMETERS, SUBG_POLL_PARITY } from "../../constants/local";
@@ -64,10 +64,16 @@ export const getTransferByTransactionHash = async (
   return xTransfer;
 };
 
-export const getTransferById = async (sdkUtils: SdkUtils, domain: string, transferId: string): Promise<XTransfer> => {
+export const getTransferById = async (
+  sdkUtils: SdkUtils,
+  domain: string,
+  transferId: string,
+  targetStatus?: XTransferStatus,
+): Promise<XTransfer> => {
   logger.info("Fetching the destination transfer using sdk...", requestContext, methodContext, {
     domain,
     transferId,
+    targetStatus,
   });
 
   const startTime = Date.now();
@@ -84,20 +90,15 @@ export const getTransferById = async (sdkUtils: SdkUtils, domain: string, transf
         }
 
         const transfer = convertFromDbTransfer(dbTransfer[0]);
-
-        if (transfer.destination?.reconcile?.transactionHash) {
-          logger.info("Transfer was reconciled.", requestContext, methodContext, {
-            domain,
-            hash: transfer.destination!.reconcile!.transactionHash,
-          });
-        }
-
-        if (transfer.destination?.execute?.transactionHash) {
-          logger.info("Transfer was executed.", requestContext, methodContext, {
-            domain,
-            hash: transfer.destination!.reconcile!.transactionHash,
-          });
-          return transfer;
+        if (transfer.destination?.status) {
+          if (!targetStatus || (targetStatus && transfer.destination.status == targetStatus)) {
+            logger.info("Destination transfer found", requestContext, methodContext, {
+              domain,
+              status: transfer.destination.status,
+              targetStatus,
+            });
+            return transfer;
+          }
         }
       } catch (e: unknown) {
         console.warn(e);

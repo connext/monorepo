@@ -7,7 +7,7 @@ import {
   XTransferStatus,
 } from "@connext/nxtp-utils";
 import { SdkBase, SdkUtils, SdkXCallParams } from "@connext/sdk-core";
-import { constants, providers, utils } from "ethers";
+import { BigNumber, constants, providers, utils } from "ethers";
 import { expect } from "chai";
 
 import { pollSomething } from "./helpers/shared";
@@ -106,7 +106,7 @@ describe("LOCAL:E2E", () => {
     await onchainSetup();
   });
 
-  it("handles fast liquidity transfer", async () => {
+  it("happy: create a successful transfer", async () => {
     // Creates an xcall from hub to spoke
     logger.info("Creating an xcall for happy path", requestContext, methodContext);
     const hubProvider = new providers.JsonRpcProvider(PARAMETERS.HUB.RPC[0]);
@@ -134,28 +134,23 @@ describe("LOCAL:E2E", () => {
       to: PARAMETERS.AGENTS.USER.address,
       asset: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
       delegate: PARAMETERS.AGENTS.USER.address,
-      amount: "100",
+      amount: "10000",
       slippage: "300",
       callData: "0x",
-      relayerFee: utils.parseUnits("1", 16).toString(),
+      relayerFee: utils.parseUnits("1", 17).toString(),
       receiveLocal: false,
     };
 
     const erc20 = new utils.Interface(ERC20Abi);
 
-    const balanceOfData = erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]);
-    const res = await deployerTxService.readTx({
-      domain: PARAMETERS.HUB.CHAIN,
-      data: balanceOfData,
-      to: PARAMETERS.HUB.DEPLOYMENTS.TestERC20,
+    const balanceBeforeXCallRes = await deployerTxService.readTx({
+      domain: PARAMETERS.A.CHAIN,
+      data: erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]),
+      to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     });
-    const [tokenBalance] = erc20.decodeFunctionResult("balanceOf", res);
-    logger.info(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
-    console.log(`New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${tokenBalance.toString()}`);
+    const [balanceBeforeXCall] = erc20.decodeFunctionResult("balanceOf", balanceBeforeXCallRes);
 
     const xcallRes = await sendXCall(sdkBase, xcallParams, userSignerOnHub);
-
-    await processAMB(PARAMETERS.HUB);
 
     const originTransfer = await getTransferByTransactionHash(
       sdkUtils,
@@ -168,79 +163,43 @@ describe("LOCAL:E2E", () => {
       transferId: originTransfer?.transferId,
     });
 
-    const destinationTransfer = await getTransferById(sdkUtils, xcallParams.origin, originTransfer.transferId);
+    let destinationTransfer = await getTransferById(sdkUtils, xcallParams.origin, originTransfer.transferId);
 
-    logger.info("Fast liquidity transfer completed successfully", requestContext, methodContext, {
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
+
+    logger.info("Transfer executed", requestContext, methodContext, {
       originDomain: xcallParams.origin,
       destinationDomain: xcallParams.destination,
       status: destinationTransfer.destination?.status,
     });
-  });
 
-  it.skip("works for address(0) and 0-value transfers", async () => {
-    const originProvider = new providers.JsonRpcProvider(PARAMETERS.A.RPC[0]);
-    const { receipt, xcallData } = await sendXCall(
-      sdkBase,
-      { amount: "0", asset: constants.AddressZero },
-      PARAMETERS.AGENTS.USER.signer.connect(originProvider),
-    );
-    const originTransfer = await getTransferByTransactionHash(sdkUtils, PARAMETERS.A.DOMAIN, receipt.transactionHash);
-
-    // TODO: Check user funds, assert tokens were deducted.
-
-    logger.info("Waiting for execution on the destination domain.", requestContext, methodContext, {
-      domain: xcallData.destination,
-      transferId: originTransfer?.transferId,
+    const balanceAfterXCallRes = await deployerTxService.readTx({
+      domain: PARAMETERS.A.CHAIN,
+      data: erc20.encodeFunctionData("balanceOf", [PARAMETERS.AGENTS.USER.address]),
+      to: PARAMETERS.A.DEPLOYMENTS.TestERC20,
     });
+    const [balanceAfterXCall] = erc20.decodeFunctionResult("balanceOf", balanceAfterXCallRes);
+    logger.info(
+      `New user: ${PARAMETERS.AGENTS.USER.address} token balance: ${balanceAfterXCall.toString()} on domain: ${
+        PARAMETERS.A.DOMAIN
+      }`,
+    );
 
-    const sequencerUrl = process.env.SEQUENCER_URL;
-    if (sequencerUrl) {
-      logger.info("Polling sequencer for auction status...");
-      let error: any | undefined;
-      const status: AxiosResponse<ExecuteFastApiGetExecStatusResponse> | undefined = await pollSomething({
-        attempts: Math.floor(60_000 / SUBG_POLL_PARITY),
-        parity: SUBG_POLL_PARITY,
-        method: async () => {
-          return await axios
-            .request<ExecuteFastApiGetExecStatusResponse>({
-              method: "get",
-              baseURL: sequencerUrl,
-              url: `/auctions/${originTransfer.transferId}`,
-            })
-            .catch((e: AxiosResponse<SequencerApiErrorResponse>) => {
-              error = e.data ? (e.data.error ? e.data.error.message : e.data) : e;
-              return undefined;
-            });
-        },
-      });
-      if (!status) {
-        logger.info("Unable to retrieve auction status from Sequencer.", requestContext, methodContext, {
-          etc: {
-            error,
-          },
-        });
-      } else {
-        logger.info(`Retrieved auction status from Sequencer.`, requestContext, methodContext, {
-          originDomain: xcallData.origin,
-          destinationDomain: xcallData.destination,
-          etc: { status: status.data },
-        });
-      }
-    }
+    // The amount received after fees are deducted (e.g. 9995/10000 would be .005%).
+    expect(BigNumber.from(balanceAfterXCall.toString()).sub(balanceBeforeXCall.toString()).toString()).to.be.eq("9995");
 
-    const destinationTransfer = await getTransferById(sdkUtils, PARAMETERS.B.DOMAIN, originTransfer.transferId);
-    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.Executed);
-
-    // TODO: Check router liquidity on-chain, assert funds were deducted.
-    logger.info("Fast-liquidity transfer completed successfully!", requestContext, methodContext, {
-      originDomain: xcallData.origin,
-      destinationDomain: xcallData.destination,
-      etc: {
-        transfer: {
-          ...originTransfer,
-          destination: destinationTransfer.destination,
-        },
-      },
+    await processAMB(PARAMETERS.HUB);
+    destinationTransfer = await getTransferById(
+      sdkUtils,
+      xcallParams.origin,
+      originTransfer.transferId,
+      XTransferStatus.CompletedFast,
+    );
+    expect(destinationTransfer.destination?.status).to.be.eq(XTransferStatus.CompletedFast);
+    logger.info("Transfer completed!", requestContext, methodContext, {
+      originDomain: xcallParams.origin,
+      destinationDomain: xcallParams.destination,
+      status: destinationTransfer.destination?.status,
     });
   });
 });
