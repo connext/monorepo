@@ -73,5 +73,9 @@ export const mockDatabase = (): Database => {
       }),
     ]),
     deleteCache: stub().resolves(),
+    saveProposedSnapshots: stub().resolves(),
+    saveFinalizedRoots: stub().resolves(),
+    savePropagatedOptimisticRoots: stub().resolves(),
+    saveSnapshotRoots: stub().resolves(),
   };
 };

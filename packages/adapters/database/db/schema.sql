@@ -24,13 +24,6 @@ COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
 
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -1172,6 +1165,14 @@ ALTER TABLE ONLY public.routers
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: snapshot_roots snapshot_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshot_roots
+    ADD CONSTRAINT snapshot_roots_id_key UNIQUE (id);
 
 
 --

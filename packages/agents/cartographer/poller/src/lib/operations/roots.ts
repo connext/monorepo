@@ -113,7 +113,7 @@ export const updateFinalizedRoots = async () => {
     if (offset === 0 || newOffset > offset) {
       await database.saveFinalizedRoots(roots);
 
-      await database.saveCheckPoint("finalized_root_" + hub, newOffset);
+      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newOffset);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
         offset: newOffset,

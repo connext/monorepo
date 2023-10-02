@@ -24,7 +24,7 @@ CREATE TABLE public.snapshots (
 CREATE INDEX snapshots_idx ON snapshots USING btree (id);
 
 CREATE TABLE public.snapshot_roots (
-    id character varying(255) NOT NULL,
+    id character varying(255) NOT NULL UNIQUE,
     spoke_domain integer NOT NULL,
     root character(66) NOT NULL,
     count integer NOT NULL,
