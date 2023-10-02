@@ -39,9 +39,7 @@ export default task("bump-transfer", "Bump a transfer")
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
 
-      const tx = await connext.bumpTransfer(transferId, {
-        value: relayerFee,
-      });
+      const tx = await connext["bumpTransfer(bytes32)"](transferId, { value: relayerFee });
 
       console.log("bumpTransfer tx: ", tx);
       const receipt = await tx.wait();
