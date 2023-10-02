@@ -150,7 +150,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   uint128 public constant DEQUEUE_MAX = 100;
 
   /**
-   * @notice Root used to keep the slots of proposedAggregateRootHash and finalizedOptimisticAggregateRoot warm.
+   * @notice Root used to keep the slots of proposedAggregateRootHash warm.
    */
   bytes32 public constant FINALIZED_HASH = 0x0000000000000000000000000000000000000000000000000000000000000001;
   /**
@@ -192,12 +192,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * aggregate roots in `propagate`.
    */
   mapping(uint32 => bytes32) public lastPropagatedRoot;
-
-  /**
-   * @notice The last finalized aggregate root in optimistic mode.
-   * @dev    Set to 0x1 to prevent someone from calling finalize() the moment the contract is deployed
-   */
-  bytes32 public finalizedOptimisticAggregateRoot = 0x0000000000000000000000000000000000000000000000000000000000000001;
 
   /**
    * @notice Queue used for management of verification for inbound roots from spoke chains. Once
@@ -386,8 +380,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Remove support for a connector and respective domain. That connector/domain will no longer
    * receive updates for the latest aggregate root.
    * @dev Only watcher can remove a connector.
-   * @dev The proposedAggregateRootHash will be set to the FINALIZED_HASH while the finalizedOptimisticAggregateRoot
-   * will continue existing as it is verified.
+   * @dev The proposedAggregateRootHash will be set to the FINALIZED_HASH.
    * TODO: Could add a metatx-able `removeConnectorWithSig` if we want to use relayers?
    *
    * @param _domain The spoke domain of the target connector we want to remove.

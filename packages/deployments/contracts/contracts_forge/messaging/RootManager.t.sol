@@ -79,11 +79,6 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     proposedAggregateRootHash = FINALIZED_HASH;
   }
 
-  // TODO deprecated in v1.1. Should be removed
-  function forTest_setFinalizedOptimisticRoot(bytes32 _aggregateRoot) public {
-    finalizedOptimisticAggregateRoot = _aggregateRoot;
-  }
-
   function forTest_setValidAggregateRoot(bytes32 _aggregateRoot, uint256 _timestamp) public {
     validAggregateRoots[_timestamp] = _aggregateRoot;
   }
@@ -1329,7 +1324,6 @@ contract RootManager_FinalizeAndPropagate is Base {
     _rootManager.forTest_setOptimisticMode(true);
     utils_generateAndAddConnectors(_connectors.length, false, true);
     _rootManager.forTest_setProposeHash(aggregateRoot, _endOfDispute);
-    _rootManager.forTest_setFinalizedOptimisticRoot(aggregateRoot);
 
     _rootManager.finalizeAndPropagate(_connectors, _fees, _encodedData, aggregateRoot, _endOfDispute);
   }
