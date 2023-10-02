@@ -1139,6 +1139,17 @@ contract RootManager_Propagate is Base {
     _rootManager.propagate(_connectors, _fees, _encodedData);
   }
 
+  function test_revertIfAggregateRootIsZero() public {
+    _rootManager.forTest_setOptimisticMode(true);
+    _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
+
+    // set to zero to guaranty that is an invalid timestamp that will return a zero root.
+    _rootManager.forTest_setLastSavedAggregateRootTimestamp(0);
+
+    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_propagate__AggregateRootIsZero.selector));
+    _rootManager.propagate(_connectors, _fees, _encodedData);
+  }
+
   function test_emitIfAggregateRootPropagated(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot > _finalizedHash);
     _rootManager.forTest_setOptimisticMode(true);

@@ -143,6 +143,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_slowPropagate__OldAggregateRoot();
 
+  error RootManager_propagate__AggregateRootIsZero();
+
   // ============ Properties ============
 
   /**
@@ -526,6 +528,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     }
 
     bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
+
+    if (_aggregateRoot == 0) revert RootManager_propagate__AggregateRootIsZero();
 
     emit AggregateRootPropagated(_aggregateRoot, domainsHash);
 
