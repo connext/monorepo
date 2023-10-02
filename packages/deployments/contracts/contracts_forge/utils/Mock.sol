@@ -254,6 +254,18 @@ contract MockSpokeConnector is SpokeConnector {
     updatesAggregate = _updatesAggregate;
   }
 
+  function setAllowlistedProposer(address _proposer, bool _isProposer) public {
+    allowlistedProposers[_proposer] = _isProposer;
+  }
+
+  function setOptimisticMode(bool _mode) public {
+    optimisticMode = _mode;
+  }
+
+  function setProposedAggregateRootHash(bytes32 _proposedAggregateRootHash) public {
+    proposedAggregateRootHash = _proposedAggregateRootHash;
+  }
+
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }
