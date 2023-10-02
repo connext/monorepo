@@ -266,6 +266,18 @@ contract MockSpokeConnector is SpokeConnector {
     proposedAggregateRootHash = _proposedAggregateRootHash;
   }
 
+  function setPendingAggregateRoot(bytes32 _newRoot, uint256 _blockNumber) public {
+    pendingAggregateRoots[_newRoot] = _blockNumber;
+  }
+
+  function setProvenAggregateRoot(bytes32 _newRoot, bool _proven) public {
+    provenAggregateRoots[_newRoot] = _proven;
+  }
+
+  function receiveAggregateRootForTest(bytes32 _newRoot) public {
+    receiveAggregateRoot(_newRoot);
+  }
+
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     lastOutbound = keccak256(_data);
   }

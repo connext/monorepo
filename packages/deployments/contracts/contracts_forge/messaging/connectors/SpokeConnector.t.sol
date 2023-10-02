@@ -145,6 +145,13 @@ contract SpokeConnector_General is Base {
     spokeConnector.send(abi.encode(""));
   }
 
+  function test_SpokeConnector__send_failsIfOptimisticModeOn() public {
+    MockSpokeConnector(payable(address(spokeConnector))).setOptimisticMode(true);
+
+    vm.expectRevert(SpokeConnector.SpokeConnector_send__OptimisticModeOn.selector);
+    spokeConnector.send(abi.encode(""));
+  }
+
   function test_SpokeConnector__send_failsIfRootAlreadySent() public {
     bytes32 root = bytes32(bytes("test123"));
     vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
@@ -719,6 +726,55 @@ contract SpokeConnector_SetDisputeBlocks is Base {
     emit DisputeBlocksUpdated(_prevDisputeBlocks, newDisputeBlocks);
 
     spokeConnector.setDisputeBlocks(newDisputeBlocks);
+  }
+}
+
+contract SpokeConnector_ReceiveAggregateRoot is Base {
+  event AggregateRootReceived(bytes32 indexed root);
+
+  function setUp() public virtual override {
+    super.setUp();
+    MockSpokeConnector(payable(address(spokeConnector))).setOptimisticMode(false);
+  }
+
+  function test_revertIfNotInSlowMode(bytes32 newRoot) public {
+    MockSpokeConnector(payable(address(spokeConnector))).setOptimisticMode(true);
+    vm.expectRevert(SpokeConnector.SpokeConnector_receiveAggregateRoot__OptimisticModeOn.selector);
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
+  }
+
+  function test_revertIfNewRootIsZero() public {
+    bytes32 newRoot = bytes32("");
+    vm.expectRevert("new root empty");
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
+  }
+
+  function test_revertIfRootIsAlreadyPending(bytes32 newRoot) public {
+    vm.assume(newRoot != bytes32(""));
+    MockSpokeConnector(payable(address(spokeConnector))).setPendingAggregateRoot(newRoot, block.number);
+    vm.expectRevert("root already pending");
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
+  }
+
+  function test_revertIfRootIsAlreadyProven(bytes32 newRoot) public {
+    vm.assume(newRoot != bytes32(""));
+    MockSpokeConnector(payable(address(spokeConnector))).setProvenAggregateRoot(newRoot, true);
+    vm.expectRevert("root already proven");
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
+  }
+
+  function test_receiveAggregateRootSuccesfully(bytes32 newRoot) public {
+    vm.assume(newRoot != bytes32(""));
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
+    assertEq(spokeConnector.pendingAggregateRoots(newRoot), block.number);
+  }
+
+  function test_emitIfAggregateRootIsReceived(bytes32 newRoot) public {
+    vm.assume(newRoot != bytes32(""));
+    vm.expectEmit(true, true, true, true);
+    emit AggregateRootReceived(newRoot);
+
+    MockSpokeConnector(payable(address(spokeConnector))).receiveAggregateRootForTest(newRoot);
   }
 }
 

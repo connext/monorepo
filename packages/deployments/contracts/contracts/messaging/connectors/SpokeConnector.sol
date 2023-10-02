@@ -173,6 +173,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   error SpokeConnector_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
   error SpokeConnector_setDisputeBlocks__DisputeBlocksLowerThanMin();
   error SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore();
+  error SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
+  error SpokeConnector_send__OptimisticModeOn();
 
   // ============ Structs ============
 
@@ -515,6 +517,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _encodedData Data needed to send crosschain message by associated amb
    */
   function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
+    if (optimisticMode) revert SpokeConnector_send__OptimisticModeOn();
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
     // mark as sent
@@ -726,6 +729,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _newRoot Received aggregate
    */
   function receiveAggregateRoot(bytes32 _newRoot) internal {
+    if (optimisticMode) revert SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
     require(_newRoot != bytes32(""), "new root empty");
     require(pendingAggregateRoots[_newRoot] == 0, "root already pending");
     require(!provenAggregateRoots[_newRoot], "root already proven");
