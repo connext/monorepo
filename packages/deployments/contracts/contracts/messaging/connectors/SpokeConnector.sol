@@ -190,6 +190,37 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint256 index;
   }
 
+  /**
+   * Struct containing the base construstor arguments of a SpokeConnector
+   * @param domain The domain this connector lives on.
+   * @param mirrorDomain The hub domain.
+   * @param amb The address of the AMB on the spoke domain this connector lives on.
+   * @param rootManager The address of the RootManager on the hub.
+   * @param mirrorConnector The address of the spoke connector.
+   * @param processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
+   * to handle transaction).
+   * @param reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
+   * @param delayBlocks The delay for the validation period for incoming messages in blocks.
+   * @param merkle The address of the MerkleTreeManager on this spoke domain.
+   * @param watcherManager The address of the WatcherManager to whom this connector is a client.
+   * @param minDisputeBlocks The minimum number of dispute blocks that can be set.
+   * @param disputeBlocks The number of dispute blocks off-chain agents will have to dispute proposed roots.
+   */
+  struct ConstructorParams {
+    uint32 domain;
+    uint32 mirrorDomain;
+    address amb;
+    address rootManager;
+    address mirrorConnector;
+    uint256 processGas;
+    uint256 reserveGas;
+    uint256 delayBlocks;
+    address merkle;
+    address watcherManager;
+    uint256 minDisputeBlocks;
+    uint256 disputeBlocks;
+  }
+
   // ============ Public Storage ============
 
   /**
@@ -323,44 +354,27 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
 
   /**
    * @notice Creates a new SpokeConnector instance.
-   * @param _domain The domain this connector lives on.
-   * @param _mirrorDomain The hub domain.
-   * @param _amb The address of the AMB on the spoke domain this connector lives on.
-   * @param _rootManager The address of the RootManager on the hub.
-   * @param _mirrorConnector The address of the spoke connector.
-   * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
-   * to handle transaction).
-   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
-   * @param _delayBlocks The delay for the validation period for incoming messages in blocks.
-   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
-   * @param _watcherManager The address of the WatcherManager to whom this connector is a client.
+   * @param _params The constructor parameters.
    */
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
+    ConstructorParams memory _params
   )
     ConnectorManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    WatcherClient(_watcherManager)
+    Connector(_params.domain, _params.mirrorDomain, _params.amb, _params.rootManager, _params.mirrorConnector)
+    WatcherClient(_params.watcherManager)
   {
     // Sanity check: constants are reasonable.
-    require(_processGas > 850_000 - 1, "!process gas");
-    require(_reserveGas > 15_000 - 1, "!reserve gas");
-    PROCESS_GAS = _processGas;
-    RESERVE_GAS = _reserveGas;
+    require(_params.processGas > 850_000 - 1, "!process gas");
+    require(_params.reserveGas > 15_000 - 1, "!reserve gas");
+    PROCESS_GAS = _params.processGas;
+    RESERVE_GAS = _params.reserveGas;
 
-    require(_merkle != address(0), "!zero merkle");
-    MERKLE = MerkleTreeManager(_merkle);
+    require(_params.merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_params.merkle);
 
-    delayBlocks = _delayBlocks;
+    delayBlocks = _params.delayBlocks;
+    minDisputeBlocks = _params.minDisputeBlocks;
+    disputeBlocks = _params.disputeBlocks;
   }
 
   // ============ Admin Functions ============

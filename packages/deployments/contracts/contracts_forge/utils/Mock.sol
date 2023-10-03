@@ -215,32 +215,7 @@ contract MockSpokeConnector is SpokeConnector {
   // bytes32 public aggregateRoot;
   // uint32 public mirrorDomain;
 
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _merkle,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _watcherManager
-  )
-    ProposedOwnable()
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-  {
+  constructor(ConstructorParams memory _baseSpokeParams) ProposedOwnable() SpokeConnector(_baseSpokeParams) {
     _setOwner(msg.sender);
     verified = true;
     // mirrorDomain = _mirrorDomain;

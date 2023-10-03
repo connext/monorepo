@@ -11,31 +11,7 @@ contract ZkSyncSpokeConnector is SpokeConnector {
   uint160 constant L1_TO_L2_ALIAS_OFFSET = uint160(0x1111000000000000000000000000000000001111);
 
   // ============ Constructor ============
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-  {}
+  constructor(ConstructorParams memory _baseSpokeParams) SpokeConnector(_baseSpokeParams) {}
 
   // ============ Public Functions ============
 

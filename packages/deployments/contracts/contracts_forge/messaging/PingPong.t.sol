@@ -50,8 +50,6 @@ contract PingPong is ConnectorHelper {
   MerkleTreeManager aggregateTree;
 
   uint256 _delayBlocks = 40;
-  uint256 _minDisputeBlocks = 125;
-  uint256 _disputeBlocks = 150;
   address _watcherManager;
 
   // ============ connectors
@@ -86,21 +84,23 @@ contract PingPong is ConnectorHelper {
     );
     aggregateTree.setArborist(_rootManager);
 
+    SpokeConnector.ConstructorParams memory _originParams = SpokeConnector.ConstructorParams({
+      domain: _originDomain,
+      mirrorDomain: _mainnetDomain,
+      amb: _originAMB,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: PROCESS_GAS,
+      reserveGas: RESERVE_GAS,
+      delayBlocks: 0,
+      merkle: address(originSpokeTree),
+      watcherManager: address(1),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // Mock sourceconnector on l2
-    _originConnectors.spoke = address(
-      new MockSpokeConnector(
-        _originDomain, // uint32 _domain,
-        _mainnetDomain, // uint32 _mirrorDomain
-        _originAMB, // address _amb,
-        _rootManager, // address _rootManager,
-        address(originSpokeTree), // address merkle root manager
-        address(0), // address _mirrorConnector
-        PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        0, // uint256 _delayBlocks
-        _watcherManager
-      )
-    );
+    _originConnectors.spoke = address(new MockSpokeConnector(_originParams));
     originSpokeTree.setArborist(_originConnectors.spoke);
     MockSpokeConnector(payable(_originConnectors.spoke)).setUpdatesAggregate(true);
 
@@ -116,21 +116,23 @@ contract PingPong is ConnectorHelper {
     );
     MockHubConnector(payable(_originConnectors.hub)).setUpdatesAggregate(true);
 
+    SpokeConnector.ConstructorParams memory _destinationParams = SpokeConnector.ConstructorParams({
+      domain: _destinationDomain,
+      mirrorDomain: _mainnetDomain,
+      amb: _destinationAMB,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: PROCESS_GAS,
+      reserveGas: RESERVE_GAS,
+      delayBlocks: 0,
+      merkle: address(destinationSpokeTree),
+      watcherManager: address(1),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // Mock dest connector on l2
-    _destinationConnectors.spoke = address(
-      new MockSpokeConnector(
-        _destinationDomain, // uint32 _domain,
-        _mainnetDomain, // uint32 _mirrorDomain,
-        _destinationAMB, // address _amb,
-        _rootManager, // address _rootManager,
-        address(destinationSpokeTree), // address merkle root manager
-        address(0), // address _mirrorConnector,
-        PROCESS_GAS, // uint256 _processGas,
-        RESERVE_GAS, // uint256 _reserveGas
-        0, // uint256 _delayBlocks
-        _watcherManager
-      )
-    );
+    _destinationConnectors.spoke = address(new MockSpokeConnector(_destinationParams));
     destinationSpokeTree.setArborist(_destinationConnectors.spoke);
     MockSpokeConnector(payable(_destinationConnectors.spoke)).setUpdatesAggregate(true);
 

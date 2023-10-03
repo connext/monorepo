@@ -9,32 +9,7 @@ import {ConsensysBase} from "./ConsensysBase.sol";
 
 contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
   // ============ Constructor ============
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    ConsensysBase()
-  {}
+  constructor(ConstructorParams memory _baseSpokeParams) SpokeConnector(_baseSpokeParams) ConsensysBase() {}
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {

@@ -46,6 +46,8 @@ contract Base is ForgeHelper {
   uint256 PROCESS_GAS = 850_000;
   uint256 RESERVE_GAS = 15_000;
   uint256 SNAPSHOT_DURATION = 30 minutes;
+  uint256 _minDisputeBlocks = 100;
+  uint256 _disputeBlocks = 120;
 
   // ============ Setup ============
   function setUp() public virtual {
@@ -59,18 +61,22 @@ contract Base is ForgeHelper {
     _watcherManager = new WatcherManager();
     _merkle = new MerkleTreeManager();
 
-    spokeConnector = new MockSpokeConnector(
-      _originDomain, // uint32 _domain,
-      _mainnetDomain, // uint32 _mirrorDomain
-      _originAMB, // address _amb,
-      _rootManager, // address _rootManager,
-      address(_merkle), // address _merkle
-      address(0), // address _mirrorConnector
-      PROCESS_GAS, // uint256 _processGas,
-      RESERVE_GAS, // uint256 _reserveGas
-      0, // uint256 _delayBlocks
-      address(_watcherManager)
-    );
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _originDomain,
+      mirrorDomain: _mainnetDomain,
+      amb: _originAMB,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: PROCESS_GAS,
+      reserveGas: RESERVE_GAS,
+      delayBlocks: 0,
+      merkle: address(_merkle),
+      watcherManager: address(_watcherManager),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
+    spokeConnector = new MockSpokeConnector(_baseParams);
     vm.stopPrank();
   }
 
@@ -189,6 +195,23 @@ contract SpokeConnector_General is Base {
     SpokeConnector.Proof[] memory proofs = new SpokeConnector.Proof[](1);
     proofs[0] = SpokeConnector.Proof(message, proof, 0);
     spokeConnector.proveAndProcess(proofs, bytes32(""), proof, 0);
+  }
+}
+
+contract SpokeConnector_Constructor is Base {
+  function test_shouldInitializeValuesCorrectly() public {
+    assertEq(spokeConnector.DOMAIN(), _originDomain);
+    assertEq(spokeConnector.MIRROR_DOMAIN(), _mainnetDomain);
+    assertEq(spokeConnector.AMB(), _originAMB);
+    assertEq(spokeConnector.ROOT_MANAGER(), _rootManager);
+    assertEq(spokeConnector.mirrorConnector(), address(0));
+    assertEq(spokeConnector.PROCESS_GAS(), PROCESS_GAS);
+    assertEq(spokeConnector.RESERVE_GAS(), RESERVE_GAS);
+    assertEq(spokeConnector.delayBlocks(), 0);
+    assertEq(address(spokeConnector.MERKLE()), address(_merkle));
+    assertEq(address(spokeConnector.watcherManager()), address(_watcherManager));
+    assertEq(spokeConnector.minDisputeBlocks(), _minDisputeBlocks);
+    assertEq(spokeConnector.disputeBlocks(), _disputeBlocks);
   }
 }
 
@@ -598,7 +621,8 @@ contract SpokeConnector_Finalize is Base {
   ) public {
     vm.assume(aggregateRoot != spokeConnector.FINALIZED_HASH());
     vm.assume(validRootTimestamp != invalidRootTimestamp);
-
+    // setting a block.number that's higher than dispute blocks.
+    vm.roll(spokeConnector.disputeBlocks() + 1);
     bytes32 _placeholderProposedRoot = bytes32("Placeholder Root");
     uint256 _placeholderEndOfDispute = block.number - spokeConnector.disputeBlocks() - 1;
     bytes32 _placeHolderProposedRootHash = keccak256(
@@ -631,12 +655,6 @@ contract SpokeConnector_Finalize is Base {
 
 contract SpokeConnector_SetMinDisputeBlocks is Base {
   event MinDisputeBlocksUpdated(uint256 _previous, uint256 _updated);
-
-  function setUp() public virtual override {
-    super.setUp();
-    vm.prank(owner);
-    spokeConnector.setMinDisputeBlocks(100);
-  }
 
   function test_revertIfCallerIsNotOwner(address stranger) public {
     vm.assume(stranger != owner);
@@ -676,14 +694,6 @@ contract SpokeConnector_SetMinDisputeBlocks is Base {
 
 contract SpokeConnector_SetDisputeBlocks is Base {
   event DisputeBlocksUpdated(uint256 _previous, uint256 _updated);
-
-  function setUp() public virtual override {
-    super.setUp();
-    vm.startPrank(owner);
-    spokeConnector.setMinDisputeBlocks(100);
-    spokeConnector.setDisputeBlocks(120);
-    vm.stopPrank();
-  }
 
   function test_revertIfCallerIsNotOwner(address stranger) public {
     vm.assume(stranger != owner);

@@ -30,26 +30,24 @@ contract WormholeSpokeConnectorTest is ConnectorHelper {
     _l1Connector = payable(address(bytes20(keccak256("_l1Connector"))));
     _merkle = address(new MerkleTreeManager());
 
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l1Domain,
+      mirrorDomain: _l2Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: _l1Connector,
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: _merkle,
+      watcherManager: address(0),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // Deploy
     vm.prank(_owner);
-    _l2Connector = payable(
-      address(
-        new WormholeSpokeConnector(
-          _l1Domain,
-          _l2Domain,
-          _amb,
-          _rootManager,
-          _l1Connector,
-          _processGas,
-          _reserveGas,
-          0, // uint256 _delayBlocks
-          _merkle,
-          address(1), // watcher manager
-          _gasCapL1,
-          _chainIdL1
-        )
-      )
-    );
+    _l2Connector = payable(address(new WormholeSpokeConnector(_baseParams, _gasCapL1, _chainIdL1)));
   }
 
   // ============ Utils ============

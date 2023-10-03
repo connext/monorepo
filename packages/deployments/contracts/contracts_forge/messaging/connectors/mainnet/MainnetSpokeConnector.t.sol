@@ -20,23 +20,23 @@ contract MainnetSpokeConnectorTest is ConnectorHelper {
 
     _l2Connector = payable(address(123321123));
 
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l1Domain,
+      mirrorDomain: _l2Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: _l2Connector,
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: _merkle,
+      watcherManager: address(0),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // deploy
-    _l1Connector = payable(
-      address(
-        new MainnetSpokeConnector(
-          _l1Domain,
-          _l2Domain,
-          _amb,
-          _rootManager,
-          _l2Connector,
-          _processGas,
-          _reserveGas,
-          0, // delay blocks
-          _merkle,
-          address(0) // watcher manager
-        )
-      )
-    );
+    _l1Connector = payable(address(new MainnetSpokeConnector(_baseParams)));
   }
 
   // ============ Utils ============
