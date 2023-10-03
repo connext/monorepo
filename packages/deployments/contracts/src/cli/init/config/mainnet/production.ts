@@ -305,6 +305,34 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      // TODO: we currently comment out the home chain setup logic in
+      //       helpers/assets.ts when this is being init'd
+      name: "ALCX",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+          adopted: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
       name: "XOC",
       // polygon
       canonical: {
