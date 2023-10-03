@@ -525,6 +525,15 @@ contract SpokeConnector_ProposeAggregateRoot is Base {
     spokeConnector.proposeAggregateRoot(aggregateRoot, rootTimestamp);
   }
 
+  function test_revertIfSystemIsPaused(bytes32 aggregateRoot, uint256 rootTimestamp, address watcher) public {
+    utils_mockIsWatcher_true(watcher);
+    vm.prank(watcher);
+    spokeConnector.pause();
+    vm.expectRevert("Pausable: paused");
+    vm.prank(_proposer);
+    spokeConnector.proposeAggregateRoot(aggregateRoot, rootTimestamp);
+  }
+
   function test_revertIfProposeInProgress(bytes32 aggregateRoot, uint256 rootTimestamp) public {
     vm.assume(aggregateRoot != spokeConnector.FINALIZED_HASH());
     MockSpokeConnector(payable(address(spokeConnector))).setProposedAggregateRootHash(bytes32("random hash"));
@@ -570,6 +579,19 @@ contract SpokeConnector_Finalize is Base {
 
     vm.expectRevert(abi.encodeWithSelector(SpokeConnector.SpokeConnector_onlyOptimisticMode__SlowModeOn.selector));
     spokeConnector.finalize(randomRoot, randomRootTimestamp, randomEndOfDispute);
+  }
+
+  function test_revertIfSystemIsPaused(
+    bytes32 aggregateRoot,
+    uint256 rootTimestamp,
+    uint256 endOfDispute,
+    address watcher
+  ) public {
+    utils_mockIsWatcher_true(watcher);
+    vm.prank(watcher);
+    spokeConnector.pause();
+    vm.expectRevert("Pausable: paused");
+    spokeConnector.finalize(aggregateRoot, rootTimestamp, endOfDispute);
   }
 
   function test_revertIfProposeInProgress(
