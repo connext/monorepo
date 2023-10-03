@@ -48,6 +48,7 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  */
 export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
   if (!args.config) throw new Error("No Authorizartion config provided for One Inch.");
+  if (!args.config.apiKey && !args.config.customURL) throw new Error("No API key or custom URL passed for One Inch");
   const fromAsset =
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
