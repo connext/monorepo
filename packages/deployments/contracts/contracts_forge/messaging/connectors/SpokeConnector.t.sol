@@ -449,10 +449,6 @@ contract SpokeConnector_activateSlowMode is Base {
 contract SpokeConnector_activateOptimisticMode is Base {
   event OptimisticModeActivated();
 
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
   function test_revertIfCallerIsNotOwner(address stranger) public {
     vm.assume(stranger != owner);
     vm.prank(stranger);

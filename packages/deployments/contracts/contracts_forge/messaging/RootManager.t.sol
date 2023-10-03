@@ -906,10 +906,6 @@ contract RootManager_ActivateOptimisticMode is Base {
   event OptimisticModeActivated();
   using QueueLib for QueueLib.Queue;
 
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
   function test_revertIfCallerIsNotOwner() public {
     vm.prank(stranger);
     vm.expectRevert(abi.encodeWithSelector(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector));
@@ -973,10 +969,6 @@ contract RootManager_ActivateOptimisticMode is Base {
 }
 
 contract RootManager_RemoveConnector is Base {
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
   function test_deleteProposedAggregateRoot(bytes32 aggregateRoot) public {
     _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
     uint256 endOfDispute = block.number + _disputeBlocks;
@@ -1002,10 +994,6 @@ contract RootManager_RemoveConnector is Base {
 
 contract RootManager_Aggregate is Base {
   using QueueLib for QueueLib.Queue;
-
-  function setUp() public virtual override {
-    super.setUp();
-  }
 
   function test_revertIfNotValidConnector(uint8 index, address invalidConnector, bytes32 inbound) public {
     vm.assume(index < _domains.length);
@@ -1070,10 +1058,6 @@ contract RootManager_AddProposer is Base {
 
 contract RootManager_RemoveProposer is Base {
   event ProposerRemoved(address indexed proposer);
-
-  function setUp() public virtual override {
-    super.setUp();
-  }
 
   function test_revertIfCallerIsNotOwner() public {
     vm.prank(stranger);
@@ -1187,10 +1171,6 @@ contract RootManager_Propagate is Base {
 }
 
 contract RootManager_SendRootToHubs is Base {
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
   function test_revertIfRedundantRoot(bytes32 aggregateRoot) public {
     _rootManager.forTest_setDomains(_domains);
     for (uint256 i = 0; i < _connectors.length; i++) {
