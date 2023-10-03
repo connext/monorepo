@@ -18,6 +18,9 @@ const mockOriginSwapDataArgs = {
   toAsset: mkAddress("0x2"),
   amountIn: "100",
   fromAddress: mkAddress("0x11"),
+  config: {
+    apiKey: "12345",
+  },
 };
 
 describe("Helpers:swapdata", () => {
@@ -48,7 +51,7 @@ describe("Helpers:swapdata", () => {
       axiosGetStub.resolves({ data: { tx: { data: "0xaaa" } } });
       const swapData = await getOriginSwapDataForOneInch(mockOriginSwapDataArgs);
       expect(axiosGetStub.getCall(0).args[0]).to.be.deep.eq(
-        "https://api.1inch.io/v5.0/1337/swap?fromTokenAddress=0x1000000000000000000000000000000000000000&toTokenAddress=0x2000000000000000000000000000000000000000&amount=100&fromAddress=0x1100000000000000000000000000000000000000&slippage=1&disableEstimate=true",
+        "https://api.1inch.dev/swap/v5.2/1337/swap?src=0x1000000000000000000000000000000000000000&dst=0x2000000000000000000000000000000000000000&amount=100&from=0x1100000000000000000000000000000000000000&slippage=1&disableEstimate=true",
       );
       expect(swapData).to.be.eq("0xaaa");
     });
@@ -57,7 +60,7 @@ describe("Helpers:swapdata", () => {
       axiosGetStub.resolves({ data: { tx: { data: "0xaaa" } } });
       const swapData = await getOriginSwapDataForOneInch(swapDataArgs);
       expect(axiosGetStub.getCall(0).args[0]).to.be.eq(
-        "https://api.1inch.io/v5.0/1337/swap?fromTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&toTokenAddress=0x2000000000000000000000000000000000000000&amount=100&fromAddress=0x1100000000000000000000000000000000000000&slippage=100&disableEstimate=true",
+        "https://api.1inch.dev/swap/v5.2/1337/swap?src=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&dst=0x2000000000000000000000000000000000000000&amount=100&from=0x1100000000000000000000000000000000000000&slippage=100&disableEstimate=true",
       );
       expect(swapData).to.be.eq("0xaaa");
     });
@@ -66,7 +69,7 @@ describe("Helpers:swapdata", () => {
       axiosGetStub.resolves({ data: { tx: { data: "0xaaa" } } });
       const swapData = await getOriginSwapDataForOneInch(swapDataArgs);
       expect(axiosGetStub.getCall(0).args[0]).to.be.eq(
-        "https://api.1inch.io/v5.0/1337/swap?fromTokenAddress=0x1000000000000000000000000000000000000000&toTokenAddress=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&amount=100&fromAddress=0x1100000000000000000000000000000000000000&slippage=100&disableEstimate=true",
+        "https://api.1inch.dev/swap/v5.2/1337/swap?src=0x1000000000000000000000000000000000000000&dst=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE&amount=100&from=0x1100000000000000000000000000000000000000&slippage=100&disableEstimate=true",
       );
       expect(swapData).to.be.eq("0xaaa");
     });

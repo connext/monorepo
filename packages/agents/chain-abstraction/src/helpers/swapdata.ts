@@ -11,6 +11,15 @@ export type OriginSwapDataCallbackArgs = {
   toAsset: string;
   amountIn: string;
   fromAddress: string;
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+      };
   slippage?: number;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
@@ -38,14 +47,33 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  * including a function signature for the 1inch aggregator.
  */
 export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+  if (!args.config) throw new Error("No Authorizartion config provided for One Inch.");
   const fromAsset =
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
     const slippage = args.slippage ?? 1;
-    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${args.amountIn}&fromAddress=${args.fromAddress}&slippage=${slippage}&disableEstimate=true`;
+    const { config } = args;
 
-    const res = await axiosGet(apiEndpoint);
+    const url = config.customURL ?? "https://api.1inch.dev/swap/v5.2";
+
+    const apiEndpoint =
+      `${url}/${args.chainId}/swap` +
+      `?src=${fromAsset}` +
+      `&dst=${toAsset}` +
+      `&amount=${args.amountIn}` +
+      `&from=${args.fromAddress}` +
+      `&slippage=${slippage}` +
+      `&disableEstimate=true`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json",
+    };
+    if (config.apiKey) {
+      headers["Authorization"] = `Bearer ${config.apiKey}`;
+    }
+
+    const res = await axiosGet(apiEndpoint, { headers: headers });
     return res.data.tx.data;
   } catch (error: unknown) {
     throw new Error(`Getting swapdata from 1inch failed, e: ${jsonifyError(error as Error).message}`);

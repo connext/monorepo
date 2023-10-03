@@ -20,10 +20,20 @@ import { OriginSwapDataFns, OriginSwapperPerDomain, DEPLOYED_ADDRESSES } from ".
  * @param calldata - (optional) The calldata to execute (can be empty: "0x").
  *
  * @param signerAddress - The address of the signer to send a transaction from
+ * @param config - (optional) Contains API key for oneInch to generate swapData
  */
 export const prepareSwapAndXCall = async (
   params: SwapAndXCallParams,
   signerAddress: string,
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+      },
 ): Promise<providers.TransactionRequest | undefined> => {
   let txRequest: providers.TransactionRequest | undefined = undefined;
 
@@ -64,7 +74,8 @@ export const prepareSwapAndXCall = async (
 
     const isSameAsset = utils.getAddress(toAsset) === utils.getAddress(fromAsset);
     const originRoute = !isSameAsset
-      ? _route ?? (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress))
+      ? _route ??
+        (await calculateRouteForSwapAndXCall(originDomain, fromAsset, toAsset, amountIn, swapAndXCallAddress, config))
       : null;
 
     const feeInNativeAsset = relayerFeeInTransactingAsset.eq(0) ?? false;
@@ -149,6 +160,7 @@ export const prepareSwapAndXCall = async (
  * @param fromAsset - The address of the asset to swap from.
  * @param toAsset - The address of the asset to swap to.
  * @param amountIn - The number of `fromAsset` tokens.
+ * @param config - (optional) Contains API key for oneInch to generate swapData
  *
  * @returns swapper - The address of the swapper contract, swapData - The calldata to be executed
  */
@@ -158,6 +170,15 @@ export const calculateRouteForSwapAndXCall = async (
   toAsset: string,
   amountIn: string,
   fromAddress: string,
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+      },
 ): Promise<{ swapper: string; swapData: string }> => {
   // TODO: The `swapper` is the smart contract interacting with different types of DEXes and DEX aggregators such as UniV2, UniV3, 1inch Aggregator
   // so we can have more than one `swapper` contract deployed on each domain.
@@ -177,7 +198,7 @@ export const calculateRouteForSwapAndXCall = async (
   }
   const chainId = domainToChainId(+domainId);
   const originOriginSwapDataCallbackFn = OriginSwapDataFns[swapperConfig.type];
-  const swapData = await originOriginSwapDataCallbackFn({ chainId, fromAsset, toAsset, amountIn, fromAddress });
+  const swapData = await originOriginSwapDataCallbackFn({ chainId, fromAsset, toAsset, amountIn, fromAddress, config });
 
   return { swapper: swapperConfig.address, swapData };
 };
