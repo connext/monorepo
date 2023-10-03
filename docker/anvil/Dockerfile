@@ -21,4 +21,4 @@ ENV CHAIN_ID=31337
 ENV MNEMONIC="candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
 
 # anvil service start
-CMD "/root/.foundry/bin/anvil" --chain-id=${CHAIN_ID} --host=0.0.0.0 --port=$PORT --mnemonic="$MNEMONIC" --block-time 3
+CMD "/root/.foundry/bin/anvil" --chain-id=${CHAIN_ID} --host=0.0.0.0 --port=$PORT --mnemonic="$MNEMONIC"
