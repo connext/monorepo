@@ -132,6 +132,7 @@ echo "Updating docker config with the deployed contract addresses for router, se
 yarn workspace @connext/nxtp-integration gen:config router local
 yarn workspace @connext/nxtp-integration gen:config sequencer local
 yarn workspace @connext/nxtp-integration gen:config lighthouse local
+yarn workspace @connext/nxtp-integration gen:config relayer local
 echo "Updating docker config done"
 #####
 
