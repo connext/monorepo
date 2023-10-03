@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "nxtp-terraform-mainnet-prod-core"
-    key    = "state/"
+    key    = "state"
     region = "us-east-1"
   }
 }
@@ -342,7 +342,7 @@ module "lighthouse_prover_subscriber" {
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn_testnet
+  cert_arn                 = var.certificate_arn
   container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
 }
 module "lighthouse_prover_subscriber_auto_scaling" {
@@ -356,21 +356,6 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   max_capacity               = 200
   avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 15
-}
-
-module "lighthouse_prover_cron" {
-  source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
-  docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse-prover"
-  environment         = var.environment
-  stage               = var.stage
-  container_env_vars = merge(local.lighthouse_env_vars, {
-    LIGHTHOUSE_SERVICE = "prover"
-  })
-  schedule_expression = "rate(30 minutes)"
-  memory_size         = 4096
-  timeout             = 900
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -407,7 +392,7 @@ module "lighthouse_sendoutboundroot_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
   schedule_expression = "rate(120 minutes)"
-  memory_size         = 512
+  memory_size         = 2048
 }
 
 
@@ -570,7 +555,7 @@ module "sequencer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
-  node_type                     = "cache.t2.medium"
+  node_type                     = "cache.r4.large"
   public_redis                  = true
 }
 
@@ -594,7 +579,7 @@ module "relayer_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
-  node_type                     = "cache.t2.medium"
+  node_type                     = "cache.r4.large"
   public_redis                  = true
 }
 

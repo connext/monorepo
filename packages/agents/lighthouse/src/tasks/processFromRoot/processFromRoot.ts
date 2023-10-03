@@ -38,7 +38,7 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+    context.adapters.database = await getDatabase(context.config.databaseWriter.url, context.logger);
 
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {

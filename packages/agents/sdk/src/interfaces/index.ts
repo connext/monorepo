@@ -511,6 +511,7 @@ export const SdkCalculateAddLiquidityPriceImpactParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amountX: Type.String(),
   amountY: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateAddLiquidityPriceImpactParams = Static<typeof SdkCalculateAddLiquidityPriceImpactParamsSchema>;
 
@@ -520,6 +521,7 @@ export const SdkCalculateRemoveLiquidityPriceImpactParamsSchema = Type.Object({
   tokenAddress: Type.String(),
   amountX: Type.String(),
   amountY: Type.String(),
+  options: Type.Optional(OptionsSchema),
 });
 export type SdkCalculateRemoveLiquidityPriceImpactParams = Static<
   typeof SdkCalculateRemoveLiquidityPriceImpactParamsSchema

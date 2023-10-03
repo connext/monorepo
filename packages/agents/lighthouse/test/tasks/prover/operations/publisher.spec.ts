@@ -31,6 +31,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getUnProcessedMessages as SinonStub).resolves([mockXMessage1, mockXMessage2]);
       (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
       (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
+      (proverCtxMock.adapters.cache.messages.getPendingTasks as SinonStub).resolves([]);
       await prefetch();
     });
   });

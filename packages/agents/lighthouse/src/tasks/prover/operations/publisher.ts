@@ -9,6 +9,7 @@ import {
   RequestContext,
   getNtpTimeSeconds,
   ExecStatus,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
 import {
@@ -32,9 +33,29 @@ export const prefetch = async () => {
   const { requestContext, methodContext } = createLoggingContext(prefetch.name);
   const {
     logger,
-    adapters: { database, cache },
+    adapters: { database, cache, relayers },
     config,
   } = getContext();
+
+  // Update relayer tasks
+  const pendingTasks = await cache.messages.getPendingTasks(0, 100);
+  await Promise.all(
+    pendingTasks.map(async (pendingTask) => {
+      const { taskId, relayer: relayerType, originDomain, destinationDomain, leaves } = pendingTask;
+      const relayer = relayers.find((it) => it.type == relayerType);
+      if (relayer) {
+        const taskStatus = await relayer.instance.getTaskStatus(taskId);
+        if (taskStatus == RelayerTaskStatus.ExecSuccess) {
+          await cache.messages.removePending(originDomain, destinationDomain, leaves);
+          await cache.messages.removePendingTasks([taskId]);
+        } else if (taskStatus == RelayerTaskStatus.ExecReverted || taskStatus == RelayerTaskStatus.Cancelled) {
+          await cache.messages.removePendingTasks([taskId]);
+          const statuses = leaves.map((it) => ({ leaf: it, status: ExecStatus.None }));
+          await cache.messages.setStatus(statuses);
+        }
+      }
+    }),
+  );
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
