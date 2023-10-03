@@ -60,6 +60,19 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
+  // Update and/or create the auction instance in the cache if necessary.
+  const res = await cache.auctions.upsertAuction({
+    transferId,
+    origin: transfer.xparams!.originDomain,
+    destination: transfer.xparams!.destinationDomain!,
+    bid,
+  });
+  logger.info("Updated auction", requestContext, methodContext, {
+    new: res === 0,
+    auction: await cache.auctions.getAuction(transferId),
+    status: await cache.auctions.getExecStatus(transferId),
+  });
+
   // Enqueue only once to dedup, when the first bid for the transfer is stored.
   const execStatus = await cache.auctions.getExecStatusWithTime(transferId);
   if (execStatus && execStatus.status !== ExecStatus.None) {
@@ -93,19 +106,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     // Avoid a race condition where the message is consumed before the status is set
     // If publish fails we we will have bad state, but publish is HA so we should be fine
     await cache.auctions.setExecStatus(transferId, ExecStatus.Enqueued);
-
-    // Update and/or create the auction instance in the cache if necessary.
-    const res = await cache.auctions.upsertAuction({
-      transferId,
-      origin: transfer.xparams!.originDomain,
-      destination: transfer.xparams!.destinationDomain!,
-      bid,
-    });
-    logger.info("Updated auction", requestContext, methodContext, {
-      new: res === 0,
-      auction: await cache.auctions.getAuction(transferId),
-      status: await cache.auctions.getExecStatus(transferId),
-    });
 
     // Store the transfer locally. We will use this as a reference later when we execute this transfer
     // in the auction cycle, for both encoding data and passing relayer fee to the relayer.

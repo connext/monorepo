@@ -44,3 +44,7 @@ export const getLatestBlockNumber = async (url: string): Promise<number> => {
     return 0;
   }
 };
+export type SubgraphQueryByNoncesMetaParams = {
+  maxBlockNumber: number;
+  nonces: string[];
+};

@@ -101,19 +101,23 @@ locals {
         excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"],
+        excludeListFromRelayerFee = ["0x9D9ce29Dc7812ccb63aB14EA987B52d9aF053Eb3"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"]
+        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"],
+        excludeListFromRelayerFee = ["0x83e8Cf4A51035665BAF97DdB0cf03b565AC76B44"]
       }
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"],
+        excludeListFromRelayerFee = ["0xE6B7aB9EBCfBF1A72E489ff00CdF9C6473ff6224"]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
+        excludeListFromRelayerFee = ["0x6D4D82aE73DC9059Ac83B085b2505e00b5eF8511"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -290,7 +294,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_0}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]

@@ -43,6 +43,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -181,6 +182,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -203,6 +205,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -225,6 +228,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -262,7 +266,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -279,7 +289,13 @@ export class SdkPool extends SdkShared {
     tokenAddress: string,
     amountX: string,
     amountY: string,
+    options?: Options,
   ): Promise<BigNumber | undefined> {
+    const _options = options ?? {
+      chains: this.config.chains,
+      signerAddress: this.config.signerAddress,
+    };
+
     const params: { domainId: string; tokenAddress: string; amountX: string; amountY: string } = {
       domainId,
       tokenAddress,
@@ -302,6 +318,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       amountX,
@@ -335,7 +352,6 @@ export class SdkPool extends SdkShared {
     const _options = options ?? {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
-      originProviderUrl: this.config.chains[domainId].providers?.[0],
     };
     const params = {
       domainId,
@@ -356,7 +372,6 @@ export class SdkPool extends SdkShared {
     const _options = options ?? {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
-      originProviderUrl: this.config.chains[domainId].providers?.[0],
     };
     const params = {
       domainId,
@@ -400,6 +415,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -427,6 +443,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -558,6 +575,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -584,6 +602,7 @@ export class SdkPool extends SdkShared {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
     };
+
     const params = {
       domainId,
       tokenAddress,
@@ -633,7 +652,6 @@ export class SdkPool extends SdkShared {
     const _options = options ?? {
       chains: this.config.chains,
       signerAddress: this.config.signerAddress,
-      originProviderUrl: this.config.chains[domainId].providers?.[0],
     };
     const params = {
       domainId,

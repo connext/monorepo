@@ -64,11 +64,11 @@ jobs:
       - name: Check Yarn version
         run: yarn --version
 
-      - name: Validate using commitlint
-        if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
-        uses: wagoid/commitlint-github-action@v5
-        with:
-          commitDepth: 1
+      # - name: Validate using commitlint
+      #   if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
+      #   uses: wagoid/commitlint-github-action@v5
+      #   with:
+      #     commitDepth: 1
 
       - name: Yarn install
         run: yarn install
@@ -950,7 +950,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -990,7 +990,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1022,7 +1022,6 @@ jobs:
         working-directory: ./ops/testnet/staging/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -1055,7 +1054,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1087,7 +1086,6 @@ jobs:
         working-directory: ./ops/testnet/staging/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -1130,7 +1128,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1162,7 +1160,6 @@ jobs:
         working-directory: ./ops/testnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1199,7 +1196,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1231,7 +1228,6 @@ jobs:
         working-directory: ./ops/testnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1268,7 +1264,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1300,7 +1296,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1332,7 +1327,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1364,7 +1359,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
