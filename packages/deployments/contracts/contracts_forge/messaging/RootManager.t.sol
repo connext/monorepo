@@ -571,6 +571,16 @@ contract RootManager_ProposeAggregateRoot is Base {
     _rootManager.proposeAggregateRoot(snapshotId, aggregateRoot, snapshotsRoots, _domains);
   }
 
+  function test_revertIfPaused(bytes32 aggregateRoot, bytes32[] memory snapshotsRoots) public {
+    uint256 snapshotId = SnapshotId.getLastCompletedSnapshotId();
+    _rootManager.forTest_generateAndAddDomains(_domains, _connectors);
+    _rootManager.forTest_pause();
+
+    vm.expectRevert(bytes("Pausable: paused"));
+    vm.prank(proposer);
+    _rootManager.proposeAggregateRoot(snapshotId, aggregateRoot, snapshotsRoots, _domains);
+  }
+
   function test_emitProposeAggregateRoot(
     bytes32 aggregateRoot,
     bytes32 baseRoot,
@@ -636,6 +646,13 @@ contract RootManager_Finalize is Base {
 
     vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_finalize__InvalidInputHash.selector));
     _rootManager.finalize(_differentRoot, block.number + _disputeBlocks);
+  }
+
+  function test_revertIfPaused(bytes32 aggregateRoot) public {
+    _rootManager.forTest_pause();
+
+    vm.expectRevert(bytes("Pausable: paused"));
+    _rootManager.finalize(aggregateRoot, block.number + _disputeBlocks);
   }
 
   function test_saveAggregateRoot(bytes32 aggregateRoot) public {
@@ -1348,21 +1365,6 @@ contract RootManager_SendRootToHubs is Base {
 }
 
 contract RootManager_FinalizeAndPropagate is Base {
-  function setUp() public virtual override {
-    super.setUp();
-  }
-
-  function test_revertIfContractPaused(
-    address[] memory connectors,
-    uint256[] memory fees,
-    bytes[] memory encodedData
-  ) public {
-    _rootManager.forTest_pause();
-    vm.expectRevert(bytes("Pausable: paused"));
-    uint256 _endOfDispute = block.number + _disputeBlocks;
-    _rootManager.finalizeAndPropagate(connectors, fees, encodedData, _randomRoot, _endOfDispute);
-  }
-
   function test_finalizeAndPropagate(bytes32 aggregateRoot) public {
     vm.assume(aggregateRoot > _finalizedHash);
     uint256 _endOfDispute = block.number - 1;

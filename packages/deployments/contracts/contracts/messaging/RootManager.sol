@@ -439,7 +439,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes32 _aggregateRoot,
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains
-  ) external onlyProposer onlyOptimisticMode checkDomains(_domains) {
+  ) external onlyProposer onlyOptimisticMode checkDomains(_domains) whenNotPaused {
     if (_snapshotId != SnapshotId.getLastCompletedSnapshotId())
       revert RootManager_proposeAggregateRoot__InvalidSnapshotId(_snapshotId);
     if (proposedAggregateRootHash != FINALIZED_HASH) revert RootManager_proposeAggregateRoot__ProposeInProgress();
@@ -459,7 +459,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _proposedAggregateRoot The aggregate root currently proposed
    * @param _endOfDispute          The block in which the dispute period for proposedAggregateRootHash finalizes
    */
-  function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public onlyOptimisticMode {
+  function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public onlyOptimisticMode whenNotPaused {
     bytes32 _proposedAggregateRootHash = proposedAggregateRootHash;
     if (_proposedAggregateRootHash == FINALIZED_HASH) revert RootManager_finalize__InvalidAggregateRoot();
     bytes32 _userInputHash = keccak256(abi.encode(_proposedAggregateRoot, _endOfDispute));
@@ -494,7 +494,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes[] memory _encodedData,
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  ) external payable whenNotPaused {
+  ) external payable {
     finalize(_proposedAggregateRoot, _endOfDispute);
     propagate(_connectors, _fees, _encodedData);
   }
