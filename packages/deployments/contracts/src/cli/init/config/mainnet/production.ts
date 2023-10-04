@@ -386,20 +386,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
           adopted: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
         },
-        // optimism
-        "1869640809": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
         // polygon
         "1886350457": {
           local: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
           adopted: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
-        },
-        // arbtirum-one
-        "1634886255": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
         },
       },
     },
