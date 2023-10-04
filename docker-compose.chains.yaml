@@ -7,7 +7,7 @@ services:
       - CHAIN_ID=31337
       - PORT=8545
     container_name: anvil-31337
-    image: anvil:latest
+    image: ghcr.io/connext/anvil:latest
     ports:
       - "8547:8545"
 
@@ -17,7 +17,7 @@ services:
       - CHAIN_ID=31338
       - PORT=8545
     container_name: anvil-31338
-    image: anvil:latest
+    image: ghcr.io/connext/anvil:latest
     ports:
       - "8548:8545"
 
@@ -27,7 +27,7 @@ services:
       - CHAIN_ID=31339
       - PORT=8545
     container_name: anvil-31339
-    image: anvil:latest
+    image: ghcr.io/connext/anvil:latest
     ports:
       - "8549:8545"
 
