@@ -1,6 +1,6 @@
 {
   "name": "@connext/chain-abstraction",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A package to make it easy to integrate arbitrary DEXes on both origin/destination domains",
   "author": "Connext",
   "license": "MIT",
