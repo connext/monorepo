@@ -1,0 +1,30 @@
+[
+  {
+    "network": "mainnet",
+    "subgraphName": "connext/amarok-hub-v0-mainnet",
+    "subgraphId": "",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "",
+        "startBlock": 0
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MerkleTreeManagerRootUpgradeBeaconProxy"
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "",
+        "startBlock": 0
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "",
+        "startBlock": 0
+      }
+    ]
+  }
+]

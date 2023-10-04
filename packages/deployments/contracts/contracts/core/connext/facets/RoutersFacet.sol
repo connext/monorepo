@@ -511,11 +511,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _updated The recipient to set
    * @param _previous The existing recipient
    */
-  function _setRouterRecipient(
-    address _router,
-    address _updated,
-    address _previous
-  ) internal {
+  function _setRouterRecipient(address _router, address _updated, address _previous) internal {
     // Check recipient is changing
     if (_previous == _updated) revert RoutersFacet__setRouterRecipient_notNewRecipient();
 
@@ -532,11 +528,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _updated The owner to set
    * @param _previous The existing owner
    */
-  function _setRouterOwner(
-    address _router,
-    address _updated,
-    address _previous
-  ) internal {
+  function _setRouterOwner(address _router, address _updated, address _previous) internal {
     // Check owner is changing
     if (_previous == _updated) revert RoutersFacet__setRouterOwner_noChange();
 
@@ -555,11 +547,7 @@ contract RoutersFacet is BaseConnextFacet {
    * @param _local - The address of the bridge representation of the asset
    * @param _router - The router you are adding liquidity on behalf of
    */
-  function _addLiquidityForRouter(
-    uint256 _amount,
-    address _local,
-    address _router
-  ) internal {
+  function _addLiquidityForRouter(uint256 _amount, address _local, address _router) internal {
     // Sanity check: router is sensible.
     if (_router == address(0)) revert RoutersFacet__addLiquidityForRouter_routerEmpty();
 

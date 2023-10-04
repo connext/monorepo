@@ -11,8 +11,9 @@ export const getDeployments = (args: {
   chainInfo: { chain: string; rpc: ethers.providers.JsonRpcProvider | zk.Provider; zksync: boolean };
   isHub: boolean;
   useStaging: boolean;
+  network?: string;
 }): DomainDeployments => {
-  const { chainInfo, isHub, useStaging, deployer: _deployer } = args;
+  const { chainInfo, isHub, useStaging, deployer: _deployer, network } = args;
   const chain = chainInfo.chain;
 
   let deployer;
@@ -24,31 +25,38 @@ export const getDeployments = (args: {
 
   // Get all the Hub connectors, if applicable.
   const connectors: Deployment[] = isHub
-    ? getHubConnectors(+chain, useStaging ? "staging" : "production", deployer)
-    : [getSpokeConnector(+chain, useStaging ? "staging" : "production", deployer)];
+    ? getHubConnectors(+chain, useStaging ? "staging" : "production", deployer, network)
+    : [getSpokeConnector(+chain, useStaging ? "staging" : "production", deployer, network)];
 
   return {
-    Connext: getContract("Connext_DiamondProxy", chain, useStaging, deployer),
+    Connext: getContract("Connext_DiamondProxy", chain, useStaging, deployer, network),
     messaging: isHub
       ? {
-          RootManager: getContract("RootManager", chain, useStaging, deployer),
-          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer),
-          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer),
+          RootManager: getContract("RootManager", chain, useStaging, deployer, network),
+          MainnetConnector: getContract("MainnetSpokeConnector", chain, useStaging, deployer, network),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, network),
           HubConnectors: connectors,
-          MerkleTreeManagerForRoot: getContract("MerkleTreeManagerRootUpgradeBeaconProxy", chain, useStaging, deployer),
+          MerkleTreeManagerForRoot: getContract(
+            "MerkleTreeManagerRootUpgradeBeaconProxy",
+            chain,
+            useStaging,
+            deployer,
+            network,
+          ),
           MerkleTreeManagerForSpoke: getContract(
             "MerkleTreeManagerSpokeUpgradeBeaconProxy",
             chain,
             useStaging,
             deployer,
+            network,
           ),
-          RelayerProxy: getContract("RelayerProxyHub", chain, useStaging, deployer),
+          RelayerProxy: getContract("RelayerProxyHub", chain, useStaging, deployer, network),
         }
       : {
           SpokeConnector: connectors[0],
-          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy", chain, useStaging, deployer),
-          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer),
-          RelayerProxy: getContract("RelayerProxy", chain, useStaging, deployer),
+          MerkleTreeManager: getContract("MerkleTreeManagerUpgradeBeaconProxy", chain, useStaging, deployer, network),
+          WatcherManager: getContract("WatcherManager", chain, useStaging, deployer, network),
+          RelayerProxy: getContract("RelayerProxy", chain, useStaging, deployer, network),
         },
   };
 };

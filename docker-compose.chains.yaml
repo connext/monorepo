@@ -1,25 +1,38 @@
 version: "3.3"
 
 services:
-  chain-1337:
+  local-mainnet:
     environment:
       - MNEMONIC=$MNEMONIC
-      - CHAIN_ID=1337
-    container_name: chain-1337-test
-    image: ghcr.io/connext/chain:latest
+      - CHAIN_ID=31337
+      - PORT=8545
+    container_name: anvil-31337
+    image: anvil:latest
     ports:
       - "8547:8545"
-  chain-1338:
+
+  local-optimism:
     environment:
       - MNEMONIC=$MNEMONIC
-      - CHAIN_ID=1338
-    container_name: chain-1338-test
-    image: ghcr.io/connext/chain:latest
+      - CHAIN_ID=31338
+      - PORT=8545
+    container_name: anvil-31338
+    image: anvil:latest
     ports:
-      - "8546:8545"
+      - "8548:8545"
 
-  graph-node-1337:
-    container_name: graph-node-1337-test
+  local-arbitrum:
+    environment:
+      - MNEMONIC=$MNEMONIC
+      - CHAIN_ID=31339
+      - PORT=8545
+    container_name: anvil-31339
+    image: anvil:latest
+    ports:
+      - "8549:8545"
+
+  graph-node-local-hub-mainnet:
+    container_name: graph-node-local-hub-mainnet
     image: graphprotocol/graph-node:992121b
     ports:
       - "8010:8000"
@@ -29,19 +42,18 @@ services:
       - "8040:8040"
     depends_on:
       - ipfs
-      - postgres-1337
-      - chain-1337
+      - postgres-local-hub-mainnet
     environment:
-      postgres_host: postgres-1337
+      postgres_host: postgres-local-hub-mainnet
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:http://chain-1337:8545"
+      ethereum: "mainnet:http://local-mainnet:8545"
       GRAPH_LOG: info
 
-  postgres-1337:
-    container_name: postgres-1337-test
+  postgres-local-hub-mainnet:
+    container_name: postgres-local-hub-mainnet
     image: postgres
     ports:
       - "5432:5432"
@@ -51,8 +63,8 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
 
-  graph-node-1338:
-    container_name: graph-node-1338-test
+  graph-node-local-spoke-optimism:
+    container_name: graph-node-local-spoke-optimism
     image: graphprotocol/graph-node:992121b
     ports:
       - "9010:8000"
@@ -62,22 +74,53 @@ services:
       - "9040:8040"
     depends_on:
       - ipfs
-      - postgres-1338
-      - chain-1338
+      - postgres-local-spoke-optimism
     environment:
-      postgres_host: postgres-1338
+      postgres_host: postgres-local-spoke-optimism
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mainnet:http://chain-1338:8545"
+      ethereum: "optimism:http://local-optimism:8545"
       GRAPH_LOG: info
 
-  postgres-1338:
-    container_name: postgres-1338-test
+  postgres-local-spoke-optimism:
+    container_name: postgres-local-spoke-optimism
     image: postgres
     ports:
       - "5433:5432"
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+
+  graph-node-local-spoke-arbitrum:
+    container_name: graph-node-local-spoke-arbitrum
+    image: graphprotocol/graph-node:992121b
+    ports:
+      - "7010:8000"
+      - "7001:8001"
+      - "7020:8020"
+      - "7030:8030"
+      - "7040:8040"
+    depends_on:
+      - ipfs
+      - postgres-local-spoke-arbitrum
+    environment:
+      postgres_host: postgres-local-spoke-arbitrum
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "ipfs:5001"
+      ethereum: "arbitrum:http://local-arbitrum:8545"
+      GRAPH_LOG: info
+
+  postgres-local-spoke-arbitrum:
+    container_name: postgres-local-spoke-arbitrum
+    image: postgres
+    ports:
+      - "5434:5432"
     command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
     environment:
       POSTGRES_USER: graph-node

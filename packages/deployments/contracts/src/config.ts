@@ -61,21 +61,46 @@ export const hardhatNetworks = {
     url: urlOverride || "http://localhost:8545",
     allowUnlimitedContractSize: true,
   },
-  local_1337: {
+  "local-mainnet": {
     accounts: { mnemonic },
-    chainId: 1337,
+    chainId: 31337,
     url: "http://localhost:8547",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
   },
-  local_1338: {
+  "local-optimism": {
     accounts: { mnemonic },
-    chainId: 1338,
-    url: "http://localhost:8546",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
+    chainId: 31338,
+    url: "http://localhost:8548",
     companionNetworks: {
-      hub: "local_1337",
+      hub: "local-mainnet",
+    },
+  },
+  "local-arbitrum": {
+    accounts: { mnemonic },
+    chainId: 31339,
+    url: "http://localhost:8549",
+    companionNetworks: {
+      hub: "local-mainnet",
+    },
+  },
+  "devnet-mainnet": {
+    accounts: { mnemonic },
+    chainId: 1,
+    url: process.env.MAINNET_DEVNET_RPC_URL || "http://localhost:8545",
+  },
+  "devnet-optimism": {
+    accounts: { mnemonic },
+    chainId: 10,
+    url: process.env.OPTIMISM_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
+    },
+  },
+  "devnet-gnosis": {
+    accounts: { mnemonic },
+    chainId: 100,
+    url: process.env.GNOSIS_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
     },
   },
   mainnet: {
