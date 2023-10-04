@@ -175,19 +175,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   uint256 public minDisputeBlocks;
 
   /**
-   * @notice The amount of inserted leaves prior to switching to optimistic mode
-   * @dev Used to prevent the propagation of an old aggregate root right after switching to Slow mode.
-   * After switching back to slow mode, if the count didnt change from previous slow mode, we consider the root as an old one since
-   * probably lot of optimistic roots have been propagated.
-   * Example: Propagation in slow mode happens, switch to Op Mode, multiple propagations happen, switch back to Slow mode.
-   * If at this point someone calls propagate and the queue is empty or non of the elements are ready, propagate will
-   * call the dequeue function which will return the old root and count before Op mode was activated. And since multiple
-   * propagations happened while in optimistic mode, the lastPropagatedRoot will be different than the old but current MERKLE.root
-   * which will lead to propagating a deprecated root.
-   */
-  uint256 public lastCountBeforeOpMode;
-
-  /**
    * @notice True if the system is working in optimistic mode. Otherwise is working in slow mode
    */
   bool public optimisticMode;
@@ -523,10 +510,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
     // If in slow mode, we dequeue to ensure that we add the inboundRoots that are ready.
-    if (!optimisticMode) {
-      (, uint256 _currentCount) = dequeue();
-      if (_currentCount <= lastCountBeforeOpMode) revert RootManager_slowPropagate__OldAggregateRoot();
-    }
+    if (!optimisticMode) dequeue();
 
     bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
 
@@ -668,7 +652,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     if (optimisticMode) revert RootManager_activateOptimisticMode__OptimisticModeOn();
 
     pendingInboundRoots.last = pendingInboundRoots.first - 1;
-    lastCountBeforeOpMode = MERKLE.count();
 
     optimisticMode = true;
     emit OptimisticModeActivated();
