@@ -530,7 +530,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _encodedData Data needed to send crosschain message by associated amb
    */
   function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
-    if (optimisticMode) revert SpokeConnector_send__OptimisticModeOn();
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
     // mark as sent

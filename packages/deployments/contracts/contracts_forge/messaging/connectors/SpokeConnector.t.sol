@@ -151,13 +151,6 @@ contract SpokeConnector_General is Base {
     spokeConnector.send(abi.encode(""));
   }
 
-  function test_SpokeConnector__send_failsIfOptimisticModeOn() public {
-    MockSpokeConnector(payable(address(spokeConnector))).setOptimisticMode(true);
-
-    vm.expectRevert(SpokeConnector.SpokeConnector_send__OptimisticModeOn.selector);
-    spokeConnector.send(abi.encode(""));
-  }
-
   function test_SpokeConnector__send_failsIfRootAlreadySent() public {
     bytes32 root = bytes32(bytes("test123"));
     vm.mockCall(address(_merkle), abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(root));
