@@ -34,6 +34,8 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   RouterDailyTVL,
+  RelayerFeesIncrease,
+  SlippageUpdate,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -484,6 +486,7 @@ export const mock = {
       root: getRandomBytes32(),
       spokeDomain: +mock.domain.A,
       timestamp: Math.floor(Date.now() / 1000),
+      blockNumber: Math.floor(Date.now() / 1000),
       count: 1,
       ...overrides,
     }),
@@ -596,6 +599,23 @@ export const mock = {
       router: getRandomAddress(),
       domain: mock.domain.A,
       balance: "200",
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    relayerFeesIncrease: (overrides: Partial<RelayerFeesIncrease> = {}): RelayerFeesIncrease => ({
+      id: getRandomBytes32(),
+      transferId: getRandomBytes32(),
+      asset: getRandomAddress(),
+      domain: mock.domain.A,
+      increase: "200",
+      timestamp: "1234",
+      ...overrides,
+    }),
+    slippageUpdate: (overrides: Partial<SlippageUpdate> = {}): SlippageUpdate => ({
+      id: getRandomBytes32(),
+      transferId: getRandomBytes32(),
+      domain: mock.domain.A,
+      slippage: "200",
       timestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
