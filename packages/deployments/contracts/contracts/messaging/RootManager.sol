@@ -324,8 +324,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
-   * a given proposed root
+   * @notice Set the `minDisputeBlocks` variable to the provided parameter.
    */
   function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
