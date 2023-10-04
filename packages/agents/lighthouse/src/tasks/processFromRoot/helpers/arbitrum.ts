@@ -1,4 +1,4 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
@@ -45,7 +45,11 @@ export const getProcessFromArbitrumRootArgs = async ({
   }
   // get the proof
   const hubJsonProvider = new JsonRpcProvider(hubProvider);
-  const [msg] = await l2TxnReceipt.getL2ToL1Messages(hubJsonProvider);
+  const [reader] = await l2TxnReceipt.getL2ToL1Messages(hubJsonProvider);
+  const msg = (reader as any).nitroReader;
+  if (!msg?.event) {
+    throw new Error(`Could not find event for message in ${sendHash}`);
+  }
   // get the index
   const index = msg.event.position;
   logger.info("Got index", requestContext, methodContext, { index: index.toString() });
@@ -82,19 +86,13 @@ export const getProcessFromArbitrumRootArgs = async ({
     fromBlock: msg.event.ethBlockNum,
     latest,
   });
-  const logs = await fetcher.getEvents(
-    arbNetwork.ethBridge.rollup,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    RollupUserLogic__factory,
-    (t) => t.filters.NodeCreated(),
-    {
-      fromBlock: msg.event.ethBlockNum.toNumber(),
-      toBlock: latest,
-    },
-  );
+  const logs = await fetcher.getEvents(RollupUserLogic__factory, (t) => t.filters.NodeCreated(), {
+    fromBlock: msg.event.ethBlockNum.toNumber(),
+    toBlock: latest,
+  });
 
   if (logs.length === 0) {
-    throw new ArbitrumNodeCreatedEventsNotFound(msg.event.ethBlockNum, { sendHash, latest });
+    throw new ArbitrumNodeCreatedEventsNotFound(msg.event.ethBlockNum as BigNumber, { sendHash, latest });
   }
 
   // use binary search to find the first node with sendCount > this.event.position
@@ -105,9 +103,17 @@ export const getProcessFromArbitrumRootArgs = async ({
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await (msg as any).getBlockFromNodeLog(spokeJsonProvider, log);
-    const sendCount = BigNumber.from(block.sendCount);
-    if (sendCount.gt(msg.event.position)) {
+    let sendCount = BigNumber.from(msg.event.position as BigNumberish);
+    try {
+      const block = await msg.getBlockFromNodeLog(spokeJsonProvider, log);
+      sendCount = BigNumber.from(block.sendCount);
+    } catch (e: unknown) {
+      logger.warn("Failed to get block from node log", requestContext, methodContext, {
+        error: jsonifyError(e as Error),
+        log,
+      });
+    }
+    if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;
     } else {
@@ -117,7 +123,7 @@ export const getProcessFromArbitrumRootArgs = async ({
 
   const earliestNodeWithExit = foundLog.event.nodeNum;
   const rollup = RollupUserLogic__factory.getContract(arbNetwork.ethBridge.rollup, RollupUserLogic__factory.abi);
-  const foundBlock = await (msg as any).getBlockFromNodeNum(
+  const foundBlock = await msg.getBlockFromNodeNum(
     rollup.connect(hubJsonProvider),
     earliestNodeWithExit,
     spokeJsonProvider,
@@ -154,7 +160,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // get the proof
   const params = await NodeInterface__factory.connect(NODE_INTERFACE_ADDRESS, spokeJsonProvider).constructOutboxProof(
     foundBlock.sendCount.toNumber() as number,
-    msg.event.position.toNumber(),
+    msg.event.position.toNumber() as number,
   );
   logger.debug("Generated proof", requestContext, methodContext, {
     proof: params.proof,

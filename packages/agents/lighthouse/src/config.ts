@@ -12,7 +12,7 @@ const MIN_CARTOGRAPHER_POLL_INTERVAL = 30_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
-export const DEFAULT_CONCURRENCY = 10;
+export const DEFAULT_PROVER_PUB_MAX = 5000;
 
 dotenvConfig();
 
@@ -35,11 +35,46 @@ export const TPollingConfig = Type.Object({
   cartographer: Type.Integer({ minimum: MIN_CARTOGRAPHER_POLL_INTERVAL }),
 });
 
+export const TMQConfig = Type.Object({
+  connection: Type.Object({
+    uri: Type.String(),
+  }),
+  exchange: Type.Object({
+    name: Type.String(),
+    type: Type.Union([Type.Literal("fanout"), Type.Literal("topic"), Type.Literal("direct")]),
+    publishTimeout: Type.Integer(),
+    persistent: Type.Boolean(),
+    durable: Type.Boolean(),
+  }),
+  subscriber: Type.Optional(Type.String()),
+  queueLimit: Type.Optional(Type.Number()),
+  prefetchSize: Type.Optional(Type.Number()),
+  publisherWaitTime: Type.Optional(Type.Number()),
+});
+
+export const TRedisConfig = Type.Object({
+  port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  host: Type.Optional(Type.String()),
+});
+
+export const TServerConfig = Type.Object({
+  prover: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
+  adminToken: Type.String(),
+});
+
 export const NxtpLighthouseConfigSchema = Type.Object({
   hubDomain: Type.String(),
   chains: Type.Record(Type.String(), TChainConfig),
   logLevel: TLogLevel,
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   cartographerUrl: Type.String({ format: "uri" }),
   mode: TModeConfig,
   polling: TPollingConfig,
@@ -52,6 +87,8 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
+  databaseWriter: TDatabaseConfig,
+  redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
     Type.Object({
@@ -63,13 +100,17 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
-  concurrency: Type.Integer({ minimum: 0 }),
+  proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
-    Type.Literal("prover"),
+    Type.Literal("prover-pub"),
+    Type.Literal("prover-sub"),
+    Type.Literal("prover-func"),
     Type.Literal("propagate"),
     Type.Literal("process"),
     Type.Literal("sendoutboundroot"),
   ]),
+  messageQueue: TMQConfig,
+  server: TServerConfig,
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -151,6 +192,15 @@ export const getEnvConfig = (
     database: {
       url: process.env.DATABASE_URL || configJson.database?.url || configFile.database?.url,
     },
+    databaseWriter: {
+      url: process.env.DATABASE_WRITER_URL || configJson.databaseWriter?.url || configFile.databaseWriter?.url,
+    },
+    redis: {
+      host: process.env.REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "127.0.0.1",
+      port: process.env.REDIS_PORT
+        ? +process.env.REDIS_PORT
+        : undefined || configJson.redis?.port || configFile.redis?.port || 6379,
+    },
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
@@ -162,11 +212,30 @@ export const getEnvConfig = (
       configJson.relayerWaitTime ||
       configFile.relayerWaitTime ||
       DEFAULT_RELAYER_WAIT_TIME,
-    concurrency: process.env.NXTP_PROVER_CONCURRENCY
-      ? +process.env.NXTP_PROVER_CONCURRENCY
-      : undefined || configJson.concurrency || configFile.concurrency || DEFAULT_CONCURRENCY,
+    proverPubMax: process.env.PROVER_PUB_MAX
+      ? +process.env.PROVER_PUB_MAX
+      : undefined || configJson.proverPubMax || configFile.proverPubMax || DEFAULT_PROVER_PUB_MAX,
+    messageQueue: process.env.MESSAGE_QUEUE
+      ? JSON.parse(process.env.MESSAGE_QUEUE)
+      : configJson.messageQueue ?? configFile.messageQueue,
+    server: {
+      prover: {
+        host:
+          process.env.PROVER_SUB_SERVER_HOST ||
+          configJson.server?.prover?.host ||
+          configFile.server?.prover?.host ||
+          "0.0.0.0",
+        port: process.env.PROVER_SUB_SERVER_PORT
+          ? +process.env.PROVER_SUB_SERVER_PORT
+          : undefined || configJson.server?.prover?.port || configFile.server?.prover?.port || 7072,
+      },
+      adminToken:
+        process.env.LH_SERVER_ADMIN_TOKEN ||
+        configJson.server?.adminToken ||
+        configFile.server?.adminToken ||
+        "blahblah",
+    },
   };
-
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??
     (nxtpConfig.environment === "production"

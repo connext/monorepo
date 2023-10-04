@@ -340,6 +340,7 @@ export const mock = {
                       gasLimit: "80000",
                       blockNumber: 5651345,
                       txOrigin: user,
+                      txNonce: Math.floor(Date.now() / 1000 - 30) * 10000,
                     }
                   : undefined,
 
@@ -353,6 +354,7 @@ export const mock = {
                       gasLimit: "100000",
                       blockNumber: 5651390,
                       txOrigin: user,
+                      txNonce: Math.floor(Date.now() / 1000) * 10000,
                     }
                   : undefined,
             }

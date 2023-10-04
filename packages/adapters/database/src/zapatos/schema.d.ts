@@ -2626,9 +2626,9 @@ declare module 'zapatos/schema' {
       /**
       * **messages.index**
       * - `numeric` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      index: number | null;
+      index: number;
       /**
       * **messages.root**
       * - `bpchar` in database
@@ -2653,6 +2653,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       return_data: string | null;
+      /**
+      * **messages.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id: string | null;
     }
     export interface JSONSelectable {
       /**
@@ -2676,9 +2682,9 @@ declare module 'zapatos/schema' {
       /**
       * **messages.index**
       * - `numeric` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      index: number | null;
+      index: number;
       /**
       * **messages.root**
       * - `bpchar` in database
@@ -2703,6 +2709,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       return_data: string | null;
+      /**
+      * **messages.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id: string | null;
     }
     export interface Whereable {
       /**
@@ -2726,7 +2738,7 @@ declare module 'zapatos/schema' {
       /**
       * **messages.index**
       * - `numeric` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
       index?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
       /**
@@ -2753,6 +2765,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       return_data?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **messages.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -2776,9 +2794,9 @@ declare module 'zapatos/schema' {
       /**
       * **messages.index**
       * - `numeric` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      index?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
+      index: number | db.Parameter<number> | db.SQLFragment;
       /**
       * **messages.root**
       * - `bpchar` in database
@@ -2803,6 +2821,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       return_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **messages.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -2826,9 +2850,9 @@ declare module 'zapatos/schema' {
       /**
       * **messages.index**
       * - `numeric` in database
-      * - Nullable, no default
+      * - `NOT NULL`, no default
       */
-      index?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
+      index?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
       /**
       * **messages.root**
       * - `bpchar` in database
@@ -2853,6 +2877,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       return_data?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **messages.transfer_id**
+      * - `bpchar` in database
+      * - Nullable, no default
+      */
+      transfer_id?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'messages_pkey';
     export type Column = keyof Selectable;
@@ -7140,6 +7170,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees: db.JSONValue | null;
+      /**
+      * **transfers.xcall_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      xcall_tx_nonce: number;
+      /**
+      * **transfers.execute_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      execute_tx_nonce: number;
+      /**
+      * **transfers.reconcile_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      reconcile_tx_nonce: number;
     }
     export interface JSONSelectable {
       /**
@@ -7514,6 +7562,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees: db.JSONValue | null;
+      /**
+      * **transfers.xcall_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      xcall_tx_nonce: number;
+      /**
+      * **transfers.execute_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      execute_tx_nonce: number;
+      /**
+      * **transfers.reconcile_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      reconcile_tx_nonce: number;
     }
     export interface Whereable {
       /**
@@ -7888,6 +7954,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.xcall_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      xcall_tx_nonce?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.execute_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      execute_tx_nonce?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **transfers.reconcile_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      reconcile_tx_nonce?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -8262,6 +8346,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.xcall_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      xcall_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.execute_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      execute_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
+      /**
+      * **transfers.reconcile_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      reconcile_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -8636,6 +8738,24 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_fees?: db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, db.JSONValue | db.Parameter<db.JSONValue> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.xcall_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      xcall_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.execute_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      execute_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **transfers.reconcile_tx_nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      reconcile_tx_nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'transfers_pkey';
     export type Column = keyof Selectable;

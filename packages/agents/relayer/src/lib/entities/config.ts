@@ -37,7 +37,12 @@ export const RelayerConfigSchema = Type.Object({
     Type.Literal("trace"),
     Type.Literal("silent"),
   ]),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
   redis: TRedisConfig,

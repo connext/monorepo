@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import { create, SdkConfig } from "@connext/sdk";
-import { ChainConfig } from "@connext/sdk/dist/config";
+import { create, SdkConfig, ChainConfig } from "@connext/sdk-core";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
 import { useWallet } from "../contexts/Wallet";
@@ -59,13 +58,14 @@ export const Header = () => {
           } as ChainConfig;
         }
       }
-      let network: "testnet" | "mainnet" | "local" | undefined = undefined;
+      let network: "testnet" | "mainnet" | "local" | "devnet" | undefined = undefined;
       let environment: "staging" | "production" | undefined = undefined;
 
       if (
         process.env.NEXT_PUBLIC_NETWORK === "testnet" ||
         process.env.NEXT_PUBLIC_NETWORK === "mainnet" ||
-        process.env.NEXT_PUBLIC_NETWORK === "local"
+        process.env.NEXT_PUBLIC_NETWORK === "local" ||
+        process.env.NEXT_PUBLIC_NETWORK === "devnet"
       ) {
         network = process.env.NEXT_PUBLIC_NETWORK;
       } else if (!process.env.NEXT_PUBLIC_ENVIRONMENT) {

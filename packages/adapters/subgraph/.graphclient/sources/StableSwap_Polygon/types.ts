@@ -19,6 +19,7 @@ export type Scalars = {
   polygon_swap_BigDecimal: any;
   BigInt: any;
   polygon_swap_Bytes: any;
+  polygon_swap_Int8: any;
 };
 
 export type polygon_swap_BlockChangedFilter = {

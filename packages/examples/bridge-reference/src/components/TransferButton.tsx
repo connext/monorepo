@@ -5,7 +5,7 @@ import { MdClose } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { FixedNumber, utils } from "ethers";
 import { XTransferStatus } from "@connext/nxtp-utils";
-import { SdkXCallParams } from "@connext/sdk";
+import { SdkXCallParams } from "@connext/sdk-core";
 
 import { useWallet } from "../contexts/Wallet";
 import { useAssets } from "../contexts/Assets";
@@ -244,7 +244,7 @@ export const TransferButton = ({
           } catch (error: unknown) {}
           if (
             [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
-              transfer?.status,
+              transfer?.status as any,
             )
           ) {
             reset();
@@ -261,7 +261,7 @@ export const TransferButton = ({
 
           if (
             [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
-              transfer?.status,
+              transfer?.status as any,
             )
           ) {
             reset();

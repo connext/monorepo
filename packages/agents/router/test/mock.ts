@@ -132,6 +132,7 @@ export const mock = {
       const transfers = createStubInstance(TransfersCache);
       const auctions = createStubInstance(AuctionsCache);
       transfers.getLatestNonce.resolves(0);
+      transfers.addMissingNonces.resolves();
       return {
         transfers,
         auctions,

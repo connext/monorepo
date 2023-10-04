@@ -470,6 +470,7 @@ type zksync2test_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: zksync2test_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: zksync2test_Bytes
   reconciledTransactionHash: zksync2test_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +478,7 @@ type zksync2test_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: zksync2test_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input zksync2test_DestinationTransfer_filter {
@@ -734,6 +736,14 @@ input zksync2test_DestinationTransfer_filter {
   executedTxOrigin_not_in: [zksync2test_Bytes!]
   executedTxOrigin_contains: zksync2test_Bytes
   executedTxOrigin_not_contains: zksync2test_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: zksync2test_Bytes
   reconciledCaller_not: zksync2test_Bytes
   reconciledCaller_gt: zksync2test_Bytes
@@ -796,6 +806,14 @@ input zksync2test_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [zksync2test_Bytes!]
   reconciledTxOrigin_contains: zksync2test_Bytes
   reconciledTxOrigin_not_contains: zksync2test_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: zksync2test_BlockChangedFilter
   and: [zksync2test_DestinationTransfer_filter]
@@ -840,6 +858,7 @@ enum zksync2test_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,7 +866,14 @@ enum zksync2test_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar zksync2test_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum zksync2test_OrderDirection {
@@ -1025,6 +1051,7 @@ type zksync2test_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: zksync2test_Bytes
+  txNonce: BigInt
 }
 
 input zksync2test_OriginTransfer_filter {
@@ -1317,6 +1344,14 @@ input zksync2test_OriginTransfer_filter {
   txOrigin_not_in: [zksync2test_Bytes!]
   txOrigin_contains: zksync2test_Bytes
   txOrigin_not_contains: zksync2test_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: zksync2test_BlockChangedFilter
   and: [zksync2test_OriginTransfer_filter]
@@ -1372,6 +1407,7 @@ enum zksync2test_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1945,6 +1981,7 @@ enum zksync2test_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2099,6 +2136,7 @@ enum zksync2test_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2711,6 +2749,7 @@ enum zksync2test_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2718,6 +2757,7 @@ enum zksync2test_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash

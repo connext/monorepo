@@ -11,10 +11,19 @@ export type OriginSwapDataCallbackArgs = {
   toAsset: string;
   amountIn: string;
   fromAddress: string;
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+      };
   slippage?: number;
 };
 export type OriginSwapDataCallback = (args: OriginSwapDataCallbackArgs) => Promise<string>;
-export type DestinationSwapDataCallback = (args: any) => Promise<string>;
+export type DestinationSwapDataCallback = (args: any, path?: any) => Promise<string>;
 
 // ==================================== ORIGIN SIDE ==================================== //
 /**
@@ -38,14 +47,34 @@ export const getOriginSwapDataForUniV3 = async (_args: OriginSwapDataCallbackArg
  * including a function signature for the 1inch aggregator.
  */
 export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackArgs): Promise<string> => {
+  if (!args.config) throw new Error("No Authorization config provided for 1Inch.");
+  if (!args.config.apiKey && !args.config.customURL) throw new Error("No API key or custom URL passed for One Inch");
   const fromAsset =
     args.fromAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.fromAsset;
   const toAsset = args.toAsset == constants.AddressZero ? "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" : args.toAsset;
   try {
     const slippage = args.slippage ?? 1;
-    const apiEndpoint = `https://api.1inch.io/v5.0/${args.chainId}/swap?fromTokenAddress=${fromAsset}&toTokenAddress=${toAsset}&amount=${args.amountIn}&fromAddress=${args.fromAddress}&slippage=${slippage}&disableEstimate=true`;
+    const { config } = args;
 
-    const res = await axiosGet(apiEndpoint);
+    const url = config.customURL ?? "https://api.1inch.dev/swap/v5.2";
+
+    const apiEndpoint =
+      `${url}/${args.chainId}/swap` +
+      `?src=${fromAsset}` +
+      `&dst=${toAsset}` +
+      `&amount=${args.amountIn}` +
+      `&from=${args.fromAddress}` +
+      `&slippage=${slippage}` +
+      `&disableEstimate=true`;
+
+    const headers: Record<string, string> = {
+      accept: "application/json",
+    };
+    if (config.apiKey) {
+      headers["Authorization"] = `Bearer ${config.apiKey}`;
+    }
+
+    const res = await axiosGet(apiEndpoint, { headers: headers });
     return res.data.tx.data;
   } catch (error: unknown) {
     throw new Error(`Getting swapdata from 1inch failed, e: ${jsonifyError(error as Error).message}`);
@@ -56,17 +85,20 @@ export const getOriginSwapDataForOneInch = async (args: OriginSwapDataCallbackAr
 /**
  * Returns the `swapData` which will be used on the destination univ2 swapper
  */
-export const getDestinationSwapDataForUniV2 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV2 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV2SwapperParams;
-  return defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
+  return path
+    ? defaultAbiCoder.encode(["uint256", "address[]"], [args.amountOutMin, path])
+    : defaultAbiCoder.encode(["uint256"], [args.amountOutMin]);
 };
 
 /**
  * Returns the `swapData` which will be used on the destination univ3 swapper
  */
-export const getDestinationSwapDataForUniV3 = async (_args: any): Promise<string> => {
+export const getDestinationSwapDataForUniV3 = async (_args: any, path?: any): Promise<string> => {
   const args = _args as UniV3SwapperParams;
-  return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
+  if (!path) return defaultAbiCoder.encode(["uint24", "uint256"], [args.poolFee, args.amountOutMin]);
+  return defaultAbiCoder.encode(["uint256", "bytes"], [args.amountOutMin, path]);
 };
 
 /**

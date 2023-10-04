@@ -19,6 +19,7 @@ export type Scalars = {
   arbitrumgoerli_swap_BigDecimal: any;
   BigInt: any;
   arbitrumgoerli_swap_Bytes: any;
+  arbitrumgoerli_swap_Int8: any;
 };
 
 export type arbitrumgoerli_swap_BlockChangedFilter = {

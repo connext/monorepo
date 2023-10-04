@@ -17,6 +17,7 @@ import {
   StableSwapTransfer,
   PoolActionType,
   RouterDailyTVL,
+  isValidBytes32,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -233,6 +234,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.executedGasLimit,
             blockNumber: BigNumber.from(entity.executedBlockNumber ?? "0").toNumber(),
             txOrigin: entity.executedTxOrigin,
+            txNonce: BigNumber.from(entity.executedTxNonce ?? "0").toNumber(),
           }
         : undefined,
 
@@ -247,6 +249,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
             gasLimit: entity.reconciledGasLimit,
             blockNumber: BigNumber.from(entity.reconciledBlockNumber ?? "0").toNumber(),
             txOrigin: entity.reconciledTxOrigin,
+            txNonce: BigNumber.from(entity.reconciledTxNonce ?? "0").toNumber(),
           }
         : undefined,
     },
@@ -319,12 +322,13 @@ export const rootMessage = (entity: any): RootMessage => {
       });
     }
   }
-
+  const [idRoot, ...idRest] = entity.id.split("-");
   return {
-    id: entity.id,
+    id: isValidBytes32(idRoot) ? entity.id : [`0x${idRoot.slice(-64)}`].concat(idRest as string[]).join("-"),
     spokeDomain: entity.spokeDomain,
     hubDomain: entity.hubDomain,
-    root: entity.root,
+    // root will be final 32 if not 32 bytes
+    root: isValidBytes32(entity.root) ? entity.root : `0x${entity.root.slice(-64)}`,
     caller: entity.caller,
     transactionHash: entity.transactionHash,
     timestamp: entity.timestamp,

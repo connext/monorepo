@@ -61,9 +61,14 @@ jobs:
           node-version: "18"
           cache: "yarn"
 
-      - name: Validate using commitlint
-        if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
-        uses: wagoid/commitlint-github-action@v5
+      - name: Check Yarn version
+        run: yarn --version
+
+      # - name: Validate using commitlint
+      #   if: github.ref != 'refs/heads/testnet-prod' || github.ref != 'refs/heads/prod'
+      #   uses: wagoid/commitlint-github-action@v5
+      #   with:
+      #     commitDepth: 1
 
       - name: Yarn install
         run: yarn install
@@ -102,7 +107,8 @@ jobs:
             "packages/adapters/txservice:@connext/nxtp-txservice"
             "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
             "packages/adapters/cache:@connext/nxtp-adapters-cache"
-            "packages/agents/sdk:@connext/sdk"
+            "packages/agents/sdk:@connext/sdk-core"
+            "packages/agents/sdk-wrapper:@connext/sdk"
           )
 
           for entry in "${workspaces[@]}"; do
@@ -261,13 +267,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -277,7 +284,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-publisher-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -313,13 +320,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -329,7 +337,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-subscriber-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -365,13 +373,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove router from version tag
+        id: remove-router
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *router-* ]]; then
             new_tag=${tag/router-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -381,7 +390,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-router-executor-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-router.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -391,6 +400,48 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: docker/router/executor/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
+
+  build-and-push-sequencer-server-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/sequencer-server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/sequencer/server/Dockerfile
 
     outputs:
       json: ${{ steps.meta.outputs.json }}
@@ -564,9 +615,51 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR Public
 
         run: |
-          DOCKER_BUILDKIT=1 docker build -f docker/lighthouse/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
+          DOCKER_BUILDKIT=1 docker build -f docker/lighthouse/lambda/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t ghcr.io/connext/lighthouse:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push ghcr.io/connext/lighthouse:$IMAGE_TAG
+
+  build-and-push-lighthouse-prover-subscriber-image:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: connext/lighthouse-subscriber
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=semver,pattern={{raw}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: docker/lighthouse/subscriber/Dockerfile
+
+    outputs:
+      json: ${{ steps.meta.outputs.json }}
 
   build-and-push-relayer-image:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
@@ -632,13 +725,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Remove watcher from version tag
+        id: remove-watcher
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *watcher-* ]]; then
             new_tag=${tag/watcher-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -648,7 +742,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-watcher-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-watcher.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -683,14 +777,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Remove watcher from version tag
+      - name: Remove sdk-server from version tag
+        id: remove-sdk-server
         run: |
           tag=${{ github.ref_name }}
           if [[ $tag == *watcher-* ]]; then
-            new_tag=${tag/watcher-/}
-            echo "::set-output name=docker_tag::$new_tag"
+            new_tag=${tag/sdk-server-/}
+            echo "docker_tag=$new_tag" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=docker_tag::''"
+            echo "docker_tag=" >> $GITHUB_OUTPUT
           fi
 
       - name: Extract metadata (tags, labels) for Docker
@@ -700,7 +795,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,format=short
-            type=raw,value=${{ steps.build-and-push-sdk-server-image.outputs.docker_tag }}
+            type=raw,value=${{ steps.remove-sdk-server.outputs.docker_tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -721,10 +816,12 @@ jobs:
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
+        build-and-push-sequencer-server-image,
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-image,
         build-and-push-lighthouse-image,
+        build-and-push-lighthouse-prover-subscriber-image,
         build-and-push-relayer-image,
         build-and-push-watcher-image,
         build-and-push-sdk-server-image,
@@ -733,10 +830,12 @@ jobs:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
+      SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
       CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.sha }}
       LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
       SDK_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sdk-server-image.outputs.json).tags[0] }}
@@ -754,6 +853,7 @@ jobs:
           docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
           bash docker/bin/wait-for-services.sh router-publisher
           bash docker/bin/wait-for-services.sh router-subscriber
+          bash docker/bin/wait-for-services.sh sequencer-server
           bash docker/bin/wait-for-services.sh sequencer-publisher
           bash docker/bin/wait-for-services.sh sequencer-subscriber
 
@@ -761,8 +861,10 @@ jobs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
+      sequencer-server-tags: ${{ needs.build-and-push-sequencer-server-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
+      lighthouse-prover-subscriber-tags: ${{ needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
       watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
       sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
@@ -776,10 +878,12 @@ jobs:
         build-and-push-router-publisher-image,
         build-and-push-router-subscriber-image,
         build-and-push-router-executor-image,
+        build-and-push-sequencer-server-image,
         build-and-push-sequencer-publisher-image,
         build-and-push-sequencer-subscriber-image,
         build-and-push-cartographer-image,
         build-and-push-lighthouse-image,
+        build-and-push-lighthouse-prover-subscriber-image,
         build-and-push-relayer-image,
         build-and-push-watcher-image,
         build-and-push-sdk-server-image,
@@ -788,9 +892,11 @@ jobs:
       ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
       ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
       ROUTER_EXECUTOR_IMAGE: ${{ fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0] }}
+      SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
       LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
       WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
@@ -822,8 +928,10 @@ jobs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
       router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
       router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
+      sequencer-server-tags: ${{ needs.build-and-push-sequencer-server-image.outputs.json }}
       sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
       sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
+      lighthouse-prover-subscriber-tags: ${{ needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json }}
       relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
       watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
       sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
@@ -842,7 +950,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -871,7 +979,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
-      TF_VAR_sdk_server_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.smoke-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -882,7 +990,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -914,7 +1022,6 @@ jobs:
         working-directory: ./ops/testnet/staging/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -930,10 +1037,12 @@ jobs:
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.smoke-tests.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_router_executor: ${{ fromJSON(needs.smoke-tests.outputs.router-executor-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_server: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-server-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.smoke-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.smoke-tests.outputs.relayer-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
@@ -945,7 +1054,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -977,7 +1086,6 @@ jobs:
         working-directory: ./ops/testnet/staging/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         if: github.ref == 'refs/heads/staging'
@@ -987,8 +1095,10 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
+      sequencer-server-tags: ${{ needs.smoke-tests.outputs.sequencer-server-tags }}
       sequencer-publisher-tags: ${{ needs.smoke-tests.outputs.sequencer-publisher-tags }}
       sequencer-subscriber-tags: ${{ needs.smoke-tests.outputs.sequencer-subscriber-tags }}
+      lighthouse-prover-subscriber-tags: ${{ needs.smoke-tests.outputs.lighthouse-prover-subscriber-tags }}
       router-publisher-tags: ${{ needs.smoke-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.smoke-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.smoke-tests.outputs.router-executor-tags }}
@@ -1002,10 +1112,12 @@ jobs:
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.e2e-tests.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_router_executor: ${{ fromJSON(needs.e2e-tests.outputs.router-executor-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_server: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-server-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.e2e-tests.outputs.watcher-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
@@ -1016,7 +1128,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1048,7 +1160,6 @@ jobs:
         working-directory: ./ops/testnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1057,13 +1168,16 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
+      sequencer-server-tags: ${{ needs.e2e-tests.outputs.sequencer-server-tags }}
       sequencer-publisher-tags: ${{ needs.e2e-tests.outputs.sequencer-publisher-tags }}
       sequencer-subscriber-tags: ${{ needs.e2e-tests.outputs.sequencer-subscriber-tags }}
+      lighthouse-prover-subscriber-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags }}
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
+      sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}
 
   terraform-services-backend-prod-testnet:
     if: github.ref == 'refs/heads/testnet-prod' || github.ref == 'refs/heads/prod'
@@ -1071,6 +1185,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.e2e-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1081,7 +1196,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1113,7 +1228,6 @@ jobs:
         working-directory: ./ops/testnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1122,13 +1236,16 @@ jobs:
           terraform apply -var-file=tfvars.json -auto-approve
 
     outputs:
+      sequencer-server-tags: ${{ needs.e2e-tests.outputs.sequencer-server-tags }}
       sequencer-publisher-tags: ${{ needs.e2e-tests.outputs.sequencer-publisher-tags }}
       sequencer-subscriber-tags: ${{ needs.e2e-tests.outputs.sequencer-subscriber-tags }}
       router-publisher-tags: ${{ needs.e2e-tests.outputs.router-publisher-tags }}
       router-subscriber-tags: ${{ needs.e2e-tests.outputs.router-subscriber-tags }}
       router-executor-tags: ${{ needs.e2e-tests.outputs.router-executor-tags }}
+      lighthouse-prover-subscriber-tags: ${{ needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags }}
       relayer-tags: ${{ needs.e2e-tests.outputs.relayer-tags }}
       watcher-tags: ${{ needs.e2e-tests.outputs.watcher-tags }}
+      sdk-server-tags: ${{ needs.e2e-tests.outputs.sdk-server-tags }}
 
   terraform-services-backend-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -1136,6 +1253,7 @@ jobs:
     env:
       AWS_PROFILE: aws-deployer-connext
       TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1146,7 +1264,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1178,7 +1296,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/backend
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply
@@ -1194,10 +1311,12 @@ jobs:
       TF_VAR_full_image_name_router_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_router_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_router_executor: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.router-executor-tags).tags[0] }}
+      TF_VAR_full_image_name_sequencer_server: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-server-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_publisher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-publisher-tags).tags[0] }}
       TF_VAR_full_image_name_sequencer_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sequencer-subscriber-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.watcher-tags).tags[0] }}
+      TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
       TF_VAR_lighthouse_image_tag: ${{ github.sha }}
 
     runs-on: ubuntu-latest
@@ -1208,7 +1327,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.7
+          terraform_version: 1.5.7
 
       - name: Setup Sops
         uses: mdgreenwald/mozilla-sops-action@v1.2.0
@@ -1240,7 +1359,6 @@ jobs:
         working-directory: ./ops/mainnet/prod/core
         run: |
           terraform plan -var-file=tfvars.json
-        continue-on-error: true
 
       - name: Terraform Docker Image onto AWS
         id: apply

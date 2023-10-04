@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-utils",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Common utilities for use within the @connext/nxtp-* packages",
   "author": "Connext",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@maticnetwork/maticjs": "3.6.0-beta.11",
+    "@maticnetwork/maticjs": "3.6.6",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.21",
     "ajv": "8.12.0",
@@ -33,6 +33,7 @@
     "chai-subset": "1.6.0",
     "ethers": "5.7.2",
     "hyperid": "3.1.1",
+    "interval-promise": "1.4.0",
     "merkletreejs": "0.3.9",
     "pino": "8.10.0",
     "secp256k1": "4.0.3",
@@ -62,5 +63,5 @@
     "access": "public"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
-  "stableVersion": "0.1.25"
+  "stableVersion": "2.0.4"
 }

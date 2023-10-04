@@ -71,21 +71,6 @@ describe("Operations:Execute:SlowPath", () => {
     });
   });
   describe("#storeSlowPathData", () => {
-    it("should throw if params invalid", async () => {
-      const mockExecutorData = {
-        transferId: mkBytes32(),
-        origin: "13337",
-        executorVersion: "0.0.1",
-        relayerFee: {
-          amount: "aaa",
-          asset: "0x",
-        },
-        encodedData: "0xabcde",
-      } as ExecutorData;
-
-      await expect(storeSlowPathData(mockExecutorData, requestContext)).to.be.rejectedWith(ParamsInvalid);
-    });
-
     it("should throw if transfer doesn't exist in the cache", async () => {
       getTransferStub.resolves(undefined);
       (ctxMock.adapters.subgraph.getOriginTransferById as SinonStub).resolves(undefined);
@@ -138,6 +123,7 @@ describe("Operations:Execute:SlowPath", () => {
     it("should throw if transfer doesn't exist", async () => {
       const mockTransferId = mkBytes32();
       getTransferStub.resolves(undefined);
+      getExecutorDataStub.resolves(mock.entity.executorData());
       await expect(executeSlowPathData(mockTransferId, MessageType.ExecuteSlow, requestContext)).to.be.rejectedWith(
         MissingTransfer,
       );

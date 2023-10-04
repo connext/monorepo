@@ -9,8 +9,8 @@ import { version } from "../package.json";
 
 import { SequencerConfig, SequencerConfigSchema } from "./lib/entities";
 
-const DEFAULT_AUCTION_WAIT_TIME = 30_000;
-const DEFAULT_EXECUTION_WAIT_TIME = 300_000;
+const DEFAULT_AUCTION_WAIT_TIME = 10_000;
+const DEFAULT_EXECUTION_WAIT_TIME = 120_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 const DEFAULT_RELAYER_FEE_TOLERANCE = 10;
 
@@ -59,14 +59,23 @@ export const getEnvConfig = (
       process.env.SEQ_NETWORK || configJson.network || configFile.network || process.env.NXTP_NETWORK || "mainnet",
     server: {
       sub: {
-        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8082,
+        port: process.env.SEQ_SUB_SERVER_PORT || configJson.server?.sub?.port || configFile.server?.sub?.port || 8083,
         host:
           process.env.SEQ_SUB_SERVER_HOST || configJson.server?.sub?.host || configFile.server?.sub?.host || "0.0.0.0",
       },
       pub: {
-        port: process.env.SEQ_PUB_SERVER_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8081,
+        port: process.env.SEQ_PUB_SERVER_PORT || configJson.server?.pub?.port || configFile.server?.pub?.port || 8082,
         host:
           process.env.SEQ_PUB_SERVER_HOST || configJson.server?.pub?.host || configFile.server?.pub?.host || "0.0.0.0",
+      },
+      http: {
+        port:
+          process.env.SEQ_HTTP_SERVER_PORT || configJson.server?.http?.port || configFile.server?.http?.port || 8081,
+        host:
+          process.env.SEQ_HTTP_SERVER_HOST ||
+          configJson.server?.http?.host ||
+          configFile.server?.http?.host ||
+          "0.0.0.0",
       },
       adminToken: process.env.SEQ_SERVER_ADMIN_TOKEN || configJson.server?.adminToken || configFile.server?.adminToken,
     },
@@ -133,7 +142,9 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res = chainDataForChain
+            ? deployments.connext(chainDataForChain.chainId, contractPostfix, _sequencerConfig.network)
+            : undefined;
 
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);

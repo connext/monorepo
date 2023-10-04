@@ -13,6 +13,7 @@ import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
 import { HardhatUserConfig } from "hardhat/types";
+import * as tdly from "@tenderly/hardhat-tenderly";
 
 import "./tasks/addWatcher";
 import "./tasks/approveRouter";
@@ -59,7 +60,14 @@ import "./tasks/connector/claimPolygonZk";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
+import "./tasks/rootmanager/enrollAdminConnector";
+import "./tasks/connector/addSpokeRootToAggregate";
+import "./tasks/connector/wormholeDeliver";
 import { hardhatNetworks } from "./src/config";
+
+tdly.setup({
+  automaticVerifications: false,
+});
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -182,6 +190,12 @@ const config: HardhatUserConfig = {
 
       return true;
     },
+  },
+  tenderly: {
+    username: process.env.TENDERLY_ACCOUNT_ID!,
+    project: process.env.TENDERLY_PROJECT_SLUG!,
+    accessKey: process.env.TENDERLY_ACCESS_KEY!,
+    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
   },
   typechain: {
     outDir: "src/typechain-types",

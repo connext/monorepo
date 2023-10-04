@@ -33,7 +33,9 @@ export const _getGelatoEstimatedFee = async (
   const params = gasLimitL1
     ? { paymentToken, gasLimit, isHighPriority, gasLimitL1 }
     : { paymentToken, gasLimit, isHighPriority };
-  const chainId = EquivalentChainsForGelato[_chainId] ?? _chainId;
+  const chainId = EquivalentChainsForTestnetEstimate[_chainId]
+    ? _chainId
+    : EquivalentChainsForGelato[_chainId] ?? _chainId;
   try {
     const res = await axiosGet(`${GELATO_SERVER}/oracles/${chainId}/estimate`, { params });
     result = BigNumber.from(res.data.estimatedFee);
@@ -44,23 +46,40 @@ export const _getGelatoEstimatedFee = async (
   return result;
 };
 
+const EquivalentChainsForTestnetEstimate: Record<number, number> = {
+  // TESTNETS
+  5: 5, // goerli
+  420: 420, //  optimism-goerli
+  421613: 421613, // arbitrum-goerli
+  80001: 80001,
+  10200: 10200,
+};
+
 /// MARK - This is used for testnets and mainnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
   59140: 42161, // linea
 
-  // TESTNETS
-  4: 1, // rinkeby
-  5: 1, // goerli
+  // LOCALNETS
   1337: 1, // local chain
   1338: 1, // local chain
   13337: 1, // local chain
   13338: 1, // local chain
+
+
+  // TESTNETS
+  4: 1, // rinkeby
+  5: 1, // goerli
   420: 1, //  optimism-goerli
-  80001: 137, // mumbai (polygon testnet)
   421613: 1, // arbitrum-goerli
+  80001: 137, // mumbai (polygon testnet)
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
+
+  // LOCAL NETWORKS
+  31337: 1,
+  31338: 1,
+  31339: 1,
 };
 
 /**

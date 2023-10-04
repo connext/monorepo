@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployResult } from "hardhat-deploy/types";
-import { BigNumber, constants, Wallet } from "ethers";
+import { constants, Wallet } from "ethers";
+import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { getConnectorName, getDeploymentName, getProtocolNetwork, deployBeaconProxy } from "../src";
 import { MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS } from "../deployConfig/shared";
-import { chainIdToDomain } from "@connext/nxtp-utils";
 
 // Format the arguments for Connector contract constructor.
 const formatConnectorArgs = (
@@ -102,8 +102,7 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
-  // TODO: need to make this hardcoded value configurable
-  const delayBlocks = 100;
+  const delayBlocks = protocol.configs[protocol.hub].delayBlocks;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
@@ -112,18 +111,6 @@ const handleDeployHub = async (
     log: true,
   });
   console.log(`RootManager deployed to ${rootManager.address}`);
-
-  // setArborist to Merkle for RootManager
-  const merkleForRootContract = await hre.ethers.getContractAt(
-    "MerkleTreeManager",
-    merkleTreeManagerForRoot.address,
-    deployer,
-  );
-  if (!(await merkleForRootContract.arborist())) {
-    const tx = await merkleForRootContract.setArborist(rootManager.address);
-    console.log(`setArborist for RootManager tx submitted:`, tx.hash);
-    await tx.wait();
-  }
 
   // Deploy MerkleTreeManager(beacon proxy)
   console.log("Deploying MerkleTreeManager proxy For MainnetSpokeConnector...");
@@ -139,20 +126,23 @@ const handleDeployHub = async (
   // Deploy MainnetSpokeConnector.
   const connectorName = getConnectorName(protocol, protocol.hub);
   console.log(`Deploying ${connectorName}...`);
-  const deployment = await hre.deployments.deploy(getDeploymentName(connectorName), {
-    contract: connectorName,
-    from: deployer.address,
-    args: formatConnectorArgs(protocol, {
-      connectorChainId: protocol.hub,
-      deploymentChainId: protocol.hub,
-      mirrorChainId: protocol.hub,
-      rootManager: rootManager.address,
-      merkleManager: merkleTreeManagerForSpoke.address,
-      watcherManager: watcherManager.address,
-    }),
-    skipIfAlreadyDeployed: true,
-    log: true,
-  });
+  const deployment = await hre.deployments.deploy(
+    getDeploymentName(connectorName, undefined, protocol.configs[protocol.hub].networkName),
+    {
+      contract: connectorName,
+      from: deployer.address,
+      args: formatConnectorArgs(protocol, {
+        connectorChainId: protocol.hub,
+        deploymentChainId: protocol.hub,
+        mirrorChainId: protocol.hub,
+        rootManager: rootManager.address,
+        merkleManager: merkleTreeManagerForSpoke.address,
+        watcherManager: watcherManager.address,
+      }),
+      skipIfAlreadyDeployed: true,
+      log: true,
+    },
+  );
   console.log(`${connectorName} deployed to ${deployment.address}`);
 
   // setArborist for Spoke to Merkle
@@ -231,7 +221,8 @@ const handleDeploySpoke = async (
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
       !contract.includes("Consensys") &&
-      !contract.includes("Multichain")) ||
+      !contract.includes("Wormhole") &&
+      !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
     return;
@@ -324,7 +315,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
@@ -353,5 +344,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Messaging", "prod", "local", "mainnet"];
+func.tags = ["Messaging", "prod", "local", "mainnet", "devnet"];
 func.dependencies = [];

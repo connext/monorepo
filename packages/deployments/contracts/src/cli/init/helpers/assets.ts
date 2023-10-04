@@ -49,11 +49,15 @@ export const setupAsset = async (args: {
     );
   }
 
-  const tokenName = `next${asset.name.toUpperCase()}`;
+  const tokenName = asset.name.startsWith(`next`) ? asset.name : `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
   if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
+  }
+
+  if (!canonicalDecimals) {
+    throw new Error(`Unable to find canonical decimals in config for ${asset.name}`);
   }
 
   await updateIfNeeded({
@@ -70,13 +74,14 @@ export const setupAsset = async (args: {
         tokenSymbol,
         asset.canonical.address,
         constants.AddressZero,
-        asset.canonical.cap,
+        asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
       ],
     },
   });
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
+    if (!representation) continue;
     const stableswapPool = constants.AddressZero;
 
     const network = networks.find((n) => n.domain === domain);
@@ -168,7 +173,7 @@ export const setupAsset = async (args: {
           deployment: network.deployments.Connext,
           read: { method: "getLocalAndAdoptedToken(bytes32,uint32)", args: [canonical.id, canonical.domain] },
         })
-      : [representation.local ?? constants.AddressZero, desiredAdopted];
+      : [representation.local ?? constants.AddressZero, representation.adopted];
 
     if (local.toLowerCase() === adopted.toLowerCase()) {
       // No pools are needed

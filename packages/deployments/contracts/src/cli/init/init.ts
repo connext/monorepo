@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-import { providers, Wallet, utils } from "ethers";
+import { providers, Wallet, utils, constants } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
 import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
@@ -58,15 +58,19 @@ export const sanitizeAndInit = async () => {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  if (!["testnet", "mainnet"].includes(network as string)) {
+  if (!["local", "devnet", "testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
   }
 
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT. DRYRUN: ${!apply}`);
 
+  console.log(`Network: `, network);
+
   // Read init.json if exists
-  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
+  const path =
+    process.env.INIT_CONFIG_FILE ??
+    (network === "devnet" ? "devnet.init.json" : network === "local" ? "local.init.json" : "init.json");
   let overrideConfig: any;
   if (fs.existsSync(path)) {
     const json = fs.readFileSync(path, { encoding: "utf-8" });
@@ -84,16 +88,16 @@ export const sanitizeAndInit = async () => {
   }
 
   const supported = initConfig.supportedDomains;
-  const domains = _domains ?? supported;
+  const domains: string[] = _domains ?? supported;
   for (const domain of domains) {
-    if (!supported.includes(domain as string)) {
+    if (!supported.includes(domain)) {
       throw new Error(`Unsupported domain parsed!, domain: ${domain}, supported: ${supported}`);
     }
   }
 
   // Sanitation checks for hub domain and assets configuration
   const hubDomain = initConfig.hub;
-  if (!supported.includes(hubDomain)) {
+  if (!domains.includes(hubDomain) || !supported.includes(hubDomain)) {
     throw new Error(`Supported domains MUST include the hub domain. hub: ${hubDomain}, supported: ${supported}`);
   }
 
@@ -101,10 +105,13 @@ export const sanitizeAndInit = async () => {
   for (const asset of _assets) {
     const assetDomains = [asset.canonical.domain].concat(Object.keys(asset.representations));
 
-    const configuredDomains = supported.filter((domain) => assetDomains.includes(domain));
-    if (JSON.stringify(configuredDomains) != JSON.stringify(supported)) {
+    const configuredDomains = domains.filter((domain) => assetDomains.includes(domain));
+    const isSubset = configuredDomains.every((item) => domains.includes(item));
+    if (!isSubset) {
       throw new Error(
-        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${asset.canonical.address}), configured: ${configuredDomains}, parsed: ${domains}`,
+        `Not configured asset domains, asset: ${asset.name}, canonical: (${asset.canonical.domain}, ${
+          asset.canonical.address
+        }), configured: ${configuredDomains.sort()}, parsed: ${supported.sort()}`,
       );
     }
   }
@@ -156,8 +163,7 @@ export const sanitizeAndInit = async () => {
   }
 
   // Get deployments for each domain if not specified in the config.
-  for (const _domain of domains) {
-    const domain = _domain as string;
+  for (const domain of domains) {
     const chainId = domainToChainId(Number(domain));
 
     const chainConfig = Object.values(filteredHardhatNetworks).find(
@@ -185,16 +191,19 @@ export const sanitizeAndInit = async () => {
       chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
       isHub,
       useStaging,
+      network,
     });
 
-    // TODO: relayers and agents should also be configured per-network. when this is done,
-    // ensure the relayerFeeVault can be passed in
+    // TODO: all agents should also be configured per-network
+    if (!initConfig.agents.relayerFeeVaults[domain]) {
+      throw new Error(`No relayer fee vault configured for ${domain}!`);
+    }
     networks.push({
       chain: chainId.toString(),
       domain,
       rpc,
       deployments,
-      relayerFeeVault: deployments.messaging.RelayerProxy.address,
+      relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
     });
   }
 
@@ -364,6 +373,55 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
     // Call `setupAsset` for each domain. This will:
     // - Set up mappings for canonical ID / canonical domain / adopted asset address / etc.
     // - Set up mapping for stableswap pool if applicable.
+
+    // Sanity check: ensure that all assets have a unique canonical registration.
+    const canonicals = protocol.assets.map((a) => a.canonical.domain + a.canonical.address);
+    if (new Set(canonicals).size !== canonicals.length) {
+      throw new Error(
+        `Duplicate canonical asset detected! (unique: ${new Set(canonicals).size}; total: ${canonicals.length})`,
+      );
+    }
+
+    // Sanity check, on each chain:
+    // - no duplicate locals
+    // - no duplicate adopteds
+    const adopteds: Record<string, string[]> = {};
+    const locals: Record<string, string[]> = {};
+    protocol.assets.forEach((asset) => {
+      Object.entries(asset.representations).forEach(([key, value]) => {
+        if (!adopteds[key]) {
+          adopteds[key] = [];
+        }
+        if (!value) return;
+        value.adopted === constants.AddressZero ? "" : adopteds[key].push(value.adopted);
+        if (!value.local) {
+          return;
+        }
+        if (!locals[key]) {
+          locals[key] = [];
+        }
+        value.local === constants.AddressZero ? "" : locals[key].push(value.local);
+      });
+    });
+    Object.keys(locals).forEach((l) => {
+      if (new Set(locals[l]).size !== locals[l].length) {
+        throw new Error(
+          `Duplicate local asset detected! (unique: ${new Set(locals[l]).size}; total: ${
+            locals[l].length
+          }, domain: ${l})`,
+        );
+      }
+    });
+    Object.keys(adopteds).forEach((l) => {
+      if (new Set(adopteds[l]).size !== adopteds[l].length) {
+        throw new Error(
+          `Duplicate adopted asset detected! (unique: ${new Set(adopteds[l]).size}; total: ${
+            adopteds[l].length
+          }, domain: ${l})`,
+        );
+      }
+    });
+
     for (const asset of protocol.assets) {
       await setupAsset({
         apply,
@@ -490,7 +548,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         // TODO: Blacklist/remove sequencers.
       }
 
-      //   /// MARK - Routers
+      /// MARK - Routers
       if (protocol.agents.routers) {
         if (protocol.agents.routers.allowlist) {
           console.log("\n\nWHITELIST ROUTERS");

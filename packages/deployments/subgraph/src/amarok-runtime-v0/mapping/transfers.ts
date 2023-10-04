@@ -11,6 +11,7 @@ import {
 import { Router, OriginTransfer, DestinationTransfer, OriginMessage, SlippageUpdate } from "../../../generated/schema";
 
 import {
+  generateTxNonce,
   getChainId,
   getOrCreateAsset,
   getOrCreateAssetBalance,
@@ -81,6 +82,9 @@ export function handleXCalled(event: XCalled): void {
   transfer.blockNumber = event.block.number;
   // transaction caller is tx.origin
   transfer.txOrigin = event.transaction.from;
+
+  // save Tx nonce from timestamp and transactionIndex
+  transfer.txNonce = generateTxNonce(event);
 
   transfer.save();
 }
@@ -175,6 +179,7 @@ export function handleExecuted(event: Executed): void {
   transfer.executedGasLimit = event.transaction.gasLimit;
   transfer.executedBlockNumber = event.block.number;
   transfer.executedTxOrigin = event.transaction.from;
+  transfer.executedTxNonce = generateTxNonce(event);
 
   transfer.save();
 }
@@ -241,6 +246,7 @@ export function handleReconciled(event: Reconciled): void {
   transfer.reconciledGasLimit = event.transaction.gasLimit;
   transfer.reconciledBlockNumber = event.block.number;
   transfer.reconciledTxOrigin = event.transaction.from;
+  transfer.reconciledTxNonce = generateTxNonce(event);
 
   transfer.save();
 }

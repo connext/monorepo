@@ -78,6 +78,10 @@ export const TServerConfig = Type.Object({
     port: Type.Integer({ minimum: 1, maximum: 65535 }),
     host: Type.String({ format: "ipv4" }),
   }),
+  http: Type.Object({
+    port: Type.Integer({ minimum: 1, maximum: 65535 }),
+    host: Type.String({ format: "ipv4" }),
+  }),
   adminToken: Type.String(),
 });
 
@@ -103,7 +107,12 @@ export const SequencerConfigSchema = Type.Object({
   ]),
   mnemonic: Type.Optional(Type.String()),
   web3SignerUrl: Type.Optional(Type.String()),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   redis: TRedisConfig,
   server: TServerConfig,
   mode: TModeConfig,
@@ -138,3 +147,10 @@ export const messageSchema = Type.Object({
   originDomain: Type.String(),
 });
 export type Message = Static<typeof messageSchema>;
+
+export const httpMessageSchema = Type.Object({
+  transferId: Type.String(),
+  type: Type.Enum(MessageType),
+  data: Type.Any(),
+});
+export type HTTPMessage = Static<typeof httpMessageSchema>;

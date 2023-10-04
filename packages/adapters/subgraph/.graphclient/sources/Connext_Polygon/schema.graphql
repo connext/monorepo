@@ -470,6 +470,7 @@ type polygon_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: polygon_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: polygon_Bytes
   reconciledTransactionHash: polygon_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +478,7 @@ type polygon_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: polygon_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input polygon_DestinationTransfer_filter {
@@ -734,6 +736,14 @@ input polygon_DestinationTransfer_filter {
   executedTxOrigin_not_in: [polygon_Bytes!]
   executedTxOrigin_contains: polygon_Bytes
   executedTxOrigin_not_contains: polygon_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: polygon_Bytes
   reconciledCaller_not: polygon_Bytes
   reconciledCaller_gt: polygon_Bytes
@@ -796,6 +806,14 @@ input polygon_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [polygon_Bytes!]
   reconciledTxOrigin_contains: polygon_Bytes
   reconciledTxOrigin_not_contains: polygon_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
   and: [polygon_DestinationTransfer_filter]
@@ -840,6 +858,7 @@ enum polygon_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,7 +866,14 @@ enum polygon_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar polygon_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum polygon_OrderDirection {
@@ -1025,6 +1051,7 @@ type polygon_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: polygon_Bytes
+  txNonce: BigInt
 }
 
 input polygon_OriginTransfer_filter {
@@ -1317,6 +1344,14 @@ input polygon_OriginTransfer_filter {
   txOrigin_not_in: [polygon_Bytes!]
   txOrigin_contains: polygon_Bytes
   txOrigin_not_contains: polygon_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: polygon_BlockChangedFilter
   and: [polygon_OriginTransfer_filter]
@@ -1372,6 +1407,7 @@ enum polygon_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1945,6 +1981,7 @@ enum polygon_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2099,6 +2136,7 @@ enum polygon_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2711,6 +2749,7 @@ enum polygon_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2718,6 +2757,7 @@ enum polygon_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash

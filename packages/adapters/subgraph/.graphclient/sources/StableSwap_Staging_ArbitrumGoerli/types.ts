@@ -19,6 +19,7 @@ export type Scalars = {
   stagingarbitrumgoerli_swap_BigDecimal: any;
   BigInt: any;
   stagingarbitrumgoerli_swap_Bytes: any;
+  stagingarbitrumgoerli_swap_Int8: any;
 };
 
 export type stagingarbitrumgoerli_swap_BlockChangedFilter = {

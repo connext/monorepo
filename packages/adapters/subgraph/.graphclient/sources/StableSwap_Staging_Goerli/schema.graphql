@@ -28,6 +28,12 @@ input staginggoerli_swap_Block_height {
 
 scalar staginggoerli_swap_Bytes
 
+"""
+8 bytes signed integer
+
+"""
+scalar staginggoerli_swap_Int8
+
 type staginggoerli_swap_LpAccount {
   id: ID!
   address: staginggoerli_swap_Bytes!

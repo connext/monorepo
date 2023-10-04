@@ -49,10 +49,9 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
     require(_encodedData.length == 0, "!data length");
 
     // Dispatch message through consensys AMB
-    ConsensysAmb(AMB).dispatchMessage{value: msg.value}(
+    ConsensysAmb(AMB).sendMessage{value: msg.value}(
       mirrorConnector,
       msg.value, // fee is the passed in value
-      block.timestamp + 7 days + 1 seconds, // deadline to 7 days from now
       abi.encodeWithSelector(Connector.processMessage.selector, _data)
     );
   }

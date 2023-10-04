@@ -19,6 +19,7 @@ export type Scalars = {
   stagingoptimismgoerli_swap_BigDecimal: any;
   BigInt: any;
   stagingoptimismgoerli_swap_Bytes: any;
+  stagingoptimismgoerli_swap_Int8: any;
 };
 
 export type stagingoptimismgoerli_swap_BlockChangedFilter = {

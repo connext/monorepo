@@ -66,6 +66,10 @@ export const mock = {
         port: 3000,
         host: "0.0.0.0",
       },
+      http: {
+        port: 3002,
+        host: "0.0.0.0",
+      },
     },
     network: "testnet",
     auctionWaitTime: 1_000,
@@ -174,6 +178,7 @@ export const mock = {
           return {
             assertExchange: stub(),
             publish: stub(),
+            prefetch: stub(),
             close: stub(),
           };
         },

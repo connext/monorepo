@@ -1,5 +1,5 @@
-import { reset, restore, stub } from "sinon";
-import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE } from "@connext/nxtp-utils";
+import { reset, restore, stub, spy, match } from "sinon";
+import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
 import { mock } from "./mock";
@@ -9,7 +9,7 @@ import { getEnvConfig } from "../src/config";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
-import { UriInvalid } from "../src/lib/errors";
+import { UriInvalid, ParamsInvalid } from "../src/lib/errors";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -299,6 +299,24 @@ describe("SdkPool", () => {
       );
       expect(res).to.be.deep.eq(mockRequest);
     });
+
+    it("happy: should work if signerAddress is passed into options", async () => {
+      sdkPool.config.signerAddress = undefined;
+      const options = {
+        signerAddress: mkAddress("0xabc"),
+      };
+
+      const res = await sdkPool.removeLiquidityImbalance(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.amounts,
+        mockParams.maxBurnAmount,
+        mockParams.deadline,
+        options,
+      );
+
+      expect(res).to.not.be.undefined;
+    });
   });
 
   describe("#swap", () => {
@@ -341,7 +359,30 @@ describe("SdkPool", () => {
         mockParams.minDy,
         mockParams.deadline,
       );
+
       expect(res).to.be.deep.eq(mockRequest);
+    });
+
+    it("happy: should work if signerAddress is passed into options", async () => {
+      sdkPool.config.signerAddress = undefined;
+      const options = {
+        signerAddress: mkAddress("0xabc"),
+      };
+
+      stub(sdkPool, "getPoolTokenIndex").onCall(0).resolves(0).onCall(1).resolves(1);
+
+      const res = await sdkPool.swap(
+        mockPool.domainId,
+        mockPool.local.address,
+        mockParams.from,
+        mockParams.to,
+        mockParams.amount,
+        mockParams.minDy,
+        mockParams.deadline,
+        options,
+      );
+
+      expect(res).to.not.be.undefined;
     });
   });
 
@@ -464,7 +505,7 @@ describe("SdkPool", () => {
       stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(undefined);
 
       const originAmount = BigNumber.from(100_000);
-      const originSlippage = "0"; // 10% in BPS
+      const originSlippage = "0"; // 0% in BPS
       const destinationSlippage = "0"; // 0% in BPS
 
       stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
@@ -482,32 +523,77 @@ describe("SdkPool", () => {
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
 
-    it("happy: should work with 6 decimals local asset and 18 decimals adopted asset", async () => {
-      const pool: Pool = {
-        domainId: mock.domain.A,
-        name: "TSTB Pool",
-        symbol: "TSTB-TSTA",
-        local: localAsset,
-        adopted: adoptedAsset,
-        lpTokenAddress: utils.formatBytes32String("asdf"),
-        canonicalHash: utils.formatBytes32String("13337"),
-        swapFee: "4000000",
-        balances: [BigNumber.from("706924186329"), BigNumber.from("749171899882428175742051")],
-        decimals: [6, 18],
-        invariant: BigNumber.from("1456093034430419725194080"),
-        initialA: BigNumber.from("20000"),
-        initialATime: 0,
-        futureA: BigNumber.from("20000"),
-        futureATime: 0,
-        currentA: BigNumber.from("20000"),
-        adminFee: "0",
+    it("happy: should work with local origin asset and adopted destination asset, 6 and 18 decimals respectively", async () => {
+      const localAsset6Decimals = { ...localAsset, decimals: 6 };
+      const adoptedAsset18Decimals = { ...adoptedAsset, decimals: 18 };
+      const mockPoolDifferentDecimals = {
+        ...mockPool,
+        local: localAsset6Decimals,
+        adopted: adoptedAsset18Decimals,
       };
 
-      const originAmount = BigNumber.from(1_000);
-      const receivedAmount = originAmount.mul(BigNumber.from(10).pow(12)).mul(9).div(10); // assume swap ate 10%
+      // return destination pool
+      stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPoolDifferentDecimals);
 
-      const res = await sdkPool.calculateSwapLocal(mock.domain.A, pool, pool.local.address, 0, 1, originAmount);
-      expect(res.gt(receivedAmount)).to.equal(true);
+      const originAmount = BigNumber.from(100_000);
+      const originSlippage = "0"; // 0% in BPS
+
+      const originAmountAfterRouterFee = originAmount.sub(originAmount.mul(feeBps).div(10000)); // router takes 0.05%
+
+      const destinationAmountAfterSwap = originAmountAfterRouterFee.mul(9).div(10); // assume swap ate 10%;
+      const destinationAmountAfterSwapConverted = destinationAmountAfterSwap.mul(BigNumber.from(10).pow(12)); // to 18 decimals
+      const destinationSlippage = "1000"; // 10% in BPS
+
+      stub(sdkPool, "calculateSwapLocal")
+        .onCall(0) // swap once for destination pool
+        .resolves(destinationAmountAfterSwapConverted);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPoolDifferentDecimals.domainId,
+        mockPoolDifferentDecimals.domainId,
+        mockPoolDifferentDecimals.local.address,
+        originAmount,
+      );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+    });
+
+    it("happy: should work with adopted origin asset and local destination asset, 18 and 6 decimals respectively", async () => {
+      const localAsset6Decimals = { ...localAsset, decimals: 6 };
+      const adoptedAsset18Decimals = { ...adoptedAsset, decimals: 18 };
+      const mockPoolDifferentDecimals = {
+        ...mockPool,
+        local: localAsset6Decimals,
+        adopted: adoptedAsset18Decimals,
+      };
+
+      // return origin pool
+      stub(sdkPool, "getPool").onCall(0).resolves(mockPoolDifferentDecimals).onCall(1).resolves(undefined);
+
+      const originAmount = BigNumber.from(10).pow(18);
+      const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
+      const originAmountAfterSwapConverted = originAmountAfterSwap.div(BigNumber.from(10).pow(12)); // to 6 decimals
+      const originSlippage = "1000"; // 10% in BPS
+      const destinationSlippage = "0"; // 0% in BPS
+
+      stub(sdkPool, "calculateSwapLocal")
+        .onCall(0) // swap once for origin pool
+        .resolves(originAmountAfterSwapConverted);
+      stub(sdkPool, "getCanonicalTokenId").resolves([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      stub(sdkPool, "getAssetsDataByDomainAndKey").resolves(mockAssetData);
+
+      const res = await sdkPool.calculateAmountReceived(
+        mockPoolDifferentDecimals.domainId,
+        mockPoolDifferentDecimals.domainId,
+        mockPoolDifferentDecimals.adopted.address,
+        originAmount,
+      );
+
+      expect(res.originSlippage.toString()).to.equal(originSlippage);
+      expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
     });
   });
 
@@ -552,6 +638,48 @@ describe("SdkPool", () => {
       const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
 
       expect(res).to.have.lengthOf(0);
+    });
+
+    it("happy: should log info if no pool found for asset", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
+
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkPool, "getPool").resolves(undefined);
+
+      const loggerInfoSpy = spy(sdkPool.logger, "info");
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(0);
+      expect(loggerInfoSpy).to.have.been.calledWith(
+        "No pool for asset",
+        match.any,
+        match.any,
+        match({ data: mockAssetData }),
+      );
+
+      loggerInfoSpy.restore();
+    });
+
+    it("should log error if an error occurs while processing assetData", async () => {
+      const userAddress = "0x01".padEnd(42, "0");
+
+      stub(sdkPool, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkPool, "getPool").throws(new Error("Some error"));
+
+      const loggerErrorSpy = spy(sdkPool.logger, "error");
+
+      const res = await sdkPool.getUserPools(mockPool.domainId, userAddress);
+
+      expect(res).to.have.lengthOf(0);
+      expect(loggerErrorSpy).to.have.been.calledOnceWithExactly(
+        "Error while processing assetData",
+        match.object, // requestContext
+        match.object, // methodContext
+        match.object, // Error object
+      );
+
+      loggerErrorSpy.restore();
     });
   });
 
@@ -602,7 +730,7 @@ describe("SdkPool", () => {
 
       const res = await sdkPool.calculateRemoveSwapLiquidity(mockPool.domainId, mockPool.local.address, "10");
 
-      expect(res).to.deep.equal(["100", "100"]);
+      expect(res).to.deep.equal([BigNumber.from("100"), BigNumber.from("100")]);
     });
   });
 
@@ -677,6 +805,7 @@ describe("SdkPool", () => {
     it("happy: should work", async () => {
       stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
       stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(mockPool);
 
       const res = await sdkPool.calculateAddLiquidityPriceImpact(mockPool.domainId, mockPool.local.address, "10", "10");
 
@@ -701,6 +830,7 @@ describe("SdkPool", () => {
     it("happy: should work", async () => {
       stub(sdkPool, "getVirtualPrice").resolves(BigNumber.from("20"));
       stub(sdkPool, "calculateTokenAmount").resolves(BigNumber.from("10"));
+      stub(sdkPool, "getPool").resolves(mockPool);
 
       const res = await sdkPool.calculateRemoveLiquidityPriceImpact(
         mockPool.domainId,
@@ -758,6 +888,55 @@ describe("SdkPool", () => {
 
       expect(result).to.be.undefined;
     });
+
+    it("happy: should calculate yield stats for 1 day using hourly swap volume", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 1;
+
+      const hourlySwapVolumeStub = stub(sdkPool, "getHourlySwapVolume").resolves([]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+
+      await sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
+
+      expect(hourlySwapVolumeStub).to.have.been.calledOnceWithExactly({
+        key: mockPool.canonicalHash,
+        domainId: mockPool.domainId,
+        endTimestamp: unixTimestamp,
+        range: { limit: 24 },
+      });
+    });
+
+    it("happy: should calculate yield stats for more than 1 day using daily swap volume", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 10;
+
+      const dailySwapVolumeStub = stub(sdkPool, "getDailySwapVolume").resolves([]);
+      stub(sdkPool, "getPool").resolves(mockPool);
+
+      await sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days);
+
+      expect(dailySwapVolumeStub).to.have.been.calledOnceWithExactly({
+        key: mockPool.canonicalHash,
+        domainId: mockPool.domainId,
+        endTimestamp: unixTimestamp,
+        range: { limit: days },
+      });
+    });
+
+    it("should throw ParamsInvalid if days is less than 1", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const unixTimestamp = 1675394597;
+      const days = 0;
+
+      await expect(sdkPool.getYieldStatsForDays(domainId, tokenAddress, unixTimestamp, days)).to.be.rejectedWith(
+        ParamsInvalid,
+      );
+    });
   });
 
   describe("#calculateYield", () => {
@@ -766,6 +945,28 @@ describe("SdkPool", () => {
 
       expect(yieldData.apr).closeTo(0.0365, 0.001);
       expect(yieldData.apy).closeTo(0.03706870443, 0.001);
+    });
+  });
+
+  describe("#getYieldData", () => {
+    it("happy: should return the correct apr, apy", async () => {
+      const domainId = "13337";
+      const tokenAddress = constants.AddressZero;
+      const days = 1;
+      const yieldStats = {
+        totalFeesFormatted: 1,
+        totalLiquidityFormatted: 10000,
+        totalVolume: BigNumber.from(100),
+        totalVolumeFormatted: 100,
+      };
+
+      stub(sdkPool, "getYieldStatsForDays").resolves(yieldStats);
+
+      const yieldData = await sdkPool.getYieldData(domainId, tokenAddress, days);
+
+      expect(yieldData).to.not.be.undefined;
+      expect(yieldData!.apr).closeTo(0.0365, 0.001);
+      expect(yieldData!.apy).closeTo(0.03706870443, 0.001);
     });
   });
 

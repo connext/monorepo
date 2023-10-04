@@ -1,7 +1,8 @@
 import { jsonifyError } from "@connext/nxtp-utils";
+import { BigNumberish, ethers } from "ethers";
 
 import { axiosGet } from "../mockable";
-import { UniswapToken, Asset, HoneyswapToken } from "../types";
+import { UniswapToken, Asset, HoneyswapToken, coingeckoTokenType } from "../types";
 import { HONEYSWAP_TOKENS, UNISWAP_GATEWAY } from "../helpers/api";
 
 /**
@@ -62,5 +63,48 @@ export const getSupportedAssets = async (chainID: number): Promise<Asset[] | nul
     }
   } catch (error: unknown) {
     throw new Error(`Getting supportedAsset from SDK failed, e: ${jsonifyError(error as Error).message}`);
+  }
+};
+
+export const getCoingeckoIDs = async (tokenAddresses: string[]): Promise<Record<string, string>> => {
+  try {
+    const response = await axiosGet("https://api.coingecko.com/api/v3/coins/list?include_platform=true");
+    const tokens = response.data;
+    const ids: Record<string, string> = {};
+
+    tokens.forEach((token: coingeckoTokenType) => {
+      tokenAddresses.forEach((address) => {
+        if (Object.values(token.platforms).includes(address.toLowerCase())) {
+          ids[address] = token.id;
+        }
+      });
+    });
+
+    if (Object.keys(ids).length === 0) {
+      throw new Error("No tokens found");
+    }
+    return ids;
+  } catch (err: unknown) {
+    throw Error(`Error in fetching Coingecko token IDs: ${(err as Error).message}`);
+  }
+};
+
+export const getTokenPricesInUsd = async (
+  coingeckoIds: string[],
+  amounts: BigNumberish[],
+  decimals: number[],
+): Promise<number[]> => {
+  try {
+    const response = await axiosGet("https://api.coingecko.com/api/v3/simple/price", {
+      params: { ids: coingeckoIds.join(","), vs_currencies: "usd" },
+    });
+
+    return coingeckoIds.map((coingeckoId, index) => {
+      const priceInUSD: number = response.data[coingeckoId].usd;
+      const _amount = parseFloat(ethers.utils.formatUnits(amounts[index].toString(), decimals[index]));
+      return priceInUSD * _amount;
+    });
+  } catch (err: unknown) {
+    throw Error(`Failed to get fetch the USD price ${(err as Error).message}`);
   }
 };

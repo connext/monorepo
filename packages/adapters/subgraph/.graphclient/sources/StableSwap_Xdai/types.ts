@@ -19,6 +19,7 @@ export type Scalars = {
   xdai_swap_BigDecimal: any;
   BigInt: any;
   xdai_swap_Bytes: any;
+  xdai_swap_Int8: any;
 };
 
 export type xdai_swap_BlockChangedFilter = {

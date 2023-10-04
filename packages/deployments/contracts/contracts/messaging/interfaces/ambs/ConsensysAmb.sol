@@ -1,63 +1,88 @@
 // SPDX-License-Identifier: OWNED BY ConsenSys Software Inc.
 pragma solidity ^0.8.15;
 
-// PASTED FROM https://consensys.net/docs/zk-evm/en/latest/developers/use-message-bridge/
+// PASTED FROM https://docs.linea.build/developers/bridge-architecture/message-service  #IMessageService.sol
 
 /// @title The bridge interface implemented on both chains
 interface ConsensysAmb {
-  /// @notice Emitted on the origin chain when a message is to be sent to the destination chain
-  /// @param _from the msg.sender calling the origin bridge
-  /// @param _to the destination contract on the destination chain
-  /// @param _fee the bridge fee on the origin chain
-  /// @param _value the value to be transferred
-  /// @param _deadline timestamp as second since unix epoch after which the transaction is invalid and can be dropped
-  /// @param _calldata the calldata used by the destination bridge to call the destination contract
-  /// @dev _calldata can be calculated using abi.encodeWithSignature("transfer(address,uint256)", recipient, amount))
-  event MessageDispatched(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata);
-
-  /// @notice Emitted on the destination chain when a message bas been received by the destination bridge
-  /// @param _from the msg.sender calling the origin bridge
-  /// @param _to the destination contract on the destination chain
-  /// @param _fee the bridge fee on the origin chain
-  /// @param _value the value to be transferred
-  /// @param _deadline timestamp as second since unix epoch after which the transaction is invalid and can be dropped
-  /// @param _calldata the calldata used by the destination bridge to call the destination contract
-  /// @dev _calldata can be calculated using abi.encodeWithSignature("transfer(address,uint256)", recipient, amount))
-  event MessageDelivered(address _from, address _to, uint256 _fee, uint256 _value, uint256 _deadline, bytes _calldata);
-
-  /// @notice Dispatches a message from the given chain. Must be called by a developer or another contract.
-  /// @notice If this is the L2 bridge, then this methods dispatches a message from L2 to L1.
-  /// @dev This function should be called with a value > _fee. The reminder will be send on the destination chain.
-  /// @param _to the destination contract on the destination chain
-  /// @param _fee the bridge fee on the origin chain
-  /// @param _deadline timestamp as second since unix epoch after which the transaction is invalid and can be dropped
-  /// @param _calldata the calldata used by the destination bridge to call the destination contract
-  function dispatchMessage(
-    address _to,
+  /**
+   * @dev Emitted when a message is sent.
+   * @dev We include the message hash to save hashing costs on the rollup.
+   */
+  event MessageSent(
+    address indexed _from,
+    address indexed _to,
     uint256 _fee,
-    uint256 _deadline,
-    bytes calldata _calldata
-  ) external payable;
+    uint256 _value,
+    uint256 _nonce,
+    bytes _calldata,
+    bytes32 indexed _messageHash
+  );
 
-  /// @notice Deliver a message to the destination chain.
-  /// @notice Is called automatically by the operator. Cannot be used by developers
-  /// @param _from the msg.sender calling the origin bridge
-  /// @param _to the destination contract on the destination chain
-  /// @param _fee the bridge fee on the origin chain
-  /// @param _value the value to be transferred
-  /// @param _deadline timestamp as second since unix epoch after which the transaction is invalid and can be dropped
-  /// @param _calldata the calldata used by the destination bridge to call the destination contract
-  function deliverMessage(
+  /**
+   * @dev Emitted when a message is claimed.
+   */
+  event MessageClaimed(bytes32 indexed _messageHash);
+
+  /**
+   * @dev Thrown when fees are lower than the minimum fee.
+   */
+  error FeeTooLow();
+
+  /**
+   * @dev Thrown when fees are lower than value.
+   */
+  error ValueShouldBeGreaterThanFee();
+
+  /**
+   * @dev Thrown when the value sent is less than the fee.
+   * @dev Value to forward on is msg.value - _fee.
+   */
+  error ValueSentTooLow();
+
+  /**
+   * @dev Thrown when the destination address reverts.
+   */
+  error MessageSendingFailed(address destination);
+
+  /**
+   * @dev Thrown when the destination address reverts.
+   */
+  error FeePaymentFailed(address recipient);
+
+  /**
+   * @notice Sends a message for transporting from the given chain.
+   * @dev This function should be called with a msg.value = _value + _fee. The fee will be paid on the destination chain.
+   * @param _to The destination address on the destination chain.
+   * @param _fee The message service fee on the origin chain.
+   * @param _calldata The calldata used by the destination message service to call the destination contract.
+   */
+  function sendMessage(address _to, uint256 _fee, bytes calldata _calldata) external payable;
+
+  /**
+   * @notice Deliver a message to the destination chain.
+   * @notice Is called automatically by the Postman, dApp or end user.
+   * @param _from The msg.sender calling the origin message service.
+   * @param _to The destination address on the destination chain.
+   * @param _value The value to be transferred to the destination address.
+   * @param _fee The message service fee on the origin chain.
+   * @param _feeRecipient Address that will receive the fees.
+   * @param _calldata The calldata used by the destination message service to call/forward to the destination contract.
+   * @param _nonce Unique message number.
+   */
+  function claimMessage(
     address _from,
     address _to,
     uint256 _fee,
     uint256 _value,
-    uint256 _deadline,
-    bytes calldata _calldata
-  ) external payable;
+    address payable _feeRecipient,
+    bytes calldata _calldata,
+    uint256 _nonce
+  ) external;
 
-  /// @notice When called within the context of the delivered call can be used to return the sender (_from)
-  /// @notice on the origin chain otherwise returns the zero address.
-  /// @return Address of the caller contract on the origin chain.
+  /**
+   * @notice Returns the original sender of the message on the origin layer.
+   * @return The original sender of the message on the origin layer.
+   */
   function sender() external view returns (address);
 }

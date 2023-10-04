@@ -597,6 +597,12 @@ enum testgoerli_DestinationTransfer_orderBy {
   reconciledBlockNumber
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar testgoerli_Int8
+
 """Defines the order direction, either ascending or descending"""
 enum testgoerli_OrderDirection {
   asc

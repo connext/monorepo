@@ -14,8 +14,8 @@ import { Connext, Connext__factory, IERC20, IERC20__factory } from "@connext/sma
 import memoize from "memoizee";
 
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
-import { AssetData, ConnextSupport } from "./interfaces";
-import { SignerAddressMissing, ContractAddressMissing } from "./lib/errors";
+import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
+import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
 
 declare global {
@@ -38,7 +38,7 @@ export class SdkShared {
   readonly chainData: Map<string, ChainData>;
   readonly contracts: ConnextContractInterfaces;
   protected readonly chainreader: ChainReader;
-  protected readonly logger: Logger;
+  readonly logger: Logger;
 
   constructor(config: SdkConfig, logger: Logger, chainData: Map<string, ChainData>) {
     this.config = config;
@@ -75,7 +75,34 @@ export class SdkShared {
     }
 
     this.logger.info(`Using static provider for domain: ${domainId}`);
-    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers[0]);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers?.[0]);
+  }
+
+  /**
+   * Checks if at least one provider is configured for all given domains.
+   *
+   * @param domainId - The domain ID.
+   * @returns Boolean.
+   */
+  async providerSanityCheck(params: ProviderSanityCheck): Promise<boolean> {
+    const { domains, options } = params;
+    let { chains } = this.config;
+
+    if (options && options.chains) {
+      chains = options.chains;
+    }
+
+    for (const domainId of domains) {
+      if (!(domainId in chains)) {
+        return false;
+      }
+      const chain = chains[domainId];
+      if ((chain.providers?.length ?? 0) <= 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   getDeploymentAddress = memoize(
@@ -96,10 +123,29 @@ export class SdkShared {
    * @returns Connext Contract object.
    */
   getConnext = memoize(
-    async (domainId: string): Promise<Connext> => {
+    async (domainId: string, options?: Options): Promise<Connext> => {
+      const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+      if (!isProviderValid) {
+        throw new ProviderMissing(domainId);
+      }
+
       const connextAddress = await this.getDeploymentAddress(domainId, "connext");
 
-      const provider = await this.getProvider(domainId);
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
+        : await this.getProvider(domainId);
+
       return Connext__factory.connect(connextAddress, provider);
     },
     { promise: true },
@@ -111,8 +157,25 @@ export class SdkShared {
    * @param domainId - The domain ID.
    * @returns ERC20 Contract object.
    */
-  async getERC20(domainId: string, tokenAddress: string): Promise<IERC20> {
-    const provider = await this.getProvider(domainId);
+  async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
+    let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+    if (!providerURL && options?.chains) {
+      Object.keys(options.chains).forEach((domain) => {
+        if (domain !== domainId) {
+          return;
+        }
+        providerURL = options.chains?.[domain].providers?.[0];
+      });
+    }
+
+    const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
+
     return IERC20__factory.connect(tokenAddress, provider);
   }
 
@@ -192,32 +255,38 @@ export class SdkShared {
     domainId: string,
     assetId: string,
     amount: string,
-    infiniteApprove = true,
+    infiniteApprove?: boolean,
+    options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
     const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
-    const signerAddress = this.config.signerAddress;
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
     this.logger.info("Method start", requestContext, methodContext, {
       domainId,
       assetId,
       amount,
-      signerAddress,
+      _signerAddress,
     });
 
-    if (!signerAddress) {
+    if (!_signerAddress) {
       throw new SignerAddressMissing();
     }
 
-    const connextContract = await this.getConnext(domainId);
-    const erc20Contract = await this.getERC20(domainId, assetId);
+    const connextContract = await this.getConnext(domainId, options);
+    const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
-      const approved = await erc20Contract.allowance(signerAddress, connextContract.address);
+      const approved = await erc20Contract.allowance(_signerAddress, connextContract.address);
 
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
           connextContract.address,
-          infiniteApprove ? constants.MaxUint256 : amount,
+          infiniteApprove ?? true ? constants.MaxUint256 : amount,
         );
         return approveData;
       } else {

@@ -14,6 +14,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
+
   assets: [
     {
       name: "USDT",
@@ -212,26 +213,181 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "MIVA",
+      name: "nextAlUSD",
       canonical: {
-        domain: "6778479",
-        address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+        domain: "6648936",
+        address: "0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9",
         decimals: 18,
         cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
-        // optimism
-        "1869640809": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
         },
-        // ethereum
-        "6648936": {
+        /// OPTIMISM
+        "1869640809": {
+          local: "0x49000f5e208349D2fA678263418e21365208E498",
+          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
+        },
+        // polygon
+        "1886350457": {
           local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
         // bnb
         "6450786": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+      },
+    },
+    {
+      name: "nextAlETH",
+      canonical: {
+        domain: "6648936",
+        address: "0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bnb
+        "6450786": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+      },
+    },
+    {
+      name: "XOC",
+      // polygon
+      canonical: {
+        domain: "1886350457",
+        address: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        decimals: 18,
+        cap: utils.parseUnits("25000", 18).toString(),
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // optimism
+        "1869640809": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x0000000000000000000000000000000000000000",
+          adopted: "0x0000000000000000000000000000000000000000",
+        },
+        // bsc
+        "6450786": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // gnosis
+        "6778479": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+      },
+    },
+    {
+      name: "BTRST",
+      canonical: {
+        domain: "6648936",
+        address: "0x799ebfABE77a6E34311eeEe9825190B9ECe32824",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// POLYGON
+        "1886350457": {
+          local: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
+          adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
+        },
+      },
+    },
+    {
+      name: "NEXT",
+      canonical: {
+        domain: "6648936",
+        address: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        decimals: 18,
+        cap: utils.parseUnits("500000000", 18).toString(),
+      },
+      representations: {
+        // optimism
+        "1869640809": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // arbitrum one
+        "1634886255": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // polygon
+        "1886350457": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // bsc
+        "6450786": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+          adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+      },
+    },
+    {
+      name: "MIVA",
+      canonical: {
+        domain: "11111",
+        address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+        decimals: 18,
+      },
+      representations: {
+        //gnosis
+        "6778479": {
+          local: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+          adopted: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+        },
+        // optimism
+        "1869640809": {
           local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
@@ -250,21 +406,20 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "FRACTION",
       canonical: {
-        domain: "6778479",
+        domain: "11111",
         address: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
         decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
+        // gnosis
+        "6778479": {
+          local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+          adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        },
         // optimism
         "1869640809": {
           local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
           adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
-        },
-        // ethereum
-        "6648936": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
         },
         // bnb
         "6450786": {
@@ -285,11 +440,23 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
   ],
   agents: {
+    relayerFeeVaults: {
+      "6648936": "0x4d50a469fc788a3c0CdC8Fd67868877dCb246625",
+      "1869640809": "0x6eCeD04DdC5A7709d5877c963cED0288Fb1c7348",
+      "1886350457": "0x0970Adeb473609F91D03e9Bba85F49C445040cD7",
+      "1634886255": "0x5C711DB90dEc0a5B81C626968DEa4187a7f9C1F2",
+      "6450786": "0x9435Ba7C661a0Fd477deED640491de8c100325A7",
+      "6778479": "0x7616Bc6d0dee5E250BA5b3dDa6cbbB71786FB638",
+    },
     watchers: {
       allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
     },
     routers: {
       allowlist: [
+        "0x76cf58ce587bc928fcc5ad895555fd040e06c61a", // BTRST
+        "0x5d527765252003AceE6545416F6a9C8D15ae8402", // 01node
+        "0x49a9E7ec76Bc8fDF658d09557305170d9F01D2fA", // BlockTech 3
+        "0x6273c0965A1dB4F8A6277d490B4fD48715a42b96", // Xocalatl
         "0x9584Eb0356a380b25D7ED2C14c54De58a25f2581", // Mike Nai
         "0xC4Ae07F276768A3b74AE8c47bc108a2aF0e40eBa", // P2P 2
         "0xEca085906cb531bdf1F87eFA85c5bE46aA5C9d2c", // BlockTech 2

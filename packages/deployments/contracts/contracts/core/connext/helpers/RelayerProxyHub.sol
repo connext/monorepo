@@ -60,44 +60,38 @@ interface IArbitrumHubConnector {
 }
 
 interface IOptimismHubConnector {
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L34-L40
-  struct ChainBatchHeader {
-    uint256 batchIndex;
-    bytes32 batchRoot;
-    uint256 batchSize;
-    uint256 prevTotalElements;
-    bytes extraData;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/libraries/codec/Lib_OVMCodec.sol#L42-L45
-  struct ChainInclusionProof {
-    uint256 index;
-    bytes32[] siblings;
-  }
-
-  // modified from: https://github.com/ethereum-optimism/optimism/blob/fcfcf6e7e69801e63904ec53815db01a8d45dcac/packages/contracts/contracts/L1/messaging/IL1CrossDomainMessenger.sol#L18-L24
-  struct L2MessageInclusionProof {
+  struct OutputRootProof {
+    bytes32 version;
     bytes32 stateRoot;
-    ChainBatchHeader stateRootBatchHeader;
-    ChainInclusionProof stateRootProof;
-    bytes stateTrieWitness;
-    bytes storageTrieWitness;
+    bytes32 messagePasserStorageRoot;
+    bytes32 latestBlockhash;
+  }
+
+  struct WithdrawalTransaction {
+    uint256 nonce;
+    address sender;
+    address target;
+    uint256 value;
+    uint256 gasLimit;
+    bytes data;
   }
 
   struct OptimismRootMessageData {
-    address _target;
-    address _sender;
-    bytes _message;
-    uint256 _messageNonce;
-    L2MessageInclusionProof _proof;
+    WithdrawalTransaction _tx;
+    uint256 _l2OutputIndex;
+    OutputRootProof _outputRootProof;
+    bytes[] _withdrawalProof;
   }
 
+  /**
+   * @dev modified from: OptimismPortal contract
+   * https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/contracts/L1/OptimismPortal.sol#L208
+   */
   function processMessageFromRoot(
-    address _target,
-    address _sender,
-    bytes memory _message,
-    uint256 _messageNonce,
-    L2MessageInclusionProof memory _proof
+    WithdrawalTransaction memory _tx,
+    uint256 _l2OutputIndex,
+    OutputRootProof calldata _outputRootProof,
+    bytes[] calldata _withdrawalProof
   ) external;
 }
 
@@ -366,11 +360,10 @@ contract RelayerProxyHub is RelayerProxy {
         (IOptimismHubConnector.OptimismRootMessageData)
       );
       IOptimismHubConnector(hubConnectors[fromChain]).processMessageFromRoot(
-        data._target,
-        data._sender,
-        data._message,
-        data._messageNonce,
-        data._proof
+        data._tx,
+        data._l2OutputIndex,
+        data._outputRootProof,
+        data._withdrawalProof
       );
     }
 

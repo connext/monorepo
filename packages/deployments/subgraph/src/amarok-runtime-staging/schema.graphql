@@ -123,6 +123,7 @@ type OriginTransfer @entity {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: Bytes
+  txNonce: BigInt
 }
 
 type DestinationTransfer @entity {
@@ -165,6 +166,7 @@ type DestinationTransfer @entity {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: Bytes
+  executedTxNonce: BigInt
 
   # Reconciled Transaction
   reconciledCaller: Bytes
@@ -174,6 +176,7 @@ type DestinationTransfer @entity {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: Bytes
+  reconciledTxNonce: BigInt
 }
 
 type OriginMessage @entity {
