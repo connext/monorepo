@@ -160,10 +160,10 @@ export type { Unwrapper } from "./contracts/core/xreceivers/Unwrapper.sol/Unwrap
 export { Unwrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/Unwrapper__factory";
 export type { AdminHubConnector } from "./contracts/messaging/connectors/admin/AdminHubConnector";
 export { AdminHubConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminHubConnector__factory";
-export type { AdminMainnetSpokeConnector } from "./contracts/messaging/connectors/admin/AdminMainnetSpokeConnector.sol/AdminMainnetSpokeConnector";
-export { AdminMainnetSpokeConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminMainnetSpokeConnector.sol/AdminMainnetSpokeConnector__factory";
-export type { AdminSpokeConnector } from "./contracts/messaging/connectors/admin/AdminMainnetSpokeConnector.sol/AdminSpokeConnector";
-export { AdminSpokeConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminMainnetSpokeConnector.sol/AdminSpokeConnector__factory";
+export type { AdminMainnetSpokeConnector } from "./contracts/messaging/connectors/admin/AdminMainnetSpokeConnector";
+export { AdminMainnetSpokeConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminMainnetSpokeConnector__factory";
+export type { AdminSpokeConnector } from "./contracts/messaging/connectors/admin/AdminSpokeConnector";
+export { AdminSpokeConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminSpokeConnector__factory";
 export type { ArbitrumHubConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumHubConnector";
 export { ArbitrumHubConnector__factory } from "./factories/contracts/messaging/connectors/arbitrum/ArbitrumHubConnector__factory";
 export type { ArbitrumSpokeConnector } from "./contracts/messaging/connectors/arbitrum/ArbitrumSpokeConnector";

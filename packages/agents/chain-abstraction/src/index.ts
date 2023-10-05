@@ -12,4 +12,4 @@ export {
   getAmountOutMinForUniV3,
 } from "./libs";
 
-export { getSupportedAssetsForDomain, OriginSwapDataFns } from "./helpers";
+export { getSupportedAssetsForDomain, OriginSwapDataFns, SwapQuoteFns } from "./helpers";

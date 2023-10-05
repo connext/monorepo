@@ -69,6 +69,18 @@ export const DestinationCallDataParamsSchema = Type.Object({
 });
 export type DestinationCallDataParams = Static<typeof DestinationCallDataParamsSchema>; // change schema
 
+const oneInchconfigSchemaAPIKey = Type.Object({
+  customURL: Type.String(),
+  slippage: Type.Optional(Type.Number()),
+  apiKey: Type.Optional(Type.String()),
+});
+
+const oneInchconfigSchemaCustomURL = Type.Object({
+  customURL: Type.Optional(Type.String()),
+  slippage: Type.Optional(Type.Number()),
+  apiKey: Type.String(),
+});
+
 export const SwapQuoteParamsSchema = Type.Object({
   domainId: TIntegerString,
   fromAsset: TAddress,
@@ -76,6 +88,7 @@ export const SwapQuoteParamsSchema = Type.Object({
   amountIn: TIntegerString,
   rpc: Type.String(),
   fee: Type.Optional(TIntegerString),
+  config: Type.Optional(Type.Union([oneInchconfigSchemaAPIKey, oneInchconfigSchemaCustomURL])),
 });
 export type SwapQuoteParams = Static<typeof SwapQuoteParamsSchema>;
 
@@ -126,6 +139,17 @@ export type EstimateQuoteAmountArgs = {
   fee?: string;
   originDecimals?: number;
   destinationDecimals?: number;
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+        slippage?: number;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+        slippage?: number;
+      };
 };
 
 export type SwapQuoteCallbackArgs = {
@@ -137,6 +161,17 @@ export type SwapQuoteCallbackArgs = {
   amountIn: string;
   fee?: string;
   sqrtPriceLimitX96?: string;
+  config?:
+    | {
+        customURL: string;
+        apiKey?: string;
+        slippage?: number;
+      }
+    | {
+        customURL?: undefined;
+        apiKey: string;
+        slippage?: number;
+      };
 };
 
 export type coingeckoTokenType = {
