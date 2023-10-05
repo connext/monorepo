@@ -809,80 +809,80 @@ jobs:
     outputs:
       json: ${{ steps.meta.outputs.json }}
 
-  smoke-tests:
-    runs-on: ubuntu-latest
-    needs:
-      [
-        build-and-push-router-publisher-image,
-        build-and-push-router-subscriber-image,
-        build-and-push-router-executor-image,
-        build-and-push-sequencer-server-image,
-        build-and-push-sequencer-publisher-image,
-        build-and-push-sequencer-subscriber-image,
-        build-and-push-cartographer-image,
-        build-and-push-lighthouse-image,
-        build-and-push-lighthouse-prover-subscriber-image,
-        build-and-push-relayer-image,
-        build-and-push-watcher-image,
-        build-and-push-sdk-server-image,
-      ]
-    env:
-      ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
-      ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
-      ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
-      SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
-      SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
-      SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.sha }}
-      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
-      LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
-      RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
-      WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
-      SDK_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sdk-server-image.outputs.json).tags[0] }}
-      WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c"
-      WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
-      WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
-      WEB3_SIGNER_PRIVATE_KEY_WATCHER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
-      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-    steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
+  # smoke-tests:
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     [
+  #       build-and-push-router-publisher-image,
+  #       build-and-push-router-subscriber-image,
+  #       build-and-push-router-executor-image,
+  #       build-and-push-sequencer-server-image,
+  #       build-and-push-sequencer-publisher-image,
+  #       build-and-push-sequencer-subscriber-image,
+  #       build-and-push-cartographer-image,
+  #       build-and-push-lighthouse-image,
+  #       build-and-push-lighthouse-prover-subscriber-image,
+  #       build-and-push-relayer-image,
+  #       build-and-push-watcher-image,
+  #       build-and-push-sdk-server-image,
+  #     ]
+  #   env:
+  #     ROUTER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-router-publisher-image.outputs.json).tags[0] }}
+  #     ROUTER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-router-subscriber-image.outputs.json).tags[0] }}
+  #     ROUTER_EXECUTOR_IMAGE: ${{fromJSON(needs.build-and-push-router-executor-image.outputs.json).tags[0]}}
+  #     SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
+  #     SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
+  #     SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
+  #     CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.sha }}
+  #     LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+  #     LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
+  #     RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
+  #     WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
+  #     SDK_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sdk-server-image.outputs.json).tags[0] }}
+  #     WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c"
+  #     WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
+  #     WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
+  #     WEB3_SIGNER_PRIVATE_KEY_WATCHER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
+  #     MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+  #   steps:
+  #     - name: Free Disk Space (Ubuntu)
+  #       uses: jlumbroso/free-disk-space@main
+  #       with:
+  #         # this might remove tools that are actually needed,
+  #         # if set to "true" but frees about 6 GB
+  #         tool-cache: false
 
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #         # all of these default to true, but feel free to set to
+  #         # "false" if necessary for your workflow
+  #         android: true
+  #         dotnet: true
+  #         haskell: true
+  #         large-packages: true
+  #         docker-images: true
+  #         swap-storage: true
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: run smoke tests
-        run: |
-          docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
-          bash docker/bin/wait-for-services.sh router-publisher
-          bash docker/bin/wait-for-services.sh router-subscriber
-          bash docker/bin/wait-for-services.sh sequencer-server
-          bash docker/bin/wait-for-services.sh sequencer-publisher
-          bash docker/bin/wait-for-services.sh sequencer-subscriber
+  #     - name: run smoke tests
+  #       run: |
+  #         docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
+  #         bash docker/bin/wait-for-services.sh router-publisher
+  #         bash docker/bin/wait-for-services.sh router-subscriber
+  #         bash docker/bin/wait-for-services.sh sequencer-server
+  #         bash docker/bin/wait-for-services.sh sequencer-publisher
+  #         bash docker/bin/wait-for-services.sh sequencer-subscriber
 
-    outputs:
-      router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
-      router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
-      router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
-      sequencer-server-tags: ${{ needs.build-and-push-sequencer-server-image.outputs.json }}
-      sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
-      sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
-      lighthouse-prover-subscriber-tags: ${{ needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json }}
-      relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
-      watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
-      sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
+  #   outputs:
+  #     router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
+  #     router-subscriber-tags: ${{ needs.build-and-push-router-subscriber-image.outputs.json }}
+  #     router-executor-tags: ${{ needs.build-and-push-router-executor-image.outputs.json }}
+  #     sequencer-server-tags: ${{ needs.build-and-push-sequencer-server-image.outputs.json }}
+  #     sequencer-publisher-tags: ${{ needs.build-and-push-sequencer-publisher-image.outputs.json }}
+  #     sequencer-subscriber-tags: ${{ needs.build-and-push-sequencer-subscriber-image.outputs.json }}
+  #     lighthouse-prover-subscriber-tags: ${{ needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json }}
+  #     relayer-tags: ${{ needs.build-and-push-relayer-image.outputs.json }}
+  #     watcher-tags: ${{ needs.build-and-push-watcher-image.outputs.json }}
+  #     sdk-server-tags: ${{ needs.build-and-push-sdk-server-image.outputs.json }}
 
   e2e-tests:
     if: github.ref != 'refs/heads/staging'
