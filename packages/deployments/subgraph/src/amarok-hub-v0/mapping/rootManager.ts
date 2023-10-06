@@ -9,6 +9,8 @@ import {
   AggregateRootProposed as AggregateRootProposedEvent,
   ProposedRootFinalized as ProposedRootFinalizedEvent,
   OptimisticRootPropagated as OptimisticRootPropagatedEvent,
+  SlowModeActivated as SlowModeActivatedEvent,
+  OptimisticModeActivated as OptimisticModeActivatedEvent,
 } from "../../../generated/RootManager/RootManager";
 import {
   RootPropagated,
@@ -85,11 +87,11 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
     snapshot = new OptimisticRootProposed(event.params.snapshotId.toHexString());
   }
 
-  snapshot.endOfDispute = event.params.endOfDispute;
+  snapshot.disputeCliff = event.params.endOfDispute;
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.snapshotsRoots = event.params.snapshotsRoots;
   snapshot.domains = event.params.domains;
-  snapshot.baseAggregateRoot = event.params.baseAggregateRootUsed;
+  snapshot.baseAggregateRoot = event.params.baseRoot;
 
   snapshot.save();
 }
@@ -119,7 +121,7 @@ export function handleOptimisticRootPropagated(event: OptimisticRootPropagatedEv
   snapshot.save();
 }
 
-export function handleSlowModeActivated(): void {
+export function handleSlowModeActivated(event: SlowModeActivatedEvent): void {
   let instance = RootManagerMode.load(ROOT_MANAGER_MODE_ID);
   if (instance == null) {
     instance = new RootManagerMode(ROOT_MANAGER_MODE_ID);
@@ -130,7 +132,7 @@ export function handleSlowModeActivated(): void {
   instance.save();
 }
 
-export function handleOptimisticModeActivated(): void {
+export function handleOptimisticModeActivated(event: OptimisticModeActivatedEvent): void {
   let instance = RootManagerMode.load(ROOT_MANAGER_MODE_ID);
   if (instance == null) {
     instance = new RootManagerMode(ROOT_MANAGER_MODE_ID);
