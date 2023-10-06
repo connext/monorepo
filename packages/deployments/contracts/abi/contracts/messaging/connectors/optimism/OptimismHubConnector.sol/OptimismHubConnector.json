@@ -8,8 +8,6 @@
   "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "error TypedMemView__index_indexMoreThan32Bytes()",
-  "error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice)",
   "event FundsWithdrawn(address indexed to, uint256 amount)",
   "event GasCapUpdated(uint256 _previous, uint256 _updated)",
   "event MessageProcessed(bytes data, address caller)",
