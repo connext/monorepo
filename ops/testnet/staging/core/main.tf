@@ -255,8 +255,8 @@ module "sequencer_subscriber_auto_scaling" {
   domain           = var.domain
   ecs_service_name = module.sequencer_subscriber.service_name
   ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 5
-  max_capacity     = 5
+  min_capacity     = 10
+  max_capacity     = 300
 }
 
 module "sequencer_web3signer" {
@@ -316,17 +316,28 @@ module "lighthouse_prover_subscriber" {
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
 }
+
 module "lighthouse_prover_subscriber_auto_scaling" {
-  source                     = "../../../modules/auto-scaling"
-  stage                      = var.stage
-  environment                = var.environment
-  domain                     = var.domain
-  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
-  ecs_cluster_name           = module.ecs.ecs_cluster_name
-  min_capacity               = 2
-  max_capacity               = 5
-  avg_cpu_utilization_target = 10
-  avg_mem_utilization_target = 15
+  source           = "../../../modules/auto-scaling"
+  stage            = var.stage
+  environment      = var.environment
+  domain           = var.domain
+  ecs_service_name = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name = module.ecs.ecs_cluster_name
+  min_capacity     = 10
+  max_capacity     = 300
+}
+
+module "lighthouse_prover_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-prover"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
+  schedule_expression = "rate(30 minutes)"
+  memory_size         = 512
 }
 
 module "lighthouse_process_from_root_cron" {
