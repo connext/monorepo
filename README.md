@@ -61,7 +61,7 @@
 
 ## Connext Architecture
 
-The Connext architecture can be seen as a layered system, as follows :
+The Connext architecture can be seen as a layered system, as follows:
 
 | Layer                            | Protocol/Stakeholders                  |
 | -------------------------------- | -------------------------------------- |
