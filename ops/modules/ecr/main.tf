@@ -11,12 +11,24 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
 {
     "rules": [
         {
-            "rulePriority": 1,
+            "rulePriority": 2,
             "description": "Expire images older than 20 days",
             "selection": {
                 "tagStatus": "any",
                 "countType": "sinceImagePushed",
                 "countUnit": "days",
+                "countNumber": 20
+            },
+            "action": {
+                "type": "expire"
+            }
+        },
+        {
+            "rulePriority": 1,
+            "description": "Expire all images that are not the last 20",
+            "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
                 "countNumber": 20
             },
             "action": {
