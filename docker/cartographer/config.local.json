@@ -1,8 +1,16 @@
 {
   "logLevel": "debug",
+  "environment": "production",
+  "network": "local",
   "chains": {
-    "133712": { "providers": ["http://chain-1337:8545"] },
-    "133812": { "providers": ["http://chain-1338:8545"] }
-  },
-  "environment": "production"
+    "31337": {
+      "providers": ["http://local-mainnet:8545"]
+    },
+    "31338": {
+      "providers": ["http://local-optimism:8545"]
+    },
+    "31339": {
+      "providers": ["http://local-arbitrum:8545"]
+    }
+  }
 }
