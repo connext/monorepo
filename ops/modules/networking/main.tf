@@ -1,5 +1,17 @@
 data "aws_availability_zones" "available" {}
 
+data "aws_iam_role" "vpc_flow_logs" {
+  name = "vpc_flow_logs"
+}
+
+data "aws_s3_bucket" "vpc_flow_logs_bucket" {
+  bucket = "all-vpcs-flow-logs-bucket"
+}
+
+data "aws_iam_role" "ecr_admin_role" {
+  name = "vpc_flow_logs"
+}
+
 resource "aws_vpc" "main" {
   cidr_block           = var.cidr_block
   enable_dns_hostnames = true
@@ -116,4 +128,12 @@ resource "aws_security_group" "allow_tls" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+
+resource "aws_flow_log" "vpc_flow_logs" {
+  iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
+  log_destination = data.aws_s3_bucket.vpc_flow_logs_bucket.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.my_vpc.id
 }
