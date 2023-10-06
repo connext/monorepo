@@ -98,7 +98,7 @@ export const sendOutboundRoot = async () => {
     try {
       const { taskId } = await sendWithRelayerWithBackup(
         chainId,
-        config.hubDomain,
+        domain,
         relayerProxyAddress,
         encodedDataForRelayer,
         relayers,
