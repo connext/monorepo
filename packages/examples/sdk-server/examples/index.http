@@ -1,9 +1,9 @@
 
    
-# @baseUrl = http://127.0.0.1:8080
+@baseUrl = http://127.0.0.1:8080
 # @baseUrl = https://sdk-server.testnet.staging.connext.ninja
 # @baseUrl = https://sdk-server.testnet.connext.ninja
-@baseUrl = https://sdk-server.mainnet.connext.ninja
+# @baseUrl = https://sdk-server.mainnet.connext.ninja
 @yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
