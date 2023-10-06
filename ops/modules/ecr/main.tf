@@ -11,10 +11,11 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
 {
     "rules": [
         {
-            "rulePriority": 2,
+            "rulePriority": 1,
             "description": "Expire images older than 20 days",
             "selection": {
-                "tagStatus": "any",
+                "tagStatus": "tagged",
+                "tagPrefixList": ["sha"],
                 "countType": "sinceImagePushed",
                 "countUnit": "days",
                 "countNumber": 20
@@ -24,7 +25,7 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
             }
         },
         {
-            "rulePriority": 1,
+            "rulePriority": 2,
             "description": "Expire all images that are not the last 20",
             "selection": {
                 "tagStatus": "any",
