@@ -867,9 +867,9 @@ jobs:
         run: |
           config_dir_paths=("docker/cartographer" "docker/lighthouse" "docker/router" "docker/sequencer" "docker/relayer" "docker/watcher")
           for dir_path in "${config_dir_paths[@]}"; do
-            file_path="$dir_path/config.local.json"
-            file_target_path="$dir_path/config.json"
-            "$file_path" > "$file_target_path"
+              file_path="$dir_path/config.local.json"
+              file_target_path="$dir_path/config.json"
+              cp "$file_path" "$file_target_path"
           done
 
       - name: run smoke tests
