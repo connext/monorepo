@@ -88,7 +88,15 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
     vm.expectEmit(true, true, true, true);
     emit MessageSent(_data, _encodedData, _rootManager);
 
-    vm.expectCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector, _l1Connector, _data, _gasCap));
+    vm.expectCall(
+      _amb,
+      abi.encodeWithSelector(
+        OptimismAmb.sendMessage.selector,
+        _l1Connector,
+        abi.encodeWithSelector(Connector.processMessage.selector, _data),
+        _gasCap
+      )
+    );
 
     vm.prank(_rootManager);
     OptimismSpokeConnector(_l2Connector).send(_encodedData);

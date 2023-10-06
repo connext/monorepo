@@ -56,7 +56,8 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should always be sending the outbound root
     require(_data.length == 32, "!data length");
-    OptimismAmb(AMB).sendMessage(mirrorConnector, _data, uint32(_getGasFromEncoded(_encodedData)));
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    OptimismAmb(AMB).sendMessage(mirrorConnector, _calldata, uint32(_getGasFromEncoded(_encodedData)));
   }
 
   /**
