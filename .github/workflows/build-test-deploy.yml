@@ -833,8 +833,8 @@ jobs:
       SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.sha }}
-      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.ref_name }}-${{ github.sha }}
+      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.ref_name }}-${{ github.sha }}
       LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
@@ -919,7 +919,7 @@ jobs:
       SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.ref_name }}-${{ github.sha }}
       LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
