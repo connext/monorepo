@@ -535,7 +535,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{ github.ref_name }}-${{ github.sha }}
       REPOSITORY: nxtp-cartographer
 
     steps:
@@ -579,7 +579,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{ github.ref_name }}-${{ github.sha }}
       REPOSITORY: nxtp-lighthouse
 
     steps:
@@ -1001,7 +1001,7 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.smoke-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1066,7 +1066,7 @@ jobs:
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.smoke-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.smoke-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1141,7 +1141,7 @@ jobs:
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.e2e-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1207,7 +1207,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.e2e-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1275,7 +1275,7 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1340,7 +1340,7 @@ jobs:
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
