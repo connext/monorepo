@@ -1440,6 +1440,7 @@ contract RootManager_setHubDomain is Base {
   }
 
   function test_revertIfDomainIsNotSupported(uint32 hubDomain) public {
+    // At this point no domains have been added.
     vm.expectRevert(RootManager.RootManager_setHubDomain__InvalidDomain.selector);
     vm.prank(owner);
     _rootManager.setHubDomain(hubDomain);
@@ -1451,12 +1452,13 @@ contract RootManager_setHubDomain is Base {
     uint32[] memory domains = new uint32[](1);
     domains[0] = hubDomain;
 
-    uint32 _beforeHubDomain = _rootManager.hubDomain();
-
     address[] memory connectors = new address[](1);
     connectors[0] = makeAddr("connector 1");
 
     _rootManager.forTest_generateAndAddDomains(domains, connectors);
+
+    uint32 _beforeHubDomain = _rootManager.hubDomain();
+
     vm.prank(owner);
     _rootManager.setHubDomain(hubDomain);
 
@@ -1541,10 +1543,10 @@ contract RootManager_sendRootToHubSpoke is Base {
     address[] memory connectors = new address[](1);
     connectors[0] = makeAddr("connector 1");
 
-    // set the first and only connector as the hub spoke connector
+    // use the first and only connector as the hub spoke connector
     address hubSpokeConnector = connectors[0];
 
-    // add the fuzzed domain and the connector to the DomainIndexer
+    // add the fuzzed domain and the connector to the supported domains
     _rootManager.forTest_generateAndAddDomains(domains, connectors);
 
     // mock call to the hub spoke connector
