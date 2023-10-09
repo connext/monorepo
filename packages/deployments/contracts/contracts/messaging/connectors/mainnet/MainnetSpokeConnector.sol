@@ -73,7 +73,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector, IHubSpokeConnec
   }
 
   /**
-   * @notice Propose a new aggregate root.
+   * @notice Proposes a new aggregate root.
    * @dev Reverts in the hub domain as there's no need to propose nor finalize.
    * @param _aggregateRoot The aggregate root to propose.
    * @param _rootTimestamp Block.timestamp at which the root was finalized in the root manager contract.

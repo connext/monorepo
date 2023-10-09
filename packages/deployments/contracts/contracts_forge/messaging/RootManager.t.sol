@@ -133,7 +133,7 @@ contract Base is ForgeHelper {
 
   event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
-  event HubDomianSet(uint32 _domain);
+  event HubDomainSet(uint32 _domain);
 
   event HubDomainCleared();
 
@@ -1466,7 +1466,7 @@ contract RootManager_setHubDomain is Base {
     assertEq(hubDomain, _afterHubDomain);
   }
 
-  function test_emitIfHubDomianSet(uint32 hubDomain) public {
+  function test_emitIfHubDomainSet(uint32 hubDomain) public {
     vm.assume(hubDomain != 0);
 
     uint32[] memory domains = new uint32[](1);
@@ -1478,7 +1478,7 @@ contract RootManager_setHubDomain is Base {
     _rootManager.forTest_generateAndAddDomains(domains, connectors);
 
     vm.expectEmit(true, true, true, true);
-    emit HubDomianSet(hubDomain);
+    emit HubDomainSet(hubDomain);
 
     vm.prank(owner);
     _rootManager.setHubDomain(hubDomain);
@@ -1520,7 +1520,7 @@ contract RootManager_sendRootToHubSpoke is Base {
   function test_revertWhenPaused() public {
     _rootManager.forTest_pause();
 
-    vm.expectRevert(bytes("Pausable: paused"));
+    vm.expectRevert("Pausable: paused");
     _rootManager.sendRootToHubSpoke();
   }
 

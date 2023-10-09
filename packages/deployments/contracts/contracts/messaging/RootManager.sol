@@ -110,10 +110,15 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
 
-  // TODO natspec
-  event HubDomianSet(uint32 _domain);
+  /**
+   * @notice Emitted a domain is set as the hub domain.
+   * @param domain The domain set as hub domain.
+   */
+  event HubDomainSet(uint32 domain);
 
-  // TODO natspec
+  /**
+   * @notice Emitted the previously set hub domain is cleared.
+   */
   event HubDomainCleared();
 
   // ============ Errors ============
@@ -421,16 +426,18 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice TODO
+   * @notice Sets domain corresponding to the hub domain.
+   *
+   * @param _domain The domain to be set as hub domain.
    */
   function setHubDomain(uint32 _domain) external onlyOwner {
     if (!isDomainSupported(_domain)) revert RootManager_setHubDomain__InvalidDomain();
     hubDomain = _domain;
-    emit HubDomianSet(_domain);
+    emit HubDomainSet(_domain);
   }
 
   /**
-   * @notice TODO
+   * @notice Removes the domain associated with the hub domain.
    */
   function clearHubDomain() external onlyOwner {
     delete hubDomain;
@@ -615,10 +622,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice TODO
+   * @notice Sends the latest valid aggregate root to the hub domain's spoke connector.
+   * @dev This has no guards as the guards should be in the spoke connector. For example, the spoke connector should
+   *      guard against receiving the root through this function if the spoke connector is not in optimistic mode.
    */
   function sendRootToHubSpoke() external whenNotPaused {
-    // this has no guard since the guard is on the local spoke connector. It can only be called if is in optimistic mode
     bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
     IHubSpokeConnector(getConnectorForDomain(hubDomain)).saveAggregateRoot(_aggregateRoot);
   }
