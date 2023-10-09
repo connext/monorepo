@@ -18,6 +18,10 @@ contract MainnetSpokeConnectorForTest is MainnetSpokeConnector {
   function setProvenAggregateRoots__forTest(bytes32 _aggregateRoot, bool _isProven) public {
     provenAggregateRoots[_aggregateRoot] = _isProven;
   }
+
+  function setPendingAggregateRoots__forTest(bytes32 _aggregateRoot, uint256 _block) public {
+    pendingAggregateRoots[_aggregateRoot] = _block;
+  }
 }
 
 contract Base is ConnectorHelper {
@@ -154,6 +158,20 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     vm.prank(_rootManager);
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
     assertEq(MainnetSpokeConnectorForTest(_l1Connector).provenAggregateRoots(_aggregateRoot), true);
+  }
+
+  function test_MainnetSpokeConnector__saveAggregateRoot_deletesPendingRoot(
+    bytes32 _aggregateRoot,
+    uint256 _block
+  ) public {
+    vm.assume(_aggregateRoot != 0);
+    vm.assume(_block != 0);
+    MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(true);
+    MainnetSpokeConnectorForTest(_l1Connector).setProvenAggregateRoots__forTest(_aggregateRoot, false);
+    MainnetSpokeConnectorForTest(_l1Connector).setPendingAggregateRoots__forTest(_aggregateRoot, _block);
+    vm.prank(_rootManager);
+    MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
+    assertEq(MainnetSpokeConnectorForTest(_l1Connector).pendingAggregateRoots(_aggregateRoot), 0);
   }
 }
 
