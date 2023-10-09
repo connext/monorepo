@@ -437,7 +437,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice Removes the domain associated to the hub domain.
+   * @notice Removes the domain associated with the hub domain.
    */
   function clearHubDomain() external onlyOwner {
     delete hubDomain;
