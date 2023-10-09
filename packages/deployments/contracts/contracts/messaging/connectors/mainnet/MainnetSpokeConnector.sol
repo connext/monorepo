@@ -2,11 +2,19 @@
 pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {IHubConnector} from "../../interfaces/IHubConnector.sol";
+import {IHubSpokeConnector} from "../../interfaces/IHubSpokeConnector.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 
-contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
+contract MainnetSpokeConnector is SpokeConnector, IHubSpokeConnector {
+  // ============ Errors ============
+  error MainnetSpokeConnector_proposeAggregateRoot__DeprecatedInHubDomain();
+  error MainnetSpokeConnector_finalize__DeprecatedInHubDomain();
+  error MainnetSpokeConnector_saveAggregateRoot__OnlyOptimisticMode();
+  error MainnetSpokeConnector_saveAggregateRoot__CallerIsNotRootManager();
+  error MainnetSpokeConnector_saveAggregateRoot__RootAlreadyProven();
+  error MainnetSpokeConnector_saveAggregateRoot__EmptyRoot();
+
   // ============ Constructor ============
   constructor(ConstructorParams memory _baseSpokeParams) SpokeConnector(_baseSpokeParams) {}
 
@@ -48,5 +56,39 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector {
     }
     // otherwise is relayer, update the outbound root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(DOMAIN, bytes32(_data));
+  }
+
+  /**
+   * @notice Saves a aggregateRoot after it has been deemed valid by the RootManager.
+   * @param _aggregateRoot The aggregateRoot to store as proven.
+   */
+  function saveAggregateRoot(bytes32 _aggregateRoot) external {
+    if (_aggregateRoot == 0) revert MainnetSpokeConnector_saveAggregateRoot__EmptyRoot();
+    if (!optimisticMode) revert MainnetSpokeConnector_saveAggregateRoot__OnlyOptimisticMode();
+    if (msg.sender != ROOT_MANAGER) revert MainnetSpokeConnector_saveAggregateRoot__CallerIsNotRootManager();
+    if (provenAggregateRoots[_aggregateRoot]) revert MainnetSpokeConnector_saveAggregateRoot__RootAlreadyProven();
+    provenAggregateRoots[_aggregateRoot] = true;
+    emit ProposedRootFinalized(_aggregateRoot);
+  }
+
+  /**
+   * @notice Propose a new aggregate root.
+   * @dev Reverts in the hub domain as there's no need to propose nor finalize.
+   * @param _aggregateRoot The aggregate root to propose.
+   * @param _rootTimestamp Block.timestamp at which the root was finalized in the root manager contract.
+   */
+  function proposeAggregateRoot(bytes32 _aggregateRoot, uint256 _rootTimestamp) external override {
+    revert MainnetSpokeConnector_proposeAggregateRoot__DeprecatedInHubDomain();
+  }
+
+  /**
+   * @notice Finalizes the proposed aggregate root. This confirms the root validity. Therefore, it can be proved and processed.
+   * @dev Reverts in the hub domain as there's no need to propose nor finalize.
+   *
+   * @param _proposedAggregateRoot The aggregate root currently proposed
+   * @param _endOfDispute          The block in which the dispute period for proposedAggregateRootHash concludes
+   */
+  function finalize(bytes32 _proposedAggregateRoot, uint256 _rootTimestamp, uint256 _endOfDispute) external override {
+    revert MainnetSpokeConnector_finalize__DeprecatedInHubDomain();
   }
 }
