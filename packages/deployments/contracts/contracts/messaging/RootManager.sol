@@ -14,6 +14,8 @@ import {SnapshotId} from "./libraries/SnapshotId.sol";
 import {MerkleTreeManager} from "./MerkleTreeManager.sol";
 import {WatcherClient} from "./WatcherClient.sol";
 
+import {IHubSpokeConnector} from "./interfaces/IHubSpokeConnector.sol";
+
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle tree. Regularly broadcasts the root of the aggregator tree back out
@@ -108,6 +110,17 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
 
+  /**
+   * @notice Emitted when a domain is set as the hub domain.
+   * @param domain The domain set as hub domain.
+   */
+  event HubDomainSet(uint32 domain);
+
+  /**
+   * @notice Emitted when the previously set hub domain is cleared.
+   */
+  event HubDomainCleared();
+
   // ============ Errors ============
 
   error RootManager_proposeAggregateRoot__InvalidSnapshotId(uint256 snapshotId);
@@ -145,6 +158,8 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   error RootManager_slowPropagate__OldAggregateRoot();
 
   error RootManager_propagate__AggregateRootIsZero();
+
+  error RootManager_setHubDomain__InvalidDomain();
 
   // ============ Properties ============
 
@@ -227,6 +242,11 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @dev Used to ensure that the propagate function will send the latest aggregate root available.
    */
   uint256 public lastSavedAggregateRootTimestamp;
+
+  /**
+   * @notice Domain id of the current network
+   */
+  uint32 public hubDomain;
 
   // ============ Modifiers ============
 
@@ -405,6 +425,25 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     revert RootManager__renounceOwnership_prohibited();
   }
 
+  /**
+   * @notice Sets domain corresponding to the hub domain.
+   *
+   * @param _domain The domain to be set as hub domain.
+   */
+  function setHubDomain(uint32 _domain) external onlyOwner {
+    if (!isDomainSupported(_domain)) revert RootManager_setHubDomain__InvalidDomain();
+    hubDomain = _domain;
+    emit HubDomainSet(_domain);
+  }
+
+  /**
+   * @notice Removes the domain associated with the hub domain.
+   */
+  function clearHubDomain() external onlyOwner {
+    delete hubDomain;
+    emit HubDomainCleared();
+  }
+
   // ============ Public Functions ============
 
   /**
@@ -580,6 +619,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     if (refund > 0) {
       Address.sendValue(payable(msg.sender), refund);
     }
+  }
+
+  /**
+   * @notice Sends the latest valid aggregate root to the hub domain's spoke connector.
+   * @dev This has no guards as the guards should be in the spoke connector. For example, the spoke connector should
+   *      guard against receiving the root through this function if the spoke connector is not in optimistic mode.
+   */
+  function sendRootToHubSpoke() external whenNotPaused {
+    bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
+    IHubSpokeConnector(getConnectorForDomain(hubDomain)).saveAggregateRoot(_aggregateRoot);
   }
 
   /**

@@ -605,7 +605,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   function proposeAggregateRoot(
     bytes32 _aggregateRoot,
     uint256 _rootTimestamp
-  ) external whenNotPaused onlyAllowlistedProposer onlyOptimisticMode {
+  ) external virtual whenNotPaused onlyAllowlistedProposer onlyOptimisticMode {
     if (proposedAggregateRootHash != FINALIZED_HASH) revert SpokeConnector_proposeAggregateRoot__ProposeInProgress();
     uint256 _endOfDispute = block.number + disputeBlocks;
     proposedAggregateRootHash = keccak256(abi.encode(_aggregateRoot, _rootTimestamp, _endOfDispute));
@@ -624,7 +624,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes32 _proposedAggregateRoot,
     uint256 _rootTimestamp,
     uint256 _endOfDispute
-  ) external whenNotPaused onlyOptimisticMode {
+  ) external virtual whenNotPaused onlyOptimisticMode {
     if (_endOfDispute > block.number) revert SpokeConnector_finalize__ProposeInProgress();
 
     bytes32 _proposedAggregateRootHash = proposedAggregateRootHash;
