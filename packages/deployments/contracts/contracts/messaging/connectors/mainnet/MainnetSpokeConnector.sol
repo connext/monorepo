@@ -2,11 +2,12 @@
 pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
+import {IHubConnector} from "../../interfaces/IHubConnector.sol";
 import {IHubSpokeConnector} from "../../interfaces/IHubSpokeConnector.sol";
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 
-contract MainnetSpokeConnector is SpokeConnector, IHubSpokeConnector {
+contract MainnetSpokeConnector is SpokeConnector, IHubConnector, IHubSpokeConnector {
   // ============ Errors ============
   error MainnetSpokeConnector_proposeAggregateRoot__DeprecatedInHubDomain();
   error MainnetSpokeConnector_finalize__DeprecatedInHubDomain();
