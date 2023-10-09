@@ -111,13 +111,13 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
 
   /**
-   * @notice Emitted a domain is set as the hub domain.
+   * @notice Emitted when a domain is set as the hub domain.
    * @param domain The domain set as hub domain.
    */
   event HubDomainSet(uint32 domain);
 
   /**
-   * @notice Emitted the previously set hub domain is cleared.
+   * @notice Emitted when the previously set hub domain is cleared.
    */
   event HubDomainCleared();
 

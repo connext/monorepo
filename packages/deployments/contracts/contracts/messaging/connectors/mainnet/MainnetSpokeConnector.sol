@@ -61,6 +61,9 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector, IHubSpokeConnec
 
   /**
    * @notice Saves a aggregateRoot after it has been deemed valid by the RootManager.
+   * @dev This function is used when optimistic mode is on. This function exists only on the hub domain's spoke connector given that
+   * it resides on the same chain as the RootManager, meaning it can take advantage of the RootManager performing the propose
+   * and finalize flow and simply recieve the finalized root directly.
    * @param _aggregateRoot The aggregateRoot to store as proven.
    */
   function saveAggregateRoot(bytes32 _aggregateRoot) external {
@@ -68,6 +71,7 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector, IHubSpokeConnec
     if (!optimisticMode) revert MainnetSpokeConnector_saveAggregateRoot__OnlyOptimisticMode();
     if (msg.sender != ROOT_MANAGER) revert MainnetSpokeConnector_saveAggregateRoot__CallerIsNotRootManager();
     if (provenAggregateRoots[_aggregateRoot]) revert MainnetSpokeConnector_saveAggregateRoot__RootAlreadyProven();
+    if (pendingAggregateRoots[_aggregateRoot] != 0) delete pendingAggregateRoots[_aggregateRoot];
     provenAggregateRoots[_aggregateRoot] = true;
     emit ProposedRootFinalized(_aggregateRoot);
   }
