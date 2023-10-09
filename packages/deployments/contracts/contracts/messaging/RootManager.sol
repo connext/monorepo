@@ -114,7 +114,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Emitted a domain is set as the hub domain.
    * @param domain The domain set as hub domain.
    */
-  event HubDomianSet(uint32 domain);
+  event HubDomainSet(uint32 domain);
 
   /**
    * @notice Emitted the previously set hub domain is cleared.
@@ -433,7 +433,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   function setHubDomain(uint32 _domain) external onlyOwner {
     if (!isDomainSupported(_domain)) revert RootManager_setHubDomain__InvalidDomain();
     hubDomain = _domain;
-    emit HubDomianSet(_domain);
+    emit HubDomainSet(_domain);
   }
 
   /**
