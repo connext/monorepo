@@ -1520,7 +1520,7 @@ contract RootManager_sendRootToHubSpoke is Base {
   function test_revertWhenPaused() public {
     _rootManager.forTest_pause();
 
-    vm.expectRevert(bytes("Pausable: paused"));
+    vm.expectRevert("Pausable: paused");
     _rootManager.sendRootToHubSpoke();
   }
 

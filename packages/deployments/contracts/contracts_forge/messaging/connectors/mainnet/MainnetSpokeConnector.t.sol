@@ -107,7 +107,7 @@ contract MainnetSpokeConnector__processMessage is Base {
 }
 
 contract MainnetSpokeConnector__saveAggregateRoot is Base {
-  function test_MainnetSpokeConnector__saveAggregateRoot_reverts_if_root_is_zero() public {
+  function test_MainnetSpokeConnector__saveAggregateRoot_revertsIfRootIsZero() public {
     bytes32 _emptyRoot = bytes32("");
     MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(true);
     MainnetSpokeConnectorForTest(_l1Connector).setProvenAggregateRoots__forTest(_emptyRoot, false);
@@ -116,7 +116,7 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_emptyRoot);
   }
 
-  function test_MainnetSpokeConnector__saveAggregateRoot_reverts_if_optimistic_mode_off(bytes32 _aggregateRoot) public {
+  function test_MainnetSpokeConnector__saveAggregateRoot_revertsIfOptimisticModeOff(bytes32 _aggregateRoot) public {
     MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(false);
     vm.assume(_aggregateRoot != 0);
     vm.expectRevert(MainnetSpokeConnector.MainnetSpokeConnector_saveAggregateRoot__OnlyOptimisticMode.selector);
@@ -124,7 +124,7 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
   }
 
-  function test_MainnetSpokeConnector__saveAggregateRoot_reverts_if_rootManager_is_not_caller(
+  function test_MainnetSpokeConnector__saveAggregateRoot_revertsIfRootManagerIsNotCaller(
     address _stranger,
     bytes32 _aggregateRoot
   ) public {
@@ -136,9 +136,7 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
   }
 
-  function test_MainnetSpokeConnector__saveAggregateRoot_reverts_if_rootManager_is_not_caller(
-    bytes32 _aggregateRoot
-  ) public {
+  function test_MainnetSpokeConnector__saveAggregateRoot_revertsIfRootAlreadyProven(bytes32 _aggregateRoot) public {
     vm.assume(_aggregateRoot != 0);
     MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(true);
     MainnetSpokeConnectorForTest(_l1Connector).setProvenAggregateRoots__forTest(_aggregateRoot, true);
@@ -147,7 +145,7 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
   }
 
-  function test_MainnetSpokeConnector__saveAggregateRoot_saves_root_and_emits_event(bytes32 _aggregateRoot) public {
+  function test_MainnetSpokeConnector__saveAggregateRoot_savesRootAndEmitsEvent(bytes32 _aggregateRoot) public {
     vm.assume(_aggregateRoot != 0);
     MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(true);
     MainnetSpokeConnectorForTest(_l1Connector).setProvenAggregateRoots__forTest(_aggregateRoot, false);
