@@ -6,11 +6,13 @@ import { Relayer } from "@connext/nxtp-adapters-relayer";
 
 import { ProverContext } from "../src/tasks/prover/context";
 import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
+import { ProposeContext } from "../src/tasks/propose/context";
 import { mock, mockTaskId } from "./mock";
 import * as ProverFns from "../src/tasks/prover/prover";
 import * as ProcessFromRootFns from "../src/tasks/processFromRoot/processFromRoot";
 import * as PropagateFns from "../src/tasks/propagate/propagate";
 import * as SendOutboundRootFns from "../src/tasks/sendOutboundRoot/sendOutboundRoot";
+import * as ProposeFns from "../src/tasks/propose/propose";
 import * as Mockable from "../src/mockable";
 import { PropagateContext } from "../src/tasks/propagate/context";
 import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
@@ -20,6 +22,7 @@ export let proverCtxMock: ProverContext;
 export let processFromRootCtxMock: ProcessFromRootContext;
 export let propagateCtxMock: PropagateContext;
 export let sendOutboundRootCtxMock: SendOutboundRootContext;
+export let proposeCtxMock: ProposeContext;
 
 export let chainReaderMock: SinonStubbedInstance<ChainReader>;
 export let existsSyncStub: SinonStub;
@@ -76,6 +79,9 @@ export const mochaHooks = {
     } as any);
 
     getBestProviderMock = stub(Mockable, "getBestProvider").resolves("http://example.com");
+
+    proposeCtxMock = mock.proposeCtx();
+    stub(ProposeFns, "getContext").returns(proposeCtxMock);
   },
   afterEach() {
     restore();
