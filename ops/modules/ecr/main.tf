@@ -38,6 +38,19 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
         },
         {
             "rulePriority": 3,
+            "description": "Expire testnet-prod images that are not the last 10",
+            "selection": {
+                "tagStatus": "tagged",
+                "tagPrefixList": ["testnet-prod-"],
+                "countType": "imageCountMoreThan",
+                "countNumber": 10
+            },
+            "action": {
+                "type": "expire"
+            }
+        },
+        {
+            "rulePriority": 4,
             "description": "Expire prod images that are not the last 5",
             "selection": {
                 "tagStatus": "tagged",
@@ -50,11 +63,11 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
             }
         },
         {
-            "rulePriority": 4,
+            "rulePriority": 6,
             "description": "Expire images older than 60 days",
             "selection": {
                 "tagStatus": "tagged",
-                "tagPrefixList": ["main-", "staging-", "prod-"],
+                "tagPrefixList": ["main-", "staging-", "testnet-prod", "prod-"],
                 "countType": "sinceImagePushed",
                 "countUnit": "days",
                 "countNumber": 180
