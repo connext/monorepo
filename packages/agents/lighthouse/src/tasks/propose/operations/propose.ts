@@ -6,6 +6,7 @@ import {
   SnapshotRoot,
   SparseMerkleTree,
   jsonifyError,
+  domainToChainId,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -26,10 +27,16 @@ export const propose = async () => {
   const {
     logger,
     config,
+    chainData,
     adapters: { database },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propose.name);
   logger.info("Starting propose operation", requestContext, methodContext);
+
+  const hubChainId = chainData.get(config.hubDomain)?.chainId;
+  if (!hubChainId) {
+    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+  }
 
   // Get the latest pending snapshots
   // Generate aggreagate root given latest snapshot
@@ -84,18 +91,13 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     logger,
     adapters: { contracts, relayers, database, chainreader, subgraph },
     config,
-    chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
   const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
   const domains = rootManagerMeta.domains;
 
-  const hubChainId = chainData.get(config.hubDomain)?.chainId;
-  if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
-  }
-
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const hubChainId = domainToChainId(+config.hubDomain);
   // const _totalFee = constants.Zero;
 
   const baseAggregateRoot = await database.getBaseAggregateRoot();
