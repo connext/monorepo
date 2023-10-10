@@ -31,8 +31,9 @@ describe("Operations:validateAndSwitch", () => {
 
   describe("switchAndAlert", () => {
     it("should switch and alert", async () => {
+      (ctxMock.adapters.monitor.switch as SinonStub).resolves();
       await validateAndSwitchFns.switchAndAlert(requestContext, "reason");
-      expect(ctxMock.adapters.watcher.alert).to.be.calledOnce;
+      expect(ctxMock.adapters.monitor.alert).to.be.calledOnce;
     });
   });
 });
