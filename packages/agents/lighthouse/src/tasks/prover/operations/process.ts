@@ -215,7 +215,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
   // Batch submit messages by destination domain
   try {
-    const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
       messageProofs,
       aggregateRoot,
       messageRootProof,
@@ -224,22 +224,11 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
     logger.info("Proving and processing messages", requestContext, methodContext, {
       destinationDomain,
-      data,
-      destinationSpokeConnector,
-    });
-
-    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      aggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
-    logger.debug("Proving and processing messages", requestContext, methodContext, {
       provenMessages,
       proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
+
     const chainId = chainData.get(destinationDomain)!.chainId;
 
     /// Temp: Using relayer proxy
@@ -252,19 +241,11 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       domain,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      aggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
     const { taskId, relayerType } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
       destinationSpokeConnector,
-      encodedData,
+      proveAndProcessEncodedData,
       relayers,
       chainreader,
       logger,
