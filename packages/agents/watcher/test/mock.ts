@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 import { createStubInstance } from "sinon";
-import { WatcherAdapter } from "@connext/nxtp-adapters-watcher";
+import { OpModeMonitor, WatcherAdapter } from "@connext/nxtp-adapters-watcher";
 import { Logger, mkHash, mock as _mock, mockSequencer } from "@connext/nxtp-utils";
 import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 
@@ -15,11 +15,16 @@ export const mock = {
         subgraph: mockSubgraph(),
         wallet: createStubInstance(Wallet, { getAddress: Promise.resolve(mockSequencer) }),
         watcher: createStubInstance(WatcherAdapter, {
-          checkInvariants: Promise.resolve(true),
+          checkInvariants: Promise.resolve({ needsPause: true }),
           pause: Promise.resolve([
             { domain: mock.domain.A, error: "foo", paused: true, relevantTransaction: mkHash("0x1") },
             { domain: mock.domain.B, error: "bar", paused: true, relevantTransaction: mkHash("0x1") },
           ]),
+          alert: Promise.resolve(),
+        }),
+        monitor: createStubInstance(OpModeMonitor, {
+          validateProposal: Promise.resolve({ needsSwitch: false, reason: "" }),
+          switch: Promise.resolve(),
           alert: Promise.resolve(),
         }),
       },
