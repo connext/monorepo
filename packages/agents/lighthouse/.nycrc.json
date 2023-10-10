@@ -38,12 +38,9 @@
     "src/tasks/sendOutboundRoot/sendOutboundRoot.ts",
     "src/tasks/sendOutboundRoot/operations/index.ts",
     "src/tasks/sendOutboundRoot/helpers/index.ts",
-    "src/tasks/propose/errors.ts",
-    "src/tasks/propose/context.ts",
-    "src/tasks/propose/index.ts",
-    "src/tasks/propose/propose.ts",
-    "src/tasks/propose/operations/index.ts",
-    "src/tasks/propose/adapters/index.ts",
+    "src/tasks/propose/**/*.ts",
+    "src/tasks/propagate/**/*.ts",
+    "src/tasks/prover/**/*.ts",
     "test/**/*.ts",
     "./globalTestHook.ts"
   ]
