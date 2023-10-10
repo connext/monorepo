@@ -76,7 +76,7 @@ export const propose = async () => {
       orderedSnapshotRoots.push(...snapshotRoots!.filter((s) => s.spokeDomain === Number(domain)));
     });
 
-    proposeSnapshot(
+    await proposeSnapshot(
       latestSnapshotId,
       orderedSnapshotRoots.map((s) => s.root),
       requestContext,
