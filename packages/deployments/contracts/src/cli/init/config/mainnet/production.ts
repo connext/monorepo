@@ -373,38 +373,38 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
-    {
-      name: "MIVA",
-      canonical: {
-        domain: "11111",
-        address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-        decimals: 18,
-      },
-      representations: {
-        //gnosis
-        "6778479": {
-          local: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-          adopted: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-        },
-        // polygon
-        "1886350457": {
-          local: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
-          adopted: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
-        },
-      },
-    },
+    // {
+    //   name: "MIVA",
+    //   canonical: {
+    //     domain: "11111",
+    //     address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+    //     decimals: 18,
+    //   },
+    //   representations: {
+    //     //gnosis
+    //     "6778479": {
+    //       local: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+    //       adopted: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
+    //     },
+    //     // polygon
+    //     "1886350457": {
+    //       local: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
+    //       adopted: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
+    //     },
+    //   },
+    // },
     {
       name: "FRACTION",
       canonical: {
         domain: "11111",
-        address: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        address: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
         decimals: 18,
       },
       representations: {
         // gnosis
         "6778479": {
-          local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
-          adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+          local: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+          adopted: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
         },
         // optimism
         "1869640809": {
