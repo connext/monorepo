@@ -32,6 +32,7 @@ import {
   StableSwapTransfer,
   StableSwapLpBalance,
   RootMessageStatus,
+  convertFromDbPropagatedRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -901,13 +902,13 @@ export const getAggregateRoot = async (
 };
 
 export const getAggregateRootCount = async (
-  received_root: string,
+  aggreateRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("aggregated_roots", { received_root }).run(poolToUse);
-  return root ? convertFromDbAggregatedRoot(root).index : undefined;
+  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
+  return root ? convertFromDbPropagatedRoot(root).count : undefined;
 };
 
 export const getAggregateRoots = async (
