@@ -20,8 +20,8 @@
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x565C74da2aa4842c2c53aDaA22Da93E060177A64",
-        "startBlock": 9774876
+        "address": "0x595F9F0c39EF99ab8430bedB16ECB5EDdaA8d6b2",
+        "startBlock": 9820440
       },
       {
         "name": "ArbitrumHubConnector",

@@ -31,13 +31,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x5C63819391D034Ee8BBe2290243E0785243a35F6",
-        "startBlock": 15247603
+        "address": "0xa4C9400407A9546a8D27F9E00241287e706D124b",
+        "startBlock": 15592392
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x8Cf05B10DE87C1EeB6720955b22d48Bb953F3DDe",
-        "startBlock": 15247600
+        "address": "0x7da720e7fefBAE48C79d64F0179D327B10714cC8",
+        "startBlock": 15592390
       }
     ]
   },
