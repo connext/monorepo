@@ -1,21 +1,39 @@
-resource "aws_iam_role" "vpc_flow_logs" {
-  name = "vpc_flow_logs"
+data "aws_iam_policy_document" "assume_role_policy_document" {
+  statement {
+    effect = "Allow"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = "vpc.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
+    principals {
+      type        = "Service"
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
 }
 
-resource "aws_iam_role_policy_attachment" "vpc_flow_logs" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  role       = aws_iam_role.vpc_flow_logs.name
+resource "aws_iam_role" "vpc_flow_logs_role" {
+  name               = "vpc_flow_logs_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy_document.json
+}
+
+data "aws_iam_policy_document" "aws_logs_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "vpc_flow_logs_policy" {
+  name   = "vpc_flow_logs_policy"
+  role   = aws_iam_role.vpc_flow_logs_role.id
+  policy = data.aws_iam_policy_document.aws_logs_policy.json
 }

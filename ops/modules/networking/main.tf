@@ -1,15 +1,7 @@
 data "aws_availability_zones" "available" {}
 
 data "aws_iam_role" "vpc_flow_logs" {
-  name = "vpc_flow_logs"
-}
-
-data "aws_s3_bucket" "vpc_flow_logs_bucket" {
-  bucket = "all-vpcs-flow-logs-bucket"
-}
-
-data "aws_iam_role" "ecr_admin_role" {
-  name = "vpc_flow_logs"
+  name = "vpc_flow_logs_role"
 }
 
 resource "aws_vpc" "main" {
@@ -130,10 +122,13 @@ resource "aws_security_group" "allow_tls" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "flow_logs_log_group" {
+  name = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}"
+}
 
 resource "aws_flow_log" "vpc_flow_logs" {
   iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
-  log_destination = data.aws_s3_bucket.vpc_flow_logs_bucket.arn
+  log_destination = aws_cloudwatch_log_group.flow_logs_log_group.arn
   traffic_type    = "ALL"
-  vpc_id          = aws_vpc.my_vpc.id
+  vpc_id          = aws_vpc.main.id
 }
