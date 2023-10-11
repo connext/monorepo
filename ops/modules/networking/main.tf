@@ -122,13 +122,28 @@ resource "aws_security_group" "allow_tls" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "flow_logs_log_group" {
-  name = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}"
+resource "aws_cloudwatch_log_group" "flow_logs_log_group_private_subnets" {
+  count = var.az_count
+  name  = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}-private-${count.index}"
 }
 
-resource "aws_flow_log" "vpc_flow_logs" {
+resource "aws_cloudwatch_log_group" "flow_logs_log_group_public_subnets" {
+  count = var.az_count
+  name  = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}-public-${count.index}"
+}
+
+resource "aws_flow_log" "vpc_flow_logs_private_subnets" {
+  count           = var.az_count
   iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
-  log_destination = aws_cloudwatch_log_group.flow_logs_log_group.arn
+  log_destination = aws_cloudwatch_log_group.flow_logs_log_group_private_subnets[count.index].arn
   traffic_type    = "ALL"
-  vpc_id          = aws_vpc.main.id
+  subnet_id       = aws_subnet.private[count.index].id
+}
+
+resource "aws_flow_log" "vpc_flow_logs_public_subnets" {
+  count           = var.az_count
+  iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.flow_logs_log_group_public_subnets[count.index].arn
+  traffic_type    = "ALL"
+  subnet_id       = aws_subnet.main[count.index].id
 }
