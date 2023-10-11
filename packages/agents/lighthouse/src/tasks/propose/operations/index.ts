@@ -1,1 +1,1 @@
-export { propose } from "./propose";
+export { propose, proposeSnapshot } from "./propose";
