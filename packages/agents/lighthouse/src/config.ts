@@ -99,6 +99,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
+    Type.Literal("propose"),
     Type.Literal("prover-pub"),
     Type.Literal("prover-sub"),
     Type.Literal("prover-func"),
