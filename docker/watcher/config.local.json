@@ -6,26 +6,18 @@
   "logLevel": "debug",
   "hubDomain": "1337",
   "interval": 15000,
-  "chains": {
-    "133712": {
-      "providers": ["http://chain-1337:8545"],
-      "assets": [
-        {
-          "name": "TEST",
-          "address": "0x8065F4c7b8c2bf53561af92D9DA2Ea022A0b28Ca"
-        }
-      ]
-    },
-    "133812": {
-      "providers": ["http://chain-1338:8545"],
-      "assets": [
-        {
-          "name": "TEST",
-          "address": "0x2467636BEa0F3c2441227eeDBfFaC59f11D54a80"
-        }
-      ]
-    }
-  },
   "web3SignerUrl": "http://signer-watcher:9000",
-  "environment": "production"
+  "environment": "production",
+  "network": "local",
+  "chains": {
+    "31337": {
+      "providers": ["http://local-mainnet:8545"]
+    },
+    "31338": {
+      "providers": ["http://local-optimism:8545"]
+    },
+    "31339": {
+      "providers": ["http://local-arbitrum:8545"]
+    }
+  }
 }
