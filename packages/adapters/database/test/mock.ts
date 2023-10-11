@@ -77,5 +77,6 @@ export const mockDatabase = (): Database => {
     saveFinalizedRoots: stub().resolves(),
     savePropagatedOptimisticRoots: stub().resolves(),
     saveSnapshotRoots: stub().resolves(),
+    getPendingSnapshots: stub().resolves([mock.entity.snapshotRoot()]),
   };
 };
