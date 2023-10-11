@@ -119,7 +119,7 @@ module "router_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "router-web3signer"
   health_check_path        = "/upcheck"
