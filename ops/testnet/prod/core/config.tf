@@ -162,18 +162,18 @@ locals {
           queueLimit = 1000000
           subscribe  = true
         },
-        {
-          name       = "1668247156"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
-        {
-          name       = "2053862260"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
+        # {
+        #   name       = "1668247156"
+        #   limit      = 1
+        #   queueLimit = 1000000
+        #   subscribe  = true
+        # },
+        # {
+        #   name       = "2053862260"
+        #   limit      = 1
+        #   queueLimit = 1000000
+        #   subscribe  = true
+        # },
       ]
       bindings = [
         {
@@ -200,17 +200,17 @@ locals {
           exchange = "sequencerX"
           target   = "1734439522"
           keys     = ["1734439522"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "1668247156"
-          keys     = ["1668247156"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "2053862260"
-          keys     = ["2053862260"]
         }
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "1668247156"
+        #   keys     = ["1668247156"]
+        # },
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "2053862260"
+        #   keys     = ["2053862260"]
+        # }
       ]
       executerTimeout = 300000
       prefetch        = 1
