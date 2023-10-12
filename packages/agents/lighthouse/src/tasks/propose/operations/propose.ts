@@ -64,7 +64,8 @@ export const propose = async () => {
 
   const latestSnapshotIds = [...new Map([...pendingSnapshotsById].sort().reverse()).keys()];
   if (latestSnapshotIds.length === 0) {
-    logger.info("No pending snapshot roots found", requestContext, methodContext);
+    logger.info("No pending snapshot roots found. Nothing to propose", requestContext, methodContext);
+    return;
   }
   const latestSnapshotId = latestSnapshotIds[0];
 
