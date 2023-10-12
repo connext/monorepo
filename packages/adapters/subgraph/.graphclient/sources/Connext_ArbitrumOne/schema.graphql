@@ -470,7 +470,6 @@ type arbitrumone_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: arbitrumone_Bytes
-  executedTxNonce: BigInt
   reconciledCaller: arbitrumone_Bytes
   reconciledTransactionHash: arbitrumone_Bytes
   reconciledTimestamp: BigInt
@@ -478,7 +477,6 @@ type arbitrumone_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: arbitrumone_Bytes
-  reconciledTxNonce: BigInt
 }
 
 input arbitrumone_DestinationTransfer_filter {
@@ -736,14 +734,6 @@ input arbitrumone_DestinationTransfer_filter {
   executedTxOrigin_not_in: [arbitrumone_Bytes!]
   executedTxOrigin_contains: arbitrumone_Bytes
   executedTxOrigin_not_contains: arbitrumone_Bytes
-  executedTxNonce: BigInt
-  executedTxNonce_not: BigInt
-  executedTxNonce_gt: BigInt
-  executedTxNonce_lt: BigInt
-  executedTxNonce_gte: BigInt
-  executedTxNonce_lte: BigInt
-  executedTxNonce_in: [BigInt!]
-  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: arbitrumone_Bytes
   reconciledCaller_not: arbitrumone_Bytes
   reconciledCaller_gt: arbitrumone_Bytes
@@ -806,14 +796,6 @@ input arbitrumone_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [arbitrumone_Bytes!]
   reconciledTxOrigin_contains: arbitrumone_Bytes
   reconciledTxOrigin_not_contains: arbitrumone_Bytes
-  reconciledTxNonce: BigInt
-  reconciledTxNonce_not: BigInt
-  reconciledTxNonce_gt: BigInt
-  reconciledTxNonce_lt: BigInt
-  reconciledTxNonce_gte: BigInt
-  reconciledTxNonce_lte: BigInt
-  reconciledTxNonce_in: [BigInt!]
-  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_BlockChangedFilter
   and: [arbitrumone_DestinationTransfer_filter]
@@ -858,7 +840,6 @@ enum arbitrumone_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
-  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -866,7 +847,6 @@ enum arbitrumone_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
-  reconciledTxNonce
 }
 
 """
@@ -1051,7 +1031,6 @@ type arbitrumone_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: arbitrumone_Bytes
-  txNonce: BigInt
 }
 
 input arbitrumone_OriginTransfer_filter {
@@ -1344,14 +1323,6 @@ input arbitrumone_OriginTransfer_filter {
   txOrigin_not_in: [arbitrumone_Bytes!]
   txOrigin_contains: arbitrumone_Bytes
   txOrigin_not_contains: arbitrumone_Bytes
-  txNonce: BigInt
-  txNonce_not: BigInt
-  txNonce_gt: BigInt
-  txNonce_lt: BigInt
-  txNonce_gte: BigInt
-  txNonce_lte: BigInt
-  txNonce_in: [BigInt!]
-  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: arbitrumone_BlockChangedFilter
   and: [arbitrumone_OriginTransfer_filter]
@@ -1407,7 +1378,6 @@ enum arbitrumone_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
-  txNonce
 }
 
 type Query {
@@ -1981,7 +1951,6 @@ enum arbitrumone_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
-  transfer__txNonce
   fee
   asset
 }
@@ -2136,7 +2105,6 @@ enum arbitrumone_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
-  transfer__txNonce
   increase
   asset
   caller
@@ -2749,7 +2717,6 @@ enum arbitrumone_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
-  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2757,7 +2724,6 @@ enum arbitrumone_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
-  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
