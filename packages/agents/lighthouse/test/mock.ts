@@ -74,6 +74,7 @@ export const mockCache = () => {
       getCurrentLock: stub().resolves(),
       acquireLock: stub().resolves(),
       releaseLock: stub().resolves(),
+      setStatus: stub().resolves(),
     },
   };
 };
