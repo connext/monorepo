@@ -35,7 +35,6 @@ module "router_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_subscriber
@@ -65,7 +64,6 @@ module "router_publisher" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_publisher
@@ -95,7 +93,6 @@ module "router_executor" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_executor
@@ -125,8 +122,7 @@ module "router_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "router-web3signer"
   health_check_path        = "/upcheck"
@@ -169,7 +165,6 @@ module "sequencer_server" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_server
   container_family         = "sequencer"
@@ -198,7 +193,6 @@ module "sequencer_publisher" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_publisher
   container_family         = "sequencer-publisher"
@@ -238,7 +232,6 @@ module "sequencer_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_sequencer_subscriber
@@ -280,8 +273,7 @@ module "sequencer_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "sequencer-web3signer"
   health_check_path        = "/upcheck"
@@ -309,13 +301,9 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(5 minutes)"
-  timeout                = 300
-  memory_size            = 10240
-  lambda_in_vpc          = true
-  private_subnets        = module.network.private_subnets
-  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-
+  schedule_expression = "rate(5 minutes)"
+  timeout             = 300
+  memory_size         = 10240
 }
 
 module "lighthouse_prover_subscriber" {
@@ -329,7 +317,6 @@ module "lighthouse_prover_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_lighthouse_prover_subscriber
@@ -409,7 +396,6 @@ module "relayer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_relayer
   container_family         = "relayer"
@@ -439,7 +425,6 @@ module "relayer_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "relayer-web3signer"
@@ -483,9 +468,6 @@ module "ecs" {
   environment             = var.environment
   domain                  = var.domain
   ecs_cluster_name_prefix = "nxtp-ecs"
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  public_subnets          = module.network.public_subnets
 }
 
 module "sequencer_cache" {
