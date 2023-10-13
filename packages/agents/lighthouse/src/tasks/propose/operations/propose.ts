@@ -107,9 +107,9 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     throw new NoBaseAggregateRoot();
   }
 
-  const baseAggregateRootCount = await database.getAggregateRootCount(baseAggregateRoot);
+  const baseAggregateRootCount = await database.getBaseAggregateRootCount(baseAggregateRoot);
   if (!baseAggregateRootCount) {
-    throw new NoBaseAggregateRootCount(baseAggregateRoot, requestContext);
+    throw new NoBaseAggregateRootCount(baseAggregateRoot);
   }
   const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
   const aggregateRootCount = baseAggregateRootCount + snapshotRoots.length;

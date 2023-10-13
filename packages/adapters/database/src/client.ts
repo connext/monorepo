@@ -933,6 +933,16 @@ export const getBaseAggregateRoot = async (
   return root.length > 0 ? convertFromDbAggregatedRoot(root[0]).receivedRoot : undefined;
 };
 
+export const getBaseAggregateRootCount = async (
+  receivedRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Get the leaf count at the aggregated root
+  const root = await db.selectOne("aggregated_roots", { received_root: receivedRoot }).run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).index : undefined;
+};
+
 export const getMessageRootIndex = async (
   domain: string,
   messageRoot: string,
