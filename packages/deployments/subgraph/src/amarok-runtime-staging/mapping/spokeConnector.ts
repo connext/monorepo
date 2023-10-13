@@ -76,9 +76,9 @@ export function handleSnapshotRootSaved(event: SnapshotRootSaved): void {
     meta = new ConnectorMeta(DEFAULT_CONNECTOR_META_ID);
   }
 
-  let message = SnapshotRoot.load(`${event.params.snapshotId.toHexString()}-${meta.spokeDomain!.toString()}`);
+  let message = SnapshotRoot.load(`${event.params.snapshotId}`);
   if (message == null) {
-    message = new SnapshotRoot(`${event.params.snapshotId.toHexString()}-${meta.spokeDomain!.toString()}`);
+    message = new SnapshotRoot(`${event.params.snapshotId}`);
   }
 
   message.spokeDomain = meta.spokeDomain;

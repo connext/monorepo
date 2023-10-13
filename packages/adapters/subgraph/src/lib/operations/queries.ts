@@ -1098,7 +1098,7 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
-    ${prefix}_snapshotRootSaved( 
+    ${prefix}_snapshotRoots( 
       first: ${param.limit}, 
       where: { 
         id_gte: ${param.snapshotId}
