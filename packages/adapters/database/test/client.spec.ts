@@ -56,6 +56,7 @@ import {
   getLatestMessageRoot,
   getLatestAggregateRoots,
   getAggregateRootCount,
+  getBaseAggregateRootCount,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getUnProcessedMessagesByDomains,
@@ -1096,6 +1097,7 @@ describe("Database client", () => {
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
+    expect(await getBaseAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
     expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
     expect(await getLatestAggregateRoots("", 1, "DESC", pool)).to.be.deep.eq([]);
@@ -1130,6 +1132,7 @@ describe("Database client", () => {
     ).to.eventually.not.be.rejected;
     await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually
