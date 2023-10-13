@@ -31,6 +31,7 @@ export const mockDatabase = (): Database => {
     getUnProcessedMessagesByDomains: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
+    getBaseAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
     getMessageRootAggregatedFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
