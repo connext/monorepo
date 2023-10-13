@@ -109,6 +109,8 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ]),
   messageQueue: TMQConfig,
   server: TServerConfig,
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -233,6 +235,8 @@ export const getEnvConfig = (
         configFile.server?.adminToken ||
         "blahblah",
     },
+    mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
   };
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??

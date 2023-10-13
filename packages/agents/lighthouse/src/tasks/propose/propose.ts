@@ -1,3 +1,5 @@
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import {
@@ -78,6 +80,16 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
       context.config.subgraphPrefix as string,
     );
 
+    /// MARK - Signer
+    if (!context.config.mnemonic && !context.config.web3SignerUrl) {
+      throw new Error(
+        "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
+          " URL is provided in the config. Exiting!",
+      );
+    }
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
     context.logger.info("Propose task setup complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],
     });

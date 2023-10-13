@@ -8,6 +8,8 @@ import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { Database } from "@connext/nxtp-adapters-database";
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -22,6 +24,7 @@ export type ProposeContext = {
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[];
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
     database: Database;
+    wallet: Wallet | Web3Signer; // Used for signing proposal
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;
