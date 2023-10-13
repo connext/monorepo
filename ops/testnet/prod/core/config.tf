@@ -94,12 +94,12 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
+      # }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -162,18 +162,18 @@ locals {
           queueLimit = 1000000
           subscribe  = true
         },
-        {
-          name       = "1668247156"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
-        {
-          name       = "2053862260"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
+        # {
+        #   name       = "1668247156"
+        #   limit      = 1
+        #   queueLimit = 1000000
+        #   subscribe  = true
+        # },
+        # {
+        #   name       = "2053862260"
+        #   limit      = 1
+        #   queueLimit = 1000000
+        #   subscribe  = true
+        # },
       ]
       bindings = [
         {
@@ -200,17 +200,17 @@ locals {
           exchange = "sequencerX"
           target   = "1734439522"
           keys     = ["1734439522"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "1668247156"
-          keys     = ["1668247156"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "2053862260"
-          keys     = ["2053862260"]
         }
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "1668247156"
+        #   keys     = ["1668247156"]
+        # },
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "2053862260"
+        #   keys     = ["2053862260"]
+        # }
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -250,12 +250,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "${var.linea_node}"]
+      # }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -284,12 +281,12 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
-      "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
-      }
-      "2053862260" = {
-        providers = ["https://testnet.era.zksync.dev"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
+      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -319,10 +316,10 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10,
+      # "1668247156" = 10,
       "9991"       = 10,
       "1735353714" = 10,
-      "2053862260" = 10,
+      # "2053862260" = 10,
       "1734439522" = 10,
       "1735356532" = 10
     }
@@ -363,11 +360,11 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "1668247156" = {
-        providers = ["https://rpc.goerli.linea.build/"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://rpc.goerli.linea.build/"]
+      # }
       # "2053862260" = {
-      #  providers = ["https://testnet.era.zksync.dev"]
+      #  providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       # }
     }
     environment   = var.stage

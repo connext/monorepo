@@ -181,36 +181,6 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  # - name: Connext_ConsensysTest
-  #   handler:
-  #     graphql:
-  #       endpoint: https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/connext/amarok-runtime-v0-consensys-test
-  #       retry: 5
-  #       timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: consensystest_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
-  - name: Connext_ZkSync2Test
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v0-zksynct
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: zksync2test_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
 
   - name: StableSwap_Goerli
     handler:

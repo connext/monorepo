@@ -124,7 +124,7 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        if (blockInfo.block?.number) {
+        if (blockInfo?.block?.number) {
           blockNumberRes.set(domain, Number(blockInfo.block.number));
         } else {
           console.error(`No block number found for domain ${domain}!`);
@@ -606,6 +606,15 @@ export class SubgraphReader {
     allTxById: Map<string, XTransfer>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
 
@@ -654,6 +663,15 @@ export class SubgraphReader {
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
 
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
