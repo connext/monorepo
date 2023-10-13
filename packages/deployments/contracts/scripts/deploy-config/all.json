@@ -1,0 +1,83 @@
+{
+  "chains": 3,
+  "hub": 1,
+  "messaging": {
+    "configs": [
+      {
+        "chainId": 1,
+        "domain": 6648936,
+        "prefix": "Mainnet",
+        "name": "tenderly-mainnet",
+        "hubAmb": "0x0000000000000000000000000000000000000000",
+        "spokeAmb": "0x0000000000000000000000000000000000000000",
+        "processGas": 850000,
+        "reserveGas": 15000,
+        "delayBlocks": 0
+      },
+      {
+        "chainId": 10,
+        "domain": 1869640809,
+        "prefix": "Optimism",
+        "name": "tenderly-optimism",
+        "hubAmb": "0x0000000000000000000000000000000000000000",
+        "spokeAmb": "0x0000000000000000000000000000000000000000",
+        "processGas": 2000000,
+        "reserveGas": 15000,
+        "delayBlocks": 0
+      },
+      {
+        "chainId": 100,
+        "domain": 6778479,
+        "prefix": "Gnosis",
+        "name": "tenderly-gnosis",
+        "hubAmb": "0x0000000000000000000000000000000000000000",
+        "spokeAmb": "0x0000000000000000000000000000000000000000",
+        "processGas": 850000,
+        "reserveGas": 15000,
+        "delayBlocks": 0
+      }
+    ]
+  },
+  "agents": {
+    "relayerFeeVaults": {
+      "6648936": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1869640809": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1886350457": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "1634886255": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6450786": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+      "6778479": "0xade09131C6f43fe22C2CbABb759636C43cFc181e"
+    },
+    "watchers": {
+      "allowlist": ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
+      "blacklist": []
+    },
+    "routers": {
+      "allowlist": [
+        "0xD2aD711861ab345977B7379c81165708C8717fF1",
+        "0xE879261F44041E030404Ac9847f0cEE2591F62F5",
+        "0x12060Ec432a76Fe35851Ae9e656b4fbb9C8ac842",
+        "0x13751dc2749a3fc61f4b2ca5f5c09bd31062ef0a",
+        "0xf569c6186E7D57742ae89DC97F02FD0d5BA4CD6D"
+      ],
+      "blacklist": []
+    },
+    "sequencers": {
+      "allowlist": ["0x87D8bd5B49B69f93e226ecF0e87D5bEBc3f6359C"],
+      "blacklist": []
+    },
+    "relayers": {
+      "allowlist": [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d",
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99",
+        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92",
+        "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934",
+        "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
+        "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
+        "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
+        "0xf6d4f65325b258b2d70797CA7576CF8CD03Ed7b8",
+        "0x8cFAcF1d7f052faA1aED6e793f0C451b5dEA8c1E"
+      ],
+      "blacklist": []
+    }
+  }
+}

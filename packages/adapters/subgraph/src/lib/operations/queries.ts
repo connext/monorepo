@@ -370,13 +370,13 @@ export const ROUTER_DAILY_TVL_ENTITY = `
       balance
 `;
 
-const lastedBlockNumberQuery = (prefix: string): string => {
+const latestBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
 };
 export const getLastestBlockNumberQuery = (prefixes: string[]): string => {
   let combinedQuery = "";
   for (const prefix of prefixes) {
-    combinedQuery += lastedBlockNumberQuery(prefix);
+    combinedQuery += latestBlockNumberQuery(prefix);
   }
 
   return gql`    

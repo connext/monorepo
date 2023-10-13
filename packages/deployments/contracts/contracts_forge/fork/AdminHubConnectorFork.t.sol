@@ -35,7 +35,7 @@ contract AdminHubConnectorForkTest is ForgeHelper {
     vm.createSelectFork("https://eth.llamarpc.com", 17528353);
     owner = ROOT_MANAGER.owner();
     vm.prank(owner);
-    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(ROOT_MANAGER));
+    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(0), address(ROOT_MANAGER), address(0));
   }
 
   // ============ Utils ============

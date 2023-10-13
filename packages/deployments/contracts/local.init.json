@@ -1,0 +1,56 @@
+{
+  "hub": "31337",
+  "supportedDomains": [
+    "31337",
+    "31338",
+    "31339"
+  ],
+  "assets": [
+    {
+      "name": "TEST",
+      "canonical": {
+        "domain": "31337",
+        "address": "0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a",
+        "decimals": 18,
+        "cap": "1000000000000000000000000000"
+      },
+      "representations": {
+        "31338": {
+          "local": "0x2a504B5e7eC284ACa5b6f49716611237239F0b97",
+          "adopted": "0x2a504B5e7eC284ACa5b6f49716611237239F0b97"
+        },
+        "31339": {
+          "local": "0x2a504B5e7eC284ACa5b6f49716611237239F0b97",
+          "adopted": "0x2a504B5e7eC284ACa5b6f49716611237239F0b97"
+        }
+      }
+    }
+  ],
+  "agents": {
+    "relayerFeeVaults": {
+      "31337": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+      "31338": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+      "31339": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57"
+    },
+    "watchers": {
+      "allowlist": [
+        "0x627306090abaB3A6e1400e9345bC60c78a8BEf57"
+      ]
+    },
+    "routers": {
+      "allowlist": [
+        "0x821aEa9a577a9b44299B9c15c88cf3087F3b5544"
+      ]
+    },
+    "sequencers": {
+      "allowlist": [
+        "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
+      ]
+    },
+    "relayers": {
+      "allowlist": [
+        "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef"
+      ]
+    }
+  }
+}

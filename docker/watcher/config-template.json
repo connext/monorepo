@@ -1,0 +1,11 @@
+{
+  "server": {
+    "adminToken": "a",
+    "port": 8080
+  },
+  "logLevel": "debug",
+  "hubDomain": "1337",
+  "interval": 15000,
+  "web3SignerUrl": "http://signer-watcher:9000",
+  "environment": "production"
+}

@@ -1,0 +1,77 @@
+[
+  {
+    "subgraphName": "connext/amarok-runtime-v0-mainnet",
+    "subgraphId": "",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "Connext_DiamondProxy"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MainnetSpokeConnector"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MerkleTreeManagerSpokeUpgradeBeaconProxy"
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-optimism",
+    "subgraphId": "",
+    "network": "optimism",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "Connext_DiamondProxy"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "OptimismSpokeConnector"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MerkleTreeManagerSpokeUpgradeBeaconProxy"
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-arbitrum",
+    "subgraphId": "",
+    "network": "arbitrum",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "Connext_DiamondProxy"
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "ArbitrumSpokeConnector"
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "",
+        "startBlock": 0,
+        "contractName": "MerkleTreeManagerSpokeUpgradeBeaconProxy"
+      }
+    ]
+  }
+]

@@ -56,7 +56,7 @@ contract AdminHubConnectorTest is ForgeHelper {
 
     // deploy admin connector
     vm.prank(owner);
-    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(rootManager));
+    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(0), address(rootManager), address(0));
 
     // deploy mock hub connectors (mirrors and ambs set to empty for both)
     vm.prank(owner);

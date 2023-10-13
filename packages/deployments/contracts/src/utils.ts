@@ -7,6 +7,7 @@ import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
+import { spawn } from "child_process";
 
 export type Env = "staging" | "production" | "local";
 
@@ -22,12 +23,17 @@ export enum ProtocolNetwork {
   MAINNET = "mainnet",
   TESTNET = "testnet",
   LOCAL = "local",
+  DEVNET = "devnet",
 }
 
 export const ProtocolNetworks: Record<string, string> = {
   // local networks
   "1337": ProtocolNetwork.LOCAL,
   "1338": ProtocolNetwork.LOCAL,
+
+  "31337": ProtocolNetwork.LOCAL,
+  "31338": ProtocolNetwork.LOCAL,
+  "31339": ProtocolNetwork.LOCAL,
 
   // testnets
   "5": ProtocolNetwork.TESTNET,
@@ -48,10 +54,15 @@ export const ProtocolNetworks: Record<string, string> = {
   "100": ProtocolNetwork.MAINNET,
 };
 
-export const getProtocolNetwork = (_chain: string | number): string => {
+export const isDevnetName = (_name: string): boolean => {
+  return _name.includes("devnet");
+};
+
+export const getProtocolNetwork = (_chain: string | number, _name: string | undefined): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+  // If chain name is devnet-*, use devnet
+  return _name && isDevnetName(_name) ? ProtocolNetwork.DEVNET : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 
 export type RelayerProxyConfig = {
@@ -79,7 +90,9 @@ export const getConnectorName = (
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === deployChainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+    config.hub === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
+      ? HUB_PREFIX
+      : SPOKE_PREFIX
   }Connector`;
 };
 
@@ -90,9 +103,16 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
   const env = mustGetEnv(_env);
   let contractName = _contractName;
 
-  if (contractName.includes("Wormhole")) {
-    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
-    contractName = contractName.replace("Wormhole", networkName);
+  const networkName = _networkName
+    ? _networkName.charAt(0).toUpperCase() + _networkName.slice(1).toLowerCase()
+    : undefined;
+
+  if (/^(?=.*Wormhole)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Wormhole/g, networkName!);
+  } else if (/^(?=.*AdminMainnet)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/AdminMainnet/g, networkName!);
+  } else if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Admin/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
@@ -292,7 +312,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
 
   // get data + factories
-  const factory = await hre.ethers.getContractFactory(name, deployer.address);
+  const factory = await hre.ethers.getContractFactory(name);
   const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Get controller deployment
@@ -384,4 +404,38 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   ).connect(deployer);
 
   return proxy as unknown as T;
+};
+
+export const runCommand = (command: string, maxRetries: number = 1) => {
+  return new Promise((resolve, reject) => {
+    let retryCount = 0;
+
+    function spawnChildProcess() {
+      const childProcess = spawn(command, {
+        stdio: "inherit",
+        shell: true,
+      });
+
+      childProcess.stdout?.on("data", (data) => {});
+
+      childProcess.stderr?.on("data", (data) => {});
+
+      childProcess.on("exit", (code) => {
+        if (code === 0) {
+          resolve({});
+        } else {
+          console.error(`Child Process exited with code ${code}`);
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying (attempt ${retryCount})...`);
+            spawnChildProcess(); // Retry the child process
+          } else {
+            reject(new Error(`Command failed with code ${code}, Maximum retry count (${maxRetries}) reached.`));
+          }
+        }
+      });
+    }
+
+    spawnChildProcess(); // Start the initial child process
+  });
 };

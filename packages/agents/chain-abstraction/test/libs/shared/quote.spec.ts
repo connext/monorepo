@@ -12,6 +12,9 @@ const mockOriginSwapQuoteParams: SwapQuoteParams = {
   amountIn: "1000000000000000",
   fee: "300",
   rpc: "http://localhost:8545",
+  config: {
+    apiKey: "12345",
+  },
 };
 
 const mockDestinationSwapQuoteParams: SwapQuoteParams = {
@@ -21,6 +24,9 @@ const mockDestinationSwapQuoteParams: SwapQuoteParams = {
   amountIn: "990000000000000",
   fee: "300",
   rpc: "http://localhost:8545",
+  config: {
+    apiKey: "12345",
+  },
 };
 
 const mockEstimateQuoteAmountParams: EstimateQuoteAmountArgs = {
@@ -33,6 +39,9 @@ const mockEstimateQuoteAmountParams: EstimateQuoteAmountArgs = {
   amountIn: "1000000000000000",
   fee: "300",
   signerAddress: "0x7b88c13D5A56549B2F09BB7D8300e256056fdD85",
+  config: {
+    apiKey: "12345",
+  },
 };
 
 class MockJsonRpcProvider {
@@ -104,7 +113,7 @@ describe("Libs:quote", () => {
           quoter: mkAddress("0xb"),
         },
       });
-      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
+      axiosGetStub.resolves({ data: { toAmount: "990000000000000" } });
 
       const amountOut = await getSwapAmountOut(mockOriginSwapQuoteParams, true);
       expect(amountOut).to.be.eq("990000000000000");
@@ -126,7 +135,7 @@ describe("Libs:quote", () => {
           quoter: mkAddress("0xb"),
         },
       });
-      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
+      axiosGetStub.resolves({ data: { toAmount: "990000000000000" } });
 
       expect(await getSwapAmountOut(mockOriginSwapQuoteParams, true)).to.be.eq("990000000000000");
 
@@ -156,7 +165,7 @@ describe("Libs:quote", () => {
           quoter: mkAddress("0xb"),
         },
       });
-      axiosGetStub.resolves({ data: { toTokenAmount: "990000000000000" } });
+      axiosGetStub.resolves({ data: { toAmount: "990000000000000" } });
       let initCoreSDKStub: SinonStub;
       initCoreSDKStub = stub(MockableFns, "initCoreSDK");
       initCoreSDKStub.resolves({ sdkBase: { calculateAmountReceived: { amountReceived: "100" } } });

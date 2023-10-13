@@ -18,7 +18,9 @@ contract AdminHubConnector is ProposedOwnable, HubConnector {
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _rootManager
+    address,
+    address _rootManager,
+    address
   ) ProposedOwnable() HubConnector(_domain, _mirrorDomain, address(0), _rootManager, address(0)) {
     _setOwner(msg.sender);
   }

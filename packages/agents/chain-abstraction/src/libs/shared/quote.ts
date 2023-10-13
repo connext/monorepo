@@ -27,7 +27,7 @@ export const getSwapPathForUniV2 = _getSwapPathForUniV2;
 export const getPathForPanCake = _getPathForPanCake;
 
 export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true): Promise<string> => {
-  const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee } = params;
+  const { domainId, rpc, fromAsset, toAsset, amountIn, fee: _fee, config } = params;
 
   // If same asset, return amountIn
   if (utils.getAddress(fromAsset) == utils.getAddress(toAsset)) {
@@ -56,6 +56,7 @@ export const getSwapAmountOut = async (params: SwapQuoteParams, isOrigin = true)
     toAsset,
     amountIn,
     fee,
+    config,
   });
 
   return amountOut;
@@ -110,6 +111,7 @@ export const getEstimateAmountReceived = async (args: EstimateQuoteAmountArgs): 
     amountIn,
     fee,
     signerAddress,
+    config,
   } = args;
   // checking the swapper
 
@@ -145,6 +147,7 @@ export const getEstimateAmountReceived = async (args: EstimateQuoteAmountArgs): 
       toAsset: _toAsset,
       amountIn,
       fee: _fee,
+      config,
     };
 
     // Step 1: Calculate amountOut after origin swaps
@@ -188,6 +191,7 @@ export const getEstimateAmountReceived = async (args: EstimateQuoteAmountArgs): 
       fromAsset: destinationUnderlyingAsset,
       toAsset,
       fee: _fee,
+      config,
     };
     const destinationSwapFunction = SwapQuoteFns[destinationQuoter.type];
     const amountOut =

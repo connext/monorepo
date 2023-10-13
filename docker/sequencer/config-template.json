@@ -1,0 +1,63 @@
+{
+  "redis": {
+    "host": "sequencer-cache",
+    "port": 6379
+  },
+  "server": {
+    "adminToken": "b",
+    "pub": {
+      "port": 8081
+    },
+    "sub": {
+      "port": 8081
+    }
+  },
+  "logLevel": "debug",
+  "mode": {
+    "cleanup": false
+  },
+  "auctionWaitTime": 30000,
+  "environment": "production",
+  "relayers": [
+    {
+      "type": "Connext",
+      "apiKey": "xxx",
+      "url": "http://relayer:8080"
+    }
+  ],
+  "web3SignerUrl": "http://signer-sequencer:9000",
+  "database": {
+    "url": "postgres://postgres:qwerty@cartographer-database:5432?sslmode=disable"
+  },
+  "messageQueue": {
+    "connection": {
+      "uri": "amqp://guest:guest@message-queue:5672"
+    },
+    "exchanges": [
+      { "name": "sequencerX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true }
+    ],
+    "queues": [
+      { "name": "31337", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "31338", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      { "name": "31339", "limit": 5, "queueLimit": 10000, "subscribe": true, "prefetch": 250 },
+      {
+        "name": "http",
+        "limit": 1,
+        "queueLimit": 100000,
+        "subscribe": true
+      }
+    ],
+    "bindings": [
+      { "exchange": "sequencerX", "target": "31337", "keys": ["31337"] },
+      { "exchange": "sequencerX", "target": "31338", "keys": ["31338"] },
+      { "exchange": "sequencerX", "target": "31339", "keys": ["31339"] },
+      {
+        "exchange": "sequencerX",
+        "target": "http",
+        "keys": ["http"]
+      }
+    ],
+    "executerTimeout": 300000,
+    "publisher": "sequencerX"
+  }
+}

@@ -21,7 +21,7 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 0;
+const DEFAULT_DELAY_BLOCKS = 100;
 
 export type RelayerConfig = {
   [chain: number]: {
@@ -106,33 +106,78 @@ export const getFacetsToDeploy = (zksync: boolean) => [
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
-    hub: 1337,
+    hub: 31337,
     configs: {
-      1337: {
-        prefix: "Mainnet",
+      31337: {
+        prefix: "AdminMainnet",
+        networkName: "Mainnet",
         ambs: {
           hub: constants.AddressZero,
           spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        delayBlocks: 1,
       },
-      1338: {
-        prefix: "Optimism",
+      31338: {
+        prefix: "Admin",
+        networkName: "Optimism",
         ambs: {
-          hub: OPTIMISM_AMB.hub,
-          spoke: OPTIMISM_AMB.spoke,
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
-            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
-          },
+        delayBlocks: 1,
+      },
+      31339: {
+        prefix: "Admin",
+        networkName: "Arbitrum",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+    },
+  },
+  devnet: {
+    hub: 1,
+    configs: {
+      1: {
+        prefix: "Admin",
+        networkName: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+      10: {
+        prefix: "Admin",
+        networkName: "Optimism",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+      100: {
+        prefix: "Admin",
+        networkName: "Gnosis",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
       },
     },
   },

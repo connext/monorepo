@@ -4,6 +4,7 @@ import { Wallet } from "ethers";
 
 import { getContract } from "../src/cli/helpers";
 import { SKIP_SETUP, WRAPPED_ETH_MAP } from "../src/constants";
+import { getProtocolNetwork, isDevnetName } from "../src";
 
 // Helper for deploying a utility contract below and handling proper logs, etc.
 const deployContract = async (params: {
@@ -68,7 +69,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // deploy 1 for each.
   // Unwrapper utility contract is used by the SDK to conveniently unwrap WETH => ETH on the
   // transfer's destination chain after an xcall transferring WETH tokens.
-  const connext = getContract("Connext_DiamondProxy", chain.toString(), false);
+  const connext = getContract(
+    "Connext_DiamondProxy",
+    chain.toString(),
+    false,
+    undefined,
+    getProtocolNetwork(chain, hre.network.name),
+  );
   const wrappedETH = WRAPPED_ETH_MAP.get(chain);
   if (!wrappedETH) {
     throw new Error(`Wrapped ETH contract not defined in WRAPPED_ETH_MAP for this domain!`);
