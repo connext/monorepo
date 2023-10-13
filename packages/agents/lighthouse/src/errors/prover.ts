@@ -61,18 +61,18 @@ export class NoMessageProof extends NxtpError {
 }
 
 export class NoBaseAggregateRootCount extends NxtpError {
-  constructor(aggregateRoot: string) {
+  constructor(aggregateRoot: string, context: any = {}) {
     super(`No base aggregate root count found for ${aggregateRoot}`, context, NoBaseAggregateRootCount.name);
   }
 }
 export class NoBaseAggregateRoot extends NxtpError {
-  constructor() {
+  constructor(context: any = {}) {
     super(`No base aggregate root found`, context, NoBaseAggregateRoot.name);
   }
 }
 
 export class NoMessageRoot extends NxtpError {
-  constructor(originDomain: string, messageRoot: string) {
+  constructor(originDomain: string, messageRoot: string, context: any = {}) {
     super(
       `No message with message root ${messageRoot} found in origin domain ${originDomain}`,
       context,
@@ -82,7 +82,7 @@ export class NoMessageRoot extends NxtpError {
 }
 
 export class NoDomainInSnapshot extends NxtpError {
-  constructor(originDomain: string, snapshot: Snapshot) {
+  constructor(originDomain: string, snapshot: Snapshot, context: any = {}) {
     super(`No domain ${originDomain} found in snapshot ${snapshot}`, context, NoDomainInSnapshot.name);
   }
 }
