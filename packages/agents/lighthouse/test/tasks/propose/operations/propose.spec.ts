@@ -37,7 +37,7 @@ describe("Operations: Propose", () => {
 
     it("happy case should call propose snapshot succesfully", async () => {
       (proposeCtxMock.adapters.database.getBaseAggregateRoot as SinonStub).resolves("0x");
-      (proposeCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
+      (proposeCtxMock.adapters.database.getBaseAggregateRootCount as SinonStub).resolves(1);
       (proposeCtxMock.adapters.database.getAggregateRoots as SinonStub).resolves(["0x"]);
       (proposeCtxMock.adapters.database.getPendingSnapshots as SinonStub).resolves([mock.entity.snapshotRoot()]);
       encodeFunctionData.returns("0x");
