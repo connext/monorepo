@@ -74,7 +74,6 @@ module "postgrest" {
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   lb_subnets               = module.network.public_subnets
-  internal_lb              = false
   docker_image             = "postgrest/postgrest:v10.0.0.20221011"
   container_family         = "postgrest"
   container_port           = 3000
@@ -102,7 +101,6 @@ module "sdk-server" {
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   lb_subnets               = module.network.public_subnets
-  internal_lb              = false
   docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
   health_check_path        = "/ping"
