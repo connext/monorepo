@@ -3,7 +3,6 @@ import {
   NxtpError,
   RequestContext,
   RootManagerMeta,
-  SnapshotRoot,
   SparseMerkleTree,
   jsonifyError,
   domainToChainId,
@@ -41,7 +40,6 @@ export const propose = async () => {
   // Get the latest pending snapshots
   // Generate aggreagate root given latest snapshot
   // Encode params data for contract call
-  const pendingSnapshotsById: Map<string, SnapshotRoot[]> = new Map();
   const domains: string[] = Object.keys(config.chains);
 
   const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
@@ -121,7 +119,7 @@ export const proposeSnapshot = async (
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader, deployments },
+    adapters: { contracts, relayers, database, chainreader },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
