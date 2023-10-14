@@ -339,7 +339,7 @@ module "lighthouse_prover_cron" {
   schedule_expression    = "rate(30 minutes)"
   memory_size            = 512
   lambda_in_vpc          = true
-  subnet_ids             = module.network.public_subnets
+  subnet_ids             = module.network.private_subnets
   lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
