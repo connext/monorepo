@@ -88,7 +88,7 @@ import {
   deleteNonExistTransfers,
   getAggregateRoots,
   saveSnapshotRoots,
-  getPendingSnapshots,
+  getLatestPendingSnapshotRootByDomain,
   saveProposedSnapshots,
   savePropagatedOptimisticRoots,
   getCurrentProposedSnapshot,
@@ -1576,7 +1576,7 @@ describe("Database client", () => {
     });
   });
 
-  it("should save and get snapshot roots", async () => {
+  it("should save and get snapshot root", async () => {
     const roots: SnapshotRoot[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const m = mock.entity.snapshotRoot();
@@ -1585,9 +1585,8 @@ describe("Database client", () => {
     }
     await saveSnapshotRoots(roots, pool);
 
-    const dbRoots = await getPendingSnapshots(pool);
-    expect(dbRoots[0].id).to.eq(roots[batchSize - 1].id);
-    expect(dbRoots.length).to.eq(roots.length);
+    const dbRootLast = await getLatestPendingSnapshotRootByDomain(+roots[batchSize - 1].spokeDomain, pool);
+    expect(dbRootLast).to.eq(roots[batchSize - 1].root);
   });
 
   it("should save and get snapshots", async () => {

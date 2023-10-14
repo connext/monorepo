@@ -12,7 +12,7 @@ import { BigNumber } from "ethers";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain } from "../errors";
+import { NoChainIdForHubDomain, MissingRequiredDomain, NoSnapshotRoot, NoSpokeConnector } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
 
@@ -28,7 +28,7 @@ export const propose = async () => {
     logger,
     config,
     chainData,
-    adapters: { database },
+    adapters: { database, subgraph, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propose.name);
   logger.info("Starting propose operation", requestContext, methodContext);
@@ -44,60 +44,89 @@ export const propose = async () => {
   const pendingSnapshotsById: Map<string, SnapshotRoot[]> = new Map();
   const domains: string[] = Object.keys(config.chains);
 
-  const pendingSnapshotRoots = await database.getPendingSnapshots();
+  const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
+  const rootManagerDomains = rootManagerMeta.domains;
 
-  for (const snapshotRoot of pendingSnapshotRoots) {
-    if (pendingSnapshotsById.has(snapshotRoot.id)) {
-      const snapshotRoots = pendingSnapshotsById.get(snapshotRoot.id);
-      snapshotRoots!.push(snapshotRoot);
-    } else {
-      pendingSnapshotsById.set(snapshotRoot.id, [snapshotRoot]);
+  // Ensure all root manager domains are present in the config
+  rootManagerDomains.forEach((domain) => {
+    if (!domains.includes(domain)) {
+      throw new MissingRequiredDomain(domain, requestContext, methodContext);
     }
-  }
-  pendingSnapshotsById.forEach((snapshotRoots: SnapshotRoot[], snapshotId: string) => {
-    logger.debug("Snaphot ID and roots", requestContext, methodContext, { snapshotId, snapshotRoots });
   });
 
-  // Criteria for selecting the latest saved snapshot roots:
-  // 1. Should have all domains. TODO: Need to handle the special case of adding a new domain
-  // 2. Find the highest snapshot ID
-
-  const latestSnapshotIds = [...new Map([...pendingSnapshotsById].sort().reverse()).keys()];
-  if (latestSnapshotIds.length === 0) {
-    logger.info("No pending snapshot roots found. Nothing to propose", requestContext, methodContext);
-    return;
+  // Find the latest snapshot ID.
+  const hubSpokeConnector = config.chains[config.hubDomain]?.deployments.spokeConnector;
+  if (!hubSpokeConnector) {
+    throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
-  const latestSnapshotId = latestSnapshotIds[0];
 
+  let latestSnapshotId: string;
+  const idEncodedData = contracts.spokeConnector.encodeFunctionData("getLastCompletedSnapshotId");
   try {
-    const snapshotRoots = pendingSnapshotsById.get(latestSnapshotId);
-    const orderedSnapshotRoots: SnapshotRoot[] = [];
-    // TODO: What is the right order of the domains?
-    domains.forEach((domain) => {
-      orderedSnapshotRoots.push(...snapshotRoots!.filter((s) => s.spokeDomain === Number(domain)));
+    const idResultData = await chainreader.readTx({
+      domain: +config.hubDomain,
+      to: hubSpokeConnector,
+      data: idEncodedData,
     });
 
-    await proposeSnapshot(
-      latestSnapshotId,
-      orderedSnapshotRoots.map((s) => s.root),
-      requestContext,
+    const [currentSnapshotId] = contracts.spokeConnector.decodeFunctionResult(
+      "getLastCompletedSnapshotId",
+      idResultData,
     );
+    latestSnapshotId = currentSnapshotId.toString();
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the latest snapshot ID from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the latest snapshot ID.
+    return;
+  }
+  logger.info("Got the latest snapshot ID from onchain", requestContext, methodContext, {
+    latestSnapshotId,
+  });
+
+  try {
+    const orderedSnapshotRoots: string[] = [];
+    const snapshotRoots: Map<string, string> = new Map();
+
+    // Sort the snapshot roots in the order of root manager domains
+    await Promise.all(
+      rootManagerDomains.map(async (domain) => {
+        const latestSnapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain);
+        if (!latestSnapshotRoot) {
+          throw new NoSnapshotRoot(domain, requestContext, methodContext);
+        }
+        snapshotRoots.set(domain, latestSnapshotRoot);
+      }),
+    );
+
+    rootManagerDomains.forEach((domain) => {
+      orderedSnapshotRoots.push(snapshotRoots.get(domain)!);
+    });
+
+    await proposeSnapshot(latestSnapshotId, orderedSnapshotRoots, rootManagerDomains, requestContext);
   } catch (err: unknown) {
     logger.error("Error proposing snapshot", requestContext, methodContext, jsonifyError(err as NxtpError));
   }
 };
 
-export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[], _requestContext: RequestContext) => {
+export const proposeSnapshot = async (
+  snapshotId: string,
+  snapshotRoots: string[],
+  orderedDomains: string[],
+  _requestContext: RequestContext,
+) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader, subgraph },
+    adapters: { contracts, relayers, database, chainreader, deployments },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
-  const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
-  const domains = rootManagerMeta.domains;
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
   const hubChainId = domainToChainId(+config.hubDomain);
   // const _totalFee = constants.Zero;
 
@@ -116,15 +145,12 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
   const opRoots = baseAggregateRoots.concat(snapshotRoots);
 
   // Count of leafs in aggregate tree at targetAggregateRoot.
-  // TODO: check off by one
   const hubStore = new OptimisticHubDBHelper(opRoots, aggregateRootCount);
   const hubSMT = new SparseMerkleTree(hubStore);
-  const aggregateRoot = hubSMT.getRoot();
-
-  //TODO: Determine the right ordering of domains
-  const orderedDomains = domains;
+  const aggregateRoot = await hubSMT.getRoot();
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
+
   // TODO: Sign the proposal -- need signature from whitelisted proposer agent
   const signature = "";
 
@@ -136,19 +162,18 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     signature,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRootKeep3r", [
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
     proposal.snapshotId,
     proposal.aggregateRoot,
     proposal.snapshotRoots,
     proposal.orderedDomains,
-    signature,
   ]);
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyHubAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -161,7 +186,7 @@ export const proposeSnapshot = async (snapshotId: string, snapshotRoots: string[
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyHubAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
     });
   }
