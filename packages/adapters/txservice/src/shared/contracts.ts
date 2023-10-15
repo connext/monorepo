@@ -242,6 +242,7 @@ export type ConnextContractDeployments = {
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
   unwrapper: UnwrapperContractDeploymentGetter;
+  rootManager: RootManagerPropagateWrapperGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -254,6 +255,7 @@ export const contractDeployments: ConnextContractDeployments = {
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
   unwrapper: getDeployedUnwrapperContract,
+  rootManager: getDeployedRootManagerContract,
 };
 
 /// MARK - CONTRACT INTERFACES

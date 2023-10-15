@@ -15,14 +15,44 @@ export class NoChainIdForHubDomain extends NxtpError {
   }
 }
 
-export class NoSnapshotRoots extends NxtpError {
+export class NoSpokeConnector extends NxtpError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`ChainId not available for domain ${hubDomain}`, {
+    super(`No spokeconnector for domain ${hubDomain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+
+export class MissingRequiredDomain extends NxtpError {
+  constructor(
+    public readonly domain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Config not available for domain ${domain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+
+export class NoSnapshotRoot extends NxtpError {
+  constructor(
+    public readonly domain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Snapshot root not available for domain ${domain}`, {
       ...context,
       requestContext,
       methodContext,

@@ -1001,12 +1001,15 @@ export const getPendingAggregateRoot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
-export const getPendingSnapshots = async (_pool?: Pool | db.TxnClientForRepeatableRead): Promise<SnapshotRoot[]> => {
+export const getLatestPendingSnapshotRootByDomain = async (
+  spoke_domain: number,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<string | undefined> => {
   const poolToUse = _pool ?? pool;
-  const snapshots = await db
-    .select("snapshot_roots", { processed: false }, { limit: 100, order: { by: "id", direction: "DESC" } })
+  const snapshot = await db
+    .select("snapshot_roots", { processed: false, spoke_domain }, { limit: 1, order: { by: "id", direction: "DESC" } })
     .run(poolToUse);
-  return snapshots.length > 0 ? snapshots.map(convertFromDbSnapshotRoot) : [];
+  return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]).root : undefined;
 };
 
 export const saveProposedSnapshots = async (
