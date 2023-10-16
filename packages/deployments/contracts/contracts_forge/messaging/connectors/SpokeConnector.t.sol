@@ -206,6 +206,27 @@ contract SpokeConnector_Constructor is Base {
     assertEq(spokeConnector.minDisputeBlocks(), _minDisputeBlocks);
     assertEq(spokeConnector.disputeBlocks(), _disputeBlocks);
   }
+
+  function test_shouldRevertIfDisputeBlocksLessThanMinDisputeBlocks() public {
+    uint256 _failingDisputeBlocks = _minDisputeBlocks - 1;
+    SpokeConnector.ConstructorParams memory _constructorParams = SpokeConnector.ConstructorParams({
+      domain: _originDomain,
+      mirrorDomain: _mainnetDomain,
+      amb: _originAMB,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: PROCESS_GAS,
+      reserveGas: RESERVE_GAS,
+      delayBlocks: 0,
+      merkle: address(_merkle),
+      watcherManager: address(_watcherManager),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _failingDisputeBlocks
+    });
+
+    vm.expectRevert(SpokeConnector.SpokeConnector_constructor__DisputeBlocksLowerThanMin.selector);
+    new MockSpokeConnector(_constructorParams);
+  }
 }
 
 contract SpokeConnector_Dispatch is Base {

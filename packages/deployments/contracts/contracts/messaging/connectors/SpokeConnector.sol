@@ -175,6 +175,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   error SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore();
   error SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
   error SpokeConnector_send__OptimisticModeOn();
+  error SpokeConnector_constructor__DisputeBlocksLowerThanMin();
 
   // ============ Structs ============
 
@@ -363,6 +364,9 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     Connector(_params.domain, _params.mirrorDomain, _params.amb, _params.rootManager, _params.mirrorConnector)
     WatcherClient(_params.watcherManager)
   {
+    uint256 _disputeBlocks = _params.disputeBlocks;
+    uint256 _minDisputeBlocks = _params.minDisputeBlocks;
+    if (_disputeBlocks < _minDisputeBlocks) revert SpokeConnector_constructor__DisputeBlocksLowerThanMin();
     // Sanity check: constants are reasonable.
     require(_params.processGas > 850_000 - 1, "!process gas");
     require(_params.reserveGas > 15_000 - 1, "!reserve gas");
@@ -373,8 +377,8 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     MERKLE = MerkleTreeManager(_params.merkle);
 
     delayBlocks = _params.delayBlocks;
-    minDisputeBlocks = _params.minDisputeBlocks;
-    disputeBlocks = _params.disputeBlocks;
+    minDisputeBlocks = _minDisputeBlocks;
+    disputeBlocks = _disputeBlocks;
   }
 
   // ============ Admin Functions ============
