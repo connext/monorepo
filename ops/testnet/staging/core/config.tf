@@ -104,9 +104,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -163,12 +163,12 @@ locals {
           queueLimit = 100000
           subscribe  = true
         },
-        {
-          name       = "2053862260"
-          limit      = 1
-          queueLimit = 100000
-          subscribe  = true
-        },
+        # {
+        #   name       = "2053862260"
+        #  limit      = 1
+        #   queueLimit = 100000
+        #   subscribe  = true
+        # },
         {
           name       = "1734439522"
           limit      = 1
@@ -197,11 +197,11 @@ locals {
           target   = "9991"
           keys     = ["9991"]
         },
-        {
-          exchange = "sequencerX"
-          target   = "2053862260"
-          keys     = ["2053862260"]
-        },
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "2053862260"
+        #   keys     = ["2053862260"]
+        # },
         {
           exchange = "sequencerX"
           target   = "1734439522"
@@ -245,9 +245,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -276,9 +276,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
@@ -326,9 +326,9 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
