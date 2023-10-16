@@ -235,7 +235,7 @@ export const enqueue = async () => {
                   if (!_baseAggregateRootCount) {
                     throw new NoAggregateRootCount(snapshot.baseAggregateRoot);
                   }
-                  aggregateRootCount = snapshot.roots.length + _baseAggregateRootCount!;
+                  aggregateRootCount = snapshot.roots.length + _baseAggregateRootCount;
                   messageRootIndex = _baseAggregateRootCount + domainIndex;
                 }
 
