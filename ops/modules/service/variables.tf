@@ -2,10 +2,6 @@ variable "execution_role_arn" {}
 variable "cluster_id" {}
 variable "vpc_id" {}
 
-variable "private_subnets" {
-  type = list(string)
-}
-
 variable "lb_subnets" {
   type = list(string)
 }
