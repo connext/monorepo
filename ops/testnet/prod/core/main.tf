@@ -519,3 +519,8 @@ module "lighthouse_cache" {
   cache_subnet_group_subnet_ids = module.network.public_subnets
   node_type                     = "cache.r4.large"
 }
+
+module "ecr-lcp" {
+  source           = "../../../modules/ecr-lcp"
+  repository_names = ["nxtp-cartographer", "nxtp-lighthouse", "postgrest"]
+}
