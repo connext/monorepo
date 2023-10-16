@@ -1145,7 +1145,7 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
-    ${prefix}_optimisticRootFinalizeds ( 
+    ${prefix}_optimisticRootPropagateds ( 
       where: {}
     ) {
       ${PROPAGATED_OPTIMISTIC_ROOT_ENTITY}
