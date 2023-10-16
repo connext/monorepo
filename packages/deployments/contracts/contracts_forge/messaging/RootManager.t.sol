@@ -117,8 +117,6 @@ contract Base is ForgeHelper {
   // ============ Events ============
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
-  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
-
   event RootPropagated(bytes32 aggregate, uint32[] domains, uint256 count);
 
   event ConnectorAdded(uint32 domain, address connector, uint32[] domains, address[] connectors);
@@ -127,9 +125,14 @@ contract Base is ForgeHelper {
 
   event PropagateFailed(uint32 domain, address connector);
 
-  event AggregateRootSaved(bytes32 aggregateRoot, uint256 rootTimestamp);
+  event AggregateRootSavedSlow(
+    bytes32 aggregateRoot,
+    uint256 leafCount,
+    bytes32[] aggregatedRoots,
+    uint256 rootTimestamp
+  );
 
-  event ProposedRootFinalized(bytes32 aggregateRoot);
+  event AggregateRootSavedOptimistic(bytes32 aggregateRoot, uint256 rootTimestamp);
 
   event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
@@ -710,18 +713,7 @@ contract RootManager_Finalize is Base {
     vm.roll(block.number + _disputeBlocks);
 
     vm.expectEmit(true, true, true, true);
-    emit AggregateRootSaved(aggregateRoot, block.timestamp);
-
-    _rootManager.finalize(aggregateRoot, block.number);
-  }
-
-  function test_emitIfProposedRootHasFinalized(bytes32 aggregateRoot) public {
-    vm.assume(aggregateRoot != _finalizedHash);
-    _rootManager.forTest_setProposeHash(aggregateRoot, block.number + _disputeBlocks);
-    vm.roll(block.number + _disputeBlocks);
-
-    vm.expectEmit(true, true, true, true);
-    emit ProposedRootFinalized(aggregateRoot);
+    emit AggregateRootSavedOptimistic(aggregateRoot, block.timestamp);
 
     _rootManager.finalize(aggregateRoot, block.number);
   }
@@ -1405,26 +1397,11 @@ contract RootManager_Dequeue is Base {
 
     uint256 _expectedSavedTimestamp = block.timestamp;
 
-    vm.expectEmit(true, true, true, true);
-    emit AggregateRootSaved(aggregateRoot, _expectedSavedTimestamp);
-
-    _rootManager.dequeue();
-  }
-
-  function test_emitIfRootsAggregated(bytes32 aggregateRoot) public {
-    _rootManager.forTest_addInboundRootToQueue(RANDOM_INBOUND_ROOT);
-
-    // fastforward blocks to make the element in the queue ready.
-    vm.roll(block.number + _rootManager.delayBlocks());
-
     bytes32[] memory _verifiedInboundRoots = new bytes32[](1);
     _verifiedInboundRoots[0] = RANDOM_INBOUND_ROOT;
 
-    // Mock the call over `insert`
-    vm.mockCall(_merkle, abi.encodeWithSelector(insertSelector), abi.encode(aggregateRoot, mockedCount));
-
     vm.expectEmit(true, true, true, true);
-    emit RootsAggregated(aggregateRoot, mockedCount, _verifiedInboundRoots);
+    emit AggregateRootSavedSlow(aggregateRoot, mockedCount, _verifiedInboundRoots, _expectedSavedTimestamp);
 
     _rootManager.dequeue();
   }
