@@ -174,7 +174,6 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   error SpokeConnector_setDisputeBlocks__DisputeBlocksLowerThanMin();
   error SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore();
   error SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
-  error SpokeConnector_send__OptimisticModeOn();
   error SpokeConnector_constructor__DisputeBlocksLowerThanMin();
 
   // ============ Structs ============

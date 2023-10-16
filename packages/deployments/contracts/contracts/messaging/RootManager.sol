@@ -38,8 +38,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
 
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
-
   event RootDiscarded(bytes32 fraudulentRoot);
 
   /**
@@ -154,8 +152,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   error RootManager_constructor__DisputeBlocksLowerThanMin();
 
   error RootManager__renounceOwnership_prohibited();
-
-  error RootManager_slowPropagate__OldAggregateRoot();
 
   error RootManager_propagate__AggregateRootIsZero();
 
