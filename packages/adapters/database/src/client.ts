@@ -488,7 +488,7 @@ export const getRootMessage = async (
 ): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
   const message = await db.select("root_messages", { spoke_domain, root }).run(poolToUse);
-  return message ? convertFromDbRootMessage(message[0]) : undefined;
+  return message.length > 0 ? convertFromDbRootMessage(message[0]) : undefined;
 };
 
 export const saveAggregatedRoots = async (
