@@ -20,7 +20,9 @@ describe("Operations: Propose", () => {
     it("should call propose snapshot succesfully", async () => {
       let proposeSnapshotStub = stub(ProposeFns, "proposeSnapshot").resolves();
 
-      (proposeCtxMock.adapters.database.getPendingSnapshots as SinonStub).resolves([mock.entity.snapshotRoot()]);
+      (proposeCtxMock.adapters.database.getLatestPendingSnapshotRootByDomain as SinonStub).resolves([
+        mock.entity.snapshotRoot().root,
+      ]);
 
       await propose();
       expect(proposeSnapshotStub).callCount(1);
@@ -39,7 +41,9 @@ describe("Operations: Propose", () => {
       (proposeCtxMock.adapters.database.getBaseAggregateRoot as SinonStub).resolves("0x");
       (proposeCtxMock.adapters.database.getBaseAggregateRootCount as SinonStub).resolves(1);
       (proposeCtxMock.adapters.database.getAggregateRoots as SinonStub).resolves(["0x"]);
-      (proposeCtxMock.adapters.database.getPendingSnapshots as SinonStub).resolves([mock.entity.snapshotRoot()]);
+      (proposeCtxMock.adapters.database.getLatestPendingSnapshotRootByDomain as SinonStub).resolves([
+        mock.entity.snapshotRoot().root,
+      ]);
       encodeFunctionData.returns("0x");
 
       await proposeSnapshot("1", ["0xA", "0xB"], undefined as any);

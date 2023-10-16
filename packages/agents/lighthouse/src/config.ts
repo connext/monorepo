@@ -22,6 +22,7 @@ export const TChainConfig = Type.Object({
     spokeMerkleTree: TAddress,
     spokeConnector: TAddress,
     relayerProxy: TAddress,
+    rootManager: TAddress,
   }),
 });
 
@@ -301,6 +302,17 @@ export const getEnvConfig = (
 
           if (!res) {
             throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      rootManager:
+        chainConfig.deployments?.rootManager ??
+        (() => {
+          const res = chainDataForChain ? deployments.rootManager(hubChain, contractPostfix) : undefined;
+
+          if (!res) {
+            throw new Error(`No Rootmanager contract address for domain ${hubChain}`);
           }
           return res.address;
         })(),
