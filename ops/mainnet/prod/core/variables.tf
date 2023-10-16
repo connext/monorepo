@@ -188,10 +188,6 @@ variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
 
-variable "lighthouse_propose_heartbeat" {
-  type = string
-}
-
 variable "full_image_name_relayer" {
   type        = string
   description = "relayer image name"
