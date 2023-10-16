@@ -295,7 +295,7 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = local.read_replica_db_url
+      url = local.default_db_url
     }
     databaseWriter = {
       url = local.default_db_url
