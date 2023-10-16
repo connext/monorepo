@@ -16,6 +16,7 @@ const mockBrokerMesage: BrokerMessage = {
   messageRootCount: 2,
   aggregateRoot: mkBytes32("0x222"),
   aggregateRootCount: 2,
+  snapshotRoots: [],
 };
 
 const requestContext = createRequestContext("Publisher");
