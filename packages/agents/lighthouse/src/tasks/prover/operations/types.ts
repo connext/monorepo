@@ -15,4 +15,5 @@ export type BrokerMessage = {
   messageRootCount: number;
   aggregateRoot: string;
   aggregateRootCount: number;
+  snapshotRoots: string[];
 };
