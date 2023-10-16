@@ -11,6 +11,7 @@ import {
   RootMessage,
   RelayerType,
   ReceivedAggregateRoot,
+  ModeType,
 } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
@@ -102,6 +103,7 @@ export const mock = {
       },
       config: mock.config(),
       chainData: mock.chainData(),
+      mode: ModeType.SlowMode,
     };
   },
   processFromRootCtx: (): ProcessFromRootContext => {
