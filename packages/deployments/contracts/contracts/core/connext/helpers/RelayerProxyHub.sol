@@ -506,7 +506,13 @@ contract RelayerProxyHub is RelayerProxy {
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
   ) external onlyRelayer nonReentrant {
+    if (!_propagateCooledDown()) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
+
     _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+
+    lastPropagateAt = block.timestamp;
   }
 
   /**
