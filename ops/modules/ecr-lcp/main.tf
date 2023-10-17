@@ -57,12 +57,11 @@ resource "aws_ecr_lifecycle_policy" "remove_old_images" {
                 "type": "expire"
             }
         },
-        {
+        {   
             "rulePriority": 6,
-            "description": "Expire images older than 60 days",
+            "description": "remove old images",
             "selection": {
-                "tagStatus": "tagged",
-                "tagPrefixList": ["main-", "staging-", "testnet-prod", "prod-"],
+                "tagStatus": "any",
                 "countType": "sinceImagePushed",
                 "countUnit": "days",
                 "countNumber": 180
