@@ -212,7 +212,7 @@ export const finalizeAndPropagate = async () => {
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalizeAndPropagate", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
     _connectors,
     _fees,
     _encodedData,
