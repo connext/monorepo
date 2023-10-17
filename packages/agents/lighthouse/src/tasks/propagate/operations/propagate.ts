@@ -53,7 +53,7 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const rootManagerAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -100,7 +100,7 @@ export const propagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -112,7 +112,7 @@ export const propagate = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
@@ -134,7 +134,7 @@ export const finalizeAndPropagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -224,7 +224,7 @@ export const finalizeAndPropagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -236,7 +236,7 @@ export const finalizeAndPropagate = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
