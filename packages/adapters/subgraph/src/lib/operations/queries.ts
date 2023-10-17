@@ -1073,13 +1073,14 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
-    // TODO: Ordering needed
     combinedQuery += `
     ${prefix}_optimisticRootProposeds ( 
       first: ${param.limit}, 
       where: { 
-        id_gte: ${param.snapshotId}
+        disputeCliff_gt: ${param.snapshotId}
       }
+      orderBy: disputeCliff,
+      orderDirection: asc
     ) {
       ${PROPOSED_OPTIMISTIC_ROOT_ENTITY}
     }`;
