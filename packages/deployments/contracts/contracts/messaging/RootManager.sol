@@ -348,7 +348,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   /**
    * @notice Set the `minDisputeBlocks` variable to the provided parameter.
    */
-  function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
+  function setMinDisputeBlocks(uint256 _minDisputeBlocks) external onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
     emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
     minDisputeBlocks = _minDisputeBlocks;
@@ -358,7 +358,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
    * a given proposed root
    */
-  function setDisputeBlocks(uint256 _disputeBlocks) public onlyOwner {
+  function setDisputeBlocks(uint256 _disputeBlocks) external onlyOwner {
     if (_disputeBlocks < minDisputeBlocks) revert RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
     if (_disputeBlocks == disputeBlocks) revert RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
     emit DisputeBlocksUpdated(disputeBlocks, _disputeBlocks);
@@ -369,7 +369,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
    */
-  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+  function setDelayBlocks(uint256 _delayBlocks) external onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
     emit DelayBlocksUpdated(delayBlocks, _delayBlocks);
     delayBlocks = _delayBlocks;
@@ -398,7 +398,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    *
    * @param _domain The spoke domain of the target connector we want to remove.
    */
-  function removeConnector(uint32 _domain) public onlyWatcher {
+  function removeConnector(uint32 _domain) external onlyWatcher {
     address _connector = removeDomain(_domain);
     proposedAggregateRootHash = FINALIZED_HASH;
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
@@ -413,7 +413,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    *
    * @param _root The root to be discarded.
    */
-  function discardRoot(bytes32 _root) public onlyOwner whenPaused {
+  function discardRoot(bytes32 _root) external onlyOwner whenPaused {
     pendingInboundRoots.remove(_root);
     emit RootDiscarded(_root);
   }
