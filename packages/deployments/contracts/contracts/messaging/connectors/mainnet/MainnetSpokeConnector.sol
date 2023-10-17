@@ -71,7 +71,11 @@ contract MainnetSpokeConnector is SpokeConnector, IHubConnector, IHubSpokeConnec
     if (!optimisticMode) revert MainnetSpokeConnector_saveAggregateRoot__OnlyOptimisticMode();
     if (msg.sender != ROOT_MANAGER) revert MainnetSpokeConnector_saveAggregateRoot__CallerIsNotRootManager();
     if (provenAggregateRoots[_aggregateRoot]) revert MainnetSpokeConnector_saveAggregateRoot__RootAlreadyProven();
-    if (pendingAggregateRoots[_aggregateRoot] != 0) delete pendingAggregateRoots[_aggregateRoot];
+    if (pendingAggregateRoots[_aggregateRoot] != 0) {
+      delete pendingAggregateRoots[_aggregateRoot];
+      emit PendingAggregateRootDeleted(_aggregateRoot);
+    }
+
     provenAggregateRoots[_aggregateRoot] = true;
     emit ProposedRootFinalized(_aggregateRoot);
   }

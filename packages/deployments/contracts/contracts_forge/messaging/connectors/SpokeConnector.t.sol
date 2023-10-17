@@ -511,6 +511,8 @@ contract SpokeConnector_ProposeAggregateRoot is Base {
     uint32 domain
   );
 
+  event PendingAggregateRootDeleted(bytes32 indexed aggregateRoot);
+
   function setUp() public virtual override {
     super.setUp();
     MockSpokeConnector(payable(address(spokeConnector))).setAllowlistedProposer(_proposer, true);
@@ -551,6 +553,23 @@ contract SpokeConnector_ProposeAggregateRoot is Base {
     vm.expectRevert(
       abi.encodeWithSelector(SpokeConnector.SpokeConnector_proposeAggregateRoot__ProposeInProgress.selector)
     );
+    vm.prank(_proposer);
+    spokeConnector.proposeAggregateRoot(aggregateRoot, rootTimestamp);
+  }
+
+  function test_deletePendingAggregateRoot(bytes32 aggregateRoot, uint256 rootTimestamp) public {
+    vm.assume(aggregateRoot != spokeConnector.FINALIZED_HASH());
+    MockSpokeConnector(payable(address(spokeConnector))).setPendingAggregateRoot(aggregateRoot, block.number);
+    vm.prank(_proposer);
+    spokeConnector.proposeAggregateRoot(aggregateRoot, rootTimestamp);
+    assertEq(spokeConnector.pendingAggregateRoots(aggregateRoot), 0);
+  }
+
+  function test_emitPendingAggregateRootDeleted(bytes32 aggregateRoot, uint256 rootTimestamp) public {
+    vm.assume(aggregateRoot != spokeConnector.FINALIZED_HASH());
+    MockSpokeConnector(payable(address(spokeConnector))).setPendingAggregateRoot(aggregateRoot, block.number);
+    vm.expectEmit(true, true, true, true);
+    emit PendingAggregateRootDeleted(aggregateRoot);
     vm.prank(_proposer);
     spokeConnector.proposeAggregateRoot(aggregateRoot, rootTimestamp);
   }

@@ -142,6 +142,12 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   );
 
   /**
+   * @notice Emitted when a pending aggregate root is deleted from the pendingAggregateRoots mapping
+   * @param aggregateRoot The deleted aggregate root
+   */
+  event PendingAggregateRootDeleted(bytes32 indexed aggregateRoot);
+
+  /**
    * @notice Emitted when the current proposed root is finalized
    * @param aggregateRoot The aggregate root finalized
    */
@@ -610,6 +616,11 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     uint256 _rootTimestamp
   ) external virtual whenNotPaused onlyAllowlistedProposer onlyOptimisticMode {
     if (proposedAggregateRootHash != FINALIZED_HASH) revert SpokeConnector_proposeAggregateRoot__ProposeInProgress();
+    if (pendingAggregateRoots[_aggregateRoot] != 0) {
+      delete pendingAggregateRoots[_aggregateRoot];
+      emit PendingAggregateRootDeleted(_aggregateRoot);
+    }
+
     uint256 _endOfDispute = block.number + disputeBlocks;
     proposedAggregateRootHash = keccak256(abi.encode(_aggregateRoot, _rootTimestamp, _endOfDispute));
 

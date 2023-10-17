@@ -27,6 +27,7 @@ contract MainnetSpokeConnectorForTest is MainnetSpokeConnector {
 contract Base is ConnectorHelper {
   // ============ Events ============
   event ProposedRootFinalized(bytes32 aggregateRoot);
+  event PendingAggregateRootDeleted(bytes32 indexed aggregateRoot);
 
   // ============ Storage ============
   bytes32 outboundRoot = bytes32("test");
@@ -160,7 +161,7 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     assertEq(MainnetSpokeConnectorForTest(_l1Connector).provenAggregateRoots(_aggregateRoot), true);
   }
 
-  function test_MainnetSpokeConnector__saveAggregateRoot_deletesPendingRoot(
+  function test_MainnetSpokeConnector__saveAggregateRoot_deletesPendingRootAndEmitsEvent(
     bytes32 _aggregateRoot,
     uint256 _block
   ) public {
@@ -169,6 +170,8 @@ contract MainnetSpokeConnector__saveAggregateRoot is Base {
     MainnetSpokeConnectorForTest(_l1Connector).setOptimisticMode__forTest(true);
     MainnetSpokeConnectorForTest(_l1Connector).setProvenAggregateRoots__forTest(_aggregateRoot, false);
     MainnetSpokeConnectorForTest(_l1Connector).setPendingAggregateRoots__forTest(_aggregateRoot, _block);
+    vm.expectEmit(true, true, true, true);
+    emit PendingAggregateRootDeleted(_aggregateRoot);
     vm.prank(_rootManager);
     MainnetSpokeConnectorForTest(_l1Connector).saveAggregateRoot(_aggregateRoot);
     assertEq(MainnetSpokeConnectorForTest(_l1Connector).pendingAggregateRoots(_aggregateRoot), 0);
