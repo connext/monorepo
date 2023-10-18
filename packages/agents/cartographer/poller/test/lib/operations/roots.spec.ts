@@ -111,7 +111,7 @@ describe("Roots operations", () => {
   });
 
   describe("#updateProposedSnapshots", () => {
-    it.only("should work", async () => {
+    it("should work", async () => {
       (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves(
         mockProposedSnapshotsSubgraphResponse,
       );
@@ -123,11 +123,11 @@ describe("Roots operations", () => {
         { hub: "1337", snapshotId: 42, limit: 100 },
       ]);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
-        "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
         mockProposedSnapshotsSubgraphResponse[1].endOfDispute,
       );
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
-        "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
       );
     });
     it("initial conditions", async () => {
