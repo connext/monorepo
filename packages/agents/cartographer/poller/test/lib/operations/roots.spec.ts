@@ -113,8 +113,12 @@ describe("Roots operations", () => {
   describe("#updateProposedSnapshots", () => {
     it("should work", async () => {
       (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves(
-        mockReceivedAggregateRootSubgraphResponse,
+        mockProposedSnapshotsSubgraphResponse,
+        mockProposedSnapshotsSubgraphResponse,
       );
+      const newDisputeCliff = mockProposedSnapshotsSubgraphResponse.sort((a, b) => b.endOfDispute - a.endOfDispute)[0]
+        .endOfDispute;
+
       await updateProposedSnapshots();
       expect(mockContext.adapters.database.saveProposedSnapshots as SinonStub).callCount(1);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
@@ -123,11 +127,11 @@ describe("Roots operations", () => {
         { hub: "1337", snapshotId: 42, limit: 100 },
       ]);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
-        "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
-        43,
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+        mockProposedSnapshotsSubgraphResponse[1].endOfDispute,
       );
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
-        "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
       );
     });
     it("initial conditions", async () => {

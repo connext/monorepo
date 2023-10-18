@@ -133,6 +133,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM snapshot_roots CASCADE");
     await pool.query("DELETE FROM snapshots CASCADE");
     await pool.query("DELETE FROM stableswap_exchanges CASCADE");
+    await pool.end();
     restore();
     reset();
   });
@@ -1605,12 +1606,18 @@ describe("Database client", () => {
 
   it("should save and get single snapshot", async () => {
     const snapshots: Snapshot[] = [];
+    const optimisticRootPropagated: OptimisticRootPropagated[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const m = mock.entity.snapshot();
       m.id = `${_i}`;
       snapshots.push(m);
+      const o = mock.entity.optimisticRootPropagated();
+      o.id = m.id;
+      o.aggregateRoot = m.aggregateRoot;
+      optimisticRootPropagated.push(o);
     }
     await saveProposedSnapshots(snapshots, pool);
+    await savePropagatedOptimisticRoots(optimisticRootPropagated, pool);
 
     const dbSnapshot = await getPendingAggregateRoot(snapshots[0].aggregateRoot, pool);
     expect(dbSnapshot!.id).to.eq(snapshots[0].id);
