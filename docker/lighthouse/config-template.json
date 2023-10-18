@@ -1,0 +1,30 @@
+{
+  "relayers": [
+    {
+      "type": "Connext",
+      "apiKey": "xxx",
+      "url": "http://relayer:8080"
+    }
+  ],
+  "environment": "production",
+  "logLevel": "debug",
+  "redis": {
+    "host": "lighthouse-cache",
+    "port": 6379
+  },
+  "database": {
+    "url": "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+  },
+  "databaseWriter": {
+    "url": "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+  },
+  "hubDomain": "31337",
+  "messageQueue": {
+    "connection": {
+      "uri": "amqp://guest:guest@message-queue:5672"
+    },
+    "exchange": { "name": "proverX", "type": "direct", "publishTimeout": 1000, "persistent": true, "durable": true },
+    "prefetchSize": 1,
+    "publisherWaitTime": 0
+  }
+}

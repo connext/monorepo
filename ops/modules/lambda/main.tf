@@ -55,7 +55,7 @@ resource "aws_lambda_function" "executable" {
   dynamic "vpc_config" {
     for_each = var.lambda_in_vpc ? [1] : []
     content {
-      subnet_ids         = var.private_subnets
+      subnet_ids         = var.subnet_ids
       security_group_ids = var.lambda_security_groups
     }
   }

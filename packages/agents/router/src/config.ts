@@ -18,7 +18,7 @@ const DEFAULT_SLIPPAGE = 10000; // in BPS
 // Polling mins and defaults.
 const MIN_SUBGRAPH_POLL_INTERVAL = 2_000;
 const MIN_CARTOGRAPHER_POLL_INTERVAL = 2_000;
-const DEFAULT_SUBGRAPH_POLL_INTERVAL = 5_000;
+const DEFAULT_SUBGRAPH_POLL_INTERVAL = 3_000;
 const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 15_000;
 const DEFAULT_CONFIRMATIONS = 3;
 const MIN_CACHE_POLL_INTERVAL = 2_000;
@@ -92,7 +92,12 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
   mode: TModeConfig,
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   polling: TPollingConfig,
   auctionRoundDepth: Type.Integer(),
   subgraphPrefix: Type.Optional(Type.String()),
@@ -254,7 +259,9 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res = chainDataForChain
+            ? deployments.connext(chainDataForChain.chainId, contractPostfix, nxtpConfig.network)
+            : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

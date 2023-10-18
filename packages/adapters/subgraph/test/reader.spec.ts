@@ -6,6 +6,7 @@ import {
   OriginTransfer,
   SubgraphQueryMetaParams,
   SubgraphQueryByTimestampMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   mock,
@@ -273,6 +274,27 @@ describe("SubgraphReader", () => {
       agents.set("3331", { maxBlockNumber: 99999999, transferIDs: [] });
 
       expect(await subgraphReader.getOriginTransfersById(agents)).to.be.deep.eq([
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+        ParserFns.originTransfer(mockOriginTransferEntity, {
+          [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
+        }),
+      ]);
+    });
+  });
+
+  describe("#getOriginTransfersByNonces", () => {
+    it("should return the origin transfers", async () => {
+      response.set("1111", [[mockOriginTransferEntity]]);
+      response.set("3331", [[mockOriginTransferEntity]]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByNoncesMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, nonces: ["1"] });
+      agents.set("3331", { maxBlockNumber: 99999999, nonces: ["1"] });
+
+      expect(await subgraphReader.getOriginTransfersByNonces(agents)).to.be.deep.eq([
         ParserFns.originTransfer(mockOriginTransferEntity, {
           [mockOriginTransferEntity.asset]: { symbol: "DAI", decimals: 18 },
         }),

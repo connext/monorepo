@@ -9,6 +9,7 @@ import {
   RequestContext,
   getNtpTimeSeconds,
   ExecStatus,
+  RelayerTaskStatus,
 } from "@connext/nxtp-utils";
 
 import {
@@ -32,20 +33,41 @@ export const prefetch = async () => {
   const { requestContext, methodContext } = createLoggingContext(prefetch.name);
   const {
     logger,
-    adapters: { database, cache },
+    adapters: { database, cache, relayers },
     config,
   } = getContext();
+
+  // Update relayer tasks
+  const pendingTasks = await cache.messages.getPendingTasks(0, 100);
+  await Promise.all(
+    pendingTasks.map(async (pendingTask) => {
+      const { taskId, relayer: relayerType, originDomain, destinationDomain, leaves } = pendingTask;
+      const relayer = relayers.find((it) => it.type == relayerType);
+      if (relayer) {
+        const taskStatus = await relayer.instance.getTaskStatus(taskId);
+        if (taskStatus == RelayerTaskStatus.ExecSuccess) {
+          await cache.messages.removePending(originDomain, destinationDomain, leaves);
+          await cache.messages.removePendingTasks([taskId]);
+        } else if (taskStatus == RelayerTaskStatus.ExecReverted || taskStatus == RelayerTaskStatus.Cancelled) {
+          await cache.messages.removePendingTasks([taskId]);
+          const statuses = leaves.map((it) => ({ leaf: it, status: ExecStatus.None }));
+          await cache.messages.setStatus(statuses);
+        }
+      }
+    }),
+  );
 
   // Only process configured chains.
   const domains: string[] = Object.keys(config.chains);
   for (const originDomain of domains) {
     const cachedNonce = await cache.messages.getNonce(originDomain);
+    const startIndex = cachedNonce == 0 ? 0 : cachedNonce + 1;
     logger.info("Getting unprocessed messages from database", requestContext, methodContext, {
       originDomain,
-      startIndex: cachedNonce + 1,
+      startIndex,
     });
 
-    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, cachedNonce + 1);
+    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, startIndex);
     const indexes = unprocessed.map((item: XMessage) => item.origin.index);
     if (indexes.length > 0) {
       logger.info(
@@ -55,7 +77,7 @@ export const prefetch = async () => {
 
         {
           originDomain,
-          startIndex: cachedNonce + 1,
+          startIndex,
           min: Math.min(...indexes),
           max: Math.max(...indexes),
         },
@@ -93,7 +115,7 @@ export const getUnProcessedMessagesByIndex = async (
       const message = await cache.messages.getMessage(leaf);
       if (
         message &&
-        getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
+        getNtpTimeSeconds() - message.timestamp >= waitTime * 2 ** message.attempt &&
         message.data.origin.index <= endIndex &&
         message.status == ExecStatus.None
       ) {

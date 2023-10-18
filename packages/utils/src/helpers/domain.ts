@@ -39,6 +39,9 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1338, 133812],
   [13337, 13337],
   [13338, 13338],
+  [31337, 31337],
+  [31338, 31338],
+  [31339, 31339],
 ]);
 
 /**

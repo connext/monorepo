@@ -75,6 +75,11 @@ const EquivalentChainsForGelato: Record<number, number> = {
   80001: 137, // mumbai (polygon testnet)
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
+
+  // LOCAL NETWORKS
+  31337: 1,
+  31338: 1,
+  31339: 1,
 };
 
 /**

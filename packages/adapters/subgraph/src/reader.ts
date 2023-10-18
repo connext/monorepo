@@ -9,6 +9,7 @@ import {
   RouterBalance,
   AssetBalance,
   SubgraphQueryByTransferIDsMetaParams,
+  SubgraphQueryByNoncesMetaParams,
   SubgraphQueryByTimestampMetaParams,
   OriginMessage,
   RootMessage,
@@ -35,6 +36,7 @@ import {
   getDestinationTransfersByDomainAndIdsQuery,
   getRouterQuery,
   getOriginTransfersByIdsQuery,
+  getOriginTransfersByNoncesCombinedQuery,
   getOriginTransfersByIdsFallbackQuery,
   getOriginTransfersQuery,
   getOriginTransfersFallbackQuery,
@@ -122,7 +124,7 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        if (blockInfo.block?.number) {
+        if (blockInfo?.block?.number) {
           blockNumberRes.set(domain, Number(blockInfo.block.number));
         } else {
           console.error(`No block number found for domain ${domain}!`);
@@ -508,6 +510,26 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
+  public async getOriginTransfersByNonces(params: Map<string, SubgraphQueryByNoncesMetaParams>): Promise<XTransfer[]> {
+    const { execute, parser } = getHelpers();
+    const { config } = getContext();
+    const xcalledXQuery = getOriginTransfersByNoncesCombinedQuery(params);
+    const response = await execute(xcalledXQuery);
+
+    const transfers: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      transfers.push(value?.flat());
+    }
+
+    const originTransfers: XTransfer[] = transfers
+      .flat()
+      .filter((x: any) => !!x)
+      .map((e) => parser.originTransfer(e, config.assetId[e.originDomain]));
+
+    return originTransfers;
+  }
+
   public async getDestinationTransfersByDomainAndReconcileNonce(
     param: SubgraphQueryMetaParams,
     domain: string,
@@ -539,6 +561,7 @@ export class SubgraphReader {
     txIdsByDestinationDomain: Map<string, string[]>;
     allTxById: Map<string, XTransfer>;
     latestNonces: Map<string, number>;
+    txByOriginDomain: Map<string, XTransfer[]>;
   }> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
@@ -551,35 +574,31 @@ export class SubgraphReader {
     }
     const response = await execute(xcalledXQuery);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const txByOriginDomain: Map<string, XTransfer[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     const latestNonces: Map<string, number> = new Map();
 
     for (const domain of response.keys()) {
       const value = response.get(domain);
       const xtransfersByDomain = (value ?? [])[0];
+      const originTransfers: XTransfer[] = [];
       for (const xtransfer of xtransfersByDomain) {
         if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
           const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
 
-          // do not add more than 100 entries to each destination domain
-          // this result is used to query the subgraph by ID and the query will
-          // truncate the list if it is too long
-          if (txIds.length >= 100) {
-            continue;
-          }
           txIds.push(`"${xtransfer.transferId as string}"`);
         } else {
           txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
         }
-        allTxById.set(
-          xtransfer.transferId as string,
-          parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]),
-        );
+        const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
+        allTxById.set(xtransfer.transferId as string, originTransfer);
         latestNonces.set(domain, xtransfer.nonce as number);
+        originTransfers.push(originTransfer);
       }
+      txByOriginDomain.set(domain, originTransfers);
     }
 
-    return { txIdsByDestinationDomain, allTxById, latestNonces };
+    return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
   }
 
   public async getDestinationXCalls(
@@ -587,6 +606,15 @@ export class SubgraphReader {
     allTxById: Map<string, XTransfer>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
 
@@ -635,6 +663,15 @@ export class SubgraphReader {
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("1668247156")) {
+      txIdsByDestinationDomain.delete("1668247156");
+    }
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
 
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);

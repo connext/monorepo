@@ -4,20 +4,23 @@ import util from "util";
 
 import YAML from "yaml";
 import yamlToJson from "js-yaml";
-
-// import Connext_DiamondProxy_1337 from "../../contracts/deployments/local_1337/Connext_DiamondProxy.json";
-// import Connext_DiamondProxy_1338 from "../../contracts/deployments/local_1338/Connext_DiamondProxy.json";
+import mainnetDeployments from "@connext/smart-contracts/deployments.json";
+import devnetDeployments from "@connext/smart-contracts/devnet.deployments.json";
+import localDeployments from "@connext/smart-contracts/local.deployments.json";
+import { utils } from "ethers";
 
 const exec = util.promisify(_exec);
 
 export type Network = {
   subgraphName: string;
+  subgraphId?: string;
   network: string;
   source: [
     {
       name: string;
       address: string;
       startBlock: number;
+      contractName?: string;
     },
   ];
 };
@@ -74,34 +77,54 @@ const run = async () => {
   const jsonFile: any = yamlToJson.load(readFileSync(`./src/${contractVersion}/subgraph.template.yaml`, "utf8"));
 
   for (const n of networksToDeploy) {
-    console.log(n);
-    // if (n.network === "local_1337") {
-    //   n.address = Connext_DiamondProxy_1337.address;
-    // }
-
-    // if (n.network === "local_1338") {
-    //   n.address = Connext_DiamondProxy_1338.address;
-    // }
-
     /// prepare
-    jsonFile.dataSources = (jsonFile.dataSources ?? []).map((ds: any) => {
-      const source = n.source.find((s) => s.name === ds.name);
-      if (source) {
-        return {
-          ...ds,
-          network: n.network,
-          source: {
-            ...ds.source,
-            address: source.address,
-            startBlock: source.startBlock,
-          },
-        };
-      } else {
-        return null;
-      }
-    });
-    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
+    jsonFile.dataSources = await Promise.all(
+      (jsonFile.dataSources ?? []).map(async (ds: any) => {
+        const source = n.source.find((s) => s.name === ds.name);
+        if (source) {
+          if (!utils.isAddress(source.address) || !source.startBlock) {
+            const networkPrefix = configFile.includes("devnet")
+              ? "devnet"
+              : configFile.includes("local")
+              ? "local"
+              : "";
+            const contractDeployments = configFile.includes("devnet")
+              ? devnetDeployments
+              : configFile.includes("local")
+              ? localDeployments
+              : mainnetDeployments;
+            const networkName = `${networkPrefix}-${n.network}`;
+            const deployment = Object.values(contractDeployments)
+              .flat()
+              .find((d: any) => d.name === networkName);
+            if (!deployment) {
+              console.log("missing contract deployment", networkName);
+              return null;
+            }
 
+            if (!utils.isAddress(source.address))
+              source.address = (deployment as any).contracts?.[source.contractName ?? source.name]?.address;
+
+            if (!source.startBlock) {
+              source.startBlock = (deployment as any).contracts?.[source.contractName ?? source.name]?.blockNumber;
+            }
+          }
+          return {
+            ...ds,
+            network: n.network,
+            source: {
+              ...ds.source,
+              address: source.address,
+              startBlock: source.startBlock,
+            },
+          };
+        } else {
+          return null;
+        }
+      }),
+    );
+
+    jsonFile.dataSources = jsonFile.dataSources.filter((s: any) => !!s);
     if (jsonFile.templates) {
       jsonFile.templates = (jsonFile.templates ?? []).map((ds: any, index: number) => {
         return {
@@ -125,7 +148,9 @@ const run = async () => {
     console.error(`stderr: ${err}`);
 
     /// deploy
-    if (!configFile.includes("local")) {
+    if (configFile.includes("local") || configFile.includes("devnet")) {
+      console.log("Skipping deployments");
+    } else {
       console.log("Running Deployment command for " + n.network);
       const { stdout, stderr } = await exec(`graph deploy --product hosted-service ${n.subgraphName}`);
 

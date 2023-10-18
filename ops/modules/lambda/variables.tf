@@ -56,12 +56,7 @@ variable "lambda_in_vpc" {
   default     = false
 }
 
-variable "public_subnets" {
-  type    = list(string)
-  default = []
-}
-
-variable "private_subnets" {
+variable "subnet_ids" {
   type    = list(string)
   default = []
 }

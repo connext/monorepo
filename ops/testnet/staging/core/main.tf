@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "nxtp-terraform-testnet-staging-core"
-    key    = "state/"
+    key    = "state"
     region = "us-east-1"
   }
 }
@@ -32,7 +32,6 @@ module "router_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_subscriber
@@ -62,7 +61,6 @@ module "router_publisher" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_publisher
@@ -92,7 +90,6 @@ module "router_executor" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_router_executor
@@ -122,8 +119,7 @@ module "router_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "router-web3signer"
   health_check_path        = "/upcheck"
@@ -167,7 +163,6 @@ module "sequencer_server" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_server
   container_family         = "sequencer-server"
@@ -196,7 +191,6 @@ module "sequencer_publisher" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_sequencer_publisher
   container_family         = "sequencer-publisher"
@@ -236,7 +230,6 @@ module "sequencer_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_sequencer_subscriber
@@ -277,8 +270,7 @@ module "sequencer_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "sequencer-web3signer"
   health_check_path        = "/upcheck"
@@ -307,7 +299,6 @@ module "lighthouse_prover_subscriber" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_lighthouse_prover_subscriber
@@ -325,6 +316,7 @@ module "lighthouse_prover_subscriber" {
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = concat(local.lighthouse_prover_subscriber_env_vars, [{ name = "LIGHTHOUSE_SERVICE", value = "prover-sub" }])
 }
+
 module "lighthouse_prover_subscriber_auto_scaling" {
   source           = "../../../modules/auto-scaling"
   stage            = var.stage
@@ -337,15 +329,18 @@ module "lighthouse_prover_subscriber_auto_scaling" {
 }
 
 module "lighthouse_prover_cron" {
-  source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
-  docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse-prover"
-  environment         = var.environment
-  stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
-  schedule_expression = "rate(30 minutes)"
-  memory_size         = 512
+  source                 = "../../../modules/lambda"
+  ecr_repository_name    = "nxtp-lighthouse"
+  docker_image_tag       = var.lighthouse_image_tag
+  container_family       = "lighthouse-prover"
+  environment            = var.environment
+  stage                  = var.stage
+  container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
+  schedule_expression    = "rate(30 minutes)"
+  memory_size            = 512
+  lambda_in_vpc          = true
+  subnet_ids             = module.network.private_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
 module "lighthouse_process_from_root_cron" {
@@ -396,7 +391,6 @@ module "relayer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_relayer
   container_family         = "relayer"
@@ -426,8 +420,7 @@ module "relayer_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "relayer-web3signer"
   health_check_path        = "/upcheck"
@@ -456,7 +449,6 @@ module "watcher" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   docker_image             = var.full_image_name_watcher
   container_family         = "watcher"
@@ -486,8 +478,7 @@ module "watcher_web3signer" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
-  lb_subnets               = module.network.public_subnets
+  lb_subnets               = module.network.private_subnets
   docker_image             = "ghcr.io/connext/web3signer:latest"
   container_family         = "watcher-web3signer"
   health_check_path        = "/upcheck"
@@ -530,9 +521,6 @@ module "ecs" {
   environment             = var.environment
   domain                  = var.domain
   ecs_cluster_name_prefix = "nxtp-ecs"
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  public_subnets          = module.network.public_subnets
 }
 
 module "sequencer_cache" {
@@ -576,4 +564,10 @@ module "lighthouse_cache" {
   sg_id                         = module.network.ecs_task_sg
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
+}
+
+
+module "ecr-lcp" {
+  source           = "../../../modules/ecr-lcp"
+  repository_names = ["nxtp-cartographer", "nxtp-lighthouse", "postgrest"]
 }
