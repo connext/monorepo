@@ -114,7 +114,11 @@ describe("Roots operations", () => {
     it("should work", async () => {
       (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves(
         mockProposedSnapshotsSubgraphResponse,
+        mockProposedSnapshotsSubgraphResponse,
       );
+      const newDisputeCliff = mockProposedSnapshotsSubgraphResponse.sort((a, b) => b.endOfDispute - a.endOfDispute)[0]
+        .endOfDispute;
+
       await updateProposedSnapshots();
       expect(mockContext.adapters.database.saveProposedSnapshots as SinonStub).callCount(1);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
