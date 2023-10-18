@@ -126,13 +126,13 @@ contract Base is ForgeHelper {
   event PropagateFailed(uint32 domain, address connector);
 
   event AggregateRootSavedSlow(
-    bytes32 aggregateRoot,
+    bytes32 indexed aggregateRoot,
     uint256 leafCount,
     bytes32[] aggregatedRoots,
     uint256 rootTimestamp
   );
 
-  event AggregateRootSavedOptimistic(bytes32 aggregateRoot, uint256 rootTimestamp);
+  event AggregateRootSavedOptimistic(bytes32 indexed aggregateRoot, uint256 rootTimestamp);
 
   event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
