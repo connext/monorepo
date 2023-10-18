@@ -51,6 +51,18 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   event SenderRemoved(address indexed sender);
 
   /**
+   * @notice Emitted when a new proposer is added
+   * @param proposer The address of the proposer
+   */
+  event ProposerAdded(address indexed proposer);
+
+  /**
+   * @notice Emitted when a proposer is removed
+   * @param proposer The address of the proposer
+   */
+  event ProposerRemoved(address indexed proposer);
+
+  /**
    * @notice Emitted when a new aggregate root is delivered from the hub
    * @param root Delivered root
    */
@@ -104,6 +116,72 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   event MessageProven(bytes32 indexed leaf, bytes32 indexed aggregateRoot, uint256 aggregateIndex);
 
+  /**
+   * @notice Emitted when slow mode is activated
+   * @param watcher The address of the watcher who called the function
+   */
+  event SlowModeActivated(address indexed watcher);
+
+  /**
+   * @notice Emitted when optimistic mode is activated
+   */
+  event OptimisticModeActivated();
+
+  /**
+   * @notice Emitted when a new aggregate root is proposed
+   * @param aggregateRoot The new aggregate root proposed
+   * @param endOfDispute  The block at which this root can't be disputed anymore and therefore it's deemed valid.
+   * @param rootTimestamp The timestamp at which the root was finalized in the root manager contract.
+   * @param domain        The domain where this root was proposed.
+   */
+  event AggregateRootProposed(
+    bytes32 indexed aggregateRoot,
+    uint256 indexed rootTimestamp,
+    uint256 indexed endOfDispute,
+    uint32 domain
+  );
+
+  /**
+   * @notice Emitted when a pending aggregate root is deleted from the pendingAggregateRoots mapping
+   * @param aggregateRoot The deleted aggregate root
+   */
+  event PendingAggregateRootDeleted(bytes32 indexed aggregateRoot);
+
+  /**
+   * @notice Emitted when the current proposed root is finalized
+   * @param aggregateRoot The aggregate root finalized
+   */
+  event ProposedRootFinalized(bytes32 aggregateRoot);
+
+  /**
+   * @notice Emitted when the number of dispute blocks is updated
+   * @param previous The previous number of blocks off-chain agents had to dispute a proposed root
+   * @param updated  The new number of blocks off-chain agents have to dispute a proposed root
+   */
+  event DisputeBlocksUpdated(uint256 previous, uint256 updated);
+
+  /**
+   * @notice Emitted whem the number of minimum dispute blocks is updated
+   * @param previous The previous minimum number of dispute blocks to set
+   * @param updated  The new minimum number of dispute blocks to set
+   */
+  event MinDisputeBlocksUpdated(uint256 previous, uint256 updated);
+
+  // ============ Errors ============
+
+  error SpokeConnector_onlyOptimisticMode__SlowModeOn();
+  error SpokeConnector_activateOptimisticMode__OptimisticModeOn();
+  error SpokeConnector_onlyProposer__NotAllowlistedProposer();
+  error SpokeConnector_proposeAggregateRoot__ProposeInProgress();
+  error SpokeConnector_finalize__ProposeInProgress();
+  error SpokeConnector_finalize__InvalidInputHash();
+  error SpokeConnector_finalize__ProposedHashIsFinalizedHash();
+  error SpokeConnector_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
+  error SpokeConnector_setDisputeBlocks__DisputeBlocksLowerThanMin();
+  error SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore();
+  error SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
+  error SpokeConnector_constructor__DisputeBlocksLowerThanMin();
+
   // ============ Structs ============
 
   /**
@@ -116,6 +194,37 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     bytes message;
     bytes32[32] path;
     uint256 index;
+  }
+
+  /**
+   * Struct containing the base construstor arguments of a SpokeConnector
+   * @param domain The domain this connector lives on.
+   * @param mirrorDomain The hub domain.
+   * @param amb The address of the AMB on the spoke domain this connector lives on.
+   * @param rootManager The address of the RootManager on the hub.
+   * @param mirrorConnector The address of the spoke connector.
+   * @param processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
+   * to handle transaction).
+   * @param reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
+   * @param delayBlocks The delay for the validation period for incoming messages in blocks.
+   * @param merkle The address of the MerkleTreeManager on this spoke domain.
+   * @param watcherManager The address of the WatcherManager to whom this connector is a client.
+   * @param minDisputeBlocks The minimum number of dispute blocks that can be set.
+   * @param disputeBlocks The number of dispute blocks off-chain agents will have to dispute proposed roots.
+   */
+  struct ConstructorParams {
+    uint32 domain;
+    uint32 mirrorDomain;
+    address amb;
+    address rootManager;
+    address mirrorConnector;
+    uint256 processGas;
+    uint256 reserveGas;
+    uint256 delayBlocks;
+    address merkle;
+    address watcherManager;
+    uint256 minDisputeBlocks;
+    uint256 disputeBlocks;
   }
 
   // ============ Public Storage ============
@@ -187,6 +296,40 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   mapping(uint256 => bytes32) public snapshotRoots;
 
+  /**
+   * @notice The resulting hash of keccaking the proposed aggregate root, the timestamp at which it was finalized in the root manager
+   *      and the block at which the time to dispute it ends.
+   * @dev Set to 0x1 to prevent someone from calling finalize() the moment the contract is deployed.
+   */
+  bytes32 public proposedAggregateRootHash = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+  /*
+    @notice The number of blocks off-chain agents have to dispute a given proposal.
+  */
+  uint256 public disputeBlocks;
+
+  /**
+   * @notice The minimum number of blocks disputeBlocks can be set to.
+   */
+  uint256 public minDisputeBlocks;
+
+  /**
+   * @notice Hash used to keep the proposal slot warm once a given proposal has been finalized.
+   * @dev It also represents the empty state. This means if a proposal holds this hash, it's deemed empty.
+   */
+  bytes32 public constant FINALIZED_HASH = 0x0000000000000000000000000000000000000000000000000000000000000001;
+
+  /**
+   * @notice True if the system is working in optimistic mode. Otherwise is working in slow mode
+   */
+  bool public optimisticMode;
+
+  /**
+   * @notice This is used for the `onlyProposers` modifier, which gates who
+   * can propose new roots using `proposeAggregateRoot`.
+   */
+  mapping(address => bool) public allowlistedProposers;
+
   // ============ Modifiers ============
 
   /**
@@ -197,48 +340,50 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     _;
   }
 
+  /**
+   * @notice Ensures the msg.sender is an allowlisted proposer
+   */
+  modifier onlyAllowlistedProposer() {
+    if (!allowlistedProposers[msg.sender]) revert SpokeConnector_onlyProposer__NotAllowlistedProposer();
+    _;
+  }
+
+  /**
+   * @notice Checks if this spoke connector is working in optimistic mode
+   */
+  modifier onlyOptimisticMode() {
+    if (!optimisticMode) revert SpokeConnector_onlyOptimisticMode__SlowModeOn();
+    _;
+  }
+
   // ============ Constructor ============
 
   /**
    * @notice Creates a new SpokeConnector instance.
-   * @param _domain The domain this connector lives on.
-   * @param _mirrorDomain The hub domain.
-   * @param _amb The address of the AMB on the spoke domain this connector lives on.
-   * @param _rootManager The address of the RootManager on the hub.
-   * @param _mirrorConnector The address of the spoke connector.
-   * @param _processGas The gas costs used in `handle` to ensure meaningful state changes can occur (minimum gas needed
-   * to handle transaction).
-   * @param _reserveGas The gas costs reserved when `handle` is called to ensure failures are handled.
-   * @param _delayBlocks The delay for the validation period for incoming messages in blocks.
-   * @param _merkle The address of the MerkleTreeManager on this spoke domain.
-   * @param _watcherManager The address of the WatcherManager to whom this connector is a client.
+   * @param _params The constructor parameters.
    */
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
+    ConstructorParams memory _params
   )
     ConnectorManager()
-    Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    WatcherClient(_watcherManager)
+    Connector(_params.domain, _params.mirrorDomain, _params.amb, _params.rootManager, _params.mirrorConnector)
+    WatcherClient(_params.watcherManager)
   {
+    uint256 _disputeBlocks = _params.disputeBlocks;
+    uint256 _minDisputeBlocks = _params.minDisputeBlocks;
+    if (_disputeBlocks < _minDisputeBlocks) revert SpokeConnector_constructor__DisputeBlocksLowerThanMin();
     // Sanity check: constants are reasonable.
-    require(_processGas > 850_000 - 1, "!process gas");
-    require(_reserveGas > 15_000 - 1, "!reserve gas");
-    PROCESS_GAS = _processGas;
-    RESERVE_GAS = _reserveGas;
+    require(_params.processGas > 850_000 - 1, "!process gas");
+    require(_params.reserveGas > 15_000 - 1, "!reserve gas");
+    PROCESS_GAS = _params.processGas;
+    RESERVE_GAS = _params.reserveGas;
 
-    require(_merkle != address(0), "!zero merkle");
-    MERKLE = MerkleTreeManager(_merkle);
+    require(_params.merkle != address(0), "!zero merkle");
+    MERKLE = MerkleTreeManager(_params.merkle);
 
-    delayBlocks = _delayBlocks;
+    delayBlocks = _params.delayBlocks;
+    minDisputeBlocks = _minDisputeBlocks;
+    disputeBlocks = _disputeBlocks;
   }
 
   // ============ Admin Functions ============
@@ -248,7 +393,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    * @param _sender Sender to whitelist
    */
-  function addSender(address _sender) public onlyOwner {
+  function addSender(address _sender) external onlyOwner {
     require(!allowlistedSenders[_sender], "allowed");
     allowlistedSenders[_sender] = true;
     emit SenderAdded(_sender);
@@ -259,10 +404,49 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @dev Only allowlisted routers (senders) can call `dispatch`.
    * @param _sender Sender to remove from whitelist
    */
-  function removeSender(address _sender) public onlyOwner {
+  function removeSender(address _sender) external onlyOwner {
     require(allowlistedSenders[_sender], "!allowed");
     delete allowlistedSenders[_sender];
     emit SenderRemoved(_sender);
+  }
+
+  /**
+   * @notice Adds a proposer to the allowlist.
+   * @dev Only allowlisted proposers can call `proposeAggregateRoot`.
+   */
+  function addProposer(address _proposer) external onlyOwner {
+    allowlistedProposers[_proposer] = true;
+    emit ProposerAdded(_proposer);
+  }
+
+  /**
+   * @notice Removes a proposer from the allowlist.
+   * @dev Only allowlisted proposers can call `proposeAggregateRoot`.
+   */
+  function removeProposer(address _proposer) external onlyOwner {
+    delete allowlistedProposers[_proposer];
+    emit ProposerRemoved(_proposer);
+  }
+
+  /**
+   * @notice Set the `minDisputeBlocks` variable to the provided parameter.
+   */
+  function setMinDisputeBlocks(uint256 _minDisputeBlocks) external onlyOwner {
+    if (_minDisputeBlocks == minDisputeBlocks)
+      revert SpokeConnector_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
+    emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
+    minDisputeBlocks = _minDisputeBlocks;
+  }
+
+  /**
+   * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
+   * a given proposed root
+   */
+  function setDisputeBlocks(uint256 _disputeBlocks) external onlyOwner {
+    if (_disputeBlocks < minDisputeBlocks) revert SpokeConnector_setDisputeBlocks__DisputeBlocksLowerThanMin();
+    if (_disputeBlocks == disputeBlocks) revert SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore();
+    emit DisputeBlocksUpdated(disputeBlocks, _disputeBlocks);
+    disputeBlocks = _disputeBlocks;
   }
 
   /**
@@ -270,7 +454,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * is verified.
    * @param _delayBlocks Updated delay block value
    */
-  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+  function setDelayBlocks(uint256 _delayBlocks) external onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
     emit DelayBlocksUpdated(_delayBlocks, msg.sender);
     delayBlocks = _delayBlocks;
@@ -283,7 +467,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _rateLimit The number of blocks require between sending messages. If set to
    * 0, rate limiting for this spoke connector will be disabled.
    */
-  function setRateLimitBlocks(uint256 _rateLimit) public onlyOwner {
+  function setRateLimitBlocks(uint256 _rateLimit) external onlyOwner {
     _setRateLimitBlocks(_rateLimit);
   }
 
@@ -296,7 +480,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _fraudulentRoot Target fraudulent root that should be erased from the
    * `pendingAggregateRoots` mapping.
    */
-  function removePendingAggregateRoot(bytes32 _fraudulentRoot) public onlyOwner whenPaused {
+  function removePendingAggregateRoot(bytes32 _fraudulentRoot) external onlyOwner whenPaused {
     // Sanity check: pending aggregate root exists.
     require(pendingAggregateRoots[_fraudulentRoot] != 0, "aggregateRoot !exists");
     delete pendingAggregateRoots[_fraudulentRoot];
@@ -311,6 +495,25 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    */
   function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
     require(false, "prohibited");
+  }
+
+  /**
+   * @notice Watcher can set the system in slow mode.
+   * @dev Sets the proposed aggregate root hash to FINALIZED_HASH, invalidating it.
+   */
+  function activateSlowMode() external onlyWatcher onlyOptimisticMode {
+    optimisticMode = false;
+    proposedAggregateRootHash = FINALIZED_HASH;
+    emit SlowModeActivated(msg.sender);
+  }
+
+  /**
+   * @notice Owner can set the system to optimistic mode.
+   */
+  function activateOptimisticMode() external onlyOwner {
+    if (optimisticMode) revert SpokeConnector_activateOptimisticMode__OptimisticModeOn();
+    optimisticMode = true;
+    emit OptimisticModeActivated();
   }
 
   // ============ Public Functions ============
@@ -398,6 +601,56 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
     // NOTE: Current leaf index is count - 1 since new leaf has already been inserted.
     emit Dispatch(_messageHash, _count - 1, _root, _message);
     return (_messageHash, _message);
+  }
+
+  /**
+   * @notice Propose a new aggregate root
+   * @dev _rootTimestamp is required for off-chain agents to be able to know which root they should fetch from the root manager contract
+   *                     in order to compare it with the one being proposed. The off-chain agents should also ensure the proposed root is
+   *                     not an old one.
+   * @param _aggregateRoot The aggregate root to propose.
+   * @param _rootTimestamp Block.timestamp at which the root was finalized in the root manager contract.
+   */
+  function proposeAggregateRoot(
+    bytes32 _aggregateRoot,
+    uint256 _rootTimestamp
+  ) external virtual whenNotPaused onlyAllowlistedProposer onlyOptimisticMode {
+    if (proposedAggregateRootHash != FINALIZED_HASH) revert SpokeConnector_proposeAggregateRoot__ProposeInProgress();
+    if (pendingAggregateRoots[_aggregateRoot] != 0) {
+      delete pendingAggregateRoots[_aggregateRoot];
+      emit PendingAggregateRootDeleted(_aggregateRoot);
+    }
+
+    uint256 _endOfDispute = block.number + disputeBlocks;
+    proposedAggregateRootHash = keccak256(abi.encode(_aggregateRoot, _rootTimestamp, _endOfDispute));
+
+    emit AggregateRootProposed(_aggregateRoot, _rootTimestamp, _endOfDispute, DOMAIN);
+  }
+
+  /**
+   * @notice Finalizes the proposed aggregate root. This confirms the root validity. Therefore, it can be proved and processed.
+   * @dev Finalized roots won't be monitored by off-chain agents as they are deemed valid.
+   *
+   * @param _proposedAggregateRoot The aggregate root currently proposed
+   * @param _endOfDispute          The block in which the dispute period for proposedAggregateRootHash concludes
+   */
+  function finalize(
+    bytes32 _proposedAggregateRoot,
+    uint256 _rootTimestamp,
+    uint256 _endOfDispute
+  ) external virtual whenNotPaused onlyOptimisticMode {
+    if (_endOfDispute > block.number) revert SpokeConnector_finalize__ProposeInProgress();
+
+    bytes32 _proposedAggregateRootHash = proposedAggregateRootHash;
+    if (_proposedAggregateRootHash == FINALIZED_HASH) revert SpokeConnector_finalize__ProposedHashIsFinalizedHash();
+
+    bytes32 _userInputHash = keccak256(abi.encode(_proposedAggregateRoot, _rootTimestamp, _endOfDispute));
+    if (_userInputHash != _proposedAggregateRootHash) revert SpokeConnector_finalize__InvalidInputHash();
+
+    provenAggregateRoots[_proposedAggregateRoot] = true;
+    proposedAggregateRootHash = FINALIZED_HASH;
+
+    emit ProposedRootFinalized(_proposedAggregateRoot);
   }
 
   /**
@@ -502,6 +755,7 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @param _newRoot Received aggregate
    */
   function receiveAggregateRoot(bytes32 _newRoot) internal {
+    if (optimisticMode) revert SpokeConnector_receiveAggregateRoot__OptimisticModeOn();
     require(_newRoot != bytes32(""), "new root empty");
     require(pendingAggregateRoots[_newRoot] == 0, "root already pending");
     require(!provenAggregateRoots[_newRoot], "root already proven");

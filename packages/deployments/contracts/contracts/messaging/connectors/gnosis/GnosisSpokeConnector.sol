@@ -11,33 +11,10 @@ import {GnosisBase} from "./GnosisBase.sol";
 contract GnosisSpokeConnector is SpokeConnector, GnosisBase {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
+    ConstructorParams memory _baseSpokeParams,
     uint256 _gasCap, // gas to be provided on L1 execution
     uint256 _mirrorChainId
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    GnosisBase(_gasCap, _mirrorChainId)
-  {}
+  ) SpokeConnector(_baseSpokeParams) GnosisBase(_gasCap, _mirrorChainId) {}
 
   /**
    * @notice Should not be able to renounce ownership

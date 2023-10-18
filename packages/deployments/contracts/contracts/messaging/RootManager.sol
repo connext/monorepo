@@ -14,6 +14,8 @@ import {SnapshotId} from "./libraries/SnapshotId.sol";
 import {MerkleTreeManager} from "./MerkleTreeManager.sol";
 import {WatcherClient} from "./WatcherClient.sol";
 
+import {IHubSpokeConnector} from "./interfaces/IHubSpokeConnector.sol";
+
 /**
  * @notice This contract exists at cluster hubs, and aggregates all transfer roots from messaging
  * spokes into a single merkle tree. Regularly broadcasts the root of the aggregator tree back out
@@ -33,10 +35,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   event MinDisputeBlocksUpdated(uint256 previous, uint256 updated);
 
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
-
-  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
-
-  event RootPropagated(bytes32 aggregateRoot, uint256 count, bytes32 domainsHash);
 
   event RootDiscarded(bytes32 fraudulentRoot);
 
@@ -70,11 +68,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   event OptimisticModeActivated();
 
   /**
-   * @notice Emitted when an optimistic root is propagated
+   * @notice Emitted when a root is propagated
+   * @dev It doesnt matter if the root was generated optimistically or on-chain.
    * @param aggregateRoot The aggregate root propagated
    * @param domainsHash The current domain hash
    */
-  event OptimisticRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
+  event AggregateRootPropagated(bytes32 indexed aggregateRoot, bytes32 domainsHash);
 
   /**
    * @notice Emitted when a new aggregate root is proposed
@@ -95,10 +94,36 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   );
 
   /**
-   * @notice Emitted when the current proposed root is finalized
-   * @param aggregateRoot The aggregate root finalized
+   * @notice Emitted when an aggregate root is added to the validAggregateRoots map during optimistic mode.
+   * @param aggregateRoot The saved aggregate root
+   * @param rootTimestamp The timestamp at which the aggregate root was saved.
    */
-  event ProposedRootFinalized(bytes32 aggregateRoot);
+  event AggregateRootSavedOptimistic(bytes32 aggregateRoot, uint256 rootTimestamp);
+
+  /**
+   * @notice Emitted when an aggregate root is added to the validAggregateRoots map during slow mode.
+   * @param aggregateRoot   The saved aggregate root
+   * @param leafCount       The new number of leaves in the tree.
+   * @param aggregatedRoots The verified inbound roots inserted in the tree.
+   * @param rootTimestamp   The timestamp at which the aggregate root was saved.
+   */
+  event AggregateRootSavedSlow(
+    bytes32 aggregateRoot,
+    uint256 leafCount,
+    bytes32[] aggregatedRoots,
+    uint256 rootTimestamp
+  );
+
+  /**
+   * @notice Emitted when a domain is set as the hub domain.
+   * @param domain The domain set as hub domain.
+   */
+  event HubDomainSet(uint32 domain);
+
+  /**
+   * @notice Emitted when the previously set hub domain is cleared.
+   */
+  event HubDomainCleared();
 
   // ============ Errors ============
 
@@ -120,10 +145,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager_onlyProposer__NotWhitelistedProposer(address caller);
 
-  error RootManager_optimisticPropagate__ForbiddenOptimisticRoot();
-
-  error RootManager_slowPropagate__OldAggregateRoot();
-
   error RootManager_sendRootToHub__NoMessageSent();
 
   error RootManager_finalize__InvalidInputHash();
@@ -138,6 +159,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   error RootManager__renounceOwnership_prohibited();
 
+  error RootManager_propagate__AggregateRootIsZero();
+
+  error RootManager_setHubDomain__InvalidDomain();
+
   // ============ Properties ============
 
   /**
@@ -147,7 +172,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   uint128 public constant DEQUEUE_MAX = 100;
 
   /**
-   * @notice Root used to keep the slots of proposedAggregateRootHash and finalizedOptimisticAggregateRoot warm.
+   * @notice Root used to keep the slots of proposedAggregateRootHash warm.
    */
   bytes32 public constant FINALIZED_HASH = 0x0000000000000000000000000000000000000000000000000000000000000001;
   /**
@@ -167,19 +192,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   uint256 public minDisputeBlocks;
 
   /**
-   * @notice The amount of inserted leaves prior to switching to optimistic mode
-   * @dev Used to prevent the propagation of an old aggregate root right after switching to Slow mode.
-   * After switching back to slow mode, if the count didnt change from previous slow mode, we consider the root as an old one since
-   * probably lot of optimistic roots have been propagated.
-   * Example: Propagation in slow mode happens, switch to Op Mode, multiple propagations happen, switch back to Slow mode.
-   * If at this point someone calls propagate and the queue is empty or non of elemenets are ready, _slowPropagate will
-   * call the dequeue function which will return the old root and count before Op mode was activated. And since multiple
-   * propagations happened while in optimistic mode, the lastPropagatedRoot will be different than the old but current MERKLE.root
-   * which will lead to propagating a deprecated root.
-   */
-  uint256 public lastCountBeforeOpMode;
-
-  /**
    * @notice True if the system is working in optimistic mode. Otherwise is working in slow mode
    */
   bool public optimisticMode;
@@ -189,12 +201,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * aggregate roots in `propagate`.
    */
   mapping(uint32 => bytes32) public lastPropagatedRoot;
-
-  /**
-   * @notice The last finalized aggregate root in optimistic mode.
-   * @dev    Set to 0x1 to prevent someone from calling finalize() the moment the contract is deployed
-   */
-  bytes32 public finalizedOptimisticAggregateRoot = 0x0000000000000000000000000000000000000000000000000000000000000001;
 
   /**
    * @notice Queue used for management of verification for inbound roots from spoke chains. Once
@@ -222,6 +228,27 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * can propose new roots using `proposeAggregateRoot`.
    */
   mapping(address => bool) public allowlistedProposers;
+
+  /**
+   * @notice The list of valid aggregate roots for a given timestamp.
+   * @dev Each time a new aggregate root is generated or
+   * finalized, it will be added to this mapping using the block.timestamp as key.
+   * @dev This is only used as Data-Availability for off-chain agents. Especially for the Watchers that fetch the
+   * correct aggregate root from this contract in order to verify the data proposed on the Spoke Connectors.
+   * @dev rootTimestamp => aggregateRoot
+   */
+  mapping(uint256 => bytes32) public validAggregateRoots;
+
+  /**
+   * @notice Timestamp of the last aggregate root saved.
+   * @dev Used to ensure that the propagate function will send the latest aggregate root available.
+   */
+  uint256 public lastSavedAggregateRootTimestamp;
+
+  /**
+   * @notice Domain id of the current network
+   */
+  uint32 public hubDomain;
 
   // ============ Modifiers ============
 
@@ -319,10 +346,9 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
-   * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
-   * a given proposed root
+   * @notice Set the `minDisputeBlocks` variable to the provided parameter.
    */
-  function setMinDisputeBlocks(uint256 _minDisputeBlocks) public onlyOwner {
+  function setMinDisputeBlocks(uint256 _minDisputeBlocks) external onlyOwner {
     if (_minDisputeBlocks == minDisputeBlocks) revert RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore();
     emit MinDisputeBlocksUpdated(minDisputeBlocks, _minDisputeBlocks);
     minDisputeBlocks = _minDisputeBlocks;
@@ -332,7 +358,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Set the `disputeBlocks`, the duration, in blocks, of the dispute process for
    * a given proposed root
    */
-  function setDisputeBlocks(uint256 _disputeBlocks) public onlyOwner {
+  function setDisputeBlocks(uint256 _disputeBlocks) external onlyOwner {
     if (_disputeBlocks < minDisputeBlocks) revert RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin();
     if (_disputeBlocks == disputeBlocks) revert RootManager_setDisputeBlocks__SameDisputeBlocksAsBefore();
     emit DisputeBlocksUpdated(disputeBlocks, _disputeBlocks);
@@ -343,7 +369,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Set the `delayBlocks`, the period in blocks over which an incoming message
    * is verified.
    */
-  function setDelayBlocks(uint256 _delayBlocks) public onlyOwner {
+  function setDelayBlocks(uint256 _delayBlocks) external onlyOwner {
     require(_delayBlocks != delayBlocks, "!delayBlocks");
     emit DelayBlocksUpdated(delayBlocks, _delayBlocks);
     delayBlocks = _delayBlocks;
@@ -367,13 +393,12 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Remove support for a connector and respective domain. That connector/domain will no longer
    * receive updates for the latest aggregate root.
    * @dev Only watcher can remove a connector.
-   * @dev The proposedAggregateRootHash will be set to the FINALIZED_HASH while the finalizedOptimisticAggregateRoot
-   * will continue existing as it is verified.
+   * @dev The proposedAggregateRootHash will be set to the FINALIZED_HASH.
    * TODO: Could add a metatx-able `removeConnectorWithSig` if we want to use relayers?
    *
    * @param _domain The spoke domain of the target connector we want to remove.
    */
-  function removeConnector(uint32 _domain) public onlyWatcher {
+  function removeConnector(uint32 _domain) external onlyWatcher {
     address _connector = removeDomain(_domain);
     proposedAggregateRootHash = FINALIZED_HASH;
     emit ConnectorRemoved(_domain, _connector, domains, connectors, msg.sender);
@@ -388,7 +413,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    *
    * @param _root The root to be discarded.
    */
-  function discardRoot(bytes32 _root) public onlyOwner whenPaused {
+  function discardRoot(bytes32 _root) external onlyOwner whenPaused {
     pendingInboundRoots.remove(_root);
     emit RootDiscarded(_root);
   }
@@ -400,6 +425,25 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    */
   function renounceOwnership() public virtual override(ProposedOwnable, WatcherClient) onlyOwner {
     revert RootManager__renounceOwnership_prohibited();
+  }
+
+  /**
+   * @notice Sets domain corresponding to the hub domain.
+   *
+   * @param _domain The domain to be set as hub domain.
+   */
+  function setHubDomain(uint32 _domain) external onlyOwner {
+    if (!isDomainSupported(_domain)) revert RootManager_setHubDomain__InvalidDomain();
+    hubDomain = _domain;
+    emit HubDomainSet(_domain);
+  }
+
+  /**
+   * @notice Removes the domain associated with the hub domain.
+   */
+  function clearHubDomain() external onlyOwner {
+    delete hubDomain;
+    emit HubDomainCleared();
   }
 
   // ============ Public Functions ============
@@ -423,7 +467,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes32 _aggregateRoot,
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains
-  ) external onlyProposer onlyOptimisticMode checkDomains(_domains) {
+  ) external onlyProposer onlyOptimisticMode checkDomains(_domains) whenNotPaused {
     if (_snapshotId != SnapshotId.getLastCompletedSnapshotId())
       revert RootManager_proposeAggregateRoot__InvalidSnapshotId(_snapshotId);
     if (proposedAggregateRootHash != FINALIZED_HASH) revert RootManager_proposeAggregateRoot__ProposeInProgress();
@@ -443,17 +487,21 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param _proposedAggregateRoot The aggregate root currently proposed
    * @param _endOfDispute          The block in which the dispute period for proposedAggregateRootHash finalizes
    */
-  function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public onlyOptimisticMode {
+  function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public onlyOptimisticMode whenNotPaused {
     bytes32 _proposedAggregateRootHash = proposedAggregateRootHash;
     if (_proposedAggregateRootHash == FINALIZED_HASH) revert RootManager_finalize__InvalidAggregateRoot();
     bytes32 _userInputHash = keccak256(abi.encode(_proposedAggregateRoot, _endOfDispute));
     if (_userInputHash != _proposedAggregateRootHash) revert RootManager_finalize__InvalidInputHash();
     if (_endOfDispute > block.number) revert RootManager_finalize__ProposeInProgress();
 
-    finalizedOptimisticAggregateRoot = _proposedAggregateRoot;
+    // Save data
+    validAggregateRoots[block.timestamp] = _proposedAggregateRoot;
+    lastSavedAggregateRootTimestamp = block.timestamp;
+
+    // Clear the propose slot
     proposedAggregateRootHash = FINALIZED_HASH;
 
-    emit ProposedRootFinalized(_proposedAggregateRoot);
+    emit AggregateRootSavedOptimistic(_proposedAggregateRoot, block.timestamp);
   }
 
   /**
@@ -473,7 +521,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     bytes[] memory _encodedData,
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  ) external payable whenNotPaused {
+  ) external payable {
     finalize(_proposedAggregateRoot, _endOfDispute);
     propagate(_connectors, _fees, _encodedData);
   }
@@ -482,7 +530,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice This is called by relayers to take the current aggregate tree root and propagate it to all
    * spoke domains (via their respective hub connectors).
    * @dev Should be called by relayers at a regular interval.
-   * Workflow is different depending on the mode the system is in.
+   * Workflow is slightly different depending on the mode the system is in.
    *
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
    * used here to reduce gas costs, and keep them static regardless of number of supported domains.
@@ -500,65 +548,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // Sanity check: fees and encodedData lengths matches connectors length.
     require(_fees.length == _numDomains && _encodedData.length == _numDomains, "invalid lengths");
 
-    optimisticMode
-      ? _optimisticPropagate(_connectors, _fees, _encodedData)
-      : _slowPropagate(_connectors, _fees, _encodedData);
-  }
+    // If in slow mode, we dequeue to ensure that we add the inboundRoots that are ready.
+    if (!optimisticMode) dequeue();
 
-  /**
-   * @notice Function used to propagate the aggregate root when the system is in optimistic mode.
-   * @dev The root used is the already finalized optimistic root, this function does not use the MERKLE tree nor the
-   * pendingInboundRoots queue.
-   * Will set finalizedOptimisticAggregateRoot to FINALIZED_HASH.
-   * Emits a unique event.
-   * CRITICAL: This function does NOT check if _connectors sent to it are correct or not.
-   * Can always be called internally, since it doesn't check if the system is in optimistic mode or not.
-   * All the needed checks must be done before calling this function.
-   *
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
-   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _fees Array of fees in native token for an AMB if required
-   * @param _encodedData Array of encodedData: extra params for each AMB if required
-   */
-  function _optimisticPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) internal {
-    bytes32 _aggregateRoot = finalizedOptimisticAggregateRoot;
-    if (_aggregateRoot == FINALIZED_HASH) revert RootManager_optimisticPropagate__ForbiddenOptimisticRoot();
+    bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
 
-    finalizedOptimisticAggregateRoot = FINALIZED_HASH;
+    if (_aggregateRoot == 0) revert RootManager_propagate__AggregateRootIsZero();
+
+    emit AggregateRootPropagated(_aggregateRoot, domainsHash);
 
     _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
-    emit OptimisticRootPropagated(_aggregateRoot, domainsHash);
-  }
-
-  /**
-   * @notice Function used to propagate the aggregate root when the system is in slow mode.
-   * @dev Will dequeue the elements that are ready on pendingInboundRoots queue and insert them in MERKLE tree to generate
-   * the new aggregate root that needs to be propagated.
-   * Will set the finalizedOptimisticAggregateRoot to FINALIZE_HASH in order to discard an old root with old inboundRoots.
-   * Emits a unique event.
-   * CRITICAL: This function does NOT check if _connectors sent to it are correct or not.
-   * Can always be called internally, since it doesn't check if the system is in slow mode or not.
-   * All the needed checks must be done before calling this function.
-   *
-   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
-   * used here to reduce gas costs, and keep them static regardless of number of supported domains.
-   * @param _fees Array of fees in native token for an AMB if required
-   * @param _encodedData Array of encodedData: extra params for each AMB if required
-   */
-  function _slowPropagate(
-    address[] calldata _connectors,
-    uint256[] calldata _fees,
-    bytes[] memory _encodedData
-  ) internal {
-    finalizedOptimisticAggregateRoot = FINALIZED_HASH;
-    (bytes32 _aggregateRoot, uint256 _currentCount) = dequeue();
-    if (_currentCount <= lastCountBeforeOpMode) revert RootManager_slowPropagate__OldAggregateRoot();
-    _sendRootToHubs(_aggregateRoot, _connectors, _fees, _encodedData);
-    emit RootPropagated(_aggregateRoot, _currentCount, domainsHash);
   }
 
   /**
@@ -624,6 +623,16 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
   }
 
   /**
+   * @notice Sends the latest valid aggregate root to the hub domain's spoke connector.
+   * @dev This has no guards as the guards should be in the spoke connector. For example, the spoke connector should
+   *      guard against receiving the root through this function if the spoke connector is not in optimistic mode.
+   */
+  function sendRootToHubSpoke() external whenNotPaused {
+    bytes32 _aggregateRoot = validAggregateRoots[lastSavedAggregateRootTimestamp];
+    IHubSpokeConnector(getConnectorForDomain(hubDomain)).saveAggregateRoot(_aggregateRoot);
+  }
+
+  /**
    * @notice Accept an inbound root coming from a given domain's hub connector, enqueuing this incoming
    * root into the current queue as it awaits the verification period.
    * @dev The aggregate tree's root, which will include this inbound root, will be propagated to all spoke
@@ -643,7 +652,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @notice Dequeue verified inbound roots and insert them into the aggregator tree.
    * @dev Will dequeue a fixed maximum amount of roots to prevent out of gas errors. As such, this
    * method is public and separate from `propagate` so we can curtail an overloaded queue as needed.
-   * @dev Reverts if no verified inbound roots are found.
    *
    * @return bytes32 The new aggregate root.
    * @return uint256 The updated count (number of leaves).
@@ -661,7 +669,10 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     // aggregate root and count).
     (bytes32 _aggregateRoot, uint256 _count) = MERKLE.insert(_verifiedInboundRoots);
 
-    emit RootsAggregated(_aggregateRoot, _count, _verifiedInboundRoots);
+    validAggregateRoots[block.timestamp] = _aggregateRoot;
+    lastSavedAggregateRootTimestamp = block.timestamp;
+
+    emit AggregateRootSavedSlow(_aggregateRoot, _count, _verifiedInboundRoots, block.timestamp);
 
     return (_aggregateRoot, _count);
   }
@@ -688,7 +699,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     if (optimisticMode) revert RootManager_activateOptimisticMode__OptimisticModeOn();
 
     pendingInboundRoots.last = pendingInboundRoots.first - 1;
-    lastCountBeforeOpMode = MERKLE.count();
 
     optimisticMode = true;
     emit OptimisticModeActivated();

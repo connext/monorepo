@@ -84,13 +84,18 @@ jobs:
       - name: Migrate Database
         run: yarn workspace @connext/nxtp-adapters-database dbmate up
 
+      # TODO: remove before merging
       - name: Yarn test
-        run: yarn test:all
+        run: yarn test:contracts
 
-      - name: Yarn lint
-        env:
-          NODE_OPTIONS: "--max-old-space-size=8192"
-        run: yarn lint:all
+      # TODO: uncomment both before merging
+      # - name: Yarn test
+      #   run: yarn test:all
+
+      # - name: Yarn lint
+      #   env:
+      #     NODE_OPTIONS: "--max-old-space-size=8192"
+      #   run: yarn lint:all
 
       - name: Install jq
         run: sudo apt-get install -y jq

@@ -58,58 +58,6 @@ contract ProposeFinalizePropagate is ForgeHelper {
     aggregateRoot = bytes32(abi.encode(5));
   }
 
-  function test_RootManager__RevertIfPropagateOldData() external {
-    // Start in slowMode
-    vm.mockCall(
-      watcherManager,
-      abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
-      abi.encode(true)
-    );
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
-
-    // Checks that we are in slow mode
-    isSlow();
-
-    // Aggregate elements to the queue
-    vm.prank(connectors[0]);
-    rootManager.aggregate(domains[0], bytes32("test0"));
-    vm.prank(connectors[1]);
-    rootManager.aggregate(domains[1], bytes32("test1"));
-
-    // Count has to be 2
-    assertEq(rootManager.getPendingInboundRootsCount(), 2);
-
-    // Switch again to optimistic mode
-    vm.prank(owner);
-    rootManager.activateOptimisticMode();
-
-    // Count has to be 0
-    assertEq(rootManager.getPendingInboundRootsCount(), 0);
-
-    // Warp time
-    vm.warp(block.timestamp + 2 hours);
-
-    // Checks
-    isOptimistic();
-
-    // Again slow mode
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
-
-    // Checks that we are in slow mode
-    isSlow();
-
-    // Should revert because no new messages have arrived
-    vm.expectRevert(abi.encodeWithSelector(RootManager.RootManager_slowPropagate__OldAggregateRoot.selector));
-
-    // Propagate
-    rootManager.propagate(connectors, fees, encodedData);
-
-    // Count has to be 0
-    assertEq(rootManager.getPendingInboundRootsCount(), 0);
-  }
-
   function test_RootManager__QueuedSwitchAndPropagate() external {
     // Start in slowMode
     vm.mockCall(
@@ -180,13 +128,13 @@ contract ProposeFinalizePropagate is ForgeHelper {
   }
 
   function test_RootManager__QueuedDequeueQueuedSwitch() external {
-    // Start in slowMode
     vm.mockCall(
       watcherManager,
       abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
       abi.encode(true)
     );
     vm.prank(watcher);
+    // Set in slowMode
     rootManager.activateSlowMode();
 
     // Checks that we are in slow mode
@@ -210,9 +158,6 @@ contract ProposeFinalizePropagate is ForgeHelper {
     // Switch again to optimistic mode
     vm.prank(owner);
     rootManager.activateOptimisticMode();
-
-    // Last count should be equals to count
-    assertEq(_countBefore, rootManager.lastCountBeforeOpMode());
 
     // Checks
     isOptimistic();
