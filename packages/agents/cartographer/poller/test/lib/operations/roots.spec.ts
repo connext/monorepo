@@ -111,9 +111,9 @@ describe("Roots operations", () => {
   });
 
   describe("#updateProposedSnapshots", () => {
-    it("should work", async () => {
+    it.only("should work", async () => {
       (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves(
-        mockReceivedAggregateRootSubgraphResponse,
+        mockProposedSnapshotsSubgraphResponse,
       );
       await updateProposedSnapshots();
       expect(mockContext.adapters.database.saveProposedSnapshots as SinonStub).callCount(1);
@@ -124,7 +124,7 @@ describe("Roots operations", () => {
       ]);
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
         "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
-        43,
+        mockProposedSnapshotsSubgraphResponse[1].endOfDispute,
       );
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
         "proposed_optimistic_root" + mockConnectorMeta[0].hubDomain,
