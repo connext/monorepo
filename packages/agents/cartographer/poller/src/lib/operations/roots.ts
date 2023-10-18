@@ -58,7 +58,7 @@ export const updateProposedSnapshots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const disputeCliff = await database.getCheckPoint("proposed_optimistic_root" + hub);
+    const disputeCliff = await database.getCheckPoint("proposed_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving proposed aggregated root snapshot", requestContext, methodContext, {
       hub: hub,
@@ -75,7 +75,7 @@ export const updateProposedSnapshots = async () => {
     if (disputeCliff === 0 || newDisputeCliff > disputeCliff) {
       await database.saveProposedSnapshots(snapshots);
 
-      await database.saveCheckPoint("proposed_optimistic_root" + hub, newDisputeCliff);
+      await database.saveCheckPoint("proposed_optimistic_root_" + hub, newDisputeCliff);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {
         hub: hub,
         disputeCliff: newDisputeCliff,
