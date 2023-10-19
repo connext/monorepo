@@ -98,7 +98,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param aggregateRoot The saved aggregate root
    * @param rootTimestamp The timestamp at which the aggregate root was saved.
    */
-  event AggregateRootSavedOptimistic(bytes32 aggregateRoot, uint256 rootTimestamp);
+  event AggregateRootSavedOptimistic(bytes32 indexed aggregateRoot, uint256 rootTimestamp);
 
   /**
    * @notice Emitted when an aggregate root is added to the validAggregateRoots map during slow mode.
@@ -108,7 +108,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
    * @param rootTimestamp   The timestamp at which the aggregate root was saved.
    */
   event AggregateRootSavedSlow(
-    bytes32 aggregateRoot,
+    bytes32 indexed aggregateRoot,
     uint256 leafCount,
     bytes32[] aggregatedRoots,
     uint256 rootTimestamp
