@@ -39,30 +39,51 @@ const formatConnectorArgs = (
 
   const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 
-  const hubArgs = [
-    deploymentDomain,
-    // Mirror domain should be known.
-    mirrorDomain,
-    amb,
-    rootManager,
-    mirrorConnector ?? constants.AddressZero,
-    ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
-  ];
   if (isHub) {
+    const hubArgs = [
+      deploymentDomain,
+      // Mirror domain should be known.
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector ?? constants.AddressZero,
+      ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
+    ];
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
     return hubArgs;
   }
+  // struct ConstructorParams {
+  //   uint32 domain;
+  //   uint32 mirrorDomain;
+  //   address amb;
+  //   address rootManager;
+  //   address mirrorConnector;
+  //   uint256 processGas;
+  //   uint256 reserveGas;
+  //   uint256 delayBlocks;
+  //   address merkle;
+  //   address watcherManager;
+  //   uint256 minDisputeBlocks;
+  //   uint256 disputeBlocks;
+  // }
   const constructorArgs = [
-    ...hubArgs,
-    config.processGas,
-    config.reserveGas,
-    config.delayBlocks,
-    merkleManager!,
-    watcherManager!,
-    ...Object.values(config?.custom?.spoke ?? {}),
+    {
+      domain: deploymentDomain,
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector: mirrorConnector ?? constants.AddressZero,
+      processGas: config.processGas,
+      reserveGas: config.reserveGas,
+      delayBlocks: config.delayBlocks,
+      merkle: merkleManager,
+      watcherManager,
+      minDisputeBlocks: config.minDisputeBlocks,
+      disputeBlocks: config.disputeBlocks,
+    },
   ];
   console.log(
     `spoke connector constructorArgs:`,
