@@ -143,14 +143,6 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "consensys",
-        chainId: 59140,
-        urls: {
-          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
-          browserURL: "https://explorer.goerli.zkevm.consensys.net",
-        },
-      },
-      {
         network: "zksync2-testnet",
         chainId: 280,
         urls: {

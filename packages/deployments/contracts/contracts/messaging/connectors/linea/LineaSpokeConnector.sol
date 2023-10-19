@@ -3,11 +3,11 @@ pragma solidity 0.8.17;
 
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
-import {ConsensysAmb} from "../../interfaces/ambs/ConsensysAmb.sol";
+import {LineaAmb} from "../../interfaces/ambs/LineaAmb.sol";
 
-import {ConsensysBase} from "./ConsensysBase.sol";
+import {LineaBase} from "./LineaBase.sol";
 
-contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
+contract LineaSpokeConnector is SpokeConnector, LineaBase {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -33,7 +33,7 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
       _merkle,
       _watcherManager
     )
-    ConsensysBase()
+    LineaBase()
   {}
 
   // ============ Override Fns ============
@@ -48,8 +48,8 @@ contract ConsensysSpokeConnector is SpokeConnector, ConsensysBase {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
 
-    // Dispatch message through consensys AMB
-    ConsensysAmb(AMB).sendMessage{value: msg.value}(
+    // Dispatch message through Linea AMB
+    LineaAmb(AMB).sendMessage{value: msg.value}(
       mirrorConnector,
       msg.value, // fee is the passed in value
       abi.encodeWithSelector(Connector.processMessage.selector, _data)

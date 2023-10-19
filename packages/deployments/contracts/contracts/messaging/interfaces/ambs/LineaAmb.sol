@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 // PASTED FROM https://docs.linea.build/developers/bridge-architecture/message-service  #IMessageService.sol
 
 /// @title The bridge interface implemented on both chains
-interface ConsensysAmb {
+interface LineaAmb {
   /**
    * @dev Emitted when a message is sent.
    * @dev We include the message hash to save hashing costs on the rollup.

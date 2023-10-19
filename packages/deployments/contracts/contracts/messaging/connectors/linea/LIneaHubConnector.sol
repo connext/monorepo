@@ -2,14 +2,14 @@
 pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
-import {ConsensysAmb} from "../../interfaces/ambs/ConsensysAmb.sol";
+import {LineaAmb} from "../../interfaces/ambs/LineaAmb.sol";
 
 import {Connector} from "../Connector.sol";
 import {HubConnector} from "../HubConnector.sol";
 
-import {ConsensysBase} from "./ConsensysBase.sol";
+import {LineaBase} from "./LineaBase.sol";
 
-contract ConsensysHubConnector is HubConnector, ConsensysBase {
+contract LineaHubConnector is HubConnector, LineaBase {
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -17,7 +17,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
     address _amb,
     address _rootManager,
     address _mirrorConnector
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) ConsensysBase() {}
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) LineaBase() {}
 
   // ============ Private fns ============
   /**
@@ -38,7 +38,7 @@ contract ConsensysHubConnector is HubConnector, ConsensysBase {
     require(_encodedData.length == 0, "!data length");
 
     // send message via AMB, should call "processMessage" which will update aggregate root
-    ConsensysAmb(AMB).sendMessage{value: msg.value}(
+    LineaAmb(AMB).sendMessage{value: msg.value}(
       mirrorConnector,
       msg.value, // fee is the passed in value
       abi.encodeWithSelector(Connector.processMessage.selector, _data)
