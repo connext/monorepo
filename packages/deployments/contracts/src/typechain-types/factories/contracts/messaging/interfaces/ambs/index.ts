@@ -8,4 +8,5 @@ export * as wormhole from "./wormhole";
 export * as zksync from "./zksync";
 export { ConsensysAmb__factory } from "./ConsensysAmb__factory";
 export { GnosisAmb__factory } from "./GnosisAmb__factory";
+export { LineaAmb__factory } from "./LineaAmb__factory";
 export { Multichain__factory } from "./Multichain__factory";

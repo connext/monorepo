@@ -13,7 +13,7 @@ export const getPropagateParams = async (
 ): Promise<ExtraPropagateParam> => {
   const { logger } = getContext();
   const { methodContext, requestContext } = createLoggingContext(getPropagateParams.name, _requestContext);
-  logger.info("Getting propagate params for Consensys", requestContext, methodContext, {
+  logger.info("Getting propagate params for Linea", requestContext, methodContext, {
     l2domain,
     l1ChainId,
     l2ChainId,

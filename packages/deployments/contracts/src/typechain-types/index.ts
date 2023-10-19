@@ -186,6 +186,10 @@ export type { GnosisSpokeConnector } from "./contracts/messaging/connectors/gnos
 export { GnosisSpokeConnector__factory } from "./factories/contracts/messaging/connectors/gnosis/GnosisSpokeConnector__factory";
 export type { HubConnector } from "./contracts/messaging/connectors/HubConnector";
 export { HubConnector__factory } from "./factories/contracts/messaging/connectors/HubConnector__factory";
+export type { LineaHubConnector } from "./contracts/messaging/connectors/linea/LIneaHubConnector.sol/LineaHubConnector";
+export { LineaHubConnector__factory } from "./factories/contracts/messaging/connectors/linea/LIneaHubConnector.sol/LineaHubConnector__factory";
+export type { LineaSpokeConnector } from "./contracts/messaging/connectors/linea/LineaSpokeConnector";
+export { LineaSpokeConnector__factory } from "./factories/contracts/messaging/connectors/linea/LineaSpokeConnector__factory";
 export type { MainnetSpokeConnector } from "./contracts/messaging/connectors/mainnet/MainnetSpokeConnector";
 export { MainnetSpokeConnector__factory } from "./factories/contracts/messaging/connectors/mainnet/MainnetSpokeConnector__factory";
 export type { BaseMultichain } from "./contracts/messaging/connectors/multichain/BaseMultichain";
@@ -244,6 +248,8 @@ export type { ConsensysAmb } from "./contracts/messaging/interfaces/ambs/Consens
 export { ConsensysAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/ConsensysAmb__factory";
 export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb";
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
+export type { LineaAmb } from "./contracts/messaging/interfaces/ambs/LineaAmb";
+export { LineaAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/LineaAmb__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
 export { Multichain__factory } from "./factories/contracts/messaging/interfaces/ambs/Multichain__factory";
 export type { IOptimismPortal } from "./contracts/messaging/interfaces/ambs/optimism/IOptimismPortal";

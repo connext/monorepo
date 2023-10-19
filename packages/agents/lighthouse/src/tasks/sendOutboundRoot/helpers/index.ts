@@ -1,4 +1,4 @@
-export { getSendOutboundRootParams as getSendOutboundRootParamsConsensys } from "./consensys";
+export { getSendOutboundRootParams as getSendOutboundRootParamsLinea } from "./linea";
 export { getSendOutboundRootParams as getSendOutboundRootParamsBnb } from "./bnb";
 export { getSendOutboundRootParams as getSendOutboundRootParamsOptimism } from "./optimism";
 export { getSendOutboundRootParams as getSendOutboundRootParamsGnosis } from "./gnosis";
