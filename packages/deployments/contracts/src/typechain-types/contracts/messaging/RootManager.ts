@@ -1610,22 +1610,22 @@ export interface RootManager extends BaseContract {
     ): AggregateRootProposedEventFilter;
 
     "AggregateRootSavedOptimistic(bytes32,uint256)"(
-      aggregateRoot?: null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
       rootTimestamp?: null
     ): AggregateRootSavedOptimisticEventFilter;
     AggregateRootSavedOptimistic(
-      aggregateRoot?: null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
       rootTimestamp?: null
     ): AggregateRootSavedOptimisticEventFilter;
 
     "AggregateRootSavedSlow(bytes32,uint256,bytes32[],uint256)"(
-      aggregateRoot?: null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
       leafCount?: null,
       aggregatedRoots?: null,
       rootTimestamp?: null
     ): AggregateRootSavedSlowEventFilter;
     AggregateRootSavedSlow(
-      aggregateRoot?: null,
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
       leafCount?: null,
       aggregatedRoots?: null,
       rootTimestamp?: null
