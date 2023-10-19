@@ -50,7 +50,7 @@ export function handleAggregateRootPropagated(event: AggregateRootPropagatedEven
   if (instance == null) {
     instance = new AggregateRootPropagated(key);
   }
-  instance.aggregate = event.params.aggregateRoot;
+  instance.aggregateRoot = event.params.aggregateRoot;
   instance.domainsHash = event.params.domainsHash;
 
   instance.save();
@@ -99,7 +99,7 @@ export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOpti
   if (instance == null) {
     instance = new AggregateRootSavedOptimistic(key);
   }
-  instance.aggregate = event.params.aggregateRoot;
+  instance.aggregateRoot = event.params.aggregateRoot;
   instance.rootTimestamp = event.params.rootTimestamp;
 
   instance.save();
