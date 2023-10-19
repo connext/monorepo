@@ -69,7 +69,7 @@ const formatConnectorArgs = (
   //   uint256 minDisputeBlocks;
   //   uint256 disputeBlocks;
   // }
-  const constructorArgs = [
+  const constructorArgs: any[] = [
     {
       domain: deploymentDomain,
       mirrorDomain,
@@ -85,11 +85,14 @@ const formatConnectorArgs = (
       disputeBlocks: config.disputeBlocks,
     },
   ];
+
+  if (config.custom?.spoke) {
+    constructorArgs.push(...Object.values(config.custom.spoke));
+  }
   console.log(
     `spoke connector constructorArgs:`,
     constructorArgs.map((c) => c.toString()),
   );
-  // console.log(`- domain:`, constructorArgs[0].toString());
   return constructorArgs;
 };
 
