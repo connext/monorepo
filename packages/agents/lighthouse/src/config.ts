@@ -2,7 +2,7 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, chainIdToDomain, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, domainToChainId, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
@@ -22,6 +22,7 @@ export const TChainConfig = Type.Object({
     spokeMerkleTree: TAddress,
     spokeConnector: TAddress,
     relayerProxy: TAddress,
+    rootManager: TAddress,
   }),
 });
 
@@ -99,6 +100,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
+    Type.Literal("propose"),
     Type.Literal("prover-pub"),
     Type.Literal("prover-sub"),
     Type.Literal("prover-func"),
@@ -245,7 +247,7 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
   // add contract deployments if they exist
-  const hubChain = chainIdToDomain(+nxtpConfig.hubDomain);
+  const hubChain = domainToChainId(+nxtpConfig.hubDomain);
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
@@ -296,6 +298,17 @@ export const getEnvConfig = (
 
           if (!res) {
             throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      rootManager:
+        chainConfig.deployments?.rootManager ??
+        (() => {
+          const res = chainDataForChain ? deployments.rootManager(hubChain, contractPostfix) : undefined;
+
+          if (!res) {
+            throw new Error(`No Rootmanager contract address for domain ${hubChain}`);
           }
           return res.address;
         })(),

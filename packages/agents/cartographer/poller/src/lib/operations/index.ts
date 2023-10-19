@@ -6,7 +6,15 @@ export {
   retrieveSentRootMessages,
   retrieveProcessedRootMessages,
 } from "./messages";
-export { updateAggregatedRoots, updatePropagatedRoots, updateReceivedAggregateRoots } from "./roots";
+export {
+  updateAggregatedRoots,
+  updatePropagatedRoots,
+  updateReceivedAggregateRoots,
+  updateProposedSnapshots,
+  updateFinalizedRoots,
+  updatePropagatedOptmisticRoots,
+  retrieveSavedSnapshotRoot,
+} from "./roots";
 export { updateStableSwap, updatePoolEvents, updateLpTransfers } from "./stableswap";
 export { runMigration } from "./migrations";
 export { updateAssetPrices, updateHistoricAssetPrices } from "./prices";

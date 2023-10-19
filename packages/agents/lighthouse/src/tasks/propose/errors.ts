@@ -15,14 +15,14 @@ export class NoChainIdForHubDomain extends NxtpError {
   }
 }
 
-export class RelayerProxyHubNotFound extends NxtpError {
+export class NoSpokeConnector extends NxtpError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`RelayerProxyHub not found for domain ${hubDomain}`, {
+    super(`No spokeconnector for domain ${hubDomain}`, {
       ...context,
       requestContext,
       methodContext,
@@ -30,14 +30,14 @@ export class RelayerProxyHubNotFound extends NxtpError {
   }
 }
 
-export class NoProviderForDomain extends NxtpError {
+export class MissingRequiredDomain extends NxtpError {
   constructor(
     public readonly domain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No provider availble for domain ${domain}`, {
+    super(`Config not available for domain ${domain}`, {
       ...context,
       requestContext,
       methodContext,
@@ -45,29 +45,14 @@ export class NoProviderForDomain extends NxtpError {
   }
 }
 
-export class NoHubConnector extends NxtpError {
+export class NoSnapshotRoot extends NxtpError {
   constructor(
-    public readonly chainId: number,
+    public readonly domain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No hub connector found for chainId ${chainId}`, {
-      ...context,
-      requestContext,
-      methodContext,
-    });
-  }
-}
-
-export class NoSpokeConnector extends NxtpError {
-  constructor(
-    public readonly chainId: number,
-    public readonly requestContext: RequestContext,
-    public readonly methodContext: MethodContext,
-    public readonly context: any = {},
-  ) {
-    super(`No spoke connector found for chainId ${chainId}`, {
+    super(`Snapshot root not available for domain ${domain}`, {
       ...context,
       requestContext,
       methodContext,

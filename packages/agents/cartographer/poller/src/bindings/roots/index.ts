@@ -8,6 +8,7 @@ import {
   updateProposedSnapshots,
   updateFinalizedRoots,
   updatePropagatedOptmisticRoots,
+  retrieveSavedSnapshotRoot,
 } from "../../lib/operations/roots";
 
 export const bindRoots = async (context: AppContext) => {
@@ -24,6 +25,10 @@ export const bindRoots = async (context: AppContext) => {
     await updateProposedSnapshots();
     await updateFinalizedRoots();
     await updatePropagatedOptmisticRoots();
+
+    //Snapshot Root data
+    await retrieveSavedSnapshotRoot();
+
     logger.debug("Bind roots polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(

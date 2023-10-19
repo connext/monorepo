@@ -33,19 +33,13 @@ variable "full_image_name_router_publisher" {
 
 variable "full_image_name_router_subscriber" {
   type        = string
-  description = "router image name"
+  description = "lighthouse subscriber image name"
   default     = "ghcr.io/connext/router-subscriber:sha-b5bb49a"
-}
-
-variable "full_image_name_router_executor" {
-  type        = string
-  description = "router executor image name"
-  default     = "ghcr.io/connext/router-executor:sha-b5bb49a"
 }
 
 variable "full_image_name_lighthouse_prover_subscriber" {
   type        = string
-  description = "lighthouse subscriber image name"
+  description = "lighthouse prover image name"
   default     = "ghcr.io/connext/lighthouse-subscriber:sha-b5bb49a"
 }
 
@@ -65,6 +59,12 @@ variable "full_image_name_sequencer_subscriber" {
   type        = string
   description = "sequencer image name"
   default     = "ghcr.io/connext/sequencer-subscriber:sha-b5bb49a"
+}
+
+variable "full_image_name_router_executor" {
+  type        = string
+  description = "executor image name"
+  default     = "ghcr.io/connext/router-executor:sha-7855c40"
 }
 
 variable "full_image_name_relayer" {
@@ -108,7 +108,6 @@ variable "rmq_mgt_user" {
 }
 
 
-
 variable "certificate_arn_testnet" {
   default = "arn:aws:acm:us-east-1:679752396206:certificate/45908dc4-137b-4366-8538-4f59ee6a914e"
 }
@@ -122,14 +121,6 @@ variable "goerli_alchemy_key_1" {
 }
 
 variable "optgoerli_alchemy_key_0" {
-  type = string
-}
-
-variable "optgoerli_alchemy_key_for_lh" {
-  type = string
-}
-
-variable "mumbai_alchemy_key_0" {
   type = string
 }
 
@@ -149,7 +140,7 @@ variable "blast_key" {
   type = string
 }
 
-variable "infura_key" {
+variable "dd_api_key" {
   type = string
 }
 
@@ -158,10 +149,6 @@ variable "router_web3_signer_private_key" {
 }
 
 variable "sequencer_web3_signer_private_key" {
-  type = string
-}
-
-variable "dd_api_key" {
   type = string
 }
 
@@ -187,9 +174,6 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
-variable "linea_node" {
-  type = string
-}
 variable "watcher_web3_signer_private_key" {
   type = string
 }

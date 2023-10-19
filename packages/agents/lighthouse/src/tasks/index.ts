@@ -36,7 +36,7 @@ export const makeLighthouse = async (event?: any) => {
     case "sendoutboundroot":
       await makeSendOutboundRoot(config, chainData);
       break;
-    case "proposer":
+    case "propose":
       await makePropose(config, chainData);
       break;
   }

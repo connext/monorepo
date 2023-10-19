@@ -61,6 +61,7 @@ locals {
       }
     }
   })
+
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {

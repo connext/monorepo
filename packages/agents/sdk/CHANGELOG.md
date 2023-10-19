@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.1.3-alpha.2
+
+- Contracts: New staging contract deployments
+
 ## v2.1.3-alpha.1
 
 - `updateSlippage`: Fix decimal parsing

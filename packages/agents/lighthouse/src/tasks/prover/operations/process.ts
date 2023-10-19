@@ -7,6 +7,7 @@ import {
   RequestContext,
   XMessage,
   ExecStatus,
+  DBHelper,
 } from "@connext/nxtp-utils";
 
 import {
@@ -16,7 +17,7 @@ import {
   MessageRootVerificationFailed,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { HubDBHelper, SpokeDBHelper } from "../adapters";
+import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 import { BrokerMessage, ProofStruct } from "./types";
@@ -38,6 +39,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     messageRootCount,
     aggregateRoot,
     aggregateRootCount,
+    snapshotRoots,
   } = brokerMessage;
 
   // Dedup the batch
@@ -65,17 +67,27 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   );
   const spokeSMT = new SparseMerkleTree(spokeStore);
 
-  const hubStore = new HubDBHelper(
-    "hub",
-    aggregateRootCount,
-    {
-      reader: database,
-      writer: databaseWriter,
-    },
-    cache.messages,
-  );
-  const hubSMT = new SparseMerkleTree(hubStore);
+  let hubStore: DBHelper;
+  if (snapshotRoots.length == 0) {
+    hubStore = new HubDBHelper(
+      "hub",
+      aggregateRootCount,
+      {
+        reader: database,
+        writer: databaseWriter,
+      },
+      cache.messages,
+    );
+  } else {
+    const baseAggregateRootCount = aggregateRootCount - snapshotRoots.length;
+    const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
+    const opRoots = baseAggregateRoots.concat(snapshotRoots);
 
+    // Count of leafs in aggregate tree at targetAggregateRoot.
+    hubStore = new OptimisticHubDBHelper(opRoots, aggregateRootCount);
+  }
+
+  const hubSMT = new SparseMerkleTree(hubStore);
   const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
   if (!destinationSpokeConnector) {
     throw new NoDestinationDomainForProof(destinationDomain);
@@ -215,7 +227,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
   // Batch submit messages by destination domain
   try {
-    const data = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
       messageProofs,
       aggregateRoot,
       messageRootProof,
@@ -224,22 +236,11 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
     logger.info("Proving and processing messages", requestContext, methodContext, {
       destinationDomain,
-      data,
-      destinationSpokeConnector,
-    });
-
-    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      aggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
-    logger.debug("Proving and processing messages", requestContext, methodContext, {
       provenMessages,
       proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
+
     const chainId = chainData.get(destinationDomain)!.chainId;
 
     /// Temp: Using relayer proxy
@@ -252,19 +253,11 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       domain,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const encodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      aggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
     const { taskId, relayerType } = await sendWithRelayerWithBackup(
       chainId,
       destinationDomain,
       destinationSpokeConnector,
-      encodedData,
+      proveAndProcessEncodedData,
       relayers,
       chainreader,
       logger,

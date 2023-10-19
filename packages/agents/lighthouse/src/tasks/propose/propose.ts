@@ -1,4 +1,5 @@
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
+import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
 import {
   ChainData,
   createLoggingContext,
@@ -46,6 +47,7 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
+    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
 
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {
@@ -106,6 +108,7 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     }
   } catch (e: unknown) {
     console.error("Error starting Propose task. Sad! :(", e);
+    await closeDatabase();
   } finally {
     process.exit();
   }

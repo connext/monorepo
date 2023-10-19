@@ -22,10 +22,6 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-locals {
-  db_alarm_emails = ["carlo@connext.network", "rahul@proximalabs.io", "preetham@proximalabs.io", "sanchay@proximalabs.io"]
-}
-
 module "cartographer_db" {
   domain                = "cartographer"
   source                = "../../../modules/db"
@@ -66,54 +62,7 @@ module "cartographer-db-alarms" {
   enable_free_storage_space_too_low_alarm = true
   stage                                   = var.stage
   environment                             = var.environment
-  sns_topic_subscription_emails           = local.db_alarm_emails
-}
-
-module "cartographer_db_replica" {
-  domain              = "cartographer"
-  source              = "../../../modules/db-replica"
-  replicate_source_db = module.cartographer_db.db_instance_identifier
-  depends_on          = [module.cartographer_db]
-  replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}-${var.stage}"
-  instance_class      = "db.t4g.2xlarge"
-  allocated_storage   = 150
-
-  name     = module.cartographer_db.db_instance_name
-  username = module.cartographer_db.db_instance_username
-  password = module.cartographer_db.db_instance_password
-  port     = module.cartographer_db.db_instance_port
-
-  engine_version = module.cartographer_db.db_instance_engine_version
-
-  maintenance_window      = module.cartographer_db.db_maintenance_window
-  backup_retention_period = module.cartographer_db.db_backup_retention_period
-  backup_window           = module.cartographer_db.db_backup_window
-
-  tags = {
-    Environment = var.environment
-    Domain      = var.domain
-  }
-
-  parameter_group_name = "default.postgres14"
-
-  hosted_zone_id        = data.aws_route53_zone.primary.zone_id
-  stage                 = var.stage
-  environment           = var.environment
-  db_security_group_ids = module.cartographer_db.db_instance_vpc_security_group_ids
-  db_subnet_group_name  = module.cartographer_db.db_subnet_group_name
-  publicly_accessible   = module.cartographer_db.db_publicly_accessible
-}
-
-module "cartographer-db-replica-alarms" {
-  source                                  = "../../../modules/db-alarms"
-  db_instance_name                        = module.cartographer_db.db_instance_name
-  db_instance_id                          = module.cartographer_db.db_instance_id
-  is_replica                              = true
-  enable_cpu_utilization_alarm            = true
-  enable_free_storage_space_too_low_alarm = true
-  stage                                   = var.stage
-  environment                             = var.environment
-  sns_topic_subscription_emails           = local.db_alarm_emails
+  sns_topic_subscription_emails           = ["carlo@connext.network", "rahul@proximalabs.io", "preetham@proximalabs.io", "sanchay@proximalabs.io"]
 }
 
 module "postgrest" {
@@ -124,9 +73,7 @@ module "postgrest" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  internal_lb              = false
   docker_image             = "postgrest/postgrest:v10.0.0.20221011"
   container_family         = "postgrest"
   container_port           = 3000
@@ -153,9 +100,7 @@ module "sdk-server" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
-  internal_lb              = false
   docker_image             = var.full_image_name_sdk_server
   container_family         = "sdk-server"
   health_check_path        = "/ping"
@@ -305,7 +250,4 @@ module "ecs" {
   environment             = var.environment
   domain                  = var.domain
   ecs_cluster_name_prefix = "nxtp-ecs"
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  public_subnets          = module.network.public_subnets
 }

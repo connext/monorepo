@@ -499,6 +499,30 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _proposedAggregateRoot The aggregate root to be proposed.
    * @param _endOfDispute The timestamp when the dispute period ends.
    */
+  function finalizeAndPropagate(
+    address[] calldata _connectors,
+    uint256[] calldata _fees,
+    bytes[] memory _encodedData,
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external onlyRelayer nonReentrant {
+    if (!_propagateCooledDown()) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+    }
+
+    _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+
+    lastPropagateAt = block.timestamp;
+  }
+
+  /**
+   * @notice Wraps the `finalizeAndPropagate` function
+   * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
+   * @param _fees Array of fees in native token for an AMB if required
+   * @param _encodedData Array of encodedData: extra params for each AMB if required
+   * @param _proposedAggregateRoot The aggregate root to be proposed.
+   * @param _endOfDispute The timestamp when the dispute period ends.
+   */
   function finalizeAndPropagateKeep3r(
     address[] calldata _connectors,
     uint256[] calldata _fees,

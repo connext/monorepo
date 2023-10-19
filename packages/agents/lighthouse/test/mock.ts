@@ -11,6 +11,7 @@ import {
   RootMessage,
   RelayerType,
   ReceivedAggregateRoot,
+  ModeType,
 } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
@@ -23,6 +24,7 @@ import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { PropagateContext } from "../src/tasks/propagate/context";
 import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
+import { ProposeContext } from "../src/tasks/propose/context";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -73,6 +75,7 @@ export const mockCache = () => {
       getCurrentLock: stub().resolves(),
       acquireLock: stub().resolves(),
       releaseLock: stub().resolves(),
+      setStatus: stub().resolves(),
     },
   };
 };
@@ -93,12 +96,14 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        subgraph: mock.adapters.subgraph(),
         databaseWriter: { database: mock.adapters.database(), pool: mockDatabasePool() },
         cache: mockCache() as any,
         mqClient: mockMqClient() as any,
       },
       config: mock.config(),
       chainData: mock.chainData(),
+      mode: ModeType.SlowMode,
     };
   },
   processFromRootCtx: (): ProcessFromRootContext => {
@@ -109,6 +114,7 @@ export const mock = {
         contracts: mock.adapters.deployments(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        subgraph: mock.adapters.subgraph(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -122,6 +128,7 @@ export const mock = {
         deployments: mock.adapters.deployments(),
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
+        database: mock.adapters.database(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
       },
@@ -137,6 +144,22 @@ export const mock = {
         deployments: mock.adapters.deployments(),
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
+  proposeCtx: (): ProposeContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
+        relayers: mock.adapters.relayers(),
+        database: mock.adapters.database(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
       },

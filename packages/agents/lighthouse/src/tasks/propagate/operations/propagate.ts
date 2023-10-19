@@ -53,7 +53,7 @@ export const propagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -100,7 +100,7 @@ export const propagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -112,7 +112,7 @@ export const propagate = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
@@ -134,7 +134,7 @@ export const finalizeAndPropagate = async () => {
     throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -212,7 +212,7 @@ export const finalizeAndPropagate = async () => {
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagateKeep3r", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
     _connectors,
     _fees,
     _encodedData,
@@ -224,19 +224,19 @@ export const finalizeAndPropagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
       logger,
       requestContext,
     );
-    logger.info("finalizeAndPropagateKeep3r tx sent", requestContext, methodContext, { taskId });
+    logger.info("finalizeAndPropagate tx sent", requestContext, methodContext, { taskId });
   } catch (e: unknown) {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }

@@ -6,6 +6,10 @@ import {
   mockOriginMessageSubgraphResponse,
   mockPropagatedRootSubgraphResponse,
   mockReceivedAggregateRootSubgraphResponse,
+  mockProposedSnapshotsSubgraphResponse,
+  mockFinalizedRootsByDomainSubgraphResponse,
+  mockPropagatedOptimisticRootsByDomainSubgraphResponse,
+  mockgetSavedSnapshotRootsByDomainSubgraphResponse,
 } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 import { mockContext } from "../../globalTestHook";
@@ -13,6 +17,10 @@ import {
   updateAggregatedRoots,
   updatePropagatedRoots,
   updateReceivedAggregateRoots,
+  updateProposedSnapshots,
+  updateFinalizedRoots,
+  updatePropagatedOptmisticRoots,
+  retrieveSavedSnapshotRoot,
 } from "../../../src/lib/operations";
 
 describe("Roots operations", () => {
@@ -98,6 +106,132 @@ describe("Roots operations", () => {
       await updateReceivedAggregateRoots();
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
       expect(mockContext.adapters.database.saveReceivedAggregateRoot as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
+    });
+  });
+
+  describe("#updateProposedSnapshots", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves(
+        mockProposedSnapshotsSubgraphResponse,
+        mockProposedSnapshotsSubgraphResponse,
+      );
+      const newDisputeCliff = mockProposedSnapshotsSubgraphResponse.sort((a, b) => b.endOfDispute - a.endOfDispute)[0]
+        .endOfDispute;
+
+      await updateProposedSnapshots();
+      expect(mockContext.adapters.database.saveProposedSnapshots as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).to.be.calledOnceWithExactly([
+        { hub: "1337", snapshotId: 42, limit: 100 },
+      ]);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+        mockProposedSnapshotsSubgraphResponse[1].endOfDispute,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "proposed_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+      );
+    });
+    it("initial conditions", async () => {
+      (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getProposedSnapshotsByDomain as SinonStub).resolves([]);
+      await updatePropagatedRoots();
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.savePropagatedRoots as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
+    });
+  });
+
+  describe("#updateFinalizedRoots", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).resolves(
+        mockFinalizedRootsByDomainSubgraphResponse,
+      );
+      await updateFinalizedRoots();
+      expect(mockContext.adapters.database.saveFinalizedRoots as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).to.be.calledOnceWithExactly([
+        { hub: "1337", timestamp: 42, limit: 100 },
+      ]);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "finalized_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+        43,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "finalized_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+      );
+    });
+    it("initial conditions", async () => {
+      (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).resolves([]);
+      await updatePropagatedRoots();
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveFinalizedRoots as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
+    });
+  });
+
+  describe("#updatePropagatedOptmisticRoots", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getPropagatedOptimisticRootsByDomain as SinonStub).resolves(
+        mockPropagatedOptimisticRootsByDomainSubgraphResponse,
+      );
+      await updatePropagatedOptmisticRoots();
+      expect(mockContext.adapters.database.savePropagatedOptimisticRoots as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(1);
+      expect(
+        mockContext.adapters.subgraph.getPropagatedOptimisticRootsByDomain as SinonStub,
+      ).to.be.calledOnceWithExactly([{ hub: "1337", timestamp: 42, limit: 100 }]);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "propagated_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+        43,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledOnceWithExactly(
+        "propagated_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+      );
+    });
+    it("initial conditions", async () => {
+      (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getPropagatedOptimisticRootsByDomain as SinonStub).resolves([]);
+      await updatePropagatedRoots();
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.savePropagatedOptimisticRoots as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
+    });
+  });
+
+  describe("#retrieveSavedSnapshotRoot", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getSavedSnapshotRootsByDomain as SinonStub).resolves(
+        mockgetSavedSnapshotRootsByDomainSubgraphResponse,
+      );
+      await retrieveSavedSnapshotRoot();
+      expect(mockContext.adapters.database.saveSnapshotRoots as SinonStub).callCount(
+        mockgetSavedSnapshotRootsByDomainSubgraphResponse.length,
+      );
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(
+        mockgetSavedSnapshotRootsByDomainSubgraphResponse.length,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(
+        mockgetSavedSnapshotRootsByDomainSubgraphResponse.length,
+      );
+      expect(mockContext.adapters.subgraph.getSavedSnapshotRootsByDomain as SinonStub).to.be.calledWithExactly([
+        { hub: "1337", snapshotId: 42, limit: 100 },
+      ]);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledWithExactly(
+        "saved_snapshoted_root_" + mockConnectorMeta[0].hubDomain,
+      );
+    });
+    it("initial conditions", async () => {
+      (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getSavedSnapshotRootsByDomain as SinonStub).resolves([]);
+      await updatePropagatedRoots();
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveSnapshotRoots as SinonStub).to.not.be.called;
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
     });
   });

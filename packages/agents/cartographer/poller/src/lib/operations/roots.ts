@@ -58,26 +58,27 @@ export const updateProposedSnapshots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const offset = await database.getCheckPoint("proposed_optimistic_root" + hub);
+    const disputeCliff = await database.getCheckPoint("proposed_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving proposed aggregated root snapshot", requestContext, methodContext, {
       hub: hub,
-      offset: offset,
+      disputeCliff: disputeCliff,
       limit: limit,
     });
 
-    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([{ hub, snapshotId: offset, limit }]);
+    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([
+      { hub, snapshotId: disputeCliff, limit },
+    ]);
 
-    // Reset offset at the end of the cycle.
-    // TODO: Pagination criteria off by one ?
-    const newOffset = snapshots.length == 0 ? 0 : offset + snapshots.length - 1;
-    if (offset === 0 || newOffset > offset) {
+    const newDisputeCliff =
+      snapshots.length == 0 ? 0 : snapshots.sort((a, b) => b.endOfDispute - a.endOfDispute)[0].endOfDispute;
+    if (disputeCliff === 0 || newDisputeCliff > disputeCliff) {
       await database.saveProposedSnapshots(snapshots);
 
-      await database.saveCheckPoint("proposed_optimistic_root" + hub, newOffset);
+      await database.saveCheckPoint("proposed_optimistic_root_" + hub, newDisputeCliff);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {
         hub: hub,
-        offset: newOffset,
+        disputeCliff: newDisputeCliff,
       });
     }
   }
@@ -113,7 +114,7 @@ export const updateFinalizedRoots = async () => {
     if (offset === 0 || newOffset > offset) {
       await database.saveFinalizedRoots(roots);
 
-      await database.saveCheckPoint("finalized_root_" + hub, newOffset);
+      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newOffset);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
         offset: newOffset,

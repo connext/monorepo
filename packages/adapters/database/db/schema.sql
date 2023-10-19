@@ -1175,6 +1175,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: snapshot_roots snapshot_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshot_roots
+    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (id, spoke_domain);
+
+
+--
 -- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1497,4 +1505,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230530074124'),
     ('20230608135754'),
     ('20230608174759'),
-    ('20230613125451');
+    ('20230613125451'),
+    ('20231012233640');

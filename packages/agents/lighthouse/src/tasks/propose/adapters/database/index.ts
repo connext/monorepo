@@ -1,1 +1,1 @@
-export { OptimisticHubDBHelper } from "./helper";
+export { OptimisticHubDBHelper } from "../../../prover/adapters/database";

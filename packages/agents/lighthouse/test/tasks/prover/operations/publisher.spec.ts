@@ -1,4 +1,4 @@
-import { expect, createRequestContext, mkBytes32 } from "@connext/nxtp-utils";
+import { expect, createRequestContext, mkBytes32, ModeType } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import {
@@ -6,9 +6,11 @@ import {
   prefetch,
   createBrokerMessage,
   getUnProcessedMessagesByIndex,
+  acquireLock,
+  releaseLock,
 } from "../../../../src/tasks/prover/operations/publisher";
 import * as PublisherFns from "../../../../src/tasks/prover/operations/publisher";
-import { mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
+import { mock, mockXMessage1, mockXMessage2, mockRootMessage, mockReceivedRoot } from "../../../mock";
 import { proverCtxMock } from "../../../globalTestHook";
 import { NoDestinationDomainForProof } from "../../../../src/errors";
 import { BrokerMessage } from "../../../../src/tasks/prover/operations/types";
@@ -22,6 +24,7 @@ const mockBrokerMesage: BrokerMessage = {
   messageRootCount: 2,
   aggregateRoot: mkBytes32("0x222"),
   aggregateRootCount: 2,
+  snapshotRoots: [],
 };
 
 const requestContext = createRequestContext("Publisher");
@@ -50,11 +53,65 @@ describe("Operations: Publisher", () => {
     let createBrokerMessageStub: SinonStub;
 
     beforeEach(() => {
-      createBrokerMessageStub = stub(PublisherFns, "createBrokerMessage").resolves();
+      createBrokerMessageStub = stub(PublisherFns, "createBrokerMessage").resolves(mockBrokerMesage);
       stub(PublisherFns, "getUnProcessedMessagesByIndex").resolves([mockXMessage1, mockXMessage2]);
     });
+    it("happy case should enqueue a broker messages", async () => {
+      const channel = await proverCtxMock.adapters.mqClient.createChannel();
+      const publishStub = (channel.publish as SinonStub).resolves();
 
-    it("should enqueue a broker messages", async () => {
+      (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
+      (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
+      createBrokerMessageStub.resolves(mockBrokerMesage);
+      await enqueue();
+      expect(createBrokerMessageStub.callCount).to.be.eq(4);
+    });
+
+    it("happy case should enqueue a broker messages in op mode", async () => {
+      acquireLock();
+      const channel = await proverCtxMock.adapters.mqClient.createChannel();
+      const publishStub = (channel.publish as SinonStub).resolves();
+      proverCtxMock.mode = ModeType.OptimisticMode;
+
+      (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
+      (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
+      createBrokerMessageStub.resolves(mockBrokerMesage);
+      await enqueue();
+      releaseLock();
+      expect(createBrokerMessageStub.callCount).to.be.eq(4);
+    });
+
+    it("should not enqueue if no snapshot root in op mode", async () => {
+      const channel = await proverCtxMock.adapters.mqClient.createChannel();
+      const publishStub = (channel.publish as SinonStub).resolves();
+      proverCtxMock.mode = ModeType.OptimisticMode;
+
+      (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
+      (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(undefined);
+      (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
+      (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
+      createBrokerMessageStub.resolves(mockBrokerMesage);
+      await enqueue();
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
+    });
+
+    it("should catch error if no pending aggregate root", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
@@ -63,7 +120,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
       (proverCtxMock.adapters.cache.messages.setNonce as SinonStub).resolves();
       createBrokerMessageStub.resolves(mockBrokerMesage);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(4);
     });
     it("should catch error if no received aggregate root", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([]);
@@ -72,7 +130,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       createBrokerMessageStub.resolves(mockBrokerMesage);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
     });
     it("should catch error if no target message root", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
@@ -80,7 +139,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
     });
     it("should catch error if no message root count", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
@@ -88,7 +148,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
     });
     it("should catch error if no message root index", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
@@ -96,7 +157,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
     });
     it("should catch error if no aggregate root count", async () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
@@ -104,7 +166,8 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(undefined);
-      await enqueue();
+      expect(await enqueue()).to.throw;
+      expect(createBrokerMessageStub.callCount).to.be.eq(0);
     });
   });
   describe("#createBrokerMessage", () => {
@@ -120,6 +183,7 @@ describe("Operations: Publisher", () => {
         mockBrokerMesage.messageRootCount,
         mockBrokerMesage.aggregateRoot,
         mockBrokerMesage.aggregateRootCount,
+        mockBrokerMesage.snapshotRoots,
         requestContext,
       );
       expect(brokerMessage).to.be.deep.eq(mockBrokerMesage);
@@ -135,6 +199,7 @@ describe("Operations: Publisher", () => {
           mockBrokerMesage.messageRootCount,
           mockBrokerMesage.aggregateRoot,
           mockBrokerMesage.aggregateRootCount,
+          mockBrokerMesage.snapshotRoots,
           requestContext,
         ),
       ).to.eventually.be.rejectedWith(NoDestinationDomainForProof);
@@ -153,6 +218,7 @@ describe("Operations: Publisher", () => {
         mockBrokerMesage.messageRootCount,
         mockBrokerMesage.aggregateRoot,
         mockBrokerMesage.aggregateRootCount,
+        mockBrokerMesage.snapshotRoots,
         requestContext,
       );
       expect(brokerMessage).to.be.undefined;

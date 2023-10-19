@@ -31,6 +31,7 @@ export const mockDatabase = (): Database => {
     getUnProcessedMessagesByDomains: stub().resolves([]),
     getAggregateRoot: stub().resolves(),
     getAggregateRootCount: stub().resolves(),
+    getBaseAggregateRootCount: stub().resolves(),
     getMessageRootIndex: stub().resolves(),
     getMessageRootAggregatedFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
@@ -73,5 +74,15 @@ export const mockDatabase = (): Database => {
       }),
     ]),
     deleteCache: stub().resolves(),
+    saveProposedSnapshots: stub().resolves(),
+    saveFinalizedRoots: stub().resolves(),
+    savePropagatedOptimisticRoots: stub().resolves(),
+    saveSnapshotRoots: stub().resolves(),
+    getCurrentProposedSnapshot: stub().resolves(),
+    getBaseAggregateRoot: stub().resolves(),
+    getAggregateRoots: stub().resolves(),
+    getPendingAggregateRoot: stub().resolves(),
+    getRootMessage: stub().resolves(),
+    getLatestPendingSnapshotRootByDomain: stub().resolves([mock.entity.snapshotRoot().root]),
   };
 };
