@@ -274,6 +274,8 @@ export type { IConnectorManager } from "./contracts/messaging/interfaces/IConnec
 export { IConnectorManager__factory } from "./factories/contracts/messaging/interfaces/IConnectorManager__factory";
 export type { IHubConnector } from "./contracts/messaging/interfaces/IHubConnector";
 export { IHubConnector__factory } from "./factories/contracts/messaging/interfaces/IHubConnector__factory";
+export type { IHubSpokeConnector } from "./contracts/messaging/interfaces/IHubSpokeConnector";
+export { IHubSpokeConnector__factory } from "./factories/contracts/messaging/interfaces/IHubSpokeConnector__factory";
 export type { IMessageRecipient } from "./contracts/messaging/interfaces/IMessageRecipient";
 export { IMessageRecipient__factory } from "./factories/contracts/messaging/interfaces/IMessageRecipient__factory";
 export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexer";

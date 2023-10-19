@@ -41,6 +41,7 @@ export interface RootManagerInterface extends utils.Interface {
     "addProposer(address)": FunctionFragment;
     "aggregate(uint32,bytes32)": FunctionFragment;
     "allowlistedProposers(address)": FunctionFragment;
+    "clearHubDomain()": FunctionFragment;
     "connectors(uint256)": FunctionFragment;
     "connectorsHash()": FunctionFragment;
     "delay()": FunctionFragment;
@@ -52,14 +53,14 @@ export interface RootManagerInterface extends utils.Interface {
     "domainsHash()": FunctionFragment;
     "finalize(bytes32,uint256)": FunctionFragment;
     "finalizeAndPropagate(address[],uint256[],bytes[],bytes32,uint256)": FunctionFragment;
-    "finalizedOptimisticAggregateRoot()": FunctionFragment;
     "getConnectorForDomain(uint32)": FunctionFragment;
     "getDomainIndex(uint32)": FunctionFragment;
     "getPendingInboundRootsCount()": FunctionFragment;
     "getSnapshotDuration()": FunctionFragment;
+    "hubDomain()": FunctionFragment;
     "isDomainSupported(uint32)": FunctionFragment;
-    "lastCountBeforeOpMode()": FunctionFragment;
     "lastPropagatedRoot(uint32)": FunctionFragment;
+    "lastSavedAggregateRootTimestamp()": FunctionFragment;
     "minDisputeBlocks()": FunctionFragment;
     "optimisticMode()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -76,11 +77,14 @@ export interface RootManagerInterface extends utils.Interface {
     "removeProposer(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
+    "sendRootToHubSpoke()": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
     "setDisputeBlocks(uint256)": FunctionFragment;
+    "setHubDomain(uint32)": FunctionFragment;
     "setMinDisputeBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
     "unpause()": FunctionFragment;
+    "validAggregateRoots(uint256)": FunctionFragment;
     "validateConnectors(address[])": FunctionFragment;
     "validateDomains(uint32[],address[])": FunctionFragment;
     "watcherManager()": FunctionFragment;
@@ -99,6 +103,7 @@ export interface RootManagerInterface extends utils.Interface {
       | "addProposer"
       | "aggregate"
       | "allowlistedProposers"
+      | "clearHubDomain"
       | "connectors"
       | "connectorsHash"
       | "delay"
@@ -110,14 +115,14 @@ export interface RootManagerInterface extends utils.Interface {
       | "domainsHash"
       | "finalize"
       | "finalizeAndPropagate"
-      | "finalizedOptimisticAggregateRoot"
       | "getConnectorForDomain"
       | "getDomainIndex"
       | "getPendingInboundRootsCount"
       | "getSnapshotDuration"
+      | "hubDomain"
       | "isDomainSupported"
-      | "lastCountBeforeOpMode"
       | "lastPropagatedRoot"
+      | "lastSavedAggregateRootTimestamp"
       | "minDisputeBlocks"
       | "optimisticMode"
       | "owner"
@@ -134,11 +139,14 @@ export interface RootManagerInterface extends utils.Interface {
       | "removeProposer"
       | "renounceOwnership"
       | "renounced"
+      | "sendRootToHubSpoke"
       | "setDelayBlocks"
       | "setDisputeBlocks"
+      | "setHubDomain"
       | "setMinDisputeBlocks"
       | "setWatcherManager"
       | "unpause"
+      | "validAggregateRoots"
       | "validateConnectors"
       | "validateDomains"
       | "watcherManager"
@@ -186,6 +194,10 @@ export interface RootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "clearHubDomain",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "connectors",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -230,10 +242,6 @@ export interface RootManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "finalizedOptimisticAggregateRoot",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getConnectorForDomain",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -249,17 +257,18 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "getSnapshotDuration",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "hubDomain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isDomainSupported",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "lastCountBeforeOpMode",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "lastPropagatedRoot",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastSavedAggregateRootTimestamp",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "minDisputeBlocks",
@@ -320,11 +329,19 @@ export interface RootManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "renounced", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "sendRootToHubSpoke",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setDelayBlocks",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setDisputeBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setHubDomain",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -336,6 +353,10 @@ export interface RootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "validAggregateRoots",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "validateConnectors",
     values: [PromiseOrValue<string>[]]
@@ -387,6 +408,10 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "allowlistedProposers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "clearHubDomain",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "connectors", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "connectorsHash",
@@ -417,10 +442,6 @@ export interface RootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "finalizedOptimisticAggregateRoot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getConnectorForDomain",
     data: BytesLike
   ): Result;
@@ -436,16 +457,17 @@ export interface RootManagerInterface extends utils.Interface {
     functionFragment: "getSnapshotDuration",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "hubDomain", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isDomainSupported",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "lastCountBeforeOpMode",
+    functionFragment: "lastPropagatedRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "lastPropagatedRoot",
+    functionFragment: "lastSavedAggregateRootTimestamp",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -495,11 +517,19 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "renounced", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "sendRootToHubSpoke",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setDelayBlocks",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "setDisputeBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setHubDomain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -511,6 +541,10 @@ export interface RootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "validAggregateRoots",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "validateConnectors",
     data: BytesLike
@@ -525,57 +559,73 @@ export interface RootManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AggregateRootPropagated(bytes32,bytes32)": EventFragment;
     "AggregateRootProposed(uint256,uint256,bytes32,bytes32,bytes32[],uint32[])": EventFragment;
+    "AggregateRootSavedOptimistic(bytes32,uint256)": EventFragment;
+    "AggregateRootSavedSlow(bytes32,uint256,bytes32[],uint256)": EventFragment;
     "ConnectorAdded(uint32,address,uint32[],address[])": EventFragment;
     "ConnectorRemoved(uint32,address,uint32[],address[],address)": EventFragment;
     "DelayBlocksUpdated(uint256,uint256)": EventFragment;
     "DisputeBlocksUpdated(uint256,uint256)": EventFragment;
     "DomainAdded(uint32,address)": EventFragment;
     "DomainRemoved(uint32)": EventFragment;
+    "HubDomainCleared()": EventFragment;
+    "HubDomainSet(uint32)": EventFragment;
     "MinDisputeBlocksUpdated(uint256,uint256)": EventFragment;
     "OptimisticModeActivated()": EventFragment;
-    "OptimisticRootPropagated(bytes32,bytes32)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "PropagateFailed(uint32,address)": EventFragment;
-    "ProposedRootFinalized(bytes32)": EventFragment;
     "ProposerAdded(address)": EventFragment;
     "ProposerRemoved(address)": EventFragment;
     "RootDiscarded(bytes32)": EventFragment;
-    "RootPropagated(bytes32,uint256,bytes32)": EventFragment;
     "RootReceived(uint32,bytes32,uint256)": EventFragment;
-    "RootsAggregated(bytes32,uint256,bytes32[])": EventFragment;
     "SlowModeActivated(address)": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AggregateRootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootProposed"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AggregateRootSavedOptimistic"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AggregateRootSavedSlow"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ConnectorRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DisputeBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DomainAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DomainRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HubDomainCleared"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HubDomainSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MinDisputeBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OptimisticModeActivated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OptimisticRootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PropagateFailed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ProposedRootFinalized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProposerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootDiscarded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RootPropagated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RootReceived"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RootsAggregated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlowModeActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
+
+export interface AggregateRootPropagatedEventObject {
+  aggregateRoot: string;
+  domainsHash: string;
+}
+export type AggregateRootPropagatedEvent = TypedEvent<
+  [string, string],
+  AggregateRootPropagatedEventObject
+>;
+
+export type AggregateRootPropagatedEventFilter =
+  TypedEventFilter<AggregateRootPropagatedEvent>;
 
 export interface AggregateRootProposedEventObject {
   snapshotId: BigNumber;
@@ -592,6 +642,32 @@ export type AggregateRootProposedEvent = TypedEvent<
 
 export type AggregateRootProposedEventFilter =
   TypedEventFilter<AggregateRootProposedEvent>;
+
+export interface AggregateRootSavedOptimisticEventObject {
+  aggregateRoot: string;
+  rootTimestamp: BigNumber;
+}
+export type AggregateRootSavedOptimisticEvent = TypedEvent<
+  [string, BigNumber],
+  AggregateRootSavedOptimisticEventObject
+>;
+
+export type AggregateRootSavedOptimisticEventFilter =
+  TypedEventFilter<AggregateRootSavedOptimisticEvent>;
+
+export interface AggregateRootSavedSlowEventObject {
+  aggregateRoot: string;
+  leafCount: BigNumber;
+  aggregatedRoots: string[];
+  rootTimestamp: BigNumber;
+}
+export type AggregateRootSavedSlowEvent = TypedEvent<
+  [string, BigNumber, string[], BigNumber],
+  AggregateRootSavedSlowEventObject
+>;
+
+export type AggregateRootSavedSlowEventFilter =
+  TypedEventFilter<AggregateRootSavedSlowEvent>;
 
 export interface ConnectorAddedEventObject {
   domain: number;
@@ -663,6 +739,19 @@ export type DomainRemovedEvent = TypedEvent<[number], DomainRemovedEventObject>;
 
 export type DomainRemovedEventFilter = TypedEventFilter<DomainRemovedEvent>;
 
+export interface HubDomainClearedEventObject {}
+export type HubDomainClearedEvent = TypedEvent<[], HubDomainClearedEventObject>;
+
+export type HubDomainClearedEventFilter =
+  TypedEventFilter<HubDomainClearedEvent>;
+
+export interface HubDomainSetEventObject {
+  domain: number;
+}
+export type HubDomainSetEvent = TypedEvent<[number], HubDomainSetEventObject>;
+
+export type HubDomainSetEventFilter = TypedEventFilter<HubDomainSetEvent>;
+
 export interface MinDisputeBlocksUpdatedEventObject {
   previous: BigNumber;
   updated: BigNumber;
@@ -683,18 +772,6 @@ export type OptimisticModeActivatedEvent = TypedEvent<
 
 export type OptimisticModeActivatedEventFilter =
   TypedEventFilter<OptimisticModeActivatedEvent>;
-
-export interface OptimisticRootPropagatedEventObject {
-  aggregateRoot: string;
-  domainsHash: string;
-}
-export type OptimisticRootPropagatedEvent = TypedEvent<
-  [string, string],
-  OptimisticRootPropagatedEventObject
->;
-
-export type OptimisticRootPropagatedEventFilter =
-  TypedEventFilter<OptimisticRootPropagatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -737,17 +814,6 @@ export type PropagateFailedEvent = TypedEvent<
 
 export type PropagateFailedEventFilter = TypedEventFilter<PropagateFailedEvent>;
 
-export interface ProposedRootFinalizedEventObject {
-  aggregateRoot: string;
-}
-export type ProposedRootFinalizedEvent = TypedEvent<
-  [string],
-  ProposedRootFinalizedEventObject
->;
-
-export type ProposedRootFinalizedEventFilter =
-  TypedEventFilter<ProposedRootFinalizedEvent>;
-
 export interface ProposerAddedEventObject {
   proposer: string;
 }
@@ -772,18 +838,6 @@ export type RootDiscardedEvent = TypedEvent<[string], RootDiscardedEventObject>;
 
 export type RootDiscardedEventFilter = TypedEventFilter<RootDiscardedEvent>;
 
-export interface RootPropagatedEventObject {
-  aggregateRoot: string;
-  count: BigNumber;
-  domainsHash: string;
-}
-export type RootPropagatedEvent = TypedEvent<
-  [string, BigNumber, string],
-  RootPropagatedEventObject
->;
-
-export type RootPropagatedEventFilter = TypedEventFilter<RootPropagatedEvent>;
-
 export interface RootReceivedEventObject {
   domain: number;
   receivedRoot: string;
@@ -795,18 +849,6 @@ export type RootReceivedEvent = TypedEvent<
 >;
 
 export type RootReceivedEventFilter = TypedEventFilter<RootReceivedEvent>;
-
-export interface RootsAggregatedEventObject {
-  aggregateRoot: string;
-  count: BigNumber;
-  aggregatedMessageRoots: string[];
-}
-export type RootsAggregatedEvent = TypedEvent<
-  [string, BigNumber, string[]],
-  RootsAggregatedEventObject
->;
-
-export type RootsAggregatedEventFilter = TypedEventFilter<RootsAggregatedEvent>;
 
 export interface SlowModeActivatedEventObject {
   watcher: string;
@@ -906,6 +948,10 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    clearHubDomain(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -950,10 +996,6 @@ export interface RootManager extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    finalizedOptimisticAggregateRoot(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     getConnectorForDomain(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -972,17 +1014,21 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { _snapshotDuration: BigNumber }>;
 
+    hubDomain(overrides?: CallOverrides): Promise<[number]>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    lastCountBeforeOpMode(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     lastPropagatedRoot(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    lastSavedAggregateRootTimestamp(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     minDisputeBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -1042,6 +1088,10 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<[boolean]>;
 
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1049,6 +1099,11 @@ export interface RootManager extends BaseContract {
 
     setDisputeBlocks(
       _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setHubDomain(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1065,6 +1120,11 @@ export interface RootManager extends BaseContract {
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    validAggregateRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     validateConnectors(
       _connectors: PromiseOrValue<string>[],
@@ -1122,6 +1182,10 @@ export interface RootManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  clearHubDomain(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   connectors(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1166,8 +1230,6 @@ export interface RootManager extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  finalizedOptimisticAggregateRoot(overrides?: CallOverrides): Promise<string>;
-
   getConnectorForDomain(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -1182,17 +1244,21 @@ export interface RootManager extends BaseContract {
 
   getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
+  hubDomain(overrides?: CallOverrides): Promise<number>;
+
   isDomainSupported(
     _domain: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
-
   lastPropagatedRoot(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  lastSavedAggregateRootTimestamp(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1252,6 +1318,10 @@ export interface RootManager extends BaseContract {
 
   renounced(overrides?: CallOverrides): Promise<boolean>;
 
+  sendRootToHubSpoke(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setDelayBlocks(
     _delayBlocks: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1259,6 +1329,11 @@ export interface RootManager extends BaseContract {
 
   setDisputeBlocks(
     _disputeBlocks: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setHubDomain(
+    _domain: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1275,6 +1350,11 @@ export interface RootManager extends BaseContract {
   unpause(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  validAggregateRoots(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   validateConnectors(
     _connectors: PromiseOrValue<string>[],
@@ -1326,6 +1406,8 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    clearHubDomain(overrides?: CallOverrides): Promise<void>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1368,10 +1450,6 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    finalizedOptimisticAggregateRoot(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     getConnectorForDomain(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1386,17 +1464,21 @@ export interface RootManager extends BaseContract {
 
     getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
+    hubDomain(overrides?: CallOverrides): Promise<number>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
-
     lastPropagatedRoot(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    lastSavedAggregateRootTimestamp(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1452,6 +1534,8 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<boolean>;
 
+    sendRootToHubSpoke(overrides?: CallOverrides): Promise<void>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1459,6 +1543,11 @@ export interface RootManager extends BaseContract {
 
     setDisputeBlocks(
       _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setHubDomain(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1473,6 +1562,11 @@ export interface RootManager extends BaseContract {
     ): Promise<void>;
 
     unpause(overrides?: CallOverrides): Promise<void>;
+
+    validAggregateRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     validateConnectors(
       _connectors: PromiseOrValue<string>[],
@@ -1489,6 +1583,15 @@ export interface RootManager extends BaseContract {
   };
 
   filters: {
+    "AggregateRootPropagated(bytes32,bytes32)"(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      domainsHash?: null
+    ): AggregateRootPropagatedEventFilter;
+    AggregateRootPropagated(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      domainsHash?: null
+    ): AggregateRootPropagatedEventFilter;
+
     "AggregateRootProposed(uint256,uint256,bytes32,bytes32,bytes32[],uint32[])"(
       snapshotId?: PromiseOrValue<BigNumberish> | null,
       endOfDispute?: null,
@@ -1505,6 +1608,28 @@ export interface RootManager extends BaseContract {
       snapshotsRoots?: null,
       domains?: null
     ): AggregateRootProposedEventFilter;
+
+    "AggregateRootSavedOptimistic(bytes32,uint256)"(
+      aggregateRoot?: null,
+      rootTimestamp?: null
+    ): AggregateRootSavedOptimisticEventFilter;
+    AggregateRootSavedOptimistic(
+      aggregateRoot?: null,
+      rootTimestamp?: null
+    ): AggregateRootSavedOptimisticEventFilter;
+
+    "AggregateRootSavedSlow(bytes32,uint256,bytes32[],uint256)"(
+      aggregateRoot?: null,
+      leafCount?: null,
+      aggregatedRoots?: null,
+      rootTimestamp?: null
+    ): AggregateRootSavedSlowEventFilter;
+    AggregateRootSavedSlow(
+      aggregateRoot?: null,
+      leafCount?: null,
+      aggregatedRoots?: null,
+      rootTimestamp?: null
+    ): AggregateRootSavedSlowEventFilter;
 
     "ConnectorAdded(uint32,address,uint32[],address[])"(
       domain?: null,
@@ -1561,6 +1686,12 @@ export interface RootManager extends BaseContract {
     "DomainRemoved(uint32)"(domain?: null): DomainRemovedEventFilter;
     DomainRemoved(domain?: null): DomainRemovedEventFilter;
 
+    "HubDomainCleared()"(): HubDomainClearedEventFilter;
+    HubDomainCleared(): HubDomainClearedEventFilter;
+
+    "HubDomainSet(uint32)"(domain?: null): HubDomainSetEventFilter;
+    HubDomainSet(domain?: null): HubDomainSetEventFilter;
+
     "MinDisputeBlocksUpdated(uint256,uint256)"(
       previous?: null,
       updated?: null
@@ -1572,15 +1703,6 @@ export interface RootManager extends BaseContract {
 
     "OptimisticModeActivated()"(): OptimisticModeActivatedEventFilter;
     OptimisticModeActivated(): OptimisticModeActivatedEventFilter;
-
-    "OptimisticRootPropagated(bytes32,bytes32)"(
-      aggregateRoot?: PromiseOrValue<BytesLike> | null,
-      domainsHash?: null
-    ): OptimisticRootPropagatedEventFilter;
-    OptimisticRootPropagated(
-      aggregateRoot?: PromiseOrValue<BytesLike> | null,
-      domainsHash?: null
-    ): OptimisticRootPropagatedEventFilter;
 
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
@@ -1610,13 +1732,6 @@ export interface RootManager extends BaseContract {
       connector?: null
     ): PropagateFailedEventFilter;
 
-    "ProposedRootFinalized(bytes32)"(
-      aggregateRoot?: null
-    ): ProposedRootFinalizedEventFilter;
-    ProposedRootFinalized(
-      aggregateRoot?: null
-    ): ProposedRootFinalizedEventFilter;
-
     "ProposerAdded(address)"(
       proposer?: PromiseOrValue<string> | null
     ): ProposerAddedEventFilter;
@@ -1634,17 +1749,6 @@ export interface RootManager extends BaseContract {
     "RootDiscarded(bytes32)"(fraudulentRoot?: null): RootDiscardedEventFilter;
     RootDiscarded(fraudulentRoot?: null): RootDiscardedEventFilter;
 
-    "RootPropagated(bytes32,uint256,bytes32)"(
-      aggregateRoot?: null,
-      count?: null,
-      domainsHash?: null
-    ): RootPropagatedEventFilter;
-    RootPropagated(
-      aggregateRoot?: null,
-      count?: null,
-      domainsHash?: null
-    ): RootPropagatedEventFilter;
-
     "RootReceived(uint32,bytes32,uint256)"(
       domain?: null,
       receivedRoot?: null,
@@ -1655,17 +1759,6 @@ export interface RootManager extends BaseContract {
       receivedRoot?: null,
       queueIndex?: null
     ): RootReceivedEventFilter;
-
-    "RootsAggregated(bytes32,uint256,bytes32[])"(
-      aggregateRoot?: null,
-      count?: null,
-      aggregatedMessageRoots?: null
-    ): RootsAggregatedEventFilter;
-    RootsAggregated(
-      aggregateRoot?: null,
-      count?: null,
-      aggregatedMessageRoots?: null
-    ): RootsAggregatedEventFilter;
 
     "SlowModeActivated(address)"(
       watcher?: PromiseOrValue<string> | null
@@ -1728,6 +1821,10 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    clearHubDomain(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1772,10 +1869,6 @@ export interface RootManager extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    finalizedOptimisticAggregateRoot(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getConnectorForDomain(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1790,15 +1883,19 @@ export interface RootManager extends BaseContract {
 
     getSnapshotDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
+    hubDomain(overrides?: CallOverrides): Promise<BigNumber>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    lastCountBeforeOpMode(overrides?: CallOverrides): Promise<BigNumber>;
-
     lastPropagatedRoot(
       arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lastSavedAggregateRootTimestamp(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1858,6 +1955,10 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<BigNumber>;
 
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1865,6 +1966,11 @@ export interface RootManager extends BaseContract {
 
     setDisputeBlocks(
       _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setHubDomain(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1880,6 +1986,11 @@ export interface RootManager extends BaseContract {
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    validAggregateRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateConnectors(
@@ -1939,6 +2050,10 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    clearHubDomain(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     connectors(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1983,10 +2098,6 @@ export interface RootManager extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    finalizedOptimisticAggregateRoot(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getConnectorForDomain(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -2005,17 +2116,19 @@ export interface RootManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    hubDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     isDomainSupported(
       _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    lastCountBeforeOpMode(
+    lastPropagatedRoot(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    lastPropagatedRoot(
-      arg0: PromiseOrValue<BigNumberish>,
+    lastSavedAggregateRootTimestamp(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2079,6 +2192,10 @@ export interface RootManager extends BaseContract {
 
     renounced(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setDelayBlocks(
       _delayBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2086,6 +2203,11 @@ export interface RootManager extends BaseContract {
 
     setDisputeBlocks(
       _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setHubDomain(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2101,6 +2223,11 @@ export interface RootManager extends BaseContract {
 
     unpause(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    validAggregateRoots(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateConnectors(
