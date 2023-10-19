@@ -16,7 +16,7 @@ contract AdminHubConnectorTest is ForgeHelper {
   event MessageProcessed(bytes data, address caller);
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
   event AggregateRootSavedSlow(
-    bytes32 aggregateRoot,
+    bytes32 indexed aggregateRoot,
     uint256 leafCount,
     bytes32[] aggregatedRoots,
     uint256 rootTimestamp
