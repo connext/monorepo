@@ -23,6 +23,7 @@ import {
   RouterDailyTVL,
   isValidBytes32,
   Snapshot,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -412,7 +413,28 @@ export const proposedRoot = (entity: any): Snapshot => {
     baseAggregateRoot: entity.baseAggregateRoot,
   };
 };
+export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: SpokeOptimisticRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregateRoot", "rootTimestamp", "endOfDispute", "domain"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
 
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    rootTimestamp: entity.rootTimestamp,
+    endOfDispute: entity.endOfDispute,
+    domain: entity.domain,
+  };
+};
 export const snapshotRoot = (entity: any): SnapshotRoot => {
   // Sanity checks.
   if (!entity) {

@@ -7,6 +7,7 @@ import {
   SnapshotRoot,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
@@ -84,6 +85,43 @@ export const updateProposedSnapshots = async () => {
   }
 };
 
+export const updateProposedSpokeOptimisticRoot = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateProposedSpokeOptimisticRoot.name);
+
+  const metas = await subgraph.getConnectorMeta(domains);
+
+  for (const domain of domains) {
+    const rootTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving proposed optimistic root for spoke", requestContext, methodContext, {
+      domain,
+      rootTimestamp: rootTimestamp,
+      limit: limit,
+    });
+
+    const opRoots: SpokeOptimisticRoot[] = await subgraph.getProposedSpokeOptimisticRootsByDomain([
+      { domain, rootTimestamp, limit },
+    ]);
+
+    const newRootTimestamp =
+      opRoots.length == 0 ? 0 : opRoots.sort((a, b) => b.rootTimestamp - a.rootTimestamp)[0].rootTimestamp;
+    if (rootTimestamp === 0 || newRootTimestamp > rootTimestamp) {
+      await database.saveProposedSpokeRoots(opRoots);
+
+      await database.saveCheckPoint("proposed_optimistic_root_" + domain, newRootTimestamp);
+      logger.debug("Saved proposed optimistic root for spoke", requestContext, methodContext, {
+        domain,
+        rootTimestamp: newRootTimestamp,
+      });
+    }
+  }
+};
+
 export const updateFinalizedRoots = async () => {
   const {
     adapters: { subgraph, database },
@@ -128,7 +166,7 @@ export const updateFinalizedSpokeRoots = async () => {
     logger,
     domains,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(updateFinalizedRoots.name);
+  const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
 
   const metas = await subgraph.getConnectorMeta(domains);
 

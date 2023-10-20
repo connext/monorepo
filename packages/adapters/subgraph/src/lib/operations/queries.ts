@@ -391,6 +391,13 @@ export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       domains
       baseAggregateRoot
 `;
+export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      aggregateRoot
+      rootTimestamp
+      endOfDispute
+      domain
+`;
 
 export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `
       id
@@ -1083,6 +1090,33 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
       orderDirection: asc
     ) {
       ${PROPOSED_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetProposedSnapshots {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getProposedSpokeOptimisticRootsByDomainQuery = (
+  params: { domain: string; rootTimestamp: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_aggregateRootProposeds ( 
+      first: ${param.limit}, 
+      where: { 
+        rootTimestamp_gt: ${param.rootTimestamp}
+      }
+      orderBy: rootTimestamp,
+      orderDirection: asc
+    ) {
+      ${SPOKE_OPTIMISTIC_ROOT_ENTITY}
     }`;
   }
 

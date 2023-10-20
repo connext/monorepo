@@ -30,6 +30,7 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   Snapshot,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -65,6 +66,7 @@ import {
   getFinalizedRootsByDomainQuery,
   getPropagatedOptimisticRootsByDomainQuery,
   getSavedSnapshotRootsByDomainQuery,
+  getProposedSpokeOptimisticRootsByDomainQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -869,6 +871,34 @@ export class SubgraphReader {
       .flat()
       .filter((x: any) => !!x)
       .map(parser.proposedRoot);
+
+    return proposedRoots;
+  }
+
+  /**
+   * Gets proposed spoke optimistic roots
+   */
+  public async getProposedSpokeOptimisticRootsByDomain(
+    params: { domain: string; rootTimestamp: number; limit: number }[],
+  ): Promise<SpokeOptimisticRoot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSpokeOptimisticRootsByDomainQuery = getProposedSpokeOptimisticRootsByDomainQuery(params);
+    const response = await execute(proposedSpokeOptimisticRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const proposedRoots: SpokeOptimisticRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.proposedSpokeOptimisticRoot);
 
     return proposedRoots;
   }
