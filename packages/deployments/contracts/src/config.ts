@@ -306,6 +306,12 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "goerli",
     },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api-testnet.lineascan.build",
+      },
+    },
   },
   linea: {
     accounts: { mnemonic },
@@ -314,6 +320,12 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
     companionNetworks: {
       hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://explorer.goerli.linea.build",
+      },
     },
   },
 };
