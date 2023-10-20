@@ -12,13 +12,14 @@ import {
   AggregateRootSavedOptimistic as AggregateRootSavedOptimisticEvent,
   AggregateRootSavedSlow as AggregateRootSavedSlowEvent,
 } from "../../../generated/RootManager/RootManager";
+
 import {
-  AggregateRootPropagated,
+  OptimisticRootPropagated,
   RootAggregated, //TOOD: V1.1 Remove
   RootManagerMeta,
   RootManagerMode,
   OptimisticRootProposed,
-  AggregateRootSavedOptimistic,
+  OptimisticRootFinalized,
   AggregateRootSavedSlow,
 } from "../../../generated/schema";
 
@@ -38,20 +39,6 @@ export function handleRootReceived(event: RootReceivedEvent): void {
   instance.domain = event.params.domain;
   instance.receivedRoot = event.params.receivedRoot;
   instance.index = event.params.queueIndex;
-
-  instance.save();
-}
-
-export function handleAggregateRootPropagated(event: AggregateRootPropagatedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
-  // Create the AggregateRootPropagated entity: this is used to track aggregate roots propagated
-  // needed for proof generation off-chain.
-  let instance = AggregateRootPropagated.load(key);
-  if (instance == null) {
-    instance = new AggregateRootPropagated(key);
-  }
-  instance.aggregateRoot = event.params.aggregateRoot;
-  instance.domainsHash = event.params.domainsHash;
 
   instance.save();
 }
@@ -95,14 +82,29 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
 
 export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOptimisticEvent): void {
   const key = event.params.aggregateRoot.toHexString();
-  let instance = AggregateRootSavedOptimistic.load(key);
-  if (instance == null) {
-    instance = new AggregateRootSavedOptimistic(key);
+  let snapshot = OptimisticRootFinalized.load(key);
+  if (snapshot == null) {
+    snapshot = new OptimisticRootFinalized(key);
   }
-  instance.aggregateRoot = event.params.aggregateRoot;
-  instance.rootTimestamp = event.params.rootTimestamp;
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.timestamp = event.params.rootTimestamp;
 
-  instance.save();
+  snapshot.save();
+}
+
+export function handleAggregateRootPropagated(event: AggregateRootPropagatedEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  // Create the OptimisticRootPropagated entity: this is used to track aggregate roots propagated
+  // needed for proof generation off-chain.
+  let snapshot = OptimisticRootPropagated.load(key);
+  if (snapshot == null) {
+    snapshot = new OptimisticRootPropagated(key);
+  }
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.domainsHash = event.params.domainsHash;
+  snapshot.timestamp = event.block.timestamp;
+
+  snapshot.save();
 }
 
 export function handleAggregateRootSavedSlow(event: AggregateRootSavedSlowEvent): void {

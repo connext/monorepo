@@ -122,6 +122,43 @@ export const updateFinalizedRoots = async () => {
     }
   }
 };
+export const updateFinalizedSpokeRoots = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateFinalizedRoots.name);
+
+  const metas = await subgraph.getConnectorMeta(domains);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("finalized_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving finalized aggregated root on spoke", requestContext, methodContext, {
+      domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
+      { hub: domain, timestamp: offset, limit },
+    ]);
+
+    // Reset offset at the end of the cycle.
+    // TODO: Pagination criteria off by one ?
+    const newOffset = roots.length == 0 ? 0 : offset + roots.length - 1;
+    if (offset === 0 || newOffset > offset) {
+      await database.saveFinalizedSpokeRoots(domain, roots);
+
+      await database.saveCheckPoint("finalized_optimistic_root_" + domain, newOffset);
+      logger.debug("Saved finalized aggregated root for spoke", requestContext, methodContext, {
+        domain,
+        offset: newOffset,
+      });
+    }
+  }
+};
 
 export const updatePropagatedOptmisticRoots = async () => {
   const {
