@@ -123,7 +123,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "9991": "Polygon",
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
-  "1668247156": "Consensys",
+  "1668247156": "Linea",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
@@ -131,6 +131,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "6778479": "Gnosis",
   "1634886255": "Arbitrum",
   "6450786": "Bnb",
+  "1818848877": "Linea",
 };
 
 /**

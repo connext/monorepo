@@ -275,7 +275,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
       },
       59140: {
-        prefix: "Consensys",
+        prefix: "Linea",
         ambs: {
           // ZkEvmV202 on goerli
           // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2

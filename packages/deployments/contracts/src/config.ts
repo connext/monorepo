@@ -298,13 +298,34 @@ export const hardhatNetworks = {
       },
     },
   },
-  consensys: {
+  "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
     // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
-    url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
+    url: urlOverride || process.env.LINEA_GOERLI_PROVIDER_URL || "https://rpc.goerli.linea.build",
     companionNetworks: {
       hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api-testnet.lineascan.build",
+      },
+    },
+  },
+  linea: {
+    accounts: { mnemonic },
+    chainId: 59144,
+    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
+    url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://explorer.goerli.linea.build",
+      },
     },
   },
 };
