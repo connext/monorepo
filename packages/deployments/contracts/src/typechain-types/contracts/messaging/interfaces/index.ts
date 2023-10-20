@@ -6,6 +6,7 @@ export type { ambs };
 export type { IConnector } from "./IConnector";
 export type { IConnectorManager } from "./IConnectorManager";
 export type { IHubConnector } from "./IHubConnector";
+export type { IHubSpokeConnector } from "./IHubSpokeConnector";
 export type { IMessageRecipient } from "./IMessageRecipient";
 export type { IOutbox } from "./IOutbox";
 export type { IRootManager } from "./IRootManager";

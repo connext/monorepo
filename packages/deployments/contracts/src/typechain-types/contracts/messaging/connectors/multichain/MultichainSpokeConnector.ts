@@ -29,6 +29,49 @@ import type {
 } from "../../../../common";
 
 export declare namespace SpokeConnector {
+  export type ConstructorParamsStruct = {
+    domain: PromiseOrValue<BigNumberish>;
+    mirrorDomain: PromiseOrValue<BigNumberish>;
+    amb: PromiseOrValue<string>;
+    rootManager: PromiseOrValue<string>;
+    mirrorConnector: PromiseOrValue<string>;
+    processGas: PromiseOrValue<BigNumberish>;
+    reserveGas: PromiseOrValue<BigNumberish>;
+    delayBlocks: PromiseOrValue<BigNumberish>;
+    merkle: PromiseOrValue<string>;
+    watcherManager: PromiseOrValue<string>;
+    minDisputeBlocks: PromiseOrValue<BigNumberish>;
+    disputeBlocks: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ConstructorParamsStructOutput = [
+    number,
+    number,
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    BigNumber,
+    BigNumber
+  ] & {
+    domain: number;
+    mirrorDomain: number;
+    amb: string;
+    rootManager: string;
+    mirrorConnector: string;
+    processGas: BigNumber;
+    reserveGas: BigNumber;
+    delayBlocks: BigNumber;
+    merkle: string;
+    watcherManager: string;
+    minDisputeBlocks: BigNumber;
+    disputeBlocks: BigNumber;
+  };
+
   export type ProofStruct = {
     message: PromiseOrValue<BytesLike>;
     path: PromiseOrValue<BytesLike>[];
@@ -46,18 +89,25 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   functions: {
     "AMB()": FunctionFragment;
     "DOMAIN()": FunctionFragment;
+    "FINALIZED_HASH()": FunctionFragment;
     "MERKLE()": FunctionFragment;
     "MIRROR_DOMAIN()": FunctionFragment;
     "PROCESS_GAS()": FunctionFragment;
     "RESERVE_GAS()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
+    "activateOptimisticMode()": FunctionFragment;
+    "activateSlowMode()": FunctionFragment;
+    "addProposer(address)": FunctionFragment;
     "addSender(address)": FunctionFragment;
+    "allowlistedProposers(address)": FunctionFragment;
     "allowlistedSenders(address)": FunctionFragment;
     "anyExecute(bytes)": FunctionFragment;
     "delay()": FunctionFragment;
     "delayBlocks()": FunctionFragment;
     "dispatch(uint32,bytes32,bytes)": FunctionFragment;
+    "disputeBlocks()": FunctionFragment;
+    "finalize(bytes32,uint256,uint256)": FunctionFragment;
     "gasCap()": FunctionFragment;
     "getLastCompletedSnapshotId()": FunctionFragment;
     "getSnapshotDuration()": FunctionFragment;
@@ -65,28 +115,35 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     "isReplica(address)": FunctionFragment;
     "lastSentBlock()": FunctionFragment;
     "localDomain()": FunctionFragment;
+    "minDisputeBlocks()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
+    "optimisticMode()": FunctionFragment;
     "outboundRoot()": FunctionFragment;
     "owner()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "pendingAggregateRoots(bytes32)": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
+    "proposeAggregateRoot(bytes32,uint256)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
+    "proposedAggregateRootHash()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "provenAggregateRoots(bytes32)": FunctionFragment;
     "provenMessageRoots(bytes32)": FunctionFragment;
     "rateLimitBlocks()": FunctionFragment;
     "removePendingAggregateRoot(bytes32)": FunctionFragment;
+    "removeProposer(address)": FunctionFragment;
     "removeSender(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "renounced()": FunctionFragment;
     "send(bytes)": FunctionFragment;
     "sentMessageRoots(bytes32)": FunctionFragment;
     "setDelayBlocks(uint256)": FunctionFragment;
+    "setDisputeBlocks(uint256)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
+    "setMinDisputeBlocks(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "setRateLimitBlocks(uint256)": FunctionFragment;
     "setWatcherManager(address)": FunctionFragment;
@@ -101,18 +158,25 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "AMB"
       | "DOMAIN"
+      | "FINALIZED_HASH"
       | "MERKLE"
       | "MIRROR_DOMAIN"
       | "PROCESS_GAS"
       | "RESERVE_GAS"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
+      | "activateOptimisticMode"
+      | "activateSlowMode"
+      | "addProposer"
       | "addSender"
+      | "allowlistedProposers"
       | "allowlistedSenders"
       | "anyExecute"
       | "delay"
       | "delayBlocks"
       | "dispatch"
+      | "disputeBlocks"
+      | "finalize"
       | "gasCap"
       | "getLastCompletedSnapshotId"
       | "getSnapshotDuration"
@@ -120,28 +184,35 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       | "isReplica"
       | "lastSentBlock"
       | "localDomain"
+      | "minDisputeBlocks"
       | "mirrorConnector"
+      | "optimisticMode"
       | "outboundRoot"
       | "owner"
       | "pause"
       | "paused"
       | "pendingAggregateRoots"
       | "processMessage"
+      | "proposeAggregateRoot"
       | "proposeNewOwner"
       | "proposed"
+      | "proposedAggregateRootHash"
       | "proposedTimestamp"
       | "proveAndProcess"
       | "provenAggregateRoots"
       | "provenMessageRoots"
       | "rateLimitBlocks"
       | "removePendingAggregateRoot"
+      | "removeProposer"
       | "removeSender"
       | "renounceOwnership"
       | "renounced"
       | "send"
       | "sentMessageRoots"
       | "setDelayBlocks"
+      | "setDisputeBlocks"
       | "setGasCap"
+      | "setMinDisputeBlocks"
       | "setMirrorConnector"
       | "setRateLimitBlocks"
       | "setWatcherManager"
@@ -154,6 +225,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
   encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "FINALIZED_HASH",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "MERKLE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "MIRROR_DOMAIN",
@@ -176,7 +251,23 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "activateOptimisticMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "activateSlowMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addProposer",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "addSender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowlistedProposers",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -198,6 +289,18 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "disputeBlocks",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "finalize",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
@@ -223,7 +326,15 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "minDisputeBlocks",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "mirrorConnector",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "optimisticMode",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -242,10 +353,18 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "proposeAggregateRoot",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "proposed", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposedAggregateRootHash",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proposedTimestamp",
     values?: undefined
@@ -276,6 +395,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeProposer",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeSender",
     values: [PromiseOrValue<string>]
   ): string;
@@ -297,7 +420,15 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setDisputeBlocks",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setGasCap",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMinDisputeBlocks",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -332,6 +463,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "AMB", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "FINALIZED_HASH",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "MERKLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "MIRROR_DOMAIN",
@@ -353,7 +488,23 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "acceptProposedOwner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "activateOptimisticMode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "activateSlowMode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addProposer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addSender", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowlistedProposers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "allowlistedSenders",
     data: BytesLike
@@ -365,6 +516,11 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dispatch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "disputeBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getLastCompletedSnapshotId",
@@ -385,7 +541,15 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "minDisputeBlocks",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "mirrorConnector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "optimisticMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -404,10 +568,18 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposed", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposedAggregateRootHash",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposedTimestamp",
     data: BytesLike
@@ -433,6 +605,10 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "removeProposer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeSender",
     data: BytesLike
   ): Result;
@@ -450,7 +626,15 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
     functionFragment: "setDelayBlocks",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDisputeBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setMinDisputeBlocks",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
@@ -482,53 +666,87 @@ export interface MultichainSpokeConnectorInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AggregateRootProposed(bytes32,uint256,uint256,uint32)": EventFragment;
     "AggregateRootReceived(bytes32)": EventFragment;
     "AggregateRootRemoved(bytes32)": EventFragment;
     "AggregateRootVerified(bytes32)": EventFragment;
     "DelayBlocksUpdated(uint256,address)": EventFragment;
     "Dispatch(bytes32,uint256,bytes32,bytes)": EventFragment;
+    "DisputeBlocksUpdated(uint256,uint256)": EventFragment;
     "FundsWithdrawn(address,uint256)": EventFragment;
     "GasCapUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageProven(bytes32,bytes32,uint256)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
+    "MinDisputeBlocksUpdated(uint256,uint256)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
     "NewConnector(uint32,uint32,address,address,address)": EventFragment;
+    "OptimisticModeActivated()": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
+    "PendingAggregateRootDeleted(bytes32)": EventFragment;
     "Process(bytes32,bool,bytes)": EventFragment;
+    "ProposedRootFinalized(bytes32)": EventFragment;
+    "ProposerAdded(address)": EventFragment;
+    "ProposerRemoved(address)": EventFragment;
     "SendRateLimitUpdated(address,uint256)": EventFragment;
     "SenderAdded(address)": EventFragment;
     "SenderRemoved(address)": EventFragment;
+    "SlowModeActivated(address)": EventFragment;
     "SnapshotRootSaved(uint256,bytes32,uint256)": EventFragment;
     "Unpaused(address)": EventFragment;
     "WatcherManagerChanged(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AggregateRootProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AggregateRootVerified"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DelayBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Dispatch"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DisputeBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProven"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MinDisputeBlocksUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewConnector"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OptimisticModeActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "PendingAggregateRootDeleted"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Process"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProposedRootFinalized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProposerAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProposerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SendRateLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SenderRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SlowModeActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SnapshotRootSaved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "WatcherManagerChanged"): EventFragment;
 }
+
+export interface AggregateRootProposedEventObject {
+  aggregateRoot: string;
+  rootTimestamp: BigNumber;
+  endOfDispute: BigNumber;
+  domain: number;
+}
+export type AggregateRootProposedEvent = TypedEvent<
+  [string, BigNumber, BigNumber, number],
+  AggregateRootProposedEventObject
+>;
+
+export type AggregateRootProposedEventFilter =
+  TypedEventFilter<AggregateRootProposedEvent>;
 
 export interface AggregateRootReceivedEventObject {
   root: string;
@@ -588,6 +806,18 @@ export type DispatchEvent = TypedEvent<
 
 export type DispatchEventFilter = TypedEventFilter<DispatchEvent>;
 
+export interface DisputeBlocksUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type DisputeBlocksUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  DisputeBlocksUpdatedEventObject
+>;
+
+export type DisputeBlocksUpdatedEventFilter =
+  TypedEventFilter<DisputeBlocksUpdatedEvent>;
+
 export interface FundsWithdrawnEventObject {
   to: string;
   amount: BigNumber;
@@ -646,6 +876,18 @@ export type MessageSentEvent = TypedEvent<
 
 export type MessageSentEventFilter = TypedEventFilter<MessageSentEvent>;
 
+export interface MinDisputeBlocksUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type MinDisputeBlocksUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  MinDisputeBlocksUpdatedEventObject
+>;
+
+export type MinDisputeBlocksUpdatedEventFilter =
+  TypedEventFilter<MinDisputeBlocksUpdatedEvent>;
+
 export interface MirrorConnectorUpdatedEventObject {
   previous: string;
   current: string;
@@ -671,6 +913,15 @@ export type NewConnectorEvent = TypedEvent<
 >;
 
 export type NewConnectorEventFilter = TypedEventFilter<NewConnectorEvent>;
+
+export interface OptimisticModeActivatedEventObject {}
+export type OptimisticModeActivatedEvent = TypedEvent<
+  [],
+  OptimisticModeActivatedEventObject
+>;
+
+export type OptimisticModeActivatedEventFilter =
+  TypedEventFilter<OptimisticModeActivatedEvent>;
 
 export interface OwnershipProposedEventObject {
   proposedOwner: string;
@@ -702,6 +953,17 @@ export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
 
+export interface PendingAggregateRootDeletedEventObject {
+  aggregateRoot: string;
+}
+export type PendingAggregateRootDeletedEvent = TypedEvent<
+  [string],
+  PendingAggregateRootDeletedEventObject
+>;
+
+export type PendingAggregateRootDeletedEventFilter =
+  TypedEventFilter<PendingAggregateRootDeletedEvent>;
+
 export interface ProcessEventObject {
   leaf: string;
   success: boolean;
@@ -713,6 +975,34 @@ export type ProcessEvent = TypedEvent<
 >;
 
 export type ProcessEventFilter = TypedEventFilter<ProcessEvent>;
+
+export interface ProposedRootFinalizedEventObject {
+  aggregateRoot: string;
+}
+export type ProposedRootFinalizedEvent = TypedEvent<
+  [string],
+  ProposedRootFinalizedEventObject
+>;
+
+export type ProposedRootFinalizedEventFilter =
+  TypedEventFilter<ProposedRootFinalizedEvent>;
+
+export interface ProposerAddedEventObject {
+  proposer: string;
+}
+export type ProposerAddedEvent = TypedEvent<[string], ProposerAddedEventObject>;
+
+export type ProposerAddedEventFilter = TypedEventFilter<ProposerAddedEvent>;
+
+export interface ProposerRemovedEventObject {
+  proposer: string;
+}
+export type ProposerRemovedEvent = TypedEvent<
+  [string],
+  ProposerRemovedEventObject
+>;
+
+export type ProposerRemovedEventFilter = TypedEventFilter<ProposerRemovedEvent>;
 
 export interface SendRateLimitUpdatedEventObject {
   updater: string;
@@ -739,6 +1029,17 @@ export interface SenderRemovedEventObject {
 export type SenderRemovedEvent = TypedEvent<[string], SenderRemovedEventObject>;
 
 export type SenderRemovedEventFilter = TypedEventFilter<SenderRemovedEvent>;
+
+export interface SlowModeActivatedEventObject {
+  watcher: string;
+}
+export type SlowModeActivatedEvent = TypedEvent<
+  [string],
+  SlowModeActivatedEventObject
+>;
+
+export type SlowModeActivatedEventFilter =
+  TypedEventFilter<SlowModeActivatedEvent>;
 
 export interface SnapshotRootSavedEventObject {
   snapshotId: BigNumber;
@@ -802,6 +1103,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<[number]>;
 
+    FINALIZED_HASH(overrides?: CallOverrides): Promise<[string]>;
+
     MERKLE(overrides?: CallOverrides): Promise<[string]>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<[number]>;
@@ -816,10 +1119,28 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    activateOptimisticMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    activateSlowMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    addProposer(
+      _proposer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    allowlistedProposers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
@@ -839,6 +1160,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    disputeBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -863,7 +1193,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<[number]>;
 
+    minDisputeBlocks(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
+
+    optimisticMode(overrides?: CallOverrides): Promise<[boolean]>;
 
     outboundRoot(overrides?: CallOverrides): Promise<[string]>;
 
@@ -885,12 +1219,20 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<[string]>;
+
+    proposedAggregateRootHash(overrides?: CallOverrides): Promise<[string]>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -916,6 +1258,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    removeProposer(
+      _proposer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -945,8 +1292,18 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setDisputeBlocks(
+      _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMinDisputeBlocks(
+      _minDisputeBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -991,6 +1348,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+  FINALIZED_HASH(overrides?: CallOverrides): Promise<string>;
+
   MERKLE(overrides?: CallOverrides): Promise<string>;
 
   MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
@@ -1005,10 +1364,28 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  activateOptimisticMode(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  activateSlowMode(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  addProposer(
+    _proposer: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   addSender(
     _sender: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  allowlistedProposers(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   allowlistedSenders(
     arg0: PromiseOrValue<string>,
@@ -1031,6 +1408,15 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  disputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
+  finalize(
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
   getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1048,7 +1434,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   localDomain(overrides?: CallOverrides): Promise<number>;
 
+  minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+  optimisticMode(overrides?: CallOverrides): Promise<boolean>;
 
   outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1070,12 +1460,20 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  proposeAggregateRoot(
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposed(overrides?: CallOverrides): Promise<string>;
+
+  proposedAggregateRootHash(overrides?: CallOverrides): Promise<string>;
 
   proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1101,6 +1499,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
   removePendingAggregateRoot(
     _fraudulentRoot: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  removeProposer(
+    _proposer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1130,8 +1533,18 @@ export interface MultichainSpokeConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setDisputeBlocks(
+    _disputeBlocks: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setGasCap(
     _gasCap: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMinDisputeBlocks(
+    _minDisputeBlocks: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1176,6 +1589,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<number>;
 
+    FINALIZED_HASH(overrides?: CallOverrides): Promise<string>;
+
     MERKLE(overrides?: CallOverrides): Promise<string>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<number>;
@@ -1188,10 +1603,24 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
+    activateOptimisticMode(overrides?: CallOverrides): Promise<void>;
+
+    activateSlowMode(overrides?: CallOverrides): Promise<void>;
+
+    addProposer(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    allowlistedProposers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     allowlistedSenders(
       arg0: PromiseOrValue<string>,
@@ -1214,6 +1643,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string]>;
 
+    disputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1231,7 +1669,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<number>;
 
+    minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
+
+    optimisticMode(overrides?: CallOverrides): Promise<boolean>;
 
     outboundRoot(overrides?: CallOverrides): Promise<string>;
 
@@ -1251,12 +1693,20 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     proposed(overrides?: CallOverrides): Promise<string>;
+
+    proposedAggregateRootHash(overrides?: CallOverrides): Promise<string>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1285,6 +1735,11 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    removeProposer(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     removeSender(
       _sender: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1309,8 +1764,18 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setDisputeBlocks(
+      _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMinDisputeBlocks(
+      _minDisputeBlocks: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1350,6 +1815,19 @@ export interface MultichainSpokeConnector extends BaseContract {
   };
 
   filters: {
+    "AggregateRootProposed(bytes32,uint256,uint256,uint32)"(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      rootTimestamp?: PromiseOrValue<BigNumberish> | null,
+      endOfDispute?: PromiseOrValue<BigNumberish> | null,
+      domain?: null
+    ): AggregateRootProposedEventFilter;
+    AggregateRootProposed(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null,
+      rootTimestamp?: PromiseOrValue<BigNumberish> | null,
+      endOfDispute?: PromiseOrValue<BigNumberish> | null,
+      domain?: null
+    ): AggregateRootProposedEventFilter;
+
     "AggregateRootReceived(bytes32)"(
       root?: PromiseOrValue<BytesLike> | null
     ): AggregateRootReceivedEventFilter;
@@ -1392,6 +1870,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       root?: PromiseOrValue<BytesLike> | null,
       message?: null
     ): DispatchEventFilter;
+
+    "DisputeBlocksUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): DisputeBlocksUpdatedEventFilter;
+    DisputeBlocksUpdated(
+      previous?: null,
+      updated?: null
+    ): DisputeBlocksUpdatedEventFilter;
 
     "FundsWithdrawn(address,uint256)"(
       to?: PromiseOrValue<string> | null,
@@ -1436,6 +1923,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       caller?: null
     ): MessageSentEventFilter;
 
+    "MinDisputeBlocksUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): MinDisputeBlocksUpdatedEventFilter;
+    MinDisputeBlocksUpdated(
+      previous?: null,
+      updated?: null
+    ): MinDisputeBlocksUpdatedEventFilter;
+
     "MirrorConnectorUpdated(address,address)"(
       previous?: null,
       current?: null
@@ -1460,6 +1956,9 @@ export interface MultichainSpokeConnector extends BaseContract {
       mirrorConnector?: null
     ): NewConnectorEventFilter;
 
+    "OptimisticModeActivated()"(): OptimisticModeActivatedEventFilter;
+    OptimisticModeActivated(): OptimisticModeActivatedEventFilter;
+
     "OwnershipProposed(address)"(
       proposedOwner?: PromiseOrValue<string> | null
     ): OwnershipProposedEventFilter;
@@ -1479,6 +1978,13 @@ export interface MultichainSpokeConnector extends BaseContract {
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
 
+    "PendingAggregateRootDeleted(bytes32)"(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null
+    ): PendingAggregateRootDeletedEventFilter;
+    PendingAggregateRootDeleted(
+      aggregateRoot?: PromiseOrValue<BytesLike> | null
+    ): PendingAggregateRootDeletedEventFilter;
+
     "Process(bytes32,bool,bytes)"(
       leaf?: PromiseOrValue<BytesLike> | null,
       success?: null,
@@ -1489,6 +1995,27 @@ export interface MultichainSpokeConnector extends BaseContract {
       success?: null,
       returnData?: null
     ): ProcessEventFilter;
+
+    "ProposedRootFinalized(bytes32)"(
+      aggregateRoot?: null
+    ): ProposedRootFinalizedEventFilter;
+    ProposedRootFinalized(
+      aggregateRoot?: null
+    ): ProposedRootFinalizedEventFilter;
+
+    "ProposerAdded(address)"(
+      proposer?: PromiseOrValue<string> | null
+    ): ProposerAddedEventFilter;
+    ProposerAdded(
+      proposer?: PromiseOrValue<string> | null
+    ): ProposerAddedEventFilter;
+
+    "ProposerRemoved(address)"(
+      proposer?: PromiseOrValue<string> | null
+    ): ProposerRemovedEventFilter;
+    ProposerRemoved(
+      proposer?: PromiseOrValue<string> | null
+    ): ProposerRemovedEventFilter;
 
     "SendRateLimitUpdated(address,uint256)"(
       updater?: null,
@@ -1510,6 +2037,13 @@ export interface MultichainSpokeConnector extends BaseContract {
     SenderRemoved(
       sender?: PromiseOrValue<string> | null
     ): SenderRemovedEventFilter;
+
+    "SlowModeActivated(address)"(
+      watcher?: PromiseOrValue<string> | null
+    ): SlowModeActivatedEventFilter;
+    SlowModeActivated(
+      watcher?: PromiseOrValue<string> | null
+    ): SlowModeActivatedEventFilter;
 
     "SnapshotRootSaved(uint256,bytes32,uint256)"(
       snapshotId?: PromiseOrValue<BigNumberish> | null,
@@ -1538,6 +2072,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FINALIZED_HASH(overrides?: CallOverrides): Promise<BigNumber>;
+
     MERKLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1552,9 +2088,27 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    activateOptimisticMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    activateSlowMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    addProposer(
+      _proposer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    allowlistedProposers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     allowlistedSenders(
@@ -1578,6 +2132,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    disputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLastCompletedSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1595,7 +2158,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<BigNumber>;
 
+    minDisputeBlocks(overrides?: CallOverrides): Promise<BigNumber>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
+
+    optimisticMode(overrides?: CallOverrides): Promise<BigNumber>;
 
     outboundRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1617,12 +2184,20 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     proposed(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposedAggregateRootHash(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1648,6 +2223,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    removeProposer(
+      _proposer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1677,8 +2257,18 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setDisputeBlocks(
+      _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMinDisputeBlocks(
+      _minDisputeBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1724,6 +2314,8 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    FINALIZED_HASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     MERKLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MIRROR_DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1738,9 +2330,27 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    activateOptimisticMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    activateSlowMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addProposer(
+      _proposer: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     addSender(
       _sender: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowlistedProposers(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     allowlistedSenders(
@@ -1761,6 +2371,15 @@ export interface MultichainSpokeConnector extends BaseContract {
       _destinationDomain: PromiseOrValue<BigNumberish>,
       _recipientAddress: PromiseOrValue<BytesLike>,
       _messageBody: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    disputeBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1785,7 +2404,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     localDomain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    minDisputeBlocks(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    optimisticMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     outboundRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1807,12 +2430,22 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposedAggregateRootHash(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     proposedTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1838,6 +2471,11 @@ export interface MultichainSpokeConnector extends BaseContract {
 
     removePendingAggregateRoot(
       _fraudulentRoot: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeProposer(
+      _proposer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1867,8 +2505,18 @@ export interface MultichainSpokeConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setDisputeBlocks(
+      _disputeBlocks: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setGasCap(
       _gasCap: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMinDisputeBlocks(
+      _minDisputeBlocks: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
