@@ -52,6 +52,17 @@ CREATE TYPE public.snapshot_status AS ENUM (
 
 
 --
+-- Name: spoke_root_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.spoke_root_status AS ENUM (
+    'Submitted',
+    'Proposed',
+    'Finalized'
+);
+
+
+--
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -811,6 +822,24 @@ CREATE TABLE public.snapshots (
 
 
 --
+-- Name: spoke_optimistic_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.spoke_optimistic_roots (
+    id character varying(255) NOT NULL,
+    root character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    end_of_dispute integer NOT NULL,
+    root_timestamp integer NOT NULL,
+    status public.spoke_root_status DEFAULT 'Proposed'::public.spoke_root_status NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    propose_timestamp integer,
+    propose_task_id character varying(255),
+    relayer_type text
+);
+
+
+--
 -- Name: stableswap_lp_balances; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1191,6 +1220,14 @@ ALTER TABLE ONLY public.snapshots
 
 
 --
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_id_key UNIQUE (id);
+
+
+--
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1321,6 +1358,34 @@ CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btre
 --
 
 CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_domain_idx ON public.spoke_optimistic_roots USING btree (domain);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_idx ON public.spoke_optimistic_roots USING btree (domain, root);
+
+
+--
+-- Name: spoke_optimistic_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_idx ON public.spoke_optimistic_roots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_root_idx ON public.spoke_optimistic_roots USING btree (root);
 
 
 --
@@ -1506,4 +1571,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230608135754'),
     ('20230608174759'),
     ('20230613125451'),
-    ('20231012233640');
+    ('20231012233640'),
+    ('20231020201556');

@@ -17,7 +17,7 @@ import {
   SnapshotRoot,
   SpokeConnectorMode,
   AggregateRootProposed,
-  ProposedRootFinalized,
+  OptimisticRootFinalized,
 } from "../../../generated/schema";
 
 const DEFAULT_CONNECTOR_META_ID = "CONNECTOR_META_ID";
@@ -130,7 +130,7 @@ export function handleOptimisticModeActivated(event: OptimisticModeActivated): v
 }
 
 export function handleAggregateRootProposed(event: AggregateRootProposedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.params.domain.toString()}`;
   let instance = AggregateRootProposed.load(key);
   if (instance == null) {
     instance = new AggregateRootProposed(key);
@@ -145,11 +145,12 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
 
 export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): void {
   const key = event.params.aggregateRoot.toHexString();
-  let instance = ProposedRootFinalized.load(key);
+  let instance = OptimisticRootFinalized.load(key);
   if (instance == null) {
-    instance = new ProposedRootFinalized(key);
+    instance = new OptimisticRootFinalized(key);
   }
   instance.aggregateRoot = event.params.aggregateRoot;
+  instance.timestamp = event.block.timestamp;
 
   instance.save();
 }

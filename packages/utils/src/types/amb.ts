@@ -161,3 +161,17 @@ export const OptimisticRootPropagatedSchema = Type.Object({
   timestamp: Type.Number(),
 });
 export type OptimisticRootPropagated = Static<typeof OptimisticRootPropagatedSchema>;
+
+export const SpokeOptimisticRootSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  rootTimestamp: Type.Number(),
+  endOfDispute: Type.Number(),
+  domain: Type.String(),
+  processed: Type.Optional(Type.Boolean()),
+  status: Type.Optional(Type.String()),
+  proposeTimestamp: Type.Optional(Type.Number()),
+  proposeTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
+});
+export type SpokeOptimisticRoot = Static<typeof SpokeOptimisticRootSchema>;

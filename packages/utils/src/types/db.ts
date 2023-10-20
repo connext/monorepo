@@ -9,6 +9,7 @@ import {
   RootMessageStatus,
   Snapshot,
   SnapshotRoot,
+  SpokeOptimisticRoot,
 } from "./amb";
 import {
   PoolActionType,
@@ -580,5 +581,15 @@ export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfe
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
     nonce: event.nonce,
+  };
+};
+
+export const convertFromDbSpokeOptimisticRoot = (opRoot: any): SpokeOptimisticRoot => {
+  return {
+    id: opRoot.id,
+    domain: opRoot.domain,
+    aggregateRoot: opRoot.root,
+    rootTimestamp: opRoot.root_timestamp,
+    endOfDispute: opRoot.end_of_dispute,
   };
 };

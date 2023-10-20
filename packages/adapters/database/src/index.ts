@@ -24,6 +24,7 @@ import {
   StableSwapTransfer,
   StableSwapLpBalance,
   RootMessageStatus,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -96,6 +97,9 @@ import {
   getAssets,
   saveAssetPrice,
   deleteCache,
+  getLatestPendingSpokeOptimisticRootByDomain,
+  saveProposedSpokeRoots,
+  saveFinalizedSpokeRoots,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -334,6 +338,16 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
   deleteCache: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getLatestPendingSpokeOptimisticRootByDomain: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
+  saveProposedSpokeRoots: (_roots: SpokeOptimisticRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveFinalizedSpokeRoots: (
+    domain: string,
+    _roots: OptimisticRootFinalized[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
 };
 
 export let pool: Pool;
@@ -417,6 +431,9 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageByLeaf,
     getMessageByRoot,
     deleteCache,
+    getLatestPendingSpokeOptimisticRootByDomain,
+    saveProposedSpokeRoots,
+    saveFinalizedSpokeRoots,
   };
 };
 
@@ -505,6 +522,9 @@ export const getDatabaseAndPool = async (
       getMessageByLeaf,
       getMessageByRoot,
       deleteCache,
+      getLatestPendingSpokeOptimisticRootByDomain,
+      saveProposedSpokeRoots,
+      saveFinalizedSpokeRoots,
     },
   };
 };
