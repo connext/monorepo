@@ -81,37 +81,6 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "TypedMemView__index_indexMoreThan32Bytes",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "loc",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "len",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "slice",
-        "type": "uint256"
-      }
-    ],
-    "name": "TypedMemView__index_overrun",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
