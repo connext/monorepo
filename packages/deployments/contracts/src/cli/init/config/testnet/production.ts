@@ -247,6 +247,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "gastly-lp-geth",
+      canonical: {
+        domain: "11111",
+        address: "0xA34488C6C27542cdCDD381D41eb359755B232dc5",
+        decimals: 18,
+      },
+      representations: {
+        /// GOERLI
+        "1735353714": {
+          local: "0xA34488C6C27542cdCDD381D41eb359755B232dc5",
+          adopted: "0xA34488C6C27542cdCDD381D41eb359755B232dc5",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0xA34488C6C27542cdCDD381D41eb359755B232dc5",
+          adopted: "0xA34488C6C27542cdCDD381D41eb359755B232dc5",
+        },
+      },
+    }
   ],
   agents: {
     relayerFeeVaults: {
