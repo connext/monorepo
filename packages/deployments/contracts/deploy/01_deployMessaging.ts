@@ -220,7 +220,7 @@ const handleDeploySpoke = async (
       !contract.includes("Arbitrum") &&
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
-      !contract.includes("Consensys") &&
+      !contract.includes("Linea") &&
       !contract.includes("Wormhole") &&
       !contract.includes("Admin")) ||
     contract.includes("Mainnet")

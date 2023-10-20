@@ -12,7 +12,7 @@ import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
-  getPropagateParamsConsensys,
+  getPropagateParamsLinea,
   getPropagateParamsGnosis,
   getPropagateParamsZkSync,
 } from "../helpers";
@@ -39,7 +39,7 @@ export const getParamsForDomainFn: Record<
   "6778479": getPropagateParamsGnosis,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
-  "1668247156": getPropagateParamsConsensys,
+  "1668247156": getPropagateParamsLinea,
   "2053862260": getPropagateParamsZkSync,
 };
 

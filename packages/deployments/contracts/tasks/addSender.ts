@@ -9,6 +9,7 @@ import {
   mustGetEnv,
   ProtocolNetwork,
 } from "../src/utils";
+import { getHexDomainFromString } from "../src";
 
 type TaskArgs = {
   sender: string;
@@ -35,6 +36,9 @@ export default task("add-sender", "Add sender to connector allowlist")
       const env = mustGetEnv(_env);
       console.log("env:", env);
       console.log("sender: ", sender);
+
+      console.log(getHexDomainFromString("linm"));
+      return;
 
       const network = await ethers.provider.getNetwork();
       const networkType = _networkType ?? ProtocolNetwork.TESTNET;

@@ -565,3 +565,9 @@ module "lighthouse_cache" {
   vpc_id                        = module.network.vpc_id
   cache_subnet_group_subnet_ids = module.network.public_subnets
 }
+
+
+module "ecr-lcp" {
+  source           = "../../../modules/ecr-lcp"
+  repository_names = ["nxtp-cartographer", "nxtp-lighthouse", "postgrest"]
+}
