@@ -39,9 +39,9 @@ dataSources:
           handler: handleSlowModeActivated
         - event: OptimisticModeActivated()
           handler: handleOptimisticModeActivated
-        - event: AggregateRootSavedOptimistic(indexed bytes32,unit256)
+        - event: AggregateRootSavedOptimistic(indexed bytes32,uint256)
           handler: handleAggregateRootSavedOptimistic
-        - event: AggregateRootSavedSlow(indexed bytes32, unit256, bytes32[] , unit256)
+        - event: AggregateRootSavedSlow(indexed bytes32,uint256,bytes32[],uint256)
           handler: handleAggregateRootSavedSlow
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
   # MERKLE TREE MANAGER events
