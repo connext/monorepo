@@ -135,3 +135,11 @@ type RootMessageProcessed @entity {
   gasLimit: BigInt
   blockNumber: BigInt
 }
+
+type AggregateRootSavedSlow @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  count: BigInt!
+  aggregatedRoots: [Bytes!]
+  rootTimestamp: BigInt!
+}

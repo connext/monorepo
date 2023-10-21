@@ -276,3 +276,22 @@ type SnapshotRoot @entity {
   timestamp: BigInt!
   blockNumber: BigInt!
 }
+
+type SpokeConnectorMode @entity {
+  id: ID!
+  mode: String!
+}
+
+type AggregateRootProposed @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+}
+
+type OptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+}
