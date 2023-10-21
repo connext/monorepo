@@ -231,8 +231,8 @@
     ]
   },
   {
-    "subgraphName": "connext/amarok-runtime-v0-consensys-test",
-    "network": "consensys-test",
+    "subgraphName": "connext/amarok-runtime-v0-linea-goerli",
+    "network": "linea-goerli",
     "source": [
       {
         "name": "Connext",
