@@ -9,6 +9,8 @@ import {
   RootManagerMode,
   ModeType,
   SpokeConnectorMode,
+  jsonifyError,
+  NxtpError,
 } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -114,7 +116,19 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
       //TODO: V1.1 rename source file
       await proposeHub();
-      await Promise.all(domains.map((spokeDomain) => proposeSpoke(spokeDomain)));
+      for (const spokeDomain in domains) {
+        try {
+          await proposeSpoke(spokeDomain);
+        } catch (e: unknown) {
+          context.logger.error(
+            "Failed to propose to spoke ",
+            requestContext,
+            methodContext,
+            jsonifyError(e as NxtpError),
+            { spokeDomain },
+          );
+        }
+      }
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode. No op.", requestContext, methodContext);
     } else {

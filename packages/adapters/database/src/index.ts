@@ -100,6 +100,7 @@ import {
   getLatestPendingSpokeOptimisticRootByDomain,
   saveProposedSpokeRoots,
   saveFinalizedSpokeRoots,
+  getCurrentProposedOptimisticRoot,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -348,6 +349,10 @@ export type Database = {
     _roots: OptimisticRootFinalized[],
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<void>;
+  getCurrentProposedOptimisticRoot: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
 };
 
 export let pool: Pool;
@@ -434,6 +439,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getLatestPendingSpokeOptimisticRootByDomain,
     saveProposedSpokeRoots,
     saveFinalizedSpokeRoots,
+    getCurrentProposedOptimisticRoot,
   };
 };
 
@@ -525,6 +531,7 @@ export const getDatabaseAndPool = async (
       getLatestPendingSpokeOptimisticRootByDomain,
       saveProposedSpokeRoots,
       saveFinalizedSpokeRoots,
+      getCurrentProposedOptimisticRoot,
     },
   };
 };

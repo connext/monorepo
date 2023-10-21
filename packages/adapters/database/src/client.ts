@@ -1070,6 +1070,21 @@ export const getCurrentProposedSnapshot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
+export const getCurrentProposedOptimisticRoot = async (
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db
+    .selectOne(
+      "spoke_optimistic_roots",
+      { domain, status: "Proposed" },
+      { limit: 1, order: { by: "root_timestamp", direction: "DESC" } },
+    )
+    .run(poolToUse);
+  return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
+};
+
 export const savePropagatedOptimisticRoots = async (
   roots: OptimisticRootPropagated[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
