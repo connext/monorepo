@@ -2,7 +2,7 @@ import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from
 import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain } from "../errors";
+import { NoChainIdForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
@@ -50,7 +50,7 @@ export const propagate = async () => {
   const domains = rootManagerMeta.domains;
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
   const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
@@ -131,7 +131,7 @@ export const finalizeAndPropagate = async () => {
   const domains = rootManagerMeta.domains;
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
   const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;

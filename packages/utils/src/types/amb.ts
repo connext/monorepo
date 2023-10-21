@@ -89,6 +89,7 @@ export const RootManagerModeSchema = Type.Object({
   mode: Type.String(),
 });
 export type RootManagerMode = Static<typeof RootManagerModeSchema>;
+export type SpokeConnectorMode = Static<typeof RootManagerModeSchema>;
 
 export const ReceivedAggregateRootSchema = Type.Object({
   id: Type.String(),

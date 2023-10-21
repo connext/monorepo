@@ -267,6 +267,11 @@ export const ROOT_MANAGER_MODE_ENTITY = `
       mode
 `;
 
+export const SPOKE_CONNECTOR_MODE_ENTITY = `
+      id
+      mode
+`;
+
 export const STABLESWAP_POOL_ENTITY = `
       key
       isActive
@@ -411,6 +416,9 @@ export const PROPAGATED_OPTIMISTIC_ROOT_ENTITY = `
       domainsHash
       timestamp
 `;
+
+const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const CONNECTOR_MODE_ID = "CONNECTOR_MODE_ID";
 
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
@@ -1278,8 +1286,6 @@ export const getRootManagerMetaQuery = (domain: string) => {
   `;
 };
 
-const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
-
 export const getRootManagerModeQuery = (domain: string) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
@@ -1288,6 +1294,19 @@ export const getRootManagerModeQuery = (domain: string) => {
     query GetRootManagerMode {
         ${prefix}_rootManagerMode (id: "${ROOT_MANAGER_MODE_ID}") {
         ${ROOT_MANAGER_MODE_ENTITY}
+      }
+    }
+  `;
+};
+
+export const getSpokeConnectorModeQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+
+  return gql`
+    query GetSpokeConnectorMode {
+        ${prefix}_spokeConnectorMode (id: "${CONNECTOR_MODE_ID}") {
+        ${SPOKE_CONNECTOR_MODE_ENTITY}
       }
     }
   `;

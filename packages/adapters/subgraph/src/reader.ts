@@ -18,6 +18,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   RootManagerMode,
+  SpokeConnectorMode,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -67,6 +68,7 @@ import {
   getPropagatedOptimisticRootsByDomainQuery,
   getSavedSnapshotRootsByDomainQuery,
   getProposedSpokeOptimisticRootsByDomainQuery,
+  getSpokeConnectorModeQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -1053,6 +1055,17 @@ export class SubgraphReader {
     // Initial state of the root manager is slow mode
     return values[0][0] ? parser.rootManagerMode(values[0][0]) : { id: "ROOT_MANAGER_MODE_ID", mode: "SLOW_MODE" };
   }
+
+  public async getSpokeConnectorMode(domain: string): Promise<SpokeConnectorMode> {
+    const { parser, execute } = getHelpers();
+    const spokeConnectorModeQuery = getSpokeConnectorModeQuery(domain);
+
+    const response = await execute(spokeConnectorModeQuery);
+    const values = [...response.values()];
+    // Initial state of the root manager is slow mode
+    return values[0][0] ? parser.spokeConnectorMode(values[0][0]) : { id: "CONNECTOR_MODE_ID", mode: "SLOW_MODE" };
+  }
+
   /**
    * Gets all the received roots starting with blocknumber for a given domain
    * @param params - The fetch params

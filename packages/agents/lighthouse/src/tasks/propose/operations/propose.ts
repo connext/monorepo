@@ -11,7 +11,7 @@ import { BigNumber } from "ethers";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain, MissingRequiredDomain, NoSnapshotRoot, NoSpokeConnector } from "../errors";
+import { NoChainIdForDomain, MissingRequiredDomain, NoSnapshotRoot, NoSpokeConnector } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
 
@@ -21,20 +21,19 @@ export type ExtraPropagateParam = {
   _encodedData: string;
 };
 
-export const propose = async () => {
-  //TODO: Round up the usual suspects
+export const proposeHub = async () => {
   const {
     logger,
     config,
     chainData,
     adapters: { database, subgraph, contracts, chainreader },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(propose.name);
+  const { requestContext, methodContext } = createLoggingContext(proposeHub.name);
   logger.info("Starting propose operation", requestContext, methodContext);
 
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
   // Get the latest pending snapshots

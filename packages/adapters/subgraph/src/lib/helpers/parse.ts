@@ -9,6 +9,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   RootManagerMode,
+  SpokeConnectorMode,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   SnapshotRoot,
@@ -557,6 +558,26 @@ export const rootManagerMode = (entity: any): RootManagerMode => {
   for (const field of ["id", "mode"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `RootManagerMode` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    mode: entity.mode,
+  };
+};
+
+export const spokeConnectorMode = (entity: any): SpokeConnectorMode => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: SpokeConnectorMode, entity is `undefined`.");
+  }
+  for (const field of ["id", "mode"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
       });
