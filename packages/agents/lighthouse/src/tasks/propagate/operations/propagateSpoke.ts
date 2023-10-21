@@ -20,6 +20,11 @@ export const finalizeSpoke = async (spokeDomain: string) => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(finalizeSpoke.name);
 
+  if (spokeDomain == config.hubDomain) {
+    logger.info("Skipping finalize operation on hub", requestContext, methodContext, { spokeDomain });
+    return;
+  }
+
   logger.info("Starting finalize operation on spoke", requestContext, methodContext, { spokeDomain });
 
   const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
