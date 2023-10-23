@@ -1,7 +1,7 @@
 ---
 name: New xERC20
 about: This is for whitelisting a new xERC20.
-title: "[TOKEN_NAME] xERC20 Whitelisting"
+title: "[TOKEN] [Mainnet/Testnet] xERC20 Whitelisting"
 labels: "Enhance \U0001F9D8"
 assignees: ""
 ---
