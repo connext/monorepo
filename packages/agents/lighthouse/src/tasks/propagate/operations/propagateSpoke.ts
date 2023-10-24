@@ -1,11 +1,4 @@
-import {
-  createLoggingContext,
-  NxtpError,
-  RequestContext,
-  domainToChainId,
-  SpokeOptimisticRoot,
-} from "@connext/nxtp-utils";
-import { BigNumber, constants } from "ethers";
+import { createLoggingContext, NxtpError, domainToChainId } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, NoSpokeConnector } from "../errors";
@@ -15,8 +8,8 @@ export const finalizeSpoke = async (spokeDomain: string) => {
   const {
     logger,
     config,
-    chainData,
     adapters: { chainreader, contracts, relayers, subgraph, database },
+    chainData,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(finalizeSpoke.name);
 
@@ -27,12 +20,12 @@ export const finalizeSpoke = async (spokeDomain: string) => {
 
   logger.info("Starting finalize operation on spoke", requestContext, methodContext, { spokeDomain });
 
-  const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
-  const spokeChainId = domainToChainId(+spokeDomain);
+  const spokeChainId = chainData.get(spokeDomain)?.chainId;
 
   if (!spokeChainId) {
     throw new NoChainIdForDomain(spokeDomain, requestContext, methodContext);
   }
+  const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
 
   if (!spokeConnectorAddress) {
     throw new NoSpokeConnector(+spokeDomain, requestContext, methodContext);

@@ -76,6 +76,7 @@ export const mockDatabase = (): Database => {
     deleteCache: stub().resolves(),
     saveProposedSnapshots: stub().resolves(),
     saveFinalizedRoots: stub().resolves(),
+    saveFinalizedSpokeRoots: stub().resolves(),
     savePropagatedOptimisticRoots: stub().resolves(),
     saveSnapshotRoots: stub().resolves(),
     getCurrentProposedSnapshot: stub().resolves(),
@@ -84,5 +85,6 @@ export const mockDatabase = (): Database => {
     getPendingAggregateRoot: stub().resolves(),
     getRootMessage: stub().resolves(),
     getLatestPendingSnapshotRootByDomain: stub().resolves([mock.entity.snapshotRoot().root]),
+    getCurrentProposedOptimisticRoot: stub().resolves([mock.entity.spokeOptimisticRoot()]),
   };
 };

@@ -19,6 +19,7 @@ import {
   updateReceivedAggregateRoots,
   updateProposedSnapshots,
   updateFinalizedRoots,
+  updateFinalizedSpokeRoots,
   updatePropagatedOptmisticRoots,
   retrieveSavedSnapshotRoot,
 } from "../../../src/lib/operations";
@@ -167,9 +168,38 @@ describe("Roots operations", () => {
     it("initial conditions", async () => {
       (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
       (mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).resolves([]);
-      await updatePropagatedRoots();
+      await updateFinalizedRoots();
       expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.not.be.called;
       expect(mockContext.adapters.database.saveFinalizedRoots as SinonStub).to.not.be.called;
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
+    });
+  });
+
+  describe("#updateFinalizedSpokeRoots", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).resolves(
+        mockFinalizedRootsByDomainSubgraphResponse,
+      );
+      await updateFinalizedSpokeRoots();
+      expect(mockContext.adapters.database.saveFinalizedSpokeRoots as SinonStub).callCount(2);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(2);
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(2);
+      expect(mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).to.be.calledWithExactly([
+        { hub: "1337", timestamp: 42, limit: 100 },
+      ]);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
+        "finalized_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+        43,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).to.be.calledWithExactly(
+        "finalized_optimistic_root_" + mockConnectorMeta[0].hubDomain,
+      );
+    });
+    it("initial conditions", async () => {
+      (mockContext.adapters.subgraph.getConnectorMeta as SinonStub).resolves([]);
+      (mockContext.adapters.subgraph.getFinalizedRootsByDomain as SinonStub).resolves([]);
+      await updateFinalizedSpokeRoots();
+      expect(mockContext.adapters.database.saveFinalizedSpokeRoots as SinonStub).to.not.be.called;
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.not.be.called;
     });
   });
