@@ -93,8 +93,6 @@ export const updateProposedSpokeOptimisticRoot = async () => {
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateProposedSpokeOptimisticRoot.name);
 
-  const metas = await subgraph.getConnectorMeta(domains);
-
   for (const domain of domains) {
     const rootTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
     const limit = 100;
@@ -167,8 +165,6 @@ export const updateFinalizedSpokeRoots = async () => {
     domains,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
-
-  const metas = await subgraph.getConnectorMeta(domains);
 
   for (const domain of domains) {
     const offset = await database.getCheckPoint("finalized_optimistic_root_" + domain);
