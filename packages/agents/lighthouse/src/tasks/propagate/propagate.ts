@@ -99,7 +99,7 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     // Start the propagate task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     const domains: string[] = Object.keys(config.chains);
-    for (const domain in domains) {
+    domains.forEach(async (domain) => {
       const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
       if (spokeConnectorMode.mode !== rootManagerMode.mode) {
         context.logger.info("Mode MISMATCH. Stop", requestContext, methodContext, {
@@ -110,11 +110,11 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
         });
         throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
       }
-    }
+    });
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
       await finalizeAndPropagate();
-      for (const spokeDomain in domains) {
+      domains.forEach(async (spokeDomain) => {
         try {
           await finalizeSpoke(spokeDomain);
         } catch (e: unknown) {
@@ -126,7 +126,7 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
             { spokeDomain },
           );
         }
-      }
+      });
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode", requestContext, methodContext);
       await propagate();

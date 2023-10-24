@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, domainToChainId } from "@connext/nxtp-utils";
+import { createLoggingContext, NxtpError } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, NoSpokeConnector } from "../errors";
