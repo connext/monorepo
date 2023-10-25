@@ -2,24 +2,25 @@
 import { Address, Bytes } from "@graphprotocol/graph-ts";
 
 import {
-  RootPropagated as RootPropagatedEvent,
+  AggregateRootPropagated as AggregateRootPropagatedEvent,
   RootReceived as RootReceivedEvent,
   ConnectorAdded as ConnectorAddedEvent,
   ConnectorRemoved as ConnectorRemovedEvent,
   AggregateRootProposed as AggregateRootProposedEvent,
-  ProposedRootFinalized as ProposedRootFinalizedEvent,
-  OptimisticRootPropagated as OptimisticRootPropagatedEvent,
   SlowModeActivated as SlowModeActivatedEvent,
   OptimisticModeActivated as OptimisticModeActivatedEvent,
+  AggregateRootSavedOptimistic as AggregateRootSavedOptimisticEvent,
+  AggregateRootSavedSlow as AggregateRootSavedSlowEvent,
 } from "../../../generated/RootManager/RootManager";
+
 import {
-  RootPropagated,
-  RootAggregated,
+  OptimisticRootPropagated,
+  RootAggregated, //TOOD: V1.1 Remove
   RootManagerMeta,
   RootManagerMode,
   OptimisticRootProposed,
   OptimisticRootFinalized,
-  OptimisticRootPropagated,
+  AggregateRootSavedSlow,
 } from "../../../generated/schema";
 
 const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
@@ -38,23 +39,6 @@ export function handleRootReceived(event: RootReceivedEvent): void {
   instance.domain = event.params.domain;
   instance.receivedRoot = event.params.receivedRoot;
   instance.index = event.params.queueIndex;
-
-  instance.save();
-}
-
-export function handleRootPropagated(event: RootPropagatedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
-  // Create the RootPropagated entity: this is used to track aggregate roots / propagated
-  // snapshots for the sake of proof generation off-chain.
-  let instance = RootPropagated.load(key);
-  // This should ALWAYS be null. Sending the same agg root twice is not possible in current
-  // construction.
-  if (instance == null) {
-    instance = new RootPropagated(key);
-  }
-  instance.aggregate = event.params.aggregateRoot;
-  instance.domainsHash = event.params.domainsHash;
-  instance.count = event.params.count;
 
   instance.save();
 }
@@ -96,29 +80,44 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   snapshot.save();
 }
 
-export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): void {
-  let snapshot = OptimisticRootFinalized.load(event.params.aggregateRoot.toHexString());
+export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOptimisticEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  let snapshot = OptimisticRootFinalized.load(key);
   if (snapshot == null) {
-    snapshot = new OptimisticRootFinalized(event.params.aggregateRoot.toHexString());
+    snapshot = new OptimisticRootFinalized(key);
   }
-
   snapshot.aggregateRoot = event.params.aggregateRoot;
-  snapshot.timestamp = event.block.timestamp;
+  snapshot.timestamp = event.params.rootTimestamp;
 
   snapshot.save();
 }
 
-export function handleOptimisticRootPropagated(event: OptimisticRootPropagatedEvent): void {
-  let snapshot = OptimisticRootPropagated.load(event.params.aggregateRoot.toHexString());
+export function handleAggregateRootPropagated(event: AggregateRootPropagatedEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  // Create the OptimisticRootPropagated entity: this is used to track aggregate roots propagated
+  // needed for proof generation off-chain.
+  let snapshot = OptimisticRootPropagated.load(key);
   if (snapshot == null) {
-    snapshot = new OptimisticRootPropagated(event.params.aggregateRoot.toHexString());
+    snapshot = new OptimisticRootPropagated(key);
   }
-
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.domainsHash = event.params.domainsHash;
   snapshot.timestamp = event.block.timestamp;
 
   snapshot.save();
+}
+
+export function handleAggregateRootSavedSlow(event: AggregateRootSavedSlowEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  let instance = AggregateRootSavedSlow.load(key);
+  if (instance == null) {
+    instance = new AggregateRootSavedSlow(key);
+  }
+  instance.count = event.params.leafCount;
+  instance.aggregatedRoots = event.params.aggregatedRoots;
+  instance.rootTimestamp = event.params.rootTimestamp;
+
+  instance.save();
 }
 
 export function handleSlowModeActivated(event: SlowModeActivatedEvent): void {

@@ -1,6 +1,6 @@
 import { MethodContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-export class NoChainIdForHubDomain extends NxtpError {
+export class NoChainIdForDomain extends NxtpError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,
@@ -53,6 +53,21 @@ export class NoSnapshotRoot extends NxtpError {
     public readonly context: any = {},
   ) {
     super(`Snapshot root not available for domain ${domain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+
+export class NoSpokeOptimisticRoot extends NxtpError {
+  constructor(
+    public readonly domain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`SpokeOptimisticRoot not available for domain ${domain}`, {
       ...context,
       requestContext,
       methodContext,

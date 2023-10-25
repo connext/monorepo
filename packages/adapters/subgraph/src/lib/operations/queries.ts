@@ -267,6 +267,11 @@ export const ROOT_MANAGER_MODE_ENTITY = `
       mode
 `;
 
+export const SPOKE_CONNECTOR_MODE_ENTITY = `
+      id
+      mode
+`;
+
 export const STABLESWAP_POOL_ENTITY = `
       key
       isActive
@@ -391,6 +396,13 @@ export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       domains
       baseAggregateRoot
 `;
+export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      aggregateRoot
+      rootTimestamp
+      endOfDispute
+      domain
+`;
 
 export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `
       id
@@ -404,6 +416,9 @@ export const PROPAGATED_OPTIMISTIC_ROOT_ENTITY = `
       domainsHash
       timestamp
 `;
+
+const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const CONNECTOR_MODE_ID = "CONNECTOR_MODE_ID";
 
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
@@ -1093,6 +1108,33 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
   `;
 };
 
+export const getProposedSpokeOptimisticRootsByDomainQuery = (
+  params: { domain: string; rootTimestamp: number; limit: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_aggregateRootProposeds ( 
+      first: ${param.limit}, 
+      where: { 
+        rootTimestamp_gt: ${param.rootTimestamp}
+      }
+      orderBy: rootTimestamp,
+      orderDirection: asc
+    ) {
+      ${SPOKE_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetProposedSnapshots {
+      ${combinedQuery}
+    }
+  `;
+};
+
 export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1244,8 +1286,6 @@ export const getRootManagerMetaQuery = (domain: string) => {
   `;
 };
 
-const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
-
 export const getRootManagerModeQuery = (domain: string) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
@@ -1254,6 +1294,19 @@ export const getRootManagerModeQuery = (domain: string) => {
     query GetRootManagerMode {
         ${prefix}_rootManagerMode (id: "${ROOT_MANAGER_MODE_ID}") {
         ${ROOT_MANAGER_MODE_ENTITY}
+      }
+    }
+  `;
+};
+
+export const getSpokeConnectorModeQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+
+  return gql`
+    query GetSpokeConnectorMode {
+        ${prefix}_spokeConnectorMode (id: "${CONNECTOR_MODE_ID}") {
+        ${SPOKE_CONNECTOR_MODE_ENTITY}
       }
     }
   `;

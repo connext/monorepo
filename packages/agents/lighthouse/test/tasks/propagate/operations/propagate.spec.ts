@@ -1,7 +1,7 @@
 import { expect, getNtpTimeSeconds } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { NoChainIdForHubDomain, RelayerProxyHubNotFound } from "../../../../src/tasks/propagate/errors";
+import { NoChainIdForDomain, RelayerProxyHubNotFound } from "../../../../src/tasks/propagate/errors";
 import { propagate, finalizeAndPropagate } from "../../../../src/tasks/propagate/operations";
 import * as PropagateFns from "../../../../src/tasks/propagate/operations/propagate";
 import { propagateCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
@@ -19,7 +19,7 @@ describe("Operations: Propagate", () => {
 
     it("should throw an error if no hub domain id", async () => {
       propagateCtxMock.chainData = new Map();
-      await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
 
     // FIXME: check merge from staging against this test. no code exists like this in propagate
@@ -101,7 +101,7 @@ describe("Operations: Propagate", () => {
 
     it("should throw an error if no hub domain id", async () => {
       propagateCtxMock.chainData = new Map();
-      await expect(finalizeAndPropagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(finalizeAndPropagate()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
   });
 });

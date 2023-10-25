@@ -6,7 +6,9 @@ import {
   updatePropagatedRoots,
   updateReceivedAggregateRoots,
   updateProposedSnapshots,
+  updateProposedSpokeOptimisticRoot,
   updateFinalizedRoots,
+  updateFinalizedSpokeRoots,
   updatePropagatedOptmisticRoots,
   retrieveSavedSnapshotRoot,
 } from "../../lib/operations/roots";
@@ -23,7 +25,9 @@ export const bindRoots = async (context: AppContext) => {
 
     //Optimistic mode data
     await updateProposedSnapshots();
+    await updateProposedSpokeOptimisticRoot();
     await updateFinalizedRoots();
+    await updateFinalizedSpokeRoots();
     await updatePropagatedOptmisticRoots();
 
     //Snapshot Root data

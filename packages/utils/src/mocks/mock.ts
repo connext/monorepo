@@ -36,6 +36,7 @@ import {
   RouterDailyTVL,
   RelayerFeesIncrease,
   SlippageUpdate,
+  SpokeOptimisticRoot,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -510,6 +511,14 @@ export const mock = {
       aggregateRoot: getRandomBytes32(),
       domainsHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    spokeOptimisticRoot: (overrides: Partial<SpokeOptimisticRoot> = {}): SpokeOptimisticRoot => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      domain: mock.domain.A,
+      rootTimestamp: Math.floor(Date.now() / 1000),
+      endOfDispute: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
     stableSwapPool: (overrides: Partial<StableSwapPool> = {}): StableSwapPool => ({

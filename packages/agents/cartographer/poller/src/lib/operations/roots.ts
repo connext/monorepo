@@ -7,6 +7,7 @@ import {
   SnapshotRoot,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
@@ -84,6 +85,41 @@ export const updateProposedSnapshots = async () => {
   }
 };
 
+export const updateProposedSpokeOptimisticRoot = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateProposedSpokeOptimisticRoot.name);
+
+  for (const domain of domains) {
+    const rootTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving proposed optimistic root for spoke", requestContext, methodContext, {
+      domain,
+      rootTimestamp: rootTimestamp,
+      limit: limit,
+    });
+
+    const opRoots: SpokeOptimisticRoot[] = await subgraph.getProposedSpokeOptimisticRootsByDomain([
+      { domain, rootTimestamp, limit },
+    ]);
+
+    const newRootTimestamp =
+      opRoots.length == 0 ? 0 : opRoots.sort((a, b) => b.rootTimestamp - a.rootTimestamp)[0].rootTimestamp;
+    if (rootTimestamp === 0 || newRootTimestamp > rootTimestamp) {
+      await database.saveProposedSpokeRoots(opRoots);
+
+      await database.saveCheckPoint("proposed_optimistic_root_" + domain, newRootTimestamp);
+      logger.debug("Saved proposed optimistic root for spoke", requestContext, methodContext, {
+        domain,
+        rootTimestamp: newRootTimestamp,
+      });
+    }
+  }
+};
+
 export const updateFinalizedRoots = async () => {
   const {
     adapters: { subgraph, database },
@@ -117,6 +153,41 @@ export const updateFinalizedRoots = async () => {
       await database.saveCheckPoint("finalized_optimistic_root_" + hub, newOffset);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
+        offset: newOffset,
+      });
+    }
+  }
+};
+export const updateFinalizedSpokeRoots = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
+
+  for (const domain of domains) {
+    const offset = await database.getCheckPoint("finalized_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving finalized aggregated root on spoke", requestContext, methodContext, {
+      domain,
+      offset: offset,
+      limit: limit,
+    });
+
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
+      { hub: domain, timestamp: offset, limit },
+    ]);
+
+    // Reset offset at the end of the cycle.
+    // TODO: Pagination criteria off by one ?
+    const newOffset = roots.length == 0 ? 0 : offset + roots.length - 1;
+    if (offset === 0 || newOffset > offset) {
+      await database.saveFinalizedSpokeRoots(domain, roots);
+
+      await database.saveCheckPoint("finalized_optimistic_root_" + domain, newOffset);
+      logger.debug("Saved finalized aggregated root for spoke", requestContext, methodContext, {
+        domain,
         offset: newOffset,
       });
     }

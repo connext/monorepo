@@ -103,6 +103,14 @@ dataSources:
           handler: handleNewConnector
         - event: SnapshotRootSaved(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleSnapshotRootSaved
+        - event: SlowModeActivated(indexed address)
+          handler: handleSlowModeActivated
+        - event: OptimisticModeActivated()
+          handler: handleOptimisticModeActivated
+        - event: AggregateRootProposed(indexed bytes32,indexed uint256,indexed uint256,uint32)
+          handler: handleAggregateRootProposed
+        - event: ProposedRootFinalized(bytes32)
+          handler: handleProposedRootFinalized
       file: ./src/amarok-runtime-staging/mapping/index.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract

@@ -1,8 +1,8 @@
 import { expect, SparseMerkleTree } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { NoChainIdForHubDomain } from "../../../../src/tasks/propose/errors";
-import { propose, proposeSnapshot } from "../../../../src/tasks/propose/operations";
+import { NoChainIdForDomain } from "../../../../src/tasks/propose/errors";
+import { proposeHub, proposeSnapshot } from "../../../../src/tasks/propose/operations";
 import * as ProposeFns from "../../../../src/tasks/propose/operations/propose";
 import { proposeCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
@@ -14,7 +14,7 @@ describe("Operations: Propose", () => {
 
     it("should throw an error if no hub domain id", async () => {
       proposeCtxMock.chainData = new Map();
-      await expect(propose()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(proposeHub()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
 
     it("should call propose snapshot succesfully", async () => {
@@ -24,7 +24,7 @@ describe("Operations: Propose", () => {
         mock.entity.snapshotRoot().root,
       ]);
 
-      await propose();
+      await proposeHub();
       expect(proposeSnapshotStub).callCount(1);
     });
   });
@@ -52,7 +52,7 @@ describe("Operations: Propose", () => {
 
     it("should throw an error if no hub domain id", async () => {
       proposeCtxMock.chainData = new Map();
-      await expect(propose()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(proposeHub()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
   });
 });

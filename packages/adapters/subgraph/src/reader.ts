@@ -18,6 +18,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   RootManagerMode,
+  SpokeConnectorMode,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -30,6 +31,7 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   Snapshot,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -65,6 +67,8 @@ import {
   getFinalizedRootsByDomainQuery,
   getPropagatedOptimisticRootsByDomainQuery,
   getSavedSnapshotRootsByDomainQuery,
+  getProposedSpokeOptimisticRootsByDomainQuery,
+  getSpokeConnectorModeQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -874,6 +878,34 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets proposed spoke optimistic roots
+   */
+  public async getProposedSpokeOptimisticRootsByDomain(
+    params: { domain: string; rootTimestamp: number; limit: number }[],
+  ): Promise<SpokeOptimisticRoot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSpokeOptimisticRootsByDomainQuery = getProposedSpokeOptimisticRootsByDomainQuery(params);
+    const response = await execute(proposedSpokeOptimisticRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const proposedRoots: SpokeOptimisticRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.proposedSpokeOptimisticRoot);
+
+    return proposedRoots;
+  }
+
+  /**
    * Gets saved snapshots
    */
   public async getSavedSnapshotRootsByDomain(
@@ -1021,8 +1053,23 @@ export class SubgraphReader {
     const response = await execute(rootManagerModeQuery);
     const values = [...response.values()];
     // Initial state of the root manager is slow mode
-    return values[0][0] ? parser.rootManagerMode(values[0][0]) : { id: "ROOT_MANAGER_MODE_ID", mode: "SLOW_MODE" };
+    return values[0][0]
+      ? parser.rootManagerMode(values[0][0])
+      : { id: "ROOT_MANAGER_MODE_ID", mode: "OPTIMISTIC_MODE" };
   }
+
+  public async getSpokeConnectorMode(domain: string): Promise<SpokeConnectorMode> {
+    const { parser, execute } = getHelpers();
+    const spokeConnectorModeQuery = getSpokeConnectorModeQuery(domain);
+
+    const response = await execute(spokeConnectorModeQuery);
+    const values = [...response.values()];
+    // Initial state of the root manager is slow mode
+    return values[0][0]
+      ? parser.spokeConnectorMode(values[0][0])
+      : { id: "CONNECTOR_MODE_ID", mode: "OPTIMISTIC_MODE" };
+  }
+
   /**
    * Gets all the received roots starting with blocknumber for a given domain
    * @param params - The fetch params
