@@ -1070,6 +1070,17 @@ export const getCurrentProposedSnapshot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
+export const getCurrentPropagatedSnapshot = async (
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  const snapshot = await db
+    .selectOne("snapshots", { status: "Propagated" }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
+};
+
 export const getCurrentProposedOptimisticRoot = async (
   domain: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -1106,10 +1117,17 @@ export const saveFinalizedRoots = async (
 
   await Promise.all(
     roots.map(async (root) => {
-      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+      await db
+        .update(
+          "snapshots",
+          { status: "Finalized" },
+          { aggregate_root: root.aggregateRoot, propagate_timestamp: root.timestamp },
+        )
+        .run(poolToUse);
     }),
   );
 };
+
 export const saveProposedSpokeRoots = async (
   _roots: SpokeOptimisticRoot[],
   _pool?: Pool | db.TxnClientForRepeatableRead,

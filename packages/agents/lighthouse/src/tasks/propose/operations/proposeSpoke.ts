@@ -2,7 +2,7 @@ import { createLoggingContext, NxtpError, RequestContext, jsonifyError, domainTo
 import { BigNumber } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, NoSpokeOptimisticRoot, NoSpokeConnector } from "../errors";
+import { NoChainIdForDomain, LatestPropagatedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
 import { getContext } from "../propose";
 
 export type ExtraPropagateParam = {
@@ -21,11 +21,17 @@ export const proposeSpoke = async (spokeDomain: string) => {
     adapters: { database, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeSpoke.name);
+  const latestPropagatedSnapshot = await database.getCurrentPropagatedSnapshot();
+  if (!latestPropagatedSnapshot) {
+    throw new LatestPropagatedSnapshot(requestContext, methodContext);
+  }
+  if (!latestPropagatedSnapshot.propagateTimestamp) {
+    throw new NoRootTimestamp(latestPropagatedSnapshot.aggregateRoot, requestContext, methodContext);
+  }
 
   //TODO: V1.1 special handling for when spoke domain is hub domain
   if (spokeDomain === config.hubDomain) {
     logger.info("Starting propose operation for hub", requestContext, methodContext, spokeDomain);
-    //TODO: V1.1 check if proposed aggregate root is alraadly saved
     await sendRootToHubSpoke(requestContext);
     return;
   }
@@ -72,14 +78,9 @@ export const proposeSpoke = async (spokeDomain: string) => {
   });
 
   try {
-    const latestOptimisticRoot = await database.getLatestPendingSpokeOptimisticRootByDomain(spokeDomain);
-    if (!latestOptimisticRoot) {
-      throw new NoSpokeOptimisticRoot(spokeDomain, requestContext, methodContext);
-    }
-
     await proposeOptimisticRoot(
-      latestOptimisticRoot.aggregateRoot,
-      latestOptimisticRoot.rootTimestamp,
+      latestPropagatedSnapshot.aggregateRoot,
+      latestPropagatedSnapshot.propagateTimestamp,
       spokeDomain,
       requestContext,
     );
