@@ -219,6 +219,7 @@ mockBlockNumber.set("2000", 1234567);
 mockBlockNumber.set("3000", 1234567);
 mockBlockNumber.set("1337", 1234567);
 mockBlockNumber.set("13337", 1234567);
+mockBlockNumber.set("13338", 1234567);
 mockBlockNumber.set("1338", 1234567);
 mockBlockNumber.set("10", 1234567);
 

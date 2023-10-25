@@ -2,7 +2,7 @@ import { createLoggingContext, NxtpError, RequestContext, jsonifyError, domainTo
 import { BigNumber } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, MissingRequiredDomain, NoSpokeOptimisticRoot, NoSpokeConnector } from "../errors";
+import { NoChainIdForDomain, NoSpokeOptimisticRoot, NoSpokeConnector } from "../errors";
 import { getContext } from "../propose";
 
 export type ExtraPropagateParam = {
@@ -18,7 +18,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
     logger,
     config,
     chainData,
-    adapters: { database, subgraph, contracts, chainreader },
+    adapters: { database, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeSpoke.name);
 
