@@ -709,6 +709,54 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getRootManagerMode", () => {
+    it("should return the root manager mode", async () => {
+      const mode = {
+        id: "ROOT_MANAGER_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      response.set("1111", [mode]);
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getRootManagerMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(mode);
+    });
+    it("should return the default value", async () => {
+      const defaultMode = {
+        id: "ROOT_MANAGER_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getRootManagerMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(defaultMode);
+    });
+  });
+
+  describe("#getSpokeConnectorMode", () => {
+    it("should return the root manager meta", async () => {
+      const mode = {
+        id: "CONNECTOR_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      response.set("1111", [mode]);
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getSpokeConnectorMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(mode);
+    });
+
+    it("should return the default value", async () => {
+      const defaultMode = {
+        id: "CONNECTOR_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getSpokeConnectorMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(defaultMode);
+    });
+  });
   describe("#getStableSwapPools", () => {
     it("should return the stable swap pools", async () => {
       const pool = {

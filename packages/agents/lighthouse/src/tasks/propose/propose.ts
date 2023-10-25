@@ -99,7 +99,7 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     // Start the propose task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     const domains: string[] = Object.keys(config.chains);
-    domains.forEach(async (domain) => {
+    for (const domain of domains) {
       const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
       if (spokeConnectorMode.mode !== rootManagerMode.mode) {
         context.logger.info("Mode MISMATCH. Stop", requestContext, methodContext, {
@@ -110,12 +110,12 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
         });
         throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
       }
-    });
+    }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
       //TODO: V1.1 rename source file
       await proposeHub();
-      domains.forEach(async (spokeDomain) => {
+      for (const spokeDomain of domains) {
         try {
           await proposeSpoke(spokeDomain);
         } catch (e: unknown) {
@@ -127,7 +127,7 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
             { spokeDomain },
           );
         }
-      });
+      }
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode. No op.", requestContext, methodContext);
     } else {
