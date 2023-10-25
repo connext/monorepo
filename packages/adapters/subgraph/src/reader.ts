@@ -1053,7 +1053,7 @@ export class SubgraphReader {
     const response = await execute(rootManagerModeQuery);
     const values = [...response.values()];
     // Initial state of the root manager is slow mode
-    return values[0][0]
+    return values[0] && values[0][0]
       ? parser.rootManagerMode(values[0][0])
       : { id: "ROOT_MANAGER_MODE_ID", mode: "OPTIMISTIC_MODE" };
   }
@@ -1065,7 +1065,7 @@ export class SubgraphReader {
     const response = await execute(spokeConnectorModeQuery);
     const values = [...response.values()];
     // Initial state of the root manager is slow mode
-    return values[0][0]
+    return values[0] && values[0][0]
       ? parser.spokeConnectorMode(values[0][0])
       : { id: "CONNECTOR_MODE_ID", mode: "OPTIMISTIC_MODE" };
   }
