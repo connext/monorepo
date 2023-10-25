@@ -56,8 +56,22 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(421611);
   } else if (network == "arbitrum-goerli") {
     chainId = BigInt.fromI32(421613);
-  } else if (network == "zkSync2-testnet") {
+  } else if (network == "zksync2-testnet") {
     chainId = BigInt.fromI32(280);
+  } else if (network == "linea-goerli") {
+    chainId = BigInt.fromI32(59140);
+  } else if (network == "linea") {
+    chainId = BigInt.fromI32(59144);
+  } else if (network == "polygon-zkevm-testnet") {
+    chainId = BigInt.fromI32(1442);
+  } else if (network == "polygon-zkevm") {
+    chainId = BigInt.fromI32(1101);
+  } else if (network == "base-testnet") {
+    chainId = BigInt.fromI32(84531);
+  } else if (network == "base") {
+    chainId = BigInt.fromI32(8453);
+  } else if (network == "zksync-era") {
+    chainId = BigInt.fromI32(84531);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }

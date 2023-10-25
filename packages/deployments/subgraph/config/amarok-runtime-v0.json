@@ -211,7 +211,7 @@
   },
   {
     "subgraphName": "connext/runtime-v0-zksynct",
-    "network": "zkSync2-testnet",
+    "network": "zksync2-testnet",
     "source": [
       {
         "name": "Connext",
@@ -253,7 +253,7 @@
   },
   {
     "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
-    "network": "polygonzk-test",
+    "network": "polygon-zkevm-testnet",
     "source": [
       {
         "name": "Connext",
