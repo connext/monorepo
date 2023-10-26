@@ -20,7 +20,7 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
 
   logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 
-  if (args.params.destinationDomain === "1668247156" || args.params.destinationDomain === "2053862260") {
+  if (args.params.destinationDomain === "2053862260") {
     logger.info("Skipping unsupported domain", requestContext, methodContext, args.params.destinationDomain);
     return;
   }
