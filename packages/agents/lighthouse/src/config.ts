@@ -20,6 +20,7 @@ export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
     spokeMerkleTree: TAddress,
+    hubMerkleTree: TAddress,
     spokeConnector: TAddress,
     relayerProxy: TAddress,
     rootManager: TAddress,
@@ -289,6 +290,16 @@ export const getEnvConfig = (
           return res.address;
         })(),
 
+      hubMerkleTree:
+        chainConfig.deployments?.hubMerkleTree ??
+        (() => {
+          const res = chainDataForChain ? deployments.rootMerkleTreeManager(hubChain, contractPostfix) : undefined;
+
+          if (!res) {
+            throw new Error(`No hub MerkleTreeManager contract address for domain ${hubChain}`);
+          }
+          return res.address;
+        })(),
       relayerProxy:
         chainConfig.deployments?.relayerProxy ??
         (() => {

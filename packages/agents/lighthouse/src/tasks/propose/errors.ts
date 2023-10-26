@@ -29,6 +29,20 @@ export class NoSpokeConnector extends NxtpError {
     });
   }
 }
+export class NoMerkleTreeAddress extends NxtpError {
+  constructor(
+    public readonly hubDomain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`No spokeconnector for domain ${hubDomain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
 
 export class MissingRequiredDomain extends NxtpError {
   constructor(
@@ -60,14 +74,27 @@ export class NoSnapshotRoot extends NxtpError {
   }
 }
 
-export class NoSpokeOptimisticRoot extends NxtpError {
+export class LatestPropagatedSnapshot extends NxtpError {
   constructor(
-    public readonly domain: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`SpokeOptimisticRoot not available for domain ${domain}`, {
+    super(`Latest propagated snapshot not available for hub domain`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+export class NoRootTimestamp extends NxtpError {
+  constructor(
+    public readonly aggregateRoot: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`No propagated_timestamp available for snapshot with aggregate root ${aggregateRoot}`, {
       ...context,
       requestContext,
       methodContext,

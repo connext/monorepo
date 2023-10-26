@@ -11,7 +11,13 @@ import { BigNumber } from "ethers";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, MissingRequiredDomain, NoSnapshotRoot, NoSpokeConnector } from "../errors";
+import {
+  NoChainIdForDomain,
+  MissingRequiredDomain,
+  NoSnapshotRoot,
+  NoSpokeConnector,
+  NoMerkleTreeAddress,
+} from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
 
@@ -20,6 +26,7 @@ export type ExtraPropagateParam = {
   _fee: string;
   _encodedData: string;
 };
+const EMPTY_ROOT = "0x27ae5ba08d7291c96c8cbddcc148bf48a6d68c7974b94356f53754ef6171d757";
 
 export const proposeHub = async () => {
   const {
@@ -127,14 +134,60 @@ export const proposeSnapshot = async (
   const hubChainId = domainToChainId(+config.hubDomain);
   // const _totalFee = constants.Zero;
 
-  const baseAggregateRoot = await database.getBaseAggregateRoot();
+  let baseAggregateRoot = await database.getBaseAggregateRoot();
+
+  // If this is the first snapshot, there will be no base aggregate root.
+  let baseAggregateRootCount: number | undefined;
+  if (!baseAggregateRoot) {
+    const rootMerkleTreeAddress = config.chains[config.hubDomain]?.deployments.hubMerkleTree;
+    if (!rootMerkleTreeAddress) {
+      throw new NoMerkleTreeAddress(config.hubDomain, requestContext, methodContext);
+    }
+
+    let root: string;
+    let count: BigNumber;
+    const encodedData = contracts.merkleTreeManager.encodeFunctionData("rootAndCount");
+    try {
+      const idResultData = await chainreader.readTx({
+        domain: +config.hubDomain,
+        to: rootMerkleTreeAddress,
+        data: encodedData,
+      });
+
+      [root, count] = contracts.merkleTreeManager.decodeFunctionResult("rootAndCount", idResultData);
+    } catch (err: unknown) {
+      logger.error(
+        "Failed to read the latest aggregate root and count from onchain",
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+      // Cannot proceed without the latest snapshot ID.
+      return;
+    }
+    logger.info("Got the latest aggregate root and count from onchain", requestContext, methodContext, {
+      root,
+      count,
+    });
+
+    if (root === EMPTY_ROOT && count.isZero()) {
+      baseAggregateRoot = root;
+      baseAggregateRootCount = 0;
+      logger.info("Found EMPTY_ROOT from onchain", requestContext, methodContext, {
+        baseAggregateRoot,
+        baseAggregateRootCount,
+      });
+    }
+  }
 
   if (baseAggregateRoot === undefined) {
     throw new NoBaseAggregateRoot();
   }
 
-  const baseAggregateRootCount = await database.getBaseAggregateRootCount(baseAggregateRoot);
-  if (!baseAggregateRootCount) {
+  if (baseAggregateRootCount === undefined) {
+    baseAggregateRootCount = await database.getBaseAggregateRootCount(baseAggregateRoot);
+  }
+  if (baseAggregateRootCount === undefined) {
     throw new NoBaseAggregateRootCount(baseAggregateRoot);
   }
   const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);

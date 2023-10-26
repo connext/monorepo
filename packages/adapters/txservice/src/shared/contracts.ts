@@ -115,6 +115,17 @@ export const getDeployedMerkleRootManagerContract = (
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
+export const getDeployedMerkleTreeManagerRootContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts
+    ? record[0]?.contracts[`MerkleTreeManagerRootUpgradeBeaconProxy${postfix}`]
+    : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
 export const getDeployedHubConnecterContract = (
   chainId: number,
   prefix: string,
@@ -212,6 +223,11 @@ export type MerkleTreeManagerDeploymentGetter = (
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
+export type RootMerkleTreeManagerDeploymentGetter = (
+  chainId: number,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
 export type AmbDeploymentGetter = (
   chainId: number,
   prefix: string,
@@ -239,6 +255,7 @@ export type ConnextContractDeployments = {
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
   spokeMerkleTreeManager: MerkleTreeManagerDeploymentGetter;
+  rootMerkleTreeManager: RootMerkleTreeManagerDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
   unwrapper: UnwrapperContractDeploymentGetter;
@@ -252,6 +269,7 @@ export const contractDeployments: ConnextContractDeployments = {
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
   spokeMerkleTreeManager: getDeployedMerkleRootManagerContract,
+  rootMerkleTreeManager: getDeployedMerkleTreeManagerRootContract,
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
   unwrapper: getDeployedUnwrapperContract,

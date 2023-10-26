@@ -66,6 +66,7 @@ import {
   getLatestAggregateRoots,
   getPendingAggregateRoot,
   getCurrentProposedSnapshot,
+  getCurrentPropagatedSnapshot,
   getLatestPendingSnapshotRootByDomain,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
@@ -216,6 +217,7 @@ export type Database = {
   getAggregateRoots: (count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
   getBaseAggregateRoot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getCurrentProposedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
+  getCurrentPropagatedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
   getMessageRootIndex: (
     domain: string,
     messageRoot: string,
@@ -409,6 +411,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getLatestAggregateRoots,
     getPendingAggregateRoot,
     getCurrentProposedSnapshot,
+    getCurrentPropagatedSnapshot,
     getLatestPendingSnapshotRootByDomain,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
@@ -501,6 +504,7 @@ export const getDatabaseAndPool = async (
       getLatestAggregateRoots,
       getPendingAggregateRoot,
       getCurrentProposedSnapshot,
+      getCurrentPropagatedSnapshot,
       getLatestPendingSnapshotRootByDomain,
       getMessageRootAggregatedFromIndex,
       getMessageRootsFromIndex,
