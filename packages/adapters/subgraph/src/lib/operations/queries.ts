@@ -1167,7 +1167,12 @@ export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp:
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
     ${prefix}_optimisticRootFinalizeds ( 
-      where: {}
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gt: ${param.timestamp}
+      }
+      orderBy: timestamp,
+      orderDirection: asc
     ) {
       ${FINALIZED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1189,7 +1194,12 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
     ${prefix}_optimisticRootPropagateds ( 
-      where: {}
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gt: ${param.timestamp}
+      }
+      orderBy: timestamp,
+      orderDirection: asc
     ) {
       ${PROPAGATED_OPTIMISTIC_ROOT_ENTITY}
     }`;

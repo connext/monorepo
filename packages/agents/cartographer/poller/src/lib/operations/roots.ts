@@ -132,28 +132,25 @@ export const updateFinalizedRoots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const offset = await database.getCheckPoint("finalized_optimistic_root_" + hub);
+    const timestamp = await database.getCheckPoint("finalized_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving finalized aggregated root", requestContext, methodContext, {
       hub: hub,
-      offset: offset,
+      offset: timestamp,
       limit: limit,
     });
 
-    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
-      { hub, timestamp: offset, limit },
-    ]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([{ hub, timestamp, limit }]);
 
     // Reset offset at the end of the cycle.
-    // TODO: Pagination criteria off by one ?
-    const newOffset = roots.length == 0 ? 0 : offset + roots.length - 1;
-    if (offset === 0 || newOffset > offset) {
+    const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;
+    if (timestamp === 0 || newTimestamp > timestamp) {
       await database.saveFinalizedRoots(roots);
 
-      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newOffset);
+      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newTimestamp);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
-        offset: newOffset,
+        offset: newTimestamp,
       });
     }
   }
@@ -167,28 +164,27 @@ export const updateFinalizedSpokeRoots = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
 
   for (const domain of domains) {
-    const offset = await database.getCheckPoint("finalized_optimistic_root_" + domain);
+    const timestamp = await database.getCheckPoint("finalized_optimistic_root_" + domain);
     const limit = 100;
-    logger.debug("Retrieving finalized aggregated root on spoke", requestContext, methodContext, {
+    logger.debug("Retrieving finalized aggregated root on domain", requestContext, methodContext, {
       domain,
-      offset: offset,
+      offset: timestamp,
       limit: limit,
     });
 
     const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
-      { hub: domain, timestamp: offset, limit },
+      { hub: domain, timestamp, limit },
     ]);
 
     // Reset offset at the end of the cycle.
-    // TODO: Pagination criteria off by one ?
-    const newOffset = roots.length == 0 ? 0 : offset + roots.length - 1;
-    if (offset === 0 || newOffset > offset) {
+    const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;
+    if (timestamp === 0 || newTimestamp > timestamp) {
       await database.saveFinalizedSpokeRoots(domain, roots);
 
-      await database.saveCheckPoint("finalized_optimistic_root_" + domain, newOffset);
-      logger.debug("Saved finalized aggregated root for spoke", requestContext, methodContext, {
+      await database.saveCheckPoint("finalized_optimistic_root_" + domain, newTimestamp);
+      logger.debug("Saved finalized aggregated root for domain", requestContext, methodContext, {
         domain,
-        offset: newOffset,
+        offset: newTimestamp,
       });
     }
   }
