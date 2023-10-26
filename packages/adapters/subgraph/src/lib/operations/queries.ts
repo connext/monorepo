@@ -1129,7 +1129,7 @@ export const getProposedSpokeOptimisticRootsByDomainQuery = (
   }
 
   return gql`
-    query GetProposedSnapshots {
+    query GetAggregateRootProposeds {
       ${combinedQuery}
     }
   `;
