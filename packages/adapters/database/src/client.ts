@@ -1120,8 +1120,8 @@ export const saveFinalizedRoots = async (
       await db
         .update(
           "snapshots",
-          { status: "Finalized" },
-          { aggregate_root: root.aggregateRoot, propagate_timestamp: root.timestamp },
+          { status: "Finalized", propagate_timestamp: root.timestamp },
+          { aggregate_root: root.aggregateRoot },
         )
         .run(poolToUse);
     }),

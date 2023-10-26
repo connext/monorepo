@@ -82,6 +82,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
       latestPropagatedSnapshot.aggregateRoot,
       latestPropagatedSnapshot.propagateTimestamp,
       spokeDomain,
+      spokeChainId,
       requestContext,
     );
   } catch (err: unknown) {
@@ -93,6 +94,7 @@ export const proposeOptimisticRoot = async (
   aggregateRoot: string,
   rootTimestamp: number,
   spokeDomain: string,
+  spokeChainId: number,
   _requestContext: RequestContext,
 ) => {
   const {
@@ -103,7 +105,6 @@ export const proposeOptimisticRoot = async (
   const { requestContext, methodContext } = createLoggingContext(proposeOptimisticRoot.name, _requestContext);
 
   const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
-  const spokeChainId = domainToChainId(+spokeDomain);
 
   const proposal = { aggregateRoot, rootTimestamp };
 

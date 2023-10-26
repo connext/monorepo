@@ -92,6 +92,7 @@ import {
   saveProposedSnapshots,
   savePropagatedOptimisticRoots,
   getCurrentProposedSnapshot,
+  getCurrentPropagatedSnapshot,
   saveFinalizedRoots,
   saveStableSwapExchange,
   saveRouterDailyTVL,
@@ -1623,6 +1624,8 @@ describe("Database client", () => {
     expect(dbSnapshot!.id).to.eq(snapshots[0].id);
     const missingDbSnapshot = await getPendingAggregateRoot("", pool);
     expect(missingDbSnapshot).to.eq(undefined);
+    const propagagtedSnapshot = await getCurrentPropagatedSnapshot(pool);
+    expect(propagagtedSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
   });
 
   it("should save and get Propagated snapshots", async () => {
