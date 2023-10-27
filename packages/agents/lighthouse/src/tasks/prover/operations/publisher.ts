@@ -12,6 +12,7 @@ import {
   RelayerTaskStatus,
   ModeType,
   Snapshot,
+  EMPTY_ROOT,
 } from "@connext/nxtp-utils";
 
 import {
@@ -231,8 +232,11 @@ export const enqueue = async () => {
                     throw new NoTargetMessageRoot(originDomain);
                   }
                   // Count of leafs in aggregate tree at snapshot baseAggregateRoot.
-                  const _baseAggregateRootCount = await database.getAggregateRootCount(snapshot.baseAggregateRoot);
-                  if (!_baseAggregateRootCount) {
+                  const _baseAggregateRootCount =
+                    snapshot.baseAggregateRoot === EMPTY_ROOT
+                      ? 0
+                      : await database.getAggregateRootCount(snapshot.baseAggregateRoot);
+                  if (_baseAggregateRootCount === undefined) {
                     throw new NoAggregateRootCount(snapshot.baseAggregateRoot);
                   }
                   aggregateRootCount = snapshot.roots.length + _baseAggregateRootCount;
@@ -240,7 +244,10 @@ export const enqueue = async () => {
                 }
 
                 // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
-                messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
+                messageRootCount =
+                  targetMessageRoot === EMPTY_ROOT
+                    ? 0
+                    : await database.getMessageRootCount(originDomain, targetMessageRoot);
                 if (messageRootCount === undefined) {
                   throw new NoMessageRootCount(originDomain, targetMessageRoot);
                 }
