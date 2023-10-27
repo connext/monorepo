@@ -18,6 +18,7 @@ import {
   NoSnapshotRoot,
   NoSpokeConnector,
   NoMerkleTreeAddress,
+  AggregateRootDuplicated,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -190,6 +191,7 @@ export const proposeSnapshot = async (
   if (baseAggregateRootCount === undefined) {
     throw new NoBaseAggregateRootCount(baseAggregateRoot);
   }
+
   const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
   const aggregateRootCount = baseAggregateRootCount + snapshotRoots.length;
   const opRoots = baseAggregateRoots.concat(snapshotRoots);
@@ -198,6 +200,11 @@ export const proposeSnapshot = async (
   const hubStore = new OptimisticHubDBHelper(opRoots, aggregateRootCount);
   const hubSMT = new SparseMerkleTree(hubStore);
   const aggregateRoot = await hubSMT.getRoot();
+  const snapshot = await database.getPendingAggregateRoot(aggregateRoot);
+  console.log({ aggregateRoot, snapshot });
+  if (snapshot) {
+    throw new AggregateRootDuplicated(aggregateRoot, requestContext, methodContext);
+  }
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
 

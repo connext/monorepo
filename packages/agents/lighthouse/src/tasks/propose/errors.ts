@@ -101,3 +101,18 @@ export class NoRootTimestamp extends NxtpError {
     });
   }
 }
+
+export class AggregateRootDuplicated extends NxtpError {
+  constructor(
+    public readonly aggregateRoot: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Trying to send the same aggregateRoot: ${aggregateRoot}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}

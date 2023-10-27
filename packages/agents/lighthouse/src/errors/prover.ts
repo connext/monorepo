@@ -86,3 +86,9 @@ export class NoDomainInSnapshot extends NxtpError {
     super(`No domain ${originDomain} found in snapshot ${snapshot}`, context, NoDomainInSnapshot.name);
   }
 }
+
+export class AggregateRootDuplicated extends NxtpError {
+  constructor(aggregateRoot: string, context: any = {}) {
+    super(`Trying to propose same aggregate root for ${aggregateRoot}`, context, AggregateRootDuplicated.name);
+  }
+}
