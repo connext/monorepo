@@ -2372,6 +2372,7 @@ __metadata:
     "@connext/nxtp-adapters-subgraph": "workspace:*"
     "@connext/nxtp-txservice": "workspace:*"
     "@connext/nxtp-utils": "workspace:*"
+    "@consensys/linea-sdk": 0.1.6
     "@eth-optimism/sdk": 2.1.0
     "@graphql-codegen/cli": 3.0.0
     "@sinclair/typebox": 0.25.21
@@ -2931,7 +2932,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@consensys/linea-sdk@npm:^0.1.6":
+"@consensys/linea-sdk@npm:0.1.6, @consensys/linea-sdk@npm:^0.1.6":
   version: 0.1.6
   resolution: "@consensys/linea-sdk@npm:0.1.6"
   dependencies:
