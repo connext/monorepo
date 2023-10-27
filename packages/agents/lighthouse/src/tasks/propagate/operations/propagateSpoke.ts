@@ -35,7 +35,9 @@ export const finalizeSpoke = async (spokeDomain: string) => {
 
   if (!currentProposedRoot) {
     //Throw
-    logger.info("No current proposed snapshot found. Ending run.", requestContext, methodContext);
+    logger.info("No current proposed spoke optmisitc root found. Ending spoke run.", requestContext, methodContext, {
+      spokeDomain,
+    });
     return;
   }
 
