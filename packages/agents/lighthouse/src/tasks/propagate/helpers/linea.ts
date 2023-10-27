@@ -1,7 +1,7 @@
-import { createLoggingContext, getBestProvider, RequestContext } from "@connext/nxtp-utils";
-import { BigNumber, utils } from "ethers";
-import { LineaSDK } from "@consensys/linea-sdk";
+import { createLoggingContext, RequestContext } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
 
+import { LineaSDK, getBestProvider } from "../../../mockable";
 import { getContext } from "../propagate";
 import { ExtraPropagateParam } from "../operations/propagate";
 import { NoProviderForDomain } from "../errors";
@@ -42,7 +42,7 @@ export const getPropagateParams = async (
 
   // On linea-goerli claimMessage gasLimit was 83717
   // https://goerli.lineascan.build/tx/0x4c477dfcbc22cd99b461cfe714a6ad60796331d3c13e55a74a6de51c3cd9aab6
-  const gasLimit = BigNumber.from("100000");
+  const gasLimit = BigNumber.from("120000");
 
   const _fee = gasPrice.mul(gasLimit).toString();
 
