@@ -116,7 +116,7 @@ const config: HardhatUserConfig = {
       "gnosis-testnet": process.env.GNOSISSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
       chapel: process.env.BNBSCAN_API_KEY!,
-      consensys: "abc",
+
       // mainnets
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
@@ -124,6 +124,7 @@ const config: HardhatUserConfig = {
       bnb: process.env.BNBSCAN_API_KEY!,
       "arbitrum-one": process.env.ARBISCAN_API_KEY!,
       xdai: process.env.GNOSISSCAN_API_KEY!,
+      linea: process.env.LINEASCAN_API_KEY!,
     },
     customChains: [
       {
