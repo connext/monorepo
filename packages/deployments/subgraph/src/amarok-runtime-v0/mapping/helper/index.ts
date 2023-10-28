@@ -71,7 +71,7 @@ export function getChainId(): BigInt {
   } else if (network == "base") {
     chainId = BigInt.fromI32(8453);
   } else if (network == "zksync-era") {
-    chainId = BigInt.fromI32(84531);
+    chainId = BigInt.fromI32(324);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }
