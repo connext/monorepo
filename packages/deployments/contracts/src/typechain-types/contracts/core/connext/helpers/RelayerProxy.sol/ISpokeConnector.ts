@@ -40,14 +40,28 @@ export declare namespace ISpokeConnector {
 
 export interface ISpokeConnectorInterface extends utils.Interface {
   functions: {
+    "allowlistedProposers(address)": FunctionFragment;
+    "proposeAggregateRoot(bytes32,uint256)": FunctionFragment;
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "send(bytes)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "proveAndProcess" | "send"
+    nameOrSignatureOrTopic:
+      | "allowlistedProposers"
+      | "proposeAggregateRoot"
+      | "proveAndProcess"
+      | "send"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "allowlistedProposers",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRoot",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "proveAndProcess",
     values: [
@@ -62,6 +76,14 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "allowlistedProposers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proveAndProcess",
     data: BytesLike
@@ -98,6 +120,17 @@ export interface ISpokeConnector extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     proveAndProcess(
       _proofs: ISpokeConnector.ProofStruct[],
       _aggregateRoot: PromiseOrValue<BytesLike>,
@@ -111,6 +144,17 @@ export interface ISpokeConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  allowlistedProposers(
+    _proposer: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  proposeAggregateRoot(
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   proveAndProcess(
     _proofs: ISpokeConnector.ProofStruct[],
@@ -126,6 +170,17 @@ export interface ISpokeConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     proveAndProcess(
       _proofs: ISpokeConnector.ProofStruct[],
       _aggregateRoot: PromiseOrValue<BytesLike>,
@@ -143,6 +198,17 @@ export interface ISpokeConnector extends BaseContract {
   filters: {};
 
   estimateGas: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     proveAndProcess(
       _proofs: ISpokeConnector.ProofStruct[],
       _aggregateRoot: PromiseOrValue<BytesLike>,
@@ -158,6 +224,17 @@ export interface ISpokeConnector extends BaseContract {
   };
 
   populateTransaction: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     proveAndProcess(
       _proofs: ISpokeConnector.ProofStruct[],
       _aggregateRoot: PromiseOrValue<BytesLike>,

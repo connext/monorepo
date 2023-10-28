@@ -149,20 +149,9 @@ contract RelayerProxyHub is RelayerProxy {
   uint256 public propagateCooldown;
 
   /**
-   * @notice Delay for the proposeAggregateRoot function
-   * @dev Can be updated by admin
-   */
-  uint256 public proposeAggregateRootCooldown;
-
-  /**
    * @notice Timestamp of the last time the propagate job was worked.
    */
   uint256 public lastPropagateAt;
-
-  /**
-   * @notice Timestamp of when last aggregate was proposed
-   */
-  uint256 public lastProposeAggregateRootAt;
 
   /**
    * @notice Address of Autonolas keeper contract
@@ -212,16 +201,6 @@ contract RelayerProxyHub is RelayerProxy {
    * @param oldPropagateCooldown Old cooldown period
    */
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
-
-  /**
-   * @notice Emitted when the cooldown period for proposeAggregateRoot is updated
-   * @param proposeAggregateRootCooldown New cooldown period
-   * @param oldProposeAggregateRootCooldown Old cooldown period
-   */
-  event ProposeAggregateRootCooldownChanged(
-    uint256 proposeAggregateRootCooldown,
-    uint256 oldProposeAggregateRootCooldown
-  );
 
   /**
    * @notice Emitted when a new hub connector is updated
@@ -297,7 +276,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256 _proposeAggregateRootCooldown,
     address[] memory _hubConnectors,
     uint32[] memory _hubConnectorChains
-  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r) {
+  ) RelayerProxy(_connext, _spokeConnector, _gelatoRelayer, _feeCollector, _keep3r, _proposeAggregateRootCooldown) {
     _setRootManager(_rootManager);
     _setPropagateCooldown(_propagateCooldown);
     _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
@@ -492,6 +471,42 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
+   * @notice Wraps the `proposeAggregateRoot` function
+   * @dev This contract will validate the signer is a whitelisted proposer on the RootManager,
+   * and then call `propose` itself. This means this contract must *also* be whitelisted as a
+   * proposer on the RootManager.
+   * @param _snapshotId The snapshot id of the root to be proposed.
+   * @param _aggregateRoot The aggregate root to be proposed.
+   * @param _snapshotsRoots The roots of the connectors included in the aggregate.
+   * @param _domains The domains of the snapshots to be proposed.
+   * @param _signature Signature from the approved proposer.
+   */
+  function proposeAggregateRoot(
+    uint256 _snapshotId,
+    bytes32 _aggregateRoot,
+    bytes32[] calldata _snapshotsRoots,
+    uint32[] calldata _domains,
+    bytes memory _signature
+  ) external onlyRelayer nonReentrant {
+    if (!_proposeAggregateRootCooledDown()) {
+      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
+        block.timestamp,
+        lastProposeAggregateRootAt + proposeAggregateRootCooldown
+      );
+    }
+
+    lastProposeAggregateRootAt = block.timestamp;
+
+    // Validate the signer
+    _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
+
+    // Propose the aggregate
+    rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
+
+    lastProposeAggregateRootAt = block.timestamp;
+  }
+
+  /**
    * @notice Wraps the `finalizeAndPropagate` function
    * @param _connectors Array of connectors: should match exactly the array of `connectors` in storage;
    * @param _fees Array of fees in native token for an AMB if required
@@ -554,11 +569,6 @@ contract RelayerProxyHub is RelayerProxy {
     propagateCooldown = _propagateCooldown;
   }
 
-  function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
-    emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
-    proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
-  }
-
   function _setHubConnector(address _hubConnector, uint32 chain) internal {
     emit HubConnectorChanged(_hubConnector, hubConnectors[chain], chain);
     hubConnectors[chain] = _hubConnector;
@@ -576,10 +586,6 @@ contract RelayerProxyHub is RelayerProxy {
 
   function _propagateCooledDown() internal view returns (bool) {
     return block.timestamp > (lastPropagateAt + propagateCooldown);
-  }
-
-  function _proposeAggregateRootCooledDown() internal view returns (bool) {
-    return block.timestamp > (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
   }
 
   function _validateProposeSignature(

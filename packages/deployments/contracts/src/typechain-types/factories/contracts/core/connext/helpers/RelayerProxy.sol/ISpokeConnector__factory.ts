@@ -13,6 +13,43 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_proposer",
+        type: "address",
+      },
+    ],
+    name: "allowlistedProposers",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_rootTimestamp",
+        type: "uint256",
+      },
+    ],
+    name: "proposeAggregateRoot",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "bytes",

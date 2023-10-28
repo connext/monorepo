@@ -135,6 +135,8 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "propagateCooldown()": FunctionFragment;
     "propagateKeep3r(address[],uint256[],bytes[])": FunctionFragment;
     "propagateWorkable(uint32[])": FunctionFragment;
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)": FunctionFragment;
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)": FunctionFragment;
     "proposeAggregateRootCooldown()": FunctionFragment;
     "proposeAggregateRootKeep3r(uint256,bytes32,bytes32[],uint32[],bytes)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -186,6 +188,8 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "propagateCooldown"
       | "propagateKeep3r"
       | "propagateWorkable"
+      | "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"
+      | "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"
       | "proposeAggregateRootCooldown"
       | "proposeAggregateRootKeep3r"
       | "proposeNewOwner"
@@ -320,6 +324,25 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "propagateWorkable",
     values: [PromiseOrValue<BigNumberish>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRoot(bytes32,uint256,bytes,uint256)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeAggregateRootCooldown",
@@ -491,6 +514,14 @@ export interface RelayerProxyHubInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "propagateWorkable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot(bytes32,uint256,bytes,uint256)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -938,6 +969,23 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     proposeAggregateRootCooldown(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -1156,6 +1204,23 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"(
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    _signature: PromiseOrValue<BytesLike>,
+    _fee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"(
+    _snapshotId: PromiseOrValue<BigNumberish>,
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _snapshotsRoots: PromiseOrValue<BytesLike>[],
+    _domains: PromiseOrValue<BigNumberish>[],
+    _signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
   proposeAggregateRootKeep3r(
@@ -1369,6 +1434,23 @@ export interface RelayerProxyHub extends BaseContract {
       domains: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1716,6 +1798,23 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      _signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeAggregateRootKeep3r(
@@ -1932,6 +2031,23 @@ export interface RelayerProxyHub extends BaseContract {
 
     propagateWorkable(
       domains: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)"(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[],bytes)"(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      _signature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

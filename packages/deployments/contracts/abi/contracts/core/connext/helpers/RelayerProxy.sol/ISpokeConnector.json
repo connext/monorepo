@@ -1,4 +1,6 @@
 [
+  "function allowlistedProposers(address _proposer) view returns (bool)",
+  "function proposeAggregateRoot(bytes32 _aggregateRoot, uint256 _rootTimestamp)",
   "function proveAndProcess(tuple(bytes message, bytes32[32] path, uint256 index)[] _proofs, bytes32 _aggregateRoot, bytes32[32] _aggregatePath, uint256 _aggregateIndex)",
   "function send(bytes _encodedData) payable"
 ]
