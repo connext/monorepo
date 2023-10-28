@@ -19,6 +19,7 @@ import {
   NoSpokeConnector,
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
+  ValidatedAggregateRootNotFound,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -200,10 +201,15 @@ export const proposeSnapshot = async (
   const hubStore = new OptimisticHubDBHelper(opRoots, aggregateRootCount);
   const hubSMT = new SparseMerkleTree(hubStore);
   const aggregateRoot = await hubSMT.getRoot();
+
   const snapshot = await database.getPendingAggregateRoot(aggregateRoot);
-  console.log({ aggregateRoot, snapshot });
   if (snapshot) {
     throw new AggregateRootDuplicated(aggregateRoot, requestContext, methodContext);
+  }
+
+  const isAggregateRootNew = await aggregateRootCheck(aggregateRoot, requestContext);
+  if (!isAggregateRootNew) {
+    throw new ValidatedAggregateRootNotFound(aggregateRoot, requestContext, methodContext);
   }
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
@@ -247,4 +253,92 @@ export const proposeSnapshot = async (
       encodedDataForRelayer,
     });
   }
+};
+
+export const aggregateRootCheck = async (aggregateRoot: string, _requestContext: RequestContext) => {
+  const {
+    logger,
+    adapters: { contracts, database, chainreader },
+    config,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
+
+  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
+  //
+  const encodedTimestampData = contracts.rootManager.encodeFunctionData("lastSavedAggregateRootTimestamp");
+  let _rootTimestamp: any;
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +config.hubDomain,
+      to: rootManagerAddress,
+      data: encodedTimestampData,
+    });
+
+    _rootTimestamp = contracts.rootManager.decodeFunctionResult("lastSavedAggregateRootTimestamp", idResultData);
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the lastSavedAggregateRootTimestamp",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+      { _rootTimestamp },
+    );
+    // Cannot proceed without the latest lastSavedAggregateRootTimestamp.
+    return false;
+  }
+  if (!_rootTimestamp) {
+    // Cannot proceed without the lastSavedAggregateRootTimestamp.
+    return false;
+  }
+  const rootTimestamp = BigNumber.from(_rootTimestamp).toString();
+
+  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [rootTimestamp]);
+  let _onChainRoot: any;
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +config.hubDomain,
+      to: rootManagerAddress,
+      data: encodedData,
+    });
+
+    _onChainRoot = contracts.rootManager.decodeFunctionResult("validAggregateRoots", idResultData);
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the validated aggregate root ",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+      { rootTimestamp },
+    );
+    // Cannot proceed without the valid aggregate root for lastSavedAggregateRootTimestamp.
+    return false;
+  }
+  if (!_onChainRoot) {
+    // Cannot proceed without the valid aggregate root for lastSavedAggregateRootTimestamp.
+    return false;
+  }
+  logger.info("Got the validated aggregate root from onchain", requestContext, methodContext, {
+    _onChainRoot,
+  });
+
+  const onChainRoot = _onChainRoot as string;
+
+  if (_onChainRoot === aggregateRoot) {
+    logger.info("Stop propose. Found onchain root same as proposed root", requestContext, methodContext, {
+      aggregateRoot,
+    });
+    return false;
+  }
+
+  const snapshot = await database.getPendingAggregateRoot(onChainRoot);
+  if (!snapshot) {
+    // This can happen when DB and/or subgraph is out of sync
+    logger.info("Stop propose. Onchain root not found in db", requestContext, methodContext, {
+      aggregateRoot,
+    });
+    return false;
+  }
+
+  // All checks passed, can propose the aggregate root.
+  return true;
 };

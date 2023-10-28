@@ -116,3 +116,18 @@ export class AggregateRootDuplicated extends NxtpError {
     });
   }
 }
+
+export class ValidatedAggregateRootNotFound extends NxtpError {
+  constructor(
+    public readonly timestamp: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Validated aggregateRoot not found for rootTimestamp ${timestamp}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
