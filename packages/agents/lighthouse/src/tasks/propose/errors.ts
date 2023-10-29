@@ -117,14 +117,14 @@ export class AggregateRootDuplicated extends NxtpError {
   }
 }
 
-export class ValidatedAggregateRootNotFound extends NxtpError {
+export class AggregateRootChecksFailed extends NxtpError {
   constructor(
-    public readonly timestamp: string,
+    public readonly aggregateRoot: string,
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`Validated aggregateRoot not found for rootTimestamp ${timestamp}`, {
+    super(`Root checks failed for aggregate root ${aggregateRoot}`, {
       ...context,
       requestContext,
       methodContext,

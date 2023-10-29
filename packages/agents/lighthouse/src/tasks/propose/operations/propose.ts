@@ -19,7 +19,7 @@ import {
   NoSpokeConnector,
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
-  ValidatedAggregateRootNotFound,
+  AggregateRootChecksFailed,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -207,9 +207,9 @@ export const proposeSnapshot = async (
     throw new AggregateRootDuplicated(aggregateRoot, requestContext, methodContext);
   }
 
-  const isAggregateRootNew = await aggregateRootCheck(aggregateRoot, requestContext);
-  if (!isAggregateRootNew) {
-    throw new ValidatedAggregateRootNotFound(aggregateRoot, requestContext, methodContext);
+  const rootChecks = await aggregateRootCheck(aggregateRoot, requestContext);
+  if (!rootChecks) {
+    throw new AggregateRootChecksFailed(aggregateRoot, requestContext, methodContext);
   }
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
