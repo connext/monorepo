@@ -255,7 +255,7 @@ export const proposeSnapshot = async (
   }
 };
 
-export const aggregateRootCheck = async (aggregateRoot: string, _requestContext: RequestContext) => {
+export const aggregateRootCheck = async (aggregateRoot: string, _requestContext: RequestContext): Promise<boolean> => {
   const {
     logger,
     adapters: { contracts, database, chainreader },
