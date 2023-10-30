@@ -38,7 +38,7 @@ export const proposeHub = async () => {
     adapters: { database, subgraph, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeHub.name);
-  logger.info("Starting propose operation", requestContext, methodContext);
+  logger.info("Starting propose operation on hub", requestContext, methodContext);
 
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
@@ -54,11 +54,11 @@ export const proposeHub = async () => {
   const rootManagerDomains = rootManagerMeta.domains;
 
   // Ensure all root manager domains are present in the config
-  rootManagerDomains.forEach((domain) => {
+  for (const domain of rootManagerDomains) {
     if (!domains.includes(domain)) {
       throw new MissingRequiredDomain(domain, requestContext, methodContext);
     }
-  });
+  }
 
   // Find the latest snapshot ID.
   const hubSpokeConnector = config.chains[config.hubDomain]?.deployments.spokeConnector;
@@ -82,7 +82,7 @@ export const proposeHub = async () => {
     latestSnapshotId = currentSnapshotId.toString();
   } catch (err: unknown) {
     logger.error(
-      "Failed to read the latest snapshot ID from onchain",
+      "Failed to read the latest snapshot ID from onchain on proposeHub",
       requestContext,
       methodContext,
       jsonifyError(err as NxtpError),
@@ -90,7 +90,7 @@ export const proposeHub = async () => {
     // Cannot proceed without the latest snapshot ID.
     return;
   }
-  logger.info("Got the latest snapshot ID from onchain", requestContext, methodContext, {
+  logger.info("Got the latest snapshot ID from onchain on proposeHub", requestContext, methodContext, {
     latestSnapshotId,
   });
 
@@ -115,7 +115,12 @@ export const proposeHub = async () => {
 
     await proposeSnapshot(latestSnapshotId, orderedSnapshotRoots, rootManagerDomains, requestContext);
   } catch (err: unknown) {
-    logger.error("Error proposing snapshot", requestContext, methodContext, jsonifyError(err as NxtpError));
+    logger.error(
+      "Error proposing snapshot on proposeHub",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
   }
 };
 
@@ -266,7 +271,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
   const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
   //
   const encodedTimestampData = contracts.rootManager.encodeFunctionData("lastSavedAggregateRootTimestamp");
-  let _rootTimestamp: any;
+  let rootTimestamp: any;
   try {
     const idResultData = await chainreader.readTx({
       domain: +config.hubDomain,
@@ -274,25 +279,26 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
       data: encodedTimestampData,
     });
 
-    _rootTimestamp = contracts.rootManager.decodeFunctionResult("lastSavedAggregateRootTimestamp", idResultData);
+    rootTimestamp = contracts.rootManager.decodeFunctionResult("lastSavedAggregateRootTimestamp", idResultData);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the lastSavedAggregateRootTimestamp",
       requestContext,
       methodContext,
       jsonifyError(err as NxtpError),
-      { _rootTimestamp },
+      { rootTimestamp: rootTimestamp.toString() },
     );
     // Cannot proceed without the latest lastSavedAggregateRootTimestamp.
     return false;
   }
-  if (!_rootTimestamp) {
+  if (!rootTimestamp) {
     // Cannot proceed without the lastSavedAggregateRootTimestamp.
     return false;
   }
-  const rootTimestamp = BigNumber.from(_rootTimestamp).toString();
 
-  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [rootTimestamp]);
+  // const rootTimestamp = BigNumber.from(_rootTimestamp).toString();
+
+  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [rootTimestamp.toString()]);
   let _onChainRoot: any;
   try {
     const idResultData = await chainreader.readTx({
@@ -301,7 +307,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
       data: encodedData,
     });
 
-    _onChainRoot = contracts.rootManager.decodeFunctionResult("validAggregateRoots", idResultData);
+    [_onChainRoot] = contracts.rootManager.decodeFunctionResult("validAggregateRoots", idResultData);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the validated aggregate root ",
@@ -334,7 +340,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
   if (!snapshot) {
     // This can happen when DB and/or subgraph is out of sync
     logger.info("Stop propose. Onchain root not found in db", requestContext, methodContext, {
-      aggregateRoot,
+      onChainRoot,
     });
     return false;
   }
