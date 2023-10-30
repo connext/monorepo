@@ -29,7 +29,25 @@ export const proposeSpoke = async (spokeDomain: string) => {
     throw new NoRootTimestamp(latestPropagatedSnapshot.aggregateRoot, requestContext, methodContext);
   }
 
-  //TODO: V1.1 special handling for when spoke domain is hub domain
+  const spokeRoot = await database.getSpokeOptimisticRoot(latestPropagatedSnapshot.aggregateRoot, spokeDomain);
+  if (spokeRoot && spokeRoot.status === "Finalized") {
+    logger.info("Aggregate root already finalized on spoke.", requestContext, methodContext, {
+      aggregateRoot: latestPropagatedSnapshot.aggregateRoot,
+      spokeDomain,
+    });
+    // End propose. Aggregate root already finalized
+    return;
+  }
+
+  const isProven = await aggregateRootCheck(latestPropagatedSnapshot.aggregateRoot, spokeDomain, requestContext);
+  if (isProven) {
+    logger.info("Aggregate root already finalized on spoke onchain", requestContext, methodContext, {
+      aggregateRoot: latestPropagatedSnapshot.aggregateRoot,
+      spokeDomain,
+    });
+    return;
+  }
+
   if (spokeDomain === config.hubDomain) {
     logger.info("Starting propose operation for hub", requestContext, methodContext, spokeDomain);
     await sendRootToHubSpoke(requestContext);
@@ -190,4 +208,53 @@ export const sendRootToHubSpoke = async (_requestContext: RequestContext) => {
       encodedDataForRelayer,
     });
   }
+};
+
+export const aggregateRootCheck = async (
+  aggregateRoot: string,
+  domain: string,
+  _requestContext: RequestContext,
+): Promise<boolean> => {
+  const {
+    logger,
+    adapters: { contracts, chainreader },
+    config,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
+
+  const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
+  //
+  const encodedRootData = contracts.spokeConnector.encodeFunctionData("provenAggregateRoots", [aggregateRoot]);
+  let _isProven: any;
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +domain,
+      to: spokeConnectorAddress,
+      data: encodedRootData,
+    });
+
+    _isProven = contracts.spokeConnector.decodeFunctionResult("provenAggregateRoots", idResultData);
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the provenAggregateRoots",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+      { aggregateRoot },
+    );
+    // Cannot proceed without the latest provenAggregateRoots check.
+    return false;
+  }
+  logger.info("Checked if aggregate root is already proven onchain", requestContext, methodContext, {
+    aggregateRoot,
+    proven: _isProven as boolean,
+  });
+
+  if (_isProven === undefined) {
+    // Cannot proceed without the provenAggregateRoots.
+    return false;
+  }
+
+  // All checks passed, can propose the aggregate root.
+  return _isProven;
 };

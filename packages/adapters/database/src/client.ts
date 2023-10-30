@@ -929,12 +929,12 @@ export const getBaseAggregateRootCount = async (
 };
 
 export const getAggregateRootCount = async (
-  aggreateRoot: string,
+  aggregateRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
+  const root = await db.selectOne("propagated_roots", { aggregate_root: aggregateRoot }).run(poolToUse);
   return root ? convertFromDbPropagatedRoot(root).count : undefined;
 };
 
@@ -1093,6 +1093,16 @@ export const getCurrentProposedOptimisticRoot = async (
       { limit: 1, order: { by: "root_timestamp", direction: "DESC" } },
     )
     .run(poolToUse);
+  return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
+};
+
+export const getSpokeOptimisticRoot = async (
+  root: string,
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db.selectOne("spoke_optimistic_roots", { root, domain }).run(poolToUse);
   return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
 };
 

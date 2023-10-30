@@ -12,11 +12,27 @@ describe("Operations: ProposeSpoke", () => {
   describe("#proposeSpoke", () => {
     beforeEach(() => {});
 
-    it("should throw an error if no`hub domain id", async () => {
-      proposeCtxMock.chainData = new Map();
+    it("should early exit if root already finalized in db", async () => {
       (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
-      await expect(proposeSpoke("")).to.eventually.be.rejectedWith(NoChainIdForDomain);
+      const spokeRoot = mock.entity.spokeOptimisticRoot({ status: "Finalized" });
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(spokeRoot);
+
+      const result = await proposeSpoke("");
+      expect(result).to.eq(undefined);
     });
+
+    it("should early exit if root already finalized on chain but not db", async () => {
+      let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(true);
+      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
+        mock.entity.spokeOptimisticRoot(),
+      );
+
+      const result = await proposeSpoke("");
+      expect(result).to.eq(undefined);
+      expect(aggregateRootCheckStub).callCount(1);
+    });
+
     it("should throw an error if no propagated snapshot", async () => {
       await expect(proposeSpoke("")).to.eventually.be.rejectedWith(LatestPropagatedSnapshot);
     });
@@ -29,20 +45,30 @@ describe("Operations: ProposeSpoke", () => {
 
     it("should call proposeSpoke snapshot succesfully", async () => {
       let proposeOptimisticRootStub = stub(ProposeFns, "proposeOptimisticRoot").resolves();
+      let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(false);
 
       (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
+        mock.entity.spokeOptimisticRoot(),
+      );
 
       await proposeSpoke(mock.domain.B);
       expect(proposeOptimisticRootStub).callCount(1);
+      expect(aggregateRootCheckStub).callCount(1);
     });
 
     it("should call sendRootToHubSpoke snapshot succesfully", async () => {
+      let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(false);
       let sendRootToHubSpokeStub = stub(ProposeFns, "sendRootToHubSpoke").resolves();
 
       (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
+        mock.entity.spokeOptimisticRoot(),
+      );
 
       await proposeSpoke(mock.domain.A);
       expect(sendRootToHubSpokeStub).callCount(1);
+      expect(aggregateRootCheckStub).callCount(1);
     });
   });
 
@@ -73,6 +99,24 @@ describe("Operations: ProposeSpoke", () => {
 
       await ProposeFns.sendRootToHubSpoke(undefined as any);
       expect(sendWithRelayerWithBackupStub).callCount(1);
+    });
+  });
+
+  describe("#aggregateRootCheck", () => {
+    let encodeFunctionData: SinonStub;
+    let decodeFunctionData: SinonStub;
+
+    beforeEach(() => {
+      encodeFunctionData = proposeCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub;
+      decodeFunctionData = proposeCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub;
+    });
+
+    it("happy case should call aggregateRootCheck succesfully", async () => {
+      encodeFunctionData.returns("0x");
+      decodeFunctionData.returns(true);
+
+      const result = await ProposeFns.aggregateRootCheck("0x", mock.domain.A, undefined as any);
+      expect(result).to.eq(true);
     });
   });
 });

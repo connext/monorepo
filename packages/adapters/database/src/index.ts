@@ -102,6 +102,7 @@ import {
   saveProposedSpokeRoots,
   saveFinalizedSpokeRoots,
   getCurrentProposedOptimisticRoot,
+  getSpokeOptimisticRoot,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -355,6 +356,11 @@ export type Database = {
     domain: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<SpokeOptimisticRoot | undefined>;
+  getSpokeOptimisticRoot: (
+    root: string,
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
 };
 
 export let pool: Pool;
@@ -443,6 +449,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveProposedSpokeRoots,
     saveFinalizedSpokeRoots,
     getCurrentProposedOptimisticRoot,
+    getSpokeOptimisticRoot,
   };
 };
 
@@ -536,6 +543,7 @@ export const getDatabaseAndPool = async (
       saveProposedSpokeRoots,
       saveFinalizedSpokeRoots,
       getCurrentProposedOptimisticRoot,
+      getSpokeOptimisticRoot,
     },
   };
 };
