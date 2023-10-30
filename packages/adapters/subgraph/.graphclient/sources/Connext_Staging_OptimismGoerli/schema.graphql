@@ -18,6 +18,71 @@ type stagingoptimismgoerli_AggregateRoot {
   blockNumber: BigInt!
 }
 
+type stagingoptimismgoerli_AggregateRootProposed {
+  id: ID!
+  aggregateRoot: stagingoptimismgoerli_Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+}
+
+input stagingoptimismgoerli_AggregateRootProposed_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: stagingoptimismgoerli_Bytes
+  aggregateRoot_not: stagingoptimismgoerli_Bytes
+  aggregateRoot_gt: stagingoptimismgoerli_Bytes
+  aggregateRoot_lt: stagingoptimismgoerli_Bytes
+  aggregateRoot_gte: stagingoptimismgoerli_Bytes
+  aggregateRoot_lte: stagingoptimismgoerli_Bytes
+  aggregateRoot_in: [stagingoptimismgoerli_Bytes!]
+  aggregateRoot_not_in: [stagingoptimismgoerli_Bytes!]
+  aggregateRoot_contains: stagingoptimismgoerli_Bytes
+  aggregateRoot_not_contains: stagingoptimismgoerli_Bytes
+  rootTimestamp: BigInt
+  rootTimestamp_not: BigInt
+  rootTimestamp_gt: BigInt
+  rootTimestamp_lt: BigInt
+  rootTimestamp_gte: BigInt
+  rootTimestamp_lte: BigInt
+  rootTimestamp_in: [BigInt!]
+  rootTimestamp_not_in: [BigInt!]
+  endOfDispute: BigInt
+  endOfDispute_not: BigInt
+  endOfDispute_gt: BigInt
+  endOfDispute_lt: BigInt
+  endOfDispute_gte: BigInt
+  endOfDispute_lte: BigInt
+  endOfDispute_in: [BigInt!]
+  endOfDispute_not_in: [BigInt!]
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingoptimismgoerli_BlockChangedFilter
+  and: [stagingoptimismgoerli_AggregateRootProposed_filter]
+  or: [stagingoptimismgoerli_AggregateRootProposed_filter]
+}
+
+enum stagingoptimismgoerli_AggregateRootProposed_orderBy {
+  id
+  aggregateRoot
+  rootTimestamp
+  endOfDispute
+  domain
+}
+
 input stagingoptimismgoerli_AggregateRoot_filter {
   id: ID
   id_not: ID
@@ -470,6 +535,7 @@ type stagingoptimismgoerli_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: stagingoptimismgoerli_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: stagingoptimismgoerli_Bytes
   reconciledTransactionHash: stagingoptimismgoerli_Bytes
   reconciledTimestamp: BigInt
@@ -477,6 +543,7 @@ type stagingoptimismgoerli_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: stagingoptimismgoerli_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input stagingoptimismgoerli_DestinationTransfer_filter {
@@ -734,6 +801,14 @@ input stagingoptimismgoerli_DestinationTransfer_filter {
   executedTxOrigin_not_in: [stagingoptimismgoerli_Bytes!]
   executedTxOrigin_contains: stagingoptimismgoerli_Bytes
   executedTxOrigin_not_contains: stagingoptimismgoerli_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: stagingoptimismgoerli_Bytes
   reconciledCaller_not: stagingoptimismgoerli_Bytes
   reconciledCaller_gt: stagingoptimismgoerli_Bytes
@@ -796,6 +871,14 @@ input stagingoptimismgoerli_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [stagingoptimismgoerli_Bytes!]
   reconciledTxOrigin_contains: stagingoptimismgoerli_Bytes
   reconciledTxOrigin_not_contains: stagingoptimismgoerli_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_BlockChangedFilter
   and: [stagingoptimismgoerli_DestinationTransfer_filter]
@@ -840,6 +923,7 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -847,6 +931,7 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
+  reconciledTxNonce
 }
 
 """
@@ -854,6 +939,51 @@ enum stagingoptimismgoerli_DestinationTransfer_orderBy {
 
 """
 scalar stagingoptimismgoerli_Int8
+
+type stagingoptimismgoerli_OptimisticRootFinalized {
+  id: ID!
+  aggregateRoot: stagingoptimismgoerli_Bytes!
+  timestamp: BigInt!
+}
+
+input stagingoptimismgoerli_OptimisticRootFinalized_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: stagingoptimismgoerli_Bytes
+  aggregateRoot_not: stagingoptimismgoerli_Bytes
+  aggregateRoot_gt: stagingoptimismgoerli_Bytes
+  aggregateRoot_lt: stagingoptimismgoerli_Bytes
+  aggregateRoot_gte: stagingoptimismgoerli_Bytes
+  aggregateRoot_lte: stagingoptimismgoerli_Bytes
+  aggregateRoot_in: [stagingoptimismgoerli_Bytes!]
+  aggregateRoot_not_in: [stagingoptimismgoerli_Bytes!]
+  aggregateRoot_contains: stagingoptimismgoerli_Bytes
+  aggregateRoot_not_contains: stagingoptimismgoerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingoptimismgoerli_BlockChangedFilter
+  and: [stagingoptimismgoerli_OptimisticRootFinalized_filter]
+  or: [stagingoptimismgoerli_OptimisticRootFinalized_filter]
+}
+
+enum stagingoptimismgoerli_OptimisticRootFinalized_orderBy {
+  id
+  aggregateRoot
+  timestamp
+}
 
 """Defines the order direction, either ascending or descending"""
 enum stagingoptimismgoerli_OrderDirection {
@@ -1031,6 +1161,7 @@ type stagingoptimismgoerli_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: stagingoptimismgoerli_Bytes
+  txNonce: BigInt
 }
 
 input stagingoptimismgoerli_OriginTransfer_filter {
@@ -1323,6 +1454,14 @@ input stagingoptimismgoerli_OriginTransfer_filter {
   txOrigin_not_in: [stagingoptimismgoerli_Bytes!]
   txOrigin_contains: stagingoptimismgoerli_Bytes
   txOrigin_not_contains: stagingoptimismgoerli_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingoptimismgoerli_BlockChangedFilter
   and: [stagingoptimismgoerli_OriginTransfer_filter]
@@ -1378,6 +1517,7 @@ enum stagingoptimismgoerli_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
+  txNonce
 }
 
 type Query {
@@ -1875,6 +2015,84 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_SnapshotRoot!]!
+  stagingoptimismgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_SpokeConnectorMode
+  stagingoptimismgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_SpokeConnectorMode_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_SpokeConnectorMode!]!
+  stagingoptimismgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_AggregateRootProposed
+  stagingoptimismgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_AggregateRootProposed_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_AggregateRootProposed!]!
+  stagingoptimismgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_OptimisticRootFinalized
+  stagingoptimismgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }
@@ -1977,6 +2195,7 @@ enum stagingoptimismgoerli_RelayerFee_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2131,6 +2350,7 @@ enum stagingoptimismgoerli_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2743,6 +2963,7 @@ enum stagingoptimismgoerli_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
+  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2750,6 +2971,7 @@ enum stagingoptimismgoerli_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2832,6 +3054,51 @@ enum stagingoptimismgoerli_SnapshotRoot_orderBy {
   count
   timestamp
   blockNumber
+}
+
+type stagingoptimismgoerli_SpokeConnectorMode {
+  id: ID!
+  mode: String!
+}
+
+input stagingoptimismgoerli_SpokeConnectorMode_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  mode: String
+  mode_not: String
+  mode_gt: String
+  mode_lt: String
+  mode_gte: String
+  mode_lte: String
+  mode_in: [String!]
+  mode_not_in: [String!]
+  mode_contains: String
+  mode_contains_nocase: String
+  mode_not_contains: String
+  mode_not_contains_nocase: String
+  mode_starts_with: String
+  mode_starts_with_nocase: String
+  mode_not_starts_with: String
+  mode_not_starts_with_nocase: String
+  mode_ends_with: String
+  mode_ends_with_nocase: String
+  mode_not_ends_with: String
+  mode_not_ends_with_nocase: String
+  """Filter for the block changed event."""
+  _change_block: stagingoptimismgoerli_BlockChangedFilter
+  and: [stagingoptimismgoerli_SpokeConnectorMode_filter]
+  or: [stagingoptimismgoerli_SpokeConnectorMode_filter]
+}
+
+enum stagingoptimismgoerli_SpokeConnectorMode_orderBy {
+  id
+  mode
 }
 
 type Subscription {
@@ -3329,6 +3596,84 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingoptimismgoerli_SnapshotRoot!]!
+  stagingoptimismgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_SpokeConnectorMode
+  stagingoptimismgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_SpokeConnectorMode_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_SpokeConnectorMode!]!
+  stagingoptimismgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_AggregateRootProposed
+  stagingoptimismgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_AggregateRootProposed_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_AggregateRootProposed!]!
+  stagingoptimismgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingoptimismgoerli_OptimisticRootFinalized
+  stagingoptimismgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingoptimismgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: stagingoptimismgoerli_OrderDirection
+    where: stagingoptimismgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingoptimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingoptimismgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   stagingoptimismgoerli__meta(block: stagingoptimismgoerli_Block_height): stagingoptimismgoerli__Meta_
 }

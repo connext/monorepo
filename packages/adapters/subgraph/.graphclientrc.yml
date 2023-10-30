@@ -184,7 +184,7 @@ sources:
   - name: Connext_ConsensysTest
     handler:
       graphql:
-        endpoint: https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/connext/amarok-runtime-v0-consensys-test
+        endpoint: https://graph-query.goerli.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea-goerli
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -455,9 +455,9 @@ sources:
       graphql:
         strategy: fallback
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
-            retry: 2
-            timeout: 30000 # 30 seconds
+          #- endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
+          #  retry: 2
+          #  timeout: 30000 # 30 seconds
           - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
             retry: 5
             timeout: 30000 # 30 seconds

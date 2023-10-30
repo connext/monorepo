@@ -12,21 +12,137 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
+type local1337_AggregateRoot {
+  id: ID!
+  root: local1337_Bytes!
+  blockNumber: BigInt!
+}
+
+type local1337_AggregateRootProposed {
+  id: ID!
+  aggregateRoot: local1337_Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+}
+
+input local1337_AggregateRootProposed_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: local1337_Bytes
+  aggregateRoot_not: local1337_Bytes
+  aggregateRoot_gt: local1337_Bytes
+  aggregateRoot_lt: local1337_Bytes
+  aggregateRoot_gte: local1337_Bytes
+  aggregateRoot_lte: local1337_Bytes
+  aggregateRoot_in: [local1337_Bytes!]
+  aggregateRoot_not_in: [local1337_Bytes!]
+  aggregateRoot_contains: local1337_Bytes
+  aggregateRoot_not_contains: local1337_Bytes
+  rootTimestamp: BigInt
+  rootTimestamp_not: BigInt
+  rootTimestamp_gt: BigInt
+  rootTimestamp_lt: BigInt
+  rootTimestamp_gte: BigInt
+  rootTimestamp_lte: BigInt
+  rootTimestamp_in: [BigInt!]
+  rootTimestamp_not_in: [BigInt!]
+  endOfDispute: BigInt
+  endOfDispute_not: BigInt
+  endOfDispute_gt: BigInt
+  endOfDispute_lt: BigInt
+  endOfDispute_gte: BigInt
+  endOfDispute_lte: BigInt
+  endOfDispute_in: [BigInt!]
+  endOfDispute_not_in: [BigInt!]
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_AggregateRootProposed_filter]
+  or: [local1337_AggregateRootProposed_filter]
+}
+
+enum local1337_AggregateRootProposed_orderBy {
+  id
+  aggregateRoot
+  rootTimestamp
+  endOfDispute
+  domain
+}
+
+input local1337_AggregateRoot_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  root: local1337_Bytes
+  root_not: local1337_Bytes
+  root_gt: local1337_Bytes
+  root_lt: local1337_Bytes
+  root_gte: local1337_Bytes
+  root_lte: local1337_Bytes
+  root_in: [local1337_Bytes!]
+  root_not_in: [local1337_Bytes!]
+  root_contains: local1337_Bytes
+  root_not_contains: local1337_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_AggregateRoot_filter]
+  or: [local1337_AggregateRoot_filter]
+}
+
+enum local1337_AggregateRoot_orderBy {
+  id
+  root
+  blockNumber
+}
+
 type local1337_Asset {
   id: ID!
   key: local1337_Bytes
-  local: local1337_Bytes!
-  adoptedAsset: local1337_Bytes!
-  canonicalId: local1337_Bytes!
-  canonicalDomain: BigInt!
-  blockNumber: BigInt!
+  decimal: BigInt
+  canonicalId: local1337_Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: local1337_Bytes
+  localAsset: local1337_Bytes
+  blockNumber: BigInt
+  status: local1337_AssetStatus
 }
 
 type local1337_AssetBalance {
   id: ID!
   amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
   router: local1337_Router!
   asset: local1337_Asset!
+  feesEarned: BigInt!
 }
 
 input local1337_AssetBalance_filter {
@@ -46,6 +162,30 @@ input local1337_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  locked: BigInt
+  locked_not: BigInt
+  locked_gt: BigInt
+  locked_lt: BigInt
+  locked_gte: BigInt
+  locked_lte: BigInt
+  locked_in: [BigInt!]
+  locked_not_in: [BigInt!]
+  supplied: BigInt
+  supplied_not: BigInt
+  supplied_gt: BigInt
+  supplied_lt: BigInt
+  supplied_gte: BigInt
+  supplied_lte: BigInt
+  supplied_in: [BigInt!]
+  supplied_not_in: [BigInt!]
+  removed: BigInt
+  removed_not: BigInt
+  removed_gt: BigInt
+  removed_lt: BigInt
+  removed_gte: BigInt
+  removed_lte: BigInt
+  removed_in: [BigInt!]
+  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -88,6 +228,14 @@ input local1337_AssetBalance_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: local1337_Asset_filter
+  feesEarned: BigInt
+  feesEarned_not: BigInt
+  feesEarned_gt: BigInt
+  feesEarned_lt: BigInt
+  feesEarned_gte: BigInt
+  feesEarned_lte: BigInt
+  feesEarned_in: [BigInt!]
+  feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
   and: [local1337_AssetBalance_filter]
@@ -97,6 +245,9 @@ input local1337_AssetBalance_filter {
 enum local1337_AssetBalance_orderBy {
   id
   amount
+  locked
+  supplied
+  removed
   router
   router__id
   router__isActive
@@ -107,11 +258,42 @@ enum local1337_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
-  asset__local
-  asset__adoptedAsset
+  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
   asset__blockNumber
+  feesEarned
+}
+
+type local1337_AssetStatus {
+  id: ID!
+  status: Boolean
+}
+
+input local1337_AssetStatus_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  status: Boolean
+  status_not: Boolean
+  status_in: [Boolean!]
+  status_not_in: [Boolean!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_AssetStatus_filter]
+  or: [local1337_AssetStatus_filter]
+}
+
+enum local1337_AssetStatus_orderBy {
+  id
+  status
 }
 
 input local1337_Asset_filter {
@@ -133,26 +315,14 @@ input local1337_Asset_filter {
   key_not_in: [local1337_Bytes!]
   key_contains: local1337_Bytes
   key_not_contains: local1337_Bytes
-  local: local1337_Bytes
-  local_not: local1337_Bytes
-  local_gt: local1337_Bytes
-  local_lt: local1337_Bytes
-  local_gte: local1337_Bytes
-  local_lte: local1337_Bytes
-  local_in: [local1337_Bytes!]
-  local_not_in: [local1337_Bytes!]
-  local_contains: local1337_Bytes
-  local_not_contains: local1337_Bytes
-  adoptedAsset: local1337_Bytes
-  adoptedAsset_not: local1337_Bytes
-  adoptedAsset_gt: local1337_Bytes
-  adoptedAsset_lt: local1337_Bytes
-  adoptedAsset_gte: local1337_Bytes
-  adoptedAsset_lte: local1337_Bytes
-  adoptedAsset_in: [local1337_Bytes!]
-  adoptedAsset_not_in: [local1337_Bytes!]
-  adoptedAsset_contains: local1337_Bytes
-  adoptedAsset_not_contains: local1337_Bytes
+  decimal: BigInt
+  decimal_not: BigInt
+  decimal_gt: BigInt
+  decimal_lt: BigInt
+  decimal_gte: BigInt
+  decimal_lte: BigInt
+  decimal_in: [BigInt!]
+  decimal_not_in: [BigInt!]
   canonicalId: local1337_Bytes
   canonicalId_not: local1337_Bytes
   canonicalId_gt: local1337_Bytes
@@ -171,6 +341,26 @@ input local1337_Asset_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
+  adoptedAsset: local1337_Bytes
+  adoptedAsset_not: local1337_Bytes
+  adoptedAsset_gt: local1337_Bytes
+  adoptedAsset_lt: local1337_Bytes
+  adoptedAsset_gte: local1337_Bytes
+  adoptedAsset_lte: local1337_Bytes
+  adoptedAsset_in: [local1337_Bytes!]
+  adoptedAsset_not_in: [local1337_Bytes!]
+  adoptedAsset_contains: local1337_Bytes
+  adoptedAsset_not_contains: local1337_Bytes
+  localAsset: local1337_Bytes
+  localAsset_not: local1337_Bytes
+  localAsset_gt: local1337_Bytes
+  localAsset_lt: local1337_Bytes
+  localAsset_gte: local1337_Bytes
+  localAsset_lte: local1337_Bytes
+  localAsset_in: [local1337_Bytes!]
+  localAsset_not_in: [local1337_Bytes!]
+  localAsset_contains: local1337_Bytes
+  localAsset_not_contains: local1337_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -179,6 +369,27 @@ input local1337_Asset_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
+  status: String
+  status_not: String
+  status_gt: String
+  status_lt: String
+  status_gte: String
+  status_lte: String
+  status_in: [String!]
+  status_not_in: [String!]
+  status_contains: String
+  status_contains_nocase: String
+  status_not_contains: String
+  status_not_contains_nocase: String
+  status_starts_with: String
+  status_starts_with_nocase: String
+  status_not_starts_with: String
+  status_not_starts_with_nocase: String
+  status_ends_with: String
+  status_ends_with_nocase: String
+  status_not_ends_with: String
+  status_not_ends_with_nocase: String
+  status_: local1337_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
   and: [local1337_Asset_filter]
@@ -188,11 +399,15 @@ input local1337_Asset_filter {
 enum local1337_Asset_orderBy {
   id
   key
-  local
-  adoptedAsset
+  decimal
   canonicalId
   canonicalDomain
+  adoptedAsset
+  localAsset
   blockNumber
+  status
+  status__id
+  status__status
 }
 
 scalar local1337_BigDecimal
@@ -211,43 +426,124 @@ input local1337_Block_height {
 
 scalar local1337_Bytes
 
+type local1337_ConnectorMeta {
+  id: ID!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  amb: local1337_Bytes
+  rootManager: local1337_Bytes
+  mirrorConnector: local1337_Bytes
+}
+
+input local1337_ConnectorMeta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  amb: local1337_Bytes
+  amb_not: local1337_Bytes
+  amb_gt: local1337_Bytes
+  amb_lt: local1337_Bytes
+  amb_gte: local1337_Bytes
+  amb_lte: local1337_Bytes
+  amb_in: [local1337_Bytes!]
+  amb_not_in: [local1337_Bytes!]
+  amb_contains: local1337_Bytes
+  amb_not_contains: local1337_Bytes
+  rootManager: local1337_Bytes
+  rootManager_not: local1337_Bytes
+  rootManager_gt: local1337_Bytes
+  rootManager_lt: local1337_Bytes
+  rootManager_gte: local1337_Bytes
+  rootManager_lte: local1337_Bytes
+  rootManager_in: [local1337_Bytes!]
+  rootManager_not_in: [local1337_Bytes!]
+  rootManager_contains: local1337_Bytes
+  rootManager_not_contains: local1337_Bytes
+  mirrorConnector: local1337_Bytes
+  mirrorConnector_not: local1337_Bytes
+  mirrorConnector_gt: local1337_Bytes
+  mirrorConnector_lt: local1337_Bytes
+  mirrorConnector_gte: local1337_Bytes
+  mirrorConnector_lte: local1337_Bytes
+  mirrorConnector_in: [local1337_Bytes!]
+  mirrorConnector_not_in: [local1337_Bytes!]
+  mirrorConnector_contains: local1337_Bytes
+  mirrorConnector_not_contains: local1337_Bytes
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_ConnectorMeta_filter]
+  or: [local1337_ConnectorMeta_filter]
+}
+
+enum local1337_ConnectorMeta_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  amb
+  rootManager
+  mirrorConnector
+}
+
 type local1337_DestinationTransfer {
   id: ID!
   chainId: BigInt
   transferId: local1337_Bytes
   nonce: BigInt
-  to: local1337_Bytes
-  callData: local1337_Bytes
-  originDomain: BigInt
-  destinationDomain: BigInt
-  agent: local1337_Bytes
-  recovery: local1337_Bytes
-  forceSlow: Boolean
-  receiveLocal: Boolean
-  callback: local1337_Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
-  destinationMinOut: BigInt
   status: local1337_TransferStatus
   routers(skip: Int = 0, first: Int = 100, orderBy: local1337_Router_orderBy, orderDirection: local1337_OrderDirection, where: local1337_Router_filter): [local1337_Router!]
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: local1337_Bytes
+  delegate: local1337_Bytes
+  receiveLocal: Boolean
+  callData: local1337_Bytes
+  slippage: BigInt
+  bumpSlippageCount: BigInt
   originSender: local1337_Bytes
-  transactingAsset: local1337_Bytes
-  transactingAmount: BigInt
-  localAsset: local1337_Bytes
-  localAmount: BigInt
-  sponsorVaultRelayerFee: BigInt
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: local1337_Bytes
+  asset: local1337_Asset
+  amount: BigInt
+  routersFee: BigInt
   executedCaller: local1337_Bytes
   executedTransactionHash: local1337_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
+  executedTxOrigin: local1337_Bytes
+  executedTxNonce: BigInt
   reconciledCaller: local1337_Bytes
   reconciledTransactionHash: local1337_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
+  reconciledTxOrigin: local1337_Bytes
+  reconciledTxNonce: BigInt
 }
 
 input local1337_DestinationTransfer_filter {
@@ -285,26 +581,17 @@ input local1337_DestinationTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: local1337_Bytes
-  to_not: local1337_Bytes
-  to_gt: local1337_Bytes
-  to_lt: local1337_Bytes
-  to_gte: local1337_Bytes
-  to_lte: local1337_Bytes
-  to_in: [local1337_Bytes!]
-  to_not_in: [local1337_Bytes!]
-  to_contains: local1337_Bytes
-  to_not_contains: local1337_Bytes
-  callData: local1337_Bytes
-  callData_not: local1337_Bytes
-  callData_gt: local1337_Bytes
-  callData_lt: local1337_Bytes
-  callData_gte: local1337_Bytes
-  callData_lte: local1337_Bytes
-  callData_in: [local1337_Bytes!]
-  callData_not_in: [local1337_Bytes!]
-  callData_contains: local1337_Bytes
-  callData_not_contains: local1337_Bytes
+  status: local1337_TransferStatus
+  status_not: local1337_TransferStatus
+  status_in: [local1337_TransferStatus!]
+  status_not_in: [local1337_TransferStatus!]
+  routers: [String!]
+  routers_not: [String!]
+  routers_contains: [String!]
+  routers_contains_nocase: [String!]
+  routers_not_contains: [String!]
+  routers_not_contains_nocase: [String!]
+  routers_: local1337_Router_filter
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -321,79 +608,64 @@ input local1337_DestinationTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  agent: local1337_Bytes
-  agent_not: local1337_Bytes
-  agent_gt: local1337_Bytes
-  agent_lt: local1337_Bytes
-  agent_gte: local1337_Bytes
-  agent_lte: local1337_Bytes
-  agent_in: [local1337_Bytes!]
-  agent_not_in: [local1337_Bytes!]
-  agent_contains: local1337_Bytes
-  agent_not_contains: local1337_Bytes
-  recovery: local1337_Bytes
-  recovery_not: local1337_Bytes
-  recovery_gt: local1337_Bytes
-  recovery_lt: local1337_Bytes
-  recovery_gte: local1337_Bytes
-  recovery_lte: local1337_Bytes
-  recovery_in: [local1337_Bytes!]
-  recovery_not_in: [local1337_Bytes!]
-  recovery_contains: local1337_Bytes
-  recovery_not_contains: local1337_Bytes
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: local1337_Bytes
+  to_not: local1337_Bytes
+  to_gt: local1337_Bytes
+  to_lt: local1337_Bytes
+  to_gte: local1337_Bytes
+  to_lte: local1337_Bytes
+  to_in: [local1337_Bytes!]
+  to_not_in: [local1337_Bytes!]
+  to_contains: local1337_Bytes
+  to_not_contains: local1337_Bytes
+  delegate: local1337_Bytes
+  delegate_not: local1337_Bytes
+  delegate_gt: local1337_Bytes
+  delegate_lt: local1337_Bytes
+  delegate_gte: local1337_Bytes
+  delegate_lte: local1337_Bytes
+  delegate_in: [local1337_Bytes!]
+  delegate_not_in: [local1337_Bytes!]
+  delegate_contains: local1337_Bytes
+  delegate_not_contains: local1337_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callback: local1337_Bytes
-  callback_not: local1337_Bytes
-  callback_gt: local1337_Bytes
-  callback_lt: local1337_Bytes
-  callback_gte: local1337_Bytes
-  callback_lte: local1337_Bytes
-  callback_in: [local1337_Bytes!]
-  callback_not_in: [local1337_Bytes!]
-  callback_contains: local1337_Bytes
-  callback_not_contains: local1337_Bytes
-  callbackFee: BigInt
-  callbackFee_not: BigInt
-  callbackFee_gt: BigInt
-  callbackFee_lt: BigInt
-  callbackFee_gte: BigInt
-  callbackFee_lte: BigInt
-  callbackFee_in: [BigInt!]
-  callbackFee_not_in: [BigInt!]
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
-  destinationMinOut: BigInt
-  destinationMinOut_not: BigInt
-  destinationMinOut_gt: BigInt
-  destinationMinOut_lt: BigInt
-  destinationMinOut_gte: BigInt
-  destinationMinOut_lte: BigInt
-  destinationMinOut_in: [BigInt!]
-  destinationMinOut_not_in: [BigInt!]
-  status: local1337_TransferStatus
-  status_not: local1337_TransferStatus
-  status_in: [local1337_TransferStatus!]
-  status_not_in: [local1337_TransferStatus!]
-  routers: [String!]
-  routers_not: [String!]
-  routers_contains: [String!]
-  routers_contains_nocase: [String!]
-  routers_not_contains: [String!]
-  routers_not_contains_nocase: [String!]
-  routers_: local1337_Router_filter
+  callData: local1337_Bytes
+  callData_not: local1337_Bytes
+  callData_gt: local1337_Bytes
+  callData_lt: local1337_Bytes
+  callData_gte: local1337_Bytes
+  callData_lte: local1337_Bytes
+  callData_in: [local1337_Bytes!]
+  callData_not_in: [local1337_Bytes!]
+  callData_contains: local1337_Bytes
+  callData_not_contains: local1337_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  bumpSlippageCount: BigInt
+  bumpSlippageCount_not: BigInt
+  bumpSlippageCount_gt: BigInt
+  bumpSlippageCount_lt: BigInt
+  bumpSlippageCount_gte: BigInt
+  bumpSlippageCount_lte: BigInt
+  bumpSlippageCount_in: [BigInt!]
+  bumpSlippageCount_not_in: [BigInt!]
   originSender: local1337_Bytes
   originSender_not: local1337_Bytes
   originSender_gt: local1337_Bytes
@@ -404,50 +676,69 @@ input local1337_DestinationTransfer_filter {
   originSender_not_in: [local1337_Bytes!]
   originSender_contains: local1337_Bytes
   originSender_not_contains: local1337_Bytes
-  transactingAsset: local1337_Bytes
-  transactingAsset_not: local1337_Bytes
-  transactingAsset_gt: local1337_Bytes
-  transactingAsset_lt: local1337_Bytes
-  transactingAsset_gte: local1337_Bytes
-  transactingAsset_lte: local1337_Bytes
-  transactingAsset_in: [local1337_Bytes!]
-  transactingAsset_not_in: [local1337_Bytes!]
-  transactingAsset_contains: local1337_Bytes
-  transactingAsset_not_contains: local1337_Bytes
-  transactingAmount: BigInt
-  transactingAmount_not: BigInt
-  transactingAmount_gt: BigInt
-  transactingAmount_lt: BigInt
-  transactingAmount_gte: BigInt
-  transactingAmount_lte: BigInt
-  transactingAmount_in: [BigInt!]
-  transactingAmount_not_in: [BigInt!]
-  localAsset: local1337_Bytes
-  localAsset_not: local1337_Bytes
-  localAsset_gt: local1337_Bytes
-  localAsset_lt: local1337_Bytes
-  localAsset_gte: local1337_Bytes
-  localAsset_lte: local1337_Bytes
-  localAsset_in: [local1337_Bytes!]
-  localAsset_not_in: [local1337_Bytes!]
-  localAsset_contains: local1337_Bytes
-  localAsset_not_contains: local1337_Bytes
-  localAmount: BigInt
-  localAmount_not: BigInt
-  localAmount_gt: BigInt
-  localAmount_lt: BigInt
-  localAmount_gte: BigInt
-  localAmount_lte: BigInt
-  localAmount_in: [BigInt!]
-  localAmount_not_in: [BigInt!]
-  sponsorVaultRelayerFee: BigInt
-  sponsorVaultRelayerFee_not: BigInt
-  sponsorVaultRelayerFee_gt: BigInt
-  sponsorVaultRelayerFee_lt: BigInt
-  sponsorVaultRelayerFee_gte: BigInt
-  sponsorVaultRelayerFee_lte: BigInt
-  sponsorVaultRelayerFee_in: [BigInt!]
-  sponsorVaultRelayerFee_not_in: [BigInt!]
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: local1337_Bytes
+  canonicalId_not: local1337_Bytes
+  canonicalId_gt: local1337_Bytes
+  canonicalId_lt: local1337_Bytes
+  canonicalId_gte: local1337_Bytes
+  canonicalId_lte: local1337_Bytes
+  canonicalId_in: [local1337_Bytes!]
+  canonicalId_not_in: [local1337_Bytes!]
+  canonicalId_contains: local1337_Bytes
+  canonicalId_not_contains: local1337_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: local1337_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  routersFee: BigInt
+  routersFee_not: BigInt
+  routersFee_gt: BigInt
+  routersFee_lt: BigInt
+  routersFee_gte: BigInt
+  routersFee_lte: BigInt
+  routersFee_in: [BigInt!]
+  routersFee_not_in: [BigInt!]
   executedCaller: local1337_Bytes
   executedCaller_not: local1337_Bytes
   executedCaller_gt: local1337_Bytes
@@ -500,6 +791,24 @@ input local1337_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
+  executedTxOrigin: local1337_Bytes
+  executedTxOrigin_not: local1337_Bytes
+  executedTxOrigin_gt: local1337_Bytes
+  executedTxOrigin_lt: local1337_Bytes
+  executedTxOrigin_gte: local1337_Bytes
+  executedTxOrigin_lte: local1337_Bytes
+  executedTxOrigin_in: [local1337_Bytes!]
+  executedTxOrigin_not_in: [local1337_Bytes!]
+  executedTxOrigin_contains: local1337_Bytes
+  executedTxOrigin_not_contains: local1337_Bytes
+  executedTxNonce: BigInt
+  executedTxNonce_not: BigInt
+  executedTxNonce_gt: BigInt
+  executedTxNonce_lt: BigInt
+  executedTxNonce_gte: BigInt
+  executedTxNonce_lte: BigInt
+  executedTxNonce_in: [BigInt!]
+  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: local1337_Bytes
   reconciledCaller_not: local1337_Bytes
   reconciledCaller_gt: local1337_Bytes
@@ -552,6 +861,24 @@ input local1337_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
+  reconciledTxOrigin: local1337_Bytes
+  reconciledTxOrigin_not: local1337_Bytes
+  reconciledTxOrigin_gt: local1337_Bytes
+  reconciledTxOrigin_lt: local1337_Bytes
+  reconciledTxOrigin_gte: local1337_Bytes
+  reconciledTxOrigin_lte: local1337_Bytes
+  reconciledTxOrigin_in: [local1337_Bytes!]
+  reconciledTxOrigin_not_in: [local1337_Bytes!]
+  reconciledTxOrigin_contains: local1337_Bytes
+  reconciledTxOrigin_not_contains: local1337_Bytes
+  reconciledTxNonce: BigInt
+  reconciledTxNonce_not: BigInt
+  reconciledTxNonce_gt: BigInt
+  reconciledTxNonce_lt: BigInt
+  reconciledTxNonce_gte: BigInt
+  reconciledTxNonce_lte: BigInt
+  reconciledTxNonce_in: [BigInt!]
+  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
   and: [local1337_DestinationTransfer_filter]
@@ -563,38 +890,48 @@ enum local1337_DestinationTransfer_orderBy {
   chainId
   transferId
   nonce
-  to
-  callData
-  originDomain
-  destinationDomain
-  agent
-  recovery
-  forceSlow
-  receiveLocal
-  callback
-  callbackFee
-  relayerFee
-  destinationMinOut
   status
   routers
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  bumpSlippageCount
   originSender
-  transactingAsset
-  transactingAmount
-  localAsset
-  localAmount
-  sponsorVaultRelayerFee
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  amount
+  routersFee
   executedCaller
   executedTransactionHash
   executedTimestamp
   executedGasPrice
   executedGasLimit
   executedBlockNumber
+  executedTxOrigin
+  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
   reconciledGasPrice
   reconciledGasLimit
   reconciledBlockNumber
+  reconciledTxOrigin
+  reconciledTxNonce
 }
 
 """
@@ -603,10 +940,193 @@ enum local1337_DestinationTransfer_orderBy {
 """
 scalar local1337_Int8
 
+type local1337_OptimisticRootFinalized {
+  id: ID!
+  aggregateRoot: local1337_Bytes!
+  timestamp: BigInt!
+}
+
+input local1337_OptimisticRootFinalized_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: local1337_Bytes
+  aggregateRoot_not: local1337_Bytes
+  aggregateRoot_gt: local1337_Bytes
+  aggregateRoot_lt: local1337_Bytes
+  aggregateRoot_gte: local1337_Bytes
+  aggregateRoot_lte: local1337_Bytes
+  aggregateRoot_in: [local1337_Bytes!]
+  aggregateRoot_not_in: [local1337_Bytes!]
+  aggregateRoot_contains: local1337_Bytes
+  aggregateRoot_not_contains: local1337_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_OptimisticRootFinalized_filter]
+  or: [local1337_OptimisticRootFinalized_filter]
+}
+
+enum local1337_OptimisticRootFinalized_orderBy {
+  id
+  aggregateRoot
+  timestamp
+}
+
 """Defines the order direction, either ascending or descending"""
 enum local1337_OrderDirection {
   asc
   desc
+}
+
+type local1337_OriginMessage {
+  id: ID!
+  transferId: local1337_Bytes
+  destinationDomain: BigInt
+  leaf: local1337_Bytes
+  index: BigInt
+  message: local1337_Bytes
+  root: local1337_Bytes
+  transactionHash: local1337_Bytes
+  blockNumber: BigInt
+  rootCount: local1337_RootCount
+}
+
+input local1337_OriginMessage_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transferId: local1337_Bytes
+  transferId_not: local1337_Bytes
+  transferId_gt: local1337_Bytes
+  transferId_lt: local1337_Bytes
+  transferId_gte: local1337_Bytes
+  transferId_lte: local1337_Bytes
+  transferId_in: [local1337_Bytes!]
+  transferId_not_in: [local1337_Bytes!]
+  transferId_contains: local1337_Bytes
+  transferId_not_contains: local1337_Bytes
+  destinationDomain: BigInt
+  destinationDomain_not: BigInt
+  destinationDomain_gt: BigInt
+  destinationDomain_lt: BigInt
+  destinationDomain_gte: BigInt
+  destinationDomain_lte: BigInt
+  destinationDomain_in: [BigInt!]
+  destinationDomain_not_in: [BigInt!]
+  leaf: local1337_Bytes
+  leaf_not: local1337_Bytes
+  leaf_gt: local1337_Bytes
+  leaf_lt: local1337_Bytes
+  leaf_gte: local1337_Bytes
+  leaf_lte: local1337_Bytes
+  leaf_in: [local1337_Bytes!]
+  leaf_not_in: [local1337_Bytes!]
+  leaf_contains: local1337_Bytes
+  leaf_not_contains: local1337_Bytes
+  index: BigInt
+  index_not: BigInt
+  index_gt: BigInt
+  index_lt: BigInt
+  index_gte: BigInt
+  index_lte: BigInt
+  index_in: [BigInt!]
+  index_not_in: [BigInt!]
+  message: local1337_Bytes
+  message_not: local1337_Bytes
+  message_gt: local1337_Bytes
+  message_lt: local1337_Bytes
+  message_gte: local1337_Bytes
+  message_lte: local1337_Bytes
+  message_in: [local1337_Bytes!]
+  message_not_in: [local1337_Bytes!]
+  message_contains: local1337_Bytes
+  message_not_contains: local1337_Bytes
+  root: local1337_Bytes
+  root_not: local1337_Bytes
+  root_gt: local1337_Bytes
+  root_lt: local1337_Bytes
+  root_gte: local1337_Bytes
+  root_lte: local1337_Bytes
+  root_in: [local1337_Bytes!]
+  root_not_in: [local1337_Bytes!]
+  root_contains: local1337_Bytes
+  root_not_contains: local1337_Bytes
+  transactionHash: local1337_Bytes
+  transactionHash_not: local1337_Bytes
+  transactionHash_gt: local1337_Bytes
+  transactionHash_lt: local1337_Bytes
+  transactionHash_gte: local1337_Bytes
+  transactionHash_lte: local1337_Bytes
+  transactionHash_in: [local1337_Bytes!]
+  transactionHash_not_in: [local1337_Bytes!]
+  transactionHash_contains: local1337_Bytes
+  transactionHash_not_contains: local1337_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  rootCount: String
+  rootCount_not: String
+  rootCount_gt: String
+  rootCount_lt: String
+  rootCount_gte: String
+  rootCount_lte: String
+  rootCount_in: [String!]
+  rootCount_not_in: [String!]
+  rootCount_contains: String
+  rootCount_contains_nocase: String
+  rootCount_not_contains: String
+  rootCount_not_contains_nocase: String
+  rootCount_starts_with: String
+  rootCount_starts_with_nocase: String
+  rootCount_not_starts_with: String
+  rootCount_not_starts_with_nocase: String
+  rootCount_ends_with: String
+  rootCount_ends_with_nocase: String
+  rootCount_not_ends_with: String
+  rootCount_not_ends_with_nocase: String
+  rootCount_: local1337_RootCount_filter
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_OriginMessage_filter]
+  or: [local1337_OriginMessage_filter]
+}
+
+enum local1337_OriginMessage_orderBy {
+  id
+  transferId
+  destinationDomain
+  leaf
+  index
+  message
+  root
+  transactionHash
+  blockNumber
+  rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type local1337_OriginTransfer {
@@ -614,30 +1134,34 @@ type local1337_OriginTransfer {
   chainId: BigInt
   transferId: local1337_Bytes
   nonce: BigInt
-  to: local1337_Bytes
-  callData: local1337_Bytes
+  status: local1337_TransferStatus
+  messageHash: local1337_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
-  agent: local1337_Bytes
-  recovery: local1337_Bytes
-  forceSlow: Boolean
+  canonicalDomain: BigInt
+  to: local1337_Bytes
+  delegate: local1337_Bytes
   receiveLocal: Boolean
-  callback: local1337_Bytes
-  callbackFee: BigInt
-  relayerFee: BigInt
-  destinationMinOut: BigInt
-  status: local1337_TransferStatus
-  originMinOut: BigInt
+  callData: local1337_Bytes
+  slippage: BigInt
+  originSender: local1337_Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: local1337_Bytes
+  asset: local1337_Asset
   transactingAsset: local1337_Bytes
-  transactingAmount: BigInt
-  bridgedAsset: local1337_Bytes
-  bridgedAmount: BigInt
+  message: local1337_OriginMessage
+  bumpRelayerFeeCount: BigInt
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: local1337_RelayerFee_orderBy, orderDirection: local1337_OrderDirection, where: local1337_RelayerFee_filter): [local1337_RelayerFee!]
+  initialRelayerFeeAsset: local1337_Bytes
   caller: local1337_Bytes
   transactionHash: local1337_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+  txOrigin: local1337_Bytes
+  txNonce: BigInt
 }
 
 input local1337_OriginTransfer_filter {
@@ -675,26 +1199,20 @@ input local1337_OriginTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  to: local1337_Bytes
-  to_not: local1337_Bytes
-  to_gt: local1337_Bytes
-  to_lt: local1337_Bytes
-  to_gte: local1337_Bytes
-  to_lte: local1337_Bytes
-  to_in: [local1337_Bytes!]
-  to_not_in: [local1337_Bytes!]
-  to_contains: local1337_Bytes
-  to_not_contains: local1337_Bytes
-  callData: local1337_Bytes
-  callData_not: local1337_Bytes
-  callData_gt: local1337_Bytes
-  callData_lt: local1337_Bytes
-  callData_gte: local1337_Bytes
-  callData_lte: local1337_Bytes
-  callData_in: [local1337_Bytes!]
-  callData_not_in: [local1337_Bytes!]
-  callData_contains: local1337_Bytes
-  callData_not_contains: local1337_Bytes
+  status: local1337_TransferStatus
+  status_not: local1337_TransferStatus
+  status_in: [local1337_TransferStatus!]
+  status_not_in: [local1337_TransferStatus!]
+  messageHash: local1337_Bytes
+  messageHash_not: local1337_Bytes
+  messageHash_gt: local1337_Bytes
+  messageHash_lt: local1337_Bytes
+  messageHash_gte: local1337_Bytes
+  messageHash_lte: local1337_Bytes
+  messageHash_in: [local1337_Bytes!]
+  messageHash_not_in: [local1337_Bytes!]
+  messageHash_contains: local1337_Bytes
+  messageHash_not_contains: local1337_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -711,80 +1229,113 @@ input local1337_OriginTransfer_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  agent: local1337_Bytes
-  agent_not: local1337_Bytes
-  agent_gt: local1337_Bytes
-  agent_lt: local1337_Bytes
-  agent_gte: local1337_Bytes
-  agent_lte: local1337_Bytes
-  agent_in: [local1337_Bytes!]
-  agent_not_in: [local1337_Bytes!]
-  agent_contains: local1337_Bytes
-  agent_not_contains: local1337_Bytes
-  recovery: local1337_Bytes
-  recovery_not: local1337_Bytes
-  recovery_gt: local1337_Bytes
-  recovery_lt: local1337_Bytes
-  recovery_gte: local1337_Bytes
-  recovery_lte: local1337_Bytes
-  recovery_in: [local1337_Bytes!]
-  recovery_not_in: [local1337_Bytes!]
-  recovery_contains: local1337_Bytes
-  recovery_not_contains: local1337_Bytes
-  forceSlow: Boolean
-  forceSlow_not: Boolean
-  forceSlow_in: [Boolean!]
-  forceSlow_not_in: [Boolean!]
+  canonicalDomain: BigInt
+  canonicalDomain_not: BigInt
+  canonicalDomain_gt: BigInt
+  canonicalDomain_lt: BigInt
+  canonicalDomain_gte: BigInt
+  canonicalDomain_lte: BigInt
+  canonicalDomain_in: [BigInt!]
+  canonicalDomain_not_in: [BigInt!]
+  to: local1337_Bytes
+  to_not: local1337_Bytes
+  to_gt: local1337_Bytes
+  to_lt: local1337_Bytes
+  to_gte: local1337_Bytes
+  to_lte: local1337_Bytes
+  to_in: [local1337_Bytes!]
+  to_not_in: [local1337_Bytes!]
+  to_contains: local1337_Bytes
+  to_not_contains: local1337_Bytes
+  delegate: local1337_Bytes
+  delegate_not: local1337_Bytes
+  delegate_gt: local1337_Bytes
+  delegate_lt: local1337_Bytes
+  delegate_gte: local1337_Bytes
+  delegate_lte: local1337_Bytes
+  delegate_in: [local1337_Bytes!]
+  delegate_not_in: [local1337_Bytes!]
+  delegate_contains: local1337_Bytes
+  delegate_not_contains: local1337_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callback: local1337_Bytes
-  callback_not: local1337_Bytes
-  callback_gt: local1337_Bytes
-  callback_lt: local1337_Bytes
-  callback_gte: local1337_Bytes
-  callback_lte: local1337_Bytes
-  callback_in: [local1337_Bytes!]
-  callback_not_in: [local1337_Bytes!]
-  callback_contains: local1337_Bytes
-  callback_not_contains: local1337_Bytes
-  callbackFee: BigInt
-  callbackFee_not: BigInt
-  callbackFee_gt: BigInt
-  callbackFee_lt: BigInt
-  callbackFee_gte: BigInt
-  callbackFee_lte: BigInt
-  callbackFee_in: [BigInt!]
-  callbackFee_not_in: [BigInt!]
-  relayerFee: BigInt
-  relayerFee_not: BigInt
-  relayerFee_gt: BigInt
-  relayerFee_lt: BigInt
-  relayerFee_gte: BigInt
-  relayerFee_lte: BigInt
-  relayerFee_in: [BigInt!]
-  relayerFee_not_in: [BigInt!]
-  destinationMinOut: BigInt
-  destinationMinOut_not: BigInt
-  destinationMinOut_gt: BigInt
-  destinationMinOut_lt: BigInt
-  destinationMinOut_gte: BigInt
-  destinationMinOut_lte: BigInt
-  destinationMinOut_in: [BigInt!]
-  destinationMinOut_not_in: [BigInt!]
-  status: local1337_TransferStatus
-  status_not: local1337_TransferStatus
-  status_in: [local1337_TransferStatus!]
-  status_not_in: [local1337_TransferStatus!]
-  originMinOut: BigInt
-  originMinOut_not: BigInt
-  originMinOut_gt: BigInt
-  originMinOut_lt: BigInt
-  originMinOut_gte: BigInt
-  originMinOut_lte: BigInt
-  originMinOut_in: [BigInt!]
-  originMinOut_not_in: [BigInt!]
+  callData: local1337_Bytes
+  callData_not: local1337_Bytes
+  callData_gt: local1337_Bytes
+  callData_lt: local1337_Bytes
+  callData_gte: local1337_Bytes
+  callData_lte: local1337_Bytes
+  callData_in: [local1337_Bytes!]
+  callData_not_in: [local1337_Bytes!]
+  callData_contains: local1337_Bytes
+  callData_not_contains: local1337_Bytes
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  originSender: local1337_Bytes
+  originSender_not: local1337_Bytes
+  originSender_gt: local1337_Bytes
+  originSender_lt: local1337_Bytes
+  originSender_gte: local1337_Bytes
+  originSender_lte: local1337_Bytes
+  originSender_in: [local1337_Bytes!]
+  originSender_not_in: [local1337_Bytes!]
+  originSender_contains: local1337_Bytes
+  originSender_not_contains: local1337_Bytes
+  bridgedAmt: BigInt
+  bridgedAmt_not: BigInt
+  bridgedAmt_gt: BigInt
+  bridgedAmt_lt: BigInt
+  bridgedAmt_gte: BigInt
+  bridgedAmt_lte: BigInt
+  bridgedAmt_in: [BigInt!]
+  bridgedAmt_not_in: [BigInt!]
+  normalizedIn: BigInt
+  normalizedIn_not: BigInt
+  normalizedIn_gt: BigInt
+  normalizedIn_lt: BigInt
+  normalizedIn_gte: BigInt
+  normalizedIn_lte: BigInt
+  normalizedIn_in: [BigInt!]
+  normalizedIn_not_in: [BigInt!]
+  canonicalId: local1337_Bytes
+  canonicalId_not: local1337_Bytes
+  canonicalId_gt: local1337_Bytes
+  canonicalId_lt: local1337_Bytes
+  canonicalId_gte: local1337_Bytes
+  canonicalId_lte: local1337_Bytes
+  canonicalId_in: [local1337_Bytes!]
+  canonicalId_not_in: [local1337_Bytes!]
+  canonicalId_contains: local1337_Bytes
+  canonicalId_not_contains: local1337_Bytes
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: local1337_Asset_filter
   transactingAsset: local1337_Bytes
   transactingAsset_not: local1337_Bytes
   transactingAsset_gt: local1337_Bytes
@@ -795,32 +1346,921 @@ input local1337_OriginTransfer_filter {
   transactingAsset_not_in: [local1337_Bytes!]
   transactingAsset_contains: local1337_Bytes
   transactingAsset_not_contains: local1337_Bytes
-  transactingAmount: BigInt
-  transactingAmount_not: BigInt
-  transactingAmount_gt: BigInt
-  transactingAmount_lt: BigInt
-  transactingAmount_gte: BigInt
-  transactingAmount_lte: BigInt
-  transactingAmount_in: [BigInt!]
-  transactingAmount_not_in: [BigInt!]
-  bridgedAsset: local1337_Bytes
-  bridgedAsset_not: local1337_Bytes
-  bridgedAsset_gt: local1337_Bytes
-  bridgedAsset_lt: local1337_Bytes
-  bridgedAsset_gte: local1337_Bytes
-  bridgedAsset_lte: local1337_Bytes
-  bridgedAsset_in: [local1337_Bytes!]
-  bridgedAsset_not_in: [local1337_Bytes!]
-  bridgedAsset_contains: local1337_Bytes
-  bridgedAsset_not_contains: local1337_Bytes
-  bridgedAmount: BigInt
-  bridgedAmount_not: BigInt
-  bridgedAmount_gt: BigInt
-  bridgedAmount_lt: BigInt
-  bridgedAmount_gte: BigInt
-  bridgedAmount_lte: BigInt
-  bridgedAmount_in: [BigInt!]
-  bridgedAmount_not_in: [BigInt!]
+  message: String
+  message_not: String
+  message_gt: String
+  message_lt: String
+  message_gte: String
+  message_lte: String
+  message_in: [String!]
+  message_not_in: [String!]
+  message_contains: String
+  message_contains_nocase: String
+  message_not_contains: String
+  message_not_contains_nocase: String
+  message_starts_with: String
+  message_starts_with_nocase: String
+  message_not_starts_with: String
+  message_not_starts_with_nocase: String
+  message_ends_with: String
+  message_ends_with_nocase: String
+  message_not_ends_with: String
+  message_not_ends_with_nocase: String
+  message_: local1337_OriginMessage_filter
+  bumpRelayerFeeCount: BigInt
+  bumpRelayerFeeCount_not: BigInt
+  bumpRelayerFeeCount_gt: BigInt
+  bumpRelayerFeeCount_lt: BigInt
+  bumpRelayerFeeCount_gte: BigInt
+  bumpRelayerFeeCount_lte: BigInt
+  bumpRelayerFeeCount_in: [BigInt!]
+  bumpRelayerFeeCount_not_in: [BigInt!]
+  relayerFees: [String!]
+  relayerFees_not: [String!]
+  relayerFees_contains: [String!]
+  relayerFees_contains_nocase: [String!]
+  relayerFees_not_contains: [String!]
+  relayerFees_not_contains_nocase: [String!]
+  relayerFees_: local1337_RelayerFee_filter
+  initialRelayerFeeAsset: local1337_Bytes
+  initialRelayerFeeAsset_not: local1337_Bytes
+  initialRelayerFeeAsset_gt: local1337_Bytes
+  initialRelayerFeeAsset_lt: local1337_Bytes
+  initialRelayerFeeAsset_gte: local1337_Bytes
+  initialRelayerFeeAsset_lte: local1337_Bytes
+  initialRelayerFeeAsset_in: [local1337_Bytes!]
+  initialRelayerFeeAsset_not_in: [local1337_Bytes!]
+  initialRelayerFeeAsset_contains: local1337_Bytes
+  initialRelayerFeeAsset_not_contains: local1337_Bytes
+  caller: local1337_Bytes
+  caller_not: local1337_Bytes
+  caller_gt: local1337_Bytes
+  caller_lt: local1337_Bytes
+  caller_gte: local1337_Bytes
+  caller_lte: local1337_Bytes
+  caller_in: [local1337_Bytes!]
+  caller_not_in: [local1337_Bytes!]
+  caller_contains: local1337_Bytes
+  caller_not_contains: local1337_Bytes
+  transactionHash: local1337_Bytes
+  transactionHash_not: local1337_Bytes
+  transactionHash_gt: local1337_Bytes
+  transactionHash_lt: local1337_Bytes
+  transactionHash_gte: local1337_Bytes
+  transactionHash_lte: local1337_Bytes
+  transactionHash_in: [local1337_Bytes!]
+  transactionHash_not_in: [local1337_Bytes!]
+  transactionHash_contains: local1337_Bytes
+  transactionHash_not_contains: local1337_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  txOrigin: local1337_Bytes
+  txOrigin_not: local1337_Bytes
+  txOrigin_gt: local1337_Bytes
+  txOrigin_lt: local1337_Bytes
+  txOrigin_gte: local1337_Bytes
+  txOrigin_lte: local1337_Bytes
+  txOrigin_in: [local1337_Bytes!]
+  txOrigin_not_in: [local1337_Bytes!]
+  txOrigin_contains: local1337_Bytes
+  txOrigin_not_contains: local1337_Bytes
+  txNonce: BigInt
+  txNonce_not: BigInt
+  txNonce_gt: BigInt
+  txNonce_lt: BigInt
+  txNonce_gte: BigInt
+  txNonce_lte: BigInt
+  txNonce_in: [BigInt!]
+  txNonce_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_OriginTransfer_filter]
+  or: [local1337_OriginTransfer_filter]
+}
+
+enum local1337_OriginTransfer_orderBy {
+  id
+  chainId
+  transferId
+  nonce
+  status
+  messageHash
+  originDomain
+  destinationDomain
+  canonicalDomain
+  to
+  delegate
+  receiveLocal
+  callData
+  slippage
+  originSender
+  bridgedAmt
+  normalizedIn
+  canonicalId
+  asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  transactingAsset
+  message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
+  bumpRelayerFeeCount
+  relayerFees
+  initialRelayerFeeAsset
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+  txOrigin
+  txNonce
+}
+
+type Query {
+  local1337_asset(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_Asset
+  local1337_assets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Asset_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Asset_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_Asset!]!
+  local1337_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AssetStatus
+  local1337_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AssetStatus_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AssetStatus!]!
+  local1337_assetBalance(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AssetBalance
+  local1337_assetBalances(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AssetBalance_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AssetBalance_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AssetBalance!]!
+  local1337_router(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_Router
+  local1337_routers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Router_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Router_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_Router!]!
+  local1337_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RouterDailyTVL
+  local1337_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RouterDailyTVL_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RouterDailyTVL!]!
+  local1337_setting(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_Setting
+  local1337_settings(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Setting_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Setting_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_Setting!]!
+  local1337_relayer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_Relayer
+  local1337_relayers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Relayer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Relayer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_Relayer!]!
+  local1337_sequencer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_Sequencer
+  local1337_sequencers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_Sequencer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_Sequencer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_Sequencer!]!
+  local1337_relayerFee(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RelayerFee
+  local1337_relayerFees(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RelayerFee_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RelayerFee_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RelayerFee!]!
+  local1337_originTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_OriginTransfer
+  local1337_originTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_OriginTransfer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OriginTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_OriginTransfer!]!
+  local1337_destinationTransfer(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_DestinationTransfer
+  local1337_destinationTransfers(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_DestinationTransfer_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_DestinationTransfer_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_DestinationTransfer!]!
+  local1337_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_OriginMessage
+  local1337_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_OriginMessage_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_OriginMessage!]!
+  local1337_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AggregateRoot
+  local1337_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AggregateRoot_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AggregateRoot!]!
+  local1337_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_ConnectorMeta
+  local1337_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_ConnectorMeta_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_ConnectorMeta!]!
+  local1337_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RootCount
+  local1337_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RootCount_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RootCount!]!
+  local1337_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RootMessageSent
+  local1337_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RootMessageSent_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RootMessageSent!]!
+  local1337_relayerFeesIncrease(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RelayerFeesIncrease
+  local1337_relayerFeesIncreases(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RelayerFeesIncrease_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RelayerFeesIncrease_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RelayerFeesIncrease!]!
+  local1337_slippageUpdate(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SlippageUpdate
+  local1337_slippageUpdates(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SlippageUpdate_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SlippageUpdate_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SlippageUpdate!]!
+  local1337_snapshotRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SnapshotRoot
+  local1337_snapshotRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SnapshotRoot_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SnapshotRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SnapshotRoot!]!
+  local1337_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SpokeConnectorMode
+  local1337_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SpokeConnectorMode_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SpokeConnectorMode!]!
+  local1337_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AggregateRootProposed
+  local1337_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AggregateRootProposed_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AggregateRootProposed!]!
+  local1337_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_OptimisticRootFinalized
+  local1337_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_OptimisticRootFinalized_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_OptimisticRootFinalized!]!
+  """Access to subgraph metadata"""
+  local1337__meta(block: local1337_Block_height): local1337__Meta_
+}
+
+type local1337_Relayer {
+  id: ID!
+  isActive: Boolean!
+  relayer: local1337_Bytes
+}
+
+type local1337_RelayerFee {
+  id: ID!
+  transfer: local1337_OriginTransfer!
+  fee: BigInt!
+  asset: local1337_Bytes!
+}
+
+input local1337_RelayerFee_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: local1337_OriginTransfer_filter
+  fee: BigInt
+  fee_not: BigInt
+  fee_gt: BigInt
+  fee_lt: BigInt
+  fee_gte: BigInt
+  fee_lte: BigInt
+  fee_in: [BigInt!]
+  fee_not_in: [BigInt!]
+  asset: local1337_Bytes
+  asset_not: local1337_Bytes
+  asset_gt: local1337_Bytes
+  asset_lt: local1337_Bytes
+  asset_gte: local1337_Bytes
+  asset_lte: local1337_Bytes
+  asset_in: [local1337_Bytes!]
+  asset_not_in: [local1337_Bytes!]
+  asset_contains: local1337_Bytes
+  asset_not_contains: local1337_Bytes
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_RelayerFee_filter]
+  or: [local1337_RelayerFee_filter]
+}
+
+enum local1337_RelayerFee_orderBy {
+  id
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
+  fee
+  asset
+}
+
+type local1337_RelayerFeesIncrease {
+  id: ID!
+  transfer: local1337_OriginTransfer!
+  increase: BigInt
+  asset: local1337_Bytes
+  caller: local1337_Bytes!
+  transactionHash: local1337_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+input local1337_RelayerFeesIncrease_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: local1337_OriginTransfer_filter
+  increase: BigInt
+  increase_not: BigInt
+  increase_gt: BigInt
+  increase_lt: BigInt
+  increase_gte: BigInt
+  increase_lte: BigInt
+  increase_in: [BigInt!]
+  increase_not_in: [BigInt!]
+  asset: local1337_Bytes
+  asset_not: local1337_Bytes
+  asset_gt: local1337_Bytes
+  asset_lt: local1337_Bytes
+  asset_gte: local1337_Bytes
+  asset_lte: local1337_Bytes
+  asset_in: [local1337_Bytes!]
+  asset_not_in: [local1337_Bytes!]
+  asset_contains: local1337_Bytes
+  asset_not_contains: local1337_Bytes
   caller: local1337_Bytes
   caller_not: local1337_Bytes
   caller_gt: local1337_Bytes
@@ -875,284 +2315,50 @@ input local1337_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
-  and: [local1337_OriginTransfer_filter]
-  or: [local1337_OriginTransfer_filter]
+  and: [local1337_RelayerFeesIncrease_filter]
+  or: [local1337_RelayerFeesIncrease_filter]
 }
 
-enum local1337_OriginTransfer_orderBy {
+enum local1337_RelayerFeesIncrease_orderBy {
   id
-  chainId
-  transferId
-  nonce
-  to
-  callData
-  originDomain
-  destinationDomain
-  agent
-  recovery
-  forceSlow
-  receiveLocal
-  callback
-  callbackFee
-  relayerFee
-  destinationMinOut
-  status
-  originMinOut
-  transactingAsset
-  transactingAmount
-  bridgedAsset
-  bridgedAmount
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
+  increase
+  asset
   caller
   transactionHash
   timestamp
   gasPrice
   gasLimit
   blockNumber
-}
-
-type Query {
-  local1337_asset(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_Asset
-  local1337_assets(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_Asset_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_Asset_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_Asset!]!
-  local1337_assetBalance(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_AssetBalance
-  local1337_assetBalances(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_AssetBalance_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_AssetBalance_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_AssetBalance!]!
-  local1337_router(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_Router
-  local1337_routers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_Router_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_Router_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_Router!]!
-  local1337_setting(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_Setting
-  local1337_settings(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_Setting_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_Setting_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_Setting!]!
-  local1337_relayer(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_Relayer
-  local1337_relayers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_Relayer_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_Relayer_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_Relayer!]!
-  local1337_stableSwap(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_StableSwap
-  local1337_stableSwaps(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_StableSwap_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_StableSwap_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_StableSwap!]!
-  local1337_sponsorVault(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_SponsorVault
-  local1337_sponsorVaults(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_SponsorVault_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_SponsorVault_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_SponsorVault!]!
-  local1337_originTransfer(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_OriginTransfer
-  local1337_originTransfers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_OriginTransfer_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_OriginTransfer_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_OriginTransfer!]!
-  local1337_destinationTransfer(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_DestinationTransfer
-  local1337_destinationTransfers(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: local1337_DestinationTransfer_orderBy
-    orderDirection: local1337_OrderDirection
-    where: local1337_DestinationTransfer_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: local1337_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_DestinationTransfer!]!
-  """Access to subgraph metadata"""
-  local1337__meta(block: local1337_Block_height): local1337__Meta_
-}
-
-type local1337_Relayer {
-  id: ID!
-  isActive: Boolean!
-  relayer: local1337_Bytes
 }
 
 input local1337_Relayer_filter {
@@ -1190,6 +2396,168 @@ enum local1337_Relayer_orderBy {
   relayer
 }
 
+type local1337_RootCount {
+  id: ID!
+  count: BigInt
+}
+
+input local1337_RootCount_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_RootCount_filter]
+  or: [local1337_RootCount_filter]
+}
+
+enum local1337_RootCount_orderBy {
+  id
+  count
+}
+
+type local1337_RootMessageSent {
+  id: ID!
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: local1337_Bytes
+  count: BigInt
+  caller: local1337_Bytes
+  transactionHash: local1337_Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+input local1337_RootMessageSent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  hubDomain: BigInt
+  hubDomain_not: BigInt
+  hubDomain_gt: BigInt
+  hubDomain_lt: BigInt
+  hubDomain_gte: BigInt
+  hubDomain_lte: BigInt
+  hubDomain_in: [BigInt!]
+  hubDomain_not_in: [BigInt!]
+  root: local1337_Bytes
+  root_not: local1337_Bytes
+  root_gt: local1337_Bytes
+  root_lt: local1337_Bytes
+  root_gte: local1337_Bytes
+  root_lte: local1337_Bytes
+  root_in: [local1337_Bytes!]
+  root_not_in: [local1337_Bytes!]
+  root_contains: local1337_Bytes
+  root_not_contains: local1337_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  caller: local1337_Bytes
+  caller_not: local1337_Bytes
+  caller_gt: local1337_Bytes
+  caller_lt: local1337_Bytes
+  caller_gte: local1337_Bytes
+  caller_lte: local1337_Bytes
+  caller_in: [local1337_Bytes!]
+  caller_not_in: [local1337_Bytes!]
+  caller_contains: local1337_Bytes
+  caller_not_contains: local1337_Bytes
+  transactionHash: local1337_Bytes
+  transactionHash_not: local1337_Bytes
+  transactionHash_gt: local1337_Bytes
+  transactionHash_lt: local1337_Bytes
+  transactionHash_gte: local1337_Bytes
+  transactionHash_lte: local1337_Bytes
+  transactionHash_in: [local1337_Bytes!]
+  transactionHash_not_in: [local1337_Bytes!]
+  transactionHash_contains: local1337_Bytes
+  transactionHash_not_contains: local1337_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_RootMessageSent_filter]
+  or: [local1337_RootMessageSent_filter]
+}
+
+enum local1337_RootMessageSent_orderBy {
+  id
+  spokeDomain
+  hubDomain
+  root
+  count
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
+}
+
 type local1337_Router {
   id: ID!
   isActive: Boolean!
@@ -1198,6 +2566,109 @@ type local1337_Router {
   proposedOwner: local1337_Bytes
   proposedTimestamp: BigInt
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: local1337_AssetBalance_orderBy, orderDirection: local1337_OrderDirection, where: local1337_AssetBalance_filter): [local1337_AssetBalance!]!
+}
+
+type local1337_RouterDailyTVL {
+  id: ID!
+  router: local1337_Router!
+  asset: local1337_Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
+input local1337_RouterDailyTVL_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: local1337_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: local1337_Asset_filter
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_RouterDailyTVL_filter]
+  or: [local1337_RouterDailyTVL_filter]
+}
+
+enum local1337_RouterDailyTVL_orderBy {
+  id
+  router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
+  asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  timestamp
+  balance
 }
 
 input local1337_Router_filter {
@@ -1268,6 +2739,47 @@ enum local1337_Router_orderBy {
   assetBalances
 }
 
+type local1337_Sequencer {
+  id: ID!
+  isActive: Boolean!
+  sequencer: local1337_Bytes
+}
+
+input local1337_Sequencer_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  isActive: Boolean
+  isActive_not: Boolean
+  isActive_in: [Boolean!]
+  isActive_not_in: [Boolean!]
+  sequencer: local1337_Bytes
+  sequencer_not: local1337_Bytes
+  sequencer_gt: local1337_Bytes
+  sequencer_lt: local1337_Bytes
+  sequencer_gte: local1337_Bytes
+  sequencer_lte: local1337_Bytes
+  sequencer_in: [local1337_Bytes!]
+  sequencer_not_in: [local1337_Bytes!]
+  sequencer_contains: local1337_Bytes
+  sequencer_not_contains: local1337_Bytes
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_Sequencer_filter]
+  or: [local1337_Sequencer_filter]
+}
+
+enum local1337_Sequencer_orderBy {
+  id
+  isActive
+  sequencer
+}
+
 type local1337_Setting {
   id: ID!
   maxRoutersPerTransfer: BigInt!
@@ -1313,12 +2825,19 @@ enum local1337_Setting_orderBy {
   caller
 }
 
-type local1337_SponsorVault {
+type local1337_SlippageUpdate {
   id: ID!
-  sponsorVault: local1337_Bytes!
+  transfer: local1337_DestinationTransfer!
+  slippage: BigInt!
+  caller: local1337_Bytes!
+  transactionHash: local1337_Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
 }
 
-input local1337_SponsorVault_filter {
+input local1337_SlippageUpdate_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1327,35 +2846,151 @@ input local1337_SponsorVault_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  sponsorVault: local1337_Bytes
-  sponsorVault_not: local1337_Bytes
-  sponsorVault_gt: local1337_Bytes
-  sponsorVault_lt: local1337_Bytes
-  sponsorVault_gte: local1337_Bytes
-  sponsorVault_lte: local1337_Bytes
-  sponsorVault_in: [local1337_Bytes!]
-  sponsorVault_not_in: [local1337_Bytes!]
-  sponsorVault_contains: local1337_Bytes
-  sponsorVault_not_contains: local1337_Bytes
+  transfer: String
+  transfer_not: String
+  transfer_gt: String
+  transfer_lt: String
+  transfer_gte: String
+  transfer_lte: String
+  transfer_in: [String!]
+  transfer_not_in: [String!]
+  transfer_contains: String
+  transfer_contains_nocase: String
+  transfer_not_contains: String
+  transfer_not_contains_nocase: String
+  transfer_starts_with: String
+  transfer_starts_with_nocase: String
+  transfer_not_starts_with: String
+  transfer_not_starts_with_nocase: String
+  transfer_ends_with: String
+  transfer_ends_with_nocase: String
+  transfer_not_ends_with: String
+  transfer_not_ends_with_nocase: String
+  transfer_: local1337_DestinationTransfer_filter
+  slippage: BigInt
+  slippage_not: BigInt
+  slippage_gt: BigInt
+  slippage_lt: BigInt
+  slippage_gte: BigInt
+  slippage_lte: BigInt
+  slippage_in: [BigInt!]
+  slippage_not_in: [BigInt!]
+  caller: local1337_Bytes
+  caller_not: local1337_Bytes
+  caller_gt: local1337_Bytes
+  caller_lt: local1337_Bytes
+  caller_gte: local1337_Bytes
+  caller_lte: local1337_Bytes
+  caller_in: [local1337_Bytes!]
+  caller_not_in: [local1337_Bytes!]
+  caller_contains: local1337_Bytes
+  caller_not_contains: local1337_Bytes
+  transactionHash: local1337_Bytes
+  transactionHash_not: local1337_Bytes
+  transactionHash_gt: local1337_Bytes
+  transactionHash_lt: local1337_Bytes
+  transactionHash_gte: local1337_Bytes
+  transactionHash_lte: local1337_Bytes
+  transactionHash_in: [local1337_Bytes!]
+  transactionHash_not_in: [local1337_Bytes!]
+  transactionHash_contains: local1337_Bytes
+  transactionHash_not_contains: local1337_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  gasPrice: BigInt
+  gasPrice_not: BigInt
+  gasPrice_gt: BigInt
+  gasPrice_lt: BigInt
+  gasPrice_gte: BigInt
+  gasPrice_lte: BigInt
+  gasPrice_in: [BigInt!]
+  gasPrice_not_in: [BigInt!]
+  gasLimit: BigInt
+  gasLimit_not: BigInt
+  gasLimit_gt: BigInt
+  gasLimit_lt: BigInt
+  gasLimit_gte: BigInt
+  gasLimit_lte: BigInt
+  gasLimit_in: [BigInt!]
+  gasLimit_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
-  and: [local1337_SponsorVault_filter]
-  or: [local1337_SponsorVault_filter]
+  and: [local1337_SlippageUpdate_filter]
+  or: [local1337_SlippageUpdate_filter]
 }
 
-enum local1337_SponsorVault_orderBy {
+enum local1337_SlippageUpdate_orderBy {
   id
-  sponsorVault
+  transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__executedTxNonce
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
+  slippage
+  caller
+  transactionHash
+  timestamp
+  gasPrice
+  gasLimit
+  blockNumber
 }
 
-type local1337_StableSwap {
+type local1337_SnapshotRoot {
   id: ID!
-  canonicalId: local1337_Bytes!
-  domain: BigInt
-  swapPool: local1337_Bytes!
+  spokeDomain: BigInt
+  root: local1337_Bytes!
+  count: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
 }
 
-input local1337_StableSwap_filter {
+input local1337_SnapshotRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1364,45 +2999,106 @@ input local1337_StableSwap_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  canonicalId: local1337_Bytes
-  canonicalId_not: local1337_Bytes
-  canonicalId_gt: local1337_Bytes
-  canonicalId_lt: local1337_Bytes
-  canonicalId_gte: local1337_Bytes
-  canonicalId_lte: local1337_Bytes
-  canonicalId_in: [local1337_Bytes!]
-  canonicalId_not_in: [local1337_Bytes!]
-  canonicalId_contains: local1337_Bytes
-  canonicalId_not_contains: local1337_Bytes
-  domain: BigInt
-  domain_not: BigInt
-  domain_gt: BigInt
-  domain_lt: BigInt
-  domain_gte: BigInt
-  domain_lte: BigInt
-  domain_in: [BigInt!]
-  domain_not_in: [BigInt!]
-  swapPool: local1337_Bytes
-  swapPool_not: local1337_Bytes
-  swapPool_gt: local1337_Bytes
-  swapPool_lt: local1337_Bytes
-  swapPool_gte: local1337_Bytes
-  swapPool_lte: local1337_Bytes
-  swapPool_in: [local1337_Bytes!]
-  swapPool_not_in: [local1337_Bytes!]
-  swapPool_contains: local1337_Bytes
-  swapPool_not_contains: local1337_Bytes
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  root: local1337_Bytes
+  root_not: local1337_Bytes
+  root_gt: local1337_Bytes
+  root_lt: local1337_Bytes
+  root_gte: local1337_Bytes
+  root_lte: local1337_Bytes
+  root_in: [local1337_Bytes!]
+  root_not_in: [local1337_Bytes!]
+  root_contains: local1337_Bytes
+  root_not_contains: local1337_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
-  and: [local1337_StableSwap_filter]
-  or: [local1337_StableSwap_filter]
+  and: [local1337_SnapshotRoot_filter]
+  or: [local1337_SnapshotRoot_filter]
 }
 
-enum local1337_StableSwap_orderBy {
+enum local1337_SnapshotRoot_orderBy {
   id
-  canonicalId
-  domain
-  swapPool
+  spokeDomain
+  root
+  count
+  timestamp
+  blockNumber
+}
+
+type local1337_SpokeConnectorMode {
+  id: ID!
+  mode: String!
+}
+
+input local1337_SpokeConnectorMode_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  mode: String
+  mode_not: String
+  mode_gt: String
+  mode_lt: String
+  mode_gte: String
+  mode_lte: String
+  mode_in: [String!]
+  mode_not_in: [String!]
+  mode_contains: String
+  mode_contains_nocase: String
+  mode_not_contains: String
+  mode_not_contains_nocase: String
+  mode_starts_with: String
+  mode_starts_with_nocase: String
+  mode_not_starts_with: String
+  mode_not_starts_with_nocase: String
+  mode_ends_with: String
+  mode_ends_with_nocase: String
+  mode_not_ends_with: String
+  mode_not_ends_with_nocase: String
+  """Filter for the block changed event."""
+  _change_block: local1337_BlockChangedFilter
+  and: [local1337_SpokeConnectorMode_filter]
+  or: [local1337_SpokeConnectorMode_filter]
+}
+
+enum local1337_SpokeConnectorMode_orderBy {
+  id
+  mode
 }
 
 type Subscription {
@@ -1432,6 +3128,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_Asset!]!
+  local1337_assetStatus(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AssetStatus
+  local1337_assetStatuses(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AssetStatus_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AssetStatus_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AssetStatus!]!
   local1337_assetBalance(
     id: ID!
     """
@@ -1484,6 +3206,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_Router!]!
+  local1337_routerDailyTVL(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RouterDailyTVL
+  local1337_routerDailyTVLs(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RouterDailyTVL_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RouterDailyTVL_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RouterDailyTVL!]!
   local1337_setting(
     id: ID!
     """
@@ -1536,7 +3284,7 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_Relayer!]!
-  local1337_stableSwap(
+  local1337_sequencer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1546,13 +3294,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_StableSwap
-  local1337_stableSwaps(
+  ): local1337_Sequencer
+  local1337_sequencers(
     skip: Int = 0
     first: Int = 100
-    orderBy: local1337_StableSwap_orderBy
+    orderBy: local1337_Sequencer_orderBy
     orderDirection: local1337_OrderDirection
-    where: local1337_StableSwap_filter
+    where: local1337_Sequencer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1561,8 +3309,8 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_StableSwap!]!
-  local1337_sponsorVault(
+  ): [local1337_Sequencer!]!
+  local1337_relayerFee(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
@@ -1572,13 +3320,13 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): local1337_SponsorVault
-  local1337_sponsorVaults(
+  ): local1337_RelayerFee
+  local1337_relayerFees(
     skip: Int = 0
     first: Int = 100
-    orderBy: local1337_SponsorVault_orderBy
+    orderBy: local1337_RelayerFee_orderBy
     orderDirection: local1337_OrderDirection
-    where: local1337_SponsorVault_filter
+    where: local1337_RelayerFee_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
@@ -1587,7 +3335,7 @@ type Subscription {
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [local1337_SponsorVault!]!
+  ): [local1337_RelayerFee!]!
   local1337_originTransfer(
     id: ID!
     """
@@ -1640,6 +3388,292 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [local1337_DestinationTransfer!]!
+  local1337_originMessage(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_OriginMessage
+  local1337_originMessages(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_OriginMessage_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OriginMessage_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_OriginMessage!]!
+  local1337_aggregateRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AggregateRoot
+  local1337_aggregateRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AggregateRoot_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AggregateRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AggregateRoot!]!
+  local1337_connectorMeta(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_ConnectorMeta
+  local1337_connectorMetas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_ConnectorMeta_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_ConnectorMeta_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_ConnectorMeta!]!
+  local1337_rootCount(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RootCount
+  local1337_rootCounts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RootCount_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RootCount_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RootCount!]!
+  local1337_rootMessageSent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RootMessageSent
+  local1337_rootMessageSents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RootMessageSent_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RootMessageSent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RootMessageSent!]!
+  local1337_relayerFeesIncrease(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_RelayerFeesIncrease
+  local1337_relayerFeesIncreases(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_RelayerFeesIncrease_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_RelayerFeesIncrease_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_RelayerFeesIncrease!]!
+  local1337_slippageUpdate(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SlippageUpdate
+  local1337_slippageUpdates(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SlippageUpdate_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SlippageUpdate_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SlippageUpdate!]!
+  local1337_snapshotRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SnapshotRoot
+  local1337_snapshotRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SnapshotRoot_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SnapshotRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SnapshotRoot!]!
+  local1337_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_SpokeConnectorMode
+  local1337_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_SpokeConnectorMode_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_SpokeConnectorMode!]!
+  local1337_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_AggregateRootProposed
+  local1337_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_AggregateRootProposed_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_AggregateRootProposed!]!
+  local1337_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): local1337_OptimisticRootFinalized
+  local1337_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: local1337_OptimisticRootFinalized_orderBy
+    orderDirection: local1337_OrderDirection
+    where: local1337_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: local1337_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [local1337_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   local1337__meta(block: local1337_Block_height): local1337__Meta_
 }
