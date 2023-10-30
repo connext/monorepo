@@ -20,6 +20,7 @@ import {
   getProcessFromGnosisRootArgs,
   getProcessFromArbitrumRootArgs,
   getProcessFromZkSyncRootArgs,
+  getProcessFromLineaRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -69,6 +70,16 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     getArgs: getProcessFromZkSyncRootArgs,
     hubConnectorPrefix: "ZkSync",
     processorFunctionName: "processMessageFromRoot",
+  },
+  "1818848877": {
+    getArgs: getProcessFromLineaRootArgs,
+    hubConnectorPrefix: "Linea",
+    processorFunctionName: "claimMessage",
+  },
+  "1668247156": {
+    getArgs: getProcessFromLineaRootArgs,
+    hubConnectorPrefix: "Linea",
+    processorFunctionName: "claimMessage",
   },
 };
 
