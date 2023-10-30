@@ -70,7 +70,8 @@ describe("Operations: Propose", () => {
 
     it("happy case should call aggregateRootCheck successfully", async () => {
       encodeFunctionData.returns("0x");
-      decodeFunctionData.returns(["0x"]);
+      decodeFunctionData.onFirstCall().returns(11);
+      decodeFunctionData.onSecondCall().returns(["0x"]);
       (proposeCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
 
       const result = await ProposeFns.aggregateRootCheck("0xAggRoot", undefined as any);
@@ -79,7 +80,8 @@ describe("Operations: Propose", () => {
 
     it("should fail when onchain root is the same", async () => {
       encodeFunctionData.returns("0x");
-      decodeFunctionData.returns(["0xAB"]);
+      decodeFunctionData.onFirstCall().returns(11);
+      decodeFunctionData.onSecondCall().returns(["0xAB"]);
       (proposeCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
 
       const result = await ProposeFns.aggregateRootCheck("0xAB", undefined as any);
@@ -88,7 +90,8 @@ describe("Operations: Propose", () => {
 
     it("should fail when db is out of sync", async () => {
       encodeFunctionData.returns("0x");
-      decodeFunctionData.returns(["0x"]);
+      decodeFunctionData.onFirstCall().returns(11);
+      decodeFunctionData.onSecondCall().returns(["0x"]);
 
       const result = await ProposeFns.aggregateRootCheck("0xAggRoot", undefined as any);
       expect(result).to.eq(false);

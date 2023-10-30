@@ -36,7 +36,7 @@ export const proposeHub = async () => {
     logger,
     config,
     chainData,
-    adapters: { database, subgraph, contracts, chainreader },
+    adapters: { database, subgraph },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeHub.name);
   logger.info("Starting propose operation on hub", requestContext, methodContext);
@@ -274,9 +274,9 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
     return false;
   }
 
-  // const rootTimestamp = BigNumber.from(_rootTimestamp).toString();
-
-  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [rootTimestamp.toString()]);
+  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [
+    BigNumber.from(rootTimestamp).toString(),
+  ]);
   let _onChainRoot: any;
   try {
     const idResultData = await chainreader.readTx({
