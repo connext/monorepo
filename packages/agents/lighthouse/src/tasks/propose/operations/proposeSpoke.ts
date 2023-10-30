@@ -217,7 +217,7 @@ export const aggregateRootCheck = async (
 ): Promise<boolean> => {
   const {
     logger,
-    adapters: { contracts, database, chainreader },
+    adapters: { contracts, chainreader },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
