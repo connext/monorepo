@@ -7,6 +7,7 @@ import {
   jsonifyError,
   domainToChainId,
   EMPTY_ROOT,
+  getNtpTimeSeconds,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
@@ -66,31 +67,8 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  let latestSnapshotId: string;
-  const idEncodedData = contracts.spokeConnector.encodeFunctionData("getLastCompletedSnapshotId");
-  try {
-    const idResultData = await chainreader.readTx({
-      domain: +config.hubDomain,
-      to: hubSpokeConnector,
-      data: idEncodedData,
-    });
-
-    const [currentSnapshotId] = contracts.spokeConnector.decodeFunctionResult(
-      "getLastCompletedSnapshotId",
-      idResultData,
-    );
-    latestSnapshotId = currentSnapshotId.toString();
-  } catch (err: unknown) {
-    logger.error(
-      "Failed to read the latest snapshot ID from onchain on proposeHub",
-      requestContext,
-      methodContext,
-      jsonifyError(err as NxtpError),
-    );
-    // Cannot proceed without the latest snapshot ID.
-    return;
-  }
-  logger.info("Got the latest snapshot ID from onchain on proposeHub", requestContext, methodContext, {
+  const latestSnapshotId: string = Math.abs(getNtpTimeSeconds() / config.snapshotDuration).toString();
+  logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
   });
 
@@ -329,7 +307,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
 
   const onChainRoot = _onChainRoot as string;
 
-  if (_onChainRoot === aggregateRoot) {
+  if (onChainRoot === aggregateRoot) {
     logger.info("Stop propose. Found onchain root same as proposed root", requestContext, methodContext, {
       aggregateRoot,
     });

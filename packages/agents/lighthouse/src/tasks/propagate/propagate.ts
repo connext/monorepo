@@ -18,7 +18,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { NxtpLighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
-import { propagate, finalizeAndPropagate, finalizeSpoke } from "./operations";
+import { propagate, finalize, finalizeSpoke } from "./operations";
 
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
@@ -113,7 +113,7 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      await finalizeAndPropagate();
+      await finalize();
       for (const spokeDomain of domains) {
         try {
           await finalizeSpoke(spokeDomain);

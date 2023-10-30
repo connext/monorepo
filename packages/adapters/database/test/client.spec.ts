@@ -98,7 +98,7 @@ import {
   saveProposedSnapshots,
   savePropagatedOptimisticRoots,
   getCurrentProposedSnapshot,
-  getCurrentPropagatedSnapshot,
+  getCurrentFinalizedSnapshot,
   saveFinalizedRoots,
   saveStableSwapExchange,
   saveRouterDailyTVL,
@@ -1619,24 +1619,20 @@ describe("Database client", () => {
 
   it("should save and get single snapshot", async () => {
     const snapshots: Snapshot[] = [];
-    const optimisticRootPropagated: OptimisticRootPropagated[] = [];
+    const optimisticRootFinalized: OptimisticRootFinalized[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const m = mock.entity.snapshot();
       m.id = `${_i}`;
       snapshots.push(m);
-      const o = mock.entity.optimisticRootPropagated();
+      const o = mock.entity.optimisticRootFinalized();
       o.id = m.id;
       o.aggregateRoot = m.aggregateRoot;
-      optimisticRootPropagated.push(o);
+      optimisticRootFinalized.push(o);
     }
     await saveProposedSnapshots(snapshots, pool);
-    await savePropagatedOptimisticRoots(optimisticRootPropagated, pool);
+    await saveFinalizedRoots(optimisticRootFinalized, pool);
 
-    const dbSnapshot = await getPendingAggregateRoot(snapshots[0].aggregateRoot, pool);
-    expect(dbSnapshot!.id).to.eq(snapshots[0].id);
-    const missingDbSnapshot = await getPendingAggregateRoot("", pool);
-    expect(missingDbSnapshot).to.eq(undefined);
-    const propagagtedSnapshot = await getCurrentPropagatedSnapshot(pool);
+    const propagagtedSnapshot = await getCurrentFinalizedSnapshot(pool);
     expect(propagagtedSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
   });
 
@@ -1657,6 +1653,10 @@ describe("Database client", () => {
     let queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(0);
     await savePropagatedOptimisticRoots(propagatedRoots, pool);
+    const dbSnapshot = await getPendingAggregateRoot(snapshots[0].aggregateRoot, pool);
+    expect(dbSnapshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getPendingAggregateRoot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
     queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(propagatedRoots.length);
   });
