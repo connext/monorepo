@@ -35,6 +35,7 @@ export interface LineaHubConnectorInterface extends utils.Interface {
     "MIRROR_DOMAIN()": FunctionFragment;
     "ROOT_MANAGER()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
+    "claimMessage(bytes,uint256)": FunctionFragment;
     "delay()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -56,6 +57,7 @@ export interface LineaHubConnectorInterface extends utils.Interface {
       | "MIRROR_DOMAIN"
       | "ROOT_MANAGER"
       | "acceptProposedOwner"
+      | "claimMessage"
       | "delay"
       | "mirrorConnector"
       | "owner"
@@ -83,6 +85,10 @@ export interface LineaHubConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "acceptProposedOwner",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimMessage",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
@@ -133,6 +139,10 @@ export interface LineaHubConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimMessage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
@@ -301,6 +311,12 @@ export interface LineaHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    claimMessage(
+      _calldata: PromiseOrValue<BytesLike>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
@@ -356,6 +372,12 @@ export interface LineaHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimMessage(
+    _calldata: PromiseOrValue<BytesLike>,
+    _nonce: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
@@ -408,6 +430,12 @@ export interface LineaHubConnector extends BaseContract {
     ROOT_MANAGER(overrides?: CallOverrides): Promise<string>;
 
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
+
+    claimMessage(
+      _calldata: PromiseOrValue<BytesLike>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -522,6 +550,12 @@ export interface LineaHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimMessage(
+      _calldata: PromiseOrValue<BytesLike>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
@@ -575,6 +609,12 @@ export interface LineaHubConnector extends BaseContract {
     ROOT_MANAGER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     acceptProposedOwner(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimMessage(
+      _calldata: PromiseOrValue<BytesLike>,
+      _nonce: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
