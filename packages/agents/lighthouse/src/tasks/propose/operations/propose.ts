@@ -199,7 +199,6 @@ export const proposeSnapshot = async (
   }
 
   const baseAggregateRoots: string[] = await database.getAggregateRoots(baseAggregateRootCount);
-  console.log({ baseAggregateRoots, baseAggregateRoot, baseAggregateRootCount, snapshotRoots });
   const aggregateRootCount = baseAggregateRootCount + snapshotRoots.length;
   const opRoots = baseAggregateRoots.concat(snapshotRoots);
 
@@ -308,7 +307,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
       data: encodedData,
     });
 
-    _onChainRoot = contracts.rootManager.decodeFunctionResult("validAggregateRoots", idResultData);
+    [_onChainRoot] = contracts.rootManager.decodeFunctionResult("validAggregateRoots", idResultData);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the validated aggregate root ",
@@ -337,9 +336,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
     return false;
   }
 
-  console.log({ onChainRoot });
   const snapshot = await database.getPendingAggregateRoot(onChainRoot);
-  console.log({ snapshot });
   if (!snapshot) {
     // This can happen when DB and/or subgraph is out of sync
     logger.info("Stop propose. Onchain root not found in db", requestContext, methodContext, {

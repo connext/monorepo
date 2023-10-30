@@ -1014,7 +1014,13 @@ export const getPendingAggregateRoot = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
-  const snapshot = await db.selectOne("snapshots", { status: "Propagated", aggregate_root }).run(poolToUse);
+
+  const snapshot = await db
+    .selectOne("snapshots", {
+      status: "Propagated",
+      aggregate_root,
+    })
+    .run(poolToUse);
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
