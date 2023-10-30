@@ -941,7 +941,7 @@ jobs:
         run: yarn install
 
       - name: Yarn build
-        run: yarn build
+        run: yarn build:all
 
       # TODO ADD THIS BACK IN
       # - name: Integration Tests
