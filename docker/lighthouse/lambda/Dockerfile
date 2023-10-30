@@ -42,7 +42,7 @@ COPY yarn.lock /tmp/build/
 
 # ----- Install dependencies -----
 # Install dependencies exactly as in the yarn.lock file - no updates.
-RUN yarn install
+RUN yarn install --ignore-engines
 
 # ----- Copy source and all other files that affect lint, test, build -----
 COPY config config/
