@@ -6,6 +6,7 @@ export const SUPPORTED_DOMAINS = {
     6778479, // gnosis
     1886350457, // polygon
     1634886255, // arbitrum one
+    1818848877, // linea mainnet
   ],
   testnet: [
     1735353714, // goerli
