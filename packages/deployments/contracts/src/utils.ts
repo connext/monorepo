@@ -231,9 +231,10 @@ export const getProviderUrlFromHardhatConfig = (chainId: number): string => {
   // Get the provider address from the hardhat config on given chain
   const url = (
     Object.entries(hardhatNetworks).find(
-      ([name, network]: [string, any]) => network?.chainId === chainId && !name.includes("fork"),
-    ) as any
-  )[1]?.url;
+      ([_, network]: [string, any]) =>
+        network?.chainId === chainId && !network.url.includes("localhost") && !network.url.includes("127.0.0.1"),
+    )?.[1] as any
+  )?.url;
   if (!url) {
     throw new Error(`No provider url found for ${chainId}`);
   }
