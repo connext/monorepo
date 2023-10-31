@@ -127,7 +127,7 @@
   },
   {
     "subgraphName": "connext/amarok-runtime-v0-linea",
-    "network": "linea",
+    "network": "linea-mainnet",
     "source": [
       {
         "name": "Connext",
