@@ -316,7 +316,7 @@ export const hardhatNetworks = {
   linea: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 59144,
-    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("3", "gwei").toNumber(),
     url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
     companionNetworks: {
       hub: "mainnet",
