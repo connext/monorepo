@@ -21,6 +21,7 @@ export const optionDefinitions = [
   { name: "env", type: String, defaultOption: true },
   { name: "network", type: String },
   { name: "apply", type: Boolean, defaultValue: false },
+  { name: "domains", type: Number, multiple: true },
 ];
 
 export const transferOwnership = async () => {
@@ -58,13 +59,13 @@ export const transferOwnership = async () => {
   const { env: _env, domains: _domains, network: _network, apply } = cmdArgs;
   const env: Env = _env ?? process.env.ENV ?? "staging";
   const network: "testnet" | "mainnet" = _network ?? process.env.NETWORK ?? "testnet";
-  const domains = SUPPORTED_DOMAINS[network];
+  const domains = (_domains as number[]) ?? SUPPORTED_DOMAINS[network];
 
   console.log("wallet: ", wallet.address);
   console.log("apply:  ", apply);
   console.log("env:    ", env);
   console.log("network:", network);
-  console.log("domains:", SUPPORTED_DOMAINS[network]);
+  console.log("domains:", domains);
 
   // config validation
   if (!["staging", "production"].includes(env as string)) {
