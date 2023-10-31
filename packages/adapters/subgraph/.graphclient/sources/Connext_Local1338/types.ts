@@ -34,6 +34,7 @@ export type local1338_AggregateRootProposed = {
   rootTimestamp: Scalars['BigInt'];
   endOfDispute: Scalars['BigInt'];
   domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
 };
 
 export type local1338_AggregateRootProposed_filter = {
@@ -79,6 +80,14 @@ export type local1338_AggregateRootProposed_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<local1338_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<local1338_AggregateRootProposed_filter>>>;
@@ -90,7 +99,8 @@ export type local1338_AggregateRootProposed_orderBy =
   | 'aggregateRoot'
   | 'rootTimestamp'
   | 'endOfDispute'
-  | 'domain';
+  | 'domain'
+  | 'timestamp';
 
 export type local1338_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;

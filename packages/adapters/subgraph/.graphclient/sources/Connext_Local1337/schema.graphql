@@ -24,6 +24,7 @@ type local1337_AggregateRootProposed {
   rootTimestamp: BigInt!
   endOfDispute: BigInt!
   domain: BigInt!
+  timestamp: BigInt!
 }
 
 input local1337_AggregateRootProposed_filter {
@@ -69,6 +70,14 @@ input local1337_AggregateRootProposed_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: local1337_BlockChangedFilter
   and: [local1337_AggregateRootProposed_filter]
@@ -81,6 +90,7 @@ enum local1337_AggregateRootProposed_orderBy {
   rootTimestamp
   endOfDispute
   domain
+  timestamp
 }
 
 input local1337_AggregateRoot_filter {
