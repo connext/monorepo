@@ -123,7 +123,6 @@ module "postgrest" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = "postgrest/postgrest:v10.0.0.20221011"
@@ -152,7 +151,6 @@ module "sdk-server" {
   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
-  private_subnets          = module.network.private_subnets
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
   docker_image             = var.full_image_name_sdk_server
@@ -306,7 +304,4 @@ module "ecs" {
   environment             = var.environment
   domain                  = var.domain
   ecs_cluster_name_prefix = "nxtp-ecs"
-  vpc_id                  = module.network.vpc_id
-  private_subnets         = module.network.private_subnets
-  public_subnets          = module.network.public_subnets
 }
