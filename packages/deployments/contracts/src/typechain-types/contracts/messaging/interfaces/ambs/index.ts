@@ -11,6 +11,7 @@ import type * as wormhole from "./wormhole";
 export type { wormhole };
 import type * as zksync from "./zksync";
 export type { zksync };
+export type { ConsensysAmb } from "./ConsensysAmb";
 export type { GnosisAmb } from "./GnosisAmb";
 export type { LineaAmb } from "./LineaAmb";
 export type { Multichain } from "./Multichain";
