@@ -833,7 +833,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getProposedSnapshotsByDomain", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getProposedSnapshotsByDomain", async () => {
       const snapshot = mock.entity.snapshot();
       snapshot["disputeCliff"] = snapshot.endOfDispute;
       snapshot["snapshotsRoots"] = snapshot.roots;
@@ -849,7 +849,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getSavedSnapshotRootsByDomain", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getSavedSnapshotRootsByDomain", async () => {
       const snapshot = mock.entity.snapshotRoot();
 
       response.set("1111", [snapshot]);
@@ -863,7 +863,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getFinalizedRootsByDomain", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getFinalizedRootsByDomain", async () => {
       const snapshot = mock.entity.optimisticRootFinalized();
 
       response.set("1111", [snapshot]);
@@ -875,7 +875,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getPropagatedOptimisticRootsByDomain", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getPropagatedOptimisticRootsByDomain", async () => {
       const snapshot = mock.entity.optimisticRootPropagated();
 
       response.set("1111", [snapshot]);
@@ -889,7 +889,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getGetPropagatedRoots", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getGetPropagatedRoots", async () => {
       const root = mock.entity.propagatedRoot();
 
       response.set("1111", [root]);
@@ -901,7 +901,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getRelayerFeesIncreasesByDomainAndTimestamp", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getRelayerFeesIncreasesByDomainAndTimestamp", async () => {
       const increase = mock.entity.relayerFeesIncrease();
       increase["transfer"] = { id: increase.transferId };
 
@@ -917,7 +917,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getSlippageUpdatesByDomainAndTimestamp", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getSlippageUpdatesByDomainAndTimestamp", async () => {
       const slippage = mock.entity.slippageUpdate();
       slippage["transfer"] = { id: slippage.transferId };
 
@@ -933,7 +933,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#getRouterDailyTVLByDomainAndTimestamp", () => {
-    it("should return the stable swap pool", async () => {
+    it("should getRouterDailyTVLByDomainAndTimestamp", async () => {
       const _routerTvl = mock.entity.routerDailyTVL();
       const routerTvl = { ..._routerTvl, asset: mkAddress(_routerTvl.asset), router: mkAddress(_routerTvl.asset) };
 
