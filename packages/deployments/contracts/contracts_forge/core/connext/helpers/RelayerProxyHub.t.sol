@@ -53,6 +53,8 @@ contract RelayerProxyHubTest is ForgeHelper {
   address SIGNER = vm.addr(0xa11ce);
   address _autonolas = address(134325213);
   uint256 _propagateCooldown = 12321222;
+  uint256 _finalizeCooldown = 1111;
+  uint256 _proposeAggregateRootCooldown = 2222;
   address _hubConnector = address(123444412);
   uint32 _chain = 123;
 
@@ -105,9 +107,7 @@ contract RelayerProxyHubTest is ForgeHelper {
       vm.expectEmit(true, true, true, true);
       emit HubConnectorChanged(_hubConnectors[i], address(0), _hubConnectorChains[i]);
     }
-
-    vm.prank(OWNER);
-    proxy = new RelayerProxyHub(
+    RelayerProxyHub.HubConstructorParams memory _constructorParams = RelayerProxyHub.HubConstructorParams(
       _connext,
       _spokeConnector,
       _gelatoRelayer,
@@ -116,10 +116,15 @@ contract RelayerProxyHubTest is ForgeHelper {
       _rootManager,
       _autonolas,
       _propagateCooldown,
-      _propagateCooldown,
+      _finalizeCooldown,
+      _proposeAggregateRootCooldown,
       _hubConnectors,
       _hubConnectorChains
     );
+
+    vm.prank(OWNER);
+
+    proxy = new RelayerProxyHub(_constructorParams);
     vm.deal(address(proxy), 1 ether);
     vm.label(address(proxy), "RelayerProxyHub");
     vm.label(_rootManager, "RootManager");
@@ -516,7 +521,7 @@ contract RelayerProxyHubTest is ForgeHelper {
       abi.encodeWithSelector(
         RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector,
         419,
-        _propagateCooldown
+        _proposeAggregateRootCooldown
       )
     );
     vm.warp(419);
@@ -560,6 +565,53 @@ contract RelayerProxyHubTest is ForgeHelper {
     proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   }
 
+  function test_proposeAggregateRoot__failsIfNotCooledDown() public {
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector,
+        419,
+        _proposeAggregateRootCooldown
+      )
+    );
+    vm.warp(419);
+    vm.prank(_gelatoRelayer);
+    bytes memory signature = utils_getSig(bytes32(uint256(1)));
+    proxy.proposeAggregateRoot(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_proposeAggregateRoot__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+      abi.encode(false)
+    );
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__validateProposeSignature_notProposer.selector, SIGNER)
+    );
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
+    bytes memory signature = utils_getSig(payload);
+    vm.prank(_gelatoRelayer);
+    proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_proposeAggregateRoot__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+      abi.encode(true)
+    );
+
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.proposeAggregateRoot.selector),
+      abi.encode()
+    );
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
+    bytes memory signature = utils_getSig(payload);
+    vm.prank(_gelatoRelayer);
+    proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  }
+
   function test_finalizeAndPropagateKeep3r__failsIfNotKeep3r(address _sender) public {
     utils_mockIsKeeper(_sender, false);
     vm.expectRevert(
@@ -600,5 +652,57 @@ contract RelayerProxyHubTest is ForgeHelper {
     uint256 _fee = proxy.finalizeAndPropagateKeep3r(new address[](2), _fees, new bytes[](2), bytes32(uint256(1)), 42);
     assertEq(_fee, _fee1 + _fee2);
     assertEq(proxy.lastPropagateAt(), block.timestamp);
+  }
+
+  function test_finalizeAndPropagate__failsIfNotCooledDown(uint256 _time) public {
+    vm.assume(_time < 300);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
+        _time,
+        _propagateCooldown
+      )
+    );
+    vm.warp(_time);
+    vm.prank(_gelatoRelayer);
+    proxy.finalizeAndPropagate(new address[](1), new uint256[](1), new bytes[](1), bytes32(uint256(1)), 42);
+  }
+
+  function test_finalizeAndPropagate__works(uint256 _fee1, uint256 _fee2) public {
+    vm.assume(_fee1 < type(uint256).max / 2);
+    vm.assume(_fee2 < type(uint256).max / 2);
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.finalizeAndPropagate.selector),
+      abi.encode()
+    );
+    vm.prank(_gelatoRelayer);
+    uint256[] memory _fees = new uint256[](2);
+    _fees[0] = _fee1;
+    _fees[1] = _fee2;
+    uint256 _fee = proxy.finalizeAndPropagate(new address[](2), _fees, new bytes[](2), bytes32(uint256(1)), 42);
+    assertEq(_fee, _fee1 + _fee2);
+    assertEq(proxy.lastPropagateAt(), block.timestamp);
+  }
+
+  function test_finalize__failsIfNotCooledDown(uint256 _time) public {
+    vm.assume(_time < 300);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        RelayerProxyHub.RelayerProxyHub__finalizeCooledDown_notCooledDown.selector,
+        _time,
+        _finalizeCooldown
+      )
+    );
+    vm.warp(_time);
+    vm.prank(_gelatoRelayer);
+    proxy.finalize(bytes32(uint256(1)), 42);
+  }
+
+  function test_finalize__works(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public {
+    vm.assume(_endOfDispute < 500);
+    vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.finalize.selector), abi.encode());
+    vm.prank(_gelatoRelayer);
+    proxy.finalize(_proposedAggregateRoot, _endOfDispute);
   }
 }

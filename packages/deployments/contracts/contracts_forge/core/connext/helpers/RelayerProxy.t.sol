@@ -47,14 +47,16 @@ contract RelayerProxyTest is ForgeHelper {
     vm.expectEmit(true, true, true, true);
     emit RelayerAdded(_gelatoRelayer);
 
-    proxy = new RelayerProxy(
-      _connext,
-      _spokeConnector,
-      _gelatoRelayer,
-      _feeCollector,
-      _keep3r,
-      _proposeAggregateRootCooldown
-    );
+    RelayerProxy.ConstructorParams memory _constructorParams = RelayerProxy.ConstructorParams({
+      connext: _connext,
+      spokeConnector: _spokeConnector,
+      gelatoRelayer: _gelatoRelayer,
+      feeCollector: _feeCollector,
+      keep3r: _keep3r,
+      proposeAggregateRootCooldown: _proposeAggregateRootCooldown
+    });
+
+    proxy = new RelayerProxy(_constructorParams);
   }
 
   function test_RelayerProxy__deploy_works() public {

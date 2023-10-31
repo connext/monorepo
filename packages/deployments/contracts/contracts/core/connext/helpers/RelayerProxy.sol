@@ -173,34 +173,41 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   error RelayerProxy__validateProposeSignature_notProposer(address proposer);
   error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
 
+  // ============ Structs ============
+
+  /**
+   * Struct containing the construstor arguments of a RelayerProxy
+   * @param connext The address of the Connext on this domain.
+   * @param spokeConnector The address of the SpokeConnector on this domain.
+   * @param gelatoRelayer The address of the Gelato relayer on this domain.
+   * @param feeCollector The address of the Gelato Fee Collector on this domain.
+   * @param keep3r The address of the Keep3r on this domain.
+   * @param proposeAggregateRootCooldown The delay for the propose function.
+   */
+  struct ConstructorParams {
+    address connext;
+    address spokeConnector;
+    address gelatoRelayer;
+    address feeCollector;
+    address keep3r;
+    uint256 proposeAggregateRootCooldown;
+  }
+
   // ============ Constructor ============
 
   /**
    * @notice Creates a new RelayerProxy instance.
-   * @param _connext The address of the Connext on this domain.
-   * @param _spokeConnector The address of the SpokeConnector on this domain.
-   * @param _gelatoRelayer The address of the Gelato relayer on this domain.
-   * @param _feeCollector The address of the Gelato Fee Collector on this domain.
-   * @param _keep3r The address of the Keep3r on this domain.
-   * @param _proposeAggregateRootCooldown The delay for the propose function.
    */
-  constructor(
-    address _connext,
-    address _spokeConnector,
-    address _gelatoRelayer,
-    address _feeCollector,
-    address _keep3r,
-    uint256 _proposeAggregateRootCooldown
-  ) ProposedOwnable() {
+  constructor(ConstructorParams memory _params) ProposedOwnable() {
     _setOwner(msg.sender);
-    _setConnext(_connext);
-    _setSpokeConnector(_spokeConnector);
-    _setGelatoRelayer(_gelatoRelayer);
-    _setFeeCollector(_feeCollector);
-    _setKeep3r(_keep3r);
-    _setProposeAggregateRootCooldown(_proposeAggregateRootCooldown);
+    _setConnext(_params.connext);
+    _setSpokeConnector(_params.spokeConnector);
+    _setGelatoRelayer(_params.gelatoRelayer);
+    _setFeeCollector(_params.feeCollector);
+    _setKeep3r(_params.keep3r);
+    _setProposeAggregateRootCooldown(_params.proposeAggregateRootCooldown);
 
-    _addRelayer(_gelatoRelayer);
+    _addRelayer(_params.gelatoRelayer);
   }
 
   // ============ Admin Functions ============
@@ -365,8 +372,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
       );
     }
 
-    lastProposeAggregateRootAt = block.timestamp;
-
     // Validate the signer
     _validateProposeSignature(_aggregateRoot, _rootTimestamp, _signature);
 
@@ -458,6 +463,6 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   function _proposeAggregateRootCooledDown() internal view returns (bool) {
-    return block.timestamp > (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
+    return block.timestamp >= (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
   }
 }

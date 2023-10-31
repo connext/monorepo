@@ -1,5 +1,5 @@
 [
-  "constructor(address _connext, address _spokeConnector, address _gelatoRelayer, address _feeCollector, address _keep3r, uint256 _proposeAggregateRootCooldown)",
+  "constructor(tuple(address connext, address spokeConnector, address gelatoRelayer, address feeCollector, address keep3r, uint256 proposeAggregateRootCooldown) _params)",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
   "error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed()",

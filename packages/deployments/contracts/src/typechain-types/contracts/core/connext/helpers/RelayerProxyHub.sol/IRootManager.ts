@@ -28,6 +28,7 @@ export interface IRootManagerInterface extends utils.Interface {
   functions: {
     "allowlistedProposers(address)": FunctionFragment;
     "dequeue()": FunctionFragment;
+    "finalize(bytes32,uint256)": FunctionFragment;
     "finalizeAndPropagate(address[],uint256[],bytes[],bytes32,uint256)": FunctionFragment;
     "lastPropagatedRoot(uint32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[])": FunctionFragment;
@@ -38,6 +39,7 @@ export interface IRootManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "allowlistedProposers"
       | "dequeue"
+      | "finalize"
       | "finalizeAndPropagate"
       | "lastPropagatedRoot"
       | "propagate"
@@ -49,6 +51,10 @@ export interface IRootManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "dequeue", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "finalize",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "finalizeAndPropagate",
     values: [
@@ -86,6 +92,7 @@ export interface IRootManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dequeue", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "finalizeAndPropagate",
     data: BytesLike
@@ -139,6 +146,12 @@ export interface IRootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     finalizeAndPropagate(
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
@@ -178,6 +191,12 @@ export interface IRootManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  finalize(
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   finalizeAndPropagate(
     _connectors: PromiseOrValue<string>[],
     _fees: PromiseOrValue<BigNumberish>[],
@@ -214,6 +233,12 @@ export interface IRootManager extends BaseContract {
     ): Promise<boolean>;
 
     dequeue(overrides?: CallOverrides): Promise<[string, BigNumber]>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     finalizeAndPropagate(
       _connectors: PromiseOrValue<string>[],
@@ -257,6 +282,12 @@ export interface IRootManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     finalizeAndPropagate(
       _connectors: PromiseOrValue<string>[],
       _fees: PromiseOrValue<BigNumberish>[],
@@ -295,6 +326,12 @@ export interface IRootManager extends BaseContract {
 
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     finalizeAndPropagate(

@@ -95,6 +95,33 @@ export type ExecuteArgsStructOutput = [
   sequencerSignature: string;
 };
 
+export declare namespace RelayerProxy {
+  export type ConstructorParamsStruct = {
+    connext: PromiseOrValue<string>;
+    spokeConnector: PromiseOrValue<string>;
+    gelatoRelayer: PromiseOrValue<string>;
+    feeCollector: PromiseOrValue<string>;
+    keep3r: PromiseOrValue<string>;
+    proposeAggregateRootCooldown: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ConstructorParamsStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    BigNumber
+  ] & {
+    connext: string;
+    spokeConnector: string;
+    gelatoRelayer: string;
+    feeCollector: string;
+    keep3r: string;
+    proposeAggregateRootCooldown: BigNumber;
+  };
+}
+
 export declare namespace ISpokeConnector {
   export type ProofStruct = {
     message: PromiseOrValue<BytesLike>;
