@@ -225,7 +225,7 @@ export const aggregateRootCheck = async (
   const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
   //
   const encodedRootData = contracts.spokeConnector.encodeFunctionData("provenAggregateRoots", [aggregateRoot]);
-  let _isProven: any;
+  let isProven: any;
   try {
     const idResultData = await chainreader.readTx({
       domain: +domain,
@@ -233,7 +233,7 @@ export const aggregateRootCheck = async (
       data: encodedRootData,
     });
 
-    _isProven = contracts.spokeConnector.decodeFunctionResult("provenAggregateRoots", idResultData);
+    [isProven] = contracts.spokeConnector.decodeFunctionResult("provenAggregateRoots", idResultData);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the provenAggregateRoots",
@@ -245,16 +245,12 @@ export const aggregateRootCheck = async (
     // Cannot proceed without the latest provenAggregateRoots check.
     return false;
   }
+
   logger.info("Checked if aggregate root is already proven onchain", requestContext, methodContext, {
     aggregateRoot,
-    proven: _isProven as boolean,
+    proven: isProven as boolean,
   });
 
-  if (_isProven === undefined) {
-    // Cannot proceed without the provenAggregateRoots.
-    return false;
-  }
-
   // All checks passed, can propose the aggregate root.
-  return _isProven;
+  return isProven as boolean;
 };
