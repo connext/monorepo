@@ -1124,7 +1124,11 @@ export const savePropagatedOptimisticRoots = async (
       await db
         .update(
           "snapshots",
-          { status: "Propagated" },
+          // The key of both `Propagated` and `Finalized` is aggregateRoot.
+          // Ideally, finalized_timestamp shouldn't be null but we don't have a way to stop the same root being proposed.
+          // So it makes us hard to pick up the correct entity and update the corresponding timestamp with only aggregateRoot and timestamp.
+          // As of now, making the finalized_timestamp undefined cause it's no longer in use once the root propagated.
+          { status: "Propagated", propagate_timestamp: root.timestamp, finalized_timestamp: undefined },
           { aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
         )
         .run(poolToUse);
@@ -1144,7 +1148,7 @@ export const saveFinalizedRoots = async (
         .update(
           "snapshots",
           { status: "Finalized", finalized_timestamp: root.timestamp },
-          { aggregate_root: root.aggregateRoot },
+          { status: "Proposed", aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
         )
         .run(poolToUse);
     }),
