@@ -8,19 +8,18 @@ import { hardhatNetworks } from "../../config";
 import { Deployment } from "../types";
 
 import {
-  ADMINS,
+  DAO_CONTRACTS,
   getOwnableDeployments,
   HubMessagingOwnableDeployments,
   HUBS,
   OwnableDeployment,
+  PROTOCOL_ADMINS,
   SUPPORTED_DOMAINS,
 } from "./helpers";
 
 export const optionDefinitions = [
-  { name: "env", type: String },
+  { name: "env", type: String, defaultOption: true },
   { name: "network", type: String },
-  { name: "desired", type: String },
-  { name: "domains", type: String, multiple: true },
   { name: "apply", type: Boolean, defaultValue: false },
 ];
 
@@ -54,13 +53,18 @@ export const transferOwnership = async () => {
   } else {
     wallet = Wallet.fromMnemonic(mnemonic!);
   }
-  console.log("wallet: ", wallet.address);
 
   // get default config values
-  const { env: _env, domains: _domains, network: _network, desired: _desired, apply } = cmdArgs;
+  const { env: _env, domains: _domains, network: _network, apply } = cmdArgs;
   const env: Env = _env ?? process.env.ENV ?? "staging";
   const network: "testnet" | "mainnet" = _network ?? process.env.NETWORK ?? "testnet";
-  const domains = _domains ?? SUPPORTED_DOMAINS[network];
+  const domains = SUPPORTED_DOMAINS[network];
+
+  console.log("wallet: ", wallet.address);
+  console.log("apply:  ", apply);
+  console.log("env:    ", env);
+  console.log("network:", network);
+  console.log("domains:", SUPPORTED_DOMAINS[network]);
 
   // config validation
   if (!["staging", "production"].includes(env as string)) {
@@ -73,16 +77,16 @@ export const transferOwnership = async () => {
 
   // pull all ownable deployments
   const allDeployments: { [chain: number]: OwnableDeployment } = {};
-  domains.forEach((domain: string) => {
-    const chain = domainToChainId(+domain);
+  domains.forEach((domain) => {
+    const chain = domainToChainId(domain);
     const config: any = Object.values(hardhatNetworks).find((h: any) => h.chainId === chain);
     if (!config?.url) {
       throw new Error(`No hardhat network config provider found for chain ${chain}`);
     }
     const deployments = getOwnableDeployments(
-      chain as number,
-      wallet.connect(getProviderFromHardhatConfig(chain as number)),
-      HUBS[network] === +domain,
+      chain,
+      wallet.connect(getProviderFromHardhatConfig(chain)),
+      HUBS[network] === domain,
       env,
     );
     allDeployments[chain] = deployments;
@@ -102,13 +106,8 @@ export const transferOwnership = async () => {
     contract: Contract,
     provider: providers.JsonRpcProvider,
     domain: number,
+    desired: string,
   ) => {
-    // Get the desired owner
-    const desired = _desired ?? (ADMINS[network] as any)[domain];
-    if (!desired || desired === constants.AddressZero || !isAddress(desired as string)) {
-      throw new Error(`Desired owner must be a valid address, desired: ${desired}`);
-    }
-
     // Check the owner
     const owner = await contract.owner();
 
@@ -194,9 +193,24 @@ export const transferOwnership = async () => {
   for (const chain of Object.keys(allDeployments)) {
     const domain = chainIdToDomain(+chain);
     const provider = getProviderFromHardhatConfig(+chain);
+
+    const localDao = DAO_CONTRACTS[network][domain];
+    if (!localDao || localDao === constants.AddressZero || !isAddress(localDao)) {
+      throw new Error(`Local DAO must be a valid address: ${localDao}`);
+    }
+
+    const localAdmin = PROTOCOL_ADMINS[network][domain];
+    if (!localAdmin || localAdmin === constants.AddressZero || !isAddress(localAdmin)) {
+      throw new Error(`Local Admin must be a valid address: ${localAdmin}`);
+    }
+
     console.log(`\n========== Handling execution layer ownership on ${chain} ==========`);
     for (const deployment of Object.values(allDeployments[+chain].execution)) {
-      await handleOwnership(deployment.name, deployment.contract, provider, domain);
+      if (deployment.name.includes("Unwrapper")) {
+        await handleOwnership(deployment.name, deployment.contract, provider, domain, localAdmin);
+        continue;
+      }
+      await handleOwnership(deployment.name, deployment.contract, provider, domain, localDao);
     }
 
     console.log(`\n========== Handling messaging layer ownership on ${chain} ==========`);
@@ -205,7 +219,23 @@ export const transferOwnership = async () => {
         // handle separately
         continue;
       }
-      await handleOwnership((deployments as Deployment).name, (deployments as Deployment).contract, provider, domain);
+      if ((deployments as Deployment).name.includes("RelayerProxy")) {
+        await handleOwnership(
+          (deployments as Deployment).name,
+          (deployments as Deployment).contract,
+          provider,
+          domain,
+          localAdmin,
+        );
+        continue;
+      }
+      await handleOwnership(
+        (deployments as Deployment).name,
+        (deployments as Deployment).contract,
+        provider,
+        domain,
+        localDao,
+      );
     }
 
     // handle hub connectors if on hub
@@ -213,7 +243,7 @@ export const transferOwnership = async () => {
       for (const deployments of Object.values(
         (allDeployments[+chain].messaging as HubMessagingOwnableDeployments).HubConnectors,
       )) {
-        await handleOwnership(deployments.name, deployments.contract, provider, domain);
+        await handleOwnership(deployments.name, deployments.contract, provider, domain, localDao);
       }
     }
   }
