@@ -119,6 +119,9 @@ locals {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
         excludeListFromRelayerFee = ["0x6D4D82aE73DC9059Ac83B085b2505e00b5eF8511"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -194,6 +197,12 @@ locals {
           queueLimit = 1000000
           subscribe  = true
         },
+        {
+          name       = "1818848877"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }
       ]
       bindings = [
         {
@@ -230,6 +239,11 @@ locals {
           exchange = "sequencerX"
           target   = "6778479"
           keys     = ["6778479"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1818848877"
+          keys     = ["1818848877"]
         },
       ]
       executerTimeout = 300000
@@ -276,6 +290,9 @@ locals {
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -311,6 +328,9 @@ locals {
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -345,7 +365,8 @@ locals {
       "1886350457" = 10,
       "1634886255" = 10,
       "6450786"    = 10,
-      "6778479"    = 10
+      "6778479"    = 10,
+      "1818848877" = 10
     }
     messageQueue = {
       connection = {
@@ -390,6 +411,9 @@ locals {
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
@@ -419,6 +443,9 @@ locals {
       }
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis", "https://xdai-rpc.gateway.pokt.network", "https://rpc.gnosis.gateway.fm"]
+      }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
     }
     web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
