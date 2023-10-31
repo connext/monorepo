@@ -13,7 +13,7 @@ describe("Operations: ProposeSpoke", () => {
     beforeEach(() => {});
 
     it("should early exit if root already finalized in db", async () => {
-      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       const spokeRoot = mock.entity.spokeOptimisticRoot({ status: "Finalized" });
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(spokeRoot);
 
@@ -23,7 +23,7 @@ describe("Operations: ProposeSpoke", () => {
 
     it("should early exit if root already finalized on chain but not db", async () => {
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(true);
-      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
         mock.entity.spokeOptimisticRoot(),
       );
@@ -39,7 +39,7 @@ describe("Operations: ProposeSpoke", () => {
     it("should throw an error if no propagated timestamp", async () => {
       const propagatedSnapshot = mock.entity.snapshot();
       propagatedSnapshot.propagateTimestamp = undefined;
-      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(propagatedSnapshot);
+      (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(propagatedSnapshot);
       await expect(proposeSpoke("")).to.eventually.be.rejectedWith(NoRootTimestamp);
     });
 
@@ -47,7 +47,7 @@ describe("Operations: ProposeSpoke", () => {
       let proposeOptimisticRootStub = stub(ProposeFns, "proposeOptimisticRoot").resolves();
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(false);
 
-      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
         mock.entity.spokeOptimisticRoot(),
       );
@@ -61,7 +61,7 @@ describe("Operations: ProposeSpoke", () => {
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(false);
       let sendRootToHubSpokeStub = stub(ProposeFns, "sendRootToHubSpoke").resolves();
 
-      (proposeCtxMock.adapters.database.getCurrentPropagatedSnapshot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
         mock.entity.spokeOptimisticRoot(),
       );

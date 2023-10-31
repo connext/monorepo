@@ -21,7 +21,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
     adapters: { database, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeSpoke.name);
-  const latestPropagatedSnapshot = await database.getCurrentPropagatedSnapshot();
+  const latestPropagatedSnapshot = await database.getCurrentFinalizedSnapshot();
   if (!latestPropagatedSnapshot) {
     throw new LatestPropagatedSnapshot(requestContext, methodContext);
   }

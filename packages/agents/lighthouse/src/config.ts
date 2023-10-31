@@ -13,6 +13,7 @@ const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 export const DEFAULT_PROVER_PUB_MAX = 5000;
+export const DEFAULT_LH_SNAPSHOT_DURATION = 1800; // 30 minutes
 
 dotenvConfig();
 
@@ -111,6 +112,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ]),
   messageQueue: TMQConfig,
   server: TServerConfig,
+  snapshotDuration: Type.Integer({ minimum: 1, maximum: 10000 }),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -235,6 +237,9 @@ export const getEnvConfig = (
         configFile.server?.adminToken ||
         "blahblah",
     },
+    snapshotDuration: process.env.LH_SNAPSHOT_DURATION
+      ? +process.env.LH_SNAPSHOT_DURATION
+      : configJson.snapshotDuration || configFile.snapshotDuration || DEFAULT_LH_SNAPSHOT_DURATION,
   };
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??

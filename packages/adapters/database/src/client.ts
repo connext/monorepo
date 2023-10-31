@@ -1076,13 +1076,13 @@ export const getCurrentProposedSnapshot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
-export const getCurrentPropagatedSnapshot = async (
+export const getCurrentFinalizedSnapshot = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
 
   const snapshot = await db
-    .selectOne("snapshots", { status: "Propagated" }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .selectOne("snapshots", { status: "Finalized" }, { limit: 1, order: { by: "id", direction: "DESC" } })
     .run(poolToUse);
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };

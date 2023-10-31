@@ -118,7 +118,7 @@ export const propagate = async () => {
   }
 };
 
-export const finalizeAndPropagate = async () => {
+export const finalize = async () => {
   const {
     logger,
     config,
@@ -134,7 +134,8 @@ export const finalizeAndPropagate = async () => {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  //TODO: V1.1 needs be relayer proxy hub
+  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -212,10 +213,16 @@ export const finalizeAndPropagate = async () => {
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
-    _connectors,
-    _fees,
-    _encodedData,
+  // TODO: V1.1 use relayer proxy hub with signature for finalize
+  // const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeAndPropagate", [
+  //   _connectors,
+  //   _fees,
+  //   _encodedData,
+  //   _proposedAggregateRoot,
+  //   _endOfDispute,
+  // ]);
+
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _endOfDispute,
   ]);
@@ -224,19 +231,19 @@ export const finalizeAndPropagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
       logger,
       requestContext,
     );
-    logger.info("finalizeAndPropagate tx sent", requestContext, methodContext, { taskId });
+    logger.info("finalize tx sent", requestContext, methodContext, { taskId });
   } catch (e: unknown) {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
     });
   }
