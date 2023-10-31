@@ -5491,7 +5491,7 @@ declare module 'zapatos/schema' {
       */
       relayer_type?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
     }
-    export type UniqueIndex = 'spoke_optimistic_roots_domain_root_idx' | 'spoke_optimistic_roots_id_key';
+    export type UniqueIndex = 'spoke_optimistic_roots_domain_root_propose_timestamp_idx' | 'spoke_optimistic_roots_id_key';
     export type Column = keyof Selectable;
     export type OnlyCols<T extends readonly Column[]> = Pick<Selectable, T[number]>;
     export type SQLExpression = Table | db.ColumnNames<Updatable | (keyof Updatable)[]> | db.ColumnValues<Updatable> | Whereable | Column | db.ParentColumn | db.GenericSQLExpression;

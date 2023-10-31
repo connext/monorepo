@@ -428,7 +428,7 @@ export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot =>
   if (!entity) {
     throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: SpokeOptimisticRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "aggregateRoot", "rootTimestamp", "endOfDispute", "domain"]) {
+  for (const field of ["id", "aggregateRoot", "rootTimestamp", "endOfDispute", "domain", "timestamp"]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -443,6 +443,7 @@ export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot =>
     rootTimestamp: entity.rootTimestamp,
     endOfDispute: entity.endOfDispute,
     domain: entity.domain,
+    proposeTimestamp: entity.timestamp,
   };
 };
 export const snapshotRoot = (entity: any): SnapshotRoot => {

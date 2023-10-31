@@ -403,6 +403,7 @@ export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
       rootTimestamp
       endOfDispute
       domain
+      timestamp
 `;
 
 export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `

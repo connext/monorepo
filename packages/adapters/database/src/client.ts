@@ -1180,7 +1180,11 @@ export const saveFinalizedSpokeRoots = async (
   await Promise.all(
     roots.map(async (root) => {
       await db
-        .update("spoke_optimistic_roots", { status: "Finalized" }, { domain: domain, root: root.aggregateRoot })
+        .update(
+          "spoke_optimistic_roots",
+          { status: "Finalized" },
+          { domain: domain, root: root.aggregateRoot, propose_timestamp: dc.lte(root.timestamp) },
+        )
         .run(poolToUse);
     }),
   );
