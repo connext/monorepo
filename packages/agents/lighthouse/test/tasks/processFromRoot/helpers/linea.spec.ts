@@ -135,6 +135,6 @@ describe("Helpers: Linea", () => {
       _requestContext: createRequestContext("foo"),
     });
 
-    expect(args).to.deep.eq([BigNumber.from(1), mkHash("0xa")]);
+    expect(args).to.deep.eq([mkHash("0xa"), BigNumber.from(1)]);
   });
 });
