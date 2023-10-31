@@ -1,0 +1,23 @@
+{
+  "logLevel": "debug",
+  "sequencerUrl": "http://sequencer-server:8081",
+  "cartographerUrl": "http://cartographer-api:3000",
+  "redis": {
+    "host": "router-cache",
+    "port": 6379
+  },
+  "server": {
+    "adminToken": "a",
+    "pub": {
+      "port": 8080
+    },
+    "sub": {
+      "port": 8080
+    }
+  },
+  "web3SignerUrl": "http://signer-router:9000",
+  "environment": "production",
+  "messageQueue": {
+    "uri": "amqp://guest:guest@message-queue:5672"
+  }
+}
