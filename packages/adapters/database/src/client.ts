@@ -295,6 +295,7 @@ const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
     end_of_dispute: snapshot.endOfDispute,
     processed: snapshot.processed,
     status: snapshot.status as s.snapshot_status,
+    proposed_timestamp: snapshot.proposedTimestamp,
     propagate_timestamp: snapshot.propagateTimestamp,
     propagate_task_id: snapshot.propagateTaskId ?? undefined,
     relayer_type: snapshot.relayerType ?? undefined,
@@ -1120,7 +1121,13 @@ export const savePropagatedOptimisticRoots = async (
 
   await Promise.all(
     roots.map(async (root) => {
-      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+      await db
+        .update(
+          "snapshots",
+          { status: "Propagated" },
+          { aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
+        )
+        .run(poolToUse);
     }),
   );
 };

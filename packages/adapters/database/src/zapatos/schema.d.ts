@@ -4835,6 +4835,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_type: string | null;
+      /**
+      * **snapshots.proposed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      proposed_timestamp: number | null;
     }
     export interface JSONSelectable {
       /**
@@ -4903,6 +4909,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_type: string | null;
+      /**
+      * **snapshots.proposed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      proposed_timestamp: number | null;
     }
     export interface Whereable {
       /**
@@ -4971,6 +4983,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_type?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshots.proposed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      proposed_timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -5039,6 +5057,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_type?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment;
+      /**
+      * **snapshots.proposed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      proposed_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -5107,6 +5131,12 @@ declare module 'zapatos/schema' {
       * - Nullable, no default
       */
       relayer_type?: string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | null | db.DefaultType | db.SQLFragment>;
+      /**
+      * **snapshots.proposed_timestamp**
+      * - `int4` in database
+      * - Nullable, no default
+      */
+      proposed_timestamp?: number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | null | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'snapshots_id_key';
     export type Column = keyof Selectable;
