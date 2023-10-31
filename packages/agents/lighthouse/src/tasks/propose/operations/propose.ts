@@ -67,7 +67,7 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  const latestSnapshotId: string = Math.abs(getNtpTimeSeconds() / config.snapshotDuration).toString();
+  const latestSnapshotId: string = Math.floor(getNtpTimeSeconds() / config.snapshotDuration).toString();
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
   });
@@ -274,9 +274,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
     return false;
   }
 
-  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [
-    BigNumber.from(rootTimestamp).toString(),
-  ]);
+  const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [rootTimestamp.toString()]);
   let _onChainRoot: any;
   try {
     const idResultData = await chainreader.readTx({
