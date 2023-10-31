@@ -498,6 +498,7 @@ export const mock = {
       roots: [getRandomBytes32(), getRandomBytes32()],
       domains: [mock.domain.A, mock.domain.B],
       endOfDispute: Math.floor(Date.now() / 1000),
+      proposedTimestamp: Math.floor(Date.now() / 1000),
       propagateTimestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),

@@ -396,7 +396,15 @@ export const proposedRoot = (entity: any): Snapshot => {
   if (!entity) {
     throw new NxtpError("Subgraph `proposedRoot` entity parser: proposedRoot, entity is `undefined`.");
   }
-  for (const field of ["id", "disputeCliff", "aggregateRoot", "snapshotsRoots", "domains", "baseAggregateRoot"]) {
+  for (const field of [
+    "id",
+    "disputeCliff",
+    "aggregateRoot",
+    "snapshotsRoots",
+    "domains",
+    "baseAggregateRoot",
+    "timestamp",
+  ]) {
     if (!entity[field]) {
       throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
         missingField: field,
@@ -412,6 +420,7 @@ export const proposedRoot = (entity: any): Snapshot => {
     roots: entity.snapshotsRoots,
     domains: entity.domains,
     baseAggregateRoot: entity.baseAggregateRoot,
+    proposedTimestamp: entity.timestamp,
   };
 };
 export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot => {

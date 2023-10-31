@@ -469,6 +469,7 @@ export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
     endOfDispute: snapshot.end_of_dispute,
     processed: snapshot.processed,
     status: snapshot.status,
+    proposedTimestamp: snapshot.proposed_timestamp ?? undefined,
     propagateTimestamp: snapshot.propagate_timestamp ?? undefined,
     propagateTaskId: snapshot.propagate_task_id ?? undefined,
     relayerType: snapshot.relayer_type ?? undefined,
