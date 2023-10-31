@@ -130,7 +130,7 @@ export function handleOptimisticModeActivated(event: OptimisticModeActivated): v
 }
 
 export function handleAggregateRootProposed(event: AggregateRootProposedEvent): void {
-  const key = `${event.params.aggregateRoot.toHexString()}-${event.params.domain.toString()}`;
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.params.domain.toString()}-${event.params.rootTimestamp.toString()}`;
   let instance = AggregateRootProposed.load(key);
   if (instance == null) {
     instance = new AggregateRootProposed(key);
