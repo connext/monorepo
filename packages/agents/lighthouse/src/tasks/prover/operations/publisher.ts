@@ -22,6 +22,7 @@ import {
   NoMessageRootCount,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
+  NoFinalizedAggregateRoot,
   NoDomainInSnapshot,
 } from "../../../errors";
 import { getContext } from "../prover";
@@ -163,16 +164,6 @@ export const enqueue = async () => {
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
-
-        if (curDestAggRoots.length == 0) {
-          throw new NoReceivedAggregateRoot(destinationDomain);
-        }
-        logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
-          destinationDomain,
-          curDestAggRoots,
-        });
-
         await Promise.all(
           domains
             .filter((domain) => domain != destinationDomain)
@@ -183,11 +174,28 @@ export const enqueue = async () => {
               let messageRootCount: number | undefined;
               let messageRootIndex: number | undefined;
               let snapshot: Snapshot | undefined;
-              const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
+              let targetAggregateRoot: string;
               try {
                 // Slowmode
                 if (mode === ModeType.SlowMode) {
                   // Slowmode
+
+                  // Find latest received aggregate root propagated via AMB for each destination domain
+                  const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(
+                    destinationDomain,
+                    3,
+                  );
+
+                  if (curDestAggRoots.length == 0) {
+                    throw new NoReceivedAggregateRoot(destinationDomain);
+                  }
+                  logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
+                    destinationDomain,
+                    curDestAggRoots,
+                  });
+
+                  targetAggregateRoot = curDestAggRoots[0].root;
+
                   for (const destAggregateRoot of curDestAggRoots) {
                     latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
                     if (latestMessageRoot) break;
@@ -196,9 +204,9 @@ export const enqueue = async () => {
                     throw new NoTargetMessageRoot(originDomain);
                   }
                   // Count of leafs in aggregate tree at targetAggregateRoot.
-                  aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot.root);
+                  aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
                   if (!aggregateRootCount) {
-                    throw new NoAggregateRootCount(targetAggregateRoot.root);
+                    throw new NoAggregateRootCount(targetAggregateRoot);
                   }
 
                   targetMessageRoot = latestMessageRoot.root;
@@ -210,7 +218,22 @@ export const enqueue = async () => {
                   }
                 } else {
                   // Optimistic mode
-                  snapshot = await database.getPendingAggregateRoot(targetAggregateRoot.root);
+
+                  // Find latest finalized aggregate root each destination domain
+                  const latestFinalizedRoot = await database.getLatestFinalizedOptimisticRoot(destinationDomain);
+
+                  if (!latestFinalizedRoot) {
+                    throw new NoFinalizedAggregateRoot(destinationDomain);
+                  }
+
+                  logger.debug("Got latest finalized aggregate root for domain", requestContext, methodContext, {
+                    destinationDomain,
+                    latestFinalizedRoot,
+                  });
+
+                  targetAggregateRoot = latestFinalizedRoot.aggregateRoot;
+
+                  snapshot = await database.getFinalizedSnapshot(targetAggregateRoot);
                   if (snapshot) {
                     logger.debug("Got pending snapshot", requestContext, methodContext, {
                       snapshot,
@@ -283,7 +306,7 @@ export const enqueue = async () => {
                       targetMessageRoot,
                       messageRootIndex,
                       messageRootCount,
-                      targetAggregateRoot.root,
+                      targetAggregateRoot,
                       aggregateRootCount,
                       snapshot ? snapshot.roots : [],
                       subContext,

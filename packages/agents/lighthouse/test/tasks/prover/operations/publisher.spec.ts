@@ -62,7 +62,7 @@ describe("Operations: Publisher", () => {
 
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
-      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
@@ -81,7 +81,7 @@ describe("Operations: Publisher", () => {
 
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
-      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
@@ -100,7 +100,7 @@ describe("Operations: Publisher", () => {
 
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
-      (proverCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(undefined);
+      (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);

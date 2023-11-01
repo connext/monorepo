@@ -63,7 +63,8 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getUnProcessedMessagesByDomains,
-  getAggregateRoot,
+  getSnapshot,
+  getFinalizedSnapshot,
   getBaseAggregateRoot,
   getMessageRootAggregatedFromIndex,
   getMessageRootCount,
@@ -91,6 +92,7 @@ import {
   deleteNonExistTransfers,
   getAggregateRoots,
   getCurrentProposedOptimisticRoot,
+  getLatestFinalizedOptimisticRoot,
   getSpokeOptimisticRoot,
   saveSnapshotRoots,
   getLatestPendingSnapshotRootByDomain,
@@ -103,7 +105,7 @@ import {
   saveStableSwapExchange,
   saveRouterDailyTVL,
   getRootMessage,
-  getPendingAggregateRoot,
+  getAggregateRoot,
   getMessageByRoot,
   deleteCache,
 } from "../src/client";
@@ -1141,8 +1143,10 @@ describe("Database client", () => {
         undefined as any,
       ),
     ).to.eventually.not.be.rejected;
-    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getFinalizedSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getCurrentProposedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestFinalizedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
@@ -1653,9 +1657,9 @@ describe("Database client", () => {
     let queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(0);
     await savePropagatedOptimisticRoots(propagatedRoots, pool);
-    const dbSnapshot = await getPendingAggregateRoot(snapshots[0].aggregateRoot, pool);
+    const dbSnapshot = await getSnapshot(snapshots[0].aggregateRoot, pool);
     expect(dbSnapshot!.id).to.eq(snapshots[0].id);
-    const missingDbSnapshot = await getPendingAggregateRoot("", pool);
+    const missingDbSnapshot = await getSnapshot("", pool);
     expect(missingDbSnapshot).to.eq(undefined);
     queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(propagatedRoots.length);
@@ -1680,6 +1684,11 @@ describe("Database client", () => {
     await saveFinalizedRoots(finalizedRoots, pool);
     queryRes = await pool.query("SELECT * FROM snapshots where status = 'Finalized'");
     expect(queryRes.rows.length).to.eq(finalizedRoots.length);
+
+    const finalizedSanpshot = await getFinalizedSnapshot(finalizedRoots[0].aggregateRoot, pool);
+    expect(finalizedSanpshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getFinalizedSnapshot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
   });
 
   it("should save and get spoke optimistic roots", async () => {
@@ -1706,10 +1715,14 @@ describe("Database client", () => {
       const m = mock.entity.optimisticRootFinalized();
       m.id = `${_i}`;
       m.aggregateRoot = `${_i}`;
+      m.timestamp = _i * 1000;
       finalizedRoots.push(m);
+
       const s = mock.entity.spokeOptimisticRoot();
       s.id = `${_i}`;
       s.aggregateRoot = `${_i}`;
+      s.rootTimestamp = _i;
+      s.proposeTimestamp = _i + 10;
       spokeOptimisticRoots.push(s);
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
@@ -1733,6 +1746,14 @@ describe("Database client", () => {
 
     const missingDbSpokeRoot = await getSpokeOptimisticRoot("", "", pool);
     expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestFinalizedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+    const missingFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot("", pool);
+    expect(missingFinalizedSpokeRoot).to.eq(undefined);
   });
 
   it("should save and get RouterDailyTVL", async () => {

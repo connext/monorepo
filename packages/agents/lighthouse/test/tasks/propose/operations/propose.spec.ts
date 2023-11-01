@@ -72,7 +72,7 @@ describe("Operations: Propose", () => {
       encodeFunctionData.returns("0x");
       decodeFunctionData.onFirstCall().returns(11);
       decodeFunctionData.onSecondCall().returns(["0x"]);
-      (proposeCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getSnapshot as SinonStub).resolves(mock.entity.snapshot());
 
       const result = await ProposeFns.aggregateRootCheck("0xAggRoot", undefined as any);
       expect(result).to.eq(true);
@@ -82,7 +82,7 @@ describe("Operations: Propose", () => {
       encodeFunctionData.returns("0x");
       decodeFunctionData.onFirstCall().returns(11);
       decodeFunctionData.onSecondCall().returns(["0xAB"]);
-      (proposeCtxMock.adapters.database.getPendingAggregateRoot as SinonStub).resolves(mock.entity.snapshot());
+      (proposeCtxMock.adapters.database.getSnapshot as SinonStub).resolves(mock.entity.snapshot());
 
       const result = await ProposeFns.aggregateRootCheck("0xAB", undefined as any);
       expect(result).to.eq(false);

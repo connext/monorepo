@@ -185,7 +185,7 @@ export const proposeSnapshot = async (
   const hubSMT = new SparseMerkleTree(hubStore);
   const aggregateRoot = await hubSMT.getRoot();
 
-  const snapshot = await database.getPendingAggregateRoot(aggregateRoot);
+  const snapshot = await database.getSnapshot(aggregateRoot);
   if (snapshot) {
     throw new AggregateRootDuplicated(aggregateRoot, requestContext, methodContext);
   }
@@ -314,7 +314,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
     return false;
   }
 
-  const snapshot = await database.getPendingAggregateRoot(onChainRoot);
+  const snapshot = await database.getSnapshot(onChainRoot);
   if (!snapshot) {
     // This can happen when DB and/or subgraph is out of sync
     logger.info("Stop propose. Onchain root not found in db", requestContext, methodContext, {
