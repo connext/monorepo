@@ -36,10 +36,10 @@ function wait_for_service() {
     local attempt=1
 
     until curl -f --max-time 1 "http://localhost:${PORT}/ping" &>/dev/null; do
-        echo "${attempt}/30: Service not up, sleeping ${attempt} seconds..."
+        echo "${attempt}/60: Service not up, sleeping ${attempt} seconds..."
         sleep ${attempt}
         attempt=$((attempt + 1))
-        if [[ ${attempt} == 30 ]]
+        if [[ ${attempt} == 60 ]]
         then
             echo -e "\033[31mERROR\033[m: Waited too long for ${SERVICE} to become available!"
             exit 1
