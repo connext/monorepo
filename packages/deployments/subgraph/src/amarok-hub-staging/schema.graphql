@@ -38,6 +38,7 @@ type OptimisticRootProposed @entity {
   snapshotsRoots: [Bytes!]
   domains: [BigInt!]
   baseAggregateRoot: Bytes!
+  timestamp: BigInt!
 }
 
 type OptimisticRootFinalized @entity {

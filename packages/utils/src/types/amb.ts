@@ -116,7 +116,9 @@ export const SnapshotSchema = Type.Object({
   endOfDispute: Type.Number(),
   processed: Type.Optional(Type.Boolean()),
   status: Type.Optional(Type.String()),
+  proposedTimestamp: Type.Number(),
   propagateTimestamp: Type.Optional(Type.Number()),
+  finalizedTimestamp: Type.Optional(Type.Number()),
   propagateTaskId: Type.Optional(TBytes32),
   relayerType: Type.Optional(Type.String()),
 });

@@ -38,7 +38,7 @@ describe("Operations: ProposeSpoke", () => {
     });
     it("should throw an error if no propagated timestamp", async () => {
       const propagatedSnapshot = mock.entity.snapshot();
-      propagatedSnapshot.propagateTimestamp = undefined;
+      propagatedSnapshot.finalizedTimestamp = undefined;
       (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(propagatedSnapshot);
       await expect(proposeSpoke("")).to.eventually.be.rejectedWith(NoRootTimestamp);
     });
@@ -113,7 +113,7 @@ describe("Operations: ProposeSpoke", () => {
 
     it("happy case should call aggregateRootCheck succesfully", async () => {
       encodeFunctionData.returns("0x");
-      decodeFunctionData.returns(true);
+      decodeFunctionData.returns([true]);
 
       const result = await ProposeFns.aggregateRootCheck("0x", mock.domain.A, undefined as any);
       expect(result).to.eq(true);

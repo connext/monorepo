@@ -76,6 +76,7 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   snapshot.snapshotsRoots = event.params.snapshotsRoots;
   snapshot.domains = event.params.domains;
   snapshot.baseAggregateRoot = event.params.baseRoot;
+  snapshot.timestamp = event.block.timestamp;
 
   snapshot.save();
 }

@@ -130,7 +130,7 @@ export function handleOptimisticModeActivated(event: OptimisticModeActivated): v
 }
 
 export function handleAggregateRootProposed(event: AggregateRootProposedEvent): void {
-  const key = `${event.params.aggregateRoot.toHexString()}-${event.params.domain.toString()}`;
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.params.domain.toString()}-${event.block.timestamp.toString()}`;
   let instance = AggregateRootProposed.load(key);
   if (instance == null) {
     instance = new AggregateRootProposed(key);
@@ -139,12 +139,13 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   instance.rootTimestamp = event.params.rootTimestamp;
   instance.endOfDispute = event.params.endOfDispute;
   instance.domain = event.params.domain;
+  instance.timestamp = event.block.timestamp;
 
   instance.save();
 }
 
 export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.block.timestamp.toString()}`;
   let instance = OptimisticRootFinalized.load(key);
   if (instance == null) {
     instance = new OptimisticRootFinalized(key);

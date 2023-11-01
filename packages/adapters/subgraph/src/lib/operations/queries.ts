@@ -395,6 +395,7 @@ export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       snapshotsRoots
       domains
       baseAggregateRoot
+      timestamp
 `;
 export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
       id
@@ -402,6 +403,7 @@ export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
       rootTimestamp
       endOfDispute
       domain
+      timestamp
 `;
 
 export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `

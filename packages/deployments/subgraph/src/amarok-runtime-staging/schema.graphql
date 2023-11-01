@@ -288,6 +288,7 @@ type AggregateRootProposed @entity {
   rootTimestamp: BigInt!
   endOfDispute: BigInt!
   domain: BigInt!
+  timestamp: BigInt!
 }
 
 type OptimisticRootFinalized @entity {

@@ -295,6 +295,7 @@ const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
     end_of_dispute: snapshot.endOfDispute,
     processed: snapshot.processed,
     status: snapshot.status as s.snapshot_status,
+    proposed_timestamp: snapshot.proposedTimestamp,
     propagate_timestamp: snapshot.propagateTimestamp,
     propagate_task_id: snapshot.propagateTaskId ?? undefined,
     relayer_type: snapshot.relayerType ?? undefined,
@@ -1120,7 +1121,17 @@ export const savePropagatedOptimisticRoots = async (
 
   await Promise.all(
     roots.map(async (root) => {
-      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+      await db
+        .update(
+          "snapshots",
+          // The key of both `Propagated` and `Finalized` is aggregateRoot.
+          // Ideally, finalized_timestamp shouldn't be null but we don't have a way to stop the same root being proposed.
+          // So it makes us hard to pick up the correct entity and update the corresponding timestamp with only aggregateRoot and timestamp.
+          // As of now, making the finalized_timestamp undefined cause it's no longer in use once the root propagated.
+          { status: "Propagated", propagate_timestamp: root.timestamp, finalized_timestamp: undefined },
+          { aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
+        )
+        .run(poolToUse);
     }),
   );
 };
@@ -1136,8 +1147,8 @@ export const saveFinalizedRoots = async (
       await db
         .update(
           "snapshots",
-          { status: "Finalized", propagate_timestamp: root.timestamp },
-          { aggregate_root: root.aggregateRoot },
+          { status: "Finalized", finalized_timestamp: root.timestamp },
+          { status: "Proposed", aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
         )
         .run(poolToUse);
     }),
@@ -1169,7 +1180,11 @@ export const saveFinalizedSpokeRoots = async (
   await Promise.all(
     roots.map(async (root) => {
       await db
-        .update("spoke_optimistic_roots", { status: "Finalized" }, { domain: domain, root: root.aggregateRoot })
+        .update(
+          "spoke_optimistic_roots",
+          { status: "Finalized" },
+          { domain: domain, root: root.aggregateRoot, propose_timestamp: dc.lte(root.timestamp) },
+        )
         .run(poolToUse);
     }),
   );

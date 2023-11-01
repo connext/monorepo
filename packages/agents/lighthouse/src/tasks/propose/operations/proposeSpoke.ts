@@ -21,28 +21,28 @@ export const proposeSpoke = async (spokeDomain: string) => {
     adapters: { database, contracts, chainreader },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeSpoke.name);
-  const latestPropagatedSnapshot = await database.getCurrentFinalizedSnapshot();
-  if (!latestPropagatedSnapshot) {
+  const latestFinalizedSnapshot = await database.getCurrentFinalizedSnapshot();
+  if (!latestFinalizedSnapshot) {
     throw new LatestPropagatedSnapshot(requestContext, methodContext);
   }
-  if (!latestPropagatedSnapshot.propagateTimestamp) {
-    throw new NoRootTimestamp(latestPropagatedSnapshot.aggregateRoot, requestContext, methodContext);
+  if (!latestFinalizedSnapshot.finalizedTimestamp) {
+    throw new NoRootTimestamp(latestFinalizedSnapshot.aggregateRoot, requestContext, methodContext);
   }
 
-  const spokeRoot = await database.getSpokeOptimisticRoot(latestPropagatedSnapshot.aggregateRoot, spokeDomain);
+  const spokeRoot = await database.getSpokeOptimisticRoot(latestFinalizedSnapshot.aggregateRoot, spokeDomain);
   if (spokeRoot && spokeRoot.status === "Finalized") {
     logger.info("Aggregate root already finalized on spoke.", requestContext, methodContext, {
-      aggregateRoot: latestPropagatedSnapshot.aggregateRoot,
+      aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
       spokeDomain,
     });
     // End propose. Aggregate root already finalized
     return;
   }
 
-  const isProven = await aggregateRootCheck(latestPropagatedSnapshot.aggregateRoot, spokeDomain, requestContext);
+  const isProven = await aggregateRootCheck(latestFinalizedSnapshot.aggregateRoot, spokeDomain, requestContext);
   if (isProven) {
     logger.info("Aggregate root already finalized on spoke onchain", requestContext, methodContext, {
-      aggregateRoot: latestPropagatedSnapshot.aggregateRoot,
+      aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
       spokeDomain,
     });
     return;
@@ -97,8 +97,8 @@ export const proposeSpoke = async (spokeDomain: string) => {
 
   try {
     await proposeOptimisticRoot(
-      latestPropagatedSnapshot.aggregateRoot,
-      latestPropagatedSnapshot.propagateTimestamp,
+      latestFinalizedSnapshot.aggregateRoot,
+      latestFinalizedSnapshot.finalizedTimestamp,
       spokeDomain,
       spokeChainId,
       requestContext,
@@ -225,7 +225,7 @@ export const aggregateRootCheck = async (
   const spokeConnectorAddress = config.chains[domain].deployments.spokeConnector;
   //
   const encodedRootData = contracts.spokeConnector.encodeFunctionData("provenAggregateRoots", [aggregateRoot]);
-  let _isProven: any;
+  let isProven: any;
   try {
     const idResultData = await chainreader.readTx({
       domain: +domain,
@@ -233,7 +233,7 @@ export const aggregateRootCheck = async (
       data: encodedRootData,
     });
 
-    _isProven = contracts.spokeConnector.decodeFunctionResult("provenAggregateRoots", idResultData);
+    [isProven] = contracts.spokeConnector.decodeFunctionResult("provenAggregateRoots", idResultData);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the provenAggregateRoots",
@@ -245,16 +245,12 @@ export const aggregateRootCheck = async (
     // Cannot proceed without the latest provenAggregateRoots check.
     return false;
   }
+
   logger.info("Checked if aggregate root is already proven onchain", requestContext, methodContext, {
     aggregateRoot,
-    proven: _isProven as boolean,
+    proven: isProven as boolean,
   });
 
-  if (_isProven === undefined) {
-    // Cannot proceed without the provenAggregateRoots.
-    return false;
-  }
-
   // All checks passed, can propose the aggregate root.
-  return _isProven;
+  return isProven as boolean;
 };

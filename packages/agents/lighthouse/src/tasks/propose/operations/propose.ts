@@ -67,7 +67,7 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  const latestSnapshotId: string = Math.abs(getNtpTimeSeconds() / config.snapshotDuration).toString();
+  const latestSnapshotId: string = Math.floor(getNtpTimeSeconds() / config.snapshotDuration).toString();
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
   });
