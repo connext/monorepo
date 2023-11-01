@@ -837,6 +837,7 @@ describe("SubgraphReader", () => {
       const snapshot = mock.entity.snapshot();
       snapshot["disputeCliff"] = snapshot.endOfDispute;
       snapshot["snapshotsRoots"] = snapshot.roots;
+      snapshot["timestamp"] = snapshot.proposedTimestamp;
 
       response.set("1111", [snapshot]);
       executeStub.resolves(response);
