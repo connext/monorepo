@@ -567,6 +567,7 @@ export type staginggoerli_OptimisticRootProposed = {
   snapshotsRoots?: Maybe<Array<Scalars['staginggoerli_Bytes']>>;
   domains?: Maybe<Array<Scalars['BigInt']>>;
   baseAggregateRoot: Scalars['staginggoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
 };
 
 export type staginggoerli_OptimisticRootProposed_filter = {
@@ -618,6 +619,14 @@ export type staginggoerli_OptimisticRootProposed_filter = {
   baseAggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   baseAggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   baseAggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootProposed_filter>>>;
@@ -630,7 +639,8 @@ export type staginggoerli_OptimisticRootProposed_orderBy =
   | 'aggregateRoot'
   | 'snapshotsRoots'
   | 'domains'
-  | 'baseAggregateRoot';
+  | 'baseAggregateRoot'
+  | 'timestamp';
 
 /** Defines the order direction, either ascending or descending */
 export type staginggoerli_OrderDirection =
