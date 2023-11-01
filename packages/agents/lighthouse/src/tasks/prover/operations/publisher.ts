@@ -119,7 +119,7 @@ export const getUnProcessedMessagesByIndex = async (
       const message = await cache.messages.getMessage(leaf);
       if (
         message &&
-        getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
+        (message.attempt === 0 || getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt) &&
         message.data.origin.index <= endIndex &&
         message.status == ExecStatus.None
       ) {
