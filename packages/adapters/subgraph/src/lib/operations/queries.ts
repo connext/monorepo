@@ -1060,7 +1060,9 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   `;
 };
 
-export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: number; limit: number }[]) => {
+export const getAggregatedRootsByDomainQuery = (
+  params: { hub: string; index: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -1069,7 +1071,8 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
     ${prefix}_aggregatedMessageRoots ( 
       first: ${param.limit}, 
       where: { 
-        index_gte: ${param.index}
+        index_gte: ${param.index},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: index, 
       orderDirection: asc
@@ -1085,7 +1088,9 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
   `;
 };
 
-export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+export const getProposedSnapshotsByDomainQuery = (
+  params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -1094,7 +1099,8 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
     ${prefix}_optimisticRootProposeds ( 
       first: ${param.limit}, 
       where: { 
-        disputeCliff_gt: ${param.snapshotId}
+        disputeCliff_gt: ${param.snapshotId},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: disputeCliff,
       orderDirection: asc
@@ -1111,7 +1117,7 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
 };
 
 export const getProposedSpokeOptimisticRootsByDomainQuery = (
-  params: { domain: string; rootTimestamp: number; limit: number }[],
+  params: { domain: string; rootTimestamp: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1121,7 +1127,8 @@ export const getProposedSpokeOptimisticRootsByDomainQuery = (
     ${prefix}_aggregateRootProposeds ( 
       first: ${param.limit}, 
       where: { 
-        rootTimestamp_gt: ${param.rootTimestamp}
+        rootTimestamp_gt: ${param.rootTimestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: rootTimestamp,
       orderDirection: asc
@@ -1137,7 +1144,9 @@ export const getProposedSpokeOptimisticRootsByDomainQuery = (
   `;
 };
 
-export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+export const getSavedSnapshotRootsByDomainQuery = (
+  params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -1146,7 +1155,8 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
     ${prefix}_snapshotRoots( 
       first: ${param.limit}, 
       where: { 
-        id_gte: ${param.snapshotId}
+        id_gte: ${param.snapshotId},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: id, 
       orderDirection: asc
@@ -1163,7 +1173,7 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
 };
 
 export const getFinalizedRootsByDomainQuery = (
-  params: { domain: string; timestamp: number; limit: number }[],
+  params: { domain: string; timestamp: number; limit: number; maxBlockNumber: number }[],
   isHub: boolean,
 ) => {
   const { config } = getContext();
@@ -1175,7 +1185,8 @@ export const getFinalizedRootsByDomainQuery = (
     ${prefix}_${entityName} ( 
       first: ${param.limit}, 
       where: { 
-        timestamp_gt: ${param.timestamp}
+        timestamp_gt: ${param.timestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: timestamp,
       orderDirection: asc
@@ -1192,7 +1203,7 @@ export const getFinalizedRootsByDomainQuery = (
 };
 
 export const getPropagatedOptimisticRootsByDomainQuery = (
-  params: { hub: string; timestamp: number; limit: number }[],
+  params: { hub: string; timestamp: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1202,7 +1213,8 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
     ${prefix}_optimisticRootPropagateds ( 
       first: ${param.limit}, 
       where: { 
-        timestamp_gt: ${param.timestamp}
+        timestamp_gt: ${param.timestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: timestamp,
       orderDirection: asc
@@ -1219,7 +1231,7 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
 };
 
 export const getReceivedAggregatedRootsByDomainQuery = (
-  params: { domain: string; offset: number; limit: number }[],
+  params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1229,7 +1241,8 @@ export const getReceivedAggregatedRootsByDomainQuery = (
     ${prefix}_aggregateRoots( 
       first: ${param.limit}, 
       where: { 
-        blockNumber_gt: ${param.offset} 
+        blockNumber_gt: ${param.offset},
+        blockNumber_lte: ${param.maxBlockNumber} 
       }
       orderBy: blockNumber
       orderDirection: asc
@@ -1245,14 +1258,15 @@ export const getReceivedAggregatedRootsByDomainQuery = (
   `;
 };
 
-export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number, maxBlockNumber: number) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
   const queryString = `
   ${prefix}_rootPropagateds ( 
     first: ${limit}, 
     where: { 
-      count_gte: ${count} 
+      count_gte: ${count},
+      blockNumber_lte: ${maxBlockNumber}
     },
     orderBy: count, 
     orderDirection: asc
