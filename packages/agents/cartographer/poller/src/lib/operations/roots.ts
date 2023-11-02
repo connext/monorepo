@@ -76,6 +76,21 @@ export const updateProposedSnapshots = async () => {
     if (disputeCliff === 0 || newDisputeCliff > disputeCliff) {
       await database.saveProposedSnapshots(snapshots);
 
+      //Mainnet spoke connecter does not emit AggregateRootProposed event
+      const mainnetSpokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+      for (const snapshot of snapshots) {
+        const mainnetSpokeOptimisticRoot: SpokeOptimisticRoot = {
+          id: snapshot.id,
+          aggregateRoot: snapshot.aggregateRoot,
+          rootTimestamp: snapshot.proposedTimestamp,
+          endOfDispute: snapshot.endOfDispute,
+          domain: hub,
+          proposeTimestamp: snapshot.proposedTimestamp,
+        };
+        mainnetSpokeOptimisticRoots.push(mainnetSpokeOptimisticRoot);
+      }
+      await database.saveProposedSpokeRoots(mainnetSpokeOptimisticRoots);
+
       await database.saveCheckPoint("proposed_optimistic_root_" + hub, newDisputeCliff);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {
         hub: hub,
@@ -132,7 +147,7 @@ export const updateFinalizedRoots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const timestamp = await database.getCheckPoint("finalized_optimistic_root_" + hub);
+    const timestamp = await database.getCheckPoint("finalized_hub_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving finalized aggregated root", requestContext, methodContext, {
       hub: hub,
@@ -147,7 +162,7 @@ export const updateFinalizedRoots = async () => {
     if (timestamp === 0 || newTimestamp > timestamp) {
       await database.saveFinalizedRoots(roots);
 
-      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newTimestamp);
+      await database.saveCheckPoint("finalized_hub_optimistic_root_" + hub, newTimestamp);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
         offset: newTimestamp,
@@ -164,7 +179,7 @@ export const updateFinalizedSpokeRoots = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
 
   for (const domain of domains) {
-    const timestamp = await database.getCheckPoint("finalized_optimistic_root_" + domain);
+    const timestamp = await database.getCheckPoint("finalized_spoke_optimistic_root_" + domain);
     const limit = 100;
     logger.debug("Retrieving finalized aggregated root on domain", requestContext, methodContext, {
       domain,
@@ -181,7 +196,7 @@ export const updateFinalizedSpokeRoots = async () => {
     if (timestamp === 0 || newTimestamp > timestamp) {
       await database.saveFinalizedSpokeRoots(domain, roots);
 
-      await database.saveCheckPoint("finalized_optimistic_root_" + domain, newTimestamp);
+      await database.saveCheckPoint("finalized_spoke_optimistic_root_" + domain, newTimestamp);
       logger.debug("Saved finalized aggregated root for domain", requestContext, methodContext, {
         domain,
         offset: newTimestamp,
