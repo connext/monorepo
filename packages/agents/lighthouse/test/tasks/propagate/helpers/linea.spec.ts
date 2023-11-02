@@ -48,7 +48,7 @@ describe("Helpers: Linea", () => {
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",
-        _fee: BigNumber.from(10).mul(BigNumber.from(120000)).mul(BigNumber.from(2)).toString(),
+        _fee: BigNumber.from(10).mul(BigNumber.from(120000)).mul(BigNumber.from(1)).toString(),
         _encodedData: "0x",
       });
     });
