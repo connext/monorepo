@@ -21,7 +21,7 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 0;
+const DEFAULT_DELAY_BLOCKS = 100;
 
 export type RelayerConfig = {
   [chain: number]: {
@@ -106,33 +106,78 @@ export const getFacetsToDeploy = (zksync: boolean) => [
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
-    hub: 1337,
+    hub: 31337,
     configs: {
-      1337: {
-        prefix: "Mainnet",
+      31337: {
+        prefix: "AdminMainnet",
+        networkName: "Mainnet",
         ambs: {
           hub: constants.AddressZero,
           spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        delayBlocks: 1,
       },
-      1338: {
-        prefix: "Optimism",
+      31338: {
+        prefix: "Admin",
+        networkName: "Optimism",
         ambs: {
-          hub: OPTIMISM_AMB.hub,
-          spoke: OPTIMISM_AMB.spoke,
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
-            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
-          },
+        delayBlocks: 1,
+      },
+      31339: {
+        prefix: "Admin",
+        networkName: "Arbitrum",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+    },
+  },
+  devnet: {
+    hub: 1,
+    configs: {
+      1: {
+        prefix: "Admin",
+        networkName: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+      10: {
+        prefix: "Admin",
+        networkName: "Optimism",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+      },
+      100: {
+        prefix: "Admin",
+        networkName: "Gnosis",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
       },
     },
   },
@@ -230,7 +275,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
       },
       59140: {
-        prefix: "Consensys",
+        prefix: "Linea",
         ambs: {
           // ZkEvmV202 on goerli
           // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2
@@ -243,31 +288,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
-      97: {
-        prefix: "Multichain",
-        networkName: "Chapel",
-        ambs: {
-          // AnyCallV6Proxy on goerli
-          // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-          hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-          // AnyCallV6Proxy on chapel/bsc testnet
-          // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-          spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            mirrorChainId: "97",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-          spoke: {
-            mirrorChainId: "5",
-            gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
-          },
-        },
-      },
+      // 97: {
+      //   prefix: "Multichain",
+      //   networkName: "Chapel",
+      //   ambs: {
+      //     // AnyCallV6Proxy on goerli
+      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
+      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
+      //     // AnyCallV6Proxy on chapel/bsc testnet
+      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
+      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   custom: {
+      //     hub: {
+      //       mirrorChainId: "97",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //     spoke: {
+      //       mirrorChainId: "5",
+      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //     },
+      //   },
+      // },
       1442: {
         prefix: "PolygonZk",
         ambs: {

@@ -1,5 +1,5 @@
 [
-  "constructor(uint32 _domain, uint32 _mirrorDomain, address _rootManager)",
+  "constructor(uint32 _domain, uint32 _mirrorDomain, address, address _rootManager, address)",
   "error Connector__processMessage_notUsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",

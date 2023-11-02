@@ -3,7 +3,7 @@ import { createLoggingContext, domainToChainId, NxtpError } from "@connext/nxtp-
 import { getContract, getJsonRpcProvider, sendWithRelayerWithBackup, getBestProvider } from "../../../mockable";
 import {
   getSendOutboundRootParamsBnb,
-  getSendOutboundRootParamsConsensys,
+  getSendOutboundRootParamsLinea,
   getSendOutboundRootParamsZkSync,
   getSendOutboundRootParamsGnosis,
   getSendOutboundRootParamsOptimism,
@@ -21,7 +21,7 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "1869640809": getSendOutboundRootParamsOptimism,
   "6778479": getSendOutboundRootParamsGnosis,
   // testnet
-  "1668247156": getSendOutboundRootParamsConsensys,
+  "1668247156": getSendOutboundRootParamsLinea,
   "2053862260": getSendOutboundRootParamsZkSync,
   "1735356532": getSendOutboundRootParamsOptimism,
 };
@@ -98,7 +98,7 @@ export const sendOutboundRoot = async () => {
     try {
       const { taskId } = await sendWithRelayerWithBackup(
         chainId,
-        config.hubDomain,
+        domain,
         relayerProxyAddress,
         encodedDataForRelayer,
         relayers,

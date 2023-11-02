@@ -78,6 +78,11 @@
         "name": "PolygonZkHubConnector",
         "address": "0xd045F03686575f042b21D0B3D20FFAE4D3a3482f",
         "startBlock": 8608178
+      },
+      {
+        "name": "LineaHubConnector",
+        "address": "0x677d171172b395B2526ebb7Eb5Aa1a230b975ac0",
+        "startBlock": 9957169
       }
     ]
   }

@@ -29,6 +29,10 @@ input localarbitrumone_AggregateRoot_filter {
   id_not_in: [ID!]
   root: localarbitrumone_Bytes
   root_not: localarbitrumone_Bytes
+  root_gt: localarbitrumone_Bytes
+  root_lt: localarbitrumone_Bytes
+  root_gte: localarbitrumone_Bytes
+  root_lte: localarbitrumone_Bytes
   root_in: [localarbitrumone_Bytes!]
   root_not_in: [localarbitrumone_Bytes!]
   root_contains: localarbitrumone_Bytes
@@ -43,6 +47,8 @@ input localarbitrumone_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_AggregateRoot_filter]
+  or: [localarbitrumone_AggregateRoot_filter]
 }
 
 enum localarbitrumone_AggregateRoot_orderBy {
@@ -167,6 +173,8 @@ input localarbitrumone_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_AssetBalance_filter]
+  or: [localarbitrumone_AssetBalance_filter]
 }
 
 enum localarbitrumone_AssetBalance_orderBy {
@@ -176,7 +184,21 @@ enum localarbitrumone_AssetBalance_orderBy {
   supplied
   removed
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -200,6 +222,8 @@ input localarbitrumone_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_AssetStatus_filter]
+  or: [localarbitrumone_AssetStatus_filter]
 }
 
 enum localarbitrumone_AssetStatus_orderBy {
@@ -218,6 +242,10 @@ input localarbitrumone_Asset_filter {
   id_not_in: [ID!]
   key: localarbitrumone_Bytes
   key_not: localarbitrumone_Bytes
+  key_gt: localarbitrumone_Bytes
+  key_lt: localarbitrumone_Bytes
+  key_gte: localarbitrumone_Bytes
+  key_lte: localarbitrumone_Bytes
   key_in: [localarbitrumone_Bytes!]
   key_not_in: [localarbitrumone_Bytes!]
   key_contains: localarbitrumone_Bytes
@@ -232,6 +260,10 @@ input localarbitrumone_Asset_filter {
   decimal_not_in: [BigInt!]
   canonicalId: localarbitrumone_Bytes
   canonicalId_not: localarbitrumone_Bytes
+  canonicalId_gt: localarbitrumone_Bytes
+  canonicalId_lt: localarbitrumone_Bytes
+  canonicalId_gte: localarbitrumone_Bytes
+  canonicalId_lte: localarbitrumone_Bytes
   canonicalId_in: [localarbitrumone_Bytes!]
   canonicalId_not_in: [localarbitrumone_Bytes!]
   canonicalId_contains: localarbitrumone_Bytes
@@ -246,12 +278,20 @@ input localarbitrumone_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: localarbitrumone_Bytes
   adoptedAsset_not: localarbitrumone_Bytes
+  adoptedAsset_gt: localarbitrumone_Bytes
+  adoptedAsset_lt: localarbitrumone_Bytes
+  adoptedAsset_gte: localarbitrumone_Bytes
+  adoptedAsset_lte: localarbitrumone_Bytes
   adoptedAsset_in: [localarbitrumone_Bytes!]
   adoptedAsset_not_in: [localarbitrumone_Bytes!]
   adoptedAsset_contains: localarbitrumone_Bytes
   adoptedAsset_not_contains: localarbitrumone_Bytes
   localAsset: localarbitrumone_Bytes
   localAsset_not: localarbitrumone_Bytes
+  localAsset_gt: localarbitrumone_Bytes
+  localAsset_lt: localarbitrumone_Bytes
+  localAsset_gte: localarbitrumone_Bytes
+  localAsset_lte: localarbitrumone_Bytes
   localAsset_in: [localarbitrumone_Bytes!]
   localAsset_not_in: [localarbitrumone_Bytes!]
   localAsset_contains: localarbitrumone_Bytes
@@ -287,6 +327,8 @@ input localarbitrumone_Asset_filter {
   status_: localarbitrumone_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_Asset_filter]
+  or: [localarbitrumone_Asset_filter]
 }
 
 enum localarbitrumone_Asset_orderBy {
@@ -299,6 +341,8 @@ enum localarbitrumone_Asset_orderBy {
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar localarbitrumone_BigDecimal
@@ -353,24 +397,38 @@ input localarbitrumone_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localarbitrumone_Bytes
   amb_not: localarbitrumone_Bytes
+  amb_gt: localarbitrumone_Bytes
+  amb_lt: localarbitrumone_Bytes
+  amb_gte: localarbitrumone_Bytes
+  amb_lte: localarbitrumone_Bytes
   amb_in: [localarbitrumone_Bytes!]
   amb_not_in: [localarbitrumone_Bytes!]
   amb_contains: localarbitrumone_Bytes
   amb_not_contains: localarbitrumone_Bytes
   rootManager: localarbitrumone_Bytes
   rootManager_not: localarbitrumone_Bytes
+  rootManager_gt: localarbitrumone_Bytes
+  rootManager_lt: localarbitrumone_Bytes
+  rootManager_gte: localarbitrumone_Bytes
+  rootManager_lte: localarbitrumone_Bytes
   rootManager_in: [localarbitrumone_Bytes!]
   rootManager_not_in: [localarbitrumone_Bytes!]
   rootManager_contains: localarbitrumone_Bytes
   rootManager_not_contains: localarbitrumone_Bytes
   mirrorConnector: localarbitrumone_Bytes
   mirrorConnector_not: localarbitrumone_Bytes
+  mirrorConnector_gt: localarbitrumone_Bytes
+  mirrorConnector_lt: localarbitrumone_Bytes
+  mirrorConnector_gte: localarbitrumone_Bytes
+  mirrorConnector_lte: localarbitrumone_Bytes
   mirrorConnector_in: [localarbitrumone_Bytes!]
   mirrorConnector_not_in: [localarbitrumone_Bytes!]
   mirrorConnector_contains: localarbitrumone_Bytes
   mirrorConnector_not_contains: localarbitrumone_Bytes
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_ConnectorMeta_filter]
+  or: [localarbitrumone_ConnectorMeta_filter]
 }
 
 enum localarbitrumone_ConnectorMeta_orderBy {
@@ -442,6 +500,10 @@ input localarbitrumone_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localarbitrumone_Bytes
   transferId_not: localarbitrumone_Bytes
+  transferId_gt: localarbitrumone_Bytes
+  transferId_lt: localarbitrumone_Bytes
+  transferId_gte: localarbitrumone_Bytes
+  transferId_lte: localarbitrumone_Bytes
   transferId_in: [localarbitrumone_Bytes!]
   transferId_not_in: [localarbitrumone_Bytes!]
   transferId_contains: localarbitrumone_Bytes
@@ -491,12 +553,20 @@ input localarbitrumone_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localarbitrumone_Bytes
   to_not: localarbitrumone_Bytes
+  to_gt: localarbitrumone_Bytes
+  to_lt: localarbitrumone_Bytes
+  to_gte: localarbitrumone_Bytes
+  to_lte: localarbitrumone_Bytes
   to_in: [localarbitrumone_Bytes!]
   to_not_in: [localarbitrumone_Bytes!]
   to_contains: localarbitrumone_Bytes
   to_not_contains: localarbitrumone_Bytes
   delegate: localarbitrumone_Bytes
   delegate_not: localarbitrumone_Bytes
+  delegate_gt: localarbitrumone_Bytes
+  delegate_lt: localarbitrumone_Bytes
+  delegate_gte: localarbitrumone_Bytes
+  delegate_lte: localarbitrumone_Bytes
   delegate_in: [localarbitrumone_Bytes!]
   delegate_not_in: [localarbitrumone_Bytes!]
   delegate_contains: localarbitrumone_Bytes
@@ -507,6 +577,10 @@ input localarbitrumone_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localarbitrumone_Bytes
   callData_not: localarbitrumone_Bytes
+  callData_gt: localarbitrumone_Bytes
+  callData_lt: localarbitrumone_Bytes
+  callData_gte: localarbitrumone_Bytes
+  callData_lte: localarbitrumone_Bytes
   callData_in: [localarbitrumone_Bytes!]
   callData_not_in: [localarbitrumone_Bytes!]
   callData_contains: localarbitrumone_Bytes
@@ -529,6 +603,10 @@ input localarbitrumone_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: localarbitrumone_Bytes
   originSender_not: localarbitrumone_Bytes
+  originSender_gt: localarbitrumone_Bytes
+  originSender_lt: localarbitrumone_Bytes
+  originSender_gte: localarbitrumone_Bytes
+  originSender_lte: localarbitrumone_Bytes
   originSender_in: [localarbitrumone_Bytes!]
   originSender_not_in: [localarbitrumone_Bytes!]
   originSender_contains: localarbitrumone_Bytes
@@ -551,6 +629,10 @@ input localarbitrumone_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localarbitrumone_Bytes
   canonicalId_not: localarbitrumone_Bytes
+  canonicalId_gt: localarbitrumone_Bytes
+  canonicalId_lt: localarbitrumone_Bytes
+  canonicalId_gte: localarbitrumone_Bytes
+  canonicalId_lte: localarbitrumone_Bytes
   canonicalId_in: [localarbitrumone_Bytes!]
   canonicalId_not_in: [localarbitrumone_Bytes!]
   canonicalId_contains: localarbitrumone_Bytes
@@ -594,12 +676,20 @@ input localarbitrumone_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: localarbitrumone_Bytes
   executedCaller_not: localarbitrumone_Bytes
+  executedCaller_gt: localarbitrumone_Bytes
+  executedCaller_lt: localarbitrumone_Bytes
+  executedCaller_gte: localarbitrumone_Bytes
+  executedCaller_lte: localarbitrumone_Bytes
   executedCaller_in: [localarbitrumone_Bytes!]
   executedCaller_not_in: [localarbitrumone_Bytes!]
   executedCaller_contains: localarbitrumone_Bytes
   executedCaller_not_contains: localarbitrumone_Bytes
   executedTransactionHash: localarbitrumone_Bytes
   executedTransactionHash_not: localarbitrumone_Bytes
+  executedTransactionHash_gt: localarbitrumone_Bytes
+  executedTransactionHash_lt: localarbitrumone_Bytes
+  executedTransactionHash_gte: localarbitrumone_Bytes
+  executedTransactionHash_lte: localarbitrumone_Bytes
   executedTransactionHash_in: [localarbitrumone_Bytes!]
   executedTransactionHash_not_in: [localarbitrumone_Bytes!]
   executedTransactionHash_contains: localarbitrumone_Bytes
@@ -638,6 +728,10 @@ input localarbitrumone_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: localarbitrumone_Bytes
   executedTxOrigin_not: localarbitrumone_Bytes
+  executedTxOrigin_gt: localarbitrumone_Bytes
+  executedTxOrigin_lt: localarbitrumone_Bytes
+  executedTxOrigin_gte: localarbitrumone_Bytes
+  executedTxOrigin_lte: localarbitrumone_Bytes
   executedTxOrigin_in: [localarbitrumone_Bytes!]
   executedTxOrigin_not_in: [localarbitrumone_Bytes!]
   executedTxOrigin_contains: localarbitrumone_Bytes
@@ -652,12 +746,20 @@ input localarbitrumone_DestinationTransfer_filter {
   executedTxNonce_not_in: [BigInt!]
   reconciledCaller: localarbitrumone_Bytes
   reconciledCaller_not: localarbitrumone_Bytes
+  reconciledCaller_gt: localarbitrumone_Bytes
+  reconciledCaller_lt: localarbitrumone_Bytes
+  reconciledCaller_gte: localarbitrumone_Bytes
+  reconciledCaller_lte: localarbitrumone_Bytes
   reconciledCaller_in: [localarbitrumone_Bytes!]
   reconciledCaller_not_in: [localarbitrumone_Bytes!]
   reconciledCaller_contains: localarbitrumone_Bytes
   reconciledCaller_not_contains: localarbitrumone_Bytes
   reconciledTransactionHash: localarbitrumone_Bytes
   reconciledTransactionHash_not: localarbitrumone_Bytes
+  reconciledTransactionHash_gt: localarbitrumone_Bytes
+  reconciledTransactionHash_lt: localarbitrumone_Bytes
+  reconciledTransactionHash_gte: localarbitrumone_Bytes
+  reconciledTransactionHash_lte: localarbitrumone_Bytes
   reconciledTransactionHash_in: [localarbitrumone_Bytes!]
   reconciledTransactionHash_not_in: [localarbitrumone_Bytes!]
   reconciledTransactionHash_contains: localarbitrumone_Bytes
@@ -696,6 +798,10 @@ input localarbitrumone_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: localarbitrumone_Bytes
   reconciledTxOrigin_not: localarbitrumone_Bytes
+  reconciledTxOrigin_gt: localarbitrumone_Bytes
+  reconciledTxOrigin_lt: localarbitrumone_Bytes
+  reconciledTxOrigin_gte: localarbitrumone_Bytes
+  reconciledTxOrigin_lte: localarbitrumone_Bytes
   reconciledTxOrigin_in: [localarbitrumone_Bytes!]
   reconciledTxOrigin_not_in: [localarbitrumone_Bytes!]
   reconciledTxOrigin_contains: localarbitrumone_Bytes
@@ -710,6 +816,8 @@ input localarbitrumone_DestinationTransfer_filter {
   reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_DestinationTransfer_filter]
+  or: [localarbitrumone_DestinationTransfer_filter]
 }
 
 enum localarbitrumone_DestinationTransfer_orderBy {
@@ -733,6 +841,14 @@ enum localarbitrumone_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -752,6 +868,12 @@ enum localarbitrumone_DestinationTransfer_orderBy {
   reconciledTxOrigin
   reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar localarbitrumone_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum localarbitrumone_OrderDirection {
@@ -783,6 +905,10 @@ input localarbitrumone_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: localarbitrumone_Bytes
   transferId_not: localarbitrumone_Bytes
+  transferId_gt: localarbitrumone_Bytes
+  transferId_lt: localarbitrumone_Bytes
+  transferId_gte: localarbitrumone_Bytes
+  transferId_lte: localarbitrumone_Bytes
   transferId_in: [localarbitrumone_Bytes!]
   transferId_not_in: [localarbitrumone_Bytes!]
   transferId_contains: localarbitrumone_Bytes
@@ -797,6 +923,10 @@ input localarbitrumone_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: localarbitrumone_Bytes
   leaf_not: localarbitrumone_Bytes
+  leaf_gt: localarbitrumone_Bytes
+  leaf_lt: localarbitrumone_Bytes
+  leaf_gte: localarbitrumone_Bytes
+  leaf_lte: localarbitrumone_Bytes
   leaf_in: [localarbitrumone_Bytes!]
   leaf_not_in: [localarbitrumone_Bytes!]
   leaf_contains: localarbitrumone_Bytes
@@ -811,18 +941,30 @@ input localarbitrumone_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: localarbitrumone_Bytes
   message_not: localarbitrumone_Bytes
+  message_gt: localarbitrumone_Bytes
+  message_lt: localarbitrumone_Bytes
+  message_gte: localarbitrumone_Bytes
+  message_lte: localarbitrumone_Bytes
   message_in: [localarbitrumone_Bytes!]
   message_not_in: [localarbitrumone_Bytes!]
   message_contains: localarbitrumone_Bytes
   message_not_contains: localarbitrumone_Bytes
   root: localarbitrumone_Bytes
   root_not: localarbitrumone_Bytes
+  root_gt: localarbitrumone_Bytes
+  root_lt: localarbitrumone_Bytes
+  root_gte: localarbitrumone_Bytes
+  root_lte: localarbitrumone_Bytes
   root_in: [localarbitrumone_Bytes!]
   root_not_in: [localarbitrumone_Bytes!]
   root_contains: localarbitrumone_Bytes
   root_not_contains: localarbitrumone_Bytes
   transactionHash: localarbitrumone_Bytes
   transactionHash_not: localarbitrumone_Bytes
+  transactionHash_gt: localarbitrumone_Bytes
+  transactionHash_lt: localarbitrumone_Bytes
+  transactionHash_gte: localarbitrumone_Bytes
+  transactionHash_lte: localarbitrumone_Bytes
   transactionHash_in: [localarbitrumone_Bytes!]
   transactionHash_not_in: [localarbitrumone_Bytes!]
   transactionHash_contains: localarbitrumone_Bytes
@@ -858,6 +1000,8 @@ input localarbitrumone_OriginMessage_filter {
   rootCount_: localarbitrumone_RootCount_filter
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_OriginMessage_filter]
+  or: [localarbitrumone_OriginMessage_filter]
 }
 
 enum localarbitrumone_OriginMessage_orderBy {
@@ -871,6 +1015,8 @@ enum localarbitrumone_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type localarbitrumone_OriginTransfer {
@@ -927,6 +1073,10 @@ input localarbitrumone_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localarbitrumone_Bytes
   transferId_not: localarbitrumone_Bytes
+  transferId_gt: localarbitrumone_Bytes
+  transferId_lt: localarbitrumone_Bytes
+  transferId_gte: localarbitrumone_Bytes
+  transferId_lte: localarbitrumone_Bytes
   transferId_in: [localarbitrumone_Bytes!]
   transferId_not_in: [localarbitrumone_Bytes!]
   transferId_contains: localarbitrumone_Bytes
@@ -945,6 +1095,10 @@ input localarbitrumone_OriginTransfer_filter {
   status_not_in: [localarbitrumone_TransferStatus!]
   messageHash: localarbitrumone_Bytes
   messageHash_not: localarbitrumone_Bytes
+  messageHash_gt: localarbitrumone_Bytes
+  messageHash_lt: localarbitrumone_Bytes
+  messageHash_gte: localarbitrumone_Bytes
+  messageHash_lte: localarbitrumone_Bytes
   messageHash_in: [localarbitrumone_Bytes!]
   messageHash_not_in: [localarbitrumone_Bytes!]
   messageHash_contains: localarbitrumone_Bytes
@@ -975,12 +1129,20 @@ input localarbitrumone_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localarbitrumone_Bytes
   to_not: localarbitrumone_Bytes
+  to_gt: localarbitrumone_Bytes
+  to_lt: localarbitrumone_Bytes
+  to_gte: localarbitrumone_Bytes
+  to_lte: localarbitrumone_Bytes
   to_in: [localarbitrumone_Bytes!]
   to_not_in: [localarbitrumone_Bytes!]
   to_contains: localarbitrumone_Bytes
   to_not_contains: localarbitrumone_Bytes
   delegate: localarbitrumone_Bytes
   delegate_not: localarbitrumone_Bytes
+  delegate_gt: localarbitrumone_Bytes
+  delegate_lt: localarbitrumone_Bytes
+  delegate_gte: localarbitrumone_Bytes
+  delegate_lte: localarbitrumone_Bytes
   delegate_in: [localarbitrumone_Bytes!]
   delegate_not_in: [localarbitrumone_Bytes!]
   delegate_contains: localarbitrumone_Bytes
@@ -991,6 +1153,10 @@ input localarbitrumone_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localarbitrumone_Bytes
   callData_not: localarbitrumone_Bytes
+  callData_gt: localarbitrumone_Bytes
+  callData_lt: localarbitrumone_Bytes
+  callData_gte: localarbitrumone_Bytes
+  callData_lte: localarbitrumone_Bytes
   callData_in: [localarbitrumone_Bytes!]
   callData_not_in: [localarbitrumone_Bytes!]
   callData_contains: localarbitrumone_Bytes
@@ -1005,6 +1171,10 @@ input localarbitrumone_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: localarbitrumone_Bytes
   originSender_not: localarbitrumone_Bytes
+  originSender_gt: localarbitrumone_Bytes
+  originSender_lt: localarbitrumone_Bytes
+  originSender_gte: localarbitrumone_Bytes
+  originSender_lte: localarbitrumone_Bytes
   originSender_in: [localarbitrumone_Bytes!]
   originSender_not_in: [localarbitrumone_Bytes!]
   originSender_contains: localarbitrumone_Bytes
@@ -1027,6 +1197,10 @@ input localarbitrumone_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localarbitrumone_Bytes
   canonicalId_not: localarbitrumone_Bytes
+  canonicalId_gt: localarbitrumone_Bytes
+  canonicalId_lt: localarbitrumone_Bytes
+  canonicalId_gte: localarbitrumone_Bytes
+  canonicalId_lte: localarbitrumone_Bytes
   canonicalId_in: [localarbitrumone_Bytes!]
   canonicalId_not_in: [localarbitrumone_Bytes!]
   canonicalId_contains: localarbitrumone_Bytes
@@ -1054,6 +1228,10 @@ input localarbitrumone_OriginTransfer_filter {
   asset_: localarbitrumone_Asset_filter
   transactingAsset: localarbitrumone_Bytes
   transactingAsset_not: localarbitrumone_Bytes
+  transactingAsset_gt: localarbitrumone_Bytes
+  transactingAsset_lt: localarbitrumone_Bytes
+  transactingAsset_gte: localarbitrumone_Bytes
+  transactingAsset_lte: localarbitrumone_Bytes
   transactingAsset_in: [localarbitrumone_Bytes!]
   transactingAsset_not_in: [localarbitrumone_Bytes!]
   transactingAsset_contains: localarbitrumone_Bytes
@@ -1096,18 +1274,30 @@ input localarbitrumone_OriginTransfer_filter {
   relayerFees_: localarbitrumone_RelayerFee_filter
   initialRelayerFeeAsset: localarbitrumone_Bytes
   initialRelayerFeeAsset_not: localarbitrumone_Bytes
+  initialRelayerFeeAsset_gt: localarbitrumone_Bytes
+  initialRelayerFeeAsset_lt: localarbitrumone_Bytes
+  initialRelayerFeeAsset_gte: localarbitrumone_Bytes
+  initialRelayerFeeAsset_lte: localarbitrumone_Bytes
   initialRelayerFeeAsset_in: [localarbitrumone_Bytes!]
   initialRelayerFeeAsset_not_in: [localarbitrumone_Bytes!]
   initialRelayerFeeAsset_contains: localarbitrumone_Bytes
   initialRelayerFeeAsset_not_contains: localarbitrumone_Bytes
   caller: localarbitrumone_Bytes
   caller_not: localarbitrumone_Bytes
+  caller_gt: localarbitrumone_Bytes
+  caller_lt: localarbitrumone_Bytes
+  caller_gte: localarbitrumone_Bytes
+  caller_lte: localarbitrumone_Bytes
   caller_in: [localarbitrumone_Bytes!]
   caller_not_in: [localarbitrumone_Bytes!]
   caller_contains: localarbitrumone_Bytes
   caller_not_contains: localarbitrumone_Bytes
   transactionHash: localarbitrumone_Bytes
   transactionHash_not: localarbitrumone_Bytes
+  transactionHash_gt: localarbitrumone_Bytes
+  transactionHash_lt: localarbitrumone_Bytes
+  transactionHash_gte: localarbitrumone_Bytes
+  transactionHash_lte: localarbitrumone_Bytes
   transactionHash_in: [localarbitrumone_Bytes!]
   transactionHash_not_in: [localarbitrumone_Bytes!]
   transactionHash_contains: localarbitrumone_Bytes
@@ -1146,6 +1336,10 @@ input localarbitrumone_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: localarbitrumone_Bytes
   txOrigin_not: localarbitrumone_Bytes
+  txOrigin_gt: localarbitrumone_Bytes
+  txOrigin_lt: localarbitrumone_Bytes
+  txOrigin_gte: localarbitrumone_Bytes
+  txOrigin_lte: localarbitrumone_Bytes
   txOrigin_in: [localarbitrumone_Bytes!]
   txOrigin_not_in: [localarbitrumone_Bytes!]
   txOrigin_contains: localarbitrumone_Bytes
@@ -1160,6 +1354,8 @@ input localarbitrumone_OriginTransfer_filter {
   txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_OriginTransfer_filter]
+  or: [localarbitrumone_OriginTransfer_filter]
 }
 
 enum localarbitrumone_OriginTransfer_orderBy {
@@ -1182,8 +1378,25 @@ enum localarbitrumone_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   transactingAsset
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   bumpRelayerFeeCount
   relayerFees
   initialRelayerFeeAsset
@@ -1723,17 +1936,52 @@ input localarbitrumone_RelayerFee_filter {
   fee_not_in: [BigInt!]
   asset: localarbitrumone_Bytes
   asset_not: localarbitrumone_Bytes
+  asset_gt: localarbitrumone_Bytes
+  asset_lt: localarbitrumone_Bytes
+  asset_gte: localarbitrumone_Bytes
+  asset_lte: localarbitrumone_Bytes
   asset_in: [localarbitrumone_Bytes!]
   asset_not_in: [localarbitrumone_Bytes!]
   asset_contains: localarbitrumone_Bytes
   asset_not_contains: localarbitrumone_Bytes
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_RelayerFee_filter]
+  or: [localarbitrumone_RelayerFee_filter]
 }
 
 enum localarbitrumone_RelayerFee_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -1791,18 +2039,30 @@ input localarbitrumone_RelayerFeesIncrease_filter {
   increase_not_in: [BigInt!]
   asset: localarbitrumone_Bytes
   asset_not: localarbitrumone_Bytes
+  asset_gt: localarbitrumone_Bytes
+  asset_lt: localarbitrumone_Bytes
+  asset_gte: localarbitrumone_Bytes
+  asset_lte: localarbitrumone_Bytes
   asset_in: [localarbitrumone_Bytes!]
   asset_not_in: [localarbitrumone_Bytes!]
   asset_contains: localarbitrumone_Bytes
   asset_not_contains: localarbitrumone_Bytes
   caller: localarbitrumone_Bytes
   caller_not: localarbitrumone_Bytes
+  caller_gt: localarbitrumone_Bytes
+  caller_lt: localarbitrumone_Bytes
+  caller_gte: localarbitrumone_Bytes
+  caller_lte: localarbitrumone_Bytes
   caller_in: [localarbitrumone_Bytes!]
   caller_not_in: [localarbitrumone_Bytes!]
   caller_contains: localarbitrumone_Bytes
   caller_not_contains: localarbitrumone_Bytes
   transactionHash: localarbitrumone_Bytes
   transactionHash_not: localarbitrumone_Bytes
+  transactionHash_gt: localarbitrumone_Bytes
+  transactionHash_lt: localarbitrumone_Bytes
+  transactionHash_gte: localarbitrumone_Bytes
+  transactionHash_lte: localarbitrumone_Bytes
   transactionHash_in: [localarbitrumone_Bytes!]
   transactionHash_not_in: [localarbitrumone_Bytes!]
   transactionHash_contains: localarbitrumone_Bytes
@@ -1841,11 +2101,42 @@ input localarbitrumone_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_RelayerFeesIncrease_filter]
+  or: [localarbitrumone_RelayerFeesIncrease_filter]
 }
 
 enum localarbitrumone_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -1871,12 +2162,18 @@ input localarbitrumone_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: localarbitrumone_Bytes
   relayer_not: localarbitrumone_Bytes
+  relayer_gt: localarbitrumone_Bytes
+  relayer_lt: localarbitrumone_Bytes
+  relayer_gte: localarbitrumone_Bytes
+  relayer_lte: localarbitrumone_Bytes
   relayer_in: [localarbitrumone_Bytes!]
   relayer_not_in: [localarbitrumone_Bytes!]
   relayer_contains: localarbitrumone_Bytes
   relayer_not_contains: localarbitrumone_Bytes
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_Relayer_filter]
+  or: [localarbitrumone_Relayer_filter]
 }
 
 enum localarbitrumone_Relayer_orderBy {
@@ -1909,6 +2206,8 @@ input localarbitrumone_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_RootCount_filter]
+  or: [localarbitrumone_RootCount_filter]
 }
 
 enum localarbitrumone_RootCount_orderBy {
@@ -1957,6 +2256,10 @@ input localarbitrumone_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: localarbitrumone_Bytes
   root_not: localarbitrumone_Bytes
+  root_gt: localarbitrumone_Bytes
+  root_lt: localarbitrumone_Bytes
+  root_gte: localarbitrumone_Bytes
+  root_lte: localarbitrumone_Bytes
   root_in: [localarbitrumone_Bytes!]
   root_not_in: [localarbitrumone_Bytes!]
   root_contains: localarbitrumone_Bytes
@@ -1971,12 +2274,20 @@ input localarbitrumone_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: localarbitrumone_Bytes
   caller_not: localarbitrumone_Bytes
+  caller_gt: localarbitrumone_Bytes
+  caller_lt: localarbitrumone_Bytes
+  caller_gte: localarbitrumone_Bytes
+  caller_lte: localarbitrumone_Bytes
   caller_in: [localarbitrumone_Bytes!]
   caller_not_in: [localarbitrumone_Bytes!]
   caller_contains: localarbitrumone_Bytes
   caller_not_contains: localarbitrumone_Bytes
   transactionHash: localarbitrumone_Bytes
   transactionHash_not: localarbitrumone_Bytes
+  transactionHash_gt: localarbitrumone_Bytes
+  transactionHash_lt: localarbitrumone_Bytes
+  transactionHash_gte: localarbitrumone_Bytes
+  transactionHash_lte: localarbitrumone_Bytes
   transactionHash_in: [localarbitrumone_Bytes!]
   transactionHash_not_in: [localarbitrumone_Bytes!]
   transactionHash_contains: localarbitrumone_Bytes
@@ -2015,6 +2326,8 @@ input localarbitrumone_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_RootMessageSent_filter]
+  or: [localarbitrumone_RootMessageSent_filter]
 }
 
 enum localarbitrumone_RootMessageSent_orderBy {
@@ -2118,12 +2431,28 @@ input localarbitrumone_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_RouterDailyTVL_filter]
+  or: [localarbitrumone_RouterDailyTVL_filter]
 }
 
 enum localarbitrumone_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
 }
@@ -2143,18 +2472,30 @@ input localarbitrumone_Router_filter {
   isActive_not_in: [Boolean!]
   owner: localarbitrumone_Bytes
   owner_not: localarbitrumone_Bytes
+  owner_gt: localarbitrumone_Bytes
+  owner_lt: localarbitrumone_Bytes
+  owner_gte: localarbitrumone_Bytes
+  owner_lte: localarbitrumone_Bytes
   owner_in: [localarbitrumone_Bytes!]
   owner_not_in: [localarbitrumone_Bytes!]
   owner_contains: localarbitrumone_Bytes
   owner_not_contains: localarbitrumone_Bytes
   recipient: localarbitrumone_Bytes
   recipient_not: localarbitrumone_Bytes
+  recipient_gt: localarbitrumone_Bytes
+  recipient_lt: localarbitrumone_Bytes
+  recipient_gte: localarbitrumone_Bytes
+  recipient_lte: localarbitrumone_Bytes
   recipient_in: [localarbitrumone_Bytes!]
   recipient_not_in: [localarbitrumone_Bytes!]
   recipient_contains: localarbitrumone_Bytes
   recipient_not_contains: localarbitrumone_Bytes
   proposedOwner: localarbitrumone_Bytes
   proposedOwner_not: localarbitrumone_Bytes
+  proposedOwner_gt: localarbitrumone_Bytes
+  proposedOwner_lt: localarbitrumone_Bytes
+  proposedOwner_gte: localarbitrumone_Bytes
+  proposedOwner_lte: localarbitrumone_Bytes
   proposedOwner_in: [localarbitrumone_Bytes!]
   proposedOwner_not_in: [localarbitrumone_Bytes!]
   proposedOwner_contains: localarbitrumone_Bytes
@@ -2170,6 +2511,8 @@ input localarbitrumone_Router_filter {
   assetBalances_: localarbitrumone_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_Router_filter]
+  or: [localarbitrumone_Router_filter]
 }
 
 enum localarbitrumone_Router_orderBy {
@@ -2203,12 +2546,18 @@ input localarbitrumone_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: localarbitrumone_Bytes
   sequencer_not: localarbitrumone_Bytes
+  sequencer_gt: localarbitrumone_Bytes
+  sequencer_lt: localarbitrumone_Bytes
+  sequencer_gte: localarbitrumone_Bytes
+  sequencer_lte: localarbitrumone_Bytes
   sequencer_in: [localarbitrumone_Bytes!]
   sequencer_not_in: [localarbitrumone_Bytes!]
   sequencer_contains: localarbitrumone_Bytes
   sequencer_not_contains: localarbitrumone_Bytes
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_Sequencer_filter]
+  or: [localarbitrumone_Sequencer_filter]
 }
 
 enum localarbitrumone_Sequencer_orderBy {
@@ -2242,12 +2591,18 @@ input localarbitrumone_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: localarbitrumone_Bytes
   caller_not: localarbitrumone_Bytes
+  caller_gt: localarbitrumone_Bytes
+  caller_lt: localarbitrumone_Bytes
+  caller_gte: localarbitrumone_Bytes
+  caller_lte: localarbitrumone_Bytes
   caller_in: [localarbitrumone_Bytes!]
   caller_not_in: [localarbitrumone_Bytes!]
   caller_contains: localarbitrumone_Bytes
   caller_not_contains: localarbitrumone_Bytes
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_Setting_filter]
+  or: [localarbitrumone_Setting_filter]
 }
 
 enum localarbitrumone_Setting_orderBy {
@@ -2308,12 +2663,20 @@ input localarbitrumone_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: localarbitrumone_Bytes
   caller_not: localarbitrumone_Bytes
+  caller_gt: localarbitrumone_Bytes
+  caller_lt: localarbitrumone_Bytes
+  caller_gte: localarbitrumone_Bytes
+  caller_lte: localarbitrumone_Bytes
   caller_in: [localarbitrumone_Bytes!]
   caller_not_in: [localarbitrumone_Bytes!]
   caller_contains: localarbitrumone_Bytes
   caller_not_contains: localarbitrumone_Bytes
   transactionHash: localarbitrumone_Bytes
   transactionHash_not: localarbitrumone_Bytes
+  transactionHash_gt: localarbitrumone_Bytes
+  transactionHash_lt: localarbitrumone_Bytes
+  transactionHash_gte: localarbitrumone_Bytes
+  transactionHash_lte: localarbitrumone_Bytes
   transactionHash_in: [localarbitrumone_Bytes!]
   transactionHash_not_in: [localarbitrumone_Bytes!]
   transactionHash_contains: localarbitrumone_Bytes
@@ -2352,11 +2715,49 @@ input localarbitrumone_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localarbitrumone_BlockChangedFilter
+  and: [localarbitrumone_SlippageUpdate_filter]
+  or: [localarbitrumone_SlippageUpdate_filter]
 }
 
 enum localarbitrumone_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__executedTxNonce
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2852,6 +3253,8 @@ type localarbitrumone__Block_ {
   hash: localarbitrumone_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""

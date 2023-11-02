@@ -2,3 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AdminHubConnector__factory } from "./AdminHubConnector__factory";
+export { AdminMainnetSpokeConnector__factory } from "./AdminMainnetSpokeConnector__factory";
+export { AdminSpokeConnector__factory } from "./AdminSpokeConnector__factory";
