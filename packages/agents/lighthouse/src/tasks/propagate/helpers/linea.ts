@@ -43,8 +43,9 @@ export const getPropagateParams = async (
   // On linea-goerli claimMessage gasLimit was 83717
   // https://goerli.lineascan.build/tx/0x4c477dfcbc22cd99b461cfe714a6ad60796331d3c13e55a74a6de51c3cd9aab6
   const gasLimit = BigNumber.from("120000");
+  const margin = BigNumber.from(1);
 
-  const _fee = gasPrice.mul(gasLimit).toString();
+  const _fee = gasPrice.mul(gasLimit).mul(margin).toString();
 
   logger.info("Got propagate params for Linea", requestContext, methodContext, {
     gasPrice: gasPrice.toString(),

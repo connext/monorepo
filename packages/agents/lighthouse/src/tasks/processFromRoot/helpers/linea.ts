@@ -15,7 +15,7 @@ export const getProcessFromLineaRootArgs = async ({
   message: _message,
   sendHash,
   _requestContext,
-}: GetProcessArgsParams): Promise<[BigNumber, string]> => {
+}: GetProcessArgsParams): Promise<[string, BigNumber]> => {
   const { logger } = getContext();
   const { requestContext, methodContext } = createLoggingContext(getProcessFromLineaRootArgs.name, _requestContext);
   logger.info("Method start", requestContext, methodContext);
@@ -50,7 +50,7 @@ export const getProcessFromLineaRootArgs = async ({
       messageStatus,
     });
   } else if (messageStatus === "CLAIMABLE") {
-    return [messages[0].messageNonce, messages[0].calldata];
+    return [messages[0].calldata, messages[0].messageNonce];
   } else {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `Linea Unknown message status`,
