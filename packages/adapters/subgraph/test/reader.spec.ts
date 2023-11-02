@@ -870,7 +870,10 @@ describe("SubgraphReader", () => {
       response.set("1111", [snapshot]);
       executeStub.resolves(response);
 
-      const graphSnapshot = await subgraphReader.getFinalizedRootsByDomain([{ hub: "1111", timestamp: 1, limit: 100 }]);
+      const graphSnapshot = await subgraphReader.getFinalizedRootsByDomain(
+        [{ domain: "1111", timestamp: 1, limit: 100, maxBlockNumber: 1000 }],
+        false,
+      );
       expect(graphSnapshot[0]).to.deep.eq(snapshot);
     });
   });
