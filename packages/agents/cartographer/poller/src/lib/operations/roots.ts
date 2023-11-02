@@ -80,7 +80,7 @@ export const updateProposedSnapshots = async () => {
       const mainnetSpokeOptimisticRoots: SpokeOptimisticRoot[] = [];
       for (const snapshot of snapshots) {
         const mainnetSpokeOptimisticRoot: SpokeOptimisticRoot = {
-          id: snapshot.id,
+          id: `${snapshot.aggregateRoot}-${snapshot.proposedTimestamp}`,
           aggregateRoot: snapshot.aggregateRoot,
           rootTimestamp: snapshot.proposedTimestamp,
           endOfDispute: snapshot.endOfDispute,
