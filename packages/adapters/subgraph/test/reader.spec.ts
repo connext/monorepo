@@ -607,7 +607,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
-        { hub: "1111", index: 0, limit: 100 },
+        { hub: "1111", index: 0, limit: 100, maxBlockNumber: 10000 },
       ]);
       expect(aggregatedRoots).to.be.deep.eq(
         roots.map((r) => {
@@ -623,7 +623,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [root]);
       executeStub.resolves(response);
 
-      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100);
+      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100, 1000);
       expect(propagatedRoots).to.be.deep.eq([root]);
     });
   });
@@ -684,7 +684,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getReceivedAggregatedRootsByDomain([
-        { domain: "1111", offset: 0, limit: 100 },
+        { domain: "1111", offset: 0, limit: 100, maxBlockNumber: 1000 },
       ]);
       expect(aggregatedRoots).to.be.deep.eq(
         roots.map((r) => {
@@ -843,7 +843,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const graphSnapshot = await subgraphReader.getProposedSnapshotsByDomain([
-        { hub: "1111", snapshotId: 1, limit: 100 },
+        { hub: "1111", snapshotId: 1, limit: 100, maxBlockNumber: 1000 },
       ]);
       expect(graphSnapshot[0].aggregateRoot).to.be.eq(snapshot.aggregateRoot);
     });
@@ -857,7 +857,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const graphSnapshot = await subgraphReader.getSavedSnapshotRootsByDomain([
-        { hub: "1111", snapshotId: 1, limit: 100 },
+        { hub: "1111", snapshotId: 1, limit: 100, maxBlockNumber: 1000 },
       ]);
       expect(graphSnapshot[0]).to.deep.eq(snapshot);
     });
@@ -886,7 +886,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const graphSnapshot = await subgraphReader.getPropagatedOptimisticRootsByDomain([
-        { hub: "1111", timestamp: 1, limit: 100 },
+        { hub: "1111", timestamp: 1, limit: 100, maxBlockNumber: 1000 },
       ]);
       expect(graphSnapshot[0]).to.deep.eq(snapshot);
     });
@@ -899,7 +899,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [root]);
       executeStub.resolves(response);
 
-      const roots = await subgraphReader.getGetPropagatedRoots("1111", 1, 100);
+      const roots = await subgraphReader.getGetPropagatedRoots("1111", 1, 100, 1000);
       expect(roots[0]).to.deep.eq(root);
     });
   });
