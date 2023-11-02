@@ -74,13 +74,13 @@ export class NoSnapshotRoot extends NxtpError {
   }
 }
 
-export class LatestPropagatedSnapshot extends NxtpError {
+export class LatestFinalizedSnapshot extends NxtpError {
   constructor(
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`Latest propagated snapshot not available for hub domain`, {
+    super(`Latest finalized snapshot not available on hub domain`, {
       ...context,
       requestContext,
       methodContext,
