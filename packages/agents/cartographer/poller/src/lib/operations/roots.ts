@@ -155,7 +155,10 @@ export const updateFinalizedRoots = async () => {
       limit: limit,
     });
 
-    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([{ hub, timestamp, limit }]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain(
+      [{ domain: hub, timestamp, limit }],
+      true,
+    );
 
     // Reset offset at the end of the cycle.
     const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;
@@ -187,9 +190,10 @@ export const updateFinalizedSpokeRoots = async () => {
       limit: limit,
     });
 
-    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
-      { hub: domain, timestamp, limit },
-    ]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain(
+      [{ domain, timestamp, limit }],
+      false,
+    );
 
     // Reset offset at the end of the cycle.
     const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;

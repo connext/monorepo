@@ -1162,13 +1162,17 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
   `;
 };
 
-export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp: number; limit: number }[]) => {
+export const getFinalizedRootsByDomainQuery = (
+  params: { domain: string; timestamp: number; limit: number }[],
+  isHub: boolean,
+) => {
   const { config } = getContext();
   let combinedQuery = "";
+  const entityName = isHub ? "hubOptimisticRootFinalizeds" : "optimisticRootFinalizeds";
   for (const param of params) {
-    const prefix = config.sources[param.hub].prefix;
+    const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_optimisticRootFinalizeds ( 
+    ${prefix}_${entityName} ( 
       first: ${param.limit}, 
       where: { 
         timestamp_gt: ${param.timestamp}

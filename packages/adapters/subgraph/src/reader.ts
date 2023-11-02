@@ -937,10 +937,11 @@ export class SubgraphReader {
    * Gets all the finalized roots
    */
   public async getFinalizedRootsByDomain(
-    params: { hub: string; timestamp: number; limit: number }[],
+    params: { domain: string; timestamp: number; limit: number }[],
+    isHub: boolean,
   ): Promise<OptimisticRootFinalized[]> {
     const { parser, execute } = getHelpers();
-    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params);
+    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params, isHub);
     const response = await execute(finalizedRootsByDomainQuery);
 
     const _roots: any[] = [];
