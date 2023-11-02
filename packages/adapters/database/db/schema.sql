@@ -798,7 +798,8 @@ CREATE TABLE public.snapshot_roots (
     spoke_domain integer NOT NULL,
     root character(66) NOT NULL,
     count integer NOT NULL,
-    processed boolean DEFAULT false NOT NULL
+    processed boolean DEFAULT false NOT NULL,
+    "timestamp" integer NOT NULL
 );
 
 
@@ -817,7 +818,9 @@ CREATE TABLE public.snapshots (
     status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
     propagate_timestamp integer,
     propagate_task_id character(66),
-    relayer_type text
+    relayer_type text,
+    proposed_timestamp integer,
+    finalized_timestamp integer
 );
 
 
@@ -1368,10 +1371,10 @@ CREATE INDEX spoke_optimistic_roots_domain_idx ON public.spoke_optimistic_roots 
 
 
 --
--- Name: spoke_optimistic_roots_domain_root_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: spoke_optimistic_roots_domain_root_propose_timestamp_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_idx ON public.spoke_optimistic_roots USING btree (domain, root);
+CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_propose_timestamp_idx ON public.spoke_optimistic_roots USING btree (domain, root, propose_timestamp);
 
 
 --
@@ -1572,4 +1575,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230608174759'),
     ('20230613125451'),
     ('20231012233640'),
-    ('20231020201556');
+    ('20231020201556'),
+    ('20231031081722'),
+    ('20231031145848'),
+    ('20231102213156');

@@ -171,6 +171,7 @@ const convertToDbSnapshotRoot = (root: SnapshotRoot): s.snapshot_roots.Insertabl
     root: root.root,
     spoke_domain: root.spokeDomain,
     count: root.count,
+    timestamp: root.timestamp,
   };
 };
 
@@ -1042,12 +1043,12 @@ export const getFinalizedSnapshot = async (
 export const getLatestPendingSnapshotRootByDomain = async (
   spoke_domain: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
+): Promise<SnapshotRoot | undefined> => {
   const poolToUse = _pool ?? pool;
   const snapshot = await db
     .select("snapshot_roots", { processed: false, spoke_domain }, { limit: 1, order: { by: "id", direction: "DESC" } })
     .run(poolToUse);
-  return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]).root : undefined;
+  return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]) : undefined;
 };
 
 export const getLatestPendingSpokeOptimisticRootByDomain = async (

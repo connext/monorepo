@@ -36,7 +36,7 @@ export class NoMerkleTreeAddress extends NxtpError {
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No spokeconnector for domain ${hubDomain}`, {
+    super(`No MerkleTreeManager for domain ${hubDomain}`, {
       ...context,
       requestContext,
       methodContext,

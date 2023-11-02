@@ -704,4 +704,5 @@ export const mock = {
       },
     },
   },
+  snapshotDuration: 1800,
 };

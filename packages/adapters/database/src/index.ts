@@ -245,7 +245,7 @@ export type Database = {
   getLatestPendingSnapshotRootByDomain: (
     spoke_domain: number,
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  ) => Promise<SnapshotRoot | undefined>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,

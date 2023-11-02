@@ -87,7 +87,7 @@ export const mockDatabase = (): Database => {
     getAggregateRoot: stub().resolves(),
     getRootMessage: stub().resolves(),
     getMessageByRoot: stub().resolves(),
-    getLatestPendingSnapshotRootByDomain: stub().resolves([mock.entity.snapshotRoot().root]),
+    getLatestPendingSnapshotRootByDomain: stub().resolves([mock.entity.snapshotRoot()]),
     getCurrentProposedOptimisticRoot: stub().resolves([mock.entity.spokeOptimisticRoot()]),
     getLatestFinalizedOptimisticRoot: stub().resolves([mock.entity.spokeOptimisticRoot()]),
     getSpokeOptimisticRoot: stub().resolves([mock.entity.spokeOptimisticRoot()]),

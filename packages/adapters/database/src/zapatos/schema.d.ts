@@ -4626,6 +4626,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `false`
       */
       processed: boolean;
+      /**
+      * **snapshot_roots.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number;
     }
     export interface JSONSelectable {
       /**
@@ -4658,6 +4664,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `false`
       */
       processed: boolean;
+      /**
+      * **snapshot_roots.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number;
     }
     export interface Whereable {
       /**
@@ -4690,6 +4702,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `false`
       */
       processed?: boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **snapshot_roots.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4722,6 +4740,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `false`
       */
       processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment;
+      /**
+      * **snapshot_roots.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp: number | db.Parameter<number> | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4754,6 +4778,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, default: `false`
       */
       processed?: boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, boolean | db.Parameter<boolean> | db.DefaultType | db.SQLFragment>;
+      /**
+      * **snapshot_roots.timestamp**
+      * - `int4` in database
+      * - `NOT NULL`, no default
+      */
+      timestamp?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
     }
     export type UniqueIndex = 'snapshot_roots_pkey';
     export type Column = keyof Selectable;
