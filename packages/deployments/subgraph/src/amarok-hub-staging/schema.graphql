@@ -41,7 +41,7 @@ type OptimisticRootProposed @entity {
   timestamp: BigInt!
 }
 
-type OptimisticRootFinalized @entity {
+type HubOptimisticRootFinalized @entity {
   id: ID!
   aggregateRoot: Bytes!
   timestamp: BigInt!

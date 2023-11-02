@@ -275,7 +275,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
   }
 
   const encodedData = contracts.rootManager.encodeFunctionData("validAggregateRoots", [
-    BigNumber.from(rootTimestamp).toString(),
+    (rootTimestamp as BigNumber).toString(),
   ]);
   let _onChainRoot: any;
   try {

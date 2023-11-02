@@ -19,7 +19,7 @@ import {
   RootManagerMeta,
   RootManagerMode,
   OptimisticRootProposed,
-  OptimisticRootFinalized,
+  HubOptimisticRootFinalized,
   AggregateRootSavedSlow,
 } from "../../../generated/schema";
 
@@ -82,10 +82,10 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
 }
 
 export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOptimisticEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
-  let snapshot = OptimisticRootFinalized.load(key);
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.block.timestamp.toString()}`;
+  let snapshot = HubOptimisticRootFinalized.load(key);
   if (snapshot == null) {
-    snapshot = new OptimisticRootFinalized(key);
+    snapshot = new HubOptimisticRootFinalized(key);
   }
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.timestamp = event.params.rootTimestamp;
