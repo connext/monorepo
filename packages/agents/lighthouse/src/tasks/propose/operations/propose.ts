@@ -89,7 +89,11 @@ export const proposeHub = async () => {
           latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
 
           const messageRootCount = await database.getMessageRootCount(domain, latestSnapshotRoot);
-          if (messageRootCount) {
+          if (
+            messageRootCount &&
+            snapshotRoot.root.toLowerCase() != latestSnapshotRoot.toLowerCase() &&
+            snapshotRoot.count != messageRootCount
+          ) {
             logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
               domain,
               count: messageRootCount + 1,
