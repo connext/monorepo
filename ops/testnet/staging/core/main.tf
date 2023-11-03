@@ -68,15 +68,15 @@ module "router_publisher" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = local.router_env_vars
+  container_env_vars       = local.router_publisher_env_vars
 }
 
 module "router_executor" {
@@ -209,14 +209,16 @@ module "sequencer_publisher" {
 }
 
 module "sequencer_publisher_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_publisher.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_publisher.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 1
+  max_capacity               = 30
 }
 
 module "sequencer_subscriber" {
@@ -237,9 +239,9 @@ module "sequencer_subscriber" {
   health_check_path        = "/ping"
   container_port           = 8083
   loadbalancer_port        = 80
-  cpu                      = 2048
-  memory                   = 4096
-  instance_count           = 3
+  cpu                      = 4096
+  memory                   = 8192
+  instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -249,14 +251,16 @@ module "sequencer_subscriber" {
 }
 
 module "sequencer_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 3
-  max_capacity     = 10
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 1
+  max_capacity               = 10
 }
 
 module "sequencer_web3signer" {
@@ -336,14 +340,16 @@ module "lighthouse_prover_subscriber" {
 }
 
 module "lighthouse_prover_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.lighthouse_prover_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  min_capacity               = 2
+  max_capacity               = 30
+  avg_cpu_utilization_target = 20
+  avg_mem_utilization_target = 40
 }
 
 module "lighthouse_process_from_root_cron" {
