@@ -36,7 +36,7 @@ export class NoMerkleTreeAddress extends NxtpError {
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`No spokeconnector for domain ${hubDomain}`, {
+    super(`No MerkleTreeManager for domain ${hubDomain}`, {
       ...context,
       requestContext,
       methodContext,
@@ -74,13 +74,13 @@ export class NoSnapshotRoot extends NxtpError {
   }
 }
 
-export class LatestPropagatedSnapshot extends NxtpError {
+export class LatestFinalizedSnapshot extends NxtpError {
   constructor(
     public readonly requestContext: RequestContext,
     public readonly methodContext: MethodContext,
     public readonly context: any = {},
   ) {
-    super(`Latest propagated snapshot not available for hub domain`, {
+    super(`Latest finalized snapshot not available on hub domain`, {
       ...context,
       requestContext,
       methodContext,

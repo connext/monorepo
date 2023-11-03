@@ -1604,7 +1604,7 @@ describe("Database client", () => {
     await saveSnapshotRoots(roots, pool);
 
     const dbRootLast = await getLatestPendingSnapshotRootByDomain(+roots[batchSize - 1].spokeDomain, pool);
-    expect(dbRootLast).to.eq(roots[batchSize - 1].root);
+    expect(dbRootLast?.root).to.eq(roots[batchSize - 1].root);
   });
 
   it("should save and get snapshots", async () => {

@@ -483,6 +483,7 @@ export const convertFromDbSnapshotRoot = (snapshot: any): SnapshotRoot => {
     spokeDomain: snapshot.spoke_domain,
     root: snapshot.root,
     count: snapshot.count,
+    timestamp: snapshot.timestamp,
   };
 };
 

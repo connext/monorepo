@@ -145,7 +145,7 @@ export const SnapshotRootSchema = Type.Object({
   spokeDomain: Type.Number(),
   root: Type.String(),
   count: Type.Number(),
-  timestamp: Type.Optional(Type.Number()),
+  timestamp: Type.Number(),
   blockNumber: Type.Optional(Type.Number()),
 });
 export type SnapshotRoot = Static<typeof SnapshotRootSchema>;

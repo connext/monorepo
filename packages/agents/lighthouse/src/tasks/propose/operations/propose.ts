@@ -67,7 +67,7 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  const latestSnapshotId: string = Math.floor(getNtpTimeSeconds() / config.snapshotDuration).toString();
+  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration);
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
   });
@@ -79,9 +79,35 @@ export const proposeHub = async () => {
     // Sort the snapshot roots in the order of root manager domains
     await Promise.all(
       rootManagerDomains.map(async (domain) => {
-        const latestSnapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain);
-        if (!latestSnapshotRoot) {
+        let latestSnapshotRoot: string;
+        const snapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain);
+        if (!snapshotRoot) {
           throw new NoSnapshotRoot(domain, requestContext, methodContext);
+        }
+        const latestDbSnapshotId = Math.floor(snapshotRoot.timestamp / config.snapshotDuration);
+        if (latestSnapshotId > latestDbSnapshotId) {
+          latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
+
+          const messageRootCount = await database.getMessageRootCount(domain, latestSnapshotRoot);
+          if (messageRootCount) {
+            logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
+              domain,
+              count: messageRootCount + 1,
+              latestDbSnapshotId,
+              latestSnapshotId,
+            });
+            await database.saveSnapshotRoots([
+              {
+                id: latestSnapshotId.toString(),
+                spokeDomain: +domain,
+                root: latestSnapshotRoot,
+                count: messageRootCount + 1,
+                timestamp: getNtpTimeSeconds(),
+              },
+            ]);
+          }
+        } else {
+          latestSnapshotRoot = snapshotRoot.root;
         }
         snapshotRoots.set(domain, latestSnapshotRoot);
       }),
@@ -91,7 +117,7 @@ export const proposeHub = async () => {
       orderedSnapshotRoots.push(snapshotRoots.get(domain)!);
     });
 
-    await proposeSnapshot(latestSnapshotId, orderedSnapshotRoots, rootManagerDomains, requestContext);
+    await proposeSnapshot(latestSnapshotId.toString(), orderedSnapshotRoots, rootManagerDomains, requestContext);
   } catch (err: unknown) {
     logger.error(
       "Error proposing snapshot on proposeHub",
@@ -264,7 +290,7 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
       requestContext,
       methodContext,
       jsonifyError(err as NxtpError),
-      { rootTimestamp: rootTimestamp.toString() },
+      { rootTimestamp },
     );
     // Cannot proceed without the latest lastSavedAggregateRootTimestamp.
     return false;
@@ -325,4 +351,55 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
 
   // All checks passed, can propose the aggregate root.
   return true;
+};
+
+export const getCurrentOutboundRoot = async (domain: string, _requestContext: RequestContext): Promise<string> => {
+  const {
+    logger,
+    config,
+    chainData,
+    adapters: { chainreader, contracts },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getCurrentOutboundRoot.name, _requestContext);
+  logger.info("Fetching outboundRoot from spoke connector", requestContext, methodContext, { domain });
+
+  const domainChainId = chainData.get(domain)?.chainId;
+  if (!domainChainId) {
+    throw new NoChainIdForDomain(domain, requestContext, methodContext);
+  }
+
+  // Find the latest snapshot ID.
+  const spokeConnector = config.chains[domain]?.deployments.spokeConnector;
+  if (!spokeConnector) {
+    throw new NoSpokeConnector(domain, requestContext, methodContext);
+  }
+
+  let currentOutboundRoot: string;
+  const idEncodedData = contracts.spokeConnector.encodeFunctionData("outboundRoot");
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +domain,
+      to: spokeConnector,
+      data: idEncodedData,
+    });
+
+    const [_currentOutboundRoot] = contracts.spokeConnector.decodeFunctionResult("outboundRoot", idResultData);
+    currentOutboundRoot = _currentOutboundRoot.toString();
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the outbound root from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the current outbound root.
+    throw err as NxtpError;
+  }
+
+  logger.info("Got the current outboundRoot from spoke connector", requestContext, methodContext, {
+    currentOutboundRoot,
+    domain,
+  });
+
+  return currentOutboundRoot;
 };

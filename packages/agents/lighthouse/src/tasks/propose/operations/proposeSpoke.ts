@@ -2,7 +2,7 @@ import { createLoggingContext, NxtpError, RequestContext, jsonifyError, domainTo
 import { BigNumber } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, LatestPropagatedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
+import { NoChainIdForDomain, LatestFinalizedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
 import { getContext } from "../propose";
 
 export type ExtraPropagateParam = {
@@ -23,7 +23,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
   const { requestContext, methodContext } = createLoggingContext(proposeSpoke.name);
   const latestFinalizedSnapshot = await database.getCurrentFinalizedSnapshot();
   if (!latestFinalizedSnapshot) {
-    throw new LatestPropagatedSnapshot(requestContext, methodContext);
+    throw new LatestFinalizedSnapshot(requestContext, methodContext);
   }
   if (!latestFinalizedSnapshot.finalizedTimestamp) {
     throw new NoRootTimestamp(latestFinalizedSnapshot.aggregateRoot, requestContext, methodContext);
