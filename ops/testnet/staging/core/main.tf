@@ -68,15 +68,15 @@ module "router_publisher" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = local.router_env_vars
+  container_env_vars       = local.router_publisher_env_vars
 }
 
 module "router_executor" {

@@ -21,6 +21,10 @@ locals {
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
+  router_publisher_env_vars = concat(
+    local.router_env_vars, [
+      { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
+  ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,
@@ -250,7 +254,7 @@ locals {
       "1734439522" = {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
-     "1668247156" = {
+      "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
       }
     }
