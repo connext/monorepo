@@ -349,8 +349,8 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   ecs_cluster_name           = module.ecs.ecs_cluster_name
   min_capacity               = 10
   max_capacity               = 200
-  avg_cpu_utilization_target = 10
-  avg_mem_utilization_target = 15
+  avg_cpu_utilization_target = 20
+  avg_mem_utilization_target = 40
 }
 
 module "lighthouse_process_from_root_cron" {
