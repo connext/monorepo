@@ -289,10 +289,12 @@ type AggregateRootProposed @entity {
   endOfDispute: BigInt!
   domain: BigInt!
   timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 type OptimisticRootFinalized @entity {
   id: ID!
   aggregateRoot: Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt
 }

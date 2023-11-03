@@ -87,6 +87,25 @@ export const proposeHub = async () => {
         const latestDbSnapshotId = Math.floor(snapshotRoot.timestamp / config.snapshotDuration);
         if (latestSnapshotId > latestDbSnapshotId) {
           latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
+
+          const messageRootCount = await database.getMessageRootCount(domain, latestSnapshotRoot);
+          if (messageRootCount) {
+            logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
+              domain,
+              count: messageRootCount + 1,
+              latestDbSnapshotId,
+              latestSnapshotId,
+            });
+            await database.saveSnapshotRoots([
+              {
+                id: latestSnapshotId.toString(),
+                spokeDomain: +domain,
+                root: latestSnapshotRoot,
+                count: messageRootCount + 1,
+                timestamp: getNtpTimeSeconds(),
+              },
+            ]);
+          }
         } else {
           latestSnapshotRoot = snapshotRoot.root;
         }

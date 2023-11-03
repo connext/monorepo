@@ -140,6 +140,7 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   instance.endOfDispute = event.params.endOfDispute;
   instance.domain = event.params.domain;
   instance.timestamp = event.block.timestamp;
+  instance.blockNumber = event.block.number;
 
   instance.save();
 }
@@ -152,6 +153,7 @@ export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): 
   }
   instance.aggregateRoot = event.params.aggregateRoot;
   instance.timestamp = event.block.timestamp;
+  instance.blockNumber = event.block.number;
 
   instance.save();
 }

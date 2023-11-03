@@ -89,6 +89,7 @@ export type staginggoerli_AggregatedMessageRoot = {
   index: Scalars['BigInt'];
   receivedRoot: Scalars['staginggoerli_Bytes'];
   domain?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_AggregatedMessageRoot_filter = {
@@ -126,6 +127,14 @@ export type staginggoerli_AggregatedMessageRoot_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_AggregatedMessageRoot_filter>>>;
@@ -136,7 +145,8 @@ export type staginggoerli_AggregatedMessageRoot_orderBy =
   | 'id'
   | 'index'
   | 'receivedRoot'
-  | 'domain';
+  | 'domain'
+  | 'blockNumber';
 
 export type staginggoerli_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
@@ -386,6 +396,7 @@ export type staginggoerli_HubOptimisticRootFinalized = {
   id: Scalars['ID'];
   aggregateRoot: Scalars['staginggoerli_Bytes'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_HubOptimisticRootFinalized_filter = {
@@ -415,6 +426,14 @@ export type staginggoerli_HubOptimisticRootFinalized_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_HubOptimisticRootFinalized_filter>>>;
@@ -424,7 +443,8 @@ export type staginggoerli_HubOptimisticRootFinalized_filter = {
 export type staginggoerli_HubOptimisticRootFinalized_orderBy =
   | 'id'
   | 'aggregateRoot'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 export type staginggoerli_OptimismConnectorMeta = {
   id: Scalars['ID'];
@@ -509,6 +529,7 @@ export type staginggoerli_OptimisticRootPropagated = {
   aggregateRoot: Scalars['staginggoerli_Bytes'];
   domainsHash: Scalars['staginggoerli_Bytes'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_OptimisticRootPropagated_filter = {
@@ -548,6 +569,14 @@ export type staginggoerli_OptimisticRootPropagated_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootPropagated_filter>>>;
@@ -558,7 +587,8 @@ export type staginggoerli_OptimisticRootPropagated_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'domainsHash'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 export type staginggoerli_OptimisticRootProposed = {
   id: Scalars['ID'];
@@ -568,6 +598,7 @@ export type staginggoerli_OptimisticRootProposed = {
   domains?: Maybe<Array<Scalars['BigInt']>>;
   baseAggregateRoot: Scalars['staginggoerli_Bytes'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_OptimisticRootProposed_filter = {
@@ -627,6 +658,14 @@ export type staginggoerli_OptimisticRootProposed_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootProposed_filter>>>;
@@ -640,7 +679,8 @@ export type staginggoerli_OptimisticRootProposed_orderBy =
   | 'snapshotsRoots'
   | 'domains'
   | 'baseAggregateRoot'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 /** Defines the order direction, either ascending or descending */
 export type staginggoerli_OrderDirection =
@@ -1314,6 +1354,7 @@ export type staginggoerli_RootPropagated = {
   aggregate: Scalars['staginggoerli_Bytes'];
   domainsHash: Scalars['staginggoerli_Bytes'];
   count: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_RootPropagated_filter = {
@@ -1353,6 +1394,14 @@ export type staginggoerli_RootPropagated_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_RootPropagated_filter>>>;
@@ -1363,7 +1412,8 @@ export type staginggoerli_RootPropagated_orderBy =
   | 'id'
   | 'aggregate'
   | 'domainsHash'
-  | 'count';
+  | 'count'
+  | 'blockNumber';
 
 export type Subscription = {
   staginggoerli_rootAggregated?: Maybe<staginggoerli_RootAggregated>;

@@ -77,6 +77,7 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   snapshot.domains = event.params.domains;
   snapshot.baseAggregateRoot = event.params.baseRoot;
   snapshot.timestamp = event.block.timestamp;
+  snapshot.blockNumber = event.block.number;
 
   snapshot.save();
 }
@@ -89,6 +90,7 @@ export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOpti
   }
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.timestamp = event.params.rootTimestamp;
+  snapshot.blockNumber = event.block.number;
 
   snapshot.save();
 }
@@ -104,6 +106,7 @@ export function handleAggregateRootPropagated(event: AggregateRootPropagatedEven
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.domainsHash = event.params.domainsHash;
   snapshot.timestamp = event.block.timestamp;
+  snapshot.blockNumber = event.block.number;
 
   snapshot.save();
 }
