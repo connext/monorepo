@@ -19,6 +19,10 @@ locals {
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
+  router_publisher_env_vars = concat(
+    local.router_env_vars, [
+      { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
+  ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,
