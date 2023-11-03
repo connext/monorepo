@@ -19,8 +19,16 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
   // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
 
-  /// MARK - Connector Mirrors
+  // Set hub domain to the root manager, mandatorily requires since Op Roots v1.1
   console.log("\n\nMESSAGING");
+  await updateIfNeeded({
+    apply,
+    deployment: RootManager,
+    desired: protocol.hub,
+    read: { method: "hubDomain" },
+    write: { method: "setHubDomain", args: [protocol.hub] },
+  });
+
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain (and convert to a string value).

@@ -8,6 +8,9 @@ import {
   sendHeartbeat,
   RootManagerMode,
   ModeType,
+  SpokeConnectorMode,
+  jsonifyError,
+  NxtpError,
 } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -15,7 +18,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { NxtpLighthouseConfig } from "../../config";
 
 import { ProposeContext } from "./context";
-import { propose } from "./operations";
+import { proposeHub, proposeSpoke } from "./operations";
 
 const context: ProposeContext = {} as any;
 export const getContext = () => context;
@@ -95,9 +98,36 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
 
     // Start the propose task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    const domains: string[] = Object.keys(config.chains);
+    for (const domain of domains) {
+      const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
+      if (spokeConnectorMode.mode !== rootManagerMode.mode) {
+        context.logger.info("Mode MISMATCH. Stop", requestContext, methodContext, {
+          hubMode: rootManagerMode.mode,
+          hubDomain: config.hubDomain,
+          spokeMode: spokeConnectorMode.mode,
+          spokeDomain: domain,
+        });
+        throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
+      }
+    }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      await propose();
+      //TODO: V1.1 rename source file
+      await proposeHub();
+      for (const spokeDomain of domains) {
+        try {
+          await proposeSpoke(spokeDomain);
+        } catch (e: unknown) {
+          context.logger.error(
+            "Failed to propose to spoke ",
+            requestContext,
+            methodContext,
+            jsonifyError(e as NxtpError),
+            { spokeDomain },
+          );
+        }
+      }
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode. No op.", requestContext, methodContext);
     } else {

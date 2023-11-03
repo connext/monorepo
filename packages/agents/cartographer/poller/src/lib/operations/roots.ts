@@ -7,11 +7,12 @@ import {
   SnapshotRoot,
   OptimisticRootFinalized,
   OptimisticRootPropagated,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
-export const updateAggregatedRoots = async () => {
+export const updateAggregatedRoots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -23,6 +24,11 @@ export const updateAggregatedRoots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
+    const maxBlockNumber = maxBlockNumbers.get(hub) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on hub", requestContext, methodContext, { hub });
+      continue;
+    }
     const offset = await database.getCheckPoint("aggregated_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving aggregated roots", requestContext, methodContext, {
@@ -32,7 +38,7 @@ export const updateAggregatedRoots = async () => {
     });
 
     const aggregatedRoots: AggregatedRoot[] = await subgraph.getGetAggregatedRootsByDomain([
-      { hub, index: offset, limit },
+      { hub, index: offset, limit, maxBlockNumber },
     ]);
 
     // Reset offset at the end of the cycle.
@@ -46,7 +52,7 @@ export const updateAggregatedRoots = async () => {
   }
 };
 
-export const updateProposedSnapshots = async () => {
+export const updateProposedSnapshots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -58,32 +64,95 @@ export const updateProposedSnapshots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const offset = await database.getCheckPoint("proposed_optimistic_root" + hub);
+    const maxBlockNumber = maxBlockNumbers.get(hub) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on hub", requestContext, methodContext, { hub });
+      continue;
+    }
+
+    const disputeCliff = await database.getCheckPoint("proposed_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving proposed aggregated root snapshot", requestContext, methodContext, {
       hub: hub,
-      offset: offset,
+      disputeCliff: disputeCliff,
       limit: limit,
     });
 
-    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([{ hub, snapshotId: offset, limit }]);
+    const snapshots: Snapshot[] = await subgraph.getProposedSnapshotsByDomain([
+      { hub, snapshotId: disputeCliff, limit, maxBlockNumber },
+    ]);
 
-    // Reset offset at the end of the cycle.
-    // TODO: Pagination criteria off by one ?
-    const newOffset = snapshots.length == 0 ? 0 : offset + snapshots.length - 1;
-    if (offset === 0 || newOffset > offset) {
+    const newDisputeCliff =
+      snapshots.length == 0 ? 0 : snapshots.sort((a, b) => b.endOfDispute - a.endOfDispute)[0].endOfDispute;
+    if (disputeCliff === 0 || newDisputeCliff > disputeCliff) {
       await database.saveProposedSnapshots(snapshots);
 
-      await database.saveCheckPoint("proposed_optimistic_root" + hub, newOffset);
+      //Mainnet spoke connecter does not emit AggregateRootProposed event
+      const mainnetSpokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+      for (const snapshot of snapshots) {
+        const mainnetSpokeOptimisticRoot: SpokeOptimisticRoot = {
+          id: `${snapshot.aggregateRoot}-${snapshot.proposedTimestamp}`,
+          aggregateRoot: snapshot.aggregateRoot,
+          rootTimestamp: snapshot.proposedTimestamp,
+          endOfDispute: snapshot.endOfDispute,
+          domain: hub,
+          proposeTimestamp: snapshot.proposedTimestamp,
+        };
+        mainnetSpokeOptimisticRoots.push(mainnetSpokeOptimisticRoot);
+      }
+      await database.saveProposedSpokeRoots(mainnetSpokeOptimisticRoots);
+
+      await database.saveCheckPoint("proposed_optimistic_root_" + hub, newDisputeCliff);
       logger.debug("Saved proposed aggregated root snapshot", requestContext, methodContext, {
         hub: hub,
-        offset: newOffset,
+        disputeCliff: newDisputeCliff,
       });
     }
   }
 };
 
-export const updateFinalizedRoots = async () => {
+export const updateProposedSpokeOptimisticRoot = async (maxBlockNumbers: Map<string, number>) => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateProposedSpokeOptimisticRoot.name);
+
+  for (const domain of domains) {
+    const maxBlockNumber = maxBlockNumbers.get(domain) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on spoke", requestContext, methodContext, { domain });
+      continue;
+    }
+
+    const rootTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving proposed optimistic root for spoke", requestContext, methodContext, {
+      domain,
+      rootTimestamp: rootTimestamp,
+      limit: limit,
+    });
+
+    const opRoots: SpokeOptimisticRoot[] = await subgraph.getProposedSpokeOptimisticRootsByDomain([
+      { domain, rootTimestamp, limit, maxBlockNumber },
+    ]);
+
+    const newRootTimestamp =
+      opRoots.length == 0 ? 0 : opRoots.sort((a, b) => b.rootTimestamp - a.rootTimestamp)[0].rootTimestamp;
+    if (rootTimestamp === 0 || newRootTimestamp > rootTimestamp) {
+      await database.saveProposedSpokeRoots(opRoots);
+
+      await database.saveCheckPoint("proposed_optimistic_root_" + domain, newRootTimestamp);
+      logger.debug("Saved proposed optimistic root for spoke", requestContext, methodContext, {
+        domain,
+        rootTimestamp: newRootTimestamp,
+      });
+    }
+  }
+};
+
+export const updateFinalizedRoots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -95,34 +164,80 @@ export const updateFinalizedRoots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
-    const offset = await database.getCheckPoint("finalized_optimistic_root_" + hub);
+    const maxBlockNumber = maxBlockNumbers.get(hub) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on hub", requestContext, methodContext, { hub });
+      continue;
+    }
+    const timestamp = await database.getCheckPoint("finalized_hub_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving finalized aggregated root", requestContext, methodContext, {
       hub: hub,
-      offset: offset,
+      offset: timestamp,
       limit: limit,
     });
 
-    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain([
-      { hub, timestamp: offset, limit },
-    ]);
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain(
+      [{ domain: hub, timestamp, limit, maxBlockNumber }],
+      true,
+    );
 
     // Reset offset at the end of the cycle.
-    // TODO: Pagination criteria off by one ?
-    const newOffset = roots.length == 0 ? 0 : offset + roots.length - 1;
-    if (offset === 0 || newOffset > offset) {
+    const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;
+    if (timestamp === 0 || newTimestamp > timestamp) {
       await database.saveFinalizedRoots(roots);
 
-      await database.saveCheckPoint("finalized_optimistic_root_" + hub, newOffset);
+      await database.saveCheckPoint("finalized_hub_optimistic_root_" + hub, newTimestamp);
       logger.debug("Saved finalized aggregated root", requestContext, methodContext, {
         hub: hub,
-        offset: newOffset,
+        offset: newTimestamp,
       });
     }
   }
 };
 
-export const updatePropagatedOptmisticRoots = async () => {
+export const updateFinalizedSpokeRoots = async (maxBlockNumbers: Map<string, number>) => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(updateFinalizedSpokeRoots.name);
+
+  for (const domain of domains) {
+    const maxBlockNumber = maxBlockNumbers.get(domain) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on spoke", requestContext, methodContext, { domain });
+      continue;
+    }
+    const timestamp = await database.getCheckPoint("finalized_spoke_optimistic_root_" + domain);
+    const limit = 100;
+    logger.debug("Retrieving finalized aggregated root on domain", requestContext, methodContext, {
+      domain,
+      offset: timestamp,
+      limit: limit,
+    });
+
+    const roots: OptimisticRootFinalized[] = await subgraph.getFinalizedRootsByDomain(
+      [{ domain, timestamp, limit, maxBlockNumber }],
+      false,
+    );
+
+    // Reset offset at the end of the cycle.
+    const newTimestamp = roots.length == 0 ? 0 : roots.sort((a, b) => b.timestamp - a.timestamp)[0].timestamp;
+    if (timestamp === 0 || newTimestamp > timestamp) {
+      await database.saveFinalizedSpokeRoots(domain, roots);
+
+      await database.saveCheckPoint("finalized_spoke_optimistic_root_" + domain, newTimestamp);
+      logger.debug("Saved finalized aggregated root for domain", requestContext, methodContext, {
+        domain,
+        offset: newTimestamp,
+      });
+    }
+  }
+};
+
+export const updatePropagatedOptmisticRoots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -134,6 +249,11 @@ export const updatePropagatedOptmisticRoots = async () => {
   const hubs = new Set(metas.map((m) => m.hubDomain));
 
   for (const hub of [...hubs]) {
+    const maxBlockNumber = maxBlockNumbers.get(hub) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on spoke", requestContext, methodContext, { hub });
+      continue;
+    }
     const offset = await database.getCheckPoint("propagated_optimistic_root_" + hub);
     const limit = 100;
     logger.debug("Retrieving propagated optimistic aggregated root", requestContext, methodContext, {
@@ -143,7 +263,7 @@ export const updatePropagatedOptmisticRoots = async () => {
     });
 
     const snapshots: OptimisticRootPropagated[] = await subgraph.getPropagatedOptimisticRootsByDomain([
-      { hub, timestamp: offset, limit },
+      { hub, timestamp: offset, limit, maxBlockNumber },
     ]);
 
     // Reset offset at the end of the cycle.
@@ -161,7 +281,7 @@ export const updatePropagatedOptmisticRoots = async () => {
   }
 };
 
-export const retrieveSavedSnapshotRoot = async () => {
+export const retrieveSavedSnapshotRoot = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -170,6 +290,11 @@ export const retrieveSavedSnapshotRoot = async () => {
   const { requestContext, methodContext } = createLoggingContext(retrieveSavedSnapshotRoot.name);
 
   for (const domain of domains) {
+    const maxBlockNumber = maxBlockNumbers.get(domain) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on spoke", requestContext, methodContext, { domain });
+      continue;
+    }
     const offset = await database.getCheckPoint("saved_snapshoted_root_" + domain);
     const limit = 100;
     logger.debug("Retrieving saved snapshot roots", requestContext, methodContext, {
@@ -179,7 +304,7 @@ export const retrieveSavedSnapshotRoot = async () => {
     });
 
     const roots: SnapshotRoot[] = await subgraph.getSavedSnapshotRootsByDomain([
-      { hub: domain, snapshotId: offset, limit },
+      { hub: domain, snapshotId: offset, limit, maxBlockNumber },
     ]);
 
     // Reset offset at the end of the cycle.
@@ -195,7 +320,7 @@ export const retrieveSavedSnapshotRoot = async () => {
   }
 };
 
-export const updatePropagatedRoots = async () => {
+export const updatePropagatedRoots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -206,6 +331,11 @@ export const updatePropagatedRoots = async () => {
   const metas = await subgraph.getConnectorMeta(domains);
   const hubs = new Set(metas.map((m) => m.hubDomain));
   for (const hub of [...hubs]) {
+    const maxBlockNumber = maxBlockNumbers.get(hub) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on hub", requestContext, methodContext, { hub });
+      continue;
+    }
     const offset = await database.getCheckPoint("propagated_root_" + hub);
     const limit = 100;
 
@@ -215,7 +345,7 @@ export const updatePropagatedRoots = async () => {
       limit: limit,
     });
 
-    const propagatedRoots: PropagatedRoot[] = await subgraph.getGetPropagatedRoots(hub, offset, limit);
+    const propagatedRoots: PropagatedRoot[] = await subgraph.getGetPropagatedRoots(hub, offset, limit, maxBlockNumber);
 
     // Reset offset at the end of the cycle.
     const newOffset = propagatedRoots.length == 0 ? 0 : propagatedRoots[propagatedRoots.length - 1].count;
@@ -229,7 +359,7 @@ export const updatePropagatedRoots = async () => {
   }
 };
 
-export const updateReceivedAggregateRoots = async () => {
+export const updateReceivedAggregateRoots = async (maxBlockNumbers: Map<string, number>) => {
   const {
     adapters: { subgraph, database },
     logger,
@@ -238,6 +368,11 @@ export const updateReceivedAggregateRoots = async () => {
   const { requestContext, methodContext } = createLoggingContext(updateReceivedAggregateRoots.name);
 
   for (const domain of domains) {
+    const maxBlockNumber = maxBlockNumbers.get(domain) ?? 0;
+    if (maxBlockNumber == 0) {
+      logger.info("Error getting block number on spoke", requestContext, methodContext, { domain });
+      continue;
+    }
     const offset = await database.getCheckPoint("received_aggregate_root_" + domain);
     const limit = 100;
     logger.debug("Retrieving received aggregate root", requestContext, methodContext, {
@@ -247,7 +382,7 @@ export const updateReceivedAggregateRoots = async () => {
     });
 
     const receivedRoots: ReceivedAggregateRoot[] = await subgraph.getReceivedAggregatedRootsByDomain([
-      { domain, offset, limit },
+      { domain, offset, limit, maxBlockNumber },
     ]);
 
     const newOffset = receivedRoots.length == 0 ? 0 : Math.max(...receivedRoots.map((root) => root.blockNumber ?? 0));

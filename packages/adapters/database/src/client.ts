@@ -26,6 +26,7 @@ import {
   XTransferMessageStatus,
   Asset,
   OptimisticRootFinalized,
+  SpokeOptimisticRoot,
   OptimisticRootPropagated,
   SnapshotRoot,
   AssetPrice,
@@ -33,6 +34,7 @@ import {
   StableSwapLpBalance,
   RootMessageStatus,
   convertFromDbPropagatedRoot,
+  convertFromDbSpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -169,6 +171,7 @@ const convertToDbSnapshotRoot = (root: SnapshotRoot): s.snapshot_roots.Insertabl
     root: root.root,
     spoke_domain: root.spokeDomain,
     count: root.count,
+    timestamp: root.timestamp,
   };
 };
 
@@ -293,9 +296,25 @@ const convertToDbSnapshot = (snapshot: Snapshot): s.snapshots.Insertable => {
     end_of_dispute: snapshot.endOfDispute,
     processed: snapshot.processed,
     status: snapshot.status as s.snapshot_status,
+    proposed_timestamp: snapshot.proposedTimestamp,
     propagate_timestamp: snapshot.propagateTimestamp,
     propagate_task_id: snapshot.propagateTaskId ?? undefined,
     relayer_type: snapshot.relayerType ?? undefined,
+  };
+};
+
+const convertToDbSpokeOptimisticRoot = (opRoot: SpokeOptimisticRoot): s.spoke_optimistic_roots.Insertable => {
+  return {
+    id: opRoot.id,
+    root: opRoot.aggregateRoot,
+    root_timestamp: opRoot.rootTimestamp,
+    end_of_dispute: opRoot.endOfDispute,
+    domain: opRoot.domain,
+    processed: opRoot.processed,
+    status: opRoot.status as s.spoke_root_status,
+    propose_timestamp: opRoot.proposeTimestamp,
+    propose_task_id: opRoot.proposeTaskId ?? undefined,
+    relayer_type: opRoot.relayerType ?? undefined,
   };
 };
 
@@ -912,12 +931,12 @@ export const getBaseAggregateRootCount = async (
 };
 
 export const getAggregateRootCount = async (
-  aggreateRoot: string,
+  aggregateRoot: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("propagated_roots", { aggregate_root: aggreateRoot }).run(poolToUse);
+  const root = await db.selectOne("propagated_roots", { aggregate_root: aggregateRoot }).run(poolToUse);
   return root ? convertFromDbPropagatedRoot(root).count : undefined;
 };
 
@@ -992,24 +1011,59 @@ export const getLatestAggregateRoots = async (
   return roots.map(convertFromDbReceivedAggregateRoot);
 };
 
-export const getPendingAggregateRoot = async (
+export const getSnapshot = async (
   aggregate_root: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<Snapshot | undefined> => {
   const poolToUse = _pool ?? pool;
-  const snapshot = await db.selectOne("snapshots", { processed: false, aggregate_root }).run(poolToUse);
+
+  const snapshot = await db
+    .selectOne("snapshots", {
+      aggregate_root,
+    })
+    .run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
+};
+
+export const getFinalizedSnapshot = async (
+  aggregate_root: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  const snapshot = await db
+    .selectOne("snapshots", {
+      status: dc.or(dc.eq("Propagated"), dc.eq("Finalized")),
+      aggregate_root,
+    })
+    .run(poolToUse);
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
 export const getLatestPendingSnapshotRootByDomain = async (
   spoke_domain: number,
   _pool?: Pool | db.TxnClientForRepeatableRead,
-): Promise<string | undefined> => {
+): Promise<SnapshotRoot | undefined> => {
   const poolToUse = _pool ?? pool;
   const snapshot = await db
     .select("snapshot_roots", { processed: false, spoke_domain }, { limit: 1, order: { by: "id", direction: "DESC" } })
     .run(poolToUse);
-  return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]).root : undefined;
+  return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]) : undefined;
+};
+
+export const getLatestPendingSpokeOptimisticRootByDomain = async (
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db
+    .select(
+      "spoke_optimistic_roots",
+      { processed: false, domain },
+      { limit: 1, order: { by: "id", direction: "DESC" } },
+    )
+    .run(poolToUse);
+  return opRoot.length > 0 ? convertFromDbSpokeOptimisticRoot(opRoot[0]) : undefined;
 };
 
 export const saveProposedSnapshots = async (
@@ -1038,6 +1092,57 @@ export const getCurrentProposedSnapshot = async (
   return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
 };
 
+export const getCurrentFinalizedSnapshot = async (
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<Snapshot | undefined> => {
+  const poolToUse = _pool ?? pool;
+
+  const snapshot = await db
+    .selectOne("snapshots", { status: "Finalized" }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .run(poolToUse);
+  return snapshot ? convertFromDbSnapshot(snapshot) : undefined;
+};
+
+export const getCurrentProposedOptimisticRoot = async (
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db
+    .selectOne(
+      "spoke_optimistic_roots",
+      { domain, status: "Proposed" },
+      { limit: 1, order: { by: "root_timestamp", direction: "DESC" } },
+    )
+    .run(poolToUse);
+  return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
+};
+
+export const getLatestFinalizedOptimisticRoot = async (
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db
+    .selectOne(
+      "spoke_optimistic_roots",
+      { domain, status: "Finalized" },
+      { limit: 1, order: { by: "root_timestamp", direction: "DESC" } },
+    )
+    .run(poolToUse);
+  return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
+};
+
+export const getSpokeOptimisticRoot = async (
+  root: string,
+  domain: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<SpokeOptimisticRoot | undefined> => {
+  const poolToUse = _pool ?? pool;
+  const opRoot = await db.selectOne("spoke_optimistic_roots", { root, domain }).run(poolToUse);
+  return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
+};
+
 export const savePropagatedOptimisticRoots = async (
   roots: OptimisticRootPropagated[],
   _pool?: Pool | db.TxnClientForRepeatableRead,
@@ -1046,7 +1151,17 @@ export const savePropagatedOptimisticRoots = async (
 
   await Promise.all(
     roots.map(async (root) => {
-      await db.update("snapshots", { status: "Propagated" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+      await db
+        .update(
+          "snapshots",
+          // The key of both `Propagated` and `Finalized` is aggregateRoot.
+          // Ideally, finalized_timestamp shouldn't be null but we don't have a way to stop the same root being proposed.
+          // So it makes us hard to pick up the correct entity and update the corresponding timestamp with only aggregateRoot and timestamp.
+          // As of now, making the finalized_timestamp undefined cause it's no longer in use once the root propagated.
+          { status: "Propagated", propagate_timestamp: root.timestamp, finalized_timestamp: undefined },
+          { aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
+        )
+        .run(poolToUse);
     }),
   );
 };
@@ -1059,7 +1174,48 @@ export const saveFinalizedRoots = async (
 
   await Promise.all(
     roots.map(async (root) => {
-      await db.update("snapshots", { status: "Finalized" }, { aggregate_root: root.aggregateRoot }).run(poolToUse);
+      await db
+        .update(
+          "snapshots",
+          { status: "Finalized", finalized_timestamp: root.timestamp },
+          { status: "Proposed", aggregate_root: root.aggregateRoot, proposed_timestamp: dc.lte(root.timestamp) },
+        )
+        .run(poolToUse);
+    }),
+  );
+};
+
+export const saveProposedSpokeRoots = async (
+  _roots: SpokeOptimisticRoot[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const roots: s.spoke_optimistic_roots.Insertable[] = _roots
+    .map((r) => {
+      r.status = "Proposed" as s.spoke_root_status;
+      return convertToDbSpokeOptimisticRoot(r);
+    })
+    .map(sanitizeNull);
+
+  await db.upsert("spoke_optimistic_roots", roots, ["id"]).run(poolToUse);
+};
+
+export const saveFinalizedSpokeRoots = async (
+  domain: string,
+  roots: OptimisticRootFinalized[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+
+  await Promise.all(
+    roots.map(async (root) => {
+      await db
+        .update(
+          "spoke_optimistic_roots",
+          { status: "Finalized" },
+          { domain: domain, root: root.aggregateRoot, propose_timestamp: dc.lte(root.timestamp) },
+        )
+        .run(poolToUse);
     }),
   );
 };

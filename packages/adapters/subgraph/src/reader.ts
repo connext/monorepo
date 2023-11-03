@@ -18,6 +18,7 @@ import {
   ConnectorMeta,
   RootManagerMeta,
   RootManagerMode,
+  SpokeConnectorMode,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -30,6 +31,7 @@ import {
   OptimisticRootFinalized,
   OptimisticRootPropagated,
   Snapshot,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -65,6 +67,8 @@ import {
   getFinalizedRootsByDomainQuery,
   getPropagatedOptimisticRootsByDomainQuery,
   getSavedSnapshotRootsByDomainQuery,
+  getProposedSpokeOptimisticRootsByDomainQuery,
+  getSpokeConnectorModeQuery,
 } from "./lib/operations";
 import {
   getAggregatedRootsByDomainQuery,
@@ -821,7 +825,7 @@ export class SubgraphReader {
    * Gets all the aggregated rootsstarting with index for a given domain
    */
   public async getGetAggregatedRootsByDomain(
-    params: { hub: string; index: number; limit: number }[],
+    params: { hub: string; index: number; limit: number; maxBlockNumber: number }[],
   ): Promise<AggregatedRoot[]> {
     const { parser, execute } = getHelpers();
     const aggregatedRootsByDomainQuery = getAggregatedRootsByDomainQuery(params);
@@ -849,7 +853,7 @@ export class SubgraphReader {
    * Gets all the proposed snapshots
    */
   public async getProposedSnapshotsByDomain(
-    params: { hub: string; snapshotId: number; limit: number }[],
+    params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
   ): Promise<Snapshot[]> {
     const { parser, execute } = getHelpers();
     const proposedSnapshotsByDomainQuery = getProposedSnapshotsByDomainQuery(params);
@@ -874,10 +878,38 @@ export class SubgraphReader {
   }
 
   /**
+   * Gets proposed spoke optimistic roots
+   */
+  public async getProposedSpokeOptimisticRootsByDomain(
+    params: { domain: string; rootTimestamp: number; limit: number; maxBlockNumber: number }[],
+  ): Promise<SpokeOptimisticRoot[]> {
+    const { parser, execute } = getHelpers();
+    const proposedSpokeOptimisticRootsByDomainQuery = getProposedSpokeOptimisticRootsByDomainQuery(params);
+    const response = await execute(proposedSpokeOptimisticRootsByDomainQuery);
+
+    const _roots: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const flatten = value?.flat();
+      const _root = flatten?.map((x) => {
+        return { ...x, domain: key };
+      });
+      _roots.push(_root);
+    }
+
+    const proposedRoots: SpokeOptimisticRoot[] = _roots
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.proposedSpokeOptimisticRoot);
+
+    return proposedRoots;
+  }
+
+  /**
    * Gets saved snapshots
    */
   public async getSavedSnapshotRootsByDomain(
-    params: { hub: string; snapshotId: number; limit: number }[],
+    params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
   ): Promise<SnapshotRoot[]> {
     const { parser, execute } = getHelpers();
     const proposedSnapshotsByDomainQuery = getSavedSnapshotRootsByDomainQuery(params);
@@ -905,10 +937,11 @@ export class SubgraphReader {
    * Gets all the finalized roots
    */
   public async getFinalizedRootsByDomain(
-    params: { hub: string; timestamp: number; limit: number }[],
+    params: { domain: string; timestamp: number; limit: number; maxBlockNumber: number }[],
+    isHub: boolean,
   ): Promise<OptimisticRootFinalized[]> {
     const { parser, execute } = getHelpers();
-    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params);
+    const finalizedRootsByDomainQuery = getFinalizedRootsByDomainQuery(params, isHub);
     const response = await execute(finalizedRootsByDomainQuery);
 
     const _roots: any[] = [];
@@ -933,7 +966,7 @@ export class SubgraphReader {
    * Gets all the propagated optimistic aggregate roots
    */
   public async getPropagatedOptimisticRootsByDomain(
-    params: { hub: string; timestamp: number; limit: number }[],
+    params: { hub: string; timestamp: number; limit: number; maxBlockNumber: number }[],
   ): Promise<OptimisticRootPropagated[]> {
     const { parser, execute } = getHelpers();
     const propagatedRootsByDomainQuery = getPropagatedOptimisticRootsByDomainQuery(params);
@@ -960,10 +993,15 @@ export class SubgraphReader {
   /**
    * Gets all the propagated rootsstarting with index for a given domain
    */
-  public async getGetPropagatedRoots(domain: string, count: number, limit: number): Promise<PropagatedRoot[]> {
+  public async getGetPropagatedRoots(
+    domain: string,
+    count: number,
+    limit: number,
+    maxBlockNumber: number,
+  ): Promise<PropagatedRoot[]> {
     const { parser, execute } = getHelpers();
 
-    const propagatedRootsQuery = getPropagatedRootsQuery(domain, count, limit);
+    const propagatedRootsQuery = getPropagatedRootsQuery(domain, count, limit, maxBlockNumber);
     const response = await execute(propagatedRootsQuery);
     const _roots: any[] = [];
     for (const key of response.keys()) {
@@ -1021,15 +1059,30 @@ export class SubgraphReader {
     const response = await execute(rootManagerModeQuery);
     const values = [...response.values()];
     // Initial state of the root manager is slow mode
-    return values[0][0] ? parser.rootManagerMode(values[0][0]) : { id: "ROOT_MANAGER_MODE_ID", mode: "SLOW_MODE" };
+    return values[0] && values[0][0]
+      ? parser.rootManagerMode(values[0][0])
+      : { id: "ROOT_MANAGER_MODE_ID", mode: "OPTIMISTIC_MODE" };
   }
+
+  public async getSpokeConnectorMode(domain: string): Promise<SpokeConnectorMode> {
+    const { parser, execute } = getHelpers();
+    const spokeConnectorModeQuery = getSpokeConnectorModeQuery(domain);
+
+    const response = await execute(spokeConnectorModeQuery);
+    const values = [...response.values()];
+    // Initial state of the root manager is slow mode
+    return values[0] && values[0][0]
+      ? parser.spokeConnectorMode(values[0][0])
+      : { id: "CONNECTOR_MODE_ID", mode: "OPTIMISTIC_MODE" };
+  }
+
   /**
    * Gets all the received roots starting with blocknumber for a given domain
    * @param params - The fetch params
    * @returns - The array of `ReceivedAggregateRoot`
    */
   public async getReceivedAggregatedRootsByDomain(
-    params: { domain: string; offset: number; limit: number }[],
+    params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
   ): Promise<ReceivedAggregateRoot[]> {
     const { parser, execute } = getHelpers();
 

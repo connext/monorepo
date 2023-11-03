@@ -9,6 +9,7 @@ import {
   RootMessageStatus,
   Snapshot,
   SnapshotRoot,
+  SpokeOptimisticRoot,
 } from "./amb";
 import {
   PoolActionType,
@@ -468,7 +469,9 @@ export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
     endOfDispute: snapshot.end_of_dispute,
     processed: snapshot.processed,
     status: snapshot.status,
+    proposedTimestamp: snapshot.proposed_timestamp ?? undefined,
     propagateTimestamp: snapshot.propagate_timestamp ?? undefined,
+    finalizedTimestamp: snapshot.finalized_timestamp ?? undefined,
     propagateTaskId: snapshot.propagate_task_id ?? undefined,
     relayerType: snapshot.relayer_type ?? undefined,
   };
@@ -480,6 +483,7 @@ export const convertFromDbSnapshotRoot = (snapshot: any): SnapshotRoot => {
     spokeDomain: snapshot.spoke_domain,
     root: snapshot.root,
     count: snapshot.count,
+    timestamp: snapshot.timestamp,
   };
 };
 
@@ -580,5 +584,15 @@ export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfe
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
     nonce: event.nonce,
+  };
+};
+
+export const convertFromDbSpokeOptimisticRoot = (opRoot: any): SpokeOptimisticRoot => {
+  return {
+    id: opRoot.id,
+    domain: opRoot.domain,
+    aggregateRoot: opRoot.root,
+    rootTimestamp: opRoot.root_timestamp,
+    endOfDispute: opRoot.end_of_dispute,
   };
 };

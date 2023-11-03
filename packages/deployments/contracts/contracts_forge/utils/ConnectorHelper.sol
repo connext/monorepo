@@ -36,4 +36,7 @@ contract ConnectorHelper is ForgeHelper {
   address payable _l1Connector;
   address payable _l2Connector;
   address _merkle;
+
+  uint256 _minDisputeBlocks = 125;
+  uint256 _disputeBlocks = 150;
 }

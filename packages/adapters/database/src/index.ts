@@ -24,6 +24,7 @@ import {
   StableSwapTransfer,
   StableSwapLpBalance,
   RootMessageStatus,
+  SpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { TxnClientForRepeatableRead } from "zapatos/db";
@@ -54,7 +55,8 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getUnProcessedMessagesByDomains,
-  getAggregateRoot,
+  getSnapshot,
+  getFinalizedSnapshot,
   getAggregateRootByRootAndDomain,
   getAggregateRootCount,
   getBaseAggregateRootCount,
@@ -63,8 +65,9 @@ import {
   getMessageRootIndex,
   getLatestMessageRoot,
   getLatestAggregateRoots,
-  getPendingAggregateRoot,
+  getAggregateRoot,
   getCurrentProposedSnapshot,
+  getCurrentFinalizedSnapshot,
   getLatestPendingSnapshotRootByDomain,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
@@ -96,6 +99,12 @@ import {
   getAssets,
   saveAssetPrice,
   deleteCache,
+  getLatestPendingSpokeOptimisticRootByDomain,
+  saveProposedSpokeRoots,
+  saveFinalizedSpokeRoots,
+  getCurrentProposedOptimisticRoot,
+  getLatestFinalizedOptimisticRoot,
+  getSpokeOptimisticRoot,
 } from "./client";
 
 export * as db from "zapatos/db";
@@ -211,6 +220,7 @@ export type Database = {
   getAggregateRoots: (count: number, _pool?: Pool | TxnClientForRepeatableRead) => Promise<string[]>;
   getBaseAggregateRoot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getCurrentProposedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
+  getCurrentFinalizedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
   getMessageRootIndex: (
     domain: string,
     messageRoot: string,
@@ -227,14 +237,15 @@ export type Database = {
     orderDirection?: "ASC" | "DESC",
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<ReceivedAggregateRoot[]>;
-  getPendingAggregateRoot: (
+  getSnapshot: (aggregate_root: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
+  getFinalizedSnapshot: (
     aggregate_root: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<Snapshot | undefined>;
   getLatestPendingSnapshotRootByDomain: (
     spoke_domain: number,
     _pool?: Pool | TxnClientForRepeatableRead,
-  ) => Promise<string | undefined>;
+  ) => Promise<SnapshotRoot | undefined>;
   getAggregateRootByRootAndDomain: (
     domain: string,
     aggregatedRoot: string,
@@ -334,6 +345,29 @@ export type Database = {
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<XMessage | undefined>;
   deleteCache: (domain: string, _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  getLatestPendingSpokeOptimisticRootByDomain: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
+  saveProposedSpokeRoots: (_roots: SpokeOptimisticRoot[], _pool?: Pool | TxnClientForRepeatableRead) => Promise<void>;
+  saveFinalizedSpokeRoots: (
+    domain: string,
+    _roots: OptimisticRootFinalized[],
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<void>;
+  getCurrentProposedOptimisticRoot: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
+  getLatestFinalizedOptimisticRoot: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
+  getSpokeOptimisticRoot: (
+    root: string,
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
 };
 
 export let pool: Pool;
@@ -379,7 +413,8 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getUnProcessedMessages,
     getUnProcessedMessagesByDomains,
     getUnProcessedMessagesByIndex,
-    getAggregateRoot,
+    getSnapshot,
+    getFinalizedSnapshot,
     getAggregateRootByRootAndDomain,
     getAggregateRootCount,
     getBaseAggregateRootCount,
@@ -388,8 +423,9 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageRootIndex,
     getLatestMessageRoot,
     getLatestAggregateRoots,
-    getPendingAggregateRoot,
+    getAggregateRoot,
     getCurrentProposedSnapshot,
+    getCurrentFinalizedSnapshot,
     getLatestPendingSnapshotRootByDomain,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
@@ -417,6 +453,12 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getMessageByLeaf,
     getMessageByRoot,
     deleteCache,
+    getLatestPendingSpokeOptimisticRootByDomain,
+    saveProposedSpokeRoots,
+    saveFinalizedSpokeRoots,
+    getCurrentProposedOptimisticRoot,
+    getLatestFinalizedOptimisticRoot,
+    getSpokeOptimisticRoot,
   };
 };
 
@@ -467,7 +509,8 @@ export const getDatabaseAndPool = async (
       getUnProcessedMessages,
       getUnProcessedMessagesByDomains,
       getUnProcessedMessagesByIndex,
-      getAggregateRoot,
+      getSnapshot,
+      getFinalizedSnapshot,
       getAggregateRootByRootAndDomain,
       getAggregateRootCount,
       getBaseAggregateRootCount,
@@ -476,8 +519,9 @@ export const getDatabaseAndPool = async (
       getMessageRootIndex,
       getLatestMessageRoot,
       getLatestAggregateRoots,
-      getPendingAggregateRoot,
+      getAggregateRoot,
       getCurrentProposedSnapshot,
+      getCurrentFinalizedSnapshot,
       getLatestPendingSnapshotRootByDomain,
       getMessageRootAggregatedFromIndex,
       getMessageRootsFromIndex,
@@ -505,6 +549,12 @@ export const getDatabaseAndPool = async (
       getMessageByLeaf,
       getMessageByRoot,
       deleteCache,
+      getLatestPendingSpokeOptimisticRootByDomain,
+      saveProposedSpokeRoots,
+      saveFinalizedSpokeRoots,
+      getCurrentProposedOptimisticRoot,
+      getLatestFinalizedOptimisticRoot,
+      getSpokeOptimisticRoot,
     },
   };
 };

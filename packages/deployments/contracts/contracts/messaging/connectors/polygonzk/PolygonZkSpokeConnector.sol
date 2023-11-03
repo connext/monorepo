@@ -9,32 +9,9 @@ import {BasePolygonZk} from "./BasePolygonZk.sol";
 contract PolygonZkSpokeConnector is SpokeConnector, BasePolygonZk {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
+    ConstructorParams memory _baseSpokeParams,
     uint32 _mirrorNetworkId
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    BasePolygonZk(_mirrorNetworkId)
-  {}
+  ) SpokeConnector(_baseSpokeParams) BasePolygonZk(_mirrorNetworkId) {}
 
   // ============ Admin fns ============
 

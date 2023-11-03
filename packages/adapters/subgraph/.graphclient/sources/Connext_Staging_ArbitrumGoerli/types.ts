@@ -28,6 +28,90 @@ export type stagingarbitrumgoerli_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type stagingarbitrumgoerli_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['stagingarbitrumgoerli_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingarbitrumgoerli_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_filter>>>;
+};
+
+export type stagingarbitrumgoerli_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type stagingarbitrumgoerli_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -876,6 +960,60 @@ export type stagingarbitrumgoerli_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type stagingarbitrumgoerli_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['stagingarbitrumgoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingarbitrumgoerli_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['stagingarbitrumgoerli_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['stagingarbitrumgoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_filter>>>;
+};
+
+export type stagingarbitrumgoerli_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type stagingarbitrumgoerli_OrderDirection =
   | 'asc'
@@ -1456,6 +1594,12 @@ export type Query = {
   stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
   stagingarbitrumgoerli_snapshotRoot?: Maybe<stagingarbitrumgoerli_SnapshotRoot>;
   stagingarbitrumgoerli_snapshotRoots: Array<stagingarbitrumgoerli_SnapshotRoot>;
+  stagingarbitrumgoerli_spokeConnectorMode?: Maybe<stagingarbitrumgoerli_SpokeConnectorMode>;
+  stagingarbitrumgoerli_spokeConnectorModes: Array<stagingarbitrumgoerli_SpokeConnectorMode>;
+  stagingarbitrumgoerli_aggregateRootProposed?: Maybe<stagingarbitrumgoerli_AggregateRootProposed>;
+  stagingarbitrumgoerli_aggregateRootProposeds: Array<stagingarbitrumgoerli_AggregateRootProposed>;
+  stagingarbitrumgoerli_optimisticRootFinalized?: Maybe<stagingarbitrumgoerli_OptimisticRootFinalized>;
+  stagingarbitrumgoerli_optimisticRootFinalizeds: Array<stagingarbitrumgoerli_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -1798,6 +1942,60 @@ export type Querystagingarbitrumgoerli_snapshotRootsArgs = {
   orderBy?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_orderBy>;
   orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
   where?: InputMaybe<stagingarbitrumgoerli_SnapshotRoot_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingarbitrumgoerli_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_filter>;
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2764,6 +2962,50 @@ export type stagingarbitrumgoerli_SnapshotRoot_orderBy =
   | 'timestamp'
   | 'blockNumber';
 
+export type stagingarbitrumgoerli_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type stagingarbitrumgoerli_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingarbitrumgoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_filter>>>;
+};
+
+export type stagingarbitrumgoerli_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   stagingarbitrumgoerli_asset?: Maybe<stagingarbitrumgoerli_Asset>;
   stagingarbitrumgoerli_assets: Array<stagingarbitrumgoerli_Asset>;
@@ -2803,6 +3045,12 @@ export type Subscription = {
   stagingarbitrumgoerli_slippageUpdates: Array<stagingarbitrumgoerli_SlippageUpdate>;
   stagingarbitrumgoerli_snapshotRoot?: Maybe<stagingarbitrumgoerli_SnapshotRoot>;
   stagingarbitrumgoerli_snapshotRoots: Array<stagingarbitrumgoerli_SnapshotRoot>;
+  stagingarbitrumgoerli_spokeConnectorMode?: Maybe<stagingarbitrumgoerli_SpokeConnectorMode>;
+  stagingarbitrumgoerli_spokeConnectorModes: Array<stagingarbitrumgoerli_SpokeConnectorMode>;
+  stagingarbitrumgoerli_aggregateRootProposed?: Maybe<stagingarbitrumgoerli_AggregateRootProposed>;
+  stagingarbitrumgoerli_aggregateRootProposeds: Array<stagingarbitrumgoerli_AggregateRootProposed>;
+  stagingarbitrumgoerli_optimisticRootFinalized?: Maybe<stagingarbitrumgoerli_OptimisticRootFinalized>;
+  stagingarbitrumgoerli_optimisticRootFinalizeds: Array<stagingarbitrumgoerli_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   stagingarbitrumgoerli__meta?: Maybe<stagingarbitrumgoerli__Meta_>;
 };
@@ -3150,6 +3398,60 @@ export type Subscriptionstagingarbitrumgoerli_snapshotRootsArgs = {
 };
 
 
+export type Subscriptionstagingarbitrumgoerli_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_SpokeConnectorMode_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_AggregateRootProposed_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingarbitrumgoerli_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<stagingarbitrumgoerli_OrderDirection>;
+  where?: InputMaybe<stagingarbitrumgoerli_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingarbitrumgoerli__metaArgs = {
   block?: InputMaybe<stagingarbitrumgoerli_Block_height>;
 };
@@ -3269,6 +3571,18 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_snapshotRoot: InContextSdkMethod<Query['stagingarbitrumgoerli_snapshotRoot'], Querystagingarbitrumgoerli_snapshotRootArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_snapshotRoots: InContextSdkMethod<Query['stagingarbitrumgoerli_snapshotRoots'], Querystagingarbitrumgoerli_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_spokeConnectorMode: InContextSdkMethod<Query['stagingarbitrumgoerli_spokeConnectorMode'], Querystagingarbitrumgoerli_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_spokeConnectorModes: InContextSdkMethod<Query['stagingarbitrumgoerli_spokeConnectorModes'], Querystagingarbitrumgoerli_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_aggregateRootProposed: InContextSdkMethod<Query['stagingarbitrumgoerli_aggregateRootProposed'], Querystagingarbitrumgoerli_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_aggregateRootProposeds: InContextSdkMethod<Query['stagingarbitrumgoerli_aggregateRootProposeds'], Querystagingarbitrumgoerli_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_optimisticRootFinalized: InContextSdkMethod<Query['stagingarbitrumgoerli_optimisticRootFinalized'], Querystagingarbitrumgoerli_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_optimisticRootFinalizeds: InContextSdkMethod<Query['stagingarbitrumgoerli_optimisticRootFinalizeds'], Querystagingarbitrumgoerli_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Query['stagingarbitrumgoerli__meta'], Querystagingarbitrumgoerli__metaArgs, MeshContext>
   };
@@ -3354,6 +3668,18 @@ export type _SubgraphErrorPolicy_ =
   stagingarbitrumgoerli_snapshotRoot: InContextSdkMethod<Subscription['stagingarbitrumgoerli_snapshotRoot'], Subscriptionstagingarbitrumgoerli_snapshotRootArgs, MeshContext>,
   /** null **/
   stagingarbitrumgoerli_snapshotRoots: InContextSdkMethod<Subscription['stagingarbitrumgoerli_snapshotRoots'], Subscriptionstagingarbitrumgoerli_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_spokeConnectorMode: InContextSdkMethod<Subscription['stagingarbitrumgoerli_spokeConnectorMode'], Subscriptionstagingarbitrumgoerli_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_spokeConnectorModes: InContextSdkMethod<Subscription['stagingarbitrumgoerli_spokeConnectorModes'], Subscriptionstagingarbitrumgoerli_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_aggregateRootProposed: InContextSdkMethod<Subscription['stagingarbitrumgoerli_aggregateRootProposed'], Subscriptionstagingarbitrumgoerli_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_aggregateRootProposeds: InContextSdkMethod<Subscription['stagingarbitrumgoerli_aggregateRootProposeds'], Subscriptionstagingarbitrumgoerli_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_optimisticRootFinalized: InContextSdkMethod<Subscription['stagingarbitrumgoerli_optimisticRootFinalized'], Subscriptionstagingarbitrumgoerli_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  stagingarbitrumgoerli_optimisticRootFinalizeds: InContextSdkMethod<Subscription['stagingarbitrumgoerli_optimisticRootFinalizeds'], Subscriptionstagingarbitrumgoerli_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingarbitrumgoerli__meta: InContextSdkMethod<Subscription['stagingarbitrumgoerli__meta'], Subscriptionstagingarbitrumgoerli__metaArgs, MeshContext>
   };

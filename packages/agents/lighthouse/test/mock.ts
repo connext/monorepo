@@ -168,6 +168,7 @@ export const mock = {
     };
   },
   config: (): NxtpLighthouseConfig => ({
+    snapshotDuration: mock.snapshotDuration,
     chains: {
       [mock.domain.A]: {
         providers: ["http://example.com"],

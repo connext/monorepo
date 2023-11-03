@@ -42,9 +42,16 @@ export class NoTargetMessageRoot extends NxtpError {
     super(`No target outbound root in ${domain}`, context, NoTargetMessageRoot.name);
   }
 }
+
 export class NoReceivedAggregateRoot extends NxtpError {
   constructor(domain: string | undefined, context: any = {}) {
     super(`No received aggregate root in ${domain}`, context, NoReceivedAggregateRoot.name);
+  }
+}
+
+export class NoFinalizedAggregateRoot extends NxtpError {
+  constructor(domain: string | undefined, context: any = {}) {
+    super(`No finalized aggregate root in ${domain}`, context, NoFinalizedAggregateRoot.name);
   }
 }
 
@@ -84,5 +91,11 @@ export class NoMessageRoot extends NxtpError {
 export class NoDomainInSnapshot extends NxtpError {
   constructor(originDomain: string, snapshot: Snapshot, context: any = {}) {
     super(`No domain ${originDomain} found in snapshot ${snapshot}`, context, NoDomainInSnapshot.name);
+  }
+}
+
+export class AggregateRootDuplicated extends NxtpError {
+  constructor(aggregateRoot: string, context: any = {}) {
+    super(`Trying to propose same aggregate root for ${aggregateRoot}`, context, AggregateRootDuplicated.name);
   }
 }

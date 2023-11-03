@@ -31,26 +31,24 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
 
     _merkle = address(new MerkleTreeManager());
 
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l2Domain,
+      mirrorDomain: _l1Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: _l1Connector,
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: _merkle,
+      watcherManager: address(1),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // Deploy
     vm.prank(_owner);
-    _l2Connector = payable(
-      address(
-        new MultichainSpokeConnector(
-          _l2Domain,
-          _l1Domain,
-          _amb,
-          _rootManager,
-          _l1Connector,
-          _processGas,
-          _reserveGas,
-          0, // uint256 _delayBlocks
-          _merkle,
-          address(1), // watcher manager
-          _chainIdMainnet,
-          _gasCap
-        )
-      )
-    );
+    _l2Connector = payable(address(new MultichainSpokeConnector(_baseParams, _chainIdMainnet, _gasCap)));
     assertEq(_owner, MultichainSpokeConnector(_l2Connector).owner());
   }
 
@@ -150,9 +148,10 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong sender on the origin chain to L2
-  function test_MultichainSpokeConnector__anyExecute_revertIfWrongMirror(address _wrongMirror, bytes calldata _data)
-    public
-  {
+  function test_MultichainSpokeConnector__anyExecute_revertIfWrongMirror(
+    address _wrongMirror,
+    bytes calldata _data
+  ) public {
     vm.assume(_wrongMirror != _l1Connector);
 
     // Mock the call to the executor, to retrieve the context
@@ -167,9 +166,10 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // message coming from a wrong chain to L2
-  function test_MultichainSpokeConnector__anyExecute_revertIfWrongOriginId(uint256 _wrongId, bytes calldata _data)
-    public
-  {
+  function test_MultichainSpokeConnector__anyExecute_revertIfWrongOriginId(
+    uint256 _wrongId,
+    bytes calldata _data
+  ) public {
     vm.assume(_wrongId != _chainIdMainnet);
 
     // Mock the call to the executor, to retrieve the context
@@ -234,9 +234,10 @@ contract MultichainSpokeConnectorTest is ConnectorHelper {
   }
 
   // reverse if sender != executor
-  function test_MultichainSpokeConnector_verifySender_revertIfSenderIsNotExecutor(address _from, address _wrongExecutor)
-    public
-  {
+  function test_MultichainSpokeConnector_verifySender_revertIfSenderIsNotExecutor(
+    address _from,
+    address _wrongExecutor
+  ) public {
     vm.assume(_wrongExecutor != _executor);
 
     // Mock the call to the executor, to retrieve the context

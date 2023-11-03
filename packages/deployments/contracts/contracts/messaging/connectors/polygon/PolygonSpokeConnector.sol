@@ -16,31 +16,8 @@ import {SpokeConnector} from "../SpokeConnector.sol";
 contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    FxBaseChildTunnel(_amb)
-  {}
+    ConstructorParams memory _baseSpokeParams
+  ) SpokeConnector(_baseSpokeParams) FxBaseChildTunnel(_baseSpokeParams.amb) {}
 
   // ============ Private fns ============
 
@@ -57,7 +34,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
   }
 
   function _processMessageFromRoot(
-    uint256, /* stateId */
+    uint256 /* stateId */,
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {

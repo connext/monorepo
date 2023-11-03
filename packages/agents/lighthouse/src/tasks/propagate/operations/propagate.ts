@@ -2,7 +2,7 @@ import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from
 import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain } from "../errors";
+import { NoChainIdForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
@@ -50,10 +50,10 @@ export const propagate = async () => {
   const domains = rootManagerMeta.domains;
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const rootManagerAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -100,7 +100,7 @@ export const propagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -112,13 +112,13 @@ export const propagate = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
 };
 
-export const finalizeAndPropagate = async () => {
+export const finalize = async () => {
   const {
     logger,
     config,
@@ -126,40 +126,14 @@ export const finalizeAndPropagate = async () => {
     adapters: { chainreader, contracts, relayers, subgraph, database },
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(propagate.name);
-  logger.info("Starting propagate operation", requestContext, methodContext);
-  const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
-  const domains = rootManagerMeta.domains;
+  logger.info("Starting finalize operation", requestContext, methodContext);
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
+  //TODO: V1.1 needs be relayer proxy hub
   const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
-  const _connectors: string[] = [];
-  const _encodedData: string[] = [];
-  const _fees: string[] = [];
-  let _totalFee = constants.Zero;
-
-  for (const domain of domains) {
-    const connector = rootManagerMeta.connectors[domains.indexOf(domain)];
-    _connectors.push(connector);
-
-    if (Object.keys(getParamsForDomainFn).includes(domain)) {
-      const getParamsForDomain = getParamsForDomainFn[domain];
-      const propagateParam = await getParamsForDomain(
-        domain,
-        chainData.get(domain)!.chainId,
-        hubChainId,
-        requestContext,
-      );
-      _encodedData.push(propagateParam._encodedData);
-      _fees.push(propagateParam._fee);
-      _totalFee = _totalFee.add(BigNumber.from(propagateParam._fee));
-    } else {
-      _encodedData.push("0x");
-      _fees.push("0");
-    }
-  }
 
   const currentSnapshot = await database.getCurrentProposedSnapshot();
 
@@ -201,21 +175,12 @@ export const finalizeAndPropagate = async () => {
     return;
   }
 
-  // encode data for relayer proxy hub
-  const fee = BigNumber.from(0);
-  logger.info("Got params for sending", requestContext, methodContext, {
-    fee,
-    _connectors,
-    _fees,
-    _encodedData,
+  logger.info("Got params for finalizing", requestContext, methodContext, {
     _proposedAggregateRoot,
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalizeAndPropagate", [
-    _connectors,
-    _fees,
-    _encodedData,
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _endOfDispute,
   ]);
@@ -231,7 +196,7 @@ export const finalizeAndPropagate = async () => {
       logger,
       requestContext,
     );
-    logger.info("finalizeAndPropagate tx sent", requestContext, methodContext, { taskId });
+    logger.info("finalize tx sent", requestContext, methodContext, { taskId });
   } catch (e: unknown) {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,

@@ -7,7 +7,10 @@ import {
   RelayerType,
   sendHeartbeat,
   RootManagerMode,
+  SpokeConnectorMode,
   ModeType,
+  jsonifyError,
+  NxtpError,
 } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
@@ -15,7 +18,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { NxtpLighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
-import { propagate, finalizeAndPropagate } from "./operations";
+import { propagate, finalize, finalizeSpoke } from "./operations";
 
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
@@ -95,9 +98,35 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
 
     // Start the propagate task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    const domains: string[] = Object.keys(config.chains);
+    for (const domain of domains) {
+      const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
+      if (spokeConnectorMode.mode !== rootManagerMode.mode) {
+        context.logger.info("Mode MISMATCH. Stop", requestContext, methodContext, {
+          hubMode: rootManagerMode.mode,
+          hubDomain: config.hubDomain,
+          spokeMode: spokeConnectorMode.mode,
+          spokeDomain: domain,
+        });
+        throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
+      }
+    }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      await finalizeAndPropagate();
+      await finalize();
+      for (const spokeDomain of domains) {
+        try {
+          await finalizeSpoke(spokeDomain);
+        } catch (e: unknown) {
+          context.logger.error(
+            "Failed to finalize spoke ",
+            requestContext,
+            methodContext,
+            jsonifyError(e as NxtpError),
+            { spokeDomain },
+          );
+        }
+      }
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode", requestContext, methodContext);
       await propagate();

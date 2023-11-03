@@ -267,6 +267,11 @@ export const ROOT_MANAGER_MODE_ENTITY = `
       mode
 `;
 
+export const SPOKE_CONNECTOR_MODE_ENTITY = `
+      id
+      mode
+`;
+
 export const STABLESWAP_POOL_ENTITY = `
       key
       isActive
@@ -390,6 +395,15 @@ export const PROPOSED_OPTIMISTIC_ROOT_ENTITY = `
       snapshotsRoots
       domains
       baseAggregateRoot
+      timestamp
+`;
+export const SPOKE_OPTIMISTIC_ROOT_ENTITY = `
+      id
+      aggregateRoot
+      rootTimestamp
+      endOfDispute
+      domain
+      timestamp
 `;
 
 export const FINALIZED_OPTIMISTIC_ROOT_ENTITY = `
@@ -404,6 +418,9 @@ export const PROPAGATED_OPTIMISTIC_ROOT_ENTITY = `
       domainsHash
       timestamp
 `;
+
+const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const CONNECTOR_MODE_ID = "CONNECTOR_MODE_ID";
 
 const lastedBlockNumberQuery = (prefix: string): string => {
   return `${prefix}__meta { ${BLOCK_NUMBER_ENTITY}}`;
@@ -1043,7 +1060,9 @@ export const getProcessedRootMessagesByDomainAndBlockQuery = (
   `;
 };
 
-export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: number; limit: number }[]) => {
+export const getAggregatedRootsByDomainQuery = (
+  params: { hub: string; index: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -1052,7 +1071,8 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
     ${prefix}_aggregatedMessageRoots ( 
       first: ${param.limit}, 
       where: { 
-        index_gte: ${param.index}
+        index_gte: ${param.index},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: index, 
       orderDirection: asc
@@ -1068,18 +1088,22 @@ export const getAggregatedRootsByDomainQuery = (params: { hub: string; index: nu
   `;
 };
 
-export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+export const getProposedSnapshotsByDomainQuery = (
+  params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
     const prefix = config.sources[param.hub].prefix;
-    // TODO: Ordering needed
     combinedQuery += `
     ${prefix}_optimisticRootProposeds ( 
       first: ${param.limit}, 
       where: { 
-        id_gte: ${param.snapshotId}
+        disputeCliff_gt: ${param.snapshotId},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
+      orderBy: disputeCliff,
+      orderDirection: asc
     ) {
       ${PROPOSED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1092,7 +1116,37 @@ export const getProposedSnapshotsByDomainQuery = (params: { hub: string; snapsho
   `;
 };
 
-export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapshotId: number; limit: number }[]) => {
+export const getProposedSpokeOptimisticRootsByDomainQuery = (
+  params: { domain: string; rootTimestamp: number; limit: number; maxBlockNumber: number }[],
+) => {
+  const { config } = getContext();
+  let combinedQuery = "";
+  for (const param of params) {
+    const prefix = config.sources[param.domain].prefix;
+    combinedQuery += `
+    ${prefix}_aggregateRootProposeds ( 
+      first: ${param.limit}, 
+      where: { 
+        rootTimestamp_gt: ${param.rootTimestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
+      }
+      orderBy: rootTimestamp,
+      orderDirection: asc
+    ) {
+      ${SPOKE_OPTIMISTIC_ROOT_ENTITY}
+    }`;
+  }
+
+  return gql`
+    query GetAggregateRootProposeds {
+      ${combinedQuery}
+    }
+  `;
+};
+
+export const getSavedSnapshotRootsByDomainQuery = (
+  params: { hub: string; snapshotId: number; limit: number; maxBlockNumber: number }[],
+) => {
   const { config } = getContext();
   let combinedQuery = "";
   for (const param of params) {
@@ -1101,7 +1155,8 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
     ${prefix}_snapshotRoots( 
       first: ${param.limit}, 
       where: { 
-        id_gte: ${param.snapshotId}
+        id_gte: ${param.snapshotId},
+        blockNumber_lte: ${param.maxBlockNumber}
       }
       orderBy: id, 
       orderDirection: asc
@@ -1117,14 +1172,24 @@ export const getSavedSnapshotRootsByDomainQuery = (params: { hub: string; snapsh
   `;
 };
 
-export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp: number; limit: number }[]) => {
+export const getFinalizedRootsByDomainQuery = (
+  params: { domain: string; timestamp: number; limit: number; maxBlockNumber: number }[],
+  isHub: boolean,
+) => {
   const { config } = getContext();
   let combinedQuery = "";
+  const entityName = isHub ? "hubOptimisticRootFinalizeds" : "optimisticRootFinalizeds";
   for (const param of params) {
-    const prefix = config.sources[param.hub].prefix;
+    const prefix = config.sources[param.domain].prefix;
     combinedQuery += `
-    ${prefix}_optimisticRootFinalizeds ( 
-      where: {}
+    ${prefix}_${entityName} ( 
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gt: ${param.timestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
+      }
+      orderBy: timestamp,
+      orderDirection: asc
     ) {
       ${FINALIZED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1138,7 +1203,7 @@ export const getFinalizedRootsByDomainQuery = (params: { hub: string; timestamp:
 };
 
 export const getPropagatedOptimisticRootsByDomainQuery = (
-  params: { hub: string; timestamp: number; limit: number }[],
+  params: { hub: string; timestamp: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1146,7 +1211,13 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
     const prefix = config.sources[param.hub].prefix;
     combinedQuery += `
     ${prefix}_optimisticRootPropagateds ( 
-      where: {}
+      first: ${param.limit}, 
+      where: { 
+        timestamp_gt: ${param.timestamp},
+        blockNumber_lte: ${param.maxBlockNumber}
+      }
+      orderBy: timestamp,
+      orderDirection: asc
     ) {
       ${PROPAGATED_OPTIMISTIC_ROOT_ENTITY}
     }`;
@@ -1160,7 +1231,7 @@ export const getPropagatedOptimisticRootsByDomainQuery = (
 };
 
 export const getReceivedAggregatedRootsByDomainQuery = (
-  params: { domain: string; offset: number; limit: number }[],
+  params: { domain: string; offset: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1170,7 +1241,8 @@ export const getReceivedAggregatedRootsByDomainQuery = (
     ${prefix}_aggregateRoots( 
       first: ${param.limit}, 
       where: { 
-        blockNumber_gt: ${param.offset} 
+        blockNumber_gt: ${param.offset},
+        blockNumber_lte: ${param.maxBlockNumber} 
       }
       orderBy: blockNumber
       orderDirection: asc
@@ -1186,14 +1258,15 @@ export const getReceivedAggregatedRootsByDomainQuery = (
   `;
 };
 
-export const getPropagatedRootsQuery = (domain: string, count: number, limit: number) => {
+export const getPropagatedRootsQuery = (domain: string, count: number, limit: number, maxBlockNumber: number) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
   const queryString = `
   ${prefix}_rootPropagateds ( 
     first: ${limit}, 
     where: { 
-      count_gte: ${count} 
+      count_gte: ${count},
+      blockNumber_lte: ${maxBlockNumber}
     },
     orderBy: count, 
     orderDirection: asc
@@ -1243,8 +1316,6 @@ export const getRootManagerMetaQuery = (domain: string) => {
   `;
 };
 
-const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
-
 export const getRootManagerModeQuery = (domain: string) => {
   const { config } = getContext();
   const prefix = config.sources[domain].prefix;
@@ -1253,6 +1324,19 @@ export const getRootManagerModeQuery = (domain: string) => {
     query GetRootManagerMode {
         ${prefix}_rootManagerMode (id: "${ROOT_MANAGER_MODE_ID}") {
         ${ROOT_MANAGER_MODE_ENTITY}
+      }
+    }
+  `;
+};
+
+export const getSpokeConnectorModeQuery = (domain: string) => {
+  const { config } = getContext();
+  const prefix = config.sources[domain].prefix;
+
+  return gql`
+    query GetSpokeConnectorMode {
+        ${prefix}_spokeConnectorMode (id: "${CONNECTOR_MODE_ID}") {
+        ${SPOKE_CONNECTOR_MODE_ENTITY}
       }
     }
   `;
