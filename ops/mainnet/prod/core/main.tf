@@ -209,14 +209,16 @@ module "sequencer_publisher" {
 }
 
 module "sequencer_publisher_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_publisher.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_publisher.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 10
+  max_capacity               = 100
 }
 
 module "sequencer_subscriber" {
@@ -249,14 +251,16 @@ module "sequencer_subscriber" {
 }
 
 module "sequencer_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 100
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 10
+  max_capacity               = 40
 }
 
 

@@ -209,14 +209,16 @@ module "sequencer_publisher" {
 }
 
 module "sequencer_publisher_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_publisher.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_publisher.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 1
+  max_capacity               = 30
 }
 
 module "sequencer_subscriber" {
@@ -239,7 +241,7 @@ module "sequencer_subscriber" {
   loadbalancer_port        = 80
   cpu                      = 4096
   memory                   = 8192
-  instance_count           = 5
+  instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
   ingress_ipv6_cdir_blocks = []
@@ -249,14 +251,16 @@ module "sequencer_subscriber" {
 }
 
 module "sequencer_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sequencer_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sequencer_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 1
+  max_capacity               = 10
 }
 
 module "sequencer_web3signer" {
@@ -318,14 +322,16 @@ module "lighthouse_prover_subscriber" {
 }
 
 module "lighthouse_prover_subscriber_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.lighthouse_prover_subscriber.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 10
-  max_capacity     = 300
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  min_capacity               = 2
+  max_capacity               = 30
+  avg_cpu_utilization_target = 20
+  avg_mem_utilization_target = 40
 }
 
 module "lighthouse_prover_cron" {
