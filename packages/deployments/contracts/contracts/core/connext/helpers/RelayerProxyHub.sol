@@ -436,8 +436,10 @@ contract RelayerProxyHub is RelayerProxy {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
-    _propagate(_connectors, _messageFees, _encodedData);
+
     lastPropagateAt = block.timestamp;
+
+    _propagate(_connectors, _messageFees, _encodedData);
   }
 
   /**
@@ -503,15 +505,13 @@ contract RelayerProxyHub is RelayerProxy {
       );
     }
 
-    lastProposeAggregateRootAt = block.timestamp;
-
     // Validate the signer
-    _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
+    _validateProposeSignature(_snapshotId, _aggregateRoot, lastProposeAggregateRootAt, _signature);
+
+    lastProposeAggregateRootAt = block.timestamp;
 
     // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
-
-    lastProposeAggregateRootAt = block.timestamp;
   }
 
   /**
@@ -540,12 +540,12 @@ contract RelayerProxyHub is RelayerProxy {
     }
 
     // Validate the signer
-    _validateProposeSignature(_snapshotId, _aggregateRoot, _signature);
+    _validateProposeSignature(_snapshotId, _aggregateRoot, lastProposeAggregateRootAt, _signature);
+
+    lastProposeAggregateRootAt = block.timestamp;
 
     // Propose the aggregate root
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
-
-    lastProposeAggregateRootAt = block.timestamp;
   }
 
   /**
@@ -567,10 +567,10 @@ contract RelayerProxyHub is RelayerProxy {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
 
+    lastPropagateAt = block.timestamp;
+
     // Finalized the proposed aggregate root
     _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
-
-    lastPropagateAt = block.timestamp;
   }
 
   /**
@@ -583,10 +583,10 @@ contract RelayerProxyHub is RelayerProxy {
       revert RelayerProxyHub__finalizeCooledDown_notCooledDown(block.timestamp, lastFinalizeAt + finalizeCooldown);
     }
 
+    lastPropagateAt = block.timestamp;
+
     // Finalized the proposed aggregate root
     rootManager.finalize(_proposedAggregateRoot, _endOfDispute);
-
-    lastPropagateAt = block.timestamp;
   }
 
   /**
@@ -613,8 +613,10 @@ contract RelayerProxyHub is RelayerProxy {
     if (!_propagateCooledDown()) {
       revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
     }
-    _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+
     lastPropagateAt = block.timestamp;
+
+    _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
   }
 
   // ============ Internal Functions ============
@@ -664,10 +666,11 @@ contract RelayerProxyHub is RelayerProxy {
   function _validateProposeSignature(
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
+    uint256 _lastProposeAggregateRootAt,
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot));
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot, _lastProposeAggregateRootAt));
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {

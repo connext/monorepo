@@ -373,12 +373,13 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     }
 
     // Validate the signer
-    _validateProposeSignature(_aggregateRoot, _rootTimestamp, _signature);
+    _validateProposeSignature(_aggregateRoot, _rootTimestamp, lastProposeAggregateRootAt, _signature);
+
+    lastProposeAggregateRootAt = block.timestamp;
 
     spokeConnector.proposeAggregateRoot(_aggregateRoot, _rootTimestamp);
 
     transferRelayerFee(_fee);
-    lastProposeAggregateRootAt = block.timestamp;
   }
 
   receive() external payable {
@@ -451,10 +452,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _validateProposeSignature(
     bytes32 _aggregateRoot,
     uint256 _rootTimestamp,
+    uint256 _lastProposeAggregateRootAt,
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp));
+    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt));
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!spokeConnector.allowlistedProposers(signer)) {
