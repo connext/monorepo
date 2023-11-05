@@ -166,3 +166,21 @@ export class SequencerPostFailed extends ExecuteError {
     super("Sequencer POST request failed", context, SequencerPostFailed.name, undefined, true);
   }
 }
+
+export class MQConnectionClosed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("MQ connection was closed", context, MQConnectionClosed.name, undefined, true);
+  }
+}
+
+export class MQConnectionUnreachable extends ExecuteError {
+  constructor(context: any = {}) {
+    super("MQ is unreachable ", context, MQConnectionUnreachable.name, undefined, true);
+  }
+}
+
+export class MQConnectionFailed extends ExecuteError {
+  constructor(context: any = {}) {
+    super("MQ connection had a failure", context, MQConnectionFailed.name, undefined, true);
+  }
+}
