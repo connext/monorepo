@@ -35,6 +35,7 @@ export type stagingoptimismgoerli_AggregateRootProposed = {
   endOfDispute: Scalars['BigInt'];
   domain: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type stagingoptimismgoerli_AggregateRootProposed_filter = {
@@ -88,6 +89,14 @@ export type stagingoptimismgoerli_AggregateRootProposed_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_AggregateRootProposed_filter>>>;
@@ -100,7 +109,8 @@ export type stagingoptimismgoerli_AggregateRootProposed_orderBy =
   | 'rootTimestamp'
   | 'endOfDispute'
   | 'domain'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 export type stagingoptimismgoerli_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -954,6 +964,7 @@ export type stagingoptimismgoerli_OptimisticRootFinalized = {
   id: Scalars['ID'];
   aggregateRoot: Scalars['stagingoptimismgoerli_Bytes'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type stagingoptimismgoerli_OptimisticRootFinalized_filter = {
@@ -983,6 +994,14 @@ export type stagingoptimismgoerli_OptimisticRootFinalized_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<stagingoptimismgoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<stagingoptimismgoerli_OptimisticRootFinalized_filter>>>;
@@ -992,7 +1011,8 @@ export type stagingoptimismgoerli_OptimisticRootFinalized_filter = {
 export type stagingoptimismgoerli_OptimisticRootFinalized_orderBy =
   | 'id'
   | 'aggregateRoot'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 /** Defines the order direction, either ascending or descending */
 export type stagingoptimismgoerli_OrderDirection =

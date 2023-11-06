@@ -38,6 +38,10 @@ input localmainnet_AggregatedMessageRoot_filter {
   index_not_in: [BigInt!]
   receivedRoot: localmainnet_Bytes
   receivedRoot_not: localmainnet_Bytes
+  receivedRoot_gt: localmainnet_Bytes
+  receivedRoot_lt: localmainnet_Bytes
+  receivedRoot_gte: localmainnet_Bytes
+  receivedRoot_lte: localmainnet_Bytes
   receivedRoot_in: [localmainnet_Bytes!]
   receivedRoot_not_in: [localmainnet_Bytes!]
   receivedRoot_contains: localmainnet_Bytes
@@ -52,6 +56,8 @@ input localmainnet_AggregatedMessageRoot_filter {
   domain_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_AggregatedMessageRoot_filter]
+  or: [localmainnet_AggregatedMessageRoot_filter]
 }
 
 enum localmainnet_AggregatedMessageRoot_orderBy {
@@ -97,24 +103,38 @@ input localmainnet_ArbitrumConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_ArbitrumConnectorMeta_filter]
+  or: [localmainnet_ArbitrumConnectorMeta_filter]
 }
 
 enum localmainnet_ArbitrumConnectorMeta_orderBy {
@@ -176,24 +196,38 @@ input localmainnet_BnbConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_BnbConnectorMeta_filter]
+  or: [localmainnet_BnbConnectorMeta_filter]
 }
 
 enum localmainnet_BnbConnectorMeta_orderBy {
@@ -243,24 +277,38 @@ input localmainnet_GnosisConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_GnosisConnectorMeta_filter]
+  or: [localmainnet_GnosisConnectorMeta_filter]
 }
 
 enum localmainnet_GnosisConnectorMeta_orderBy {
@@ -271,6 +319,12 @@ enum localmainnet_GnosisConnectorMeta_orderBy {
   rootManager
   mirrorConnector
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar localmainnet_Int8
 
 type localmainnet_LineaConnectorMeta {
   id: ID!
@@ -308,24 +362,38 @@ input localmainnet_LineaConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_LineaConnectorMeta_filter]
+  or: [localmainnet_LineaConnectorMeta_filter]
 }
 
 enum localmainnet_LineaConnectorMeta_orderBy {
@@ -373,24 +441,38 @@ input localmainnet_OptimismConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_OptimismConnectorMeta_filter]
+  or: [localmainnet_OptimismConnectorMeta_filter]
 }
 
 enum localmainnet_OptimismConnectorMeta_orderBy {
@@ -444,24 +526,38 @@ input localmainnet_PolygonConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_PolygonConnectorMeta_filter]
+  or: [localmainnet_PolygonConnectorMeta_filter]
 }
 
 enum localmainnet_PolygonConnectorMeta_orderBy {
@@ -816,6 +912,10 @@ input localmainnet_RootAggregated_filter {
   domain_not_in: [BigInt!]
   receivedRoot: localmainnet_Bytes
   receivedRoot_not: localmainnet_Bytes
+  receivedRoot_gt: localmainnet_Bytes
+  receivedRoot_lt: localmainnet_Bytes
+  receivedRoot_gte: localmainnet_Bytes
+  receivedRoot_lte: localmainnet_Bytes
   receivedRoot_in: [localmainnet_Bytes!]
   receivedRoot_not_in: [localmainnet_Bytes!]
   receivedRoot_contains: localmainnet_Bytes
@@ -830,6 +930,8 @@ input localmainnet_RootAggregated_filter {
   index_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootAggregated_filter]
+  or: [localmainnet_RootAggregated_filter]
 }
 
 enum localmainnet_RootAggregated_orderBy {
@@ -868,6 +970,8 @@ input localmainnet_RootManagerMeta_filter {
   connectors_not_contains_nocase: [localmainnet_Bytes!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootManagerMeta_filter]
+  or: [localmainnet_RootManagerMeta_filter]
 }
 
 enum localmainnet_RootManagerMeta_orderBy {
@@ -916,18 +1020,30 @@ input localmainnet_RootMessageProcessed_filter {
   hubDomain_not_in: [BigInt!]
   root: localmainnet_Bytes
   root_not: localmainnet_Bytes
+  root_gt: localmainnet_Bytes
+  root_lt: localmainnet_Bytes
+  root_gte: localmainnet_Bytes
+  root_lte: localmainnet_Bytes
   root_in: [localmainnet_Bytes!]
   root_not_in: [localmainnet_Bytes!]
   root_contains: localmainnet_Bytes
   root_not_contains: localmainnet_Bytes
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -966,6 +1082,8 @@ input localmainnet_RootMessageProcessed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootMessageProcessed_filter]
+  or: [localmainnet_RootMessageProcessed_filter]
 }
 
 enum localmainnet_RootMessageProcessed_orderBy {
@@ -999,12 +1117,20 @@ input localmainnet_RootPropagated_filter {
   id_not_in: [ID!]
   aggregate: localmainnet_Bytes
   aggregate_not: localmainnet_Bytes
+  aggregate_gt: localmainnet_Bytes
+  aggregate_lt: localmainnet_Bytes
+  aggregate_gte: localmainnet_Bytes
+  aggregate_lte: localmainnet_Bytes
   aggregate_in: [localmainnet_Bytes!]
   aggregate_not_in: [localmainnet_Bytes!]
   aggregate_contains: localmainnet_Bytes
   aggregate_not_contains: localmainnet_Bytes
   domainsHash: localmainnet_Bytes
   domainsHash_not: localmainnet_Bytes
+  domainsHash_gt: localmainnet_Bytes
+  domainsHash_lt: localmainnet_Bytes
+  domainsHash_gte: localmainnet_Bytes
+  domainsHash_lte: localmainnet_Bytes
   domainsHash_in: [localmainnet_Bytes!]
   domainsHash_not_in: [localmainnet_Bytes!]
   domainsHash_contains: localmainnet_Bytes
@@ -1019,6 +1145,8 @@ input localmainnet_RootPropagated_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootPropagated_filter]
+  or: [localmainnet_RootPropagated_filter]
 }
 
 enum localmainnet_RootPropagated_orderBy {
@@ -1381,24 +1509,38 @@ input localmainnet_ZkSyncConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_ZkSyncConnectorMeta_filter]
+  or: [localmainnet_ZkSyncConnectorMeta_filter]
 }
 
 enum localmainnet_ZkSyncConnectorMeta_orderBy {
@@ -1415,6 +1557,8 @@ type localmainnet__Block_ {
   hash: localmainnet_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""

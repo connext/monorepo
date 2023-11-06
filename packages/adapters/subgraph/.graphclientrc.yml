@@ -365,10 +365,10 @@ sources:
       graphql:
         strategy: fallback
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
-            retry: 2
-            timeout: 30000 # 30 seconds
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:

@@ -80,6 +80,7 @@ type staginggoerli_AggregatedMessageRoot {
   index: BigInt!
   receivedRoot: staginggoerli_Bytes!
   domain: BigInt
+  blockNumber: BigInt
 }
 
 input staginggoerli_AggregatedMessageRoot_filter {
@@ -117,6 +118,14 @@ input staginggoerli_AggregatedMessageRoot_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_AggregatedMessageRoot_filter]
@@ -128,6 +137,7 @@ enum staginggoerli_AggregatedMessageRoot_orderBy {
   index
   receivedRoot
   domain
+  blockNumber
 }
 
 type staginggoerli_ArbitrumConnectorMeta {
@@ -387,6 +397,7 @@ type staginggoerli_HubOptimisticRootFinalized {
   id: ID!
   aggregateRoot: staginggoerli_Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 input staginggoerli_HubOptimisticRootFinalized_filter {
@@ -416,6 +427,14 @@ input staginggoerli_HubOptimisticRootFinalized_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_HubOptimisticRootFinalized_filter]
@@ -426,6 +445,7 @@ enum staginggoerli_HubOptimisticRootFinalized_orderBy {
   id
   aggregateRoot
   timestamp
+  blockNumber
 }
 
 """
@@ -518,6 +538,7 @@ type staginggoerli_OptimisticRootPropagated {
   aggregateRoot: staginggoerli_Bytes!
   domainsHash: staginggoerli_Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 input staginggoerli_OptimisticRootPropagated_filter {
@@ -557,6 +578,14 @@ input staginggoerli_OptimisticRootPropagated_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_OptimisticRootPropagated_filter]
@@ -568,6 +597,7 @@ enum staginggoerli_OptimisticRootPropagated_orderBy {
   aggregateRoot
   domainsHash
   timestamp
+  blockNumber
 }
 
 type staginggoerli_OptimisticRootProposed {
@@ -578,6 +608,7 @@ type staginggoerli_OptimisticRootProposed {
   domains: [BigInt!]
   baseAggregateRoot: staginggoerli_Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 input staginggoerli_OptimisticRootProposed_filter {
@@ -637,6 +668,14 @@ input staginggoerli_OptimisticRootProposed_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_OptimisticRootProposed_filter]
@@ -651,6 +690,7 @@ enum staginggoerli_OptimisticRootProposed_orderBy {
   domains
   baseAggregateRoot
   timestamp
+  blockNumber
 }
 
 """Defines the order direction, either ascending or descending"""
@@ -1422,6 +1462,7 @@ type staginggoerli_RootPropagated {
   aggregate: staginggoerli_Bytes!
   domainsHash: staginggoerli_Bytes!
   count: BigInt!
+  blockNumber: BigInt
 }
 
 input staginggoerli_RootPropagated_filter {
@@ -1461,6 +1502,14 @@ input staginggoerli_RootPropagated_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_RootPropagated_filter]
@@ -1472,6 +1521,7 @@ enum staginggoerli_RootPropagated_orderBy {
   aggregate
   domainsHash
   count
+  blockNumber
 }
 
 type Subscription {
