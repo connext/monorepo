@@ -9,10 +9,10 @@ assignees: ''
 ---
 
 ## Problem
-_What problem are we solving?_ 
+_In simple 1) What is the problem / opportunity?_ 
 
 ## Impact
-_Why does this matter? Who does it impact? How much does it impact them? What is the urgency?_
+_Why is it important? Who requested it? Who does it impact? What data do we have to suggest this is a problem? Is there specific timelines that increase urgency?_
 
 ## Proposed Solution
 _[OPTIONAL] Thoughts on solution design. We could do <insert idea> to solve this problem._
