@@ -2,8 +2,9 @@
 name: New xERC20
 about: This is for whitelisting a new xERC20.
 title: "[TOKEN] [Mainnet/Testnet] xERC20 Whitelisting"
-labels: "xERC20 🪙"
-assignees: ""
+labels: "xERC20 \U0001FA99"
+assignees: ''
+
 ---
 
 ## Token Details
