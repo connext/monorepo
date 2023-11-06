@@ -33,13 +33,13 @@ variable "full_image_name_router_publisher" {
 
 variable "full_image_name_router_subscriber" {
   type        = string
-  description = "router image name"
+  description = "lighthouse subscriber image name"
   default     = "ghcr.io/connext/router-subscriber:sha-b5bb49a"
 }
 
 variable "full_image_name_lighthouse_prover_subscriber" {
   type        = string
-  description = "router image name"
+  description = "lighthouse prover image name"
   default     = "ghcr.io/connext/lighthouse-subscriber:sha-b5bb49a"
 }
 
@@ -200,5 +200,5 @@ variable "betteruptime_api_key" {
 
 variable "betteruptime_requester_email" {
   type    = string
-  default = "layne@connext.network"
+  default = "layne@proximalabs.io"
 }
