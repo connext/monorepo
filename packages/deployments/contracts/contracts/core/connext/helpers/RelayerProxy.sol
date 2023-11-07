@@ -68,14 +68,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   modifier onlyRelayer() {
     if (!allowedRelayer[msg.sender]) {
-      revert RelayerProxy__onlyRelayer_notRelayer(msg.sender);
+      revert RelayerProxy__onlyRelayer_notRelayer();
     }
     _;
   }
 
   modifier definedAddress(address _input) {
     if (_input == address(0)) {
-      revert RelayerProxy__definedAddress_empty(_input);
+      revert RelayerProxy__definedAddress_empty();
     }
     _;
   }
@@ -84,7 +84,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   // rewarding them with an amount of KP3R equal to their gas spent + premium.
   modifier validateAndPayWithCredits(address _keeper) {
     if (!keep3r.isKeeper(_keeper)) {
-      revert RelayerProxy__validateAndPayWithCredits_notKeep3r(_keeper);
+      revert RelayerProxy__validateAndPayWithCredits_notKeep3r();
     }
     _;
     keep3r.worked(_keeper); // Pays the keeper for the work.
@@ -164,14 +164,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   );
 
   // ============ Error ============
-  error RelayerProxy__addRelayer_relayerAdded(address _relayer);
-  error RelayerProxy__removeRelayer_relayerNotAdded(address _relayer);
-  error RelayerProxy__onlyRelayer_notRelayer(address _sender);
-  error RelayerProxy__definedAddress_empty(address _address);
-  error RelayerProxy__isWorkableBySender_notWorkable(address _sender);
-  error RelayerProxy__validateAndPayWithCredits_notKeep3r(address _sender);
-  error RelayerProxy__validateProposeSignature_notProposer(address proposer);
-  error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
+  error RelayerProxy__addRelayer_relayerAdded();
+  error RelayerProxy__removeRelayer_relayerNotAdded();
+  error RelayerProxy__onlyRelayer_notRelayer();
+  error RelayerProxy__definedAddress_empty();
+  error RelayerProxy__isWorkableBySender_notWorkable();
+  error RelayerProxy__validateAndPayWithCredits_notKeep3r();
+  error RelayerProxy__validateProposeSignature_notProposer();
+  error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
 
   // ============ Structs ============
 
@@ -366,10 +366,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     uint256 _fee
   ) external onlyRelayer nonReentrant {
     if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxy__proposeAggregateRootCooledDown_notCooledDown(
-        block.timestamp,
-        lastProposeAggregateRootAt + proposeAggregateRootCooldown
-      );
+      revert RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
     }
 
     // Validate the signer
@@ -408,7 +405,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   function _addRelayer(address _relayer) internal {
     if (allowedRelayer[_relayer]) {
-      revert RelayerProxy__addRelayer_relayerAdded(_relayer);
+      revert RelayerProxy__addRelayer_relayerAdded();
     }
 
     allowedRelayer[_relayer] = true;
@@ -417,7 +414,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   function _removeRelayer(address _relayer) internal {
     if (!allowedRelayer[_relayer]) {
-      revert RelayerProxy__removeRelayer_relayerNotAdded(_relayer);
+      revert RelayerProxy__removeRelayer_relayerNotAdded();
     }
 
     allowedRelayer[_relayer] = false;
@@ -460,7 +457,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!spokeConnector.allowlistedProposers(signer)) {
-      revert RelayerProxy__validateProposeSignature_notProposer(signer);
+      revert RelayerProxy__validateProposeSignature_notProposer();
     }
   }
 

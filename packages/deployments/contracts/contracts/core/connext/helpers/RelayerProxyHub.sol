@@ -244,14 +244,14 @@ contract RelayerProxyHub is RelayerProxy {
   event AutonolasPriorityChanged(AutonolasPriorityFunction fn, uint8 updated, uint8 previous);
 
   // ============ Errors ============
-  error RelayerProxyHub__propagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
-  error RelayerProxyHub__finalizeCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
-  error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
-  error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(uint256 timestamp, uint256 nextWorkable);
-  error RelayerProxyHub__validateProposeSignature_notProposer(address proposer);
-  error RelayerProxyHub__processFromRoot_alreadyProcessed(uint32 chain, bytes32 l2Hash);
-  error RelayerProxyHub__processFromRoot_noHubConnector(uint32 chain);
-  error RelayerProxyHub__processFromRoot_unsupportedChain(uint32 chain);
+  error RelayerProxyHub__propagateCooledDown_notCooledDown();
+  error RelayerProxyHub__finalizeCooledDown_notCooledDown();
+  error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown();
+  error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
+  error RelayerProxyHub__validateProposeSignature_notProposer();
+  error RelayerProxyHub__processFromRoot_alreadyProcessed();
+  error RelayerProxyHub__processFromRoot_noHubConnector();
+  error RelayerProxyHub__processFromRoot_unsupportedChain();
 
   // ============ Modifiers ============
   /**
@@ -264,7 +264,7 @@ contract RelayerProxyHub is RelayerProxy {
     if (
       _sender != autonolas && autonolasPriority[_function] != 0 && block.number % 10 <= autonolasPriority[_function] - 1
     ) {
-      revert RelayerProxy__isWorkableBySender_notWorkable(_sender);
+      revert RelayerProxy__isWorkableBySender_notWorkable();
     }
     _;
   }
@@ -434,7 +434,7 @@ contract RelayerProxyHub is RelayerProxy {
     nonReentrant
   {
     if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
     }
 
     lastPropagateAt = block.timestamp;
@@ -499,10 +499,7 @@ contract RelayerProxyHub is RelayerProxy {
     validateAndPayWithCredits(msg.sender)
   {
     if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
-        block.timestamp,
-        lastProposeAggregateRootAt + proposeAggregateRootCooldown
-      );
+      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
     }
 
     // Validate the signer
@@ -533,10 +530,7 @@ contract RelayerProxyHub is RelayerProxy {
     bytes memory _signature
   ) external onlyRelayer nonReentrant {
     if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown(
-        block.timestamp,
-        lastProposeAggregateRootAt + proposeAggregateRootCooldown
-      );
+      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
     }
 
     // Validate the signer
@@ -564,7 +558,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256 _endOfDispute
   ) external onlyRelayer nonReentrant returns (uint256 _fee) {
     if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
     }
 
     lastPropagateAt = block.timestamp;
@@ -580,7 +574,7 @@ contract RelayerProxyHub is RelayerProxy {
    */
   function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) external onlyRelayer nonReentrant {
     if (!_finalizeCooledDown()) {
-      revert RelayerProxyHub__finalizeCooledDown_notCooledDown(block.timestamp, lastFinalizeAt + finalizeCooldown);
+      revert RelayerProxyHub__finalizeCooledDown_notCooledDown();
     }
 
     lastPropagateAt = block.timestamp;
@@ -611,7 +605,7 @@ contract RelayerProxyHub is RelayerProxy {
     returns (uint256 _fee)
   {
     if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown(block.timestamp, lastPropagateAt + propagateCooldown);
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
     }
 
     lastPropagateAt = block.timestamp;
@@ -674,7 +668,7 @@ contract RelayerProxyHub is RelayerProxy {
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
-      revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
+      revert RelayerProxyHub__validateProposeSignature_notProposer();
     }
   }
 
@@ -731,10 +725,10 @@ contract RelayerProxyHub is RelayerProxy {
    */
   function _processFromRoot(bytes calldata encodedData, uint32 fromChain, bytes32 l2Hash) internal {
     if (processedRootMessages[fromChain][l2Hash]) {
-      revert RelayerProxyHub__processFromRoot_alreadyProcessed(fromChain, l2Hash);
+      revert RelayerProxyHub__processFromRoot_alreadyProcessed();
     }
     if (hubConnectors[fromChain] == address(0)) {
-      revert RelayerProxyHub__processFromRoot_noHubConnector(fromChain);
+      revert RelayerProxyHub__processFromRoot_noHubConnector();
     }
 
     processedRootMessages[fromChain][l2Hash] = true;
@@ -784,7 +778,7 @@ contract RelayerProxyHub is RelayerProxy {
     } else if (fromChain == ChainIDs.POLYGON_POS || fromChain == ChainIDs.MUMBAI) {
       IPolygonHubConnector(hubConnectors[fromChain]).receiveMessage(encodedData);
     } else {
-      revert RelayerProxyHub__processFromRoot_unsupportedChain(fromChain);
+      revert RelayerProxyHub__processFromRoot_unsupportedChain();
     }
   }
 }
