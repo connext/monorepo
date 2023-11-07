@@ -502,7 +502,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_proposeAggregateRootKeep3r__failsIfNotCooledDown() public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector)
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
     );
     vm.warp(419);
     vm.prank(_gelatoRelayer);
@@ -547,7 +547,7 @@ contract RelayerProxyHubTest is ForgeHelper {
 
   function test_proposeAggregateRoot__failsIfNotCooledDown() public {
     vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector)
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
     );
     vm.warp(419);
     vm.prank(_gelatoRelayer);

@@ -37,6 +37,7 @@
   "function gelatoRelayer() view returns (address)",
   "function keep3r() view returns (address)",
   "function lastProposeAggregateRootAt() view returns (uint256)",
+  "function nonce() view returns (uint256)",
   "function owner() view returns (address)",
   "function proposeAggregateRoot(bytes32 _aggregateRoot, uint256 _rootTimestamp, bytes _signature, uint256 _fee)",
   "function proposeAggregateRootCooldown() view returns (uint256)",

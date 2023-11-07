@@ -95,6 +95,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     keep3r.worked(_keeper); // Pays the keeper for the work.
   }
 
+  modifier onlyProposeCooledDown() {
+    if (block.timestamp < lastProposeAggregateRootAt + proposeAggregateRootCooldown) {
+      revert RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
+    }
+    _;
+    lastProposeAggregateRootAt = block.timestamp;
+  }
+
   // ============ Events ============
 
   /**
@@ -369,15 +377,9 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     uint256 _rootTimestamp,
     bytes memory _signature,
     uint256 _fee
-  ) external onlyRelayer nonReentrant {
-    if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
-    }
-
+  ) external onlyRelayer onlyProposeCooledDown nonReentrant {
     // Validate the signer
     _validateProposeSignature(_aggregateRoot, _rootTimestamp, lastProposeAggregateRootAt, nonce++, _signature);
-
-    lastProposeAggregateRootAt = block.timestamp;
 
     spokeConnector.proposeAggregateRoot(_aggregateRoot, _rootTimestamp);
 
@@ -465,9 +467,5 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     if (!spokeConnector.allowlistedProposers(signer)) {
       revert RelayerProxy__validateProposeSignature_notProposer();
     }
-  }
-
-  function _proposeAggregateRootCooledDown() internal view returns (bool) {
-    return block.timestamp >= (lastProposeAggregateRootAt + proposeAggregateRootCooldown);
   }
 }

@@ -60,6 +60,7 @@
   "function lastFinalizeAt() view returns (uint256)",
   "function lastPropagateAt() view returns (uint256)",
   "function lastProposeAggregateRootAt() view returns (uint256)",
+  "function nonce() view returns (uint256)",
   "function owner() view returns (address)",
   "function processFromRoot(bytes _encodedData, uint32 _fromChain, bytes32 _l2Hash)",
   "function processFromRootKeep3r(bytes _encodedData, uint32 _fromChain, bytes32 _l2Hash)",

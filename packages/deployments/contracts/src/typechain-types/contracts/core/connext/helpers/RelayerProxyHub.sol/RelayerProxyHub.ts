@@ -175,6 +175,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "lastFinalizeAt()": FunctionFragment;
     "lastPropagateAt()": FunctionFragment;
     "lastProposeAggregateRootAt()": FunctionFragment;
+    "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "processFromRoot(bytes,uint32,bytes32)": FunctionFragment;
     "processFromRootKeep3r(bytes,uint32,bytes32)": FunctionFragment;
@@ -231,6 +232,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "lastFinalizeAt"
       | "lastPropagateAt"
       | "lastProposeAggregateRootAt"
+      | "nonce"
       | "owner"
       | "processFromRoot"
       | "processFromRootKeep3r"
@@ -342,6 +344,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "lastProposeAggregateRootAt",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processFromRoot",
@@ -562,6 +565,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "lastProposeAggregateRootAt",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processFromRoot",
@@ -1021,6 +1025,8 @@ export interface RelayerProxyHub extends BaseContract {
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processFromRoot(
@@ -1266,6 +1272,8 @@ export interface RelayerProxyHub extends BaseContract {
 
   lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
+  nonce(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   processFromRoot(
@@ -1506,6 +1514,8 @@ export interface RelayerProxyHub extends BaseContract {
     lastPropagateAt(overrides?: CallOverrides): Promise<BigNumber>;
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1889,6 +1899,8 @@ export interface RelayerProxyHub extends BaseContract {
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
+    nonce(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processFromRoot(
@@ -2134,6 +2146,8 @@ export interface RelayerProxyHub extends BaseContract {
     lastProposeAggregateRootAt(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -148,6 +148,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "gelatoRelayer()": FunctionFragment;
     "keep3r()": FunctionFragment;
     "lastProposeAggregateRootAt()": FunctionFragment;
+    "nonce()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeAggregateRoot(bytes32,uint256,bytes,uint256)": FunctionFragment;
     "proposeAggregateRootCooldown()": FunctionFragment;
@@ -180,6 +181,7 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "gelatoRelayer"
       | "keep3r"
       | "lastProposeAggregateRootAt"
+      | "nonce"
       | "owner"
       | "proposeAggregateRoot"
       | "proposeAggregateRootCooldown"
@@ -231,6 +233,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "lastProposeAggregateRootAt",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "nonce", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeAggregateRoot",
@@ -332,6 +335,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "lastProposeAggregateRootAt",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAggregateRoot",
@@ -606,6 +610,8 @@ export interface RelayerProxy extends BaseContract {
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    nonce(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     proposeAggregateRoot(
@@ -720,6 +726,8 @@ export interface RelayerProxy extends BaseContract {
 
   lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
+  nonce(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   proposeAggregateRoot(
@@ -829,6 +837,8 @@ export interface RelayerProxy extends BaseContract {
     keep3r(overrides?: CallOverrides): Promise<string>;
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
+
+    nonce(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1023,6 +1033,8 @@ export interface RelayerProxy extends BaseContract {
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
+    nonce(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeAggregateRoot(
@@ -1137,6 +1149,8 @@ export interface RelayerProxy extends BaseContract {
     lastProposeAggregateRootAt(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    nonce(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

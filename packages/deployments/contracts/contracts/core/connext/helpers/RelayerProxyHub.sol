@@ -246,8 +246,6 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown();
   error RelayerProxyHub__finalizeCooledDown_notCooledDown();
-  error RelayerProxyHub__finalizeAndPropagateCooledDown_notCooledDown();
-  error RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
   error RelayerProxyHub__validateProposeSignature_notProposer();
   error RelayerProxyHub__processFromRoot_alreadyProcessed();
   error RelayerProxyHub__processFromRoot_noHubConnector();
@@ -267,6 +265,22 @@ contract RelayerProxyHub is RelayerProxy {
       revert RelayerProxy__isWorkableBySender_notWorkable();
     }
     _;
+  }
+
+  modifier onlyPropagateCooledDown() {
+    if (block.timestamp < lastPropagateAt + propagateCooldown) {
+      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
+    }
+    _;
+    lastPropagateAt = block.timestamp;
+  }
+
+  modifier onlyFinalizeCooledDown() {
+    if (block.timestamp < lastFinalizeAt + finalizeCooldown) {
+      revert RelayerProxyHub__finalizeCooledDown_notCooledDown();
+    }
+    _;
+    lastFinalizeAt = block.timestamp;
   }
 
   // ============ Structs ============
@@ -390,7 +404,7 @@ contract RelayerProxyHub is RelayerProxy {
         break;
       }
     }
-    return updatedRoot && _propagateCooledDown();
+    return updatedRoot && block.timestamp >= lastPropagateAt + propagateCooldown;
   }
 
   /**
@@ -408,7 +422,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256[] calldata _messageFees,
     bytes[] memory _encodedData,
     uint256 _relayerFee
-  ) external onlyRelayer nonReentrant {
+  ) external onlyRelayer onlyPropagateCooledDown nonReentrant {
     uint256 sum = _propagate(_connectors, _messageFees, _encodedData);
     emit FundsDeducted(sum, address(this).balance);
     transferRelayerFee(_relayerFee);
@@ -431,14 +445,9 @@ contract RelayerProxyHub is RelayerProxy {
     external
     isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
     validateAndPayWithCredits(msg.sender)
+    onlyPropagateCooledDown
     nonReentrant
   {
-    if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
-    }
-
-    lastPropagateAt = block.timestamp;
-
     _propagate(_connectors, _messageFees, _encodedData);
   }
 
@@ -497,15 +506,10 @@ contract RelayerProxyHub is RelayerProxy {
     external
     isWorkableBySender(AutonolasPriorityFunction.ProposeAggregateRoot, msg.sender)
     validateAndPayWithCredits(msg.sender)
+    onlyProposeCooledDown
   {
-    if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
-    }
-
     // Validate the signer
     _validateProposeSignature(_snapshotId, _aggregateRoot, lastProposeAggregateRootAt, _signature);
-
-    lastProposeAggregateRootAt = block.timestamp;
 
     // Propose the aggregate
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
@@ -528,15 +532,9 @@ contract RelayerProxyHub is RelayerProxy {
     bytes32[] calldata _snapshotsRoots,
     uint32[] calldata _domains,
     bytes memory _signature
-  ) external onlyRelayer nonReentrant {
-    if (!_proposeAggregateRootCooledDown()) {
-      revert RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown();
-    }
-
+  ) external onlyRelayer onlyProposeCooledDown nonReentrant {
     // Validate the signer
     _validateProposeSignature(_snapshotId, _aggregateRoot, lastProposeAggregateRootAt, _signature);
-
-    lastProposeAggregateRootAt = block.timestamp;
 
     // Propose the aggregate root
     rootManager.proposeAggregateRoot(_snapshotId, _aggregateRoot, _snapshotsRoots, _domains);
@@ -556,13 +554,7 @@ contract RelayerProxyHub is RelayerProxy {
     bytes[] memory _encodedData,
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  ) external onlyRelayer nonReentrant returns (uint256 _fee) {
-    if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
-    }
-
-    lastPropagateAt = block.timestamp;
-
+  ) external onlyRelayer onlyPropagateCooledDown nonReentrant returns (uint256 _fee) {
     // Finalized the proposed aggregate root
     _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
   }
@@ -572,13 +564,10 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _proposedAggregateRoot The aggregate root currently proposed
    * @param _endOfDispute          The block in which the dispute period for proposed root finalizes
    */
-  function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) external onlyRelayer nonReentrant {
-    if (!_finalizeCooledDown()) {
-      revert RelayerProxyHub__finalizeCooledDown_notCooledDown();
-    }
-
-    lastPropagateAt = block.timestamp;
-
+  function finalize(
+    bytes32 _proposedAggregateRoot,
+    uint256 _endOfDispute
+  ) external onlyRelayer onlyFinalizeCooledDown nonReentrant {
     // Finalized the proposed aggregate root
     rootManager.finalize(_proposedAggregateRoot, _endOfDispute);
   }
@@ -601,15 +590,10 @@ contract RelayerProxyHub is RelayerProxy {
     external
     isWorkableBySender(AutonolasPriorityFunction.Propagate, msg.sender)
     validateAndPayWithCredits(msg.sender)
+    onlyPropagateCooledDown
     nonReentrant
     returns (uint256 _fee)
   {
-    if (!_propagateCooledDown()) {
-      revert RelayerProxyHub__propagateCooledDown_notCooledDown();
-    }
-
-    lastPropagateAt = block.timestamp;
-
     _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
   }
 
