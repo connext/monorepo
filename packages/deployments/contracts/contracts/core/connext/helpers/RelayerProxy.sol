@@ -62,6 +62,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   uint256 public lastProposeAggregateRootAt;
 
+  /**
+   * @notice Nonce to prevent malicious propose
+   */
+  uint256 public nonce;
+
   mapping(address => bool) public allowedRelayer;
 
   // ============ Modifier ============
@@ -370,7 +375,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     }
 
     // Validate the signer
-    _validateProposeSignature(_aggregateRoot, _rootTimestamp, lastProposeAggregateRootAt, _signature);
+    _validateProposeSignature(_aggregateRoot, _rootTimestamp, lastProposeAggregateRootAt, nonce++, _signature);
 
     lastProposeAggregateRootAt = block.timestamp;
 
@@ -450,10 +455,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     bytes32 _aggregateRoot,
     uint256 _rootTimestamp,
     uint256 _lastProposeAggregateRootAt,
+    uint256 _nonce,
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt));
+    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt, _nonce));
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!spokeConnector.allowlistedProposers(signer)) {
