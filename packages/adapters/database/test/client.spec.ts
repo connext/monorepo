@@ -1017,22 +1017,15 @@ describe("Database client", () => {
       messages.push(rootMessage);
       const m = mock.entity.aggregatedRoot();
       m.index = _i;
+      m.id = _i.toString();
       m.receivedRoot = rootMessage.root;
       roots.push(m);
-      const propRoot = mock.entity.propagatedRoot();
-      propRoot.count = _i + 1;
-      propRoots.push(propRoot);
     }
 
     await saveSentRootMessages(messages, pool);
     await saveAggregatedRoots(roots, pool);
-    await savePropagatedRoots(propRoots, pool);
 
-    const dbRoots = await getLatestMessageRoot(
-      mock.entity.rootMessage().spokeDomain,
-      propRoots[batchSize - 1].aggregate,
-      pool,
-    );
+    const dbRoots = await getLatestMessageRoot(mock.entity.rootMessage().spokeDomain, roots[batchSize - 1].id, pool);
     dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
     expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
   });
