@@ -117,6 +117,7 @@ export function handleAggregateRootSavedSlow(event: AggregateRootSavedSlowEvent)
   if (instance == null) {
     instance = new AggregateRootSavedSlow(key);
   }
+  instance.aggregateRoot = event.params.aggregateRoot;
   instance.count = event.params.leafCount;
   instance.aggregatedRoots = event.params.aggregatedRoots;
   instance.rootTimestamp = event.params.rootTimestamp;
