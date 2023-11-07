@@ -33,7 +33,6 @@ import {
   StableSwapTransfer,
   StableSwapLpBalance,
   RootMessageStatus,
-  convertFromDbPropagatedRoot,
   convertFromDbSpokeOptimisticRoot,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -935,9 +934,14 @@ export const getAggregateRootCount = async (
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<number | undefined> => {
   const poolToUse = _pool ?? pool;
+
+  const idExp = `${aggregateRoot}%`;
+
   // Get the leaf count at the aggregated root
-  const root = await db.selectOne("propagated_roots", { aggregate_root: aggregateRoot }).run(poolToUse);
-  return root ? convertFromDbPropagatedRoot(root).count : undefined;
+  const root = await db
+    .selectOne("aggregated_roots", { id: dc.like(idExp) }, { order: { by: "domain_index", direction: "DESC" } })
+    .run(poolToUse);
+  return root ? convertFromDbAggregatedRoot(root).index + 1 : undefined;
 };
 
 export const getAggregateRoots = async (
@@ -980,15 +984,16 @@ export const getLatestMessageRoot = async (
 ): Promise<RootMessage | undefined> => {
   const poolToUse = _pool ?? pool;
 
-  type rootPropagatedSQL = s.root_messages.SQL | s.propagated_roots.SQL;
-  type rootPropagatedSelectable = s.root_messages.Selectable & { author: s.propagated_roots.Selectable };
+  type rootAggregatedSQL = s.root_messages.SQL | s.aggregated_roots.SQL;
+  type rootAggregatedelectable = s.root_messages.Selectable & { author: s.aggregated_roots.Selectable };
+  const idExp = `${aggregate_root}%`;
 
   const root = await db.sql<
-    rootPropagatedSQL,
-    rootPropagatedSelectable[]
-  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where domain_index < (select leaf_count from propagated_roots where ${{
-    aggregate_root,
-  }})) and ${{
+    rootAggregatedSQL,
+    rootAggregatedelectable[]
+  >`select * from ${"root_messages"} where ${"root"} in (select received_root from aggregated_roots where id <= (select id from aggregated_roots where ${{
+    id: dc.like(idExp),
+  }} order by id desc limit 1)) and ${{
     spoke_domain,
   }} order by ${"leaf_count"} desc nulls last limit 1`.run(poolToUse);
   return root.length > 0 ? convertFromDbRootMessage(root[0]) : undefined;
