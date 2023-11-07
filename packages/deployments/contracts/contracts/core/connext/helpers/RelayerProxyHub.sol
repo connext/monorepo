@@ -633,14 +633,6 @@ contract RelayerProxyHub is RelayerProxy {
     autonolasPriority[_function] = _autonolasPriority;
   }
 
-  function _propagateCooledDown() internal view returns (bool) {
-    return block.timestamp >= (lastPropagateAt + propagateCooldown);
-  }
-
-  function _finalizeCooledDown() internal view returns (bool) {
-    return block.timestamp >= (lastFinalizeAt + finalizeCooldown);
-  }
-
   function _validateProposeSignature(
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
