@@ -344,8 +344,11 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
     return false;
   }
 
+  // Op mode db state
   const snapshot = await database.getSnapshot(onChainRoot);
-  if (!snapshot) {
+  // Slow mode db state
+  const onChainRootCount = await database.getAggregateRootCount(onChainRoot);
+  if (!snapshot && !onChainRootCount) {
     // This can happen when DB and/or subgraph is out of sync
     logger.info("Stop propose. Onchain root not found in db", requestContext, methodContext, {
       onChainRoot,
