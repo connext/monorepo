@@ -195,17 +195,20 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       log: true,
       contract: "RelayerProxyHub",
       args: [
-        connextAddress,
-        spokeConnector.address,
-        gelatoRelayer,
-        feeCollector,
-        KEEP3R_ADDRESSES[network.chainId],
-        rootManager.address,
-        constants.AddressZero,
-        PROPAGATE_COOLDOWN,
-        PROPAGATE_COOLDOWN, // propose cooldown
-        hubConnectors,
-        chains,
+        {
+          connext: connextAddress,
+          spokeConnector: spokeConnector.address,
+          gelatoRelayer: gelatoRelayer,
+          feeCollector: feeCollector,
+          keep3r: KEEP3R_ADDRESSES[network.chainId],
+          rootManager: rootManager.address,
+          autonolas: constants.AddressZero,
+          propagateCooldown: PROPAGATE_COOLDOWN,
+          finalizeCooldown: PROPAGATE_COOLDOWN,
+          proposeAggregateRootCooldown: PROPAGATE_COOLDOWN,
+          hubConnectors: hubConnectors,
+          hubConnectorChains: chains,
+        },
       ],
     });
 
@@ -216,11 +219,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       log: true,
       contract: "RelayerProxy",
       args: [
-        connextAddress,
-        spokeConnector.address,
-        gelatoRelayer,
-        feeCollector,
-        KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
+        {
+          connext: connextAddress,
+          spokeConnector: spokeConnector.address,
+          gelatoRelayer: gelatoRelayer,
+          feeCollector: feeCollector,
+          keep3r: KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
+          proposeAggregateRootCooldown: PROPAGATE_COOLDOWN,
+        },
       ],
     });
 
