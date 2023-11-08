@@ -14,6 +14,8 @@ import {
 } from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { Wallet } from "ethers";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -51,6 +53,10 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
       context.config.chains,
     );
     context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
 
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {

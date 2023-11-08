@@ -87,6 +87,8 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
   databaseWriter: TDatabaseConfig,
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
   redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
@@ -203,6 +205,8 @@ export const getEnvConfig = (
         ? +process.env.REDIS_PORT
         : undefined || configJson.redis?.port || configFile.redis?.port || 6379,
     },
+    mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
@@ -251,6 +255,10 @@ export const getEnvConfig = (
     nxtpConfig.environment === "production"
       ? ""
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
+
+  if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
+    throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
+  }
 
   // add contract deployments if they exist
   const hubChain = domainToChainId(+nxtpConfig.hubDomain);
