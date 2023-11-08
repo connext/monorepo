@@ -345,7 +345,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
-       /// BSC
+        /// BSC
         "6450786": {
           local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
           adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
@@ -396,10 +396,35 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         decimals: 18,
       },
       representations: {
-        /// BSC
         "6450786": {
           local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
           adopted: "0xc6dddb5bc6e61e0841c54f3e723ae1f3a807260b",
+        },
+      },
+    },
+    {
+      name: "xIXT",
+      canonical: {
+        domain: "11111",
+        address: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        decimals: 18,
+      },
+      representations: {
+        "1886350457": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "6648936": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "1634886255": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "6450786": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
       },
     },
