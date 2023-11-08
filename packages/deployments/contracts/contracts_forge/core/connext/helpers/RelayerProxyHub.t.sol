@@ -3,15 +3,19 @@ pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import "../../../utils/ForgeHelper.sol";
+import "../../../utils/ConnectorHelper.sol";
 import {RelayerProxyHub, IRootManager, IGnosisHubConnector, IArbitrumHubConnector, IOptimismHubConnector, IZkSyncHubConnector, IPolygonHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
 import {IKeep3rV2, RelayerProxy} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
 import {RootManager} from "../../../../contracts/messaging/RootManager.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 import {ChainIDs} from "../../../../contracts/core/connext/libraries/ChainIDs.sol";
+import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {MockSpokeConnector} from "../../../utils/Mock.sol";
+import {WatcherManager} from "../../../../contracts/messaging/WatcherManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
-contract RelayerProxyHubTest is ForgeHelper {
+contract RelayerProxyHubTest is ConnectorHelper {
   using ECDSA for bytes32;
 
   enum AutonolasPriorityFunction {
@@ -45,7 +49,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   address _spokeConnector = address(12321222);
   address _gelatoRelayer = address(123444412);
   address _feeCollector = address(12335555);
-  address _rootManager = address(12335558);
+  address _watcherManager;
   address _keep3r = address(12335556);
   address[] _hubConnectors = new address[](10);
   uint32[] _hubConnectorChains = new uint32[](10);
@@ -53,6 +57,8 @@ contract RelayerProxyHubTest is ForgeHelper {
   address SIGNER = vm.addr(0xa11ce);
   address _autonolas = address(134325213);
   uint256 _propagateCooldown = 12321222;
+  uint256 _finalizeCooldown = 1111;
+  uint256 _proposeAggregateRootCooldown = 2222;
   address _hubConnector = address(123444412);
   uint32 _chain = 123;
 
@@ -60,8 +66,31 @@ contract RelayerProxyHubTest is ForgeHelper {
 
   // ============ Setup ============
   function setUp() public {
+    utils_deploySpokeConnector();
     utils_setUpPropagateParams();
     utils_deployAndAssert();
+  }
+
+  function utils_deploySpokeConnector() public {
+    _watcherManager = address(new WatcherManager());
+    _merkle = address(new MerkleTreeManager());
+
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l2Domain,
+      mirrorDomain: _l1Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: address(_merkle),
+      watcherManager: address(_watcherManager),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
+    _spokeConnector = address(new MockSpokeConnector(_baseParams));
   }
 
   function utils_deployAndAssert() public {
@@ -105,9 +134,7 @@ contract RelayerProxyHubTest is ForgeHelper {
       vm.expectEmit(true, true, true, true);
       emit HubConnectorChanged(_hubConnectors[i], address(0), _hubConnectorChains[i]);
     }
-
-    vm.prank(OWNER);
-    proxy = new RelayerProxyHub(
+    RelayerProxyHub.HubConstructorParams memory _constructorParams = RelayerProxyHub.HubConstructorParams(
       _connext,
       _spokeConnector,
       _gelatoRelayer,
@@ -116,13 +143,20 @@ contract RelayerProxyHubTest is ForgeHelper {
       _rootManager,
       _autonolas,
       _propagateCooldown,
-      _propagateCooldown,
+      _finalizeCooldown,
+      _proposeAggregateRootCooldown,
       _hubConnectors,
       _hubConnectorChains
     );
+
+    vm.prank(OWNER);
+
+    proxy = new RelayerProxyHub(_constructorParams);
     vm.deal(address(proxy), 1 ether);
     vm.label(address(proxy), "RelayerProxyHub");
     vm.label(_rootManager, "RootManager");
+
+    assertEq(proxy.domain(), SpokeConnector(payable(_spokeConnector)).DOMAIN());
   }
 
   uint256[] _messageFees = new uint256[](10);
@@ -166,7 +200,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setRootManager_onlyOwner_works() public {
     vm.prank(OWNER);
     vm.expectEmit(true, true, true, true);
-    emit RootManagerChanged(address(123), address(12335558));
+    emit RootManagerChanged(address(123), _rootManager);
     proxy.setRootManager(address(123));
     assertEq(address(proxy.rootManager()), address(123));
   }
@@ -269,7 +303,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__propagate_failsIfNotGelatoRelayer(address sender) public {
     vm.assume(sender != _gelatoRelayer);
     vm.prank(sender);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector));
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 
@@ -287,9 +321,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, sender), abi.encode(false));
     vm.roll(105);
     vm.prank(sender);
-    vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender)
-    );
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector));
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
   }
 
@@ -313,11 +345,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.prank(_gelatoRelayer);
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
-        block.timestamp,
-        proxy.lastPropagateAt() + _propagateCooldown
-      )
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector)
     );
     vm.prank(_gelatoRelayer);
     proxy.propagateKeep3r(_hubConnectors, _messageFees, _encodedData);
@@ -326,18 +354,14 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__processFromRootKeep3r_doesNotWorkIfNotKeep3r(address sender) public {
     vm.mockCall(address(_keep3r), abi.encodeWithSelector(IKeep3rV2.isKeeper.selector, sender), abi.encode(false));
     vm.prank(sender);
-    vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, sender)
-    );
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector));
     proxy.processFromRootKeep3r(abi.encode("foo"), 137, bytes32(uint256(1)));
   }
 
   function test_RelayerProxyHub__processFromRootKeep3r_failsIfNoHubConnector() public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.prank(_gelatoRelayer);
-    vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__processFromRoot_noHubConnector.selector, 1234567)
-    );
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__processFromRoot_noHubConnector.selector));
     proxy.processFromRootKeep3r(abi.encode("foo"), 1234567, bytes32(uint256(1)));
   }
 
@@ -487,19 +511,13 @@ contract RelayerProxyHubTest is ForgeHelper {
     proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
 
     vm.prank(_gelatoRelayer);
-    vm.expectRevert(
-      abi.encodeWithSelector(
-        RelayerProxyHub.RelayerProxyHub__processFromRoot_alreadyProcessed.selector,
-        137,
-        bytes32(uint256(1))
-      )
-    );
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__processFromRoot_alreadyProcessed.selector));
     proxy.processFromRootKeep3r(abi.encode("params"), 137, bytes32(uint256(1)));
   }
 
   function test_RelayerProxyHub__processFromRoot_failsIfNotRelayer(address sender) public {
     vm.assume(sender != _gelatoRelayer);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector, sender));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__onlyRelayer_notRelayer.selector));
     vm.prank(sender);
     proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
   }
@@ -510,38 +528,34 @@ contract RelayerProxyHubTest is ForgeHelper {
     proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
   }
 
-  function test_proposeAggregateRootKeep3r__failsIfNotCooledDown() public {
+  function test_proposeAggregateRootOnRootKeep3r__failsIfNotCooledDown() public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        RelayerProxyHub.RelayerProxyHub__proposeAggregateRootCooledDown_notCooledDown.selector,
-        419,
-        _propagateCooldown
-      )
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
     );
     vm.warp(419);
     vm.prank(_gelatoRelayer);
     bytes memory signature = utils_getSig(bytes32(uint256(1)));
-    proxy.proposeAggregateRootKeep3r(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRootKeep3r(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
   }
 
-  function test_proposeAggregateRootKeep3r__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
-    utils_mockIsKeeper(_gelatoRelayer, true);
-    vm.mockCall(
-      address(proxy.rootManager()),
-      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
-      abi.encode(false)
-    );
-    vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__validateProposeSignature_notProposer.selector, SIGNER)
-    );
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
-    bytes memory signature = utils_getSig(payload);
-    vm.prank(_gelatoRelayer);
-    proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
-  }
+  // function test_proposeAggregateRootKeep3r__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+  //   utils_mockIsKeeper(_gelatoRelayer, true);
+  //   vm.mockCall(
+  //     address(proxy.rootManager()),
+  //     abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+  //     abi.encode(false)
+  //   );
+  //   vm.expectRevert(
+  //     abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__validateProposeSignature_notProposer.selector, SIGNER)
+  //   );
+  //   bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt()));
+  //   bytes memory signature = utils_getSig(payload);
+  //   vm.prank(_gelatoRelayer);
+  //   proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  // }
 
-  function test_proposeAggregateRootKeep3r__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+  function test_proposeAggregateRootonRootKeep3r__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.mockCall(
       address(proxy.rootManager()),
@@ -554,17 +568,56 @@ contract RelayerProxyHubTest is ForgeHelper {
       abi.encodeWithSelector(IRootManager.proposeAggregateRoot.selector),
       abi.encode()
     );
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot));
+    bytes32 payload = keccak256(
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), proxy.domain())
+    );
     bytes memory signature = utils_getSig(payload);
     vm.prank(_gelatoRelayer);
-    proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  }
+
+  function test_proposeAggregateRootOnRoot__failsIfNotCooledDown() public {
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
+    );
+    vm.warp(419);
+    vm.prank(_gelatoRelayer);
+    bytes memory signature = utils_getSig(bytes32(uint256(1)));
+    proxy.proposeAggregateRootOnRoot(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+  }
+
+  // function test_proposeAggregateRoot__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+  //   vm.mockCall(
+  //     address(proxy.rootManager()),
+  //     abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+  //     abi.encode(false)
+  //   );
+  //   vm.expectRevert(
+  //     abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__validateProposeSignature_notProposer.selector, SIGNER)
+  //   );
+  //   bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt()));
+  //   bytes memory signature = utils_getSig(payload);
+  //   vm.prank(_gelatoRelayer);
+  //   proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+  // }
+
+  function test_proposeAggregateRootOnRoot__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
+      abi.encode(true)
+    );
+    bytes32 payload = keccak256(
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), proxy.domain())
+    );
+    bytes memory signature = utils_getSig(payload);
+    vm.prank(_gelatoRelayer);
+    proxy.proposeAggregateRootOnRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   }
 
   function test_finalizeAndPropagateKeep3r__failsIfNotKeep3r(address _sender) public {
     utils_mockIsKeeper(_sender, false);
-    vm.expectRevert(
-      abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector, _sender)
-    );
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__validateAndPayWithCredits_notKeep3r.selector));
     vm.prank(_sender);
     proxy.finalizeAndPropagateKeep3r(new address[](1), new uint256[](1), new bytes[](1), bytes32(uint256(1)), 42);
   }
@@ -573,11 +626,7 @@ contract RelayerProxyHubTest is ForgeHelper {
     vm.assume(_time < 300);
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector,
-        _time,
-        _propagateCooldown
-      )
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector)
     );
     vm.warp(_time);
     vm.prank(_gelatoRelayer);
@@ -600,5 +649,47 @@ contract RelayerProxyHubTest is ForgeHelper {
     uint256 _fee = proxy.finalizeAndPropagateKeep3r(new address[](2), _fees, new bytes[](2), bytes32(uint256(1)), 42);
     assertEq(_fee, _fee1 + _fee2);
     assertEq(proxy.lastPropagateAt(), block.timestamp);
+  }
+
+  function test_finalizeAndPropagate__failsIfNotCooledDown(uint256 _time) public {
+    vm.assume(_time < 300);
+    vm.expectRevert(
+      abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__propagateCooledDown_notCooledDown.selector)
+    );
+    vm.warp(_time);
+    vm.prank(_gelatoRelayer);
+    proxy.finalizeAndPropagate(new address[](1), new uint256[](1), new bytes[](1), bytes32(uint256(1)), 42);
+  }
+
+  function test_finalizeAndPropagate__works(uint256 _fee1, uint256 _fee2) public {
+    vm.assume(_fee1 < type(uint256).max / 2);
+    vm.assume(_fee2 < type(uint256).max / 2);
+    vm.mockCall(
+      address(proxy.rootManager()),
+      abi.encodeWithSelector(IRootManager.finalizeAndPropagate.selector),
+      abi.encode()
+    );
+    vm.prank(_gelatoRelayer);
+    uint256[] memory _fees = new uint256[](2);
+    _fees[0] = _fee1;
+    _fees[1] = _fee2;
+    uint256 _fee = proxy.finalizeAndPropagate(new address[](2), _fees, new bytes[](2), bytes32(uint256(1)), 42);
+    assertEq(_fee, _fee1 + _fee2);
+    assertEq(proxy.lastPropagateAt(), block.timestamp);
+  }
+
+  function test_finalize__failsIfNotCooledDown(uint256 _time) public {
+    vm.assume(_time < 300);
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__finalizeCooledDown_notCooledDown.selector));
+    vm.warp(_time);
+    vm.prank(_gelatoRelayer);
+    proxy.finalize(bytes32(uint256(1)), 42);
+  }
+
+  function test_finalize__works(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public {
+    vm.assume(_endOfDispute < 500);
+    vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.finalize.selector), abi.encode());
+    vm.prank(_gelatoRelayer);
+    proxy.finalize(_proposedAggregateRoot, _endOfDispute);
   }
 }

@@ -95,6 +95,33 @@ export type ExecuteArgsStructOutput = [
   sequencerSignature: string;
 };
 
+export declare namespace RelayerProxy {
+  export type ConstructorParamsStruct = {
+    connext: PromiseOrValue<string>;
+    spokeConnector: PromiseOrValue<string>;
+    gelatoRelayer: PromiseOrValue<string>;
+    feeCollector: PromiseOrValue<string>;
+    keep3r: PromiseOrValue<string>;
+    proposeAggregateRootCooldown: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ConstructorParamsStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    BigNumber
+  ] & {
+    connext: string;
+    spokeConnector: string;
+    gelatoRelayer: string;
+    feeCollector: string;
+    keep3r: string;
+    proposeAggregateRootCooldown: BigNumber;
+  };
+}
+
 export declare namespace ISpokeConnector {
   export type ProofStruct = {
     message: PromiseOrValue<BytesLike>;
@@ -116,11 +143,15 @@ export interface RelayerProxyInterface extends utils.Interface {
     "allowedRelayer(address)": FunctionFragment;
     "connext()": FunctionFragment;
     "delay()": FunctionFragment;
+    "domain()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
     "feeCollector()": FunctionFragment;
     "gelatoRelayer()": FunctionFragment;
     "keep3r()": FunctionFragment;
+    "lastProposeAggregateRootAt()": FunctionFragment;
     "owner()": FunctionFragment;
+    "proposeAggregateRoot(bytes32,uint256,bytes,uint256)": FunctionFragment;
+    "proposeAggregateRootCooldown()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -145,11 +176,15 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "allowedRelayer"
       | "connext"
       | "delay"
+      | "domain"
       | "execute"
       | "feeCollector"
       | "gelatoRelayer"
       | "keep3r"
+      | "lastProposeAggregateRootAt"
       | "owner"
+      | "proposeAggregateRoot"
+      | "proposeAggregateRootCooldown"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -181,6 +216,7 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "connext", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "domain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [ExecuteArgsStruct, PromiseOrValue<BigNumberish>]
@@ -194,7 +230,24 @@ export interface RelayerProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "lastProposeAggregateRootAt",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRoot",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRootCooldown",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
@@ -268,6 +321,7 @@ export interface RelayerProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "connext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "domain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "feeCollector",
@@ -278,7 +332,19 @@ export interface RelayerProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastProposeAggregateRootAt",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRootCooldown",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
@@ -331,6 +397,7 @@ export interface RelayerProxyInterface extends utils.Interface {
     "Keep3rChanged(address,address)": EventFragment;
     "OwnershipProposed(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "ProposeAggregateRootCooldownChanged(uint256,uint256)": EventFragment;
     "RelayerAdded(address)": EventFragment;
     "RelayerRemoved(address)": EventFragment;
     "SpokeConnectorChanged(address,address)": EventFragment;
@@ -344,6 +411,9 @@ export interface RelayerProxyInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Keep3rChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ProposeAggregateRootCooldownChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RelayerRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SpokeConnectorChanged"): EventFragment;
@@ -440,6 +510,18 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
+export interface ProposeAggregateRootCooldownChangedEventObject {
+  proposeAggregateRootCooldown: BigNumber;
+  oldProposeAggregateRootCooldown: BigNumber;
+}
+export type ProposeAggregateRootCooldownChangedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  ProposeAggregateRootCooldownChangedEventObject
+>;
+
+export type ProposeAggregateRootCooldownChangedEventFilter =
+  TypedEventFilter<ProposeAggregateRootCooldownChangedEvent>;
+
 export interface RelayerAddedEventObject {
   relayer: string;
 }
@@ -514,6 +596,8 @@ export interface RelayerProxy extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    domain(overrides?: CallOverrides): Promise<[number]>;
+
     execute(
       _args: ExecuteArgsStruct,
       _fee: PromiseOrValue<BigNumberish>,
@@ -526,7 +610,21 @@ export interface RelayerProxy extends BaseContract {
 
     keep3r(overrides?: CallOverrides): Promise<[string]>;
 
+    lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    proposeAggregateRootCooldown(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -614,6 +712,8 @@ export interface RelayerProxy extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  domain(overrides?: CallOverrides): Promise<number>;
+
   execute(
     _args: ExecuteArgsStruct,
     _fee: PromiseOrValue<BigNumberish>,
@@ -626,7 +726,19 @@ export interface RelayerProxy extends BaseContract {
 
   keep3r(overrides?: CallOverrides): Promise<string>;
 
+  lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
+
+  proposeAggregateRoot(
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    _signature: PromiseOrValue<BytesLike>,
+    _fee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
@@ -712,6 +824,8 @@ export interface RelayerProxy extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    domain(overrides?: CallOverrides): Promise<number>;
+
     execute(
       _args: ExecuteArgsStruct,
       _fee: PromiseOrValue<BigNumberish>,
@@ -724,7 +838,19 @@ export interface RelayerProxy extends BaseContract {
 
     keep3r(overrides?: CallOverrides): Promise<string>;
 
+    lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -849,6 +975,15 @@ export interface RelayerProxy extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
+    "ProposeAggregateRootCooldownChanged(uint256,uint256)"(
+      proposeAggregateRootCooldown?: null,
+      oldProposeAggregateRootCooldown?: null
+    ): ProposeAggregateRootCooldownChangedEventFilter;
+    ProposeAggregateRootCooldownChanged(
+      proposeAggregateRootCooldown?: null,
+      oldProposeAggregateRootCooldown?: null
+    ): ProposeAggregateRootCooldownChangedEventFilter;
+
     "RelayerAdded(address)"(relayer?: null): RelayerAddedEventFilter;
     RelayerAdded(relayer?: null): RelayerAddedEventFilter;
 
@@ -884,6 +1019,8 @@ export interface RelayerProxy extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    domain(overrides?: CallOverrides): Promise<BigNumber>;
+
     execute(
       _args: ExecuteArgsStruct,
       _fee: PromiseOrValue<BigNumberish>,
@@ -896,7 +1033,19 @@ export interface RelayerProxy extends BaseContract {
 
     keep3r(overrides?: CallOverrides): Promise<BigNumber>;
 
+    lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    proposeAggregateRootCooldown(overrides?: CallOverrides): Promise<BigNumber>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
@@ -985,6 +1134,8 @@ export interface RelayerProxy extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     execute(
       _args: ExecuteArgsStruct,
       _fee: PromiseOrValue<BigNumberish>,
@@ -997,7 +1148,23 @@ export interface RelayerProxy extends BaseContract {
 
     keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    lastProposeAggregateRootAt(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    proposeAggregateRoot(
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _signature: PromiseOrValue<BytesLike>,
+      _fee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposeAggregateRootCooldown(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,

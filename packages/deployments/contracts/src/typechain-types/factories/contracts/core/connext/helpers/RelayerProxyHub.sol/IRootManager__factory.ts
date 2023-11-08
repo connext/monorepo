@@ -50,6 +50,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_proposedAggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_endOfDispute",
+        type: "uint256",
+      },
+    ],
+    name: "finalize",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address[]",
         name: "_connectors",
         type: "address[]",
