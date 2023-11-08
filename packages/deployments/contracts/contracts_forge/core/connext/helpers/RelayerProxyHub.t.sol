@@ -155,6 +155,8 @@ contract RelayerProxyHubTest is ConnectorHelper {
     vm.deal(address(proxy), 1 ether);
     vm.label(address(proxy), "RelayerProxyHub");
     vm.label(_rootManager, "RootManager");
+
+    assertEq(proxy.domain(), SpokeConnector(payable(_spokeConnector)).DOMAIN());
   }
 
   uint256[] _messageFees = new uint256[](10);
@@ -526,7 +528,7 @@ contract RelayerProxyHubTest is ConnectorHelper {
     proxy.processFromRoot(abi.encode("params"), 137, bytes32(uint256(1)));
   }
 
-  function test_proposeAggregateRootKeep3r__failsIfNotCooledDown() public {
+  function test_proposeAggregateRootOnRootKeep3r__failsIfNotCooledDown() public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.expectRevert(
       abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
@@ -534,7 +536,7 @@ contract RelayerProxyHubTest is ConnectorHelper {
     vm.warp(419);
     vm.prank(_gelatoRelayer);
     bytes memory signature = utils_getSig(bytes32(uint256(1)));
-    proxy.proposeAggregateRootKeep3r(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRootKeep3r(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
   }
 
   // function test_proposeAggregateRootKeep3r__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
@@ -553,7 +555,7 @@ contract RelayerProxyHubTest is ConnectorHelper {
   //   proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   // }
 
-  function test_proposeAggregateRootKeep3r__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+  function test_proposeAggregateRootonRootKeep3r__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
     utils_mockIsKeeper(_gelatoRelayer, true);
     vm.mockCall(
       address(proxy.rootManager()),
@@ -567,21 +569,21 @@ contract RelayerProxyHubTest is ConnectorHelper {
       abi.encode()
     );
     bytes32 payload = keccak256(
-      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), block.chainid)
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), proxy.domain())
     );
     bytes memory signature = utils_getSig(payload);
     vm.prank(_gelatoRelayer);
-    proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   }
 
-  function test_proposeAggregateRoot__failsIfNotCooledDown() public {
+  function test_proposeAggregateRootOnRoot__failsIfNotCooledDown() public {
     vm.expectRevert(
       abi.encodeWithSelector(RelayerProxy.RelayerProxy__proposeAggregateRootCooledDown_notCooledDown.selector)
     );
     vm.warp(419);
     vm.prank(_gelatoRelayer);
     bytes memory signature = utils_getSig(bytes32(uint256(1)));
-    proxy.proposeAggregateRoot(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRoot(1, bytes32(uint256(1)), new bytes32[](1), new uint32[](1), signature);
   }
 
   // function test_proposeAggregateRoot__failsIfInvalidSig(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
@@ -599,18 +601,18 @@ contract RelayerProxyHubTest is ConnectorHelper {
   //   proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   // }
 
-  function test_proposeAggregateRoot__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
+  function test_proposeAggregateRootOnRoot__works(uint256 _snapshotRoot, bytes32 _aggregateRoot) public {
     vm.mockCall(
       address(proxy.rootManager()),
       abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
       abi.encode(true)
     );
     bytes32 payload = keccak256(
-      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), block.chainid)
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), proxy.domain())
     );
     bytes memory signature = utils_getSig(payload);
     vm.prank(_gelatoRelayer);
-    proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
+    proxy.proposeAggregateRootOnRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
   }
 
   function test_finalizeAndPropagateKeep3r__failsIfNotKeep3r(address _sender) public {

@@ -487,7 +487,7 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
-   * @notice Wraps the `proposeAggregateRoot` function
+   * @notice Wraps the `proposeAggregateRoot` function of RootManager
    * @dev This contract will validate the signer is a whitelisted proposer on the RootManager,
    * and then call `propose` itself. This means this contract must *also* be whitelisted as a
    * proposer on the RootManager.
@@ -496,7 +496,7 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _snapshotsRoots The roots of the connectors included in the aggregate.
    * @param _domains The domains of the snapshots to be proposed.
    */
-  function proposeAggregateRootKeep3r(
+  function proposeAggregateRootOnRootKeep3r(
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
     bytes32[] calldata _snapshotsRoots,
@@ -516,7 +516,7 @@ contract RelayerProxyHub is RelayerProxy {
   }
 
   /**
-   * @notice Wraps the `proposeAggregateRoot` function
+   * @notice Wraps the `proposeAggregateRoot` function of RootManager
    * @dev This contract will validate the signer is a whitelisted proposer on the RootManager,
    * and then call `propose` itself. This means this contract must *also* be whitelisted as a
    * proposer on the RootManager.
@@ -526,7 +526,7 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _domains The domains of the snapshots to be proposed.
    * @param _signature Signature from the approved proposer.
    */
-  function proposeAggregateRoot(
+  function proposeAggregateRootOnRoot(
     uint256 _snapshotId,
     bytes32 _aggregateRoot,
     bytes32[] calldata _snapshotsRoots,
