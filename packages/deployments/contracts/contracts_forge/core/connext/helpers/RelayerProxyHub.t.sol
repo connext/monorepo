@@ -539,7 +539,9 @@ contract RelayerProxyHubTest is ForgeHelper {
       abi.encodeWithSelector(IRootManager.proposeAggregateRoot.selector),
       abi.encode()
     );
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt()));
+    bytes32 payload = keccak256(
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), block.chainid)
+    );
     bytes memory signature = utils_getSig(payload);
     vm.prank(_gelatoRelayer);
     proxy.proposeAggregateRootKeep3r(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);
@@ -576,7 +578,9 @@ contract RelayerProxyHubTest is ForgeHelper {
       abi.encodeWithSelector(IRootManager.allowlistedProposers.selector, SIGNER),
       abi.encode(true)
     );
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt()));
+    bytes32 payload = keccak256(
+      abi.encodePacked(_snapshotRoot, _aggregateRoot, proxy.lastPropagateAt(), block.chainid)
+    );
     bytes memory signature = utils_getSig(payload);
     vm.prank(_gelatoRelayer);
     proxy.proposeAggregateRoot(_snapshotRoot, _aggregateRoot, new bytes32[](1), new uint32[](1), signature);

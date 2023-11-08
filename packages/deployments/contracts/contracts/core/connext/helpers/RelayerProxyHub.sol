@@ -640,7 +640,9 @@ contract RelayerProxyHub is RelayerProxy {
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot, _lastProposeAggregateRootAt));
+    bytes32 payload = keccak256(
+      abi.encodePacked(_snapshotId, _aggregateRoot, _lastProposeAggregateRootAt, block.chainid)
+    );
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
