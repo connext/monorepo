@@ -82,6 +82,7 @@ export const mockDatabase = (): Database => {
     saveSnapshotRoots: stub().resolves(),
     getCurrentProposedSnapshot: stub().resolves(),
     getCurrentFinalizedSnapshot: stub().resolves(),
+    getLatestSnapshot: stub().resolves(),
     getBaseAggregateRoot: stub().resolves(),
     getAggregateRoots: stub().resolves(),
     getAggregateRoot: stub().resolves(),
