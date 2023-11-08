@@ -11,6 +11,19 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "DOMAIN",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",

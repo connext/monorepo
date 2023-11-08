@@ -40,6 +40,7 @@ export declare namespace ISpokeConnector {
 
 export interface ISpokeConnectorInterface extends utils.Interface {
   functions: {
+    "DOMAIN()": FunctionFragment;
     "allowlistedProposers(address)": FunctionFragment;
     "proposeAggregateRoot(bytes32,uint256)": FunctionFragment;
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
@@ -48,12 +49,14 @@ export interface ISpokeConnectorInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "DOMAIN"
       | "allowlistedProposers"
       | "proposeAggregateRoot"
       | "proveAndProcess"
       | "send"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "DOMAIN", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "allowlistedProposers",
     values: [PromiseOrValue<string>]
@@ -76,6 +79,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "DOMAIN", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "allowlistedProposers",
     data: BytesLike
@@ -120,6 +124,8 @@ export interface ISpokeConnector extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    DOMAIN(overrides?: CallOverrides): Promise<[number]>;
+
     allowlistedProposers(
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -144,6 +150,8 @@ export interface ISpokeConnector extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  DOMAIN(overrides?: CallOverrides): Promise<number>;
 
   allowlistedProposers(
     _proposer: PromiseOrValue<string>,
@@ -170,6 +178,8 @@ export interface ISpokeConnector extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    DOMAIN(overrides?: CallOverrides): Promise<number>;
+
     allowlistedProposers(
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -198,6 +208,8 @@ export interface ISpokeConnector extends BaseContract {
   filters: {};
 
   estimateGas: {
+    DOMAIN(overrides?: CallOverrides): Promise<BigNumber>;
+
     allowlistedProposers(
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -224,6 +236,8 @@ export interface ISpokeConnector extends BaseContract {
   };
 
   populateTransaction: {
+    DOMAIN(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     allowlistedProposers(
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
