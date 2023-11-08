@@ -30,7 +30,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
   await updateIfNeeded({
     apply,
     deployment: RootManager,
-    desired: protocol.hub,
+    desired: +protocol.hub,
     read: { method: "hubDomain" },
     write: { method: "setHubDomain", args: [protocol.hub] },
   });
