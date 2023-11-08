@@ -246,7 +246,7 @@ contract RelayerProxyHub is RelayerProxy {
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown();
   error RelayerProxyHub__finalizeCooledDown_notCooledDown();
-  error RelayerProxyHub__validateProposeSignature_notProposer();
+  error RelayerProxyHub__validateProposeSignature_notProposer(address signer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed();
   error RelayerProxyHub__processFromRoot_noHubConnector();
   error RelayerProxyHub__processFromRoot_unsupportedChain();
@@ -640,13 +640,14 @@ contract RelayerProxyHub is RelayerProxy {
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(
-      abi.encodePacked(_snapshotId, _aggregateRoot, _lastProposeAggregateRootAt, block.chainid)
-    );
+    // To prevent signature replay, added `snapshotId`, `lastProposeAggregateRootAt` and `domain`.
+    // `lastProposeAggregateRootAt` will be strictly increased after proposed, so same signature can't be used again.
+    // Also domain will prevent the replay from other chains.
+    bytes32 payload = keccak256(abi.encodePacked(_snapshotId, _aggregateRoot, _lastProposeAggregateRootAt, domain));
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!rootManager.allowlistedProposers(signer)) {
-      revert RelayerProxyHub__validateProposeSignature_notProposer();
+      revert RelayerProxyHub__validateProposeSignature_notProposer(signer);
     }
   }
 

@@ -16,6 +16,8 @@ interface ISpokeConnector {
     uint256 index;
   }
 
+  function DOMAIN() external view returns (uint32);
+
   function proveAndProcess(
     Proof[] calldata _proofs,
     bytes32 _aggregateRoot,
@@ -50,6 +52,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
+  uint32 public domain;
 
   /**
    * @notice Delay for the proposeAggregateRoot function
@@ -178,7 +181,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   error RelayerProxy__definedAddress_empty();
   error RelayerProxy__isWorkableBySender_notWorkable();
   error RelayerProxy__validateAndPayWithCredits_notKeep3r();
-  error RelayerProxy__validateProposeSignature_notProposer();
+  error RelayerProxy__validateProposeSignature_notProposer(address signer);
   error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
 
   // ============ Structs ============
@@ -216,6 +219,8 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setProposeAggregateRootCooldown(_params.proposeAggregateRootCooldown);
 
     _addRelayer(_params.gelatoRelayer);
+
+    domain = ISpokeConnector(_params.spokeConnector).DOMAIN();
   }
 
   // ============ Admin Functions ============
@@ -455,13 +460,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     bytes memory _signature
   ) internal view {
     // Get the payload
-    bytes32 payload = keccak256(
-      abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt, block.chainid)
-    );
+    // To prevent signature replay, added `lastProposeAggregateRootAt` and `domain`.
+    // `lastProposeAggregateRootAt` will be strictly increased after proposed, so same signature can't be used again.
+    // Also domain will prevent the replay from other chains.
+    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt, domain));
     // Recover signer
     address signer = payload.toEthSignedMessageHash().recover(_signature);
     if (!spokeConnector.allowlistedProposers(signer)) {
-      revert RelayerProxy__validateProposeSignature_notProposer();
+      revert RelayerProxy__validateProposeSignature_notProposer(signer);
     }
   }
 }

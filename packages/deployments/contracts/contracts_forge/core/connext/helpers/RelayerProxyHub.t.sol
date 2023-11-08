@@ -3,15 +3,19 @@ pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import "../../../utils/ForgeHelper.sol";
+import "../../../utils/ConnectorHelper.sol";
 import {RelayerProxyHub, IRootManager, IGnosisHubConnector, IArbitrumHubConnector, IOptimismHubConnector, IZkSyncHubConnector, IPolygonHubConnector} from "../../../../contracts/core/connext/helpers/RelayerProxyHub.sol";
 import {IKeep3rV2, RelayerProxy} from "../../../../contracts/core/connext/helpers/RelayerProxy.sol";
 import {RootManager} from "../../../../contracts/messaging/RootManager.sol";
 import {Types} from "../../../../contracts/messaging/connectors/optimism/lib/Types.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 import {ChainIDs} from "../../../../contracts/core/connext/libraries/ChainIDs.sol";
+import {SpokeConnector} from "../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {MockSpokeConnector} from "../../../utils/Mock.sol";
+import {WatcherManager} from "../../../../contracts/messaging/WatcherManager.sol";
+import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
-contract RelayerProxyHubTest is ForgeHelper {
+contract RelayerProxyHubTest is ConnectorHelper {
   using ECDSA for bytes32;
 
   enum AutonolasPriorityFunction {
@@ -45,7 +49,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   address _spokeConnector = address(12321222);
   address _gelatoRelayer = address(123444412);
   address _feeCollector = address(12335555);
-  address _rootManager = address(12335558);
+  address _watcherManager;
   address _keep3r = address(12335556);
   address[] _hubConnectors = new address[](10);
   uint32[] _hubConnectorChains = new uint32[](10);
@@ -62,8 +66,31 @@ contract RelayerProxyHubTest is ForgeHelper {
 
   // ============ Setup ============
   function setUp() public {
+    utils_deploySpokeConnector();
     utils_setUpPropagateParams();
     utils_deployAndAssert();
+  }
+
+  function utils_deploySpokeConnector() public {
+    _watcherManager = address(new WatcherManager());
+    _merkle = address(new MerkleTreeManager());
+
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l2Domain,
+      mirrorDomain: _l1Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: address(0),
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: address(_merkle),
+      watcherManager: address(_watcherManager),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
+    _spokeConnector = address(new MockSpokeConnector(_baseParams));
   }
 
   function utils_deployAndAssert() public {
@@ -171,7 +198,7 @@ contract RelayerProxyHubTest is ForgeHelper {
   function test_RelayerProxyHub__setRootManager_onlyOwner_works() public {
     vm.prank(OWNER);
     vm.expectEmit(true, true, true, true);
-    emit RootManagerChanged(address(123), address(12335558));
+    emit RootManagerChanged(address(123), _rootManager);
     proxy.setRootManager(address(123));
     assertEq(address(proxy.rootManager()), address(123));
   }
