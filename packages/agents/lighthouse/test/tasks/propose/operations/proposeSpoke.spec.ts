@@ -52,7 +52,9 @@ describe("Operations: ProposeSpoke", () => {
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
         mock.entity.spokeOptimisticRoot(),
       );
-      (proposeCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns(["0x1"]);
+      (proposeCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+      ]);
 
       await proposeSpoke(mock.domain.B);
       expect(proposeOptimisticRootStub).callCount(1);

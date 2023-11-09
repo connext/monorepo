@@ -7,7 +7,7 @@ import {
   sign,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { defaultAbiCoder, hexZeroPad, solidityKeccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, LatestFinalizedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
@@ -84,11 +84,10 @@ export const proposeSpoke = async (spokeDomain: string) => {
       data: idEncodedData,
     });
 
-    const [_proposedAggregateRootHash] = contracts.spokeConnector.decodeFunctionResult(
+    [proposedAggregateRootHash] = contracts.spokeConnector.decodeFunctionResult(
       "proposedAggregateRootHash",
       idResultData,
     );
-    proposedAggregateRootHash = hexZeroPad(_proposedAggregateRootHash.toString(), 32);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the latest proposedAggregateRootHash from onchain",
