@@ -540,7 +540,7 @@ contract RelayerProxyHub is RelayerProxy {
    * @param _proposedAggregateRoot The aggregate root currently proposed
    * @param _endOfDispute          The block in which the dispute period for proposed root finalizes
    */
-  function finalize(
+  function finalizeOnRoot(
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
   ) external onlyFinalizeCooledDown nonReentrant {
