@@ -93,6 +93,7 @@ import {
   getAggregateRoots,
   getCurrentProposedOptimisticRoot,
   getLatestFinalizedOptimisticRoot,
+  getLatestSpokeOptimisticRoot,
   getSpokeOptimisticRoot,
   saveSnapshotRoots,
   getLatestPendingSnapshotRootByDomain,
@@ -1141,6 +1142,7 @@ describe("Database client", () => {
     await expect(getFinalizedSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getCurrentProposedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getLatestFinalizedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
@@ -1698,11 +1700,17 @@ describe("Database client", () => {
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
 
-    const latestSpokeRoot = await getCurrentProposedOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
-    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+    const latestProposedSpokeRoot = await getCurrentProposedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestProposedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
 
     const missingDbSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
     expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestSpokeRoot = await getLatestSpokeOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
   });
 
   it("should save and get finalized spoke optimistic roots", async () => {
