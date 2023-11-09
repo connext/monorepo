@@ -42,6 +42,8 @@ interface IRootManager {
   ) external payable;
 
   function finalize(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) external payable;
+
+  function sendRootToHubSpoke() external;
 }
 
 interface IGnosisHubConnector {
@@ -567,7 +569,7 @@ contract RelayerProxyHub is RelayerProxy {
   function finalize(
     bytes32 _proposedAggregateRoot,
     uint256 _endOfDispute
-  ) external onlyRelayer onlyFinalizeCooledDown nonReentrant {
+  ) external onlyFinalizeCooledDown nonReentrant {
     // Finalized the proposed aggregate root
     rootManager.finalize(_proposedAggregateRoot, _endOfDispute);
   }
@@ -595,6 +597,14 @@ contract RelayerProxyHub is RelayerProxy {
     returns (uint256 _fee)
   {
     _fee = _finalizeAndPropagate(_connectors, _fees, _encodedData, _proposedAggregateRoot, _endOfDispute);
+  }
+
+  /**
+   * @notice Wraps the `sendRootToHubSpoke` function of RootManager
+   */
+  function sendRootToHubSpoke() external {
+    // Send aggregate root to MainnetSpokeConnector
+    rootManager.sendRootToHubSpoke();
   }
 
   // ============ Internal Functions ============

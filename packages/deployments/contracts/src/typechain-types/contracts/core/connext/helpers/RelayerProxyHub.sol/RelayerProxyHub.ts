@@ -197,6 +197,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "rootManager()": FunctionFragment;
     "send(bytes,uint256,uint256)": FunctionFragment;
+    "sendRootToHubSpoke()": FunctionFragment;
     "setAutonolas(address)": FunctionFragment;
     "setAutonolasPriority(uint8,uint8)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
@@ -254,6 +255,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
       | "renounced"
       | "rootManager"
       | "send"
+      | "sendRootToHubSpoke"
       | "setAutonolas"
       | "setAutonolasPriority"
       | "setConnext"
@@ -465,6 +467,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "sendRootToHubSpoke",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setAutonolas",
     values: [PromiseOrValue<string>]
   ): string;
@@ -635,6 +641,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "send", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "sendRootToHubSpoke",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setAutonolas",
     data: BytesLike
@@ -1139,6 +1149,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1384,6 +1398,10 @@ export interface RelayerProxyHub extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  sendRootToHubSpoke(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setAutonolas(
     _autonolas: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1624,6 +1642,8 @@ export interface RelayerProxyHub extends BaseContract {
       _relayerFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    sendRootToHubSpoke(overrides?: CallOverrides): Promise<void>;
 
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
@@ -2011,6 +2031,10 @@ export interface RelayerProxyHub extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setAutonolas(
       _autonolas: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2258,6 +2282,10 @@ export interface RelayerProxyHub extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>,
       _messageFee: PromiseOrValue<BigNumberish>,
       _relayerFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sendRootToHubSpoke(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
