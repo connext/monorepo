@@ -80,6 +80,7 @@
   "function renounced() view returns (bool)",
   "function rootManager() view returns (address)",
   "function send(bytes _encodedData, uint256 _messageFee, uint256 _relayerFee)",
+  "function sendRootToHubSpoke()",
   "function setAutonolas(address _autonolas)",
   "function setAutonolasPriority(uint8 _function, uint8 _autonolasPriority)",
   "function setConnext(address _connext)",
