@@ -119,7 +119,6 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      //TODO: V1.1 rename source file
       await proposeHub();
       for (const spokeDomain of domains) {
         try {
