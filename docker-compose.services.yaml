@@ -6,7 +6,7 @@ services:
     depends_on:
       - message-queue
       - signer-router
-    image: ${ROUTER_PUBLISHER_IMAGE}
+    image: router-pub
     restart: always
     ports:
       - "8880:8080"
@@ -67,6 +67,8 @@ services:
       GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   signer-router:
+    ports:
+      - "9000:9000"
     container_name: signer-router
     image: "ghcr.io/connext/web3signer:latest"
     restart: always
