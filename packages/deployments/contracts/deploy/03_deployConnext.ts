@@ -226,6 +226,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
           feeCollector: feeCollector,
           keep3r: KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
           proposeAggregateRootCooldown: PROPAGATE_COOLDOWN,
+          finalizeCooldown: PROPAGATE_COOLDOWN,
         },
       ],
     });
