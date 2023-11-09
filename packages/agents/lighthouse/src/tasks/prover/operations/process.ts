@@ -264,20 +264,15 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       requestContext,
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
-    if (taskId) {
-      await cache.messages.addTaskPending(
-        taskId,
-        relayerType,
-        originDomain,
-        destinationDomain,
-        provenMessages.map((it) => it.leaf),
-      );
-      const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
-      await cache.messages.setStatus(statuses);
-    } else {
-      const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
-      await cache.messages.setStatus(statuses);
-    }
+    await cache.messages.addTaskPending(
+      taskId,
+      relayerType,
+      originDomain,
+      destinationDomain,
+      provenMessages.map((it) => it.leaf),
+    );
+    const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
+    await cache.messages.setStatus(statuses);
   } catch (err: unknown) {
     throw new RelayerSendFailed({
       error: jsonifyError(err as Error),
