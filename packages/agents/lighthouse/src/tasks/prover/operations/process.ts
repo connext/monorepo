@@ -15,6 +15,8 @@ import {
   NoMessageRootProof,
   NoMessageProof,
   MessageRootVerificationFailed,
+  EmptyMessageProofs,
+  RelayerSendFailed,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
@@ -98,7 +100,8 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   let failCount = 0;
   for (const message of messages) {
     // If message has been removed. Skip processing it.
-    if (!cache.messages.getMessage(message.leaf)) continue;
+    const _message = await cache.messages.getMessage(message.leaf);
+    if (!_message) continue;
 
     const messageEncodedData = contracts.merkleTreeManager.encodeFunctionData("leaves", [message.leaf]);
     try {
@@ -162,6 +165,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         });
         // Do not process message if proof verification fails.
         failCount += 1;
+
+        // Before skipping to process a message, the status needs to be reset so it can be retried in the next cycle.
+        await cache.messages.setStatus([{ leaf: message.leaf, status: ExecStatus.None }]);
         continue;
       }
     }
@@ -179,11 +185,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       // Clear global tree cache
       // spokeStore.clearCache();
     }
-    logger.info("Empty message proofs", requestContext, methodContext, {
-      originDomain,
-      destinationDomain,
-    });
-    return;
+    throw new EmptyMessageProofs(originDomain, destinationDomain);
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
@@ -227,9 +229,16 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
   // Batch submit messages by destination domain
   try {
-    logger.debug("Proving and processing messages", requestContext, methodContext, {
+    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
+      messageProofs,
+      aggregateRoot,
+      messageRootProof,
+      messageRootIndex,
+    ]);
+
+    logger.info("Proving and processing messages", requestContext, methodContext, {
+      destinationDomain,
       provenMessages,
-      destinationSpokeConnector,
     });
 
     const chainId = chainData.get(destinationDomain)!.chainId;
@@ -265,10 +274,13 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       );
       const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
       await cache.messages.setStatus(statuses);
-
-      return;
+    } else {
+      const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
+      await cache.messages.setStatus(statuses);
     }
   } catch (err: unknown) {
-    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+    throw new RelayerSendFailed({
+      error: jsonifyError(err as Error),
+    });
   }
 };
