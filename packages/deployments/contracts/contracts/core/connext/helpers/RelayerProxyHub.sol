@@ -158,16 +158,6 @@ contract RelayerProxyHub is RelayerProxy {
   uint256 public lastPropagateAt;
 
   /**
-   * @notice Delay for the finalize function
-   */
-  uint256 public finalizeCooldown;
-
-  /**
-   * @notice Timestamp of the last time the finalize job was worked.
-   */
-  uint256 public lastFinalizeAt;
-
-  /**
    * @notice Address of Autonolas keeper contract
    * @dev Special consideration for Autonolas keeper
    */
@@ -217,13 +207,6 @@ contract RelayerProxyHub is RelayerProxy {
   event PropagateCooldownChanged(uint256 propagateCooldown, uint256 oldPropagateCooldown);
 
   /**
-   * @notice Emitted when the cooldown period for finalize is updated
-   * @param finalizeCooldown New cooldown period
-   * @param oldFinalizeCooldown Old cooldown period
-   */
-  event FinalizeCooldownChanged(uint256 finalizeCooldown, uint256 oldFinalizeCooldown);
-
-  /**
    * @notice Emitted when a new hub connector is updated
    * @param hubConnector New hub connector address
    * @param oldHubConnector Old hub connector address
@@ -247,7 +230,6 @@ contract RelayerProxyHub is RelayerProxy {
 
   // ============ Errors ============
   error RelayerProxyHub__propagateCooledDown_notCooledDown();
-  error RelayerProxyHub__finalizeCooledDown_notCooledDown();
   error RelayerProxyHub__validateProposeSignature_notProposer(address signer);
   error RelayerProxyHub__processFromRoot_alreadyProcessed();
   error RelayerProxyHub__processFromRoot_noHubConnector();
@@ -275,14 +257,6 @@ contract RelayerProxyHub is RelayerProxy {
     }
     _;
     lastPropagateAt = block.timestamp;
-  }
-
-  modifier onlyFinalizeCooledDown() {
-    if (block.timestamp < lastFinalizeAt + finalizeCooldown) {
-      revert RelayerProxyHub__finalizeCooledDown_notCooledDown();
-    }
-    _;
-    lastFinalizeAt = block.timestamp;
   }
 
   // ============ Structs ============
@@ -332,14 +306,14 @@ contract RelayerProxyHub is RelayerProxy {
         _params.gelatoRelayer,
         _params.feeCollector,
         _params.keep3r,
-        _params.proposeAggregateRootCooldown
+        _params.proposeAggregateRootCooldown,
+        _params.finalizeCooldown
       )
     )
   {
     _setRootManager(_params.rootManager);
     _setPropagateCooldown(_params.propagateCooldown);
     _setProposeAggregateRootCooldown(_params.proposeAggregateRootCooldown);
-    _setFinalizeCooldown(_params.finalizeCooldown);
     _setAutonolas(_params.autonolas);
     for (uint256 i = 0; i < _params.hubConnectors.length; i++) {
       _setHubConnector(_params.hubConnectors[i], _params.hubConnectorChains[i]);
@@ -616,16 +590,6 @@ contract RelayerProxyHub is RelayerProxy {
   function _setPropagateCooldown(uint256 _propagateCooldown) internal {
     emit PropagateCooldownChanged(_propagateCooldown, propagateCooldown);
     propagateCooldown = _propagateCooldown;
-  }
-
-  /**
-   * @notice Updates the finalize cooldown period on this contract.
-   *
-   * @param _finalizeCooldown - Delay for finalize.
-   */
-  function _setFinalizeCooldown(uint256 _finalizeCooldown) internal {
-    emit FinalizeCooldownChanged(_finalizeCooldown, finalizeCooldown);
-    finalizeCooldown = _finalizeCooldown;
   }
 
   function _setHubConnector(address _hubConnector, uint32 chain) internal {

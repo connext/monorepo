@@ -680,7 +680,7 @@ contract RelayerProxyHubTest is ConnectorHelper {
 
   function test_finalize__failsIfNotCooledDown(uint256 _time) public {
     vm.assume(_time < 300);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__finalizeCooledDown_notCooledDown.selector));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__finalizeCooledDown_notCooledDown.selector));
     vm.warp(_time);
     vm.prank(_gelatoRelayer);
     proxy.finalize(bytes32(uint256(1)), 42);

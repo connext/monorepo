@@ -46,6 +46,29 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
+        name: "_proposedAggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_rootTimestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_endOfDispute",
+        type: "uint256",
+      },
+    ],
+    name: "finalize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
         name: "_aggregateRoot",
         type: "bytes32",
       },

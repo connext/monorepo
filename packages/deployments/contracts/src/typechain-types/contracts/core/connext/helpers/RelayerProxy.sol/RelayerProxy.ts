@@ -103,6 +103,7 @@ export declare namespace RelayerProxy {
     feeCollector: PromiseOrValue<string>;
     keep3r: PromiseOrValue<string>;
     proposeAggregateRootCooldown: PromiseOrValue<BigNumberish>;
+    finalizeCooldown: PromiseOrValue<BigNumberish>;
   };
 
   export type ConstructorParamsStructOutput = [
@@ -111,6 +112,7 @@ export declare namespace RelayerProxy {
     string,
     string,
     string,
+    BigNumber,
     BigNumber
   ] & {
     connext: string;
@@ -119,6 +121,7 @@ export declare namespace RelayerProxy {
     feeCollector: string;
     keep3r: string;
     proposeAggregateRootCooldown: BigNumber;
+    finalizeCooldown: BigNumber;
   };
 }
 
@@ -146,8 +149,11 @@ export interface RelayerProxyInterface extends utils.Interface {
     "domain()": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),uint256)": FunctionFragment;
     "feeCollector()": FunctionFragment;
+    "finalize(bytes32,uint256,uint256)": FunctionFragment;
+    "finalizeCooldown()": FunctionFragment;
     "gelatoRelayer()": FunctionFragment;
     "keep3r()": FunctionFragment;
+    "lastFinalizeAt()": FunctionFragment;
     "lastProposeAggregateRootAt()": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeAggregateRoot(bytes32,uint256,bytes,uint256)": FunctionFragment;
@@ -162,8 +168,10 @@ export interface RelayerProxyInterface extends utils.Interface {
     "send(bytes,uint256,uint256)": FunctionFragment;
     "setConnext(address)": FunctionFragment;
     "setFeeCollector(address)": FunctionFragment;
+    "setFinalizeCooldown(uint256)": FunctionFragment;
     "setGelatoRelayer(address)": FunctionFragment;
     "setKeep3r(address)": FunctionFragment;
+    "setProposeAggregateRootCooldown(uint256)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
     "withdraw()": FunctionFragment;
@@ -179,8 +187,11 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "domain"
       | "execute"
       | "feeCollector"
+      | "finalize"
+      | "finalizeCooldown"
       | "gelatoRelayer"
       | "keep3r"
+      | "lastFinalizeAt"
       | "lastProposeAggregateRootAt"
       | "owner"
       | "proposeAggregateRoot"
@@ -195,8 +206,10 @@ export interface RelayerProxyInterface extends utils.Interface {
       | "send"
       | "setConnext"
       | "setFeeCollector"
+      | "setFinalizeCooldown"
       | "setGelatoRelayer"
       | "setKeep3r"
+      | "setProposeAggregateRootCooldown"
       | "setSpokeConnector"
       | "spokeConnector"
       | "withdraw"
@@ -226,10 +239,26 @@ export interface RelayerProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "finalize",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "finalizeCooldown",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "gelatoRelayer",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "keep3r", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "lastFinalizeAt",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "lastProposeAggregateRootAt",
     values?: undefined
@@ -293,12 +322,20 @@ export interface RelayerProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setFinalizeCooldown",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setGelatoRelayer",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setKeep3r",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setProposeAggregateRootCooldown",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setSpokeConnector",
@@ -327,11 +364,20 @@ export interface RelayerProxyInterface extends utils.Interface {
     functionFragment: "feeCollector",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "finalizeCooldown",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "gelatoRelayer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "keep3r", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastFinalizeAt",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "lastProposeAggregateRootAt",
     data: BytesLike
@@ -374,10 +420,18 @@ export interface RelayerProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setFinalizeCooldown",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setGelatoRelayer",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setKeep3r", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setProposeAggregateRootCooldown",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setSpokeConnector",
     data: BytesLike
@@ -391,6 +445,7 @@ export interface RelayerProxyInterface extends utils.Interface {
   events: {
     "ConnextChanged(address,address)": EventFragment;
     "FeeCollectorChanged(address,address)": EventFragment;
+    "FinalizeCooldownChanged(uint256,uint256)": EventFragment;
     "FundsDeducted(uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "GelatoRelayerChanged(address,address)": EventFragment;
@@ -405,6 +460,7 @@ export interface RelayerProxyInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ConnextChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeCollectorChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FinalizeCooldownChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsDeducted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FundsReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GelatoRelayerChanged"): EventFragment;
@@ -441,6 +497,18 @@ export type FeeCollectorChangedEvent = TypedEvent<
 
 export type FeeCollectorChangedEventFilter =
   TypedEventFilter<FeeCollectorChangedEvent>;
+
+export interface FinalizeCooldownChangedEventObject {
+  finalizeCooldown: BigNumber;
+  oldFinalizeCooldown: BigNumber;
+}
+export type FinalizeCooldownChangedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  FinalizeCooldownChangedEventObject
+>;
+
+export type FinalizeCooldownChangedEventFilter =
+  TypedEventFilter<FinalizeCooldownChangedEvent>;
 
 export interface FundsDeductedEventObject {
   amount: BigNumber;
@@ -606,9 +674,20 @@ export interface RelayerProxy extends BaseContract {
 
     feeCollector(overrides?: CallOverrides): Promise<[string]>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    finalizeCooldown(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     gelatoRelayer(overrides?: CallOverrides): Promise<[string]>;
 
     keep3r(overrides?: CallOverrides): Promise<[string]>;
+
+    lastFinalizeAt(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -672,6 +751,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setFinalizeCooldown(
+      _finalizeCooldown: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -679,6 +763,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setProposeAggregateRootCooldown(
+      _proposeCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -722,9 +811,20 @@ export interface RelayerProxy extends BaseContract {
 
   feeCollector(overrides?: CallOverrides): Promise<string>;
 
+  finalize(
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  finalizeCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
   gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
   keep3r(overrides?: CallOverrides): Promise<string>;
+
+  lastFinalizeAt(overrides?: CallOverrides): Promise<BigNumber>;
 
   lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -786,6 +886,11 @@ export interface RelayerProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setFinalizeCooldown(
+    _finalizeCooldown: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setGelatoRelayer(
     _gelatoRelayer: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -793,6 +898,11 @@ export interface RelayerProxy extends BaseContract {
 
   setKeep3r(
     _keep3r: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setProposeAggregateRootCooldown(
+    _proposeCooldown: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -834,9 +944,20 @@ export interface RelayerProxy extends BaseContract {
 
     feeCollector(overrides?: CallOverrides): Promise<string>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    finalizeCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
     gelatoRelayer(overrides?: CallOverrides): Promise<string>;
 
     keep3r(overrides?: CallOverrides): Promise<string>;
+
+    lastFinalizeAt(overrides?: CallOverrides): Promise<BigNumber>;
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -896,6 +1017,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setFinalizeCooldown(
+      _finalizeCooldown: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -903,6 +1029,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setProposeAggregateRootCooldown(
+      _proposeCooldown: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -931,6 +1062,15 @@ export interface RelayerProxy extends BaseContract {
       updated?: null,
       previous?: null
     ): FeeCollectorChangedEventFilter;
+
+    "FinalizeCooldownChanged(uint256,uint256)"(
+      finalizeCooldown?: null,
+      oldFinalizeCooldown?: null
+    ): FinalizeCooldownChangedEventFilter;
+    FinalizeCooldownChanged(
+      finalizeCooldown?: null,
+      oldFinalizeCooldown?: null
+    ): FinalizeCooldownChangedEventFilter;
 
     "FundsDeducted(uint256,uint256)"(
       amount?: null,
@@ -1029,9 +1169,20 @@ export interface RelayerProxy extends BaseContract {
 
     feeCollector(overrides?: CallOverrides): Promise<BigNumber>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    finalizeCooldown(overrides?: CallOverrides): Promise<BigNumber>;
+
     gelatoRelayer(overrides?: CallOverrides): Promise<BigNumber>;
 
     keep3r(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lastFinalizeAt(overrides?: CallOverrides): Promise<BigNumber>;
 
     lastProposeAggregateRootAt(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1093,6 +1244,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setFinalizeCooldown(
+      _finalizeCooldown: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1100,6 +1256,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setProposeAggregateRootCooldown(
+      _proposeCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1144,9 +1305,20 @@ export interface RelayerProxy extends BaseContract {
 
     feeCollector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    finalizeCooldown(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     gelatoRelayer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     keep3r(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lastFinalizeAt(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lastProposeAggregateRootAt(
       overrides?: CallOverrides
@@ -1212,6 +1384,11 @@ export interface RelayerProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setFinalizeCooldown(
+      _finalizeCooldown: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setGelatoRelayer(
       _gelatoRelayer: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1219,6 +1396,11 @@ export interface RelayerProxy extends BaseContract {
 
     setKeep3r(
       _keep3r: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setProposeAggregateRootCooldown(
+      _proposeCooldown: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

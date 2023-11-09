@@ -132,8 +132,7 @@ export const finalize = async () => {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  //TODO: V1.1 needs be relayer proxy hub
-  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
 
   const currentSnapshot = await database.getCurrentProposedSnapshot();
 
@@ -180,7 +179,7 @@ export const finalize = async () => {
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalize", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _endOfDispute,
   ]);
@@ -189,7 +188,7 @@ export const finalize = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -201,7 +200,7 @@ export const finalize = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      rootManagerAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }

@@ -29,6 +29,8 @@ interface ISpokeConnector {
 
   function proposeAggregateRoot(bytes32 _aggregateRoot, uint256 _rootTimestamp) external;
 
+  function finalize(bytes32 _proposedAggregateRoot, uint256 _rootTimestamp, uint256 _endOfDispute) external;
+
   function allowlistedProposers(address _proposer) external view returns (bool);
 }
 
@@ -64,6 +66,16 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @notice Timestamp of when last aggregate was proposed
    */
   uint256 public lastProposeAggregateRootAt;
+
+  /**
+   * @notice Delay for the finalize function
+   */
+  uint256 public finalizeCooldown;
+
+  /**
+   * @notice Timestamp of the last time the finalize job was worked.
+   */
+  uint256 public lastFinalizeAt;
 
   mapping(address => bool) public allowedRelayer;
 
@@ -101,6 +113,13 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     lastProposeAggregateRootAt = block.timestamp;
   }
 
+  modifier onlyFinalizeCooledDown() {
+    if (block.timestamp < lastFinalizeAt + finalizeCooldown) {
+      revert RelayerProxy__finalizeCooledDown_notCooledDown();
+    }
+    _;
+    lastFinalizeAt = block.timestamp;
+  }
   // ============ Events ============
 
   /**
@@ -174,6 +193,13 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     uint256 oldProposeAggregateRootCooldown
   );
 
+  /**
+   * @notice Emitted when the cooldown period for finalize is updated
+   * @param finalizeCooldown New cooldown period
+   * @param oldFinalizeCooldown Old cooldown period
+   */
+  event FinalizeCooldownChanged(uint256 finalizeCooldown, uint256 oldFinalizeCooldown);
+
   // ============ Error ============
   error RelayerProxy__addRelayer_relayerAdded();
   error RelayerProxy__removeRelayer_relayerNotAdded();
@@ -183,6 +209,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   error RelayerProxy__validateAndPayWithCredits_notKeep3r();
   error RelayerProxy__validateProposeSignature_notProposer(address signer);
   error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
+  error RelayerProxy__finalizeCooledDown_notCooledDown();
 
   // ============ Structs ============
 
@@ -194,6 +221,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    * @param feeCollector The address of the Gelato Fee Collector on this domain.
    * @param keep3r The address of the Keep3r on this domain.
    * @param proposeAggregateRootCooldown The delay for the propose function.
+   * @param finalizeCooldown The delay for the finalize function.
    */
   struct ConstructorParams {
     address connext;
@@ -202,6 +230,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     address feeCollector;
     address keep3r;
     uint256 proposeAggregateRootCooldown;
+    uint256 finalizeCooldown;
   }
 
   // ============ Constructor ============
@@ -217,6 +246,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     _setFeeCollector(_params.feeCollector);
     _setKeep3r(_params.keep3r);
     _setProposeAggregateRootCooldown(_params.proposeAggregateRootCooldown);
+    _setFinalizeCooldown(_params.finalizeCooldown);
 
     _addRelayer(_params.gelatoRelayer);
 
@@ -289,6 +319,22 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   /**
+   * @notice Updates the propose cooldown.
+   * @param _proposeCooldown The new cooldown in seconds.
+   */
+  function setProposeAggregateRootCooldown(uint256 _proposeCooldown) external onlyOwner {
+    _setProposeAggregateRootCooldown(_proposeCooldown);
+  }
+
+  /**
+   * @notice Updates the finalize cooldown.
+   * @param _finalizeCooldown The new cooldown in seconds.
+   */
+  function setFinalizeCooldown(uint256 _finalizeCooldown) external onlyOwner {
+    _setFinalizeCooldown(_finalizeCooldown);
+  }
+
+  /**
    * @notice Updates the propose cooldown period on this contract.
    *
    * @param _proposeAggregateRootCooldown - Delay for propose.
@@ -296,6 +342,16 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
     emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
     proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
+  }
+
+  /**
+   * @notice Updates the finalize cooldown period on this contract.
+   *
+   * @param _finalizeCooldown - Delay for finalize.
+   */
+  function _setFinalizeCooldown(uint256 _finalizeCooldown) internal {
+    emit FinalizeCooldownChanged(_finalizeCooldown, finalizeCooldown);
+    finalizeCooldown = _finalizeCooldown;
   }
 
   /**
@@ -384,6 +440,21 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     spokeConnector.proposeAggregateRoot(_aggregateRoot, _rootTimestamp);
 
     transferRelayerFee(_fee);
+  }
+
+  /**
+   * @notice Wraps the `finalize` function on root manager
+   * @param _proposedAggregateRoot The aggregate root currently proposed
+   * @param _rootTimestamp         Block.timestamp at which the root was finalized in the root manager contract.
+   * @param _endOfDispute          The block in which the dispute period for proposed root finalizes
+   */
+  function finalize(
+    bytes32 _proposedAggregateRoot,
+    uint256 _rootTimestamp,
+    uint256 _endOfDispute
+  ) external onlyFinalizeCooledDown nonReentrant {
+    // Finalized the proposed aggregate root
+    spokeConnector.finalize(_proposedAggregateRoot, _rootTimestamp, _endOfDispute);
   }
 
   receive() external payable {
