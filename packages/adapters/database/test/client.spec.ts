@@ -1696,6 +1696,7 @@ describe("Database client", () => {
       const m = mock.entity.spokeOptimisticRoot();
       m.id = `${_i}`;
       m.rootTimestamp = _i;
+      m.proposeTimestamp = _i;
       spokeOptimisticRoots.push(m);
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
