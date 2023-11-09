@@ -557,48 +557,43 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getOriginXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<{
-    txIdsByDestinationDomain: Map<string, string[]>;
-    allTxById: Map<string, XTransfer>;
-    latestNonces: Map<string, number>;
-    txByOriginDomain: Map<string, XTransfer[]>;
-  }> {
-    const { execute, parser } = getHelpers();
-    const { config } = getContext();
+  public async getOriginXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<Map<string, any[]>> {
+    const { execute } = getHelpers();
     let xcalledXQuery = undefined;
-    try {
-      xcalledXQuery = getOriginTransfersQuery(agents);
-    } catch (err: any) {
-      console.info(`Primary query failed attempting fallback!`);
-      xcalledXQuery = getOriginTransfersFallbackQuery(agents);
-    }
-    const response = await execute(xcalledXQuery);
-    const txIdsByDestinationDomain: Map<string, string[]> = new Map();
-    const txByOriginDomain: Map<string, XTransfer[]> = new Map();
-    const allTxById: Map<string, XTransfer> = new Map();
-    const latestNonces: Map<string, number> = new Map();
+    console.log("agents", agents);
+    // try {
+    xcalledXQuery = getOriginTransfersQuery(agents);
+    // } catch (err: any) {
+    //   console.info(`Primary query failed attempting fallback!`);
+    // xcalledXQuery = getOriginTransfersFallbackQuery(agents);
+    // }
+    return await execute(xcalledXQuery);
+    // const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    // const txByOriginDomain: Map<string, XTransfer[]> = new Map();
+    // const allTxById: Map<string, XTransfer> = new Map();
+    // const latestNonces: Map<string, number> = new Map();
 
-    for (const domain of response.keys()) {
-      const value = response.get(domain);
-      const xtransfersByDomain = (value ?? [])[0];
-      const originTransfers: XTransfer[] = [];
-      for (const xtransfer of xtransfersByDomain) {
-        if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
-          const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
+    // for (const domain of response.keys()) {
+    //   const value = response.get(domain);
+    //   const xtransfersByDomain = (value ?? [])[0];
+    //   const originTransfers: XTransfer[] = [];
+    //   for (const xtransfer of xtransfersByDomain) {
+    //     if (txIdsByDestinationDomain.has(xtransfer.destinationDomain as string)) {
+    //       const txIds = txIdsByDestinationDomain.get(xtransfer.destinationDomain as string)!;
 
-          txIds.push(`"${xtransfer.transferId as string}"`);
-        } else {
-          txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
-        }
-        const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
-        allTxById.set(xtransfer.transferId as string, originTransfer);
-        latestNonces.set(domain, xtransfer.nonce as number);
-        originTransfers.push(originTransfer);
-      }
-      txByOriginDomain.set(domain, originTransfers);
-    }
+    //       txIds.push(`"${xtransfer.transferId as string}"`);
+    //     } else {
+    //       txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
+    //     }
+    //     // const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
+    //     // allTxById.set(xtransfer.transferId as string, originTransfer);
+    //     latestNonces.set(domain, xtransfer.nonce as number);
+    //     // originTransfers.push(originTransfer);
+    //   }
+    //   txByOriginDomain.set(domain, originTransfers);
+    // }
 
-    return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
+    // return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
   }
 
   public async getDestinationXCalls(

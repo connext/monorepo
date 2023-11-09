@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "start:all": "concurrently -i -k -c 'green,cyan,yellow' npm:start:publisher npm:start:subscriber npm:start:executor",
-    "start:publisher": "node --enable-source-maps dist/tasks/publisher/index.js",
+    "start:publisher": "node --enable-source-maps --inspect dist/tasks/publisher/index.js",
     "start:subscriber": "node --enable-source-maps dist/tasks/subscriber/index.js",
     "start:executor": "node --enable-source-maps dist/tasks/executor/index.js",
     "lint": "eslint ./src --ext .ts --env node",

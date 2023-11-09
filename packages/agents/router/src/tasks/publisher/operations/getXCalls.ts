@@ -8,6 +8,31 @@ import {
 
 import { getContext } from "../publisher";
 
+function roughSizeOfObject(o: any) {
+  const objectList = [];
+  const stack = [o];
+  let bytes = 0;
+
+  while (stack.length) {
+    const value = stack.pop();
+
+    if (typeof value === "boolean") {
+      bytes += 4;
+    } else if (typeof value === "string") {
+      bytes += value.length * 2;
+    } else if (typeof value === "number") {
+      bytes += 8;
+    } else if (typeof value === "object" && objectList.indexOf(value) === -1) {
+      objectList.push(value);
+
+      for (const i in value) {
+        stack.push(value[i]);
+      }
+    }
+  }
+  return bytes;
+}
+
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
@@ -54,92 +79,97 @@ export const getXCalls = async () => {
       );
     }
   }
+  // console.log({ subgraphQueryMetaParams });
 
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
-    const { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain } = await subgraph.getOriginXCalls(
-      subgraphQueryMetaParams,
-    );
+    await subgraph.getOriginXCalls(subgraphQueryMetaParams);
 
+    console.log(roughSizeOfObject(subgraph));
+    // console.log({ domains: txByOriginDomain.keys() });
+    // console.log({ txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain });
     // Collect analytics information for missing nonces
-    for (const domain of allowedDomains) {
-      const startNonce = subgraphQueryMetaParams.get(domain)?.latestNonce ?? 0;
-      const querySize = subgraphQueryMetaParams.get(domain)?.limit ?? 100;
-      const txs = txByOriginDomain.get(domain);
-      const nonces: number[] = [];
-      if (txs) {
-        for (const tx of txs) {
-          if (tx) {
-            nonces.push(tx.xparams.nonce);
-          } else {
-            logger.warn(`Missing tx for domain ${domain}`, requestContext, methodContext, {
-              domain: domain,
-              startNonce,
-            });
-          }
-        }
-      }
-      if (nonces && nonces.length > 0) {
-        const resultSize = nonces.length;
+    // for (const domain of txByOriginDomain.keys()) {
+    // const startNonce = subgraphQueryMetaParams.get(domain)?.latestNonce ?? 0;
+    // const querySize = subgraphQueryMetaParams.get(domain)?.limit ?? 100;
+    // const txs = txByOriginDomain.get(domain);
+    // console.log(`Found ${txs?.length} tx for domain ${domain}, size: ${roughSizeOfObject(txs)}`);
 
-        const minNonce = Math.min(...nonces);
-        const maxNonce = Math.max(...nonces);
-        const missingNonces: number[] = [];
-        for (let i = minNonce; i <= maxNonce; i++) {
-          if (!nonces.includes(i)) missingNonces.push(i);
-        }
-
-        if (missingNonces.length > 0) {
-          logger.debug("Missing xcalls from subgraph", requestContext, methodContext, {
-            originDomain: domain,
-            startNonce,
-            querySize,
-            resultSize,
-            minNonce,
-            maxNonce,
-            missing: missingNonces.length,
-            missingNonces: missingNonces.join(","),
-          });
-
-          await cache.transfers.addMissingNonces(domain, missingNonces);
-        } else {
-          logger.debug("Got all xcalls from subgraph", requestContext, methodContext, {
-            originDomain: domain,
-            startNonce,
-            querySize,
-            resultSize,
-            minNonce,
-            maxNonce,
-            length: nonces.length,
-            nonces: nonces.join(","),
-          });
-        }
-      }
-    }
-
-    for (const [domain, nonce] of latestNonces.entries()) {
-      // set nonce now so we don't requery the same transfers
-      await cache.transfers.setLatestNonce(domain, nonce ?? 0);
-      logger.debug("Set latest nonce", requestContext, methodContext, { domain, nonce });
-    }
-
-    if (txIdsByDestinationDomain.size > 0) {
-      const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
-      if (transfers.length === 0) {
-        logger.debug("No pending transfers after filtering destination", requestContext, methodContext, {
-          subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
-        });
-      } else {
-        await cache.transfers.storeTransfers(transfers as XTransfer[], false);
-        for (const transfer of transfers) {
-          logger.debug("Added transfer to cache", requestContext, methodContext, { transferId: transfer.transferId });
-        }
-      }
-    } else {
-      logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
-        subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
-      });
-    }
+    // const nonces: number[] = [];
+    // if (txs) {
+    //   for (const tx of txs) {
+    //     if (tx) {
+    //       nonces.push(1);
+    //     } else {
+    //       logger.warn(`Missing tx for domain ${domain}`, requestContext, methodContext, {
+    //         domain: domain,
+    //         startNonce,
+    //       });
+    //     }
+    //   }
   }
+  // if (nonces && nonces.length > 0) {
+  //   const resultSize = nonces.length;
+
+  //   const minNonce = Math.min(...nonces);
+  //   const maxNonce = Math.max(...nonces);
+  //   const missingNonces: number[] = [];
+  //   for (let i = minNonce; i <= maxNonce; i++) {
+  //     if (!nonces.includes(i)) missingNonces.push(i);
+  //   }
+
+  //   if (missingNonces.length > 0) {
+  //     logger.debug("Missing xcalls from subgraph", requestContext, methodContext, {
+  //       originDomain: domain,
+  //       startNonce,
+  //       querySize,
+  //       resultSize,
+  //       minNonce,
+  //       maxNonce,
+  //       missing: missingNonces.length,
+  //       missingNonces: missingNonces.join(","),
+  //     });
+
+  //     await cache.transfers.addMissingNonces(domain, missingNonces);
+  //   } else {
+  //     logger.debug("Got all xcalls from subgraph", requestContext, methodContext, {
+  //       originDomain: domain,
+  //       startNonce,
+  //       querySize,
+  //       resultSize,
+  //       minNonce,
+  //       maxNonce,
+  //       length: nonces.length,
+  //       nonces: nonces.join(","),
+  //     });
+  //   }
+  // }
+  // }
+
+  // for (const [domain, nonce] of latestNonces.entries()) {
+  //   // set nonce now so we don't requery the same transfers
+  //   await cache.transfers.setLatestNonce(domain, nonce ?? 0);
+  //   logger.debug("Set latest nonce", requestContext, methodContext, { domain, nonce });
+  // }
+
+  // if (txIdsByDestinationDomain.size > 0) {
+  //   const transfers: never[] = [];
+  //   console.log("transfers", transfers);
+  //   // if (transfers.length === 0) {
+  //   //   logger.debug("No pending transfers after filtering destination", requestContext, methodContext, {
+  //   //     subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+  //   //   });
+  //   // } else {
+  //   //   await cache.transfers.storeTransfers(transfers as XTransfer[], false);
+  //   //   for (const transfer of transfers) {
+  //   //     logger.debug("Added transfer to cache", requestContext, methodContext, { transferId: transfer.transferId });
+  //   //   }
+  //   // }
+  // } else {
+  logger.debug("No pending transfers found within operational domains.", requestContext, methodContext, {
+    subgraphQueryMetaParams: [...subgraphQueryMetaParams.entries()],
+  });
+  // }
+  // }
 };
 
 export const getMissingXCalls = async () => {
