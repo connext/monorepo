@@ -25,7 +25,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
   if (!spokeChainId) {
     throw new NoChainIdForDomain(spokeDomain, requestContext, methodContext);
   }
-  const relayerProxyAddress = config.chains[spokeDomain].deployments.relayerProxy;
+  const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
 
   const currentProposedRoot = await database.getCurrentProposedOptimisticRoot(spokeDomain);
 
@@ -71,7 +71,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     return;
   }
 
-  const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("finalize", [
+  const encodedDataForRelayer = contracts.spokeConnector.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _rootTimestamp,
     _endOfDispute,
@@ -88,7 +88,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     const { taskId } = await sendWithRelayerWithBackup(
       spokeChainId,
       spokeDomain,
-      relayerProxyAddress,
+      spokeConnectorAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -100,7 +100,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       spokeChainId,
       spokeDomain,
-      relayerProxyAddress,
+      spokeConnectorAddress,
       encodedDataForRelayer,
     });
   }

@@ -207,16 +207,16 @@ export const sendRootToHubSpoke = async (_requestContext: RequestContext) => {
   const { requestContext, methodContext } = createLoggingContext(sendRootToHubSpoke.name, _requestContext);
   logger.info("Starting sendRootToHubSpoke operation for hub domain", requestContext, methodContext);
 
-  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
   const hubChainId = domainToChainId(+config.hubDomain);
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("sendRootToHubSpoke");
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("sendRootToHubSpoke");
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -229,7 +229,7 @@ export const sendRootToHubSpoke = async (_requestContext: RequestContext) => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyAddress,
+      rootManagerAddress,
       encodedDataForRelayer,
     });
   }
