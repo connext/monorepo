@@ -7,7 +7,7 @@ import {
   sign,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
+import { defaultAbiCoder, hexZeroPad, solidityKeccak256 } from "ethers/lib/utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, LatestFinalizedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
@@ -88,7 +88,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
       "proposedAggregateRootHash",
       idResultData,
     );
-    proposedAggregateRootHash = _proposedAggregateRootHash.toString();
+    proposedAggregateRootHash = hexZeroPad(_proposedAggregateRootHash.toString(), 32);
   } catch (err: unknown) {
     logger.error(
       "Failed to read the latest proposedAggregateRootHash from onchain",
@@ -152,7 +152,7 @@ export const proposeOptimisticRoot = async (
 
   //  V1.1 Sign the proposal -- get signature from whitelisted proposer agent
   const payload = defaultAbiCoder.encode(
-    ["uint256", "bytes32", "uint256", "uint32"],
+    ["bytes32", "uint256", "uint256", "uint32"],
     [aggregateRoot, rootTimestamp, lastProposedAt, +spokeDomain],
   );
   const hash = solidityKeccak256(["bytes"], [payload]);

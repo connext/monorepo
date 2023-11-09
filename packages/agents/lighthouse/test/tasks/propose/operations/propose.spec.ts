@@ -1,9 +1,9 @@
-import { expect, SparseMerkleTree } from "@connext/nxtp-utils";
+import { expect, mkBytes32, SparseMerkleTree } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
 import { NoChainIdForDomain } from "../../../../src/tasks/propose/errors";
 import { proposeHub, proposeSnapshot, getCurrentOutboundRoot } from "../../../../src/tasks/propose/operations";
-import * as ProposeFns from "../../../../src/tasks/propose/operations/propose";
+import * as ProposeFns from "../../../../src/tasks/propose/operations/proposeHub";
 import { proposeCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 
@@ -60,6 +60,7 @@ describe("Operations: Propose", () => {
       (proposeCtxMock.adapters.database.getLatestPendingSnapshotRootByDomain as SinonStub).resolves([
         mock.entity.snapshotRoot(),
       ]);
+      getRootStub.resolves(mkBytes32("0xab"));
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(true);
       encodeFunctionData.returns("0x");
 

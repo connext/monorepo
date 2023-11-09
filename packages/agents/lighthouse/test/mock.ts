@@ -1,4 +1,4 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
@@ -162,6 +162,7 @@ export const mock = {
         database: mock.adapters.database(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
+        wallet: mock.adapters.wallet(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -322,6 +323,14 @@ export const mock = {
         arbitrum: [],
         bnb: [],
       };
+    },
+    wallet: (): SinonStubbedInstance<Wallet> => {
+      const wallet = createStubInstance(Wallet);
+      // need to do this differently bc the function doesnt exist on the interface
+      (wallet as any).address = mock.address.router;
+      wallet.getAddress.resolves(mock.address.router);
+      wallet.signMessage.resolves(mock.signature);
+      return wallet;
     },
   },
   contracts: {

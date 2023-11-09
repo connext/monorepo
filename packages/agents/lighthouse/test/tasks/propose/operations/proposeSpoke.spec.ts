@@ -1,12 +1,13 @@
-import { expect, SparseMerkleTree } from "@connext/nxtp-utils";
+import { expect, mkBytes32, SparseMerkleTree } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { NoChainIdForDomain, LatestPropagatedSnapshot, NoRootTimestamp } from "../../../../src/tasks/propose/errors";
+import { NoChainIdForDomain, LatestFinalizedSnapshot, NoRootTimestamp } from "../../../../src/tasks/propose/errors";
 import { proposeSpoke } from "../../../../src/tasks/propose/operations";
 import * as ProposeFns from "../../../../src/tasks/propose/operations/proposeSpoke";
 import { proposeCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
 import * as Mockable from "../../../../src/mockable";
+import { BigNumber } from "ethers";
 
 describe("Operations: ProposeSpoke", () => {
   describe("#proposeSpoke", () => {
@@ -34,7 +35,7 @@ describe("Operations: ProposeSpoke", () => {
     });
 
     it("should throw an error if no propagated snapshot", async () => {
-      await expect(proposeSpoke("")).to.eventually.be.rejectedWith(LatestPropagatedSnapshot);
+      await expect(proposeSpoke("")).to.eventually.be.rejectedWith(LatestFinalizedSnapshot);
     });
     it("should throw an error if no propagated timestamp", async () => {
       const propagatedSnapshot = mock.entity.snapshot();
@@ -51,6 +52,7 @@ describe("Operations: ProposeSpoke", () => {
       (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
         mock.entity.spokeOptimisticRoot(),
       );
+      (proposeCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns(["0x1"]);
 
       await proposeSpoke(mock.domain.B);
       expect(proposeOptimisticRootStub).callCount(1);
@@ -82,7 +84,7 @@ describe("Operations: ProposeSpoke", () => {
     it("happy case should call proposeOptimisticRoot snapshot succesfully", async () => {
       encodeFunctionData.returns("0x");
 
-      await ProposeFns.proposeOptimisticRoot("0xaggregateRootHash", 1, mock.domain.B, +mock.domain.B, undefined as any);
+      await ProposeFns.proposeOptimisticRoot(mkBytes32("0xab"), 1, 0, mock.domain.B, +mock.domain.B, undefined as any);
       expect(sendWithRelayerWithBackupStub).callCount(1);
     });
   });
