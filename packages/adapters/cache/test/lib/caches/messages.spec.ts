@@ -1,4 +1,13 @@
-import { ExecStatus, Logger, RelayerType, XMessage, expect, mkBytes32, mock } from "@connext/nxtp-utils";
+import {
+  ExecStatus,
+  Logger,
+  RelayerType,
+  XMessage,
+  expect,
+  getRandomBytes32,
+  mkBytes32,
+  mock,
+} from "@connext/nxtp-utils";
 import { MessagesCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });
@@ -9,6 +18,23 @@ const mockXMessages: XMessage[] = [
   { ...mock.entity.xMessage(), originDomain, destinationDomain, leaf: mkBytes32("0x111") },
   { ...mock.entity.xMessage(), originDomain, destinationDomain, leaf: mkBytes32("0x222") },
 ];
+
+const genMockXMessages = (count: number): XMessage[] => {
+  const xMessages: XMessage[] = [];
+  for (let i = 0; i < count; i++) {
+    const leaf = getRandomBytes32();
+    const root = getRandomBytes32();
+    xMessages.push({
+      ...mock.entity.xMessage(),
+      originDomain,
+      destinationDomain,
+      origin: { index: 100 + i, root, message: leaf },
+      leaf,
+    });
+  }
+
+  return xMessages;
+};
 
 describe("MessagesCache", () => {
   beforeEach(async () => {
@@ -140,6 +166,27 @@ describe("MessagesCache", () => {
       const message2 = await messagesCache.getMessage(mockXMessages[1].leaf);
       expect(message2?.status).to.be.deep.eq(ExecStatus.Completed);
     });
+
+    it("should reset the message status", async () => {
+      const mockXMessages = genMockXMessages(10);
+      await messagesCache.storeMessages(mockXMessages);
+      await messagesCache.setNonce(originDomain, Math.max(...mockXMessages.map((it) => it.origin.index)));
+
+      const nonce = await messagesCache.getNonce(originDomain);
+      expect(nonce).to.be.eq(109);
+
+      const xMessage1 = mockXMessages[0];
+      await messagesCache.setStatus([{ leaf: xMessage1.leaf, status: ExecStatus.Sent }]);
+      const message = await messagesCache.getMessage(xMessage1.leaf);
+      expect(message?.status).to.be.eq(ExecStatus.Sent);
+
+      let pendings = await messagesCache.getPending(originDomain, destinationDomain, 0, 100);
+      expect(pendings.length).to.be.eq(10);
+      expect(pendings).to.be.deep.eq(mockXMessages.map((it) => it.leaf));
+
+      await messagesCache.removePending(originDomain, destinationDomain, [xMessage1.leaf]);
+      pendings = await messagesCache.getPending(originDomain, destinationDomain, 0, 100);
+    });
   });
 
   describe("#nonce", () => {
@@ -185,6 +232,54 @@ describe("MessagesCache", () => {
 
       const tasks = await messagesCache.getPendingTasks();
       expect(tasks.length).to.be.eq(0);
+    });
+
+    it("should handle an edge case", async () => {
+      const genTasks = (count: number) => {
+        const relayerType = RelayerType.Mock;
+        const originDomain = "13337";
+        const destinationDomain = "13338";
+        const tasks: {
+          taskId: string;
+          type: RelayerType;
+          originDomain: string;
+          destinationDomain: string;
+          leaves: string[];
+        }[] = [];
+
+        for (let idx = 0; idx < count; idx++) {
+          const taskId = getRandomBytes32();
+          const leaves = [getRandomBytes32(), getRandomBytes32(), getRandomBytes32()];
+          tasks.push({
+            taskId,
+            type: relayerType,
+            originDomain,
+            destinationDomain,
+            leaves,
+          });
+        }
+
+        return tasks;
+      };
+
+      const mockRelayerTasks = genTasks(3);
+      console.log({ mockRelayerTasks });
+      for (const task of mockRelayerTasks) {
+        await messagesCache.addTaskPending(
+          task.taskId,
+          task.type,
+          task.originDomain,
+          task.destinationDomain,
+          task.leaves,
+        );
+      }
+
+      const tasksPending = await messagesCache.getPendingTasks(0, 10);
+      console.log({ tasksPending });
+
+      await messagesCache.removePendingTasks([mockRelayerTasks[0].taskId]);
+      const finalTasksPending = await messagesCache.getPendingTasks(0, 10);
+      console.log({ finalTasksPending });
     });
   });
 

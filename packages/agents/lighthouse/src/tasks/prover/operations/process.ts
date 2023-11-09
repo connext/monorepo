@@ -227,17 +227,8 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
   // Batch submit messages by destination domain
   try {
-    const proveAndProcessEncodedData = contracts.spokeConnector.encodeFunctionData("proveAndProcess", [
-      messageProofs,
-      aggregateRoot,
-      messageRootProof,
-      messageRootIndex,
-    ]);
-
-    logger.info("Proving and processing messages", requestContext, methodContext, {
-      destinationDomain,
+    logger.debug("Proving and processing messages", requestContext, methodContext, {
       provenMessages,
-      proveAndProcessEncodedData,
       destinationSpokeConnector,
     });
 
