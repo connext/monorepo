@@ -179,7 +179,7 @@ export const finalize = async () => {
     _endOfDispute,
   });
 
-  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalize", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("finalizeOnRoot", [
     _proposedAggregateRoot,
     _endOfDispute,
   ]);

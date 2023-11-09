@@ -1,7 +1,7 @@
 import { createLoggingContext, NxtpError } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, NoSpokeConnector } from "../errors";
+import { NoChainIdForDomain } from "../errors";
 import { getContext } from "../propagate";
 
 export const finalizeSpoke = async (spokeDomain: string) => {
@@ -25,11 +25,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
   if (!spokeChainId) {
     throw new NoChainIdForDomain(spokeDomain, requestContext, methodContext);
   }
-  const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
-
-  if (!spokeConnectorAddress) {
-    throw new NoSpokeConnector(+spokeDomain, requestContext, methodContext);
-  }
+  const relayerProxyAddress = config.chains[spokeDomain].deployments.relayerProxy;
 
   const currentProposedRoot = await database.getCurrentProposedOptimisticRoot(spokeDomain);
 
@@ -75,9 +71,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     return;
   }
 
-  // TODO: V1.1 Sign the proposal -- need signature from whitelisted proposer agent
-  // TODO: V1.1 Use relayerproxyhub to send tx ?
-  const encodedDataForRelayer = contracts.spokeConnector.encodeFunctionData("finalize", [
+  const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _rootTimestamp,
     _endOfDispute,
@@ -94,7 +88,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     const { taskId } = await sendWithRelayerWithBackup(
       spokeChainId,
       spokeDomain,
-      spokeConnectorAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -106,7 +100,7 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       spokeChainId,
       spokeDomain,
-      spokeConnectorAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
