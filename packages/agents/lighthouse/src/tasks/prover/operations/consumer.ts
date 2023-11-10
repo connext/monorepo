@@ -41,7 +41,7 @@ export const consume = async () => {
           await processMessages(brokerMessage, requestContext);
           channel.ack(message);
         } catch (err: unknown) {
-          logger.error("Processing messaages failed", requestContext, methodContext, undefined, { err });
+          logger.error("Processing messages failed", requestContext, methodContext, undefined, { err });
           channel.reject(message, false);
           const statuses = brokerMessage.messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.None }));
           await cache.messages.setStatus(statuses);

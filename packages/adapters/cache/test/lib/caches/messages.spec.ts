@@ -1,4 +1,13 @@
-import { ExecStatus, Logger, RelayerType, XMessage, expect, mkBytes32, mock } from "@connext/nxtp-utils";
+import {
+  ExecStatus,
+  Logger,
+  RelayerType,
+  XMessage,
+  expect,
+  getRandomBytes32,
+  mkBytes32,
+  mock,
+} from "@connext/nxtp-utils";
 import { MessagesCache } from "../../../src/index";
 
 const logger = new Logger({ level: "debug" });
@@ -9,6 +18,23 @@ const mockXMessages: XMessage[] = [
   { ...mock.entity.xMessage(), originDomain, destinationDomain, leaf: mkBytes32("0x111") },
   { ...mock.entity.xMessage(), originDomain, destinationDomain, leaf: mkBytes32("0x222") },
 ];
+
+const genMockXMessages = (count: number): XMessage[] => {
+  const xMessages: XMessage[] = [];
+  for (let i = 0; i < count; i++) {
+    const leaf = getRandomBytes32();
+    const root = getRandomBytes32();
+    xMessages.push({
+      ...mock.entity.xMessage(),
+      originDomain,
+      destinationDomain,
+      origin: { index: 100 + i, root, message: leaf },
+      leaf,
+    });
+  }
+
+  return xMessages;
+};
 
 describe("MessagesCache", () => {
   beforeEach(async () => {
@@ -139,6 +165,25 @@ describe("MessagesCache", () => {
       expect(message1?.status).to.be.deep.eq(ExecStatus.Enqueued);
       const message2 = await messagesCache.getMessage(mockXMessages[1].leaf);
       expect(message2?.status).to.be.deep.eq(ExecStatus.Completed);
+    });
+
+    it("shouldn't add the message to the pending list if exists", async () => {
+      const mockXMessages = genMockXMessages(10);
+      await messagesCache.storeMessages(mockXMessages);
+
+      const xMessage1 = mockXMessages[0];
+      await messagesCache.setStatus([{ leaf: xMessage1.leaf, status: ExecStatus.Sent }]);
+      const message = await messagesCache.getMessage(xMessage1.leaf);
+      expect(message?.status).to.be.eq(ExecStatus.Sent);
+
+      let pendings = await messagesCache.getPending(originDomain, destinationDomain, 0, 100);
+      expect(pendings.length).to.be.eq(10);
+      expect(pendings).to.be.deep.eq(mockXMessages.map((it) => it.leaf));
+
+      await messagesCache.removePending(originDomain, destinationDomain, [xMessage1.leaf]);
+      pendings = await messagesCache.getPending(originDomain, destinationDomain, 0, 100);
+      expect(pendings.length).to.be.eq(9);
+      expect(pendings).to.be.deep.eq(mockXMessages.slice(1).map((it) => it.leaf));
     });
   });
 
