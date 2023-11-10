@@ -22,6 +22,7 @@
   "databaseWriter": {
     "url": "postgres://postgres:postgres@localhost:5432/connext?sslmode=disable"
   },
+  "mnemonic": "test test test test test test test test test test test test",
   "relayers": [
     {
       "type": "Gelato",

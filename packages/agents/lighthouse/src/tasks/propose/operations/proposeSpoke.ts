@@ -1,5 +1,13 @@
-import { createLoggingContext, NxtpError, RequestContext, jsonifyError, domainToChainId } from "@connext/nxtp-utils";
+import {
+  createLoggingContext,
+  NxtpError,
+  RequestContext,
+  jsonifyError,
+  domainToChainId,
+  sign,
+} from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, LatestFinalizedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
@@ -62,13 +70,15 @@ export const proposeSpoke = async (spokeDomain: string) => {
 
   // Find the latest proposedAggregateRootHash.
   const spokeConnector = config.chains[spokeDomain]?.deployments.spokeConnector;
+  const relayerProxyAddress = config.chains[spokeDomain]?.deployments.relayerProxy;
+
   if (!spokeConnector) {
     throw new NoSpokeConnector(spokeDomain, requestContext, methodContext);
   }
 
   // TODO: V1.1 right way to find out the latest aggregate root
   let proposedAggregateRootHash: string = FINALIZED_HASH;
-  const idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
+  let idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
   try {
     const idResultData = await chainreader.readTx({
       domain: +spokeDomain,
@@ -76,11 +86,10 @@ export const proposeSpoke = async (spokeDomain: string) => {
       data: idEncodedData,
     });
 
-    const [_proposedAggregateRootHash] = contracts.spokeConnector.decodeFunctionResult(
+    [proposedAggregateRootHash] = contracts.spokeConnector.decodeFunctionResult(
       "proposedAggregateRootHash",
       idResultData,
     );
-    proposedAggregateRootHash = _proposedAggregateRootHash.toString();
   } catch (err: unknown) {
     logger.error(
       "Failed to read the latest proposedAggregateRootHash from onchain",
@@ -95,10 +104,47 @@ export const proposeSpoke = async (spokeDomain: string) => {
     proposedAggregateRootHash,
   });
 
+  if (proposedAggregateRootHash !== FINALIZED_HASH) {
+    logger.info(
+      "Latest proposed aggregate root hash is not FINALIZED_HASH. In progress now.",
+      requestContext,
+      methodContext,
+      {
+        proposedAggregateRootHash,
+      },
+    );
+    return;
+  }
+
+  let lastProposeAggregateRootAt: BigNumber;
+  idEncodedData = contracts.relayerProxy.encodeFunctionData("lastProposeAggregateRootAt");
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +spokeDomain,
+      to: relayerProxyAddress,
+      data: idEncodedData,
+    });
+
+    [lastProposeAggregateRootAt] = contracts.relayerProxy.decodeFunctionResult(
+      "lastProposeAggregateRootAt",
+      idResultData,
+    );
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the lastProposedAt from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the last proposed timestamp.
+    throw err as NxtpError;
+  }
+
   try {
     await proposeOptimisticRoot(
       latestFinalizedSnapshot.aggregateRoot,
       latestFinalizedSnapshot.finalizedTimestamp,
+      lastProposeAggregateRootAt.toNumber(),
       spokeDomain,
       spokeChainId,
       requestContext,
@@ -111,41 +157,51 @@ export const proposeSpoke = async (spokeDomain: string) => {
 export const proposeOptimisticRoot = async (
   aggregateRoot: string,
   rootTimestamp: number,
+  lastProposedAt: number,
   spokeDomain: string,
   spokeChainId: number,
   _requestContext: RequestContext,
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, chainreader },
+    adapters: { contracts, relayers, chainreader, wallet },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(proposeOptimisticRoot.name, _requestContext);
 
-  const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
+  const relayerProxyAddress = config.chains[spokeDomain].deployments.relayerProxy;
 
   const proposal = { aggregateRoot, rootTimestamp };
 
-  // TODO:  V1.1 Sign the proposal -- need signature from whitelisted proposer agent
-  const signature = "";
+  //  V1.1 Sign the proposal -- get signature from whitelisted proposer agent
+  const hash = solidityKeccak256(
+    ["bytes32", "uint256", "uint256", "uint32"],
+    [aggregateRoot, rootTimestamp, lastProposedAt, +spokeDomain],
+  );
+  const signature = await sign(hash, wallet);
+
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
     fee,
     proposal,
+    lastProposedAt,
+    hash,
     signature,
   });
 
-  const encodedDataForRelayer = contracts.spokeConnector.encodeFunctionData("proposeAggregateRoot", [
+  const encodedDataForRelayer = contracts.relayerProxy.encodeFunctionData("proposeAggregateRoot", [
     proposal.aggregateRoot,
     proposal.rootTimestamp,
+    signature,
+    fee,
   ]);
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
       spokeChainId,
       spokeDomain,
-      spokeConnectorAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -158,7 +214,7 @@ export const proposeOptimisticRoot = async (
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       spokeChainId,
       spokeDomain,
-      spokeConnectorAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
     });
   }
@@ -175,15 +231,6 @@ export const sendRootToHubSpoke = async (_requestContext: RequestContext) => {
 
   const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
   const hubChainId = domainToChainId(+config.hubDomain);
-
-  // TODO: V1.1 Sign the proposal -- need signature from whitelisted proposer agent
-  const signature = "";
-  // encode data for relayer proxy hub
-  const fee = BigNumber.from(0);
-  logger.info("Got params for sending", requestContext, methodContext, {
-    fee,
-    signature,
-  });
 
   const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("sendRootToHubSpoke");
 

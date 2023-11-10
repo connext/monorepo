@@ -68,6 +68,7 @@ import {
   getAggregateRoot,
   getCurrentProposedSnapshot,
   getCurrentFinalizedSnapshot,
+  getLatestSnapshot,
   getLatestPendingSnapshotRootByDomain,
   getMessageRootAggregatedFromIndex,
   getMessageRootsFromIndex,
@@ -104,6 +105,7 @@ import {
   saveFinalizedSpokeRoots,
   getCurrentProposedOptimisticRoot,
   getLatestFinalizedOptimisticRoot,
+  getLatestSpokeOptimisticRoot,
   getSpokeOptimisticRoot,
 } from "./client";
 
@@ -221,6 +223,7 @@ export type Database = {
   getBaseAggregateRoot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<string | undefined>;
   getCurrentProposedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
   getCurrentFinalizedSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
+  getLatestSnapshot: (_pool?: Pool | TxnClientForRepeatableRead) => Promise<Snapshot | undefined>;
   getMessageRootIndex: (
     domain: string,
     messageRoot: string,
@@ -363,6 +366,10 @@ export type Database = {
     domain: string,
     _pool?: Pool | TxnClientForRepeatableRead,
   ) => Promise<SpokeOptimisticRoot | undefined>;
+  getLatestSpokeOptimisticRoot: (
+    domain: string,
+    _pool?: Pool | TxnClientForRepeatableRead,
+  ) => Promise<SpokeOptimisticRoot | undefined>;
   getSpokeOptimisticRoot: (
     root: string,
     domain: string,
@@ -426,6 +433,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     getAggregateRoot,
     getCurrentProposedSnapshot,
     getCurrentFinalizedSnapshot,
+    getLatestSnapshot,
     getLatestPendingSnapshotRootByDomain,
     getMessageRootAggregatedFromIndex,
     getMessageRootsFromIndex,
@@ -458,6 +466,7 @@ export const getDatabase = async (databaseUrl: string, logger: Logger): Promise<
     saveFinalizedSpokeRoots,
     getCurrentProposedOptimisticRoot,
     getLatestFinalizedOptimisticRoot,
+    getLatestSpokeOptimisticRoot,
     getSpokeOptimisticRoot,
   };
 };
@@ -522,6 +531,7 @@ export const getDatabaseAndPool = async (
       getAggregateRoot,
       getCurrentProposedSnapshot,
       getCurrentFinalizedSnapshot,
+      getLatestSnapshot,
       getLatestPendingSnapshotRootByDomain,
       getMessageRootAggregatedFromIndex,
       getMessageRootsFromIndex,
@@ -554,6 +564,7 @@ export const getDatabaseAndPool = async (
       saveFinalizedSpokeRoots,
       getCurrentProposedOptimisticRoot,
       getLatestFinalizedOptimisticRoot,
+      getLatestSpokeOptimisticRoot,
       getSpokeOptimisticRoot,
     },
   };

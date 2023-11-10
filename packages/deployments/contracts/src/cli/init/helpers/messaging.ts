@@ -44,6 +44,16 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     write: { method: "addProposer", args: [RelayerProxy.address] },
   });
 
+  for (const proposer of protocol.agents?.proposers?.allowlist || []) {
+    await updateIfNeeded({
+      apply,
+      deployment: RootManager,
+      desired: true,
+      read: { method: "allowlistedProposers", args: [proposer] },
+      write: { method: "addProposer", args: [proposer] },
+    });
+  }
+
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain (and convert to a string value).
@@ -173,6 +183,16 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           read: { method: "allowlistedProposers", args: [RelayerProxy.address] },
           write: { method: "addProposer", args: [RelayerProxy.address] },
         });
+
+        for (const proposer of protocol.agents?.proposers?.allowlist || []) {
+          await updateIfNeeded({
+            apply,
+            deployment: SpokeConnector,
+            desired: true,
+            read: { method: "allowlistedProposers", args: [proposer] },
+            write: { method: "addProposer", args: [proposer] },
+          });
+        }
       }
     }
 

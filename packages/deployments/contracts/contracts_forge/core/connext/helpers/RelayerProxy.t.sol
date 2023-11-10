@@ -30,6 +30,7 @@ contract RelayerProxyTest is ConnectorHelper {
   address _feeCollector = address(12335555);
   address _keep3r = address(12335556);
   uint256 _proposeAggregateRootCooldown = 1000;
+  uint256 _finalizeCooldown = 1000;
   WatcherManager _watcherManager;
 
   RelayerProxy proxy;
@@ -81,7 +82,8 @@ contract RelayerProxyTest is ConnectorHelper {
       gelatoRelayer: _gelatoRelayer,
       feeCollector: _feeCollector,
       keep3r: _keep3r,
-      proposeAggregateRootCooldown: _proposeAggregateRootCooldown
+      proposeAggregateRootCooldown: _proposeAggregateRootCooldown,
+      finalizeCooldown: _finalizeCooldown
     });
 
     proxy = new RelayerProxy(_constructorParams);
