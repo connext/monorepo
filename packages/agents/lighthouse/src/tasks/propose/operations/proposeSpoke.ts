@@ -7,7 +7,7 @@ import {
   sign,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { NoChainIdForDomain, LatestFinalizedSnapshot, NoSpokeConnector, NoRootTimestamp } from "../errors";
@@ -70,13 +70,15 @@ export const proposeSpoke = async (spokeDomain: string) => {
 
   // Find the latest proposedAggregateRootHash.
   const spokeConnector = config.chains[spokeDomain]?.deployments.spokeConnector;
+  const relayerProxyAddress = config.chains[spokeDomain]?.deployments.relayerProxy;
+
   if (!spokeConnector) {
     throw new NoSpokeConnector(spokeDomain, requestContext, methodContext);
   }
 
   // TODO: V1.1 right way to find out the latest aggregate root
   let proposedAggregateRootHash: string = FINALIZED_HASH;
-  const idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
+  let idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
   try {
     const idResultData = await chainreader.readTx({
       domain: +spokeDomain,
@@ -114,13 +116,35 @@ export const proposeSpoke = async (spokeDomain: string) => {
     return;
   }
 
-  const latestSpokeOptimisticRoot = await database.getLatestSpokeOptimisticRoot(spokeDomain);
+  let lastProposeAggregateRootAt: BigNumber;
+  idEncodedData = contracts.relayerProxy.encodeFunctionData("lastProposeAggregateRootAt");
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +spokeDomain,
+      to: relayerProxyAddress,
+      data: idEncodedData,
+    });
+
+    [lastProposeAggregateRootAt] = contracts.relayerProxy.decodeFunctionResult(
+      "lastProposeAggregateRootAt",
+      idResultData,
+    );
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the lastProposedAt from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the last proposed timestamp.
+    throw err as NxtpError;
+  }
 
   try {
     await proposeOptimisticRoot(
       latestFinalizedSnapshot.aggregateRoot,
       latestFinalizedSnapshot.finalizedTimestamp,
-      latestSpokeOptimisticRoot ? latestSpokeOptimisticRoot.proposeTimestamp! : 0,
+      lastProposeAggregateRootAt.toNumber(),
       spokeDomain,
       spokeChainId,
       requestContext,
@@ -150,11 +174,10 @@ export const proposeOptimisticRoot = async (
   const proposal = { aggregateRoot, rootTimestamp };
 
   //  V1.1 Sign the proposal -- get signature from whitelisted proposer agent
-  const payload = defaultAbiCoder.encode(
+  const hash = solidityKeccak256(
     ["bytes32", "uint256", "uint256", "uint32"],
     [aggregateRoot, rootTimestamp, lastProposedAt, +spokeDomain],
   );
-  const hash = solidityKeccak256(["bytes"], [payload]);
   const signature = await sign(hash, wallet);
 
   // encode data for relayer proxy hub
@@ -163,7 +186,6 @@ export const proposeOptimisticRoot = async (
     fee,
     proposal,
     lastProposedAt,
-    payload,
     hash,
     signature,
   });

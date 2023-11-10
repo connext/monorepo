@@ -11,7 +11,7 @@ import {
   sign,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
-import { defaultAbiCoder, solidityKeccak256 } from "ethers/lib/utils";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -227,16 +227,34 @@ export const proposeSnapshot = async (
     throw new AggregateRootChecksFailed(aggregateRoot, requestContext, methodContext);
   }
 
-  const lastSnapshotProposedAt = (await database.getLatestSnapshot())?.proposedTimestamp ?? 0;
+  let lastSnapshotProposedAt: BigNumber;
+  const idEncodedData = contracts.relayerProxy.encodeFunctionData("lastProposeAggregateRootAt");
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +config.hubDomain,
+      to: relayerProxyHubAddress,
+      data: idEncodedData,
+    });
+
+    [lastSnapshotProposedAt] = contracts.relayerProxy.decodeFunctionResult("lastProposeAggregateRootAt", idResultData);
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the lastProposeAggregateRootAt from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the last proposed timestamp.
+    throw err as NxtpError;
+  }
 
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
 
   // Sign the proposal -- signature from whitelisted proposer agent
-  const payload = defaultAbiCoder.encode(
+  const hash = solidityKeccak256(
     ["uint256", "bytes32", "uint256", "uint32"],
-    [proposal.snapshotId, proposal.aggregateRoot, lastSnapshotProposedAt, +config.hubDomain],
+    [proposal.snapshotId, proposal.aggregateRoot, lastSnapshotProposedAt.toNumber(), +config.hubDomain],
   );
-  const hash = solidityKeccak256(["bytes"], [payload]);
   const signature = await sign(hash, wallet);
 
   // encode data for relayer proxy hub
@@ -245,7 +263,6 @@ export const proposeSnapshot = async (
     fee,
     proposal,
     lastSnapshotProposedAt,
-    payload,
     hash,
     signer: wallet.address,
     signature,
