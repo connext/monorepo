@@ -59,6 +59,7 @@ export const mockCache = () => {
       storeMessages: stub().resolves(),
       getPending: stub().resolves(),
       getPendingTasks: stub().resolves(),
+      addTaskPending: stub().resolves(),
       getMessage: stub().resolves(),
       increaseAttempt: stub().resolves(),
       removePending: stub().resolves(),
