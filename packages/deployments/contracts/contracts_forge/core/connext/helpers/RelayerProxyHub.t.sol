@@ -680,16 +680,16 @@ contract RelayerProxyHubTest is ConnectorHelper {
 
   function test_finalize__failsIfNotCooledDown(uint256 _time) public {
     vm.assume(_time < 300);
-    vm.expectRevert(abi.encodeWithSelector(RelayerProxyHub.RelayerProxyHub__finalizeCooledDown_notCooledDown.selector));
+    vm.expectRevert(abi.encodeWithSelector(RelayerProxy.RelayerProxy__finalizeCooledDown_notCooledDown.selector));
     vm.warp(_time);
     vm.prank(_gelatoRelayer);
-    proxy.finalize(bytes32(uint256(1)), 42);
+    proxy.finalizeOnRoot(bytes32(uint256(1)), 42);
   }
 
   function test_finalize__works(bytes32 _proposedAggregateRoot, uint256 _endOfDispute) public {
     vm.assume(_endOfDispute < 500);
     vm.mockCall(address(proxy.rootManager()), abi.encodeWithSelector(IRootManager.finalize.selector), abi.encode());
     vm.prank(_gelatoRelayer);
-    proxy.finalize(_proposedAggregateRoot, _endOfDispute);
+    proxy.finalizeOnRoot(_proposedAggregateRoot, _endOfDispute);
   }
 }

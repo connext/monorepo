@@ -76,7 +76,7 @@ jobs:
         run: yarn workspace @connext/smart-contracts forge:install
 
       - name: Yarn build
-        run: yarn build
+        run: yarn build:all
 
       - name: Install DBMate
         run: sudo curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && sudo chmod +x /usr/local/bin/dbmate

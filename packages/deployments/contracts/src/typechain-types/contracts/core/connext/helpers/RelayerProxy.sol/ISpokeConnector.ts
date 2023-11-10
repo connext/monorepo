@@ -42,6 +42,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
   functions: {
     "DOMAIN()": FunctionFragment;
     "allowlistedProposers(address)": FunctionFragment;
+    "finalize(bytes32,uint256,uint256)": FunctionFragment;
     "proposeAggregateRoot(bytes32,uint256)": FunctionFragment;
     "proveAndProcess((bytes,bytes32[32],uint256)[],bytes32,bytes32[32],uint256)": FunctionFragment;
     "send(bytes)": FunctionFragment;
@@ -51,6 +52,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "DOMAIN"
       | "allowlistedProposers"
+      | "finalize"
       | "proposeAggregateRoot"
       | "proveAndProcess"
       | "send"
@@ -60,6 +62,14 @@ export interface ISpokeConnectorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "allowlistedProposers",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "finalize",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "proposeAggregateRoot",
@@ -84,6 +94,7 @@ export interface ISpokeConnectorInterface extends utils.Interface {
     functionFragment: "allowlistedProposers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeAggregateRoot",
     data: BytesLike
@@ -131,6 +142,13 @@ export interface ISpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     proposeAggregateRoot(
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _rootTimestamp: PromiseOrValue<BigNumberish>,
@@ -158,6 +176,13 @@ export interface ISpokeConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  finalize(
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _rootTimestamp: PromiseOrValue<BigNumberish>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   proposeAggregateRoot(
     _aggregateRoot: PromiseOrValue<BytesLike>,
     _rootTimestamp: PromiseOrValue<BigNumberish>,
@@ -184,6 +209,13 @@ export interface ISpokeConnector extends BaseContract {
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     proposeAggregateRoot(
       _aggregateRoot: PromiseOrValue<BytesLike>,
@@ -215,6 +247,13 @@ export interface ISpokeConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     proposeAggregateRoot(
       _aggregateRoot: PromiseOrValue<BytesLike>,
       _rootTimestamp: PromiseOrValue<BigNumberish>,
@@ -241,6 +280,13 @@ export interface ISpokeConnector extends BaseContract {
     allowlistedProposers(
       _proposer: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _rootTimestamp: PromiseOrValue<BigNumberish>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposeAggregateRoot(

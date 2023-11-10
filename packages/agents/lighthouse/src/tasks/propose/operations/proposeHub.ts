@@ -8,8 +8,10 @@ import {
   domainToChainId,
   EMPTY_ROOT,
   getNtpTimeSeconds,
+  sign,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+import { solidityKeccak256 } from "ethers/lib/utils";
 
 import { NoBaseAggregateRootCount, NoBaseAggregateRoot } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -140,12 +142,12 @@ export const proposeSnapshot = async (
 ) => {
   const {
     logger,
-    adapters: { contracts, relayers, database, chainreader },
+    adapters: { contracts, relayers, database, chainreader, wallet },
     config,
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext("proposeSnapshot", _requestContext);
 
-  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
+  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const hubChainId = domainToChainId(+config.hubDomain);
   // const _totalFee = constants.Zero;
 
@@ -225,31 +227,60 @@ export const proposeSnapshot = async (
     throw new AggregateRootChecksFailed(aggregateRoot, requestContext, methodContext);
   }
 
+  let lastSnapshotProposedAt: BigNumber;
+  const idEncodedData = contracts.relayerProxy.encodeFunctionData("lastProposeAggregateRootAt");
+  try {
+    const idResultData = await chainreader.readTx({
+      domain: +config.hubDomain,
+      to: relayerProxyHubAddress,
+      data: idEncodedData,
+    });
+
+    [lastSnapshotProposedAt] = contracts.relayerProxy.decodeFunctionResult("lastProposeAggregateRootAt", idResultData);
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the lastProposeAggregateRootAt from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the last proposed timestamp.
+    throw err as NxtpError;
+  }
+
   const proposal = { snapshotId, aggregateRoot, snapshotRoots, orderedDomains };
 
-  // TODO: Sign the proposal -- need signature from whitelisted proposer agent
-  const signature = "";
+  // Sign the proposal -- signature from whitelisted proposer agent
+  const hash = solidityKeccak256(
+    ["uint256", "bytes32", "uint256", "uint32"],
+    [proposal.snapshotId, proposal.aggregateRoot, lastSnapshotProposedAt.toNumber(), +config.hubDomain],
+  );
+  const signature = await sign(hash, wallet);
 
   // encode data for relayer proxy hub
   const fee = BigNumber.from(0);
   logger.info("Got params for sending", requestContext, methodContext, {
     fee,
     proposal,
+    lastSnapshotProposedAt,
+    hash,
+    signer: wallet.address,
     signature,
   });
 
-  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("proposeAggregateRoot", [
+  const encodedDataForRelayer = contracts.relayerProxyHub.encodeFunctionData("proposeAggregateRootOnRoot", [
     proposal.snapshotId,
     proposal.aggregateRoot,
     proposal.snapshotRoots,
     proposal.orderedDomains,
+    signature,
   ]);
 
   try {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      rootManagerAddress,
+      relayerProxyHubAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -262,7 +293,7 @@ export const proposeSnapshot = async (
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      rootManagerAddress,
+      relayerProxyHubAddress,
       encodedDataForRelayer,
     });
   }

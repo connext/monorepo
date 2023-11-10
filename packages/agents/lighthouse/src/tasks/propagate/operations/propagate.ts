@@ -132,7 +132,6 @@ export const finalize = async () => {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  //TODO: V1.1 needs be relayer proxy hub
   const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
 
   const currentSnapshot = await database.getCurrentProposedSnapshot();

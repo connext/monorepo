@@ -16,6 +16,7 @@ export const AgentsSchema = Type.Object({
   sequencers: Type.Optional(AgentStackSchema),
   routers: Type.Optional(AgentStackSchema),
   watchers: Type.Optional(AgentStackSchema),
+  proposers: Type.Optional(AgentStackSchema),
   relayerFeeVaults: Type.Record(Type.String(), Type.String()),
 });
 export type Agents = Static<typeof AgentsSchema>;

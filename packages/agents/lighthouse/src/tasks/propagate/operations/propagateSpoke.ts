@@ -1,7 +1,7 @@
 import { createLoggingContext, NxtpError } from "@connext/nxtp-utils";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForDomain, NoSpokeConnector } from "../errors";
+import { NoChainIdForDomain } from "../errors";
 import { getContext } from "../propagate";
 
 export const finalizeSpoke = async (spokeDomain: string) => {
@@ -26,10 +26,6 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     throw new NoChainIdForDomain(spokeDomain, requestContext, methodContext);
   }
   const spokeConnectorAddress = config.chains[spokeDomain].deployments.spokeConnector;
-
-  if (!spokeConnectorAddress) {
-    throw new NoSpokeConnector(+spokeDomain, requestContext, methodContext);
-  }
 
   const currentProposedRoot = await database.getCurrentProposedOptimisticRoot(spokeDomain);
 
@@ -75,8 +71,6 @@ export const finalizeSpoke = async (spokeDomain: string) => {
     return;
   }
 
-  // TODO: V1.1 Sign the proposal -- need signature from whitelisted proposer agent
-  // TODO: V1.1 Use relayerproxyhub to send tx ?
   const encodedDataForRelayer = contracts.spokeConnector.encodeFunctionData("finalize", [
     _proposedAggregateRoot,
     _rootTimestamp,

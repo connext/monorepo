@@ -93,6 +93,7 @@ import {
   getAggregateRoots,
   getCurrentProposedOptimisticRoot,
   getLatestFinalizedOptimisticRoot,
+  getLatestSpokeOptimisticRoot,
   getSpokeOptimisticRoot,
   saveSnapshotRoots,
   getLatestPendingSnapshotRootByDomain,
@@ -101,6 +102,7 @@ import {
   savePropagatedOptimisticRoots,
   getCurrentProposedSnapshot,
   getCurrentFinalizedSnapshot,
+  getLatestSnapshot,
   saveFinalizedRoots,
   saveStableSwapExchange,
   saveRouterDailyTVL,
@@ -1140,6 +1142,7 @@ describe("Database client", () => {
     await expect(getFinalizedSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getCurrentProposedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getLatestFinalizedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
@@ -1631,6 +1634,9 @@ describe("Database client", () => {
 
     const propagagtedSnapshot = await getCurrentFinalizedSnapshot(pool);
     expect(propagagtedSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
+
+    const latestSnapshot = await getLatestSnapshot(pool);
+    expect(latestSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
   });
 
   it("should save and get Propagated snapshots", async () => {
@@ -1690,15 +1696,22 @@ describe("Database client", () => {
       const m = mock.entity.spokeOptimisticRoot();
       m.id = `${_i}`;
       m.rootTimestamp = _i;
+      m.proposeTimestamp = _i;
       spokeOptimisticRoots.push(m);
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
 
-    const latestSpokeRoot = await getCurrentProposedOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
-    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+    const latestProposedSpokeRoot = await getCurrentProposedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestProposedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
 
     const missingDbSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
     expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestSpokeRoot = await getLatestSpokeOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
   });
 
   it("should save and get finalized spoke optimistic roots", async () => {
