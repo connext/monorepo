@@ -95,7 +95,7 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       ],
     },
     proposers: {
-      allowlist: ["0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006"],
+      allowlist: ["0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", "0xD29f9168004a13e2266eFE450D2d60eBEE8adAA1"],
     },
   },
 };

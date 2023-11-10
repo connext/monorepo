@@ -39,6 +39,13 @@ locals {
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
+  lighthouse_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.lighthouse_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
@@ -326,6 +333,7 @@ locals {
       }
       prefetchSize = 1
     }
+    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
