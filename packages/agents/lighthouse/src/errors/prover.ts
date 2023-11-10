@@ -99,3 +99,13 @@ export class AggregateRootDuplicated extends NxtpError {
     super(`Trying to propose same aggregate root for ${aggregateRoot}`, context, AggregateRootDuplicated.name);
   }
 }
+
+export class EmptyMessageProofs extends NxtpError {
+  constructor(originDomain: string, destinationDomain: string, context: any = {}) {
+    super(
+      `Empty message proofs for origin: ${originDomain} and destination: ${destinationDomain}`,
+      context,
+      EmptyMessageProofs.name,
+    );
+  }
+}

@@ -15,6 +15,8 @@ import {
   NoMessageRootProof,
   NoMessageProof,
   MessageRootVerificationFailed,
+  EmptyMessageProofs,
+  RelayerSendFailed,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
@@ -98,7 +100,8 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   let failCount = 0;
   for (const message of messages) {
     // If message has been removed. Skip processing it.
-    if (!cache.messages.getMessage(message.leaf)) continue;
+    const _message = await cache.messages.getMessage(message.leaf);
+    if (!_message) continue;
 
     const messageEncodedData = contracts.merkleTreeManager.encodeFunctionData("leaves", [message.leaf]);
     try {
@@ -162,6 +165,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         });
         // Do not process message if proof verification fails.
         failCount += 1;
+
+        // Before you skip to process a message, the status needs to be reset so it can be retried in the next cycle.
+        await cache.messages.setStatus([{ leaf: message.leaf, status: ExecStatus.None }]);
         continue;
       }
     }
@@ -183,7 +189,8 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       originDomain,
       destinationDomain,
     });
-    return;
+
+    throw new EmptyMessageProofs(originDomain, destinationDomain);
   }
 
   // Proof path for proving inclusion of messageRoot in aggregateRoot.
@@ -264,20 +271,18 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       requestContext,
     );
     logger.info("Proved and processed message sent to relayer", requestContext, methodContext, { taskId });
-    if (taskId) {
-      await cache.messages.addTaskPending(
-        taskId,
-        relayerType,
-        originDomain,
-        destinationDomain,
-        provenMessages.map((it) => it.leaf),
-      );
-      const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
-      await cache.messages.setStatus(statuses);
-
-      return;
-    }
+    await cache.messages.addTaskPending(
+      taskId,
+      relayerType,
+      originDomain,
+      destinationDomain,
+      provenMessages.map((it) => it.leaf),
+    );
+    const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
+    await cache.messages.setStatus(statuses);
   } catch (err: unknown) {
-    logger.error("Error sending proofs to relayer", requestContext, methodContext, jsonifyError(err as NxtpError));
+    throw new RelayerSendFailed({
+      error: jsonifyError(err as Error),
+    });
   }
 };
