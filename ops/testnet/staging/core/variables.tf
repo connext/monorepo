@@ -206,3 +206,7 @@ variable "betteruptime_requester_email" {
   type    = string
   default = "layne@proximalabs.io"
 }
+
+variable "lighthouse_web3_signer_private_key" {
+  type    = string
+}
