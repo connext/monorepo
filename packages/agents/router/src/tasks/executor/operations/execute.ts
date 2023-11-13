@@ -20,6 +20,11 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
 
   logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 
+  if (args.params.destinationDomain === "2053862260") {
+    logger.info("Skipping unsupported domain", requestContext, methodContext, args.params.destinationDomain);
+    return;
+  }
+
   // Ensure we support the target domain (i.e. it's been configured).
   if (!config.chains[args.params.destinationDomain]) {
     throw new DomainNotSupported(args.params.destinationDomain, transferId, {

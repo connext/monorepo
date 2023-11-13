@@ -7,6 +7,7 @@ import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connex
 import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
 import { getBaseFee as _getBaseFee } from "@arbitrum/sdk/dist/lib/utils/lib";
+import { LineaSDK as _LineaSDK } from "@consensys/linea-sdk";
 import {
   RollupUserLogic__factory as _RollupUserLogic__factory,
   Outbox__factory as _Outbox__factory,
@@ -42,6 +43,8 @@ export const Outbox__factory = _Outbox__factory;
 export const JsonRpcProvider = providers.JsonRpcProvider;
 
 export const ZkSyncWeb3Provider = zk.Provider;
+
+export const LineaSDK = _LineaSDK;
 
 export const encodePropagate = (abi: any[], args: any[]): string => {
   const encodedData = new utils.Interface(abi as string[]).encodeFunctionData("propagate", args);

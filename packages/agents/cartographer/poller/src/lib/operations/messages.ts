@@ -5,7 +5,6 @@ import { DEFAULT_LOAD_SIZE, DEFAULT_SAFE_CONFIRMATIONS } from ".";
 
 const markableDomainsForRootMessage = [
   "6450786", // BNB
-  "1668247156", // Consensys zkEvm Testnet
 ];
 
 export const retrieveOriginMessages = async () => {

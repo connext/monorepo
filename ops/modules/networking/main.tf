@@ -1,5 +1,9 @@
 data "aws_availability_zones" "available" {}
 
+data "aws_iam_role" "vpc_flow_logs" {
+  name = "vpc_flow_logs_role"
+}
+
 resource "aws_vpc" "main" {
   cidr_block           = var.cidr_block
   enable_dns_hostnames = true
@@ -116,4 +120,30 @@ resource "aws_security_group" "allow_tls" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_cloudwatch_log_group" "flow_logs_log_group_private_subnets" {
+  count = var.az_count
+  name  = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}-private-${count.index}"
+}
+
+resource "aws_cloudwatch_log_group" "flow_logs_log_group_public_subnets" {
+  count = var.az_count
+  name  = "vpc-flow-logs-${var.environment}-${var.stage}-${var.domain}-public-${count.index}"
+}
+
+resource "aws_flow_log" "vpc_flow_logs_private_subnets" {
+  count           = var.az_count
+  iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.flow_logs_log_group_private_subnets[count.index].arn
+  traffic_type    = "ALL"
+  subnet_id       = aws_subnet.private[count.index].id
+}
+
+resource "aws_flow_log" "vpc_flow_logs_public_subnets" {
+  count           = var.az_count
+  iam_role_arn    = data.aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.flow_logs_log_group_public_subnets[count.index].arn
+  traffic_type    = "ALL"
+  subnet_id       = aws_subnet.main[count.index].id
 }

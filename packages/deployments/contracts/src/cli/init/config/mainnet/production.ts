@@ -338,6 +338,22 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "xRADAR",
+      canonical: {
+        domain: "6648936",
+        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// BSC
+        "6450786": {
+          local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+          adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+        },
+      },
+    },
+    {
       name: "NEXT",
       canonical: {
         domain: "6648936",
@@ -373,26 +389,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
-    // {
-    //   name: "MIVA",
-    //   canonical: {
-    //     domain: "11111",
-    //     address: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-    //     decimals: 18,
-    //   },
-    //   representations: {
-    //     //gnosis
-    //     "6778479": {
-    //       local: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-    //       adopted: "0x63e62989D9EB2d37dfDB1F93A22f063635b07d51",
-    //     },
-    //     // polygon
-    //     "1886350457": {
-    //       local: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
-    //       adopted: "0xC0b2983A17573660053BEEED6FDb1053107cf387",
-    //     },
-    //   },
-    // },
     {
       name: "FRACTION",
       canonical: {
@@ -425,6 +421,37 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1634886255": {
           local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
           adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        },
+      },
+    },
+    {
+      name: "xIXT",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        decimals: 18,
+      },
+      representations: {
+        /// POLYGON
+        "1886350457": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        /// MAINNET
+        "6648936": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        // BINANCE
+        "6450786": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
       },
     },

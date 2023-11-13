@@ -365,7 +365,7 @@ services:
 
   cartographer-database:
     container_name: cartographer-database
-    image: ${DB_IMAGE}
+    image: ghcr.io/connext/database:sha-5b85d66
     ports:
       - "5435:5432"
     command: ["postgres"]

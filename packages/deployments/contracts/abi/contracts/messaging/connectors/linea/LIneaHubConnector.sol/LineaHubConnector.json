@@ -19,6 +19,7 @@
   "function MIRROR_DOMAIN() view returns (uint32)",
   "function ROOT_MANAGER() view returns (address)",
   "function acceptProposedOwner()",
+  "function claimMessage(bytes _calldata, uint256 _nonce)",
   "function delay() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",

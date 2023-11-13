@@ -12,9 +12,8 @@ export const SUPPORTED_DOMAINS = {
     1735356532, // optimism goerli
     9991, // mumbai
     1734439522, // arbitrum-goerli
-    1668247156, // consensus-zkevm-test
+    1668247156, // linea-goerli
     2053862260, // zksync2 testnet
-    1668247156, // consensus-zkevm-test
   ],
 };
 
@@ -32,7 +31,7 @@ export const ADMINS = {
     1735356532: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // optimism goerli
     9991: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // mumbai
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
-    1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // consensus-zkevm-test
+    1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // linea-goerli
   },
 };
 

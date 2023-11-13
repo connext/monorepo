@@ -63,6 +63,7 @@ import "./tasks/bumpTransfer";
 import "./tasks/rootmanager/enrollAdminConnector";
 import "./tasks/connector/addSpokeRootToAggregate";
 import "./tasks/connector/wormholeDeliver";
+import "./tasks/connector/claimLinea";
 import { hardhatNetworks } from "./src/config";
 
 tdly.setup({
@@ -140,14 +141,6 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://blockscout.chiadochain.net/api",
           browserURL: "https://blockscout.chiadochain.net",
-        },
-      },
-      {
-        network: "consensys",
-        chainId: 59140,
-        urls: {
-          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
-          browserURL: "https://explorer.goerli.zkevm.consensys.net",
         },
       },
       {

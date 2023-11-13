@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {ConsensysAmb} from "../../interfaces/ambs/ConsensysAmb.sol";
+import {LineaAmb} from "../../interfaces/ambs/LineaAmb.sol";
 
-abstract contract ConsensysBase {
+abstract contract LineaBase {
   // ============ Private fns ============
 
   /**
@@ -11,6 +11,6 @@ abstract contract ConsensysBase {
    */
   function _verifySender(address _amb, address _expected) internal view returns (bool) {
     require(msg.sender == _amb, "!bridge");
-    return ConsensysAmb(_amb).sender() == _expected;
+    return LineaAmb(_amb).sender() == _expected;
   }
 }
