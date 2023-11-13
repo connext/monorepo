@@ -419,16 +419,19 @@ module "lighthouse_web3signer" {
 }
 
 module "lighthouse_propose_cron" {
-  source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
-  docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse-propose"
-  environment         = var.environment
-  stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
-  schedule_expression = "rate(30 minutes)"
-  memory_size         = 1536
-  timeout             = 900
+  source                 = "../../../modules/lambda"
+  ecr_repository_name    = "nxtp-lighthouse"
+  docker_image_tag       = var.lighthouse_image_tag
+  container_family       = "lighthouse-propose"
+  environment            = var.environment
+  stage                  = var.stage
+  container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
+  schedule_expression    = "rate(30 minutes)"
+  memory_size            = 1536
+  timeout                = 900
+  lambda_in_vpc          = true
+  subnet_ids             = module.network.private_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
 module "relayer" {
