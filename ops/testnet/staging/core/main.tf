@@ -428,6 +428,7 @@ module "lighthouse_propose_cron" {
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
   schedule_expression = "rate(30 minutes)"
   memory_size         = 1536
+  timeout             = 900
 }
 
 module "relayer" {
