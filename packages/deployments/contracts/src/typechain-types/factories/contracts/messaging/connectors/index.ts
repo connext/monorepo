@@ -3,7 +3,6 @@
 /* eslint-disable */
 export * as admin from "./admin";
 export * as arbitrum from "./arbitrum";
-export * as consensys from "./consensys";
 export * as gnosis from "./gnosis";
 export * as linea from "./linea";
 export * as mainnet from "./mainnet";

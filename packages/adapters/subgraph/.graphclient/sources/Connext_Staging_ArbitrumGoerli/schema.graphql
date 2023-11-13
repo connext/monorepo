@@ -18,6 +18,71 @@ type stagingarbitrumgoerli_AggregateRoot {
   blockNumber: BigInt!
 }
 
+type stagingarbitrumgoerli_AggregateRootProposed {
+  id: ID!
+  aggregateRoot: stagingarbitrumgoerli_Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+}
+
+input stagingarbitrumgoerli_AggregateRootProposed_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: stagingarbitrumgoerli_Bytes
+  aggregateRoot_not: stagingarbitrumgoerli_Bytes
+  aggregateRoot_gt: stagingarbitrumgoerli_Bytes
+  aggregateRoot_lt: stagingarbitrumgoerli_Bytes
+  aggregateRoot_gte: stagingarbitrumgoerli_Bytes
+  aggregateRoot_lte: stagingarbitrumgoerli_Bytes
+  aggregateRoot_in: [stagingarbitrumgoerli_Bytes!]
+  aggregateRoot_not_in: [stagingarbitrumgoerli_Bytes!]
+  aggregateRoot_contains: stagingarbitrumgoerli_Bytes
+  aggregateRoot_not_contains: stagingarbitrumgoerli_Bytes
+  rootTimestamp: BigInt
+  rootTimestamp_not: BigInt
+  rootTimestamp_gt: BigInt
+  rootTimestamp_lt: BigInt
+  rootTimestamp_gte: BigInt
+  rootTimestamp_lte: BigInt
+  rootTimestamp_in: [BigInt!]
+  rootTimestamp_not_in: [BigInt!]
+  endOfDispute: BigInt
+  endOfDispute_not: BigInt
+  endOfDispute_gt: BigInt
+  endOfDispute_lt: BigInt
+  endOfDispute_gte: BigInt
+  endOfDispute_lte: BigInt
+  endOfDispute_in: [BigInt!]
+  endOfDispute_not_in: [BigInt!]
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+  and: [stagingarbitrumgoerli_AggregateRootProposed_filter]
+  or: [stagingarbitrumgoerli_AggregateRootProposed_filter]
+}
+
+enum stagingarbitrumgoerli_AggregateRootProposed_orderBy {
+  id
+  aggregateRoot
+  rootTimestamp
+  endOfDispute
+  domain
+}
+
 input stagingarbitrumgoerli_AggregateRoot_filter {
   id: ID
   id_not: ID
@@ -874,6 +939,51 @@ enum stagingarbitrumgoerli_DestinationTransfer_orderBy {
 
 """
 scalar stagingarbitrumgoerli_Int8
+
+type stagingarbitrumgoerli_OptimisticRootFinalized {
+  id: ID!
+  aggregateRoot: stagingarbitrumgoerli_Bytes!
+  timestamp: BigInt!
+}
+
+input stagingarbitrumgoerli_OptimisticRootFinalized_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: stagingarbitrumgoerli_Bytes
+  aggregateRoot_not: stagingarbitrumgoerli_Bytes
+  aggregateRoot_gt: stagingarbitrumgoerli_Bytes
+  aggregateRoot_lt: stagingarbitrumgoerli_Bytes
+  aggregateRoot_gte: stagingarbitrumgoerli_Bytes
+  aggregateRoot_lte: stagingarbitrumgoerli_Bytes
+  aggregateRoot_in: [stagingarbitrumgoerli_Bytes!]
+  aggregateRoot_not_in: [stagingarbitrumgoerli_Bytes!]
+  aggregateRoot_contains: stagingarbitrumgoerli_Bytes
+  aggregateRoot_not_contains: stagingarbitrumgoerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+  and: [stagingarbitrumgoerli_OptimisticRootFinalized_filter]
+  or: [stagingarbitrumgoerli_OptimisticRootFinalized_filter]
+}
+
+enum stagingarbitrumgoerli_OptimisticRootFinalized_orderBy {
+  id
+  aggregateRoot
+  timestamp
+}
 
 """Defines the order direction, either ascending or descending"""
 enum stagingarbitrumgoerli_OrderDirection {
@@ -1905,6 +2015,84 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingarbitrumgoerli_SnapshotRoot!]!
+  stagingarbitrumgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SpokeConnectorMode
+  stagingarbitrumgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SpokeConnectorMode_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SpokeConnectorMode!]!
+  stagingarbitrumgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_AggregateRootProposed
+  stagingarbitrumgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_AggregateRootProposed_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_AggregateRootProposed!]!
+  stagingarbitrumgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_OptimisticRootFinalized
+  stagingarbitrumgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   stagingarbitrumgoerli__meta(block: stagingarbitrumgoerli_Block_height): stagingarbitrumgoerli__Meta_
 }
@@ -2868,6 +3056,51 @@ enum stagingarbitrumgoerli_SnapshotRoot_orderBy {
   blockNumber
 }
 
+type stagingarbitrumgoerli_SpokeConnectorMode {
+  id: ID!
+  mode: String!
+}
+
+input stagingarbitrumgoerli_SpokeConnectorMode_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  mode: String
+  mode_not: String
+  mode_gt: String
+  mode_lt: String
+  mode_gte: String
+  mode_lte: String
+  mode_in: [String!]
+  mode_not_in: [String!]
+  mode_contains: String
+  mode_contains_nocase: String
+  mode_not_contains: String
+  mode_not_contains_nocase: String
+  mode_starts_with: String
+  mode_starts_with_nocase: String
+  mode_not_starts_with: String
+  mode_not_starts_with_nocase: String
+  mode_ends_with: String
+  mode_ends_with_nocase: String
+  mode_not_ends_with: String
+  mode_not_ends_with_nocase: String
+  """Filter for the block changed event."""
+  _change_block: stagingarbitrumgoerli_BlockChangedFilter
+  and: [stagingarbitrumgoerli_SpokeConnectorMode_filter]
+  or: [stagingarbitrumgoerli_SpokeConnectorMode_filter]
+}
+
+enum stagingarbitrumgoerli_SpokeConnectorMode_orderBy {
+  id
+  mode
+}
+
 type Subscription {
   stagingarbitrumgoerli_asset(
     id: ID!
@@ -3363,6 +3596,84 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [stagingarbitrumgoerli_SnapshotRoot!]!
+  stagingarbitrumgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_SpokeConnectorMode
+  stagingarbitrumgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_SpokeConnectorMode_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_SpokeConnectorMode!]!
+  stagingarbitrumgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_AggregateRootProposed
+  stagingarbitrumgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_AggregateRootProposed_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_AggregateRootProposed!]!
+  stagingarbitrumgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): stagingarbitrumgoerli_OptimisticRootFinalized
+  stagingarbitrumgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: stagingarbitrumgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: stagingarbitrumgoerli_OrderDirection
+    where: stagingarbitrumgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: stagingarbitrumgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [stagingarbitrumgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   stagingarbitrumgoerli__meta(block: stagingarbitrumgoerli_Block_height): stagingarbitrumgoerli__Meta_
 }

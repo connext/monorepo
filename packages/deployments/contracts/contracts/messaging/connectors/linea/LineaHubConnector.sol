@@ -28,6 +28,20 @@ contract LineaHubConnector is HubConnector, LineaBase {
   }
 
   /**
+   * @notice Deliver a message to the destination chain.
+   * @param _calldata The calldata used by the destination message service to call/forward to the destination contract.
+   * @param _nonce Unique message number.
+   */
+  function claimMessage(bytes calldata _calldata, uint256 _nonce) external {
+    //  * @param _from = mirror connector address. The msg.sender calling the origin message service.
+    //  * @param _to = hub connector address. The destination address on the destination chain.
+    //  * @param _value = 0. The value to be transferred to the destination address.
+    //  * @param _fee = 0. The message service fee on the origin chain.
+    //  * @param _feeRecipient = address(0). Address that will receive the fees.
+    LineaAmb(AMB).claimMessage(mirrorConnector, address(this), 0, 0, payable(address(0)), _calldata, _nonce);
+  }
+
+  /**
    * @dev Messaging uses this function to send data to l2 via amb
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {

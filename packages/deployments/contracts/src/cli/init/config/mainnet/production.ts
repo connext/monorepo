@@ -345,7 +345,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
-       /// BSC
+        /// BSC
         "6450786": {
           local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
           adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
@@ -420,6 +420,37 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1634886255": {
           local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
           adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+      },
+    },
+    {
+      name: "xIXT",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        decimals: 18,
+      },
+      representations: {
+        /// POLYGON
+        "1886350457": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        /// MAINNET
+        "6648936": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        // BINANCE
+        "6450786": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
       },
     },

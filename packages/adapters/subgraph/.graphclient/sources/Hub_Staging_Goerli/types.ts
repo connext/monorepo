@@ -22,6 +22,68 @@ export type Scalars = {
   staginggoerli_Int8: any;
 };
 
+export type staginggoerli_AggregateRootSavedSlow = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['staginggoerli_Bytes'];
+  count: Scalars['BigInt'];
+  aggregatedRoots?: Maybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootTimestamp: Scalars['BigInt'];
+};
+
+export type staginggoerli_AggregateRootSavedSlow_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  aggregatedRoots?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_contains?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_contains_nocase?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not_contains?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not_contains_nocase?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>>>;
+};
+
+export type staginggoerli_AggregateRootSavedSlow_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'count'
+  | 'aggregatedRoots'
+  | 'rootTimestamp';
+
 export type staginggoerli_AggregatedMessageRoot = {
   id: Scalars['ID'];
   index: Scalars['BigInt'];
@@ -684,6 +746,8 @@ export type Query = {
   staginggoerli_zkSyncConnectorMetas: Array<staginggoerli_ZkSyncConnectorMeta>;
   staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
   staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  staginggoerli_aggregateRootSavedSlow?: Maybe<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_aggregateRootSavedSlows: Array<staginggoerli_AggregateRootSavedSlow>;
   /** Access to subgraph metadata */
   staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
@@ -954,6 +1018,24 @@ export type Querystaginggoerli_rootMessageProcessedsArgs = {
   orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootSavedSlowArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootSavedSlowsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRootSavedSlow_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1304,6 +1386,8 @@ export type Subscription = {
   staginggoerli_zkSyncConnectorMetas: Array<staginggoerli_ZkSyncConnectorMeta>;
   staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
   staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  staginggoerli_aggregateRootSavedSlow?: Maybe<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_aggregateRootSavedSlows: Array<staginggoerli_AggregateRootSavedSlow>;
   /** Access to subgraph metadata */
   staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
@@ -1579,6 +1663,24 @@ export type Subscriptionstaginggoerli_rootMessageProcessedsArgs = {
 };
 
 
+export type Subscriptionstaginggoerli_aggregateRootSavedSlowArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_aggregateRootSavedSlowsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRootSavedSlow_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstaginggoerli__metaArgs = {
   block?: InputMaybe<staginggoerli_Block_height>;
 };
@@ -1753,6 +1855,10 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_rootMessageProcessed: InContextSdkMethod<Query['staginggoerli_rootMessageProcessed'], Querystaginggoerli_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   staginggoerli_rootMessageProcesseds: InContextSdkMethod<Query['staginggoerli_rootMessageProcesseds'], Querystaginggoerli_rootMessageProcessedsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlow: InContextSdkMethod<Query['staginggoerli_aggregateRootSavedSlow'], Querystaginggoerli_aggregateRootSavedSlowArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlows: InContextSdkMethod<Query['staginggoerli_aggregateRootSavedSlows'], Querystaginggoerli_aggregateRootSavedSlowsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   staginggoerli__meta: InContextSdkMethod<Query['staginggoerli__meta'], Querystaginggoerli__metaArgs, MeshContext>
   };
@@ -1822,6 +1928,10 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_rootMessageProcessed: InContextSdkMethod<Subscription['staginggoerli_rootMessageProcessed'], Subscriptionstaginggoerli_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   staginggoerli_rootMessageProcesseds: InContextSdkMethod<Subscription['staginggoerli_rootMessageProcesseds'], Subscriptionstaginggoerli_rootMessageProcessedsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlow: InContextSdkMethod<Subscription['staginggoerli_aggregateRootSavedSlow'], Subscriptionstaginggoerli_aggregateRootSavedSlowArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlows: InContextSdkMethod<Subscription['staginggoerli_aggregateRootSavedSlows'], Subscriptionstaginggoerli_aggregateRootSavedSlowsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   staginggoerli__meta: InContextSdkMethod<Subscription['staginggoerli__meta'], Subscriptionstaginggoerli__metaArgs, MeshContext>
   };
