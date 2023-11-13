@@ -284,6 +284,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      // TODO: This is the old config, to be removed in execution layer upgrade
       name: "ALCX",
       canonical: {
         domain: "6648936",
@@ -305,8 +306,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      // TODO: we currently comment out the home chain setup logic in
-      //       helpers/assets.ts when this is being init'd
       name: "ALCX",
       canonical: {
         // Pseudo-canonical domain
