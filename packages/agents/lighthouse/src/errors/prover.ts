@@ -59,3 +59,13 @@ export class NoMessageProof extends NxtpError {
     super(`No index ${index} for message hash ${leaf}`, context, NoMessageProof.name);
   }
 }
+
+export class EmptyMessageProofs extends NxtpError {
+  constructor(originDomain: string, destinationDomain: string, context: any = {}) {
+    super(
+      `Empty message proofs for origin: ${originDomain} and destination: ${destinationDomain}`,
+      context,
+      EmptyMessageProofs.name,
+    );
+  }
+}
