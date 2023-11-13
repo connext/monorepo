@@ -14,6 +14,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
+
   assets: [
     {
       name: "USDT",
@@ -385,6 +386,41 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6778479": {
           local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
           adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+      },
+    },
+    {
+      name: "FRACTION",
+      canonical: {
+        domain: "11111",
+        address: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+        decimals: 18,
+      },
+      representations: {
+        // gnosis
+        "6778479": {
+          local: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+          adopted: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+        },
+        // optimism
+        "1869640809": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // bnb
+        "6450786": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+          adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
         },
       },
     },
