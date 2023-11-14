@@ -130,7 +130,7 @@ export const sanitizeAndInit = async () => {
     };
 
     for (const domain of domains) {
-      if (domain === hubDomain) continue;
+      if (+domain === +asset.canonical.domain) continue;
       _extracted.representations[domain] = asset.representations[domain];
     }
 

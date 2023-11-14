@@ -85,7 +85,7 @@ export class MessagesCache extends Cache {
     for (const value of values) {
       const message = await this.getMessage(value.leaf);
       if (message) {
-        await this.storeMessage(message.data, value.status, message.attempt);
+        await this.storeMessage(message.data, value.status, value.status == ExecStatus.None ? 0 : message.attempt);
       }
     }
   }
@@ -122,7 +122,10 @@ export class MessagesCache extends Cache {
    */
   private async addPending(originDomain: string, destinationDomain: string, leaf: string) {
     const pendingKey = `${originDomain}-${destinationDomain}`;
-    await this.data.rpush(`${this.prefix}:pending:${pendingKey}`, leaf);
+    const message = await this.getMessage(leaf);
+    if (!message) {
+      await this.data.rpush(`${this.prefix}:pending:${pendingKey}`, leaf);
+    }
   }
 
   /**

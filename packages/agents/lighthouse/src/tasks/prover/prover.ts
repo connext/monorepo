@@ -16,6 +16,7 @@ import { acquireLock, prefetch, releaseLock } from "./operations/publisher";
 const context: ProverContext = {} as any;
 export const getContext = () => context;
 export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+  const { requestContext, methodContext } = createLoggingContext(makeProverPublisher.name);
   try {
     await makeProver(config, chainData);
     if (!(await acquireLock())) throw new Error("Could not acquire lock");
@@ -30,7 +31,8 @@ export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainDat
     console.error("Error starting Prover-Publisher. Sad! :(", e);
   } finally {
     await closeDatabase();
-    process.exit();
+
+    context.logger.info("Prover complete!!!", requestContext, methodContext, {});
   }
 };
 
