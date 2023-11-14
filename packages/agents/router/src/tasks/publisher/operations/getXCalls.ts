@@ -8,31 +8,6 @@ import {
 
 import { getContext } from "../publisher";
 
-function roughSizeOfObject(o: any) {
-  const objectList = [];
-  const stack = [o];
-  let bytes = 0;
-
-  while (stack.length) {
-    const value = stack.pop();
-
-    if (typeof value === "boolean") {
-      bytes += 4;
-    } else if (typeof value === "string") {
-      bytes += value.length * 2;
-    } else if (typeof value === "number") {
-      bytes += 8;
-    } else if (typeof value === "object" && objectList.indexOf(value) === -1) {
-      objectList.push(value);
-
-      for (const i in value) {
-        stack.push(value[i]);
-      }
-    }
-  }
-  return bytes;
-}
-
 // Ought to be configured properly for each network; we consult the chain config below.
 export const DEFAULT_SAFE_CONFIRMATIONS = 5;
 
@@ -84,7 +59,6 @@ export const getXCalls = async () => {
   if ([...subgraphQueryMetaParams.keys()].length > 0) {
     await subgraph.getOriginXCalls(subgraphQueryMetaParams);
 
-    console.log(roughSizeOfObject(subgraph));
     // console.log({ domains: txByOriginDomain.keys() });
     // console.log({ txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain });
     // Collect analytics information for missing nonces

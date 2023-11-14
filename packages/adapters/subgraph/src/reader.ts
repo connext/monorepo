@@ -557,21 +557,26 @@ export class SubgraphReader {
     return destinationTransfers;
   }
 
-  public async getOriginXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<Map<string, any[]>> {
-    const { execute } = getHelpers();
+  public async getOriginXCalls(agents: Map<string, SubgraphQueryMetaParams>): Promise<{
+    txIdsByDestinationDomain: Map<string, string[]>;
+    allTxById: Map<string, XTransfer>;
+    latestNonces: Map<string, number>;
+    txByOriginDomain: Map<string, XTransfer[]>;
+  }> {
+    const { execute, parser } = getHelpers();
+    const { config } = getContext();
     let xcalledXQuery = undefined;
-    console.log("agents", agents);
-    // try {
-    xcalledXQuery = getOriginTransfersQuery(agents);
-    // } catch (err: any) {
-    //   console.info(`Primary query failed attempting fallback!`);
-    // xcalledXQuery = getOriginTransfersFallbackQuery(agents);
-    // }
-    return await execute(xcalledXQuery);
-    // const txIdsByDestinationDomain: Map<string, string[]> = new Map();
-    // const txByOriginDomain: Map<string, XTransfer[]> = new Map();
-    // const allTxById: Map<string, XTransfer> = new Map();
-    // const latestNonces: Map<string, number> = new Map();
+    try {
+      xcalledXQuery = getOriginTransfersQuery(agents);
+    } catch (err: any) {
+      console.info(`Primary query failed attempting fallback!`);
+      xcalledXQuery = getOriginTransfersFallbackQuery(agents);
+    }
+    await execute(xcalledXQuery);
+    const txIdsByDestinationDomain: Map<string, string[]> = new Map();
+    const txByOriginDomain: Map<string, XTransfer[]> = new Map();
+    const allTxById: Map<string, XTransfer> = new Map();
+    const latestNonces: Map<string, number> = new Map();
 
     // for (const domain of response.keys()) {
     //   const value = response.get(domain);
@@ -585,15 +590,15 @@ export class SubgraphReader {
     //     } else {
     //       txIdsByDestinationDomain.set(xtransfer.destinationDomain as string, [`"${xtransfer.transferId as string}"`]);
     //     }
-    //     // const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
-    //     // allTxById.set(xtransfer.transferId as string, originTransfer);
+    //     const originTransfer = parser.originTransfer(xtransfer, config.assetId[xtransfer.originDomain]);
+    //     allTxById.set(xtransfer.transferId as string, originTransfer);
     //     latestNonces.set(domain, xtransfer.nonce as number);
-    //     // originTransfers.push(originTransfer);
+    //     originTransfers.push(originTransfer);
     //   }
     //   txByOriginDomain.set(domain, originTransfers);
     // }
 
-    // return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
+    return { txIdsByDestinationDomain, allTxById, latestNonces, txByOriginDomain };
   }
 
   public async getDestinationXCalls(
