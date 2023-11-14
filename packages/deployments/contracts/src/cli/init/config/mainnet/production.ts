@@ -396,6 +396,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         decimals: 18,
       },
       representations: {
+        "6648936": {
+          local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        },
         "6450786": {
           local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
           adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
