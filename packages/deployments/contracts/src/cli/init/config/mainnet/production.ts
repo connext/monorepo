@@ -391,14 +391,14 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "URUS",
       canonical: {
-        domain: "6648936",
-        address: "0xc6dddb5bc6e61e0841c54f3e723ae1f3a807260b",
+        domain: "11111",
+        address: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
         decimals: 18,
       },
       representations: {
         "6450786": {
           local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
-          adopted: "0xc6dddb5bc6e61e0841c54f3e723ae1f3a807260b",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
         },
       },
     },
