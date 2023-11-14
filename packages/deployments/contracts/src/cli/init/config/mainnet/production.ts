@@ -417,7 +417,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1818848877": "0x50d22a34183e7cD3164184011998a3D50303f75d",
     },
     watchers: {
-      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
+      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e", "0x9c77788d761ee0347Ab550883237CeD274a0F248"],
     },
     routers: {
       allowlist: [
