@@ -70,8 +70,6 @@ module "router_publisher" {
   loadbalancer_port        = 80
   cpu                      = 1024
   memory                   = 2048
-  cpu                      = 1024
-  memory                   = 2048
   instance_count           = 1
   timeout                  = 180
   ingress_cdir_blocks      = ["0.0.0.0/0"]
@@ -221,16 +219,6 @@ module "sequencer_publisher_auto_scaling" {
   avg_mem_utilization_target = 60
   min_capacity               = 1
   max_capacity               = 30
-  source                     = "../../../modules/auto-scaling"
-  stage                      = var.stage
-  environment                = var.environment
-  domain                     = var.domain
-  ecs_service_name           = module.sequencer_publisher.service_name
-  ecs_cluster_name           = module.ecs.ecs_cluster_name
-  avg_cpu_utilization_target = 40
-  avg_mem_utilization_target = 60
-  min_capacity               = 1
-  max_capacity               = 30
 }
 
 module "sequencer_subscriber" {
@@ -352,16 +340,6 @@ module "lighthouse_prover_subscriber" {
 }
 
 module "lighthouse_prover_subscriber_auto_scaling" {
-  source                     = "../../../modules/auto-scaling"
-  stage                      = var.stage
-  environment                = var.environment
-  domain                     = var.domain
-  ecs_service_name           = module.lighthouse_prover_subscriber.service_name
-  ecs_cluster_name           = module.ecs.ecs_cluster_name
-  min_capacity               = 2
-  max_capacity               = 30
-  avg_cpu_utilization_target = 20
-  avg_mem_utilization_target = 40
   source                     = "../../../modules/auto-scaling"
   stage                      = var.stage
   environment                = var.environment
