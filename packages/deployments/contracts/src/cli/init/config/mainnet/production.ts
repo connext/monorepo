@@ -455,6 +455,41 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "xGrumpy Cat",
+      canonical: {
+        domain: "11111",
+        address: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Optimsim
+        "1869640809": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Binance
+        "6450786": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Arbitrum
+        "1634886255": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+      },
+    },
+    {
       name: "FRACTION",
       canonical: {
         domain: "11111",
