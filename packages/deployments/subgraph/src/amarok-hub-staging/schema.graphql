@@ -149,3 +149,8 @@ type AggregateRootSavedSlow @entity {
   aggregatedRoots: [Bytes!]
   rootTimestamp: BigInt!
 }
+
+type HubDomain @entity {
+  id: ID! # "HUB_DOMAIN_ID"
+  domain: BigInt
+}

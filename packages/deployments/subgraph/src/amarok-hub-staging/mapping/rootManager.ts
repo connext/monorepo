@@ -11,6 +11,8 @@ import {
   OptimisticModeActivated as OptimisticModeActivatedEvent,
   AggregateRootSavedOptimistic as AggregateRootSavedOptimisticEvent,
   AggregateRootSavedSlow as AggregateRootSavedSlowEvent,
+  HubDomainSet,
+  HubDomainCleared,
 } from "../../../generated/RootManager/RootManager";
 
 import {
@@ -21,12 +23,15 @@ import {
   OptimisticRootProposed,
   HubOptimisticRootFinalized,
   AggregateRootSavedSlow,
+  HubDomain,
 } from "../../../generated/schema";
 
 const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
 const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const HUB_DOMAIN_ID = "HUB_DOMAIN_ID";
 const OPTIMISTIC_MODE = "OPTIMISTIC_MODE";
 const SLOW_MODE = "SLOW_MODE";
+const DEFUALT_HUB_DOMAIN = 0;
 
 /// MARK - ROOT MANAGER
 // TODO: Needed?
@@ -144,5 +149,21 @@ export function handleOptimisticModeActivated(event: OptimisticModeActivatedEven
 
   instance.mode = OPTIMISTIC_MODE;
 
+  instance.save();
+}
+
+export function handleHubDomainSet(event: HubDomainSet): void {
+  let instance = HubDomain.load(HUB_DOMAIN_ID);
+  if (instance == null) {
+    instance = new HubDomain(HUB_DOMAIN_ID);
+  }
+
+  instance.domain = event.params.domain;
+
+  instance.save();
+}
+
+export function handleHubDomainCleared(event: HubDomainCleared): void {
+  const instance = new HubDomain(HUB_DOMAIN_ID);
   instance.save();
 }
