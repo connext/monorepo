@@ -1,8 +1,8 @@
 ---
 name: Support Ticket
 about: Create a report to help us improve
-title: "[SC] <Title the bug here>"
-labels: ''
+title: "[ST] <What is wrong>"
+labels: Bug
 assignees: ''
 
 ---
@@ -24,3 +24,4 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+@oncall
