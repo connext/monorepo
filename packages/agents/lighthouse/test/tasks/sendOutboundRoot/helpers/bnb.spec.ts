@@ -18,7 +18,7 @@ describe("Helpers: BNB", () => {
       const res = await getSendOutboundRootParams(mock.domain.A);
       expect(res).to.deep.eq({
         _fee: constants.One.toString(),
-        _encodedData: utils.defaultAbiCoder.encode(["uint256"], [200000]),
+        _encodedData: utils.defaultAbiCoder.encode(["uint256"], [150000]),
       });
     });
   });
