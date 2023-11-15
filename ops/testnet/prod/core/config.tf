@@ -25,10 +25,6 @@ locals {
     local.router_env_vars, [
       { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
   ])
-  router_publisher_env_vars = concat(
-    local.router_env_vars, [
-      { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
-  ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,

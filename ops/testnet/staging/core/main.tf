@@ -79,7 +79,6 @@ module "router_publisher" {
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
   container_env_vars       = local.router_publisher_env_vars
-  container_env_vars       = local.router_publisher_env_vars
 }
 
 module "router_executor" {
@@ -373,21 +372,6 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   max_capacity               = 30
   avg_cpu_utilization_target = 20
   avg_mem_utilization_target = 40
-}
-
-module "lighthouse_prover_cron" {
-  source                 = "../../../modules/lambda"
-  ecr_repository_name    = "nxtp-lighthouse"
-  docker_image_tag       = var.lighthouse_image_tag
-  container_family       = "lighthouse-prover"
-  environment            = var.environment
-  stage                  = var.stage
-  container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
-  schedule_expression    = "rate(30 minutes)"
-  memory_size            = 512
-  lambda_in_vpc          = true
-  subnet_ids             = module.network.private_subnets
-  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
 module "lighthouse_process_from_root_cron" {
