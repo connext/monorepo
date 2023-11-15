@@ -476,6 +476,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // Linea chain
+      59144: {
+        prefix: "Linea",
+        ambs: {
+          // https://etherscan.io/address/0xd19d4B5d358258f05D7B411E21A1460D11B0876F
+          hub: "0xd19d4B5d358258f05D7B411E21A1460D11B0876F",
+          // https://lineascan.build/address/0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec
+          spoke: "0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+      },
     },
   },
 };

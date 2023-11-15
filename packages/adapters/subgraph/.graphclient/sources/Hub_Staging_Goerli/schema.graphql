@@ -577,6 +577,7 @@ type staginggoerli_OptimisticRootProposed {
   snapshotsRoots: [staginggoerli_Bytes!]
   domains: [BigInt!]
   baseAggregateRoot: staginggoerli_Bytes!
+  timestamp: BigInt!
 }
 
 input staginggoerli_OptimisticRootProposed_filter {
@@ -628,6 +629,14 @@ input staginggoerli_OptimisticRootProposed_filter {
   baseAggregateRoot_not_in: [staginggoerli_Bytes!]
   baseAggregateRoot_contains: staginggoerli_Bytes
   baseAggregateRoot_not_contains: staginggoerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: staginggoerli_BlockChangedFilter
   and: [staginggoerli_OptimisticRootProposed_filter]
@@ -641,6 +650,7 @@ enum staginggoerli_OptimisticRootProposed_orderBy {
   snapshotsRoots
   domains
   baseAggregateRoot
+  timestamp
 }
 
 """Defines the order direction, either ascending or descending"""
