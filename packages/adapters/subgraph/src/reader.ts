@@ -565,14 +565,10 @@ export class SubgraphReader {
   }> {
     const { execute, parser } = getHelpers();
     const { config } = getContext();
-    let xcalledXQuery = undefined;
-    try {
-      xcalledXQuery = getOriginTransfersQuery(agents);
-    } catch (err: any) {
-      console.info(`Primary query failed attempting fallback!`);
-      xcalledXQuery = getOriginTransfersFallbackQuery(agents);
-    }
-    await execute(xcalledXQuery);
+
+    const { xCallQuery, variables } = getOriginTransfersQuery(agents);
+
+    await execute(xCallQuery, variables);
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const txByOriginDomain: Map<string, XTransfer[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
