@@ -1,6 +1,6 @@
 ---
 name: Support Ticket
-about: Create a report to help us improve
+about: Create a report to help us improve. DO NOT remove [ST] from the title as this triggers oncall alerts. 
 title: "[ST] <What is wrong>"
 labels: Bug
 assignees: ''
