@@ -43,6 +43,10 @@ dataSources:
           handler: handleAggregateRootSavedOptimistic
         - event: AggregateRootSavedSlow(indexed bytes32,uint256,bytes32[],uint256)
           handler: handleAggregateRootSavedSlow
+        - event: HubDomainSet(uint32)
+          handler: handleHubDomainSet
+        - event: HubDomainCleared()
+          handler: handleHubDomainCleared
       file: ./src/amarok-hub-staging/mapping/rootManager.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract
