@@ -1,7 +1,7 @@
 ---
 name: Support Ticket
 about: Create a report to help us improve
-title: "[Oncall] <Title the bug here>"
+title: "[SC] <Title the bug here>"
 labels: ''
 assignees: ''
 
