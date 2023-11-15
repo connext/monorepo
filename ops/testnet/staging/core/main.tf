@@ -292,6 +292,24 @@ module "sequencer_web3signer" {
   container_env_vars       = local.sequencer_web3signer_env_vars
 }
 
+module "lighthouse_prover_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-prover"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars = merge(local.lighthouse_env_vars, {
+    LIGHTHOUSE_SERVICE = "prover-pub"
+  })
+  schedule_expression    = "rate(30 minutes)"
+  timeout                = 300
+  memory_size            = 512
+  lambda_in_vpc          = true
+  subnet_ids             = module.network.private_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+}
+
 module "lighthouse_prover_subscriber" {
   source                   = "../../../modules/service"
   stage                    = var.stage
@@ -334,21 +352,6 @@ module "lighthouse_prover_subscriber_auto_scaling" {
   avg_mem_utilization_target = 40
 }
 
-module "lighthouse_prover_cron" {
-  source                 = "../../../modules/lambda"
-  ecr_repository_name    = "nxtp-lighthouse"
-  docker_image_tag       = var.lighthouse_image_tag
-  container_family       = "lighthouse-prover"
-  environment            = var.environment
-  stage                  = var.stage
-  container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "prover" })
-  schedule_expression    = "rate(30 minutes)"
-  memory_size            = 512
-  lambda_in_vpc          = true
-  subnet_ids             = module.network.private_subnets
-  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-}
-
 module "lighthouse_process_from_root_cron" {
   source              = "../../../modules/lambda"
   ecr_repository_name = "nxtp-lighthouse"
@@ -358,7 +361,7 @@ module "lighthouse_process_from_root_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(5 minutes)"
-  memory_size         = 512
+  memory_size         = 1536
 }
 
 
@@ -371,7 +374,7 @@ module "lighthouse_propagate_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
   schedule_expression = "rate(30 minutes)"
-  memory_size         = 1024
+  memory_size         = 2048
 }
 
 module "lighthouse_sendoutboundroot_cron" {
@@ -383,7 +386,20 @@ module "lighthouse_sendoutboundroot_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
   schedule_expression = "rate(30 minutes)"
-  memory_size         = 512
+  memory_size         = 2048
+}
+
+
+module "lighthouse_propose_cron" {
+  source              = "../../../modules/lambda"
+  ecr_repository_name = "nxtp-lighthouse"
+  docker_image_tag    = var.lighthouse_image_tag
+  container_family    = "lighthouse-propose"
+  environment         = var.environment
+  stage               = var.stage
+  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
+  schedule_expression = "rate(30 minutes)"
+  memory_size         = 1536
 }
 
 module "relayer" {

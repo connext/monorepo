@@ -38,5 +38,8 @@ export const MAINNET_PRODUCTION_DEFAULT: WatcherDefaultConfig = {
     "6778479": {
       quorum: 2,
     },
+    "1818848877": {
+      quorum: 2,
+    },
   },
 };
