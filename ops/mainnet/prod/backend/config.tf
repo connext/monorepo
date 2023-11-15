@@ -50,6 +50,9 @@ locals {
       "6778479" = {
         providers = ["https://rpc.ankr.com/gnosis"]
       }
+      "1818848877" = {
+        providers = ["https://rpc.linea.build"]
+      }
     }
 
     # The following are defined in variables.tf and don't map to the
@@ -81,6 +84,7 @@ locals {
       "1634886255" = { confirmations = 1 }
       "6450786"    = { confirmations = 50 }
       "6778479"    = { confirmations = 100 }
+      "1818848877"    = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {

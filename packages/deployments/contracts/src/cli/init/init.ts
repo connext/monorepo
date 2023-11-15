@@ -130,7 +130,7 @@ export const sanitizeAndInit = async () => {
     };
 
     for (const domain of domains) {
-      if (domain === hubDomain) continue;
+      if (+domain === +asset.canonical.domain) continue;
       _extracted.representations[domain] = asset.representations[domain];
     }
 
@@ -155,6 +155,7 @@ export const sanitizeAndInit = async () => {
     const network = (hardhatNetworks as { [key: string]: any })[key];
     if (
       !key.includes("fork") &&
+      !key.includes("devnet") &&
       Object.keys(network as object).includes("chainId") &&
       Object.keys(network as object).includes("url")
     ) {
@@ -181,7 +182,7 @@ export const sanitizeAndInit = async () => {
     } else {
       deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
     }
-    console.log("deployer: ", deployer.address);
+    console.log(`domain: ${domain}, deployer: ${deployer.address}, rpc: ${chainConfig.url}`);
 
     const rpc = chainConfig.zksync ? new zk.Provider(chainConfig.url) : new providers.JsonRpcProvider(chainConfig.url);
 
