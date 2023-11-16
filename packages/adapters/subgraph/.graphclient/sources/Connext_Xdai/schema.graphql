@@ -869,12 +869,6 @@ enum xdai_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
-"""
-8 bytes signed integer
-
-"""
-scalar xdai_Int8
-
 """Defines the order direction, either ascending or descending"""
 enum xdai_OrderDirection {
   asc

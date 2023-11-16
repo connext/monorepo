@@ -464,6 +464,27 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
+  - name: Connext_Linea
+    handler:
+      graphql:
+        strategy: fallback
+        sources:
+          - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea"
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-linea"
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: linea_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   - name: StableSwap_Optimism
     handler:
       graphql:
@@ -533,6 +554,69 @@ sources:
     transforms:
       - prefix:
           value: xdai_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  #####################################################
+  # LOCAL
+  - name: Hub_LocalMainnet
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalMainnet
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalOptimism
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localoptimism_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalArbitrumOne
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localarbitrumone_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

@@ -551,15 +551,23 @@ export const getOriginTransfersByTransactionHashesQuery = (prefix: string, hashe
   `;
 };
 
-const originTransferQueryString = (prefix: string, orderDirection: "asc" | "desc" = "desc") => {
+const originTransferQueryString = (
+  prefix: string,
+  originDomain: string,
+  fromNonce: number,
+  destinationDomains: string[],
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "desc",
+  limit?: number,
+) => {
   return `${prefix}_originTransfers(
     where: {
-      originDomain: $${prefix}_originDomain,
-      nonce_gte: $${prefix}_nonce_gte,
-      destinationDomain_in: $${prefix}_destinationDomain_in,
-      blockNumber_lte: $${prefix}_blockNumber_lte
+      originDomain: ${originDomain},
+      nonce_gte: ${fromNonce},
+      destinationDomain_in: [${destinationDomains}]
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
     },
-    first: $${prefix}_first,
+    first: ${limit ?? 100},
     orderBy: nonce,
     orderDirection: ${orderDirection}
   ) {${ORIGIN_TRANSFER_ENTITY}}`;
@@ -587,43 +595,32 @@ const originTransferQueryFallbackString = (
   ) {${ORIGIN_TRANSFER_ENTITY_FALLBACK}}`;
 };
 
-export const getOriginTransfersQuery = (
-  agents: Map<string, SubgraphQueryMetaParams>,
-): { xCallQuery: string; variables: {} } => {
+export const getOriginTransfersQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
   const { config } = getContext();
 
   let combinedQuery = "";
   const domains = Object.keys(config.sources);
-
-  let variables: { [K: string]: any } = {};
-  let queryVariables = "";
-
   for (const domain of domains) {
     const prefix = config.sources[domain].prefix;
     if (agents.has(domain)) {
-      variables[`${prefix}_originDomain`] = domain;
-      queryVariables += `$${prefix}_originDomain: BigInt!, `;
-      variables[`${prefix}_destinationDomain_in`] = domains;
-      queryVariables += `$${prefix}_destinationDomain_in: [BigInt!]!, `;
-      variables[`${prefix}_nonce_gte`] = agents.get(domain)!.latestNonce;
-      queryVariables += `$${prefix}_nonce_gte: BigInt!, `;
-      variables[`${prefix}_blockNumber_lte`] = agents.get(domain)!.maxBlockNumber;
-      queryVariables += `$${prefix}_blockNumber_lte: BigInt!, `;
-      queryVariables += `$${prefix}_first: Int! = 100, `;
-      combinedQuery += originTransferQueryString(prefix, agents.get(domain)!.orderDirection);
+      combinedQuery += originTransferQueryString(
+        prefix,
+        domain,
+        agents.get(domain)!.latestNonce,
+        domains,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
     } else {
       console.log(`No agents for domain: ${domain}`);
     }
   }
 
-  return {
-    xCallQuery: gql`
-    query GetOriginTransfers(${queryVariables.slice(0, -2)}) { 
-      ${combinedQuery}
-    }
-  `,
-    variables,
-  };
+  return gql`
+    query GetOriginTransfers { 
+        ${combinedQuery}
+      }
+  `;
 };
 
 export const getOriginTransfersFallbackQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
