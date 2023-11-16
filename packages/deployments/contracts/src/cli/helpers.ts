@@ -44,12 +44,7 @@ export const getContract = (
     name: isConnext ? "Connext" : implementation ?? name,
     address: result.address,
     abi,
-    contract: new Contract(
-      result.address as string,
-      // Special case if this is the Connext diamond.
-      isConnext ? ConnextInterface : abi,
-      connection,
-    ),
+    contract: new Contract(result.address as string, abi, connection),
   };
 };
 

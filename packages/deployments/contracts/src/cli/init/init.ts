@@ -454,6 +454,18 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
               write: { method: "addWatcher", args: [watcher] },
               chainData,
             });
+
+            // Whitelist on execution layer as well
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: 2,
+                read: { method: "queryRole", args: [watcher] },
+                write: { method: "assignRoleWatcher", args: [watcher] },
+                chainData,
+              });
+            }
           }
         }
         // TODO: Blacklist/remove watchers.
