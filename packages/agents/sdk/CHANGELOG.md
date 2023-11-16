@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.2.0-alpha.0
+
+- Linea mainnet support
+
 ## v2.1.3-alpha.1
 
 - `updateSlippage`: Fix decimal parsing

@@ -49,6 +49,10 @@ output "router-subscriber-service-endpoint" {
   value = module.router_subscriber.service_endpoint
 }
 
+output "router-executor-service-endpoint" {
+  value = module.router_executor.service_endpoint
+}
+
 output "relayer-service-endpoint" {
   value = module.relayer.service_endpoint
 }

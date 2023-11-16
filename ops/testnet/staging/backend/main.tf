@@ -62,7 +62,7 @@ module "cartographer-db-alarms" {
   enable_free_storage_space_too_low_alarm = true
   stage                                   = var.stage
   environment                             = var.environment
-  sns_topic_subscription_emails           = ["carlo@connext.network", "rahul@connext.network"]
+  sns_topic_subscription_emails           = ["carlo@connext.network", "rahul@proximalabs.io", "preetham@proximalabs.io", "sanchay@proximalabs.io"]
 }
 
 module "postgrest" {
