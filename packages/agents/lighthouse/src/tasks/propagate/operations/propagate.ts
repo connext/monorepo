@@ -1,14 +1,8 @@
-import {
-  createLoggingContext,
-  getNtpTimeSeconds,
-  NxtpError,
-  RequestContext,
-  RootManagerMeta,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
+import { sendWithRelayerWithBackup } from "../../../mockable";
+import { NoChainIdForHubDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
@@ -44,7 +38,7 @@ export const getParamsForDomainFn: Record<
   "2053862260": getPropagateParamsZkSync,
 };
 
-const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
+//const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {
