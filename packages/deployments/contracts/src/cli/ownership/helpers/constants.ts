@@ -62,3 +62,5 @@ export const HUBS = {
   mainnet: 6648936, // mainnet
   testnet: 1735353714, // goerli
 };
+
+export const TO_LOCAL_ADMINS: string[] = ["Unwrapper", "RelayerProxy"];

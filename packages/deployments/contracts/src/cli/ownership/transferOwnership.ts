@@ -15,6 +15,7 @@ import {
   OwnableDeployment,
   PROTOCOL_ADMINS,
   SUPPORTED_DOMAINS,
+  TO_LOCAL_ADMINS,
 } from "./helpers";
 
 export const optionDefinitions = [
@@ -190,6 +191,9 @@ export const transferOwnership = async () => {
     }
   };
 
+  const shouldTransferToAdmin = (deploymentName: string) =>
+    TO_LOCAL_ADMINS.findIndex((contract: string) => deploymentName.includes(contract)) > -1;
+
   // for each deployment, update the owner
   for (const chain of Object.keys(allDeployments)) {
     const domain = chainIdToDomain(+chain);
@@ -207,11 +211,13 @@ export const transferOwnership = async () => {
 
     console.log(`\n========== Handling execution layer ownership on ${chain} ==========`);
     for (const deployment of Object.values(allDeployments[+chain].execution)) {
-      if (deployment.name.includes("Unwrapper")) {
-        await handleOwnership(deployment.name, deployment.contract, provider, domain, localAdmin);
-        continue;
-      }
-      await handleOwnership(deployment.name, deployment.contract, provider, domain, localDao);
+      await handleOwnership(
+        deployment.name,
+        deployment.contract,
+        provider,
+        domain,
+        shouldTransferToAdmin(deployment.name) ? localAdmin : localDao,
+      );
     }
 
     console.log(`\n========== Handling messaging layer ownership on ${chain} ==========`);
@@ -220,22 +226,13 @@ export const transferOwnership = async () => {
         // handle separately
         continue;
       }
-      if ((deployments as Deployment).name.includes("RelayerProxy")) {
-        await handleOwnership(
-          (deployments as Deployment).name,
-          (deployments as Deployment).contract,
-          provider,
-          domain,
-          localAdmin,
-        );
-        continue;
-      }
+
       await handleOwnership(
         (deployments as Deployment).name,
         (deployments as Deployment).contract,
         provider,
         domain,
-        localDao,
+        shouldTransferToAdmin((deployments as Deployment).name) ? localAdmin : localDao,
       );
     }
 
