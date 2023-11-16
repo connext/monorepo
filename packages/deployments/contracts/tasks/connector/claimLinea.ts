@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { utils, Wallet } from "ethers";
 import { task } from "hardhat/config";
 import { LineaSDK } from "@consensys/linea-sdk";
 
@@ -17,7 +17,7 @@ export default task("claim-linea", "Claim messages on both of L1 and L2")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(async ({ hash, networkType: _networkType, env: _env }: TaskArgs, hre) => {
-    const deployer = Wallet.fromMnemonic(process.env.MNEMONIC!);
+    const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC ?? process.env.MNEMONIC!);
 
     const env = mustGetEnv(_env);
     const networkType = _networkType ?? ProtocolNetwork.TESTNET;
@@ -67,11 +67,16 @@ export default task("claim-linea", "Claim messages on both of L1 and L2")
       console.log("message already claimed!! skipping...");
     } else if (messageStatus === "CLAIMABLE") {
       console.log("Claimable message status. ");
-      let claimMessage = await destContract.claim({
-        // claims message by message
-        ...messages[0],
-        feeRecipient: deployer.address, // address that will receive fees. by default it is the message sender
-      });
+      let claimMessage = await destContract.claim(
+        {
+          // claims message by message
+          ...messages[0],
+          feeRecipient: deployer.address, // address that will receive fees. by default it is the message sender
+        },
+        {
+          gasPrice: utils.parseUnits("3", "gwei"),
+        },
+      );
       console.log(claimMessage);
     } else {
       console.log("unknown message status. skipping...");
