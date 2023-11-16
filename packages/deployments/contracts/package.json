@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.0.0",
+  "version": "2.2.0-alpha.1",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/fork/**.sol'",
@@ -41,6 +41,8 @@
     "!tasks/**/*",
     "artifacts",
     "deployments.json",
+    "local.deployments.json",
+    "devnet.deployments.json",
     "contracts",
     "abi"
   ],
@@ -78,10 +80,10 @@
     "eslint": "8.34.0",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.2",
-    "hardhat": "2.12.7",
+    "hardhat": "2.16.0",
     "hardhat-abi-exporter": "2.10.1",
     "hardhat-contract-sizer": "2.8.0",
-    "hardhat-deploy": "0.11.30",
+    "hardhat-deploy": "0.11.43",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
     "prettier": "2.8.4",

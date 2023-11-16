@@ -99,7 +99,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
       # "2053862260" = {
       #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
@@ -255,7 +255,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
@@ -286,7 +286,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
       "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
       "2053862260" = {
         providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
@@ -365,7 +365,7 @@ locals {
         providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
-        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build", "${var.linea_node}"]
+        providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
       # "2053862260" = {
       #  providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]

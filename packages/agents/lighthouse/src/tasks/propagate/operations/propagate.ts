@@ -37,6 +37,7 @@ export const getParamsForDomainFn: Record<
   "1634886255": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
   "6778479": getPropagateParamsGnosis,
+  "1818848877": getPropagateParamsLinea,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
   "1668247156": getPropagateParamsLinea,

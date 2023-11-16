@@ -187,4 +187,5 @@ export const domainsToChainNames: Record<string, string> = {
   "1634886255": "arbitrum",
   "6450786": "bsc",
   "6778479": "xdai",
+  "1818848877": "linea",
 };

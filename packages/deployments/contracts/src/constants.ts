@@ -5,7 +5,7 @@ export const TEST_ROUTERS = [
   "0x627306090abaB3A6e1400e9345bC60c78a8BEf57", // local router
 ];
 
-export const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284];
+export const SKIP_SETUP = [1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284, 59144];
 export const WRAPPED_ETH_MAP = new Map<number, string>([
   // Mainnets
   [1, "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"],
@@ -20,6 +20,7 @@ export const WRAPPED_ETH_MAP = new Map<number, string>([
   [100, "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"],
   [1285, "0x98878B06940aE243284CA214f92Bb71a2b032B8A"],
   [1284, "0xAcc15dC74880C9944775448304B263D191c6077F"],
+  [59144, "0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f"],
 
   // Testnets
   [5, "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"],
