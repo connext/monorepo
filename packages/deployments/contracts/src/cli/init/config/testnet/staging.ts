@@ -73,7 +73,12 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       "1887071092": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
     },
     watchers: {
-      allowlist: ["0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB", "0x54BAA998771639628ffC0206c3b916c466b79c89"],
+      allowlist: [
+        "0x2cfBF3D40F71ceed2997cACbafE9D31e630860CB",
+        "0x54BAA998771639628ffC0206c3b916c466b79c89",
+        "0x0fd28a114963aE37353Cd838AeE053f6bcA80d63", // dw
+        "0xdF3085EEC4754891532efbD3eA8AF55bb409840A", // staging v2
+      ],
     },
     routers: {
       allowlist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
