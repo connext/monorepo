@@ -41,6 +41,8 @@
     "!tasks/**/*",
     "artifacts",
     "deployments.json",
+    "local.deployments.json",
+    "devnet.deployments.json",
     "contracts",
     "abi"
   ],
