@@ -1,14 +1,8 @@
-import {
-  createLoggingContext,
-  getNtpTimeSeconds,
-  NxtpError,
-  RequestContext,
-  RootManagerMeta,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
+import { sendWithRelayerWithBackup } from "../../../mockable";
+import { NoChainIdForHubDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
@@ -44,7 +38,7 @@ export const getParamsForDomainFn: Record<
   "2053862260": getPropagateParamsZkSync,
 };
 
-const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
+//const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {
@@ -65,28 +59,28 @@ export const propagate = async () => {
   const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
 
   // Check if LH should propagate as backup of keep3r
-  logger.info("Checking if LH propagate workable", requestContext, methodContext);
+  // logger.info("Checking if LH propagate workable", requestContext, methodContext);
 
-  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
-  if (!l1RpcUrl) {
-    throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
-  }
-  const l1Provider = getJsonRpcProvider(l1RpcUrl);
-  const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
+  // const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
+  // if (!l1RpcUrl) {
+  //   throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
+  // }
+  // const l1Provider = getJsonRpcProvider(l1RpcUrl);
+  // const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
 
-  const [lastPropagateAt, propagateCooldown] = await Promise.all([
-    relayerProxyContract.lastPropagateAt(),
-    relayerProxyContract.propagateCooldown(),
-  ]);
-  const curTimeInSeconds = getNtpTimeSeconds();
-  if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
-    logger.info("LH Propagate skipping", requestContext, methodContext, {
-      propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
-      LH_PROPAGATE_WINDOW,
-      curTimeInSeconds,
-    });
-    return;
-  }
+  // const [lastPropagateAt, propagateCooldown] = await Promise.all([
+  //   relayerProxyContract.lastPropagateAt(),
+  //   relayerProxyContract.propagateCooldown(),
+  // ]);
+  // const curTimeInSeconds = getNtpTimeSeconds();
+  // if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
+  //   logger.info("LH Propagate skipping", requestContext, methodContext, {
+  //     propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
+  //     LH_PROPAGATE_WINDOW,
+  //     curTimeInSeconds,
+  //   });
+  //   return;
+  // }
 
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
