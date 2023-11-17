@@ -60,7 +60,7 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(280);
   } else if (network == "linea-goerli") {
     chainId = BigInt.fromI32(59140);
-  } else if (network == "linea") {
+  } else if (network == "linea-mainnet") {
     chainId = BigInt.fromI32(59144);
   } else if (network == "polygon-zkevm-testnet") {
     chainId = BigInt.fromI32(1442);
