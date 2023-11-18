@@ -123,7 +123,12 @@ export const proposeHub = async () => {
       orderedSnapshotRoots.push(snapshotRoots.get(domain)!);
     });
 
-    await proposeSnapshot(latestSnapshotId.toString(), orderedSnapshotRoots, rootManagerDomains, requestContext);
+    await proposeSnapshot(
+      latestSnapshotId.toString(),
+      orderedSnapshotRoots.reverse(),
+      rootManagerDomains,
+      requestContext,
+    );
   } catch (err: unknown) {
     logger.error(
       "Error proposing snapshot on proposeHub",
