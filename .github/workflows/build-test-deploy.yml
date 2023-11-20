@@ -84,9 +84,9 @@ jobs:
       - name: Migrate Database
         run: yarn workspace @connext/nxtp-adapters-database dbmate up
 
-      # TODO: remove before merging
-      - name: Yarn test
-        run: yarn test:contracts
+      # TODO: modify this to original before PRing to Connext
+      - name: Yarn test connectors
+      run: yarn test:connectors
 
       # TODO: uncomment both before merging
       # - name: Yarn test
