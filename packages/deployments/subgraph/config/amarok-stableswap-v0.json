@@ -55,6 +55,17 @@
     ]
   },
   {
+    "subgraphName": "connext/stableswap-v0-linea",
+    "network": "linea-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xa05eF29e9aC8C75c530c2795Fa6A800e188dE0a9",
+        "startBlock": 754343
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/stableswap-v0-goerli",
     "network": "goerli",
     "source": [
