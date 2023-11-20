@@ -560,6 +560,21 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: StableSwap_Linea
+    handler:
+      graphql:
+        endpoint: https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-linea
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: linea_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
   #####################################################
   # LOCAL
