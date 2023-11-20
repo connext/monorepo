@@ -49,7 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const deployer = _deployer as Wallet;
   console.log("deployer: ", deployer.address);
 
-  if (SKIP_SETUP.includes(chainId)) {
+  if (!SKIP_SETUP.includes(chainId)) {
     throw new Error(`Should have skipped setup for this chain (${chainId})`);
   }
 
@@ -93,5 +93,5 @@ export default func;
 func.tags = ["Utils", "prod"];
 func.skip = async (hre: HardhatRuntimeEnvironment) => {
   const chainId = +(await hre.getChainId());
-  return SKIP_SETUP.includes(chainId);
+  return !SKIP_SETUP.includes(chainId);
 };

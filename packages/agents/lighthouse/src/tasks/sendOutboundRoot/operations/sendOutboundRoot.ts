@@ -20,6 +20,7 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "6450786": getSendOutboundRootParamsBnb,
   "1869640809": getSendOutboundRootParamsOptimism,
   "6778479": getSendOutboundRootParamsGnosis,
+  "1818848877": getSendOutboundRootParamsLinea,
   // testnet
   "1668247156": getSendOutboundRootParamsLinea,
   "2053862260": getSendOutboundRootParamsZkSync,

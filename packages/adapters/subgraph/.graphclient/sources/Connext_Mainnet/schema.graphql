@@ -60,7 +60,6 @@ enum mainnet_AggregateRoot_orderBy {
 type mainnet_Asset {
   id: ID!
   key: mainnet_Bytes
-  decimal: BigInt
   canonicalId: mainnet_Bytes
   canonicalDomain: BigInt
   adoptedAsset: mainnet_Bytes
@@ -72,9 +71,6 @@ type mainnet_Asset {
 type mainnet_AssetBalance {
   id: ID!
   amount: BigInt!
-  locked: BigInt!
-  supplied: BigInt!
-  removed: BigInt!
   router: mainnet_Router!
   asset: mainnet_Asset!
   feesEarned: BigInt!
@@ -97,30 +93,6 @@ input mainnet_AssetBalance_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
-  locked: BigInt
-  locked_not: BigInt
-  locked_gt: BigInt
-  locked_lt: BigInt
-  locked_gte: BigInt
-  locked_lte: BigInt
-  locked_in: [BigInt!]
-  locked_not_in: [BigInt!]
-  supplied: BigInt
-  supplied_not: BigInt
-  supplied_gt: BigInt
-  supplied_lt: BigInt
-  supplied_gte: BigInt
-  supplied_lte: BigInt
-  supplied_in: [BigInt!]
-  supplied_not_in: [BigInt!]
-  removed: BigInt
-  removed_not: BigInt
-  removed_gt: BigInt
-  removed_lt: BigInt
-  removed_gte: BigInt
-  removed_lte: BigInt
-  removed_in: [BigInt!]
-  removed_not_in: [BigInt!]
   router: String
   router_not: String
   router_gt: String
@@ -180,9 +152,6 @@ input mainnet_AssetBalance_filter {
 enum mainnet_AssetBalance_orderBy {
   id
   amount
-  locked
-  supplied
-  removed
   router
   router__id
   router__isActive
@@ -193,7 +162,6 @@ enum mainnet_AssetBalance_orderBy {
   asset
   asset__id
   asset__key
-  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -250,14 +218,6 @@ input mainnet_Asset_filter {
   key_not_in: [mainnet_Bytes!]
   key_contains: mainnet_Bytes
   key_not_contains: mainnet_Bytes
-  decimal: BigInt
-  decimal_not: BigInt
-  decimal_gt: BigInt
-  decimal_lt: BigInt
-  decimal_gte: BigInt
-  decimal_lte: BigInt
-  decimal_in: [BigInt!]
-  decimal_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
   canonicalId_gt: mainnet_Bytes
@@ -334,7 +294,6 @@ input mainnet_Asset_filter {
 enum mainnet_Asset_orderBy {
   id
   key
-  decimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -470,7 +429,6 @@ type mainnet_DestinationTransfer {
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
   executedTxOrigin: mainnet_Bytes
-  executedTxNonce: BigInt
   reconciledCaller: mainnet_Bytes
   reconciledTransactionHash: mainnet_Bytes
   reconciledTimestamp: BigInt
@@ -478,7 +436,6 @@ type mainnet_DestinationTransfer {
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
   reconciledTxOrigin: mainnet_Bytes
-  reconciledTxNonce: BigInt
 }
 
 input mainnet_DestinationTransfer_filter {
@@ -736,14 +693,6 @@ input mainnet_DestinationTransfer_filter {
   executedTxOrigin_not_in: [mainnet_Bytes!]
   executedTxOrigin_contains: mainnet_Bytes
   executedTxOrigin_not_contains: mainnet_Bytes
-  executedTxNonce: BigInt
-  executedTxNonce_not: BigInt
-  executedTxNonce_gt: BigInt
-  executedTxNonce_lt: BigInt
-  executedTxNonce_gte: BigInt
-  executedTxNonce_lte: BigInt
-  executedTxNonce_in: [BigInt!]
-  executedTxNonce_not_in: [BigInt!]
   reconciledCaller: mainnet_Bytes
   reconciledCaller_not: mainnet_Bytes
   reconciledCaller_gt: mainnet_Bytes
@@ -806,14 +755,6 @@ input mainnet_DestinationTransfer_filter {
   reconciledTxOrigin_not_in: [mainnet_Bytes!]
   reconciledTxOrigin_contains: mainnet_Bytes
   reconciledTxOrigin_not_contains: mainnet_Bytes
-  reconciledTxNonce: BigInt
-  reconciledTxNonce_not: BigInt
-  reconciledTxNonce_gt: BigInt
-  reconciledTxNonce_lt: BigInt
-  reconciledTxNonce_gte: BigInt
-  reconciledTxNonce_lte: BigInt
-  reconciledTxNonce_in: [BigInt!]
-  reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
   and: [mainnet_DestinationTransfer_filter]
@@ -843,7 +784,6 @@ enum mainnet_DestinationTransfer_orderBy {
   asset
   asset__id
   asset__key
-  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -858,7 +798,6 @@ enum mainnet_DestinationTransfer_orderBy {
   executedGasLimit
   executedBlockNumber
   executedTxOrigin
-  executedTxNonce
   reconciledCaller
   reconciledTransactionHash
   reconciledTimestamp
@@ -866,14 +805,7 @@ enum mainnet_DestinationTransfer_orderBy {
   reconciledGasLimit
   reconciledBlockNumber
   reconciledTxOrigin
-  reconciledTxNonce
 }
-
-"""
-8 bytes signed integer
-
-"""
-scalar mainnet_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum mainnet_OrderDirection {
@@ -1039,11 +971,9 @@ type mainnet_OriginTransfer {
   normalizedIn: BigInt
   canonicalId: mainnet_Bytes
   asset: mainnet_Asset
-  transactingAsset: mainnet_Bytes
   message: mainnet_OriginMessage
+  relayerFee: BigInt
   bumpRelayerFeeCount: BigInt
-  relayerFees(skip: Int = 0, first: Int = 100, orderBy: mainnet_RelayerFee_orderBy, orderDirection: mainnet_OrderDirection, where: mainnet_RelayerFee_filter): [mainnet_RelayerFee!]
-  initialRelayerFeeAsset: mainnet_Bytes
   caller: mainnet_Bytes
   transactionHash: mainnet_Bytes
   timestamp: BigInt
@@ -1051,7 +981,6 @@ type mainnet_OriginTransfer {
   gasLimit: BigInt
   blockNumber: BigInt
   txOrigin: mainnet_Bytes
-  txNonce: BigInt
 }
 
 input mainnet_OriginTransfer_filter {
@@ -1226,16 +1155,6 @@ input mainnet_OriginTransfer_filter {
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
   asset_: mainnet_Asset_filter
-  transactingAsset: mainnet_Bytes
-  transactingAsset_not: mainnet_Bytes
-  transactingAsset_gt: mainnet_Bytes
-  transactingAsset_lt: mainnet_Bytes
-  transactingAsset_gte: mainnet_Bytes
-  transactingAsset_lte: mainnet_Bytes
-  transactingAsset_in: [mainnet_Bytes!]
-  transactingAsset_not_in: [mainnet_Bytes!]
-  transactingAsset_contains: mainnet_Bytes
-  transactingAsset_not_contains: mainnet_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1257,6 +1176,14 @@ input mainnet_OriginTransfer_filter {
   message_not_ends_with: String
   message_not_ends_with_nocase: String
   message_: mainnet_OriginMessage_filter
+  relayerFee: BigInt
+  relayerFee_not: BigInt
+  relayerFee_gt: BigInt
+  relayerFee_lt: BigInt
+  relayerFee_gte: BigInt
+  relayerFee_lte: BigInt
+  relayerFee_in: [BigInt!]
+  relayerFee_not_in: [BigInt!]
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1265,23 +1192,6 @@ input mainnet_OriginTransfer_filter {
   bumpRelayerFeeCount_lte: BigInt
   bumpRelayerFeeCount_in: [BigInt!]
   bumpRelayerFeeCount_not_in: [BigInt!]
-  relayerFees: [String!]
-  relayerFees_not: [String!]
-  relayerFees_contains: [String!]
-  relayerFees_contains_nocase: [String!]
-  relayerFees_not_contains: [String!]
-  relayerFees_not_contains_nocase: [String!]
-  relayerFees_: mainnet_RelayerFee_filter
-  initialRelayerFeeAsset: mainnet_Bytes
-  initialRelayerFeeAsset_not: mainnet_Bytes
-  initialRelayerFeeAsset_gt: mainnet_Bytes
-  initialRelayerFeeAsset_lt: mainnet_Bytes
-  initialRelayerFeeAsset_gte: mainnet_Bytes
-  initialRelayerFeeAsset_lte: mainnet_Bytes
-  initialRelayerFeeAsset_in: [mainnet_Bytes!]
-  initialRelayerFeeAsset_not_in: [mainnet_Bytes!]
-  initialRelayerFeeAsset_contains: mainnet_Bytes
-  initialRelayerFeeAsset_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
   caller_gt: mainnet_Bytes
@@ -1344,14 +1254,6 @@ input mainnet_OriginTransfer_filter {
   txOrigin_not_in: [mainnet_Bytes!]
   txOrigin_contains: mainnet_Bytes
   txOrigin_not_contains: mainnet_Bytes
-  txNonce: BigInt
-  txNonce_not: BigInt
-  txNonce_gt: BigInt
-  txNonce_lt: BigInt
-  txNonce_gte: BigInt
-  txNonce_lte: BigInt
-  txNonce_in: [BigInt!]
-  txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
   and: [mainnet_OriginTransfer_filter]
@@ -1380,13 +1282,11 @@ enum mainnet_OriginTransfer_orderBy {
   asset
   asset__id
   asset__key
-  asset__decimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
   asset__localAsset
   asset__blockNumber
-  transactingAsset
   message
   message__id
   message__transferId
@@ -1397,9 +1297,8 @@ enum mainnet_OriginTransfer_orderBy {
   message__root
   message__transactionHash
   message__blockNumber
+  relayerFee
   bumpRelayerFeeCount
-  relayerFees
-  initialRelayerFeeAsset
   caller
   transactionHash
   timestamp
@@ -1407,7 +1306,6 @@ enum mainnet_OriginTransfer_orderBy {
   gasLimit
   blockNumber
   txOrigin
-  txNonce
 }
 
 type Query {
@@ -1515,32 +1413,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mainnet_Router!]!
-  mainnet_routerDailyTVL(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mainnet_RouterDailyTVL
-  mainnet_routerDailyTVLs(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: mainnet_RouterDailyTVL_orderBy
-    orderDirection: mainnet_OrderDirection
-    where: mainnet_RouterDailyTVL_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mainnet_RouterDailyTVL!]!
   mainnet_setting(
     id: ID!
     """
@@ -1619,32 +1491,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mainnet_Sequencer!]!
-  mainnet_relayerFee(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mainnet_RelayerFee
-  mainnet_relayerFees(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: mainnet_RelayerFee_orderBy
-    orderDirection: mainnet_OrderDirection
-    where: mainnet_RelayerFee_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mainnet_RelayerFee!]!
   mainnet_originTransfer(
     id: ID!
     """
@@ -1889,108 +1735,10 @@ type mainnet_Relayer {
   relayer: mainnet_Bytes
 }
 
-type mainnet_RelayerFee {
-  id: ID!
-  transfer: mainnet_OriginTransfer!
-  fee: BigInt!
-  asset: mainnet_Bytes!
-}
-
-input mainnet_RelayerFee_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  transfer: String
-  transfer_not: String
-  transfer_gt: String
-  transfer_lt: String
-  transfer_gte: String
-  transfer_lte: String
-  transfer_in: [String!]
-  transfer_not_in: [String!]
-  transfer_contains: String
-  transfer_contains_nocase: String
-  transfer_not_contains: String
-  transfer_not_contains_nocase: String
-  transfer_starts_with: String
-  transfer_starts_with_nocase: String
-  transfer_not_starts_with: String
-  transfer_not_starts_with_nocase: String
-  transfer_ends_with: String
-  transfer_ends_with_nocase: String
-  transfer_not_ends_with: String
-  transfer_not_ends_with_nocase: String
-  transfer_: mainnet_OriginTransfer_filter
-  fee: BigInt
-  fee_not: BigInt
-  fee_gt: BigInt
-  fee_lt: BigInt
-  fee_gte: BigInt
-  fee_lte: BigInt
-  fee_in: [BigInt!]
-  fee_not_in: [BigInt!]
-  asset: mainnet_Bytes
-  asset_not: mainnet_Bytes
-  asset_gt: mainnet_Bytes
-  asset_lt: mainnet_Bytes
-  asset_gte: mainnet_Bytes
-  asset_lte: mainnet_Bytes
-  asset_in: [mainnet_Bytes!]
-  asset_not_in: [mainnet_Bytes!]
-  asset_contains: mainnet_Bytes
-  asset_not_contains: mainnet_Bytes
-  """Filter for the block changed event."""
-  _change_block: mainnet_BlockChangedFilter
-  and: [mainnet_RelayerFee_filter]
-  or: [mainnet_RelayerFee_filter]
-}
-
-enum mainnet_RelayerFee_orderBy {
-  id
-  transfer
-  transfer__id
-  transfer__chainId
-  transfer__transferId
-  transfer__nonce
-  transfer__status
-  transfer__messageHash
-  transfer__originDomain
-  transfer__destinationDomain
-  transfer__canonicalDomain
-  transfer__to
-  transfer__delegate
-  transfer__receiveLocal
-  transfer__callData
-  transfer__slippage
-  transfer__originSender
-  transfer__bridgedAmt
-  transfer__normalizedIn
-  transfer__canonicalId
-  transfer__transactingAsset
-  transfer__bumpRelayerFeeCount
-  transfer__initialRelayerFeeAsset
-  transfer__caller
-  transfer__transactionHash
-  transfer__timestamp
-  transfer__gasPrice
-  transfer__gasLimit
-  transfer__blockNumber
-  transfer__txOrigin
-  transfer__txNonce
-  fee
-  asset
-}
-
 type mainnet_RelayerFeesIncrease {
   id: ID!
   transfer: mainnet_OriginTransfer!
   increase: BigInt
-  asset: mainnet_Bytes
   caller: mainnet_Bytes!
   transactionHash: mainnet_Bytes!
   timestamp: BigInt!
@@ -2037,16 +1785,6 @@ input mainnet_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
-  asset: mainnet_Bytes
-  asset_not: mainnet_Bytes
-  asset_gt: mainnet_Bytes
-  asset_lt: mainnet_Bytes
-  asset_gte: mainnet_Bytes
-  asset_lte: mainnet_Bytes
-  asset_in: [mainnet_Bytes!]
-  asset_not_in: [mainnet_Bytes!]
-  asset_contains: mainnet_Bytes
-  asset_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
   caller_gt: mainnet_Bytes
@@ -2126,9 +1864,8 @@ enum mainnet_RelayerFeesIncrease_orderBy {
   transfer__bridgedAmt
   transfer__normalizedIn
   transfer__canonicalId
-  transfer__transactingAsset
+  transfer__relayerFee
   transfer__bumpRelayerFeeCount
-  transfer__initialRelayerFeeAsset
   transfer__caller
   transfer__transactionHash
   transfer__timestamp
@@ -2136,9 +1873,7 @@ enum mainnet_RelayerFeesIncrease_orderBy {
   transfer__gasLimit
   transfer__blockNumber
   transfer__txOrigin
-  transfer__txNonce
   increase
-  asset
   caller
   transactionHash
   timestamp
@@ -2352,109 +2087,6 @@ type mainnet_Router {
   proposedOwner: mainnet_Bytes
   proposedTimestamp: BigInt
   assetBalances(skip: Int = 0, first: Int = 100, orderBy: mainnet_AssetBalance_orderBy, orderDirection: mainnet_OrderDirection, where: mainnet_AssetBalance_filter): [mainnet_AssetBalance!]!
-}
-
-type mainnet_RouterDailyTVL {
-  id: ID!
-  router: mainnet_Router!
-  asset: mainnet_Asset!
-  timestamp: BigInt!
-  balance: BigInt!
-}
-
-input mainnet_RouterDailyTVL_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
-  router_: mainnet_Router_filter
-  asset: String
-  asset_not: String
-  asset_gt: String
-  asset_lt: String
-  asset_gte: String
-  asset_lte: String
-  asset_in: [String!]
-  asset_not_in: [String!]
-  asset_contains: String
-  asset_contains_nocase: String
-  asset_not_contains: String
-  asset_not_contains_nocase: String
-  asset_starts_with: String
-  asset_starts_with_nocase: String
-  asset_not_starts_with: String
-  asset_not_starts_with_nocase: String
-  asset_ends_with: String
-  asset_ends_with_nocase: String
-  asset_not_ends_with: String
-  asset_not_ends_with_nocase: String
-  asset_: mainnet_Asset_filter
-  timestamp: BigInt
-  timestamp_not: BigInt
-  timestamp_gt: BigInt
-  timestamp_lt: BigInt
-  timestamp_gte: BigInt
-  timestamp_lte: BigInt
-  timestamp_in: [BigInt!]
-  timestamp_not_in: [BigInt!]
-  balance: BigInt
-  balance_not: BigInt
-  balance_gt: BigInt
-  balance_lt: BigInt
-  balance_gte: BigInt
-  balance_lte: BigInt
-  balance_in: [BigInt!]
-  balance_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: mainnet_BlockChangedFilter
-  and: [mainnet_RouterDailyTVL_filter]
-  or: [mainnet_RouterDailyTVL_filter]
-}
-
-enum mainnet_RouterDailyTVL_orderBy {
-  id
-  router
-  router__id
-  router__isActive
-  router__owner
-  router__recipient
-  router__proposedOwner
-  router__proposedTimestamp
-  asset
-  asset__id
-  asset__key
-  asset__decimal
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
-  timestamp
-  balance
 }
 
 input mainnet_Router_filter {
@@ -2749,7 +2381,6 @@ enum mainnet_SlippageUpdate_orderBy {
   transfer__executedGasLimit
   transfer__executedBlockNumber
   transfer__executedTxOrigin
-  transfer__executedTxNonce
   transfer__reconciledCaller
   transfer__reconciledTransactionHash
   transfer__reconciledTimestamp
@@ -2757,7 +2388,6 @@ enum mainnet_SlippageUpdate_orderBy {
   transfer__reconciledGasLimit
   transfer__reconciledBlockNumber
   transfer__reconciledTxOrigin
-  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2872,32 +2502,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mainnet_Router!]!
-  mainnet_routerDailyTVL(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mainnet_RouterDailyTVL
-  mainnet_routerDailyTVLs(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: mainnet_RouterDailyTVL_orderBy
-    orderDirection: mainnet_OrderDirection
-    where: mainnet_RouterDailyTVL_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mainnet_RouterDailyTVL!]!
   mainnet_setting(
     id: ID!
     """
@@ -2976,32 +2580,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [mainnet_Sequencer!]!
-  mainnet_relayerFee(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): mainnet_RelayerFee
-  mainnet_relayerFees(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: mainnet_RelayerFee_orderBy
-    orderDirection: mainnet_OrderDirection
-    where: mainnet_RelayerFee_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: mainnet_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [mainnet_RelayerFee!]!
   mainnet_originTransfer(
     id: ID!
     """

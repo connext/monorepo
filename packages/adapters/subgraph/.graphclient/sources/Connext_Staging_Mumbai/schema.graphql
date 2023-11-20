@@ -24,6 +24,8 @@ type stagingmumbai_AggregateRootProposed {
   rootTimestamp: BigInt!
   endOfDispute: BigInt!
   domain: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 input stagingmumbai_AggregateRootProposed_filter {
@@ -69,6 +71,22 @@ input stagingmumbai_AggregateRootProposed_filter {
   domain_lte: BigInt
   domain_in: [BigInt!]
   domain_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
   and: [stagingmumbai_AggregateRootProposed_filter]
@@ -81,6 +99,8 @@ enum stagingmumbai_AggregateRootProposed_orderBy {
   rootTimestamp
   endOfDispute
   domain
+  timestamp
+  blockNumber
 }
 
 input stagingmumbai_AggregateRoot_filter {
@@ -944,6 +964,7 @@ type stagingmumbai_OptimisticRootFinalized {
   id: ID!
   aggregateRoot: stagingmumbai_Bytes!
   timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 input stagingmumbai_OptimisticRootFinalized_filter {
@@ -973,6 +994,14 @@ input stagingmumbai_OptimisticRootFinalized_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: stagingmumbai_BlockChangedFilter
   and: [stagingmumbai_OptimisticRootFinalized_filter]
@@ -983,6 +1012,7 @@ enum stagingmumbai_OptimisticRootFinalized_orderBy {
   id
   aggregateRoot
   timestamp
+  blockNumber
 }
 
 """Defines the order direction, either ascending or descending"""

@@ -37,6 +37,11 @@
         "name": "BnbHubConnector",
         "address": "0x69009c6f567590d8B469dbF4C8808e8ee32b8a45",
         "startBlock": 17640454
+      },
+      {
+        "name": "LineaHubConnector",
+        "address": "0x076cD2B25cb1Ed7272d716bdeb4A8551CF606a3D",
+        "startBlock": 18468809
       }
     ]
   },
