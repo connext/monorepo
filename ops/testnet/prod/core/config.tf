@@ -95,9 +95,6 @@ locals {
         providers                 = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
         excludeListFromRelayerFee = ["0x6c461C0296eBE3715820F1Cbde856219e06ac3B8", "0x5Ee7Acd9E57f81a08d361b3Dc516f30964601068", "0xcD7dE973264D5967D930Ef5144C59E9811ce5787"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
@@ -161,12 +158,6 @@ locals {
           subscribe  = true
         },
         {
-          name       = "1734439522"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
-        {
           name       = "1668247156"
           limit      = 1
           queueLimit = 1000000
@@ -199,11 +190,6 @@ locals {
           exchange = "sequencerX"
           target   = "9991"
           keys     = ["9991"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "1734439522"
-          keys     = ["1734439522"]
         },
         {
           exchange = "sequencerX"
@@ -251,9 +237,6 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
@@ -281,9 +264,6 @@ locals {
       }
       "9991" = {
         providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
-      }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}"]
       }
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
@@ -324,7 +304,6 @@ locals {
       "9991"       = 10,
       "1735353714" = 10,
       # "2053862260" = 10,
-      "1734439522" = 10,
       "1735356532" = 10
     }
     messageQueue = {
@@ -360,9 +339,6 @@ locals {
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
-      }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
       }
       "1668247156" = {
         providers = ["https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
