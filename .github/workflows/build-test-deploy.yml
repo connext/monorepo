@@ -17,6 +17,7 @@ on:
 
 jobs:
   build-and-test:
+    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -76,7 +77,7 @@ jobs:
         run: yarn workspace @connext/smart-contracts forge:install
 
       - name: Yarn build
-        run: yarn build
+        run: yarn build:all
 
       - name: Install DBMate
         run: sudo curl -fsSL -o /usr/local/bin/dbmate https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 && sudo chmod +x /usr/local/bin/dbmate
@@ -84,18 +85,14 @@ jobs:
       - name: Migrate Database
         run: yarn workspace @connext/nxtp-adapters-database dbmate up
 
-      # TODO: modify this to original before PRing to Connext
-      - name: Yarn test connectors
-      run: yarn test:connectors
+      ## TODO: Modify it to its previous state before merging to Connext
+      - name: Yarn test
+        run: yarn test:connectors
 
-      # TODO: uncomment both before merging
-      # - name: Yarn test
-      #   run: yarn test:all
-
-      # - name: Yarn lint
-      #   env:
-      #     NODE_OPTIONS: "--max-old-space-size=8192"
-      #   run: yarn lint:all
+      - name: Yarn lint
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: yarn lint:all
 
       - name: Install jq
         run: sudo apt-get install -y jq
@@ -539,7 +536,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{ github.ref_name }}-${{ github.sha }}
       REPOSITORY: nxtp-cartographer
 
     steps:
@@ -583,7 +580,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: 679752396206.dkr.ecr.us-east-1.amazonaws.com
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: ${{ github.ref_name }}-${{ github.sha }}
       REPOSITORY: nxtp-lighthouse
 
     steps:
@@ -837,16 +834,16 @@ jobs:
       SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.sha }}
-      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      CARTOGRAPHER_IMAGE: ghcr.io/connext/cartographer:${{ github.ref_name }}-${{ github.sha }}
+      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.ref_name }}-${{ github.sha }}
       LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
       SDK_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sdk-server-image.outputs.json).tags[0] }}
-      WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
+      WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
-      WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x09ac2359ab897a5ffc47d7c67df32abbf9c006e00fa2ba36580e0cecc58834fe"
-      WEB3_SIGNER_PRIVATE_KEY_WATCHER: "0x09ac2359ab897a5ffc47d7c67df32abbf9c006e00fa2ba36580e0cecc58834fe"
+      WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
+      WEB3_SIGNER_PRIVATE_KEY_WATCHER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -866,6 +863,15 @@ jobs:
           swap-storage: true
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: config setup
+        run: |
+          config_dir_paths=("docker/cartographer" "docker/lighthouse" "docker/router" "docker/sequencer" "docker/relayer" "docker/watcher")
+          for dir_path in "${config_dir_paths[@]}"; do
+              file_path="$dir_path/config.local.json"
+              file_target_path="$dir_path/config.json"
+              cp "$file_path" "$file_target_path"
+          done
 
       - name: run smoke tests
         run: |
@@ -914,15 +920,14 @@ jobs:
       SEQUENCER_SERVER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-server-image.outputs.json).tags[0] }}
       SEQUENCER_PUBLISHER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-publisher-image.outputs.json).tags[0] }}
       SEQUENCER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-sequencer-subscriber-image.outputs.json).tags[0] }}
-      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.sha }}
+      LIGHTHOUSE_IMAGE: ghcr.io/connext/lighthouse:${{ github.ref_name }}-${{ github.sha }}
       LIGHTHOUSE_PROVER_SUBSCRIBER_IMAGE: ${{ fromJSON(needs.build-and-push-lighthouse-prover-subscriber-image.outputs.json).tags[0] }}
       RELAYER_IMAGE: ${{ fromJSON(needs.build-and-push-relayer-image.outputs.json).tags[0] }}
       WATCHER_IMAGE: ${{ fromJSON(needs.build-and-push-watcher-image.outputs.json).tags[0] }}
-      WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3"
+      WEB3_SIGNER_PRIVATE_KEY_ROUTER: "0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c"
       WEB3_SIGNER_PRIVATE_KEY_SEQUENCER: "0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f"
+      WEB3_SIGNER_PRIVATE_KEY_RELAYER: "0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1"
       MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-      GRAPH_1337_ENDPOINT: "http://localhost:8010/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://localhost:9010/subgraphs/name/connext/nxtp"
 
     steps:
       - name: Checkout repository
@@ -937,7 +942,7 @@ jobs:
         run: yarn install
 
       - name: Yarn build
-        run: yarn build
+        run: yarn build:all
 
       # TODO ADD THIS BACK IN
       # - name: Integration Tests
@@ -997,7 +1002,7 @@ jobs:
     needs: [smoke-tests, terraform-infra]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.smoke-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1062,7 +1067,7 @@ jobs:
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.smoke-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.smoke-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.smoke-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1137,7 +1142,7 @@ jobs:
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.e2e-tests.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.e2e-tests.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.e2e-tests.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
@@ -1203,7 +1208,7 @@ jobs:
     needs: [e2e-tests]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.e2e-tests.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1271,7 +1276,7 @@ jobs:
     needs: [terraform-services-core-prod-testnet, terraform-services-backend-prod-testnet]
     env:
       AWS_PROFILE: aws-deployer-connext
-      TF_VAR_cartographer_image_tag: ${{ github.sha }}
+      TF_VAR_cartographer_image_tag: ${{ github.ref_name }}-${{ github.sha }}
       TF_VAR_full_image_name_sdk_server: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.sdk-server-tags).tags[0] }}
 
     runs-on: ubuntu-latest
@@ -1336,7 +1341,7 @@ jobs:
       TF_VAR_full_image_name_relayer: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.relayer-tags).tags[0] }}
       TF_VAR_full_image_name_watcher: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.watcher-tags).tags[0] }}
       TF_VAR_full_image_name_lighthouse_prover_subscriber: ${{ fromJSON(needs.terraform-services-backend-prod-testnet.outputs.lighthouse-prover-subscriber-tags).tags[0] }}
-      TF_VAR_lighthouse_image_tag: ${{ github.sha }}
+      TF_VAR_lighthouse_image_tag: ${{ github.ref_name }}-${{ github.sha }}
 
     runs-on: ubuntu-latest
     permissions:
