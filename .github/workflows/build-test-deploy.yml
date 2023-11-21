@@ -88,6 +88,12 @@ jobs:
       - name: Migrate Database
         run: yarn workspace @connext/nxtp-adapters-database dbmate up
 
+      - name: "Create env file"
+        run: |
+          touch ./packages/deployments/contracts/.env
+          echo MAINNET_RPC="${{ secrets.MAINNET_RPC }}" >> .env
+          echo SCROLL_RPC="${{ secrets.SCROLL_RPC }}" >> .env
+
       ## TODO: Modify it to its previous state before merging to Connext
       - name: Yarn test
         run: yarn test:connectors
