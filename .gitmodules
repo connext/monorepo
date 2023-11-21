@@ -13,3 +13,6 @@
 [submodule "packages/deployments/contracts/lib/relay-context-contracts"]
 	path = packages/deployments/contracts/lib/relay-context-contracts
 	url = https://github.com/gelatodigital/relay-context-contracts
+[submodule "packages/deployments/contracts/lib/solidity-stringutils"]
+	path = packages/deployments/contracts/lib/solidity-stringutils
+	url = https://github.com/Arachnid/solidity-stringutils/strings.sol
