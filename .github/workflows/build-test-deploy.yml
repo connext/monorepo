@@ -73,6 +73,9 @@ jobs:
       - name: Yarn install
         run: yarn install
 
+      - name: Update git submodule
+        run: git submodule update --init
+
       - name: Forge install
         run: yarn workspace @connext/smart-contracts forge:install
 
