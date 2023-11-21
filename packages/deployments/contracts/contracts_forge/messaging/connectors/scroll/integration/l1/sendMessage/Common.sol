@@ -60,8 +60,8 @@ contract Common is ConnectorHelper {
     bytes memory _message = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     // Calculate the  gas needed for sending that message
     uint256 _gasNeeded = L2_ORACLE_GAS_PRICE.calculateIntrinsicGasFee(_message);
-    // Check if the gas cap is enough, if not, set it to double the gas needed
-    if (_gasCap < _gasNeeded) _gasCap = _gasNeeded * 2;
+    // Check if the gas cap is enough, if not, set it to double the gas needed (to be sure in case it gets updated in the future)
+    _gasCap = _gasNeeded * 2;
 
     // Deploy scroll hub connector
     scrollHubConnector = new ScrollHubConnector(
