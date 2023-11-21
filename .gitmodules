@@ -15,4 +15,4 @@
 	url = https://github.com/gelatodigital/relay-context-contracts
 [submodule "packages/deployments/contracts/lib/solidity-stringutils"]
 	path = packages/deployments/contracts/lib/solidity-stringutils
-	url = https://github.com/Arachnid/solidity-stringutils/strings.sol
+	url = https://github.com/Arachnid/solidity-stringutils
