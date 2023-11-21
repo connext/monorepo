@@ -6,7 +6,7 @@ import {ConnectorHelper} from "../../../../../utils/ConnectorHelper.sol";
 import {MerkleTreeManager} from "../../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {ProposedOwnable} from "../../../../../../contracts/shared/ProposedOwnable.sol";
 import {RootManager} from "../../../../../../contracts/messaging/RootManager.sol";
-import {ScrollSpokeConnector} from "../../../../../../contracts/messaging/connectors/scroll/scrollSpokeConnector.sol";
+import {ScrollSpokeConnector} from "../../../../../../contracts/messaging/connectors/scroll/ScrollSpokeConnector.sol";
 import {SpokeConnector} from "../../../../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {WatcherManager} from "../../../../../../contracts/messaging/WatcherManager.sol";
 import {IL2ScrollMessenger} from "../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2ScrollMessenger.sol";

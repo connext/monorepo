@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
-import {ScrollHubConnector} from "../../../../../contracts/messaging/connectors/scroll/scrollHubConnector.sol";
+import {ScrollHubConnector} from "../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
 import {IL1ScrollMessenger} from "../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
 

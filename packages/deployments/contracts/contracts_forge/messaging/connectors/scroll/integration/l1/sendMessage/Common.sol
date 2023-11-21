@@ -5,7 +5,7 @@ import {Connector} from "../../../../../../../contracts/messaging/connectors/Con
 import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
 import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
-import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/scrollHubConnector.sol";
+import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
 import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";
 
@@ -58,6 +58,7 @@ contract Common is ConnectorHelper {
     bytes32 _aggregateRoot = bytes32("aggregateRoot");
     bytes memory _data = abi.encodePacked(_aggregateRoot);
     bytes memory _message = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+
     // Calculate the  gas needed for sending that message
     uint256 _gasNeeded = L2_ORACLE_GAS_PRICE.calculateIntrinsicGasFee(_message);
     // Check if the gas cap is enough, if not, set it to double the gas needed (to be sure in case it gets updated in the future)

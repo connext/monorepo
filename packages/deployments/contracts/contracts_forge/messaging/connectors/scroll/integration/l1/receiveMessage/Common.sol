@@ -6,7 +6,7 @@ import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
 import {L1ScrollMessengerForTest} from "./L1ScrollMessengerForTest.sol";
 import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
-import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/scrollHubConnector.sol";
+import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
 import {IL1ScrollMessenger} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";

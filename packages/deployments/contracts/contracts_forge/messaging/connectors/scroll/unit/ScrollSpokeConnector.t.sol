@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
-import {ScrollSpokeConnector} from "../../../../../contracts/messaging/connectors/scroll/scrollSpokeConnector.sol";
+import {ScrollSpokeConnector} from "../../../../../contracts/messaging/connectors/scroll/ScrollSpokeConnector.sol";
 import {MerkleTreeManager} from "../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {ProposedOwnable} from "../../../../../contracts/shared/ProposedOwnable.sol";
 import {SpokeConnector} from "../../../../../contracts/messaging/connectors/SpokeConnector.sol";
