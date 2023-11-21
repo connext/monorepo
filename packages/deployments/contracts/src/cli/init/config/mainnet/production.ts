@@ -555,6 +555,46 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xSpace Token",
+      canonical: {
+        domain: "11111",
+        address: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },
+        // Optimsim
+        "1869640809": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },
+        // Binance
+        "6450786": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },
+        // Arbitrum
+        "1634886255": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },        
+        // gnosis
+        "6778479": {
+          local: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+          adopted: "0x1D1498166DDCEeE616a6d99868e1E0677300056f",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
