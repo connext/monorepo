@@ -8,6 +8,7 @@ import {RootManager} from "../../../../../../../contracts/messaging/RootManager.
 import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
 import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";
+import {console} from "forge-std/Test.sol";
 
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 18_586_480;
@@ -61,6 +62,9 @@ contract Common is ConnectorHelper {
 
     // Calculate the  gas needed for sending that message
     uint256 _gasNeeded = L2_ORACLE_GAS_PRICE.calculateIntrinsicGasFee(_message);
+
+    console.log("Min gas needed to pay the fee for bridging a message: ", _gasNeeded);
+
     // Check if the gas cap is enough, if not, set it to double the gas needed (to be sure in case it gets updated in the future)
     _gasCap = _gasNeeded * 2;
 

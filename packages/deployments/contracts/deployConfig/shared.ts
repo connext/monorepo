@@ -313,6 +313,30 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
+      // Scroll Sepolia testnet
+      534352: {
+        prefix: "Scroll",
+        networkName: "Sepolia",
+        ambs: {
+          // L1ScrollMessenger
+          // https://sepolia.etherscan.io/address/0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A
+          hub: "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A",
+          // L2ScrollMessenger
+          // https://sepolia.scrollscan.com/address/0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d
+          spoke: "0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"), // The test thrown 21_628 as gas needed. So 200_000 is almost 10x to be safe.
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
     },
   },
   mainnet: {
@@ -441,6 +465,30 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           spoke: {
             gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
             mirrorChainId: "2", // mainnet wormhole chainid: 2
+          },
+        },
+      },
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // L2ScrollMessenger
+          // https://etherscan.io/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"), // The test thrown 21_628 as gas needed. So 200_000 is almost 10x to be safe.
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },
