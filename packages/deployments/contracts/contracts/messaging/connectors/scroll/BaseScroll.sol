@@ -2,8 +2,6 @@
 pragma solidity 0.8.17;
 
 import {GasCap} from "../GasCap.sol";
-import {Connector} from "../Connector.sol";
-import {SpokeConnector} from "../SpokeConnector.sol";
 
 /**
  * @title BaseScroll

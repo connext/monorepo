@@ -91,10 +91,10 @@ contract Unit_Connector_ScrollSpokeConnector_RenounceOwnership is Base {
     scrollSpokeConnector.renounceOwnership();
   }
 
-  function test_ownerShouldntBeAbleToRenounce() public {
+  function test_revertIfCalled() public {
     vm.prank(owner);
+    vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_NotImplementedMethod.selector);
     scrollSpokeConnector.renounceOwnership();
-    assertEq(scrollSpokeConnector.owner(), owner);
   }
 }
 

@@ -89,10 +89,10 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
 
   /**
    * @notice Verifies that the origin sender of the cross domain message is the mirror connector
-   * @param _mirrorConnector Mirror connector address
+   * @param _mirrorSender The mirror sender address
    * @return _isValid True if the origin sender is the mirror connector, otherwise false
    */
-  function _verifySender(address _mirrorConnector) internal view override returns (bool _isValid) {
-    _isValid = L1_SCROLL_MESSENGER.xDomainMessageSender() == _mirrorConnector;
+  function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
+    _isValid = L1_SCROLL_MESSENGER.xDomainMessageSender() == _mirrorSender;
   }
 }
