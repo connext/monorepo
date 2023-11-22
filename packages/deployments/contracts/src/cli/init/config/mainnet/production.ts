@@ -555,6 +555,33 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ZOOMER",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+          adopted: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        },
+        /// POLYGON
+        "1886350457": {
+          local: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+          adopted: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+          adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+        },
+        // BINANCE
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
