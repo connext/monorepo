@@ -135,14 +135,14 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
 
     vm.prank(_sender);
     vm.expectRevert();
-    scrollSpokeConnector.processMessage(_data);
+    scrollSpokeConnector.forTest_processMessage(_data);
   }
 
   function test_revertIfDataIsNot32Length(bytes memory _data) public {
     vm.assume(_data.length != 32);
     vm.prank(_amb);
     vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_LengthIsNot32.selector);
-    scrollSpokeConnector.processMessage(_data);
+    scrollSpokeConnector.forTest_processMessage(_data);
   }
 
   function test_revertIfOriginSenderNotMirror() public {
@@ -152,7 +152,7 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
 
     vm.prank(_amb);
     vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_OriginSenderIsNotMirror.selector);
-    scrollSpokeConnector.processMessage(_data);
+    scrollSpokeConnector.forTest_processMessage(_data);
   }
 
   function test_receiveAggregateRoot() public {
@@ -172,7 +172,7 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
     emit AggregateRootReceived(aggregateRoot);
 
     vm.prank(_amb);
-    scrollSpokeConnector.processMessage(_data);
+    scrollSpokeConnector.forTest_processMessage(_data);
   }
 }
 
