@@ -84,13 +84,6 @@ contract Unit_Connector_ScrollSpokeConnectors_Constructor is Base {
 }
 
 contract Unit_Connector_ScrollSpokeConnector_RenounceOwnership is Base {
-  function test_revertIfCallerNotOwner(address _caller) public {
-    vm.assume(_caller != owner);
-    vm.prank(_caller);
-    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
-    scrollSpokeConnector.renounceOwnership();
-  }
-
   function test_revertIfCalled() public {
     vm.prank(owner);
     vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_NotImplementedMethod.selector);
