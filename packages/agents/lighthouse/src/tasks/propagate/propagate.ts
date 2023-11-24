@@ -114,7 +114,11 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
           spokeMode: spokeConnectorMode.mode,
           spokeDomain: domain,
         });
-        throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
+        throw new Error(
+          `Unknown mode detected: RootMode - ${JSON.stringify(rootManagerMode)} SpokeMode - ${JSON.stringify(
+            spokeConnectorMode,
+          )} SpokeDomain: ${domain} HubDomain: ${config.hubDomain}`,
+        );
       }
     }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
