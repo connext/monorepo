@@ -10,7 +10,7 @@
     "verify": "yarn test && yarn clean && yarn build && yarn lint --max-warnings 0",
     "purge": "yarn clean && rimraf ./node_modules",
     "deploy": "ts-node ./src/deploy.ts",
-    "deploy:testnet:amarok-runtime-v0": "yarn deploy amarok-runtime-v0 amarok-runtime-v0 'goerli,optimism-goerli,mumbai,arbitrum-goerli,zkSync2-testnet'",
+    "deploy:testnet:amarok-runtime-v0": "yarn deploy amarok-runtime-v0 amarok-runtime-v0 'goerli,optimism-goerli,mumbai,arbitrum-goerli'",
     "deploy:amarok-runtime-v0": "yarn deploy amarok-runtime-v0 amarok-runtime-v0 all",
     "deploy:amarok-runtime-staging": "yarn deploy amarok-runtime-staging amarok-runtime-staging all",
     "deploy:amarok-hub-staging": "yarn deploy amarok-hub-staging amarok-hub-staging all",
