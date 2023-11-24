@@ -3319,13 +3319,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@envelop/core@npm:4.0.0":
-  version: 4.0.0
-  resolution: "@envelop/core@npm:4.0.0"
+"@envelop/core@npm:4.0.2":
+  version: 4.0.2
+  resolution: "@envelop/core@npm:4.0.2"
   dependencies:
-    "@envelop/types": 4.0.0
+    "@envelop/types": 4.0.1
     tslib: ^2.5.0
-  checksum: 575039dfebeadaac3ea61fd700dcc806e26f04f045dc4457052b7cc1ca7c9c37bf9a98a8e4d377d20c69a4e7dc62c11b8884b70f2a218944736ee58c588d498b
+  checksum: da9d3217ca76fffaa1d98c6d3616eadb11264700a7f74c4638ecd80b35ca9394d71362fb993db1e05664d0592b068ec67a1143e9055fd875dfd5c12ea047f665
   languageName: node
   linkType: hard
 
@@ -3355,12 +3355,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@envelop/types@npm:4.0.0":
-  version: 4.0.0
-  resolution: "@envelop/types@npm:4.0.0"
+"@envelop/types@npm:4.0.1":
+  version: 4.0.1
+  resolution: "@envelop/types@npm:4.0.1"
   dependencies:
     tslib: ^2.5.0
-  checksum: cd8bad3ef7d9ee6015e3befbd27a1fb66a560d1397111b0fe22d8a107c7509ab48f183752d514321e35e9c27e9e970e004579867d64105768fce69ccca411ac7
+  checksum: 136bdd570118a879044bd9ef8ed4df0460429fa952509b9be724f852b80cdae154c5e95792715194505511b171423808a60eed98c890e6997b4e9d122590bb21
   languageName: node
   linkType: hard
 
