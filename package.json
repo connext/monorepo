@@ -54,7 +54,8 @@
     "version": "yarn version"
   },
   "resolutions": {
-    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz"
+    "@nomiclabs/hardhat-ethers": "https://registry.npmjs.org/hardhat-deploy-ethers/-/hardhat-deploy-ethers-0.3.0-beta.10.tgz",
+    "@envelop/core": "4.0.2"
   },
   "packageManager": "yarn@3.3.1",
   "stableVersion": "0.1.25"
