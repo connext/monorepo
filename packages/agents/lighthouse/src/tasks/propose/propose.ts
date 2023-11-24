@@ -136,7 +136,7 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
       context.logger.info("In Slow Mode. No op.", requestContext, methodContext);
     } else {
-      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
     if (context.config.healthUrls.propose) {
       await sendHeartbeat(context.config.healthUrls.propose, context.logger);
