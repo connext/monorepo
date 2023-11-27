@@ -228,7 +228,14 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const connextContractAddress = (await this.getConnext(origin, options)).address;
+    const LOCKBOX_ADAPTER_ADDRESS = "0x80A846124d909a3ee91e010a214f5De7E57b06b8";
+
+    const isValidAsset = await this.hasLockbox(origin, asset, options);
+
+    // In case given asset is XERC20 and have lockbox tx should hit adapter rather than connext contracts
+    const connextContractAddress = isValidAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(origin, options)).address;
 
     const chainId = await this.getChainId(origin);
 

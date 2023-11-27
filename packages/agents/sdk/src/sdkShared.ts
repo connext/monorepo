@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, BigNumber, utils, ethers } from "ethers";
 import {
   Logger,
   createLoggingContext,
@@ -17,6 +17,7 @@ import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
 import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import XERC20RegistryAbi from "./lib/abi/XERC20/XERC20Registry.sol/XERC20Registry.json";
 
 declare global {
   interface Window {
@@ -177,6 +178,60 @@ export class SdkShared {
     const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
 
     return IERC20__factory.connect(tokenAddress, provider);
+  }
+
+  /**
+   * Returns the Registry contract for the specified domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns Registry Contract object.
+   */
+  async getXERC20Registry(domainId: string, options?: Options): Promise<ethers.Contract> {
+    try {
+      // This should be a mapping for domainId and address.
+      const REGISTRY_CONTRACT_ADDRESS = "0xBbA4b5130Fb918A6E2Dbc94b430397D3d2EA1e2F";
+      const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+      if (!isProviderValid) {
+        throw new ProviderMissing(domainId);
+      }
+
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
+        : await this.getProvider(domainId);
+
+      return new ethers.Contract(REGISTRY_CONTRACT_ADDRESS, XERC20RegistryAbi, provider);
+    } catch (err: any) {
+      throw new Error("Failed to get XERC20 registry Contract");
+    }
+  }
+
+  async hasLockbox(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
+    try {
+      let isValidAsset = false;
+      // Checking if given asset is xERC20 and have lockbox
+      const xerc20Registry = await this.getXERC20Registry(domainId, options);
+      const isXERC20 = await xerc20Registry.functions.isXERC20(tokenAddress);
+      if (isXERC20) {
+        const lockbox = await xerc20Registry.functions.getLockbox(tokenAddress);
+        if (lockbox !== "0x0000000000000000000000000000000000000000") {
+          isValidAsset = true;
+        }
+      }
+      return isValidAsset;
+    } catch (err: any) {
+      throw new Error("failed to get Lockbox");
+    }
   }
 
   /**

@@ -12,6 +12,7 @@ import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing, Provide
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
+
 import { SdkXCallParams } from "../src/interfaces";
 
 const mockConfig = mock.config();
@@ -200,6 +201,7 @@ describe("SdkBase", () => {
       getConversionRateStub = stub(SharedFns, "getConversionRate");
       getDecimalsForAssetStub = stub(SharedFns, "getDecimalsForAsset");
       getHardcodedGasLimitsStub = stub(SharedFns, "getHardcodedGasLimits");
+      stub(sdkBase, "hasLockbox").resolves(false);
     });
 
     afterEach(() => {
@@ -209,7 +211,6 @@ describe("SdkBase", () => {
 
     it("happy-1: should work if ERC20", async () => {
       const res = await sdkBase.xcall(sdkXCallArgs);
-
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
