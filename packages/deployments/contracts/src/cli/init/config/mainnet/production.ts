@@ -302,6 +302,54 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      // TODO: This is the old config, to be removed in execution layer upgrade
+      name: "ALCX",
+      canonical: {
+        domain: "6648936",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
+      name: "ALCX",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+          adopted: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
       name: "XOC",
       // polygon
       canonical: {
@@ -403,6 +451,41 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6778479": {
           local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
           adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+      },
+    },
+    {
+      name: "xGrumpy Cat",
+      canonical: {
+        domain: "11111",
+        address: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Optimsim
+        "1869640809": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Binance
+        "6450786": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Arbitrum
+        "1634886255": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
         },
       },
     },
