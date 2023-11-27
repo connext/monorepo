@@ -693,6 +693,7 @@ export const saveAssets = async (assets: Asset[], _pool?: Pool | db.TxnClientFor
       key: asset.key,
       id: asset.id,
       decimal: asset.decimal as any,
+      adopted_decimal: asset.adoptedDecimal as any,
       local: asset.localAsset,
       adopted: asset.adoptedAsset,
       canonical_id: asset.canonicalId,

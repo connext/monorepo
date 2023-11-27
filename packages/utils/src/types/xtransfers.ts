@@ -222,6 +222,7 @@ export const AssetSchema = Type.Object({
   id: TAddress,
   key: Type.String(),
   decimal: TIntegerString,
+  adoptedDecimal: TIntegerString,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),

@@ -12,6 +12,7 @@ export const ASSET_ENTITY = `
       id,
       key,
       decimal,
+      adoptedDecimal,
       canonicalId,
       canonicalDomain,
       adoptedAsset,
