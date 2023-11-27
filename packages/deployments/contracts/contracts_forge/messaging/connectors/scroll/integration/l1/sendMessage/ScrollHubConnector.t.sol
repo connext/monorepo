@@ -19,10 +19,11 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     bytes32 _root = merkleTreeManager.root();
     bytes memory _data = abi.encodePacked(_root);
     bytes memory _functionCall = abi.encodeWithSelector(Connector.processMessage.selector, _data);
+    // Nonce grabbed from the L1 scroll messenger. This is the nonce that will be emitted by the L1 scroll messenger on the next message
+    uint256 _nonce = 67193;
 
     // Expect the `SentMessage` event to be emitted by the scroll messenger AMB
     vm.expectEmit(true, true, true, true, address(L1_SCROLL_MESSENGER));
-    uint256 _nonce = 67193;
     emit SentMessage(
       address(scrollHubConnector),
       mirrorConnector,
@@ -43,18 +44,18 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     scrollHubConnector.sendMessage{value: _fee}(_data, _extraData);
   }
 
-  function test_addressWasRefunded() public {
+  function test_addressWasRefunded(uint256 _gasExtra) public {
     // Get the root that will be sent from the merkle tree manager
     bytes32 _root = merkleTreeManager.root();
     bytes memory _data = abi.encodePacked(_root);
 
     // Get the gas fee for sending the cross domain message and the extra gas
     uint256 _fee = L2_ORACLE_GAS_PRICE.estimateCrossDomainMessageFee(_gasCap);
-    uint256 _gasExtra = 1000;
+    _gasExtra = bound(_gasExtra, 1, type(uint248).max - _fee);
 
     // Create a refund address and get its balance before sending the message
     address _refundAddress = makeAddr("refundAddress");
-    uint256 _refundAddrBalanceBef = address(_refundAddress).balance;
+    uint256 _addrBalanceBef = address(_refundAddress).balance;
     bytes memory _extraData = abi.encode(_refundAddress);
 
     // Send a message from root manager to scroll hub connector with the fee + extra gas
@@ -63,7 +64,7 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     scrollHubConnector.sendMessage{value: _fee + _gasExtra}(_data, _extraData);
 
     // Expect the refund address to have received the extra gas
-    uint256 _refundAddrBalanceAft = address(_refundAddress).balance;
-    assertEq(_refundAddrBalanceAft, _refundAddrBalanceBef + _gasExtra);
+    uint256 _addrBalanceAft = address(_refundAddress).balance;
+    assertEq(_addrBalanceAft, _addrBalanceBef + _gasExtra);
   }
 }

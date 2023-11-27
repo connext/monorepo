@@ -17,7 +17,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
   /**
    * @notice Thrown when the message length is not 32 bytes
    */
-  error ScrollSpokeConnector_LengthIsNot32();
+  error ScrollSpokeConnector_DataLengthIsNot32();
   /**
    * @notice Thrown when the origin sender of the cross domain message is not the mirror connector
    */
@@ -49,7 +49,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert ScrollSpokeConnector_LengthIsNot32();
+    if (!_checkMessageLength(_data)) revert ScrollSpokeConnector_DataLengthIsNot32();
     _;
   }
 

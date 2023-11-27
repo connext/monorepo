@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
+import {MerkleTreeManager} from "../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {ScrollHubConnector} from "../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
 import {IL1ScrollMessenger} from "../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
@@ -38,6 +39,7 @@ contract Base is ConnectorHelper {
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
+  address public refundAddress = makeAddr("refundAddress");
   bytes32 public rootSnapshot = keccak256(abi.encodePacked("rootSnapshot"));
   bytes32 public aggregateRoot = keccak256(abi.encodePacked("aggregateRoot"));
   ScrollHubConnectorForTest public scrollHubConnector;
@@ -66,7 +68,7 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
     bytes memory _encodedData = "";
 
     vm.prank(user);
-    vm.expectRevert(ScrollHubConnector.ScrollHubConnector_LengthIsNot32.selector);
+    vm.expectRevert(ScrollHubConnector.ScrollHubConnector_DataLengthIsNot32.selector);
     scrollHubConnector.forTest_sendMessage(_data, _encodedData);
   }
 
@@ -74,8 +76,7 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
     // Parse the aggregate root
     bytes memory _data = abi.encodePacked(aggregateRoot);
     // Declare and parse the refund address
-    address _refundAddress = makeAddr("refundAddress");
-    bytes memory _encodedData = abi.encode(_refundAddress);
+    bytes memory _encodedData = abi.encode(refundAddress);
     // Get the calldata of the `processMessage` function call to be executed on the mirror connector
     bytes memory _functionCall = abi.encodeWithSelector(Connector.processMessage.selector, _data);
 
@@ -88,13 +89,27 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
         scrollHubConnector.ZERO_MSG_VALUE(),
         _functionCall,
         _gasCap,
-        _refundAddress
+        refundAddress
       ),
       ""
     );
 
     vm.prank(user);
     scrollHubConnector.forTest_sendMessage(_data, _encodedData);
+  }
+
+  function test_emitMessageSent(address _refundAddress) public {
+    // Mock the call over the AMB
+    vm.mockCall(_amb, abi.encodeWithSelector(IL1ScrollMessenger.sendMessage.selector), "");
+
+    // Expect the `MessageSent` event to be emitted
+    bytes memory _data = abi.encodePacked(aggregateRoot);
+    bytes memory _encodedData = abi.encode(_refundAddress);
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(_data, _encodedData, address(_rootManager));
+
+    vm.prank(address(_rootManager));
+    scrollHubConnector.sendMessage(_data, _encodedData);
   }
 }
 
@@ -113,7 +128,7 @@ contract Unit_Connector_ScrollHubConnector_forTest_ProcessMessage is Base {
   function test_revertIfDataIsNot32Length(bytes memory _data) public {
     vm.assume(_data.length != 32);
     vm.prank(_amb);
-    vm.expectRevert(ScrollHubConnector.ScrollHubConnector_LengthIsNot32.selector);
+    vm.expectRevert(ScrollHubConnector.ScrollHubConnector_DataLengthIsNot32.selector);
     scrollHubConnector.forTest_processMessage(_data);
   }
 

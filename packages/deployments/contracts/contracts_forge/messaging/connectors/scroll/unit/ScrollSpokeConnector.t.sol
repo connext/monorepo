@@ -3,8 +3,8 @@ pragma solidity 0.8.17;
 
 import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
-import {ScrollSpokeConnector} from "../../../../../contracts/messaging/connectors/scroll/ScrollSpokeConnector.sol";
 import {MerkleTreeManager} from "../../../../../contracts/messaging/MerkleTreeManager.sol";
+import {ScrollSpokeConnector} from "../../../../../contracts/messaging/connectors/scroll/ScrollSpokeConnector.sol";
 import {ProposedOwnable} from "../../../../../contracts/shared/ProposedOwnable.sol";
 import {SpokeConnector} from "../../../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {IL2ScrollMessenger} from "../../../../../contracts/messaging/interfaces/ambs/scroll/IL2ScrollMessenger.sol";
@@ -37,8 +37,8 @@ contract Base is ConnectorHelper {
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
-  bytes32 public rootSnapshot = keccak256(abi.encodePacked("rootSnapshot"));
-  bytes32 public aggregateRoot = keccak256(abi.encodePacked("aggregateRoot"));
+  bytes32 public rootSnapshot = bytes32("rootSnapshot");
+  bytes32 public aggregateRoot = bytes32("aggregateRoot");
   ScrollSpokeConnectorForTest public scrollSpokeConnector;
   uint256 public constant DELAY_BLOCKS = 0;
   uint256 public constant MIN_DISPUTE_BLOCKS = 1;
@@ -67,7 +67,7 @@ contract Base is ConnectorHelper {
   }
 }
 
-contract Unit_Connector_ScrollSpokeConnectors_Constructor is Base {
+contract Unit_Connector_ScrollSpokeConnector_Constructor is Base {
   function test_checkConstructorArgs() public {
     assertEq(scrollSpokeConnector.DOMAIN(), _l1Domain);
     assertEq(scrollSpokeConnector.MIRROR_DOMAIN(), _l2Domain);
@@ -97,7 +97,7 @@ contract Unit_Connector_ScrollSpokeConnector_SendMessage is Base {
     bytes memory _encodedData = "";
 
     vm.prank(user);
-    vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_LengthIsNot32.selector);
+    vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_DataLengthIsNot32.selector);
     scrollSpokeConnector.forTest_sendMessage(_data, _encodedData);
   }
 
@@ -124,6 +124,20 @@ contract Unit_Connector_ScrollSpokeConnector_SendMessage is Base {
     vm.prank(user);
     scrollSpokeConnector.forTest_sendMessage(_data, _encodedData);
   }
+
+  function test_emitMessageSent(bytes memory _encodedData) public {
+    // Mock the merkle tree manager to return the aggregate root
+    vm.mockCall(_merkle, abi.encodeWithSelector(MerkleTreeManager.root.selector), abi.encode(aggregateRoot));
+    // Mock the call over the AMB
+    vm.mockCall(_amb, abi.encodeWithSelector(IL2ScrollMessenger.sendMessage.selector), "");
+
+    // Expect the `MessageSent` event to be emitted
+    vm.expectEmit(true, true, true, true);
+    emit MessageSent(abi.encodePacked(aggregateRoot), _encodedData, user);
+
+    vm.prank(user);
+    scrollSpokeConnector.send(_encodedData);
+  }
 }
 
 contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
@@ -141,7 +155,7 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
   function test_revertIfDataIsNot32Length(bytes memory _data) public {
     vm.assume(_data.length != 32);
     vm.prank(_amb);
-    vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_LengthIsNot32.selector);
+    vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_DataLengthIsNot32.selector);
     scrollSpokeConnector.forTest_processMessage(_data);
   }
 
@@ -177,23 +191,25 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
 }
 
 contract Unit_Connector_ScrollSpokeConnector_VerifySender is Base {
-  function test_returnFalseIfOriginSenderNotMirror(address _originSender, address _mirrorConnector) public {
-    vm.assume(_originSender != _mirrorConnector);
-    vm.mockCall(
-      _amb,
-      abi.encodeWithSelector(IL2ScrollMessenger.xDomainMessageSender.selector),
-      abi.encode(_originSender)
-    );
-    assertEq(scrollSpokeConnector.forTest_verifySender(_mirrorConnector), false);
-  }
-
-  function test_returnTrueIfOriginSenderIsMirror(address _mirrorConnector) public {
+  modifier happyPath(address _mirrorConnector) {
     vm.mockCall(
       _amb,
       abi.encodeWithSelector(IL2ScrollMessenger.xDomainMessageSender.selector),
       abi.encode(_mirrorConnector)
     );
-    vm.prank(_mirrorConnector);
+    vm.startPrank(_mirrorConnector);
+    _;
+  }
+
+  function test_returnFalseIfOriginSenderNotMirror(
+    address _originSender,
+    address _mirrorConnector
+  ) public happyPath(_mirrorConnector) {
+    vm.assume(_originSender != _mirrorConnector);
+    assertEq(scrollSpokeConnector.forTest_verifySender(_originSender), false);
+  }
+
+  function test_returnTrueIfOriginSenderIsMirror(address _mirrorConnector) public happyPath(_mirrorConnector) {
     assertEq(scrollSpokeConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }

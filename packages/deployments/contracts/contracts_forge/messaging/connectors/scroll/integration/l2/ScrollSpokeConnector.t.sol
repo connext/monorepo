@@ -24,7 +24,8 @@ contract Integration_Connector_ScrollSpokeConnector is Common {
 
     // Expect the `SentMessage` event to be emitted by the scroll messenger AMB
     vm.expectEmit(true, true, true, true, address(L2_SCROLL_MESSENGER));
-    uint256 _nonce = 11766; // Nonce grabbed from the L2 scroll messenger
+    // Nonce grabbed from the L2 scroll messenger. This is the nonce that will be emitted by the L2 scroll messenger on the next message
+    uint256 _nonce = 11766;
     emit SentMessage(
       address(scrollSpokeConnector),
       mirrorConnector,

@@ -36,15 +36,15 @@ contract Unit_Connector_BaseScroll_Constructor is Base {
 }
 
 contract Unit_Connector_BaseScroll_CheckMessageLength is Base {
+  uint256 internal constant VALID_MSG_LENGTH = 32;
+
   function test_returnFalseOnInvalidLength(bytes memory _data) public {
-    uint256 _validMessageLength = 32;
-    vm.assume(_data.length != _validMessageLength);
+    vm.assume(_data.length != VALID_MSG_LENGTH);
     assertEq(baseScroll.forTest_checkMessageLength(_data), false);
   }
 
-  function test_checkMessageLength() public {
-    uint256 _validMessageLength = 32;
-    bytes memory _data = new bytes(_validMessageLength);
+  function test_checkMessageLength(bytes32 _msg) public {
+    bytes memory _data = abi.encode(_msg);
     assertEq(baseScroll.forTest_checkMessageLength(_data), true);
   }
 }

@@ -16,7 +16,7 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
   /**
    * @notice Thrown when the message length is not 32 bytes
    */
-  error ScrollHubConnector_LengthIsNot32();
+  error ScrollHubConnector_DataLengthIsNot32();
   /**
    * @notice Thrown when the origin sender of the cross domain message is not the mirror connector
    */
@@ -52,7 +52,7 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert ScrollHubConnector_LengthIsNot32();
+    if (!_checkMessageLength(_data)) revert ScrollHubConnector_DataLengthIsNot32();
     _;
   }
 
@@ -63,8 +63,7 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
    * @dev The message length must be 32 bytes
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override checkMessageLength(_data) {
-    address _refundAddress;
-    if (_encodedData.length > 0) _refundAddress = abi.decode(_encodedData, (address));
+    address _refundAddress = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     L1_SCROLL_MESSENGER.sendMessage{value: msg.value}(
       mirrorConnector,
