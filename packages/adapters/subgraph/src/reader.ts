@@ -234,6 +234,7 @@ export class SubgraphReader {
             localAsset: a.asset.id,
             id: a.asset.id,
             decimal: a.asset.decimal,
+            adoptedDecimal: a.asset.adoptedDecimal,
             key: a.asset.key,
           } as AssetBalance;
         }),

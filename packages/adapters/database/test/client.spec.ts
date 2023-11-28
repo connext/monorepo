@@ -86,7 +86,7 @@ describe("Database client", () => {
 
   beforeEach(async () => {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5435/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
@@ -1282,7 +1282,7 @@ describe("Database client", () => {
       expect(res).to.deep.include({
         ...asset,
         decimal: +asset.decimal,
-        adopted_decimal: +asset.adoptedDecimal,
+        adoptedDecimal: +asset.adoptedDecimal,
         blockNumber: undefined,
       });
     });

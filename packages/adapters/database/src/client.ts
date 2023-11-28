@@ -659,6 +659,7 @@ export const saveRouterBalances = async (
           key: b.key,
           id: b.id,
           decimal: b.decimal as any,
+          adopted_decimal: b.adoptedDecimal as any,
           local: b.localAsset,
           adopted: b.adoptedAsset,
           canonical_id: b.canonicalId,
@@ -667,7 +668,6 @@ export const saveRouterBalances = async (
         },
       };
     });
-
     await db
       .upsert(
         "assets",

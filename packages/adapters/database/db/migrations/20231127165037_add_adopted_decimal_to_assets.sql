@@ -1,6 +1,6 @@
 -- migrate:up
 ALTER TABLE public.assets
-    ADD COLUMN IF NOT EXISTS adopted_decimal numeric DEFAULT 0 NOT NULL;
+    ADD COLUMN IF NOT EXISTS adopted_decimal numeric DEFAULT 0;
 
 
 -- migrate:down

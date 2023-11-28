@@ -320,7 +320,7 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       domain: routerBalanceRow.asset_domain,
       id: routerBalanceRow.id,
       decimal: routerBalanceRow.decimal,
-      adoptedDecimal: routerBalanceRow.adoptedDecimal,
+      adoptedDecimal: routerBalanceRow.adopted_decimal,
       localAsset: routerBalanceRow.local,
       key: routerBalanceRow.key,
     };
