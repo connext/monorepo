@@ -1,5 +1,5 @@
 # global owner
-@rhlsthrm
+@preethamr
 /ops/ @carlomazzaferro @preethamr
 /docker/ @carlomazzaferro @preethamr
 /packages/adapters/ @preethamr @liu-zhipeng @wanglonghong
@@ -7,5 +7,5 @@
 /packages/agents/sdk/ @just-a-node @prathmeshkhandelwal1
 /packages/deployments/ @LayneHaber @liu-zhipeng @preethamr
 /packages/examples/ @just-a-node @prathmeshkhandelwal1 @preethamr
-/packages/integration/ @LayneHaber @preethamr @ust-a-node
-/packages/utils/ @preethamr @liu-zhipeng @wanglonghong @rhlsthrm
+/packages/integration/ @LayneHaber @preethamr @just-a-node
+/packages/utils/ @preethamr @liu-zhipeng @wanglonghong @just-a-node
