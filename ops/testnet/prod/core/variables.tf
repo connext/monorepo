@@ -185,3 +185,7 @@ variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
 }
+
+variable "drpc_key" {
+  type = string
+}
