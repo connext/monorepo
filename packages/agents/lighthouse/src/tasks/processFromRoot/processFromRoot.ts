@@ -100,7 +100,7 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
       context.logger.info("In Slow Mode", requestContext, methodContext);
       await processFromRoot();
     } else {
-      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
     if (context.config.healthUrls.processor) {
       await sendHeartbeat(context.config.healthUrls.processor, context.logger);
