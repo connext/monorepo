@@ -451,6 +451,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
     environment                = var.stage
