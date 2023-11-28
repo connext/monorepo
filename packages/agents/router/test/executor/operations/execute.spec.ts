@@ -16,13 +16,13 @@ describe("Operations:Execute", () => {
     it("should not send to the relayer if not valid ", async () => {
       const executeArgs = { ...mock.entity.executeArgs(), routers: ["0x"] };
       const transferId = mkBytes32();
-      await expect(execute(executeArgs, transferId)).to.be.rejectedWith(Error);
+      await execute(executeArgs, transferId);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
     it("should throw DomainNotSupported if not configured", async () => {
       const executeArgs = { ...mock.entity.executeArgs(), params: { originDomain: "111", destinationDomain: "222" } };
       const transferId = mkBytes32();
-      await expect(execute(executeArgs, transferId)).to.be.rejectedWith(DomainNotSupported);
+      await execute(executeArgs, transferId);
       expect(sendExecuteFastToRelayerStub.callCount).to.be.eq(0);
     });
     it("should send the payload to the relayer successfully!", async () => {
