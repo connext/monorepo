@@ -18,6 +18,8 @@ import {
   PoolActionType,
   RouterDailyTVL,
   isValidBytes32,
+  RouterLiquidityEvent,
+  RouterLiquidityEventType,
 } from "@connext/nxtp-utils";
 import { BigNumber, constants, utils } from "ethers";
 
@@ -731,5 +733,47 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
     timestamp: entity.timestamp,
     // TODO: why negative router balances on subgraph?
     balance: BigNumber.from(entity.balance).isNegative() ? "0" : entity.balance,
+  };
+};
+
+export const routerLiquidityEvent = (entity: any): RouterLiquidityEvent => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `routerLiquidityEvent` entity parser: routerLiquidityEvent, entity is `undefined`.");
+  }
+
+  for (const field of [
+    "id",
+    "domain",
+    "type",
+    "router",
+    "asset",
+    "amount",
+    "balance",
+    "blockNumber",
+    "transactionHash",
+    "timestamp",
+    "nonce",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `routerLiquidityEvent` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    domain: entity.domain,
+    event: entity.type as RouterLiquidityEventType,
+    asset: entity.asset.id,
+    router: entity.router.id,
+    amount: +utils.formatUnits(entity.amount, +entity.asset.decimal),
+    balance: +utils.formatUnits(entity.balance, +entity.asset.decimal),
+    blockNumber: BigNumber.from(entity.blockNumber).toNumber(),
+    timestamp: BigNumber.from(entity.timestamp).toNumber(),
+    nonce: BigNumber.from(entity.nonce).toNumber(),
+    transactionHash: entity.transactionHash,
   };
 };

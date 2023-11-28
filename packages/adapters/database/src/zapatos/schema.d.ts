@@ -3987,17 +3987,11 @@ declare module 'zapatos/schema' {
       */
       event: event_type;
       /**
-      * **router_liquidity_events.local_asset**
+      * **router_liquidity_events.asset**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      local_asset: string;
-      /**
-      * **router_liquidity_events.adopted_asset**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted_asset: string;
+      asset: string;
       /**
       * **router_liquidity_events.amount**
       * - `numeric` in database
@@ -4028,6 +4022,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **router_liquidity_events.nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      nonce: number;
     }
     export interface JSONSelectable {
       /**
@@ -4055,17 +4055,11 @@ declare module 'zapatos/schema' {
       */
       event: event_type;
       /**
-      * **router_liquidity_events.local_asset**
+      * **router_liquidity_events.asset**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      local_asset: string;
-      /**
-      * **router_liquidity_events.adopted_asset**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted_asset: string;
+      asset: string;
       /**
       * **router_liquidity_events.amount**
       * - `numeric` in database
@@ -4096,6 +4090,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number;
+      /**
+      * **router_liquidity_events.nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      nonce: number;
     }
     export interface Whereable {
       /**
@@ -4123,17 +4123,11 @@ declare module 'zapatos/schema' {
       */
       event?: event_type | db.Parameter<event_type> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, event_type | db.Parameter<event_type> | db.SQLFragment | db.ParentColumn>;
       /**
-      * **router_liquidity_events.local_asset**
+      * **router_liquidity_events.asset**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      local_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
-      /**
-      * **router_liquidity_events.adopted_asset**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted_asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
+      asset?: string | db.Parameter<string> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment | db.ParentColumn>;
       /**
       * **router_liquidity_events.amount**
       * - `numeric` in database
@@ -4164,6 +4158,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
+      /**
+      * **router_liquidity_events.nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      nonce?: number | db.Parameter<number> | db.SQLFragment | db.ParentColumn | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment | db.ParentColumn>;
     }
     export interface Insertable {
       /**
@@ -4191,17 +4191,11 @@ declare module 'zapatos/schema' {
       */
       event?: event_type | db.Parameter<event_type> | db.DefaultType | db.SQLFragment;
       /**
-      * **router_liquidity_events.local_asset**
+      * **router_liquidity_events.asset**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      local_asset: string | db.Parameter<string> | db.SQLFragment;
-      /**
-      * **router_liquidity_events.adopted_asset**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted_asset: string | db.Parameter<string> | db.SQLFragment;
+      asset: string | db.Parameter<string> | db.SQLFragment;
       /**
       * **router_liquidity_events.amount**
       * - `numeric` in database
@@ -4232,6 +4226,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp: number | db.Parameter<number> | db.SQLFragment;
+      /**
+      * **router_liquidity_events.nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment;
     }
     export interface Updatable {
       /**
@@ -4259,17 +4259,11 @@ declare module 'zapatos/schema' {
       */
       event?: event_type | db.Parameter<event_type> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, event_type | db.Parameter<event_type> | db.DefaultType | db.SQLFragment>;
       /**
-      * **router_liquidity_events.local_asset**
+      * **router_liquidity_events.asset**
       * - `bpchar` in database
       * - `NOT NULL`, no default
       */
-      local_asset?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
-      /**
-      * **router_liquidity_events.adopted_asset**
-      * - `bpchar` in database
-      * - `NOT NULL`, no default
-      */
-      adopted_asset?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
+      asset?: string | db.Parameter<string> | db.SQLFragment | db.SQLFragment<any, string | db.Parameter<string> | db.SQLFragment>;
       /**
       * **router_liquidity_events.amount**
       * - `numeric` in database
@@ -4300,6 +4294,12 @@ declare module 'zapatos/schema' {
       * - `NOT NULL`, no default
       */
       timestamp?: number | db.Parameter<number> | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.SQLFragment>;
+      /**
+      * **router_liquidity_events.nonce**
+      * - `numeric` in database
+      * - `NOT NULL`, default: `0`
+      */
+      nonce?: number | db.Parameter<number> | db.DefaultType | db.SQLFragment | db.SQLFragment<any, number | db.Parameter<number> | db.DefaultType | db.SQLFragment>;
     }
     export type UniqueIndex = 'router_liquidity_events_pkey';
     export type Column = keyof Selectable;

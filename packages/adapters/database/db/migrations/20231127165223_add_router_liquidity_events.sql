@@ -9,13 +9,13 @@ CREATE TABLE IF NOT EXISTS public.router_liquidity_events (
     domain character varying (255) NOT NULL,
     router character (42) NOT NULL,
     event event_type DEFAULT 'Add'::event_type NOT NULL,
-    local_asset character (42) NOT NULL,
-    adopted_asset character (42) NOT NULL,
+    asset character (42) NOT NULL,
     amount numeric DEFAULT 0,
     balance numeric DEFAULT 0,
     block_number integer NOT NULL,
     transaction_hash character(66) NOT NULL,
     timestamp integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL,
     PRIMARY KEY(id)
 );
 

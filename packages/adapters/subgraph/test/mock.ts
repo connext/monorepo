@@ -5,6 +5,7 @@ import {
   DestinationTransfer,
   mkAddress,
   mkBytes32,
+  mkHash,
   mock,
   OriginMessage,
   OriginTransfer,
@@ -14,6 +15,7 @@ import {
   RootMessage,
   RouterBalance,
   RouterDailyTVL,
+  RouterLiquidityEvent,
   SlippageUpdate,
   StableSwapExchange,
   StableSwapLpBalance,
@@ -435,6 +437,22 @@ export const mockRouterDailyTVLResponse: RouterDailyTVL[] = [
   },
 ];
 
+export const mockRouterLiquidityEventsResponse: RouterLiquidityEvent[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    event: "Add",
+    asset: mkAddress("0xa"),
+    router: mkAddress("0xb"),
+    domain: "1337",
+    timestamp: 1673421076,
+    balance: 123123,
+    amount: 10,
+    blockNumber: 1234,
+    transactionHash: mkHash("0xa"),
+    nonce: 1123,
+  },
+];
+
 export const mockSubgraph = () =>
   createStubInstance(SubgraphReader, {
     getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
@@ -462,4 +480,5 @@ export const mockSubgraph = () =>
     getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
     getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
     getRouterDailyTVLByDomainAndTimestamp: Promise.resolve(mockRouterDailyTVLResponse),
+    getRouterLiquidityEventsByDomainAndNonce: Promise.resolve(mockRouterLiquidityEventsResponse),
   });

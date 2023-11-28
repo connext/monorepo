@@ -27,6 +27,7 @@ import {
   StableSwapTransfer,
   StableSwapLpBalance,
   RootMessageStatus,
+  RouterLiquidityEvent,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -265,6 +266,21 @@ const convertToDbRouterDailyTVL = (tvl: RouterDailyTVL): s.daily_router_tvl.Inse
     router: tvl.router,
     day: new Date(tvl.timestamp * 1000),
     balance: tvl.balance,
+  };
+};
+
+const convertToDbRouterLiquidityEvent = (event: RouterLiquidityEvent): s.router_liquidity_events.Insertable => {
+  return {
+    id: event.id,
+    domain: event.domain,
+    asset: event.asset,
+    router: event.router,
+    amount: event.amount,
+    balance: event.balance,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };
 
@@ -1238,6 +1254,18 @@ export const saveRouterDailyTVL = async (
   const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
 
   await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const saveRouterLiquidityEvents = async (
+  _events: RouterLiquidityEvent[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const events: s.router_liquidity_events.Insertable[] = _events
+    .map((m) => convertToDbRouterLiquidityEvent(m))
+    .map(sanitizeNull);
+
+  await db.upsert("router_liquidity_events", events, ["id"]).run(poolToUse);
 };
 
 export const updateSlippage = async (
