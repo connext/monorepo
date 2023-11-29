@@ -9,6 +9,7 @@ import {
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
+
 import { RoutesOptions } from "../server";
 
 interface UtilsRoutesOptions extends RoutesOptions {

@@ -80,6 +80,7 @@ import {
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
+
 import { RoutesOptions } from "../server";
 
 interface PoolRoutesOptions extends RoutesOptions {
