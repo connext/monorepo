@@ -14,7 +14,7 @@ export const SUPPORTED_DOMAINS = {
     9991, // mumbai
     1734439522, // arbitrum-goerli
     1668247156, // linea-goerli
-    2053862260, // zksync2 testnet
+    // 2053862260, // zksync2 testnet
   ],
 };
 
@@ -50,11 +50,12 @@ export const DAO_CONTRACTS: AddressBook = {
     1818848877: "0x8167289250c0cD874cAf63d5C06B08c132d2505d", // linea
   },
   testnet: {
-    1735353714: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // goerli
-    1735356532: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // optimism goerli
-    9991: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // mumbai
+    1735353714: "0xC4E604b3F1Ab77bc8bF62989ccC0670bc575C124", // goerli
+    1735356532: "0x52F3ca3554336d9B36c74DF8F4C0887b00C3498E", // optimism goerli
+    9991: "0x52F3ca3554336d9B36c74DF8F4C0887b00C3498E", // mumbai
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
     1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // linea-goerli
+    2053862260: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // zksync2 testnet
   },
 };
 
