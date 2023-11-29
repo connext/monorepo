@@ -2,7 +2,7 @@ import { createLoggingContext, jsonifyError, NxtpError } from "@connext/nxtp-uti
 
 import { AppContext } from "../../shared";
 import { updateRouters, updateDailyRouterTvl } from "../../lib/operations";
-import { updateAssets } from "../../lib/operations/routers";
+import { updateAssets, updateRouterLiquidityEvents } from "../../lib/operations/routers";
 
 export const bindRouters = async (context: AppContext) => {
   const { logger } = context;
@@ -12,6 +12,7 @@ export const bindRouters = async (context: AppContext) => {
     await updateRouters();
     await updateAssets();
     await updateDailyRouterTvl();
+    await updateRouterLiquidityEvents();
     logger.debug("Bind routers polling loop complete", requestContext, methodContext);
   } catch (err: unknown) {
     logger.error(

@@ -12,6 +12,7 @@ export const ASSET_ENTITY = `
       id,
       key,
       decimal,
+      adoptedDecimal,
       canonicalId,
       canonicalDomain,
       adoptedAsset,
@@ -368,6 +369,26 @@ export const ROUTER_DAILY_TVL_ENTITY = `
       }
       timestamp
       balance
+`;
+
+export const ROUTER_LIQUIDITY_EVENT_ENTITY = `
+      id
+      type
+      router {
+        id
+      }
+      asset {
+        id
+        localAsset
+        adoptedAsset
+        decimal
+      }
+      amount
+      balance
+      blockNumber
+      timestamp
+      transactionHash
+      nonce
 `;
 
 const latestBlockNumberQuery = (prefix: string): string => {
@@ -1240,6 +1261,22 @@ const poolEventsQueryString = (
   ) {${STABLESWAP_POOL_EVENT_ENTITY}}`;
 };
 
+const routerLiquidityEventsQueryString = (
+  prefix: string,
+  lastestNonce: number,
+  maxBlockNumber?: number,
+  orderDirection: "asc" | "desc" = "asc",
+) => {
+  return `${prefix}_routerLiquidityEvents(
+    where: {
+      nonce_gte: "${lastestNonce}",
+      ${maxBlockNumber ? `, blockNumber_lte: ${maxBlockNumber}` : ""}
+    },
+    orderBy: nonce,
+    orderDirection: ${orderDirection}
+  ) {${ROUTER_LIQUIDITY_EVENT_ENTITY}}`;
+};
+
 export const getPoolEventsQuery = (
   agents: Map<string, SubgraphQueryMetaParams>,
   addOrRemove: "add" | "remove" = "add",
@@ -1385,6 +1422,32 @@ export const getRouterDailyTVLQuery = (agents: Map<string, SubgraphQueryByTimest
 
   return gql`
     query GetRouterDailyTVL { 
+        ${combinedQuery}
+      }
+  `;
+};
+
+export const getRouterLiquidityEventsQuery = (agents: Map<string, SubgraphQueryMetaParams>): string => {
+  const { config } = getContext();
+
+  let combinedQuery = "";
+  const domains = Object.keys(config.sources);
+  for (const domain of domains) {
+    const prefix = config.sources[domain].prefix;
+    if (agents.has(domain)) {
+      combinedQuery += routerLiquidityEventsQueryString(
+        prefix,
+        agents.get(domain)!.latestNonce,
+        agents.get(domain)!.maxBlockNumber,
+        agents.get(domain)!.orderDirection,
+      );
+    } else {
+      console.log(`No agents for domain: ${domain}`);
+    }
+  }
+
+  return gql`
+    query GetRouterLiquidityEvents { 
         ${combinedQuery}
       }
   `;
