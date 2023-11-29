@@ -10,12 +10,15 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   mock,
+  mkHash,
 } from "@connext/nxtp-utils";
 import {
   mockChainData,
   mockDestinationTransferEntity,
   mockOriginTransferEntity,
   mockResponse,
+  mockRouterDailyTVLResponse,
+  mockRouterLiquidityEventsResponse,
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
@@ -109,6 +112,8 @@ describe("SubgraphReader", () => {
                   canonicalId: mkAddress("0x11111"),
                   key: mkBytes32(),
                   localAsset: mkAddress("0x222"),
+                  decimal: "18",
+                  adoptedDecimal: "18",
                 },
                 domain: "1111",
                 amount: "100",
@@ -132,7 +137,8 @@ describe("SubgraphReader", () => {
               canonicalDomain: "1111",
               canonicalId: mkAddress("0x11111"),
               key: mkBytes32(),
-              decimal: undefined,
+              decimal: "18",
+              adoptedDecimal: "18",
               localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",
@@ -768,6 +774,55 @@ describe("SubgraphReader", () => {
 
       const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndNonce(agents);
       expect(swapExchange).to.be.deep.eq([ParserFns.stableSwapExchange(exchange)]);
+    });
+  });
+
+  describe("#getRouterDailyTVLByDomainAndTimestamp", () => {
+    it("should return the router daily tvl", async () => {
+      const tvl = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+      };
+      response.set(tvl.domain, [tvl]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set(tvl.domain, { maxBlockNumber: 99999999, fromTimestamp: 0 });
+
+      const dailyTvl = await subgraphReader.getRouterDailyTVLByDomainAndTimestamp(agents);
+      expect(dailyTvl).to.be.deep.eq([ParserFns.routerDailyTvl(tvl)]);
+    });
+  });
+
+  describe("#getRouterLiquidityEventsByDomainAndNonce", () => {
+    it("should return the router liquidity events", async () => {
+      const event = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        type: "Add",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        amount: "100298394",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+        nonce: 1123,
+      };
+      response.set(event.domain, [event]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set(event.domain, { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      const liquidityEvent = await subgraphReader.getRouterLiquidityEventsByDomainAndNonce(agents);
+      expect(liquidityEvent).to.be.deep.eq([ParserFns.routerLiquidityEvent(event)]);
     });
   });
 });

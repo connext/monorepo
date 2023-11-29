@@ -25,6 +25,7 @@ import {
   SlippageUpdate,
   RouterDailyTVL,
   StableSwapTransfer,
+  RouterLiquidityEvent,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -67,6 +68,7 @@ import {
   getRelayerFeesIncreasesQuery,
   getRootManagerMetaQuery,
   getRouterDailyTVLQuery,
+  getRouterLiquidityEventsQuery,
   getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
@@ -234,6 +236,7 @@ export class SubgraphReader {
             localAsset: a.asset.id,
             id: a.asset.id,
             decimal: a.asset.decimal,
+            adoptedDecimal: a.asset.adoptedDecimal,
             key: a.asset.key,
           } as AssetBalance;
         }),
@@ -1116,5 +1119,31 @@ export class SubgraphReader {
       .map(parser.routerDailyTvl);
 
     return routerTVLs;
+  }
+
+  public async getRouterLiquidityEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
+  ): Promise<RouterLiquidityEvent[]> {
+    const { execute, parser } = getHelpers();
+    const eventsQuery = getRouterLiquidityEventsQuery(agents);
+    const response = await execute(eventsQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: RouterLiquidityEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.routerLiquidityEvent);
+
+    return domainEvents;
   }
 }

@@ -11,9 +11,9 @@ import {
   RouterRecipientSet,
   MaxRoutersPerTransferUpdated,
 } from "../../../generated/Connext/Connext";
-import { Router, Setting } from "../../../generated/schema";
+import { Router, RouterLiquidityEvent, Setting } from "../../../generated/schema";
 
-import { getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
+import { generateTxNonce, getOrCreateAssetBalance, getRouterDailyTVL } from "./helper";
 const DEFAULT_MAX_ROUTERS_PER_TRANSFER = 5;
 
 /// MARK - Routers
@@ -104,6 +104,23 @@ export function handleRouterLiquidityAdded(event: RouterLiquidityAdded): void {
 
   // save
   assetBalance.save();
+
+  // Save router add liquidity event log
+  let log = new RouterLiquidityEvent(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+
+  log.type = "Add";
+  log.router = assetBalance.router;
+  log.asset = assetBalance.asset;
+  log.amount = event.params.amount;
+  log.balance = assetBalance.amount;
+
+  log.caller = event.transaction.from;
+  log.blockNumber = event.block.number;
+  log.timestamp = event.block.timestamp;
+  log.transactionHash = event.transaction.hash;
+  log.nonce = generateTxNonce(event);
+
+  log.save();
 }
 
 /**
@@ -129,6 +146,23 @@ export function handleRouterLiquidityRemoved(event: RouterLiquidityRemoved): voi
 
   // save
   assetBalance.save();
+
+  // Save router remove liquidity event log
+  let log = new RouterLiquidityEvent(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+
+  log.type = "Remove";
+  log.router = assetBalance.router;
+  log.asset = assetBalance.asset;
+  log.amount = event.params.amount;
+  log.balance = assetBalance.amount;
+
+  log.caller = event.transaction.from;
+  log.blockNumber = event.block.number;
+  log.timestamp = event.block.timestamp;
+  log.transactionHash = event.transaction.hash;
+  log.nonce = generateTxNonce(event);
+
+  log.save();
 }
 
 /**
