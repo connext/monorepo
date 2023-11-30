@@ -57,6 +57,7 @@ export const mockDatabase = (): Database => {
     markRootMessagesProcessed: stub().resolves(),
     updateSlippage: stub().resolves(),
     saveRouterDailyTVL: stub().resolves(),
+    saveRouterLiquidityEvents: stub().resolves(),
     updateExecuteSimulationData: stub().resolves(),
     getPendingTransfersByMessageStatus: stub().resolves([mock.entity.xtransfer()]),
     getMessageRootsFromIndex: stub().resolves(),

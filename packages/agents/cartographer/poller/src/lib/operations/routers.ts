@@ -1,9 +1,20 @@
-import { Asset, createLoggingContext, RouterDailyTVL, SubgraphQueryByTimestampMetaParams } from "@connext/nxtp-utils";
+import {
+  Asset,
+  createLoggingContext,
+  RouterDailyTVL,
+  RouterLiquidityEvent,
+  SubgraphQueryByTimestampMetaParams,
+  SubgraphQueryMetaParams,
+} from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
 
 const getMaxTimestamp = (entities: RouterDailyTVL[]): number => {
   return entities.length == 0 ? 0 : Math.max(...entities.map((entity) => entity?.timestamp ?? 0));
+};
+
+const getMaxNonce = (items: RouterLiquidityEvent[]): number => {
+  return items.length == 0 ? 0 : Math.max(...items.map((item) => item?.nonce ?? 0));
 };
 
 export const updateRouters = async () => {
@@ -122,6 +133,73 @@ export const updateDailyRouterTvl = async () => {
     await database.saveRouterDailyTVL(tvls);
     for (const checkpoint of checkpoints) {
       await database.saveCheckPoint("daily_router_tvl_timestamp_" + checkpoint.domain, checkpoint.checkpoint);
+    }
+  }
+};
+
+export const updateRouterLiquidityEvents = async () => {
+  const {
+    adapters: { subgraph, database },
+    logger,
+    domains,
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext("updateRouterLiquidityEvents");
+
+  const queryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
+  const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
+
+  await Promise.all(
+    domains.map(async (domain) => {
+      let latestBlockNumber: number | undefined = undefined;
+      if (lastestBlockNumbers.has(domain)) {
+        latestBlockNumber = lastestBlockNumbers.get(domain)!;
+      }
+
+      if (!latestBlockNumber) {
+        logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
+          domain,
+          latestBlockNumber,
+          lastestBlockNumbers,
+        });
+        return;
+      }
+
+      // Retrieve the most recent router add liquidity event we've saved for this domain.
+      const latestNonce = await database.getCheckPoint("router_liquidity_event_nonce_" + domain);
+      queryMetaParams.set(domain, {
+        maxBlockNumber: latestBlockNumber,
+        latestNonce: latestNonce,
+        orderDirection: "asc",
+      });
+    }),
+  );
+
+  if (queryMetaParams.size > 0) {
+    // Get router add liquidity events for all domains in the mapping.
+    const events = await subgraph.getRouterLiquidityEventsByDomainAndNonce(queryMetaParams);
+    events.forEach((event) => {
+      const { requestContext: _requestContext, methodContext: _methodContext } = createLoggingContext(
+        "updateRouterLiquidityEvents",
+        undefined,
+        event.id,
+      );
+      logger.info("Retrieved router add liquidity event", _requestContext, _methodContext, { event });
+    });
+    const checkpoints = domains
+      .map((domain) => {
+        const domainEvents = events.filter((event) => event.domain === domain);
+        const max = getMaxNonce(domainEvents);
+        const latest = queryMetaParams.get(domain)?.latestNonce ?? 0;
+        if (domainEvents.length > 0 && max > latest) {
+          return { domain, checkpoint: max };
+        }
+        return undefined;
+      })
+      .filter((x) => !!x) as { domain: string; checkpoint: number }[];
+
+    await database.saveRouterLiquidityEvents(events);
+    for (const checkpoint of checkpoints) {
+      await database.saveCheckPoint("router_liquidity_event_nonce_" + checkpoint.domain, checkpoint.checkpoint);
     }
   }
 };

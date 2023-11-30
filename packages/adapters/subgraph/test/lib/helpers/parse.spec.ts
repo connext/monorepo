@@ -1,4 +1,12 @@
-import { expect, mkAddress, mkBytes32, OriginMessage, RootMessage, ReceivedAggregateRoot } from "@connext/nxtp-utils";
+import {
+  expect,
+  mkAddress,
+  mkBytes32,
+  OriginMessage,
+  RootMessage,
+  ReceivedAggregateRoot,
+  mkHash,
+} from "@connext/nxtp-utils";
 import {
   destinationTransfer,
   originMessage,
@@ -9,6 +17,8 @@ import {
   stableSwapPool,
   stableSwapExchange,
   stableSwapPoolEvent,
+  routerDailyTvl,
+  routerLiquidityEvent,
 } from "../../../src/lib/helpers/parse";
 import { stubContext, mockOriginTransferEntity, mockDestinationTransferEntity } from "../../mock";
 import { mock } from "@connext/nxtp-utils";
@@ -690,6 +700,93 @@ describe("Helpers:parse", () => {
           nonce: 16734210760001,
         }),
       );
+    });
+  });
+
+  describe("#routerDailyTvl", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        routerDailyTvl(entity);
+      }).to.throw("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity = {} as any;
+
+      expect(() => {
+        routerDailyTvl(entity);
+      }).to.throw("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid router daily tvl", () => {
+      const entity = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+      };
+
+      expect(routerDailyTvl(entity)).to.be.deep.eq({
+        id: `1111-${mkBytes32("0xa")}`,
+        asset: mkAddress("0xa"),
+        router: mkAddress("0xb"),
+        domain: "1111",
+        timestamp: 1673421076,
+
+        balance: "123122343",
+      });
+    });
+  });
+
+  describe("#routerLiquidityEvent", () => {
+    it("should throw if the entity is undefined", () => {
+      const entity = undefined;
+      expect(() => {
+        routerLiquidityEvent(entity);
+      }).to.throw("Subgraph `routerLiquidityEvent` entity parser: routerLiquidityEvent, entity is `undefined`.");
+    });
+
+    it("should throw if a required field is missing", () => {
+      const entity = {} as any;
+
+      expect(() => {
+        routerLiquidityEvent(entity);
+      }).to.throw("Subgraph `routerLiquidityEvent` entity parser: Message entity missing required field");
+    });
+
+    it("should parse valid router liquidity event", () => {
+      const entity = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        type: "Add",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        amount: "100298394",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+        nonce: 1123,
+      };
+
+      expect(routerLiquidityEvent(entity)).to.be.deep.eq({
+        id: `${mkBytes32("0xa")}`,
+        domain: "1111",
+        event: "Add",
+        asset: mkAddress("0xa"),
+        router: mkAddress("0xb"),
+        amount: +utils.formatUnits("100298394", 18),
+        balance: +utils.formatUnits("123122343", 18),
+        blockNumber: 1234,
+        timestamp: 1673421076,
+        nonce: 1123,
+        transactionHash: mkHash("0xa"),
+      });
     });
   });
 });

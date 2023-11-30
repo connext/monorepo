@@ -256,6 +256,7 @@ export const convertFromDbAsset = (asset: any): Asset => {
     key: asset.key,
     id: asset.id,
     decimal: asset.decimal,
+    adoptedDecimal: asset.adopted_decimal,
     localAsset: asset.local,
     adoptedAsset: asset.adopted,
     canonicalId: asset.canonical_id,
@@ -319,6 +320,7 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       domain: routerBalanceRow.asset_domain,
       id: routerBalanceRow.id,
       decimal: routerBalanceRow.decimal,
+      adoptedDecimal: routerBalanceRow.adopted_decimal,
       localAsset: routerBalanceRow.local,
       key: routerBalanceRow.key,
     };
