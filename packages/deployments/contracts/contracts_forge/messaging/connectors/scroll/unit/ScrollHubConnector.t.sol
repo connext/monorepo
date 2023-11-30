@@ -167,23 +167,25 @@ contract Unit_Connector_ScrollHubConnector_forTest_ProcessMessage is Base {
 }
 
 contract Unit_Connector_ScrollHubConnector_VerifySender is Base {
-  function test_returnFalseIfOriginSenderNotMirror(address _originSender, address _mirrorConnector) public {
-    vm.assume(_originSender != _mirrorConnector);
-    vm.mockCall(
-      _amb,
-      abi.encodeWithSelector(IL1ScrollMessenger.xDomainMessageSender.selector),
-      abi.encode(_originSender)
-    );
-    assertEq(scrollHubConnector.forTest_verifySender(_mirrorConnector), false);
-  }
-
-  function test_returnTrueIfOriginSenderIsMirror(address _mirrorConnector) public {
+  modifier happyPath(address _mirrorConnector) {
     vm.mockCall(
       _amb,
       abi.encodeWithSelector(IL1ScrollMessenger.xDomainMessageSender.selector),
       abi.encode(_mirrorConnector)
     );
-    vm.prank(_mirrorConnector);
+    vm.startPrank(_mirrorConnector);
+    _;
+  }
+
+  function test_returnFalseIfOriginSenderNotMirror(
+    address _originSender,
+    address _mirrorConnector
+  ) public happyPath(_mirrorConnector) {
+    vm.assume(_originSender != _mirrorConnector);
+    assertEq(scrollHubConnector.forTest_verifySender(_originSender), false);
+  }
+
+  function test_returnTrueIfOriginSenderIsMirror(address _mirrorConnector) public happyPath(_mirrorConnector) {
     assertEq(scrollHubConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }
