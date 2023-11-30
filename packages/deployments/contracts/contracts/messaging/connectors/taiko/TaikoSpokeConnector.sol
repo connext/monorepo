@@ -27,35 +27,40 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @notice Thrown when the message is not received on the destination chain yet
    */
   error TaikoSpokeConnector_SignalNotReceived();
+  /**
+   * @notice Thrown when `renounceOwnership` is called
+   */
+  error TaikoSpokeConnector_NotImplementedMethod();
+
+  /**
+   * @notice The hub chain id
+   */
+  uint256 public immutable HUB_CHAIN_ID;
 
   constructor(
     SpokeConnector.ConstructorParams memory _constructorParams,
     address _taikoSignalService,
+    uint256 _hubChainId,
     uint256 _gasCap
-  ) SpokeConnector(_constructorParams) BaseTaiko(_taikoSignalService, _gasCap) {}
-
-  /**
-   * @notice Checks that the message length is 32 bytes
-   * @param _data Message data
-   */
-  modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert TaikoSpokeConnector_LengthIsNot32();
-    _;
+  ) SpokeConnector(_constructorParams) BaseTaiko(_taikoSignalService, _gasCap) {
+    HUB_CHAIN_ID = _hubChainId;
   }
 
   /**
    * @notice Renounces ownership
    * @dev Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, SpokeConnector) onlyOwner {}
+  function renounceOwnership() public virtual override(ProposedOwnable, SpokeConnector) {
+    revert TaikoSpokeConnector_NotImplementedMethod();
+  }
 
   /**
    * @notice Sends a message to the mirror connector through the L2 Taiko Signal Service
    * @param _data Message data
    * @dev The message length must be 32 bytes
    */
-  function _sendMessage(bytes memory _data, bytes memory) internal override checkMessageLength(_data) {
-    // TODO: emit returned slot on event?
+  function _sendMessage(bytes memory _data, bytes memory) internal override {
+    if (!_checkMessageLength(_data)) revert TaikoSpokeConnector_LengthIsNot32();
     _sendSignal(bytes32(_data));
   }
 
@@ -65,9 +70,9 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @dev The sender must be the connext off-chain agent
    * @dev The message length must be 32 bytes
    */
-  function _processMessage(bytes memory _data) internal override checkMessageLength(_data) {
+  function _processMessage(bytes memory _data) internal override {
     if (!_verifySender(address(AMB))) revert TaikoSpokeConnector_SenderIsNotConnext();
-    (bool _received, bytes32 _signal) = _verifyAndGetignal(_data);
+    (bool _received, bytes32 _signal) = _verifyAndGetSignal(HUB_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoSpokeConnector_SignalNotReceived();
     receiveAggregateRoot(_signal);
   }

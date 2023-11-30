@@ -10,20 +10,6 @@ import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
  */
 abstract contract BaseTaiko is GasCap {
   /**
-   * @notice Struct containing data needed to verify if a signal was received or not
-   * @param srcChainId Source chain id
-   * @param app Sender address
-   * @param signal The message that was sent
-   * @param proof The proof to verify the signal
-   */
-  struct SignalVerificationData {
-    uint256 srcChainId;
-    address app;
-    bytes32 signal;
-    bytes proof;
-  }
-
-  /**
    * @notice Constant used to represent the required length of a message
    */
   uint256 public constant MESSAGE_LENGTH = 32;
@@ -54,7 +40,6 @@ abstract contract BaseTaiko is GasCap {
    * @param _signal The message to send
    */
   function _sendSignal(bytes32 _signal) internal {
-    // TODO: emit returned slot on event?
     TAIKO_SIGNAL_SERVICE.sendSignal(_signal);
   }
 
@@ -64,14 +49,13 @@ abstract contract BaseTaiko is GasCap {
    * @return _isReceived True if the signal was received, false otherwise
    * @return _signal The message that was sent
    */
-  function _verifyAndGetignal(bytes memory _data) internal view returns (bool _isReceived, bytes32 _signal) {
-    SignalVerificationData memory _signalVerificationData = abi.decode(_data, (SignalVerificationData));
-    _isReceived = TAIKO_SIGNAL_SERVICE.isSignalReceived(
-      _signalVerificationData.srcChainId,
-      _signalVerificationData.app,
-      _signalVerificationData.signal,
-      _signalVerificationData.proof
-    );
-    _signal = _signalVerificationData.signal;
+  function _verifyAndGetSignal(
+    uint256 _sourceChainId,
+    address _mirrorConnector,
+    bytes memory _data
+  ) internal view returns (bool _isReceived, bytes32 _signal) {
+    bytes memory _proof;
+    (_signal, _proof) = abi.decode(_data, (bytes32, bytes));
+    _isReceived = TAIKO_SIGNAL_SERVICE.isSignalReceived(_sourceChainId, _mirrorConnector, _signal, _proof);
   }
 }

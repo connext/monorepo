@@ -4,8 +4,8 @@ pragma solidity 0.8.17;
 import {BaseTaiko} from "./BaseTaiko.sol";
 import {Connector} from "../Connector.sol";
 import {HubConnector} from "../HubConnector.sol";
-import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
+import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
 
 /**
  * @title TaikoHubConnector
@@ -27,6 +27,11 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
   error TaikoHubConnector_SignalNotReceived();
 
   /**
+   * @notice The spoke chain id
+   */
+  uint256 public immutable SPOKE_CHAIN_ID;
+
+  /**
    * @notice Creates a new TaikoHubConnector instance
    * @param _domain L1 domain
    * @param _mirrorDomain L2 domain
@@ -42,19 +47,10 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
     address _rootManager,
     address _mirrorConnector,
     address _taikoSignalService,
+    uint256 _spokeChainId,
     uint256 _gasCap
-  )
-    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
-    BaseTaiko(_taikoSignalService, _gasCap)
-  {}
-
-  /**
-   * @notice Checks that the message length is 32 bytes
-   * @param _data Message data
-   */
-  modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert TaikoHubConnector_LengthIsNot32();
-    _;
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseTaiko(_taikoSignalService, _gasCap) {
+    SPOKE_CHAIN_ID = _spokeChainId;
   }
 
   /**
@@ -62,7 +58,8 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @param _data Message data
    * @dev The message length must be 32 bytes
    */
-  function _sendMessage(bytes memory _data, bytes memory) internal override checkMessageLength(_data) {
+  function _sendMessage(bytes memory _data, bytes memory) internal override {
+    if (!_checkMessageLength(_data)) revert TaikoHubConnector_LengthIsNot32();
     _sendSignal(bytes32(_data));
   }
 
@@ -72,9 +69,9 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @dev The sender must be the connext off-chain agent
    * @dev The message length must be 32 bytes
    */
-  function _processMessage(bytes memory _data) internal override onlyAMB checkMessageLength(_data) {
+  function _processMessage(bytes memory _data) internal override {
     if (!_verifySender(address(AMB))) revert TaikoHubConnector_SenderIsNotConnext();
-    (bool _received, bytes32 _signal) = _verifyAndGetignal(_data);
+    (bool _received, bytes32 _signal) = _verifyAndGetSignal(SPOKE_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoHubConnector_SignalNotReceived();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _signal);
   }
