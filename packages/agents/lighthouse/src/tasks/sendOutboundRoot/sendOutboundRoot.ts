@@ -99,7 +99,7 @@ export const makeSendOutboundRoot = async (config: NxtpLighthouseConfig, chainDa
       context.logger.info("In Slow Mode", requestContext, methodContext);
       await sendOutboundRoot();
     } else {
-      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
     if (context.config.healthUrls.sendOutboundRoot) {
       await sendHeartbeat(context.config.healthUrls.sendOutboundRoot, context.logger);

@@ -114,7 +114,11 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
           spokeMode: spokeConnectorMode.mode,
           spokeDomain: domain,
         });
-        throw new Error(`Unknown mode detected: RootMode - ${rootManagerMode} SpokeMode - ${spokeConnectorMode}`);
+        throw new Error(
+          `Unknown mode detected: RootMode - ${JSON.stringify(rootManagerMode)} SpokeMode - ${JSON.stringify(
+            spokeConnectorMode,
+          )} SpokeDomain: ${domain} HubDomain: ${config.hubDomain}`,
+        );
       }
     }
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
@@ -137,7 +141,7 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
       context.logger.info("In Slow Mode", requestContext, methodContext);
       await propagate();
     } else {
-      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
     if (context.config.healthUrls.propagate) {
       await sendHeartbeat(context.config.healthUrls.propagate, context.logger);
