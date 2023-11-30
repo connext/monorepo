@@ -16,7 +16,13 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
-import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import {
+  SdkConfig,
+  domainsToChainNames,
+  ChainDeployments,
+  XERC20REGISTRY_DOMAIN_ADDRESS,
+  LOCKBOX_ADAPTER_DOMAIN_ADDRESS,
+} from "./config";
 import XERC20RegistryAbi from "./lib/abi/XERC20/XERC20Registry.sol/XERC20Registry.json";
 
 declare global {
@@ -188,8 +194,6 @@ export class SdkShared {
    */
   async getXERC20Registry(domainId: string, options?: Options): Promise<ethers.Contract> {
     try {
-      // This should be a mapping for domainId and address.
-      const REGISTRY_CONTRACT_ADDRESS = "0xBbA4b5130Fb918A6E2Dbc94b430397D3d2EA1e2F";
       const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
       if (!isProviderValid) {
         throw new ProviderMissing(domainId);
@@ -210,7 +214,12 @@ export class SdkShared {
         ? new providers.StaticJsonRpcProvider(providerURL)
         : await this.getProvider(domainId);
 
-      return new ethers.Contract(REGISTRY_CONTRACT_ADDRESS, XERC20RegistryAbi, provider);
+      const XERC20REGISTRY_ADDRESS = XERC20REGISTRY_DOMAIN_ADDRESS[domainId];
+
+      if (!XERC20REGISTRY_ADDRESS) {
+        throw new Error("Registry not deployed on given domain");
+      }
+      return new ethers.Contract(XERC20REGISTRY_ADDRESS, XERC20RegistryAbi, provider);
     } catch (err: any) {
       throw new Error("Failed to get XERC20 registry Contract");
     }
@@ -332,15 +341,24 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const connextContract = await this.getConnext(domainId, options);
+    const isValidAsset = await this.hasLockbox(domainId, assetId, options);
+    const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
+
+    if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+      throw new Error("Lockbox adapter not deployed on given domain");
+    }
+
+    const connextContractAddress = isValidAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(domainId, options)).address;
     const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
-      const approved = await erc20Contract.allowance(_signerAddress, connextContract.address);
+      const approved = await erc20Contract.allowance(_signerAddress, connextContractAddress);
 
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
-          connextContract.address,
+          connextContractAddress,
           infiniteApprove ?? true ? constants.MaxUint256 : amount,
         );
         return approveData;

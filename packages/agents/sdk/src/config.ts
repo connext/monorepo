@@ -189,3 +189,13 @@ export const domainsToChainNames: Record<string, string> = {
   "6778479": "xdai",
   "1818848877": "linea",
 };
+
+// Need to add more domains here.
+export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
+  "6648936": "0xBbA4b5130Fb918A6E2Dbc94b430397D3d2EA1e2F",
+};
+
+// Need to add more domains here.
+export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
+  "6648936": "0x80A846124d909a3ee91e010a214f5De7E57b06b8",
+};
