@@ -29,6 +29,10 @@ input localoptimism_AggregateRoot_filter {
   id_not_in: [ID!]
   root: localoptimism_Bytes
   root_not: localoptimism_Bytes
+  root_gt: localoptimism_Bytes
+  root_lt: localoptimism_Bytes
+  root_gte: localoptimism_Bytes
+  root_lte: localoptimism_Bytes
   root_in: [localoptimism_Bytes!]
   root_not_in: [localoptimism_Bytes!]
   root_contains: localoptimism_Bytes
@@ -43,6 +47,8 @@ input localoptimism_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_AggregateRoot_filter]
+  or: [localoptimism_AggregateRoot_filter]
 }
 
 enum localoptimism_AggregateRoot_orderBy {
@@ -55,6 +61,7 @@ type localoptimism_Asset {
   id: ID!
   key: localoptimism_Bytes
   decimal: BigInt
+  adoptedDecimal: BigInt
   canonicalId: localoptimism_Bytes
   canonicalDomain: BigInt
   adoptedAsset: localoptimism_Bytes
@@ -167,6 +174,8 @@ input localoptimism_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_AssetBalance_filter]
+  or: [localoptimism_AssetBalance_filter]
 }
 
 enum localoptimism_AssetBalance_orderBy {
@@ -176,7 +185,22 @@ enum localoptimism_AssetBalance_orderBy {
   supplied
   removed
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -200,6 +224,8 @@ input localoptimism_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_AssetStatus_filter]
+  or: [localoptimism_AssetStatus_filter]
 }
 
 enum localoptimism_AssetStatus_orderBy {
@@ -218,6 +244,10 @@ input localoptimism_Asset_filter {
   id_not_in: [ID!]
   key: localoptimism_Bytes
   key_not: localoptimism_Bytes
+  key_gt: localoptimism_Bytes
+  key_lt: localoptimism_Bytes
+  key_gte: localoptimism_Bytes
+  key_lte: localoptimism_Bytes
   key_in: [localoptimism_Bytes!]
   key_not_in: [localoptimism_Bytes!]
   key_contains: localoptimism_Bytes
@@ -230,8 +260,20 @@ input localoptimism_Asset_filter {
   decimal_lte: BigInt
   decimal_in: [BigInt!]
   decimal_not_in: [BigInt!]
+  adoptedDecimal: BigInt
+  adoptedDecimal_not: BigInt
+  adoptedDecimal_gt: BigInt
+  adoptedDecimal_lt: BigInt
+  adoptedDecimal_gte: BigInt
+  adoptedDecimal_lte: BigInt
+  adoptedDecimal_in: [BigInt!]
+  adoptedDecimal_not_in: [BigInt!]
   canonicalId: localoptimism_Bytes
   canonicalId_not: localoptimism_Bytes
+  canonicalId_gt: localoptimism_Bytes
+  canonicalId_lt: localoptimism_Bytes
+  canonicalId_gte: localoptimism_Bytes
+  canonicalId_lte: localoptimism_Bytes
   canonicalId_in: [localoptimism_Bytes!]
   canonicalId_not_in: [localoptimism_Bytes!]
   canonicalId_contains: localoptimism_Bytes
@@ -246,12 +288,20 @@ input localoptimism_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: localoptimism_Bytes
   adoptedAsset_not: localoptimism_Bytes
+  adoptedAsset_gt: localoptimism_Bytes
+  adoptedAsset_lt: localoptimism_Bytes
+  adoptedAsset_gte: localoptimism_Bytes
+  adoptedAsset_lte: localoptimism_Bytes
   adoptedAsset_in: [localoptimism_Bytes!]
   adoptedAsset_not_in: [localoptimism_Bytes!]
   adoptedAsset_contains: localoptimism_Bytes
   adoptedAsset_not_contains: localoptimism_Bytes
   localAsset: localoptimism_Bytes
   localAsset_not: localoptimism_Bytes
+  localAsset_gt: localoptimism_Bytes
+  localAsset_lt: localoptimism_Bytes
+  localAsset_gte: localoptimism_Bytes
+  localAsset_lte: localoptimism_Bytes
   localAsset_in: [localoptimism_Bytes!]
   localAsset_not_in: [localoptimism_Bytes!]
   localAsset_contains: localoptimism_Bytes
@@ -287,18 +337,23 @@ input localoptimism_Asset_filter {
   status_: localoptimism_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_Asset_filter]
+  or: [localoptimism_Asset_filter]
 }
 
 enum localoptimism_Asset_orderBy {
   id
   key
   decimal
+  adoptedDecimal
   canonicalId
   canonicalDomain
   adoptedAsset
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar localoptimism_BigDecimal
@@ -353,24 +408,38 @@ input localoptimism_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localoptimism_Bytes
   amb_not: localoptimism_Bytes
+  amb_gt: localoptimism_Bytes
+  amb_lt: localoptimism_Bytes
+  amb_gte: localoptimism_Bytes
+  amb_lte: localoptimism_Bytes
   amb_in: [localoptimism_Bytes!]
   amb_not_in: [localoptimism_Bytes!]
   amb_contains: localoptimism_Bytes
   amb_not_contains: localoptimism_Bytes
   rootManager: localoptimism_Bytes
   rootManager_not: localoptimism_Bytes
+  rootManager_gt: localoptimism_Bytes
+  rootManager_lt: localoptimism_Bytes
+  rootManager_gte: localoptimism_Bytes
+  rootManager_lte: localoptimism_Bytes
   rootManager_in: [localoptimism_Bytes!]
   rootManager_not_in: [localoptimism_Bytes!]
   rootManager_contains: localoptimism_Bytes
   rootManager_not_contains: localoptimism_Bytes
   mirrorConnector: localoptimism_Bytes
   mirrorConnector_not: localoptimism_Bytes
+  mirrorConnector_gt: localoptimism_Bytes
+  mirrorConnector_lt: localoptimism_Bytes
+  mirrorConnector_gte: localoptimism_Bytes
+  mirrorConnector_lte: localoptimism_Bytes
   mirrorConnector_in: [localoptimism_Bytes!]
   mirrorConnector_not_in: [localoptimism_Bytes!]
   mirrorConnector_contains: localoptimism_Bytes
   mirrorConnector_not_contains: localoptimism_Bytes
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_ConnectorMeta_filter]
+  or: [localoptimism_ConnectorMeta_filter]
 }
 
 enum localoptimism_ConnectorMeta_orderBy {
@@ -442,6 +511,10 @@ input localoptimism_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localoptimism_Bytes
   transferId_not: localoptimism_Bytes
+  transferId_gt: localoptimism_Bytes
+  transferId_lt: localoptimism_Bytes
+  transferId_gte: localoptimism_Bytes
+  transferId_lte: localoptimism_Bytes
   transferId_in: [localoptimism_Bytes!]
   transferId_not_in: [localoptimism_Bytes!]
   transferId_contains: localoptimism_Bytes
@@ -491,12 +564,20 @@ input localoptimism_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localoptimism_Bytes
   to_not: localoptimism_Bytes
+  to_gt: localoptimism_Bytes
+  to_lt: localoptimism_Bytes
+  to_gte: localoptimism_Bytes
+  to_lte: localoptimism_Bytes
   to_in: [localoptimism_Bytes!]
   to_not_in: [localoptimism_Bytes!]
   to_contains: localoptimism_Bytes
   to_not_contains: localoptimism_Bytes
   delegate: localoptimism_Bytes
   delegate_not: localoptimism_Bytes
+  delegate_gt: localoptimism_Bytes
+  delegate_lt: localoptimism_Bytes
+  delegate_gte: localoptimism_Bytes
+  delegate_lte: localoptimism_Bytes
   delegate_in: [localoptimism_Bytes!]
   delegate_not_in: [localoptimism_Bytes!]
   delegate_contains: localoptimism_Bytes
@@ -507,6 +588,10 @@ input localoptimism_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localoptimism_Bytes
   callData_not: localoptimism_Bytes
+  callData_gt: localoptimism_Bytes
+  callData_lt: localoptimism_Bytes
+  callData_gte: localoptimism_Bytes
+  callData_lte: localoptimism_Bytes
   callData_in: [localoptimism_Bytes!]
   callData_not_in: [localoptimism_Bytes!]
   callData_contains: localoptimism_Bytes
@@ -529,6 +614,10 @@ input localoptimism_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: localoptimism_Bytes
   originSender_not: localoptimism_Bytes
+  originSender_gt: localoptimism_Bytes
+  originSender_lt: localoptimism_Bytes
+  originSender_gte: localoptimism_Bytes
+  originSender_lte: localoptimism_Bytes
   originSender_in: [localoptimism_Bytes!]
   originSender_not_in: [localoptimism_Bytes!]
   originSender_contains: localoptimism_Bytes
@@ -551,6 +640,10 @@ input localoptimism_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localoptimism_Bytes
   canonicalId_not: localoptimism_Bytes
+  canonicalId_gt: localoptimism_Bytes
+  canonicalId_lt: localoptimism_Bytes
+  canonicalId_gte: localoptimism_Bytes
+  canonicalId_lte: localoptimism_Bytes
   canonicalId_in: [localoptimism_Bytes!]
   canonicalId_not_in: [localoptimism_Bytes!]
   canonicalId_contains: localoptimism_Bytes
@@ -594,12 +687,20 @@ input localoptimism_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: localoptimism_Bytes
   executedCaller_not: localoptimism_Bytes
+  executedCaller_gt: localoptimism_Bytes
+  executedCaller_lt: localoptimism_Bytes
+  executedCaller_gte: localoptimism_Bytes
+  executedCaller_lte: localoptimism_Bytes
   executedCaller_in: [localoptimism_Bytes!]
   executedCaller_not_in: [localoptimism_Bytes!]
   executedCaller_contains: localoptimism_Bytes
   executedCaller_not_contains: localoptimism_Bytes
   executedTransactionHash: localoptimism_Bytes
   executedTransactionHash_not: localoptimism_Bytes
+  executedTransactionHash_gt: localoptimism_Bytes
+  executedTransactionHash_lt: localoptimism_Bytes
+  executedTransactionHash_gte: localoptimism_Bytes
+  executedTransactionHash_lte: localoptimism_Bytes
   executedTransactionHash_in: [localoptimism_Bytes!]
   executedTransactionHash_not_in: [localoptimism_Bytes!]
   executedTransactionHash_contains: localoptimism_Bytes
@@ -638,6 +739,10 @@ input localoptimism_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: localoptimism_Bytes
   executedTxOrigin_not: localoptimism_Bytes
+  executedTxOrigin_gt: localoptimism_Bytes
+  executedTxOrigin_lt: localoptimism_Bytes
+  executedTxOrigin_gte: localoptimism_Bytes
+  executedTxOrigin_lte: localoptimism_Bytes
   executedTxOrigin_in: [localoptimism_Bytes!]
   executedTxOrigin_not_in: [localoptimism_Bytes!]
   executedTxOrigin_contains: localoptimism_Bytes
@@ -652,12 +757,20 @@ input localoptimism_DestinationTransfer_filter {
   executedTxNonce_not_in: [BigInt!]
   reconciledCaller: localoptimism_Bytes
   reconciledCaller_not: localoptimism_Bytes
+  reconciledCaller_gt: localoptimism_Bytes
+  reconciledCaller_lt: localoptimism_Bytes
+  reconciledCaller_gte: localoptimism_Bytes
+  reconciledCaller_lte: localoptimism_Bytes
   reconciledCaller_in: [localoptimism_Bytes!]
   reconciledCaller_not_in: [localoptimism_Bytes!]
   reconciledCaller_contains: localoptimism_Bytes
   reconciledCaller_not_contains: localoptimism_Bytes
   reconciledTransactionHash: localoptimism_Bytes
   reconciledTransactionHash_not: localoptimism_Bytes
+  reconciledTransactionHash_gt: localoptimism_Bytes
+  reconciledTransactionHash_lt: localoptimism_Bytes
+  reconciledTransactionHash_gte: localoptimism_Bytes
+  reconciledTransactionHash_lte: localoptimism_Bytes
   reconciledTransactionHash_in: [localoptimism_Bytes!]
   reconciledTransactionHash_not_in: [localoptimism_Bytes!]
   reconciledTransactionHash_contains: localoptimism_Bytes
@@ -696,6 +809,10 @@ input localoptimism_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: localoptimism_Bytes
   reconciledTxOrigin_not: localoptimism_Bytes
+  reconciledTxOrigin_gt: localoptimism_Bytes
+  reconciledTxOrigin_lt: localoptimism_Bytes
+  reconciledTxOrigin_gte: localoptimism_Bytes
+  reconciledTxOrigin_lte: localoptimism_Bytes
   reconciledTxOrigin_in: [localoptimism_Bytes!]
   reconciledTxOrigin_not_in: [localoptimism_Bytes!]
   reconciledTxOrigin_contains: localoptimism_Bytes
@@ -710,6 +827,8 @@ input localoptimism_DestinationTransfer_filter {
   reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_DestinationTransfer_filter]
+  or: [localoptimism_DestinationTransfer_filter]
 }
 
 enum localoptimism_DestinationTransfer_orderBy {
@@ -733,6 +852,15 @@ enum localoptimism_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -752,6 +880,12 @@ enum localoptimism_DestinationTransfer_orderBy {
   reconciledTxOrigin
   reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar localoptimism_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum localoptimism_OrderDirection {
@@ -783,6 +917,10 @@ input localoptimism_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: localoptimism_Bytes
   transferId_not: localoptimism_Bytes
+  transferId_gt: localoptimism_Bytes
+  transferId_lt: localoptimism_Bytes
+  transferId_gte: localoptimism_Bytes
+  transferId_lte: localoptimism_Bytes
   transferId_in: [localoptimism_Bytes!]
   transferId_not_in: [localoptimism_Bytes!]
   transferId_contains: localoptimism_Bytes
@@ -797,6 +935,10 @@ input localoptimism_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: localoptimism_Bytes
   leaf_not: localoptimism_Bytes
+  leaf_gt: localoptimism_Bytes
+  leaf_lt: localoptimism_Bytes
+  leaf_gte: localoptimism_Bytes
+  leaf_lte: localoptimism_Bytes
   leaf_in: [localoptimism_Bytes!]
   leaf_not_in: [localoptimism_Bytes!]
   leaf_contains: localoptimism_Bytes
@@ -811,18 +953,30 @@ input localoptimism_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: localoptimism_Bytes
   message_not: localoptimism_Bytes
+  message_gt: localoptimism_Bytes
+  message_lt: localoptimism_Bytes
+  message_gte: localoptimism_Bytes
+  message_lte: localoptimism_Bytes
   message_in: [localoptimism_Bytes!]
   message_not_in: [localoptimism_Bytes!]
   message_contains: localoptimism_Bytes
   message_not_contains: localoptimism_Bytes
   root: localoptimism_Bytes
   root_not: localoptimism_Bytes
+  root_gt: localoptimism_Bytes
+  root_lt: localoptimism_Bytes
+  root_gte: localoptimism_Bytes
+  root_lte: localoptimism_Bytes
   root_in: [localoptimism_Bytes!]
   root_not_in: [localoptimism_Bytes!]
   root_contains: localoptimism_Bytes
   root_not_contains: localoptimism_Bytes
   transactionHash: localoptimism_Bytes
   transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
   transactionHash_in: [localoptimism_Bytes!]
   transactionHash_not_in: [localoptimism_Bytes!]
   transactionHash_contains: localoptimism_Bytes
@@ -858,6 +1012,8 @@ input localoptimism_OriginMessage_filter {
   rootCount_: localoptimism_RootCount_filter
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_OriginMessage_filter]
+  or: [localoptimism_OriginMessage_filter]
 }
 
 enum localoptimism_OriginMessage_orderBy {
@@ -871,6 +1027,8 @@ enum localoptimism_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type localoptimism_OriginTransfer {
@@ -927,6 +1085,10 @@ input localoptimism_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localoptimism_Bytes
   transferId_not: localoptimism_Bytes
+  transferId_gt: localoptimism_Bytes
+  transferId_lt: localoptimism_Bytes
+  transferId_gte: localoptimism_Bytes
+  transferId_lte: localoptimism_Bytes
   transferId_in: [localoptimism_Bytes!]
   transferId_not_in: [localoptimism_Bytes!]
   transferId_contains: localoptimism_Bytes
@@ -945,6 +1107,10 @@ input localoptimism_OriginTransfer_filter {
   status_not_in: [localoptimism_TransferStatus!]
   messageHash: localoptimism_Bytes
   messageHash_not: localoptimism_Bytes
+  messageHash_gt: localoptimism_Bytes
+  messageHash_lt: localoptimism_Bytes
+  messageHash_gte: localoptimism_Bytes
+  messageHash_lte: localoptimism_Bytes
   messageHash_in: [localoptimism_Bytes!]
   messageHash_not_in: [localoptimism_Bytes!]
   messageHash_contains: localoptimism_Bytes
@@ -975,12 +1141,20 @@ input localoptimism_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localoptimism_Bytes
   to_not: localoptimism_Bytes
+  to_gt: localoptimism_Bytes
+  to_lt: localoptimism_Bytes
+  to_gte: localoptimism_Bytes
+  to_lte: localoptimism_Bytes
   to_in: [localoptimism_Bytes!]
   to_not_in: [localoptimism_Bytes!]
   to_contains: localoptimism_Bytes
   to_not_contains: localoptimism_Bytes
   delegate: localoptimism_Bytes
   delegate_not: localoptimism_Bytes
+  delegate_gt: localoptimism_Bytes
+  delegate_lt: localoptimism_Bytes
+  delegate_gte: localoptimism_Bytes
+  delegate_lte: localoptimism_Bytes
   delegate_in: [localoptimism_Bytes!]
   delegate_not_in: [localoptimism_Bytes!]
   delegate_contains: localoptimism_Bytes
@@ -991,6 +1165,10 @@ input localoptimism_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localoptimism_Bytes
   callData_not: localoptimism_Bytes
+  callData_gt: localoptimism_Bytes
+  callData_lt: localoptimism_Bytes
+  callData_gte: localoptimism_Bytes
+  callData_lte: localoptimism_Bytes
   callData_in: [localoptimism_Bytes!]
   callData_not_in: [localoptimism_Bytes!]
   callData_contains: localoptimism_Bytes
@@ -1005,6 +1183,10 @@ input localoptimism_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: localoptimism_Bytes
   originSender_not: localoptimism_Bytes
+  originSender_gt: localoptimism_Bytes
+  originSender_lt: localoptimism_Bytes
+  originSender_gte: localoptimism_Bytes
+  originSender_lte: localoptimism_Bytes
   originSender_in: [localoptimism_Bytes!]
   originSender_not_in: [localoptimism_Bytes!]
   originSender_contains: localoptimism_Bytes
@@ -1027,6 +1209,10 @@ input localoptimism_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localoptimism_Bytes
   canonicalId_not: localoptimism_Bytes
+  canonicalId_gt: localoptimism_Bytes
+  canonicalId_lt: localoptimism_Bytes
+  canonicalId_gte: localoptimism_Bytes
+  canonicalId_lte: localoptimism_Bytes
   canonicalId_in: [localoptimism_Bytes!]
   canonicalId_not_in: [localoptimism_Bytes!]
   canonicalId_contains: localoptimism_Bytes
@@ -1054,6 +1240,10 @@ input localoptimism_OriginTransfer_filter {
   asset_: localoptimism_Asset_filter
   transactingAsset: localoptimism_Bytes
   transactingAsset_not: localoptimism_Bytes
+  transactingAsset_gt: localoptimism_Bytes
+  transactingAsset_lt: localoptimism_Bytes
+  transactingAsset_gte: localoptimism_Bytes
+  transactingAsset_lte: localoptimism_Bytes
   transactingAsset_in: [localoptimism_Bytes!]
   transactingAsset_not_in: [localoptimism_Bytes!]
   transactingAsset_contains: localoptimism_Bytes
@@ -1096,18 +1286,30 @@ input localoptimism_OriginTransfer_filter {
   relayerFees_: localoptimism_RelayerFee_filter
   initialRelayerFeeAsset: localoptimism_Bytes
   initialRelayerFeeAsset_not: localoptimism_Bytes
+  initialRelayerFeeAsset_gt: localoptimism_Bytes
+  initialRelayerFeeAsset_lt: localoptimism_Bytes
+  initialRelayerFeeAsset_gte: localoptimism_Bytes
+  initialRelayerFeeAsset_lte: localoptimism_Bytes
   initialRelayerFeeAsset_in: [localoptimism_Bytes!]
   initialRelayerFeeAsset_not_in: [localoptimism_Bytes!]
   initialRelayerFeeAsset_contains: localoptimism_Bytes
   initialRelayerFeeAsset_not_contains: localoptimism_Bytes
   caller: localoptimism_Bytes
   caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
   caller_in: [localoptimism_Bytes!]
   caller_not_in: [localoptimism_Bytes!]
   caller_contains: localoptimism_Bytes
   caller_not_contains: localoptimism_Bytes
   transactionHash: localoptimism_Bytes
   transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
   transactionHash_in: [localoptimism_Bytes!]
   transactionHash_not_in: [localoptimism_Bytes!]
   transactionHash_contains: localoptimism_Bytes
@@ -1146,6 +1348,10 @@ input localoptimism_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: localoptimism_Bytes
   txOrigin_not: localoptimism_Bytes
+  txOrigin_gt: localoptimism_Bytes
+  txOrigin_lt: localoptimism_Bytes
+  txOrigin_gte: localoptimism_Bytes
+  txOrigin_lte: localoptimism_Bytes
   txOrigin_in: [localoptimism_Bytes!]
   txOrigin_not_in: [localoptimism_Bytes!]
   txOrigin_contains: localoptimism_Bytes
@@ -1160,6 +1366,8 @@ input localoptimism_OriginTransfer_filter {
   txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_OriginTransfer_filter]
+  or: [localoptimism_OriginTransfer_filter]
 }
 
 enum localoptimism_OriginTransfer_orderBy {
@@ -1182,8 +1390,26 @@ enum localoptimism_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   transactingAsset
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   bumpRelayerFeeCount
   relayerFees
   initialRelayerFeeAsset
@@ -1328,6 +1554,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [localoptimism_RouterDailyTVL!]!
+  localoptimism_routerLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localoptimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): localoptimism_RouterLiquidityEvent
+  localoptimism_routerLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: localoptimism_RouterLiquidityEvent_orderBy
+    orderDirection: localoptimism_OrderDirection
+    where: localoptimism_RouterLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localoptimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [localoptimism_RouterLiquidityEvent!]!
   localoptimism_setting(
     id: ID!
     """
@@ -1723,17 +1975,52 @@ input localoptimism_RelayerFee_filter {
   fee_not_in: [BigInt!]
   asset: localoptimism_Bytes
   asset_not: localoptimism_Bytes
+  asset_gt: localoptimism_Bytes
+  asset_lt: localoptimism_Bytes
+  asset_gte: localoptimism_Bytes
+  asset_lte: localoptimism_Bytes
   asset_in: [localoptimism_Bytes!]
   asset_not_in: [localoptimism_Bytes!]
   asset_contains: localoptimism_Bytes
   asset_not_contains: localoptimism_Bytes
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RelayerFee_filter]
+  or: [localoptimism_RelayerFee_filter]
 }
 
 enum localoptimism_RelayerFee_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -1791,18 +2078,30 @@ input localoptimism_RelayerFeesIncrease_filter {
   increase_not_in: [BigInt!]
   asset: localoptimism_Bytes
   asset_not: localoptimism_Bytes
+  asset_gt: localoptimism_Bytes
+  asset_lt: localoptimism_Bytes
+  asset_gte: localoptimism_Bytes
+  asset_lte: localoptimism_Bytes
   asset_in: [localoptimism_Bytes!]
   asset_not_in: [localoptimism_Bytes!]
   asset_contains: localoptimism_Bytes
   asset_not_contains: localoptimism_Bytes
   caller: localoptimism_Bytes
   caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
   caller_in: [localoptimism_Bytes!]
   caller_not_in: [localoptimism_Bytes!]
   caller_contains: localoptimism_Bytes
   caller_not_contains: localoptimism_Bytes
   transactionHash: localoptimism_Bytes
   transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
   transactionHash_in: [localoptimism_Bytes!]
   transactionHash_not_in: [localoptimism_Bytes!]
   transactionHash_contains: localoptimism_Bytes
@@ -1841,11 +2140,42 @@ input localoptimism_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RelayerFeesIncrease_filter]
+  or: [localoptimism_RelayerFeesIncrease_filter]
 }
 
 enum localoptimism_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -1871,12 +2201,18 @@ input localoptimism_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: localoptimism_Bytes
   relayer_not: localoptimism_Bytes
+  relayer_gt: localoptimism_Bytes
+  relayer_lt: localoptimism_Bytes
+  relayer_gte: localoptimism_Bytes
+  relayer_lte: localoptimism_Bytes
   relayer_in: [localoptimism_Bytes!]
   relayer_not_in: [localoptimism_Bytes!]
   relayer_contains: localoptimism_Bytes
   relayer_not_contains: localoptimism_Bytes
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_Relayer_filter]
+  or: [localoptimism_Relayer_filter]
 }
 
 enum localoptimism_Relayer_orderBy {
@@ -1909,6 +2245,8 @@ input localoptimism_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RootCount_filter]
+  or: [localoptimism_RootCount_filter]
 }
 
 enum localoptimism_RootCount_orderBy {
@@ -1957,6 +2295,10 @@ input localoptimism_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: localoptimism_Bytes
   root_not: localoptimism_Bytes
+  root_gt: localoptimism_Bytes
+  root_lt: localoptimism_Bytes
+  root_gte: localoptimism_Bytes
+  root_lte: localoptimism_Bytes
   root_in: [localoptimism_Bytes!]
   root_not_in: [localoptimism_Bytes!]
   root_contains: localoptimism_Bytes
@@ -1971,12 +2313,20 @@ input localoptimism_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: localoptimism_Bytes
   caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
   caller_in: [localoptimism_Bytes!]
   caller_not_in: [localoptimism_Bytes!]
   caller_contains: localoptimism_Bytes
   caller_not_contains: localoptimism_Bytes
   transactionHash: localoptimism_Bytes
   transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
   transactionHash_in: [localoptimism_Bytes!]
   transactionHash_not_in: [localoptimism_Bytes!]
   transactionHash_contains: localoptimism_Bytes
@@ -2015,6 +2365,8 @@ input localoptimism_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RootMessageSent_filter]
+  or: [localoptimism_RootMessageSent_filter]
 }
 
 enum localoptimism_RootMessageSent_orderBy {
@@ -2118,14 +2470,200 @@ input localoptimism_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RouterDailyTVL_filter]
+  or: [localoptimism_RouterDailyTVL_filter]
 }
 
 enum localoptimism_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
+}
+
+type localoptimism_RouterLiquidityEvent {
+  id: ID!
+  type: localoptimism_RouterLiquidityEventType
+  router: localoptimism_Router!
+  asset: localoptimism_Asset!
+  amount: BigInt!
+  balance: BigInt!
+  caller: localoptimism_Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  transactionHash: localoptimism_Bytes!
+  nonce: BigInt!
+}
+
+enum localoptimism_RouterLiquidityEventType {
+  Add
+  Remove
+}
+
+input localoptimism_RouterLiquidityEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  type: localoptimism_RouterLiquidityEventType
+  type_not: localoptimism_RouterLiquidityEventType
+  type_in: [localoptimism_RouterLiquidityEventType!]
+  type_not_in: [localoptimism_RouterLiquidityEventType!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: localoptimism_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: localoptimism_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  caller: localoptimism_Bytes
+  caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
+  caller_in: [localoptimism_Bytes!]
+  caller_not_in: [localoptimism_Bytes!]
+  caller_contains: localoptimism_Bytes
+  caller_not_contains: localoptimism_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transactionHash: localoptimism_Bytes
+  transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
+  transactionHash_in: [localoptimism_Bytes!]
+  transactionHash_not_in: [localoptimism_Bytes!]
+  transactionHash_contains: localoptimism_Bytes
+  transactionHash_not_contains: localoptimism_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_RouterLiquidityEvent_filter]
+  or: [localoptimism_RouterLiquidityEvent_filter]
+}
+
+enum localoptimism_RouterLiquidityEvent_orderBy {
+  id
+  type
+  router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
+  asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  amount
+  balance
+  caller
+  blockNumber
+  timestamp
+  transactionHash
+  nonce
 }
 
 input localoptimism_Router_filter {
@@ -2143,18 +2681,30 @@ input localoptimism_Router_filter {
   isActive_not_in: [Boolean!]
   owner: localoptimism_Bytes
   owner_not: localoptimism_Bytes
+  owner_gt: localoptimism_Bytes
+  owner_lt: localoptimism_Bytes
+  owner_gte: localoptimism_Bytes
+  owner_lte: localoptimism_Bytes
   owner_in: [localoptimism_Bytes!]
   owner_not_in: [localoptimism_Bytes!]
   owner_contains: localoptimism_Bytes
   owner_not_contains: localoptimism_Bytes
   recipient: localoptimism_Bytes
   recipient_not: localoptimism_Bytes
+  recipient_gt: localoptimism_Bytes
+  recipient_lt: localoptimism_Bytes
+  recipient_gte: localoptimism_Bytes
+  recipient_lte: localoptimism_Bytes
   recipient_in: [localoptimism_Bytes!]
   recipient_not_in: [localoptimism_Bytes!]
   recipient_contains: localoptimism_Bytes
   recipient_not_contains: localoptimism_Bytes
   proposedOwner: localoptimism_Bytes
   proposedOwner_not: localoptimism_Bytes
+  proposedOwner_gt: localoptimism_Bytes
+  proposedOwner_lt: localoptimism_Bytes
+  proposedOwner_gte: localoptimism_Bytes
+  proposedOwner_lte: localoptimism_Bytes
   proposedOwner_in: [localoptimism_Bytes!]
   proposedOwner_not_in: [localoptimism_Bytes!]
   proposedOwner_contains: localoptimism_Bytes
@@ -2170,6 +2720,8 @@ input localoptimism_Router_filter {
   assetBalances_: localoptimism_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_Router_filter]
+  or: [localoptimism_Router_filter]
 }
 
 enum localoptimism_Router_orderBy {
@@ -2203,12 +2755,18 @@ input localoptimism_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: localoptimism_Bytes
   sequencer_not: localoptimism_Bytes
+  sequencer_gt: localoptimism_Bytes
+  sequencer_lt: localoptimism_Bytes
+  sequencer_gte: localoptimism_Bytes
+  sequencer_lte: localoptimism_Bytes
   sequencer_in: [localoptimism_Bytes!]
   sequencer_not_in: [localoptimism_Bytes!]
   sequencer_contains: localoptimism_Bytes
   sequencer_not_contains: localoptimism_Bytes
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_Sequencer_filter]
+  or: [localoptimism_Sequencer_filter]
 }
 
 enum localoptimism_Sequencer_orderBy {
@@ -2242,12 +2800,18 @@ input localoptimism_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: localoptimism_Bytes
   caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
   caller_in: [localoptimism_Bytes!]
   caller_not_in: [localoptimism_Bytes!]
   caller_contains: localoptimism_Bytes
   caller_not_contains: localoptimism_Bytes
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_Setting_filter]
+  or: [localoptimism_Setting_filter]
 }
 
 enum localoptimism_Setting_orderBy {
@@ -2308,12 +2872,20 @@ input localoptimism_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: localoptimism_Bytes
   caller_not: localoptimism_Bytes
+  caller_gt: localoptimism_Bytes
+  caller_lt: localoptimism_Bytes
+  caller_gte: localoptimism_Bytes
+  caller_lte: localoptimism_Bytes
   caller_in: [localoptimism_Bytes!]
   caller_not_in: [localoptimism_Bytes!]
   caller_contains: localoptimism_Bytes
   caller_not_contains: localoptimism_Bytes
   transactionHash: localoptimism_Bytes
   transactionHash_not: localoptimism_Bytes
+  transactionHash_gt: localoptimism_Bytes
+  transactionHash_lt: localoptimism_Bytes
+  transactionHash_gte: localoptimism_Bytes
+  transactionHash_lte: localoptimism_Bytes
   transactionHash_in: [localoptimism_Bytes!]
   transactionHash_not_in: [localoptimism_Bytes!]
   transactionHash_contains: localoptimism_Bytes
@@ -2352,11 +2924,49 @@ input localoptimism_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localoptimism_BlockChangedFilter
+  and: [localoptimism_SlippageUpdate_filter]
+  or: [localoptimism_SlippageUpdate_filter]
 }
 
 enum localoptimism_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__executedTxNonce
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2497,6 +3107,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [localoptimism_RouterDailyTVL!]!
+  localoptimism_routerLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localoptimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): localoptimism_RouterLiquidityEvent
+  localoptimism_routerLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: localoptimism_RouterLiquidityEvent_orderBy
+    orderDirection: localoptimism_OrderDirection
+    where: localoptimism_RouterLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localoptimism_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [localoptimism_RouterLiquidityEvent!]!
   localoptimism_setting(
     id: ID!
     """
@@ -2852,6 +3488,8 @@ type localoptimism__Block_ {
   hash: localoptimism_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
