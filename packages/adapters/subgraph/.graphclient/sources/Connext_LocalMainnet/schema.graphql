@@ -29,6 +29,10 @@ input localmainnet_AggregateRoot_filter {
   id_not_in: [ID!]
   root: localmainnet_Bytes
   root_not: localmainnet_Bytes
+  root_gt: localmainnet_Bytes
+  root_lt: localmainnet_Bytes
+  root_gte: localmainnet_Bytes
+  root_lte: localmainnet_Bytes
   root_in: [localmainnet_Bytes!]
   root_not_in: [localmainnet_Bytes!]
   root_contains: localmainnet_Bytes
@@ -43,6 +47,8 @@ input localmainnet_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_AggregateRoot_filter]
+  or: [localmainnet_AggregateRoot_filter]
 }
 
 enum localmainnet_AggregateRoot_orderBy {
@@ -55,6 +61,7 @@ type localmainnet_Asset {
   id: ID!
   key: localmainnet_Bytes
   decimal: BigInt
+  adoptedDecimal: BigInt
   canonicalId: localmainnet_Bytes
   canonicalDomain: BigInt
   adoptedAsset: localmainnet_Bytes
@@ -167,6 +174,8 @@ input localmainnet_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_AssetBalance_filter]
+  or: [localmainnet_AssetBalance_filter]
 }
 
 enum localmainnet_AssetBalance_orderBy {
@@ -176,7 +185,22 @@ enum localmainnet_AssetBalance_orderBy {
   supplied
   removed
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -200,6 +224,8 @@ input localmainnet_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_AssetStatus_filter]
+  or: [localmainnet_AssetStatus_filter]
 }
 
 enum localmainnet_AssetStatus_orderBy {
@@ -218,6 +244,10 @@ input localmainnet_Asset_filter {
   id_not_in: [ID!]
   key: localmainnet_Bytes
   key_not: localmainnet_Bytes
+  key_gt: localmainnet_Bytes
+  key_lt: localmainnet_Bytes
+  key_gte: localmainnet_Bytes
+  key_lte: localmainnet_Bytes
   key_in: [localmainnet_Bytes!]
   key_not_in: [localmainnet_Bytes!]
   key_contains: localmainnet_Bytes
@@ -230,8 +260,20 @@ input localmainnet_Asset_filter {
   decimal_lte: BigInt
   decimal_in: [BigInt!]
   decimal_not_in: [BigInt!]
+  adoptedDecimal: BigInt
+  adoptedDecimal_not: BigInt
+  adoptedDecimal_gt: BigInt
+  adoptedDecimal_lt: BigInt
+  adoptedDecimal_gte: BigInt
+  adoptedDecimal_lte: BigInt
+  adoptedDecimal_in: [BigInt!]
+  adoptedDecimal_not_in: [BigInt!]
   canonicalId: localmainnet_Bytes
   canonicalId_not: localmainnet_Bytes
+  canonicalId_gt: localmainnet_Bytes
+  canonicalId_lt: localmainnet_Bytes
+  canonicalId_gte: localmainnet_Bytes
+  canonicalId_lte: localmainnet_Bytes
   canonicalId_in: [localmainnet_Bytes!]
   canonicalId_not_in: [localmainnet_Bytes!]
   canonicalId_contains: localmainnet_Bytes
@@ -246,12 +288,20 @@ input localmainnet_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: localmainnet_Bytes
   adoptedAsset_not: localmainnet_Bytes
+  adoptedAsset_gt: localmainnet_Bytes
+  adoptedAsset_lt: localmainnet_Bytes
+  adoptedAsset_gte: localmainnet_Bytes
+  adoptedAsset_lte: localmainnet_Bytes
   adoptedAsset_in: [localmainnet_Bytes!]
   adoptedAsset_not_in: [localmainnet_Bytes!]
   adoptedAsset_contains: localmainnet_Bytes
   adoptedAsset_not_contains: localmainnet_Bytes
   localAsset: localmainnet_Bytes
   localAsset_not: localmainnet_Bytes
+  localAsset_gt: localmainnet_Bytes
+  localAsset_lt: localmainnet_Bytes
+  localAsset_gte: localmainnet_Bytes
+  localAsset_lte: localmainnet_Bytes
   localAsset_in: [localmainnet_Bytes!]
   localAsset_not_in: [localmainnet_Bytes!]
   localAsset_contains: localmainnet_Bytes
@@ -287,18 +337,23 @@ input localmainnet_Asset_filter {
   status_: localmainnet_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_Asset_filter]
+  or: [localmainnet_Asset_filter]
 }
 
 enum localmainnet_Asset_orderBy {
   id
   key
   decimal
+  adoptedDecimal
   canonicalId
   canonicalDomain
   adoptedAsset
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar localmainnet_BigDecimal
@@ -353,24 +408,38 @@ input localmainnet_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: localmainnet_Bytes
   amb_not: localmainnet_Bytes
+  amb_gt: localmainnet_Bytes
+  amb_lt: localmainnet_Bytes
+  amb_gte: localmainnet_Bytes
+  amb_lte: localmainnet_Bytes
   amb_in: [localmainnet_Bytes!]
   amb_not_in: [localmainnet_Bytes!]
   amb_contains: localmainnet_Bytes
   amb_not_contains: localmainnet_Bytes
   rootManager: localmainnet_Bytes
   rootManager_not: localmainnet_Bytes
+  rootManager_gt: localmainnet_Bytes
+  rootManager_lt: localmainnet_Bytes
+  rootManager_gte: localmainnet_Bytes
+  rootManager_lte: localmainnet_Bytes
   rootManager_in: [localmainnet_Bytes!]
   rootManager_not_in: [localmainnet_Bytes!]
   rootManager_contains: localmainnet_Bytes
   rootManager_not_contains: localmainnet_Bytes
   mirrorConnector: localmainnet_Bytes
   mirrorConnector_not: localmainnet_Bytes
+  mirrorConnector_gt: localmainnet_Bytes
+  mirrorConnector_lt: localmainnet_Bytes
+  mirrorConnector_gte: localmainnet_Bytes
+  mirrorConnector_lte: localmainnet_Bytes
   mirrorConnector_in: [localmainnet_Bytes!]
   mirrorConnector_not_in: [localmainnet_Bytes!]
   mirrorConnector_contains: localmainnet_Bytes
   mirrorConnector_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_ConnectorMeta_filter]
+  or: [localmainnet_ConnectorMeta_filter]
 }
 
 enum localmainnet_ConnectorMeta_orderBy {
@@ -442,6 +511,10 @@ input localmainnet_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localmainnet_Bytes
   transferId_not: localmainnet_Bytes
+  transferId_gt: localmainnet_Bytes
+  transferId_lt: localmainnet_Bytes
+  transferId_gte: localmainnet_Bytes
+  transferId_lte: localmainnet_Bytes
   transferId_in: [localmainnet_Bytes!]
   transferId_not_in: [localmainnet_Bytes!]
   transferId_contains: localmainnet_Bytes
@@ -491,12 +564,20 @@ input localmainnet_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localmainnet_Bytes
   to_not: localmainnet_Bytes
+  to_gt: localmainnet_Bytes
+  to_lt: localmainnet_Bytes
+  to_gte: localmainnet_Bytes
+  to_lte: localmainnet_Bytes
   to_in: [localmainnet_Bytes!]
   to_not_in: [localmainnet_Bytes!]
   to_contains: localmainnet_Bytes
   to_not_contains: localmainnet_Bytes
   delegate: localmainnet_Bytes
   delegate_not: localmainnet_Bytes
+  delegate_gt: localmainnet_Bytes
+  delegate_lt: localmainnet_Bytes
+  delegate_gte: localmainnet_Bytes
+  delegate_lte: localmainnet_Bytes
   delegate_in: [localmainnet_Bytes!]
   delegate_not_in: [localmainnet_Bytes!]
   delegate_contains: localmainnet_Bytes
@@ -507,6 +588,10 @@ input localmainnet_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localmainnet_Bytes
   callData_not: localmainnet_Bytes
+  callData_gt: localmainnet_Bytes
+  callData_lt: localmainnet_Bytes
+  callData_gte: localmainnet_Bytes
+  callData_lte: localmainnet_Bytes
   callData_in: [localmainnet_Bytes!]
   callData_not_in: [localmainnet_Bytes!]
   callData_contains: localmainnet_Bytes
@@ -529,6 +614,10 @@ input localmainnet_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: localmainnet_Bytes
   originSender_not: localmainnet_Bytes
+  originSender_gt: localmainnet_Bytes
+  originSender_lt: localmainnet_Bytes
+  originSender_gte: localmainnet_Bytes
+  originSender_lte: localmainnet_Bytes
   originSender_in: [localmainnet_Bytes!]
   originSender_not_in: [localmainnet_Bytes!]
   originSender_contains: localmainnet_Bytes
@@ -551,6 +640,10 @@ input localmainnet_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localmainnet_Bytes
   canonicalId_not: localmainnet_Bytes
+  canonicalId_gt: localmainnet_Bytes
+  canonicalId_lt: localmainnet_Bytes
+  canonicalId_gte: localmainnet_Bytes
+  canonicalId_lte: localmainnet_Bytes
   canonicalId_in: [localmainnet_Bytes!]
   canonicalId_not_in: [localmainnet_Bytes!]
   canonicalId_contains: localmainnet_Bytes
@@ -594,12 +687,20 @@ input localmainnet_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: localmainnet_Bytes
   executedCaller_not: localmainnet_Bytes
+  executedCaller_gt: localmainnet_Bytes
+  executedCaller_lt: localmainnet_Bytes
+  executedCaller_gte: localmainnet_Bytes
+  executedCaller_lte: localmainnet_Bytes
   executedCaller_in: [localmainnet_Bytes!]
   executedCaller_not_in: [localmainnet_Bytes!]
   executedCaller_contains: localmainnet_Bytes
   executedCaller_not_contains: localmainnet_Bytes
   executedTransactionHash: localmainnet_Bytes
   executedTransactionHash_not: localmainnet_Bytes
+  executedTransactionHash_gt: localmainnet_Bytes
+  executedTransactionHash_lt: localmainnet_Bytes
+  executedTransactionHash_gte: localmainnet_Bytes
+  executedTransactionHash_lte: localmainnet_Bytes
   executedTransactionHash_in: [localmainnet_Bytes!]
   executedTransactionHash_not_in: [localmainnet_Bytes!]
   executedTransactionHash_contains: localmainnet_Bytes
@@ -638,6 +739,10 @@ input localmainnet_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: localmainnet_Bytes
   executedTxOrigin_not: localmainnet_Bytes
+  executedTxOrigin_gt: localmainnet_Bytes
+  executedTxOrigin_lt: localmainnet_Bytes
+  executedTxOrigin_gte: localmainnet_Bytes
+  executedTxOrigin_lte: localmainnet_Bytes
   executedTxOrigin_in: [localmainnet_Bytes!]
   executedTxOrigin_not_in: [localmainnet_Bytes!]
   executedTxOrigin_contains: localmainnet_Bytes
@@ -652,12 +757,20 @@ input localmainnet_DestinationTransfer_filter {
   executedTxNonce_not_in: [BigInt!]
   reconciledCaller: localmainnet_Bytes
   reconciledCaller_not: localmainnet_Bytes
+  reconciledCaller_gt: localmainnet_Bytes
+  reconciledCaller_lt: localmainnet_Bytes
+  reconciledCaller_gte: localmainnet_Bytes
+  reconciledCaller_lte: localmainnet_Bytes
   reconciledCaller_in: [localmainnet_Bytes!]
   reconciledCaller_not_in: [localmainnet_Bytes!]
   reconciledCaller_contains: localmainnet_Bytes
   reconciledCaller_not_contains: localmainnet_Bytes
   reconciledTransactionHash: localmainnet_Bytes
   reconciledTransactionHash_not: localmainnet_Bytes
+  reconciledTransactionHash_gt: localmainnet_Bytes
+  reconciledTransactionHash_lt: localmainnet_Bytes
+  reconciledTransactionHash_gte: localmainnet_Bytes
+  reconciledTransactionHash_lte: localmainnet_Bytes
   reconciledTransactionHash_in: [localmainnet_Bytes!]
   reconciledTransactionHash_not_in: [localmainnet_Bytes!]
   reconciledTransactionHash_contains: localmainnet_Bytes
@@ -696,6 +809,10 @@ input localmainnet_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: localmainnet_Bytes
   reconciledTxOrigin_not: localmainnet_Bytes
+  reconciledTxOrigin_gt: localmainnet_Bytes
+  reconciledTxOrigin_lt: localmainnet_Bytes
+  reconciledTxOrigin_gte: localmainnet_Bytes
+  reconciledTxOrigin_lte: localmainnet_Bytes
   reconciledTxOrigin_in: [localmainnet_Bytes!]
   reconciledTxOrigin_not_in: [localmainnet_Bytes!]
   reconciledTxOrigin_contains: localmainnet_Bytes
@@ -710,6 +827,8 @@ input localmainnet_DestinationTransfer_filter {
   reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_DestinationTransfer_filter]
+  or: [localmainnet_DestinationTransfer_filter]
 }
 
 enum localmainnet_DestinationTransfer_orderBy {
@@ -733,6 +852,15 @@ enum localmainnet_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -752,6 +880,12 @@ enum localmainnet_DestinationTransfer_orderBy {
   reconciledTxOrigin
   reconciledTxNonce
 }
+
+"""
+8 bytes signed integer
+
+"""
+scalar localmainnet_Int8
 
 """Defines the order direction, either ascending or descending"""
 enum localmainnet_OrderDirection {
@@ -783,6 +917,10 @@ input localmainnet_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: localmainnet_Bytes
   transferId_not: localmainnet_Bytes
+  transferId_gt: localmainnet_Bytes
+  transferId_lt: localmainnet_Bytes
+  transferId_gte: localmainnet_Bytes
+  transferId_lte: localmainnet_Bytes
   transferId_in: [localmainnet_Bytes!]
   transferId_not_in: [localmainnet_Bytes!]
   transferId_contains: localmainnet_Bytes
@@ -797,6 +935,10 @@ input localmainnet_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: localmainnet_Bytes
   leaf_not: localmainnet_Bytes
+  leaf_gt: localmainnet_Bytes
+  leaf_lt: localmainnet_Bytes
+  leaf_gte: localmainnet_Bytes
+  leaf_lte: localmainnet_Bytes
   leaf_in: [localmainnet_Bytes!]
   leaf_not_in: [localmainnet_Bytes!]
   leaf_contains: localmainnet_Bytes
@@ -811,18 +953,30 @@ input localmainnet_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: localmainnet_Bytes
   message_not: localmainnet_Bytes
+  message_gt: localmainnet_Bytes
+  message_lt: localmainnet_Bytes
+  message_gte: localmainnet_Bytes
+  message_lte: localmainnet_Bytes
   message_in: [localmainnet_Bytes!]
   message_not_in: [localmainnet_Bytes!]
   message_contains: localmainnet_Bytes
   message_not_contains: localmainnet_Bytes
   root: localmainnet_Bytes
   root_not: localmainnet_Bytes
+  root_gt: localmainnet_Bytes
+  root_lt: localmainnet_Bytes
+  root_gte: localmainnet_Bytes
+  root_lte: localmainnet_Bytes
   root_in: [localmainnet_Bytes!]
   root_not_in: [localmainnet_Bytes!]
   root_contains: localmainnet_Bytes
   root_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -858,6 +1012,8 @@ input localmainnet_OriginMessage_filter {
   rootCount_: localmainnet_RootCount_filter
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_OriginMessage_filter]
+  or: [localmainnet_OriginMessage_filter]
 }
 
 enum localmainnet_OriginMessage_orderBy {
@@ -871,6 +1027,8 @@ enum localmainnet_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type localmainnet_OriginTransfer {
@@ -927,6 +1085,10 @@ input localmainnet_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: localmainnet_Bytes
   transferId_not: localmainnet_Bytes
+  transferId_gt: localmainnet_Bytes
+  transferId_lt: localmainnet_Bytes
+  transferId_gte: localmainnet_Bytes
+  transferId_lte: localmainnet_Bytes
   transferId_in: [localmainnet_Bytes!]
   transferId_not_in: [localmainnet_Bytes!]
   transferId_contains: localmainnet_Bytes
@@ -945,6 +1107,10 @@ input localmainnet_OriginTransfer_filter {
   status_not_in: [localmainnet_TransferStatus!]
   messageHash: localmainnet_Bytes
   messageHash_not: localmainnet_Bytes
+  messageHash_gt: localmainnet_Bytes
+  messageHash_lt: localmainnet_Bytes
+  messageHash_gte: localmainnet_Bytes
+  messageHash_lte: localmainnet_Bytes
   messageHash_in: [localmainnet_Bytes!]
   messageHash_not_in: [localmainnet_Bytes!]
   messageHash_contains: localmainnet_Bytes
@@ -975,12 +1141,20 @@ input localmainnet_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: localmainnet_Bytes
   to_not: localmainnet_Bytes
+  to_gt: localmainnet_Bytes
+  to_lt: localmainnet_Bytes
+  to_gte: localmainnet_Bytes
+  to_lte: localmainnet_Bytes
   to_in: [localmainnet_Bytes!]
   to_not_in: [localmainnet_Bytes!]
   to_contains: localmainnet_Bytes
   to_not_contains: localmainnet_Bytes
   delegate: localmainnet_Bytes
   delegate_not: localmainnet_Bytes
+  delegate_gt: localmainnet_Bytes
+  delegate_lt: localmainnet_Bytes
+  delegate_gte: localmainnet_Bytes
+  delegate_lte: localmainnet_Bytes
   delegate_in: [localmainnet_Bytes!]
   delegate_not_in: [localmainnet_Bytes!]
   delegate_contains: localmainnet_Bytes
@@ -991,6 +1165,10 @@ input localmainnet_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: localmainnet_Bytes
   callData_not: localmainnet_Bytes
+  callData_gt: localmainnet_Bytes
+  callData_lt: localmainnet_Bytes
+  callData_gte: localmainnet_Bytes
+  callData_lte: localmainnet_Bytes
   callData_in: [localmainnet_Bytes!]
   callData_not_in: [localmainnet_Bytes!]
   callData_contains: localmainnet_Bytes
@@ -1005,6 +1183,10 @@ input localmainnet_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: localmainnet_Bytes
   originSender_not: localmainnet_Bytes
+  originSender_gt: localmainnet_Bytes
+  originSender_lt: localmainnet_Bytes
+  originSender_gte: localmainnet_Bytes
+  originSender_lte: localmainnet_Bytes
   originSender_in: [localmainnet_Bytes!]
   originSender_not_in: [localmainnet_Bytes!]
   originSender_contains: localmainnet_Bytes
@@ -1027,6 +1209,10 @@ input localmainnet_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: localmainnet_Bytes
   canonicalId_not: localmainnet_Bytes
+  canonicalId_gt: localmainnet_Bytes
+  canonicalId_lt: localmainnet_Bytes
+  canonicalId_gte: localmainnet_Bytes
+  canonicalId_lte: localmainnet_Bytes
   canonicalId_in: [localmainnet_Bytes!]
   canonicalId_not_in: [localmainnet_Bytes!]
   canonicalId_contains: localmainnet_Bytes
@@ -1054,6 +1240,10 @@ input localmainnet_OriginTransfer_filter {
   asset_: localmainnet_Asset_filter
   transactingAsset: localmainnet_Bytes
   transactingAsset_not: localmainnet_Bytes
+  transactingAsset_gt: localmainnet_Bytes
+  transactingAsset_lt: localmainnet_Bytes
+  transactingAsset_gte: localmainnet_Bytes
+  transactingAsset_lte: localmainnet_Bytes
   transactingAsset_in: [localmainnet_Bytes!]
   transactingAsset_not_in: [localmainnet_Bytes!]
   transactingAsset_contains: localmainnet_Bytes
@@ -1096,18 +1286,30 @@ input localmainnet_OriginTransfer_filter {
   relayerFees_: localmainnet_RelayerFee_filter
   initialRelayerFeeAsset: localmainnet_Bytes
   initialRelayerFeeAsset_not: localmainnet_Bytes
+  initialRelayerFeeAsset_gt: localmainnet_Bytes
+  initialRelayerFeeAsset_lt: localmainnet_Bytes
+  initialRelayerFeeAsset_gte: localmainnet_Bytes
+  initialRelayerFeeAsset_lte: localmainnet_Bytes
   initialRelayerFeeAsset_in: [localmainnet_Bytes!]
   initialRelayerFeeAsset_not_in: [localmainnet_Bytes!]
   initialRelayerFeeAsset_contains: localmainnet_Bytes
   initialRelayerFeeAsset_not_contains: localmainnet_Bytes
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -1146,6 +1348,10 @@ input localmainnet_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: localmainnet_Bytes
   txOrigin_not: localmainnet_Bytes
+  txOrigin_gt: localmainnet_Bytes
+  txOrigin_lt: localmainnet_Bytes
+  txOrigin_gte: localmainnet_Bytes
+  txOrigin_lte: localmainnet_Bytes
   txOrigin_in: [localmainnet_Bytes!]
   txOrigin_not_in: [localmainnet_Bytes!]
   txOrigin_contains: localmainnet_Bytes
@@ -1160,6 +1366,8 @@ input localmainnet_OriginTransfer_filter {
   txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_OriginTransfer_filter]
+  or: [localmainnet_OriginTransfer_filter]
 }
 
 enum localmainnet_OriginTransfer_orderBy {
@@ -1182,8 +1390,26 @@ enum localmainnet_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   transactingAsset
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   bumpRelayerFeeCount
   relayerFees
   initialRelayerFeeAsset
@@ -1328,6 +1554,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [localmainnet_RouterDailyTVL!]!
+  localmainnet_routerLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): localmainnet_RouterLiquidityEvent
+  localmainnet_routerLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: localmainnet_RouterLiquidityEvent_orderBy
+    orderDirection: localmainnet_OrderDirection
+    where: localmainnet_RouterLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [localmainnet_RouterLiquidityEvent!]!
   localmainnet_setting(
     id: ID!
     """
@@ -1723,17 +1975,52 @@ input localmainnet_RelayerFee_filter {
   fee_not_in: [BigInt!]
   asset: localmainnet_Bytes
   asset_not: localmainnet_Bytes
+  asset_gt: localmainnet_Bytes
+  asset_lt: localmainnet_Bytes
+  asset_gte: localmainnet_Bytes
+  asset_lte: localmainnet_Bytes
   asset_in: [localmainnet_Bytes!]
   asset_not_in: [localmainnet_Bytes!]
   asset_contains: localmainnet_Bytes
   asset_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RelayerFee_filter]
+  or: [localmainnet_RelayerFee_filter]
 }
 
 enum localmainnet_RelayerFee_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -1791,18 +2078,30 @@ input localmainnet_RelayerFeesIncrease_filter {
   increase_not_in: [BigInt!]
   asset: localmainnet_Bytes
   asset_not: localmainnet_Bytes
+  asset_gt: localmainnet_Bytes
+  asset_lt: localmainnet_Bytes
+  asset_gte: localmainnet_Bytes
+  asset_lte: localmainnet_Bytes
   asset_in: [localmainnet_Bytes!]
   asset_not_in: [localmainnet_Bytes!]
   asset_contains: localmainnet_Bytes
   asset_not_contains: localmainnet_Bytes
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -1841,11 +2140,42 @@ input localmainnet_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RelayerFeesIncrease_filter]
+  or: [localmainnet_RelayerFeesIncrease_filter]
 }
 
 enum localmainnet_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -1871,12 +2201,18 @@ input localmainnet_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: localmainnet_Bytes
   relayer_not: localmainnet_Bytes
+  relayer_gt: localmainnet_Bytes
+  relayer_lt: localmainnet_Bytes
+  relayer_gte: localmainnet_Bytes
+  relayer_lte: localmainnet_Bytes
   relayer_in: [localmainnet_Bytes!]
   relayer_not_in: [localmainnet_Bytes!]
   relayer_contains: localmainnet_Bytes
   relayer_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_Relayer_filter]
+  or: [localmainnet_Relayer_filter]
 }
 
 enum localmainnet_Relayer_orderBy {
@@ -1909,6 +2245,8 @@ input localmainnet_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootCount_filter]
+  or: [localmainnet_RootCount_filter]
 }
 
 enum localmainnet_RootCount_orderBy {
@@ -1957,6 +2295,10 @@ input localmainnet_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: localmainnet_Bytes
   root_not: localmainnet_Bytes
+  root_gt: localmainnet_Bytes
+  root_lt: localmainnet_Bytes
+  root_gte: localmainnet_Bytes
+  root_lte: localmainnet_Bytes
   root_in: [localmainnet_Bytes!]
   root_not_in: [localmainnet_Bytes!]
   root_contains: localmainnet_Bytes
@@ -1971,12 +2313,20 @@ input localmainnet_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -2015,6 +2365,8 @@ input localmainnet_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RootMessageSent_filter]
+  or: [localmainnet_RootMessageSent_filter]
 }
 
 enum localmainnet_RootMessageSent_orderBy {
@@ -2118,14 +2470,200 @@ input localmainnet_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RouterDailyTVL_filter]
+  or: [localmainnet_RouterDailyTVL_filter]
 }
 
 enum localmainnet_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
+}
+
+type localmainnet_RouterLiquidityEvent {
+  id: ID!
+  type: localmainnet_RouterLiquidityEventType
+  router: localmainnet_Router!
+  asset: localmainnet_Asset!
+  amount: BigInt!
+  balance: BigInt!
+  caller: localmainnet_Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  transactionHash: localmainnet_Bytes!
+  nonce: BigInt!
+}
+
+enum localmainnet_RouterLiquidityEventType {
+  Add
+  Remove
+}
+
+input localmainnet_RouterLiquidityEvent_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  type: localmainnet_RouterLiquidityEventType
+  type_not: localmainnet_RouterLiquidityEventType
+  type_in: [localmainnet_RouterLiquidityEventType!]
+  type_not_in: [localmainnet_RouterLiquidityEventType!]
+  router: String
+  router_not: String
+  router_gt: String
+  router_lt: String
+  router_gte: String
+  router_lte: String
+  router_in: [String!]
+  router_not_in: [String!]
+  router_contains: String
+  router_contains_nocase: String
+  router_not_contains: String
+  router_not_contains_nocase: String
+  router_starts_with: String
+  router_starts_with_nocase: String
+  router_not_starts_with: String
+  router_not_starts_with_nocase: String
+  router_ends_with: String
+  router_ends_with_nocase: String
+  router_not_ends_with: String
+  router_not_ends_with_nocase: String
+  router_: localmainnet_Router_filter
+  asset: String
+  asset_not: String
+  asset_gt: String
+  asset_lt: String
+  asset_gte: String
+  asset_lte: String
+  asset_in: [String!]
+  asset_not_in: [String!]
+  asset_contains: String
+  asset_contains_nocase: String
+  asset_not_contains: String
+  asset_not_contains_nocase: String
+  asset_starts_with: String
+  asset_starts_with_nocase: String
+  asset_not_starts_with: String
+  asset_not_starts_with_nocase: String
+  asset_ends_with: String
+  asset_ends_with_nocase: String
+  asset_not_ends_with: String
+  asset_not_ends_with_nocase: String
+  asset_: localmainnet_Asset_filter
+  amount: BigInt
+  amount_not: BigInt
+  amount_gt: BigInt
+  amount_lt: BigInt
+  amount_gte: BigInt
+  amount_lte: BigInt
+  amount_in: [BigInt!]
+  amount_not_in: [BigInt!]
+  balance: BigInt
+  balance_not: BigInt
+  balance_gt: BigInt
+  balance_lt: BigInt
+  balance_gte: BigInt
+  balance_lte: BigInt
+  balance_in: [BigInt!]
+  balance_not_in: [BigInt!]
+  caller: localmainnet_Bytes
+  caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
+  caller_in: [localmainnet_Bytes!]
+  caller_not_in: [localmainnet_Bytes!]
+  caller_contains: localmainnet_Bytes
+  caller_not_contains: localmainnet_Bytes
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  transactionHash: localmainnet_Bytes
+  transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
+  transactionHash_in: [localmainnet_Bytes!]
+  transactionHash_not_in: [localmainnet_Bytes!]
+  transactionHash_contains: localmainnet_Bytes
+  transactionHash_not_contains: localmainnet_Bytes
+  nonce: BigInt
+  nonce_not: BigInt
+  nonce_gt: BigInt
+  nonce_lt: BigInt
+  nonce_gte: BigInt
+  nonce_lte: BigInt
+  nonce_in: [BigInt!]
+  nonce_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_RouterLiquidityEvent_filter]
+  or: [localmainnet_RouterLiquidityEvent_filter]
+}
+
+enum localmainnet_RouterLiquidityEvent_orderBy {
+  id
+  type
+  router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
+  asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
+  amount
+  balance
+  caller
+  blockNumber
+  timestamp
+  transactionHash
+  nonce
 }
 
 input localmainnet_Router_filter {
@@ -2143,18 +2681,30 @@ input localmainnet_Router_filter {
   isActive_not_in: [Boolean!]
   owner: localmainnet_Bytes
   owner_not: localmainnet_Bytes
+  owner_gt: localmainnet_Bytes
+  owner_lt: localmainnet_Bytes
+  owner_gte: localmainnet_Bytes
+  owner_lte: localmainnet_Bytes
   owner_in: [localmainnet_Bytes!]
   owner_not_in: [localmainnet_Bytes!]
   owner_contains: localmainnet_Bytes
   owner_not_contains: localmainnet_Bytes
   recipient: localmainnet_Bytes
   recipient_not: localmainnet_Bytes
+  recipient_gt: localmainnet_Bytes
+  recipient_lt: localmainnet_Bytes
+  recipient_gte: localmainnet_Bytes
+  recipient_lte: localmainnet_Bytes
   recipient_in: [localmainnet_Bytes!]
   recipient_not_in: [localmainnet_Bytes!]
   recipient_contains: localmainnet_Bytes
   recipient_not_contains: localmainnet_Bytes
   proposedOwner: localmainnet_Bytes
   proposedOwner_not: localmainnet_Bytes
+  proposedOwner_gt: localmainnet_Bytes
+  proposedOwner_lt: localmainnet_Bytes
+  proposedOwner_gte: localmainnet_Bytes
+  proposedOwner_lte: localmainnet_Bytes
   proposedOwner_in: [localmainnet_Bytes!]
   proposedOwner_not_in: [localmainnet_Bytes!]
   proposedOwner_contains: localmainnet_Bytes
@@ -2170,6 +2720,8 @@ input localmainnet_Router_filter {
   assetBalances_: localmainnet_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_Router_filter]
+  or: [localmainnet_Router_filter]
 }
 
 enum localmainnet_Router_orderBy {
@@ -2203,12 +2755,18 @@ input localmainnet_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: localmainnet_Bytes
   sequencer_not: localmainnet_Bytes
+  sequencer_gt: localmainnet_Bytes
+  sequencer_lt: localmainnet_Bytes
+  sequencer_gte: localmainnet_Bytes
+  sequencer_lte: localmainnet_Bytes
   sequencer_in: [localmainnet_Bytes!]
   sequencer_not_in: [localmainnet_Bytes!]
   sequencer_contains: localmainnet_Bytes
   sequencer_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_Sequencer_filter]
+  or: [localmainnet_Sequencer_filter]
 }
 
 enum localmainnet_Sequencer_orderBy {
@@ -2242,12 +2800,18 @@ input localmainnet_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_Setting_filter]
+  or: [localmainnet_Setting_filter]
 }
 
 enum localmainnet_Setting_orderBy {
@@ -2308,12 +2872,20 @@ input localmainnet_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: localmainnet_Bytes
   caller_not: localmainnet_Bytes
+  caller_gt: localmainnet_Bytes
+  caller_lt: localmainnet_Bytes
+  caller_gte: localmainnet_Bytes
+  caller_lte: localmainnet_Bytes
   caller_in: [localmainnet_Bytes!]
   caller_not_in: [localmainnet_Bytes!]
   caller_contains: localmainnet_Bytes
   caller_not_contains: localmainnet_Bytes
   transactionHash: localmainnet_Bytes
   transactionHash_not: localmainnet_Bytes
+  transactionHash_gt: localmainnet_Bytes
+  transactionHash_lt: localmainnet_Bytes
+  transactionHash_gte: localmainnet_Bytes
+  transactionHash_lte: localmainnet_Bytes
   transactionHash_in: [localmainnet_Bytes!]
   transactionHash_not_in: [localmainnet_Bytes!]
   transactionHash_contains: localmainnet_Bytes
@@ -2352,11 +2924,49 @@ input localmainnet_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: localmainnet_BlockChangedFilter
+  and: [localmainnet_SlippageUpdate_filter]
+  or: [localmainnet_SlippageUpdate_filter]
 }
 
 enum localmainnet_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__executedTxNonce
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2497,6 +3107,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [localmainnet_RouterDailyTVL!]!
+  localmainnet_routerLiquidityEvent(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): localmainnet_RouterLiquidityEvent
+  localmainnet_routerLiquidityEvents(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: localmainnet_RouterLiquidityEvent_orderBy
+    orderDirection: localmainnet_OrderDirection
+    where: localmainnet_RouterLiquidityEvent_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: localmainnet_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [localmainnet_RouterLiquidityEvent!]!
   localmainnet_setting(
     id: ID!
     """
@@ -2852,6 +3488,8 @@ type localmainnet__Block_ {
   hash: localmainnet_Bytes
   """The block number"""
   number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
 }
 
 """The type for the top-level _meta field"""
