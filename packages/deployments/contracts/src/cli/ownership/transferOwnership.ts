@@ -123,6 +123,8 @@ export const transferOwnership = async () => {
 
     const proposed = await contract.proposed();
 
+    let canApply = apply;
+
     // handle case where the desired owner is already proposed
     if (proposed.toLowerCase() === desired.toLowerCase()) {
       // check deadline
@@ -148,23 +150,23 @@ export const transferOwnership = async () => {
 
       // Sanity check: wallet is proposed
       if (sender.address.toLowerCase() !== proposed.toLowerCase() && apply) {
-        throw new Error(
-          `Wallet is not proposed owner, sender: ${sender.address}, proposed: ${proposed}. Trying to accept owner for ${name} (${contract.address}).`,
-        );
+        canApply = false;
+        console.error(`Wallet is not proposed owner, sender: ${sender.address}, proposed: ${proposed}.`);
+        console.error(`Skipping transaction.`);
       }
 
-      console.log(`accepting new owner for ${name} (${contract.address}):`);
-      console.log(`- current: ${owner}`);
+      console.log(`\nAccepting new owner for ${name} (${contract.address}):`);
+      console.log(`- current  : ${owner}`);
       console.log(`- accepting: ${desired}`);
-      if (apply) {
+      if (canApply) {
         const tx = await contract.connect(sender).acceptProposedOwner();
-        console.log(`tx: ${tx.hash}`);
+        console.log(`- tx      : ${tx.hash}`);
         await tx.wait();
-        console.log(`tx mined`);
+        console.log(`- tx mined`);
       } else {
         const data = contract.interface.encodeFunctionData("acceptProposedOwner", []);
         const tx = { to: contract.address, data, chain: domainToChainId(domain) };
-        console.log(`- tx:`, tx);
+        console.log(`- tx      :`, tx);
       }
       return;
     }
@@ -172,22 +174,25 @@ export const transferOwnership = async () => {
     // need to propose new owner
     // Sanity check: wallet is current owner
     if (wallet.address.toLowerCase() !== owner.toLowerCase() && apply) {
-      throw new Error(`Wallet is not current owner, wallet: ${wallet.address}, owner: ${owner}`);
+      canApply = false;
+      console.error(`Wallet is not current owner, wallet: ${wallet.address}, owner: ${owner}`);
+      console.error(`Will only log transactions..`);
     }
 
     // propose new owner
     console.log(`proposing new owner for ${name} (${contract.address}):`);
-    console.log(`- current: ${owner}`);
+    console.log(`- current  : ${owner}`);
     console.log(`- proposing: ${desired}`);
-    if (apply) {
-      const tx = await contract.proposeNewOwner(desired);
-      console.log(`tx: ${tx.hash}`);
+    if (canApply) {
+      const tx = await contract.connect(wallet.connect(provider)).proposeNewOwner(desired);
+      console.log(`- tx      : ${tx.hash}`);
       await tx.wait();
-      console.log(`tx mined`);
+      console.log(`- tx mined`);
     } else {
       const data = contract.interface.encodeFunctionData("proposeNewOwner", [desired]);
       const tx = { to: contract.address, data, chain: domainToChainId(domain) };
-      console.log(`- tx:`, tx);
+      console.log(`- tx     :`, tx);
+      console.log(``);
     }
   };
 
