@@ -302,7 +302,7 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(30 minutes)"
+  schedule_expression    = "rate(10 minutes)"
   timeout                = 300
   memory_size            = 512
   lambda_in_vpc          = true
@@ -373,7 +373,7 @@ module "lighthouse_propagate_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
-  schedule_expression = "rate(30 minutes)"
+  schedule_expression = "rate(10 minutes)"
   memory_size         = 2048
 }
 
@@ -385,7 +385,7 @@ module "lighthouse_sendoutboundroot_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
-  schedule_expression = "rate(30 minutes)"
+  schedule_expression = "rate(10 minutes)"
   memory_size         = 2048
 }
 
@@ -426,7 +426,7 @@ module "lighthouse_propose_cron" {
   environment            = var.environment
   stage                  = var.stage
   container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
-  schedule_expression    = "rate(30 minutes)"
+  schedule_expression    = "rate(10 minutes)"
   memory_size            = 1536
   timeout                = 900
   lambda_in_vpc          = true
