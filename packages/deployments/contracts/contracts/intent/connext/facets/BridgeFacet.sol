@@ -382,35 +382,49 @@ contract BridgeFacet is BaseConnextFacet {
    * reconciliation to occur.
    */
   function execute(ExecuteArgs calldata _args) external nonReentrant whenNotPaused returns (bytes32) {
-    (bytes32 transferId, DestinationTransferStatus status) = _executeSanityChecks(_args);
+    // NOTE: This function should ideally behave similar to xcall and call a lower level internal function for consistency
 
-    DestinationTransferStatus updated = status == DestinationTransferStatus.Reconciled
-      ? DestinationTransferStatus.Completed
-      : DestinationTransferStatus.Executed;
+    /**
+     * Execute steps:
+     * Sanity check params
+     * Generate transferId
+     * Decrement router balance (TODO or minted assets? need to think about this for slow path)
+     * Generate executeMessage from router params and send it to settlementDomain. 
+       Note: if target domain is settlementDomain then it should just save the transferId for reconcile later
+     * Look up configured fees for the token
+     * Send tokens minus fees + execute the transaction
+     * Emit execute event
+     */
 
-    s.transferStatus[transferId] = updated;
+    // (bytes32 transferId, DestinationTransferStatus status) = _executeSanityChecks(_args);
 
-    // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
-    // when this is a slow transfer.
-    // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
-    (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
-      transferId,
-      AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
-      updated != DestinationTransferStatus.Completed,
-      _args
-    );
+    // DestinationTransferStatus updated = status == DestinationTransferStatus.Reconciled
+    //   ? DestinationTransferStatus.Completed
+    //   : DestinationTransferStatus.Executed;
 
-    // Execute the transaction using the designated calldata.
-    uint256 amount = _handleExecuteTransaction(
-      _args,
-      amountOut,
-      asset,
-      transferId,
-      updated == DestinationTransferStatus.Completed
-    );
+    // s.transferStatus[transferId] = updated;
+
+    // // Supply assets to target recipient. Use router liquidity when this is a fast transfer, or mint bridge tokens
+    // // when this is a slow transfer.
+    // // NOTE: Asset will be adopted unless specified to `receiveLocal` in params.
+    // (uint256 amountOut, address asset, address local) = _handleExecuteLiquidity(
+    //   transferId,
+    //   AssetLogic.calculateCanonicalHash(_args.params.canonicalId, _args.params.canonicalDomain),
+    //   updated != DestinationTransferStatus.Completed,
+    //   _args
+    // );
+
+    // // Execute the transaction using the designated calldata.
+    // uint256 amount = _handleExecuteTransaction(
+    //   _args,
+    //   amountOut,
+    //   asset,
+    //   transferId,
+    //   updated == DestinationTransferStatus.Completed
+    // );
 
     // Emit event.
-    emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender);
+    emit Executed(transferId, _args.params.to, asset, _args, local, amount, msg.sender, settlementDomain);
 
     return transferId;
   }

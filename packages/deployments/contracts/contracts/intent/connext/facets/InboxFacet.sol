@@ -126,13 +126,9 @@ contract InboxFacet is BaseConnextFacet {
       revert InboxFacet__handle_notTransfer();
     }
 
-    // If applicable, mint the local asset that corresponds with the message's token ID in the
-    // amount specified by the message.
-    // Returns the local asset address and message's amount.
-    (address _token, uint256 _amount) = _creditTokens(_origin, _nonce, _tokenId, _action);
-
     // Reconcile the transfer.
     _reconcile(_action.transferId(), _origin, _token, _amount);
+    emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount); //TODO should this be here? removed creditTokens fn
   }
 
   // ============ Internal Functions ============
@@ -146,7 +142,20 @@ contract InboxFacet is BaseConnextFacet {
    * @param _amount The amount of the asset.
    */
   function _reconcile(bytes32 _transferId, uint32 _origin, address _asset, uint256 _amount) internal {
-    // TODO
+    // TODO why is this in this facet? Confusing.
+
+    /**
+     * Reconcile steps:
+     * 1. Sanity check params
+     * 2. Verify that this domain is the settlementDomain
+     * 3. Verify that an xcallMessage associated with passed in transferId exists (via merkle proof)
+     * 4. Verify that an executeMessage associated with passed in transferId exists (via merkle proof)
+      NOTE: for either of the above, it's possible that no merkle proof is needed if the domain is either source or target domain
+     * 5. Look up the asset to determine its settlement strategy
+     * 6. Call handleReconcileSettlement on the given strategy
+     * 7. Use returned values to increase routerBalance
+     * 8. Emit event
+     */
 
     emit Reconciled(_transferId, _origin, _asset, routers, _amount, msg.sender);
   }
@@ -166,66 +175,5 @@ contract InboxFacet is BaseConnextFacet {
    */
   function _isRemoteHandler(uint32 _domain, bytes32 _xAppHandler) internal view returns (bool) {
     return s.remotes[_domain] == _xAppHandler && _xAppHandler != bytes32(0);
-  }
-
-  /**
-   * @notice If applicable, mints tokens corresponding to the inbound message action.
-   * @dev IFF the asset is representational (i.e. originates from a remote chain), tokens will be minted.
-   * Otherwise, the token must be canonical (i.e. we are on the token's home chain), and the corresponding
-   * amount will already be available in escrow in this contract.
-   *
-   * @param _origin The domain of the chain from which the transfer originated.
-   * @param _nonce The unique identifier for the message from origin to destination.
-   * @param _tokenId The canonical token identifier to credit.
-   * @param _action The contents of the transfer message.
-   * @return _token The address of the local token contract.
-   */
-  function _creditTokens(
-    uint32 _origin,
-    uint32 _nonce,
-    bytes29 _tokenId,
-    bytes29 _action
-  ) internal returns (address, uint256) {
-    bytes32 _canonicalId = _tokenId.id();
-    uint32 _canonicalDomain = _tokenId.domain();
-
-    // Load amount once.
-    uint256 _amount = _action.amnt();
-
-    // Check for the empty case -- if it is 0 value there is no strict requirement for the
-    // canonical information be defined (i.e. you can supply address(0) to xcall). If this
-    // is the case, return _token as address(0)
-    if (_amount == 0 && _canonicalDomain == 0 && _canonicalId == bytes32(0)) {
-      // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
-      emit Receive(_originAndNonce(_origin, _nonce), address(0), address(this), address(0), _amount);
-      return (address(0), 0);
-    }
-
-    // Get the token contract for the given tokenId on this chain.
-    address _token = _getLocalAsset(
-      AssetLogic.calculateCanonicalHash(_canonicalId, _canonicalDomain),
-      _canonicalId,
-      _canonicalDomain
-    );
-
-    if (_amount == 0) {
-      // Emit Receive event and short-circuit remaining logic: no tokens need to be delivered.
-      emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);
-      return (_token, 0);
-    }
-
-    // Mint the tokens into circulation on this chain.
-    if (!_isLocalOrigin(_token)) {
-      // If the token is of remote origin, mint the representational asset into circulation here.
-      // NOTE: The bridge tokens should be distributed to their intended recipient outside
-      IBridgeToken(_token).mint(address(this), _amount);
-    }
-    // NOTE: If the tokens are locally originating - meaning they are the canonical asset - then they
-    // would be held in escrow in this contract. If we're receiving this message, it must mean
-    // corresponding representational assets circulating on a remote chain were burnt when it was sent.
-
-    // Emit Receive event.
-    emit Receive(_originAndNonce(_origin, _nonce), _token, address(this), address(0), _amount);
-    return (_token, _amount);
   }
 }
