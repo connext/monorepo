@@ -311,7 +311,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   let beaconAddress: string | undefined;
 
   if (proxyDeployment) {
-    console.log(`${implementationName} proxy deployed. upgrading...`);
+    console.log(`${implementationName} proxy deployed. attempting to upgrade...`);
     // Get beacon and implementation addresses
     beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
     implementation = (await hre.deployments.getOrNull(implementationName))?.address;
@@ -337,6 +337,25 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
 
       // Then, upgrade proxy via beacon controller
       const controller = new Contract(controllerDeployment.address, controllerDeployment.abi).connect(deployer);
+
+      // The deployer can only submit this transaction _if_ it is the owner. If not, simply log the
+      // upgrade transaction.
+      const owner = await controller.owner();
+      if (deployer.address.toLowerCase() !== owner.toLowerCase()) {
+        console.log("=============================================");
+        console.log(`WARNING: deployer ${deployer.address} is not the owner of the controller ${controller.address}.`);
+        console.log(`please submit the upgrade transaction manually:`);
+        console.log(`- tx: `, {
+          to: controller.address,
+          chainId: await hre.getChainId(),
+          from: owner,
+          data: await controller.upgrade.encodeFunctionData(beaconAddress, implementation),
+        });
+        console.log("=============================================");
+
+        return new Contract(proxyDeployment.address, proxyDeployment.abi).connect(deployer) as unknown as T;
+      }
+
       const upgrade = await controller.upgrade(beaconAddress, implementation, { gasLimit: BigNumber.from(1_000_000) });
       console.log(`${implementationName} upgrade transaction:`, upgrade.hash);
       const receipt = await upgrade.wait();
