@@ -471,6 +471,45 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         // TODO: Blacklist/remove watchers.
       }
 
+      /// MARK - Proposers
+      if (protocol.agents.proposers) {
+        if (protocol.agents.proposers.allowlist) {
+          console.log("\n\nWHITELIST PROPOSERS");
+          // Allowlist named sequencers.
+          for (const proposer of protocol.agents.proposers.allowlist) {
+            for (const network of protocol.networks) {
+              const isHub = network.domain === protocol.hub;
+              // Whitelist on spoke connector
+              await updateIfNeeded({
+                apply,
+                deployment: isHub
+                  ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
+                  : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+                desired: true,
+                read: { method: "allowlistedProposers", args: [proposer] },
+                write: { method: "addProposer", args: [proposer] },
+                chainData,
+              });
+
+              if (!isHub) {
+                continue;
+              }
+
+              // Whitelist on root manager
+              await updateIfNeeded({
+                apply,
+                deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
+                desired: true,
+                read: { method: "allowlistedProposers", args: [proposer] },
+                write: { method: "addProposer", args: [proposer] },
+                chainData,
+              });
+            }
+          }
+        }
+        // TODO: Blacklist/remove proposers.
+      }
+
       /// MARK - Relayers
       if (protocol.agents.relayers) {
         if (protocol.agents.relayers.allowlist) {
