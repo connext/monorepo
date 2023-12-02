@@ -121,6 +121,7 @@ struct RouterConfig {
  * @param approval Allowed assets
  * @param cap Liquidity caps of whitelisted assets. If 0, no cap is enforced.
  * @param custodied Custodied balance by address
+ * @param settlementStrategy Mechanism used to settle transfers of this asset across domains
  */
 struct TokenConfig {
   address tokenAddress;
@@ -128,6 +129,22 @@ struct TokenConfig {
   bool approval;
   uint256 cap;
   uint256 custodied;
+  SettlementStrategy settlementStrategy; // TODO How should this be structured?.
+}
+
+/**
+ * @notice Defines the settlement strategy for a given token
+ * @dev We specifically define which domains are supported for the strategy, as not all tokens will have
+ * just a single strategy that works on all chains (e.g. CCTP). If a token is attempted to be transfered from origin ->
+ * destination but one or neither of the domains is supported by the strategy, then the system to fall back
+ * to the default Multilateral settlement strategy.
+ *
+ * @param supportedDomains[] Array of all domains supported as part of the settlement strategy
+ * @param settlementId Unique identifier of settlement strategy
+ */
+struct SettlementStrategy {
+  uint32[] supportedDomains; // TODO should this be an array? Need something cheap/easy to search through.
+  address settlementId; // TODO Should this be address? Need some identifier that is easily extensible.
 }
 
 struct AppStorage {
