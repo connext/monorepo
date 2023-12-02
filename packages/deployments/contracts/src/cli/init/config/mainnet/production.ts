@@ -434,6 +434,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
           adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
         },
+        /// Polygon
+        "1886350457": {
+          local: "0xdCb72AE4d5dc6Ae274461d57E65dB8D50d0a33AD",
+          adopted: "0xdCb72AE4d5dc6Ae274461d57E65dB8D50d0a33AD",
+        },
       },
     },
   ],
