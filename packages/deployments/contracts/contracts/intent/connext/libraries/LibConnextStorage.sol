@@ -119,17 +119,14 @@ struct RouterConfig {
  * @param tokenAddress Address of asset on this domain
  * @param decimals Decimals of adopted asset on this domain
  * @param approval Allowed assets
- * @param cap Liquidity caps of whitelisted assets. If 0, no cap is enforced.
- * @param custodied Custodied balance by address
  * @param settlementStrategy Mechanism used to settle transfers of this asset across domains
  */
 struct TokenConfig {
   address tokenAddress;
   uint8 decimals;
-  bool approval;
-  uint256 cap;
-  uint256 custodied;
+  bool approval; // TODO what is this? Description unhelpful.
   SettlementStrategy settlementStrategy; // TODO How should this be structured?.
+  FeeConfig feeConfig;
 }
 
 /**
@@ -145,6 +142,26 @@ struct TokenConfig {
 struct SettlementStrategy {
   uint32[] supportedDomains; // TODO should this be an array? Need something cheap/easy to search through.
   address settlementId; // TODO Should this be address? Need some identifier that is easily extensible.
+}
+
+/**
+ * @notice Defines the fee structure for a given token
+ * @dev should be checked as part of execute. Protocol admins and specified external actors should be able to call
+ * a sweep fees function (TODO implement)
+ * @dev all fees are specified as BPS
+ *
+ * @param routerFeeRate Fee rate of routers (current: 5bps)
+ * @param protocolFeeRate Fee rate of protocol
+ * @param externalFeeRate Fee rate of external actors, e.g. token issuers. (default: 0bps)
+ * @param externalSweepAddress Address capable of sweeping external actor fees
+ */
+
+struct FeeConfig {
+  uint8 routerFeeRate;
+  uint8 protocolFeeRate;
+  // TODO do we need a sweep address for protocol?
+  uint8 externalFeeRate;
+  address externalSweepAddress;
 }
 
 struct AppStorage {

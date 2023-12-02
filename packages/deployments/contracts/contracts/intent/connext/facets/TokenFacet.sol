@@ -80,10 +80,7 @@ contract TokenFacet is BaseConnextFacet {
   }
 
   function addressToCanonical(address _asset) public view returns (TokenId memory) {
-    TokenId memory canonical = TokenId(
-      s.addressToCanonical[_asset].domain,
-      s.adoptedToCanonical[_asset].id
-    );
+    TokenId memory canonical = TokenId(s.addressToCanonical[_asset].domain, s.adoptedToCanonical[_asset].id);
     return canonical;
   }
 
@@ -149,10 +146,7 @@ contract TokenFacet is BaseConnextFacet {
    * @param _canonical - The canonical id and domain to remove
    * @param _asset - Corresponding adopted asset to remove
    */
-  function removeAssetId(
-    TokenId calldata _canonical,
-    address _asset,
-  ) external onlyOwnerOrAdmin {
+  function removeAssetId(TokenId calldata _canonical, address _asset) external onlyOwnerOrAdmin {
     // TODO
   }
 
@@ -202,7 +196,7 @@ contract TokenFacet is BaseConnextFacet {
       revert TokenFacet__enrollAssets_emptyCanonical();
     }
 
-      // TODO
+    // TODO
   }
 
   /**
@@ -217,13 +211,9 @@ contract TokenFacet is BaseConnextFacet {
    * @param _representation - Corresponding representation asset (i.e. bridged asset) to remove.
    * @param _canonical - The TokenId (canonical ID and domain) of the asset.
    */
-  function _removeAssetId(
-    bytes32 _key,
-    address _asset
-    TokenId memory _canonical
-  ) internal {
+  function _removeAssetId(bytes32 _key, address _asset, TokenId memory _canonical) internal {
     TokenConfig storage config = s.tokenConfigs[_key];
- 
+
     // TODO
 
     // Emit event
