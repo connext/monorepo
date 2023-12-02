@@ -320,7 +320,7 @@ contract BridgeFacet is BaseConnextFacet {
     address _to,
     address _asset,
     uint256 _amount,
-    bytes calldata _calldata
+    bytes calldata _callData
   ) external nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
     // Some info is left blank and will be assigned in the internal `_xcall` function (e.g.
@@ -346,7 +346,7 @@ contract BridgeFacet is BaseConnextFacet {
     address _to,
     address _asset,
     uint256 _amount,
-    bytes calldata _calldata,
+    bytes calldata _callData,
     uint256 _relayerFee
   ) external nonXCallReentrant returns (bytes32) {
     // NOTE: Here, we fill in as much information as we can for the TransferInfo.
@@ -464,91 +464,44 @@ contract BridgeFacet is BaseConnextFacet {
     AssetTransfer memory _asset,
     AssetTransfer memory _relayer
   ) internal whenNotPaused returns (bytes32) {
-    // Sanity checks.
-    bytes32 remoteInstance;
-    {
-      // Not native asset.
-      // NOTE: We support using address(0) as an intuitive default if you are sending a 0-value
-      // transfer. In that edge case, address(0) will not be registered as a supported asset, but should
-      // pass the `isLocalOrigin` check
-      if (_asset.asset == address(0) && _asset.amount != 0) {
-        revert BridgeFacet__xcall_nativeAssetNotSupported();
-      }
+    /**
+     * XCall steps:
+     * 1. Param validation + sanity checks
+     * 2. Generate transferId
+     * 3. Transfer fees to contract
+     * 4. Look up asset in registry and get settlement strategy
+     * 5. Route to correct settlement module
+     * 6. Create message and send --> TODO what if messages are settlement-dependent?
+     * 7. Emit xcall event
+     */
 
-      // Destination domain is supported.
-      // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
-      // `s.domain` of `s.remotes` should always be `bytes32(0)`.
-      remoteInstance = _mustHaveRemote(_params.destinationDomain);
-    }
+    // // Sanity checks.
+    // bytes32 remoteInstance;
+    // {
+    //   // Not native asset.
+    //   // NOTE: We support using address(0) as an intuitive default if you are sending a 0-value
+    //   // transfer. In that edge case, address(0) will not be registered as a supported asset, but should
+    //   // pass the `isLocalOrigin` check
+    //   if (_asset.asset == address(0) && _asset.amount != 0) {
+    //     revert BridgeFacet__xcall_nativeAssetNotSupported();
+    //   }
 
-    bytes32 transferId;
-    TokenId memory canonical;
-    bool isCanonical;
-    {
-      // Check that the asset is supported -- can be either adopted or local.
-      // NOTE: Above we check that you can only have `address(0)` as the input asset if this is a
-      // 0-value transfer. Because 0-value transfers short-circuit all checks on mappings keyed on
-      // hash(canonicalId, canonicalDomain), this is safe even when the address(0) asset is not
-      // allowlisted.
-      if (_asset.asset != address(0)) {
-        // Retrieve the canonical token information.
-        bytes32 key;
-        (canonical, key) = _getApprovedCanonicalId(_asset.asset);
+    //   // Destination domain is supported.
+    //   // NOTE: This check implicitly also checks that `_params.destinationDomain != s.domain`, because the index
+    //   // `s.domain` of `s.remotes` should always be `bytes32(0)`.
+    //   remoteInstance = _mustHaveRemote(_params.destinationDomain);
+    // }
 
-        // Get the token config.
-        TokenConfig storage config = AssetLogic.getConfig(key);
+    // // Handle the relayer fee.
+    // if (_relayer.amount > 0) {
+    //   _bumpTransfer(transferId, _relayer.asset, _relayer.amount);
+    // }
 
-        // Set boolean flag
-        isCanonical = _params.originDomain == canonical.domain;
+    // Send the crosschain message. TODO Some strategies will not have messages -> blank msg?
+    _sendMessage(transferId, _params, _asset.asset, _asset.amount, remoteInstance, canonical, local, isCanonical);
 
-        // Get the local address
-        local = isCanonical ? TypeCasts.bytes32ToAddress(canonical.id) : config.representation;
-        if (local == address(0)) {
-          revert BridgeFacet_xcall__emptyLocalAsset();
-        }
-
-        // Update TransferInfo to reflect the canonical token information.
-        _params.canonicalDomain = canonical.domain;
-        _params.canonicalId = canonical.id;
-
-        if (_asset.amount > 0) {
-          // Transfer funds of input asset to the contract from the user.
-          AssetLogic.handleIncomingAsset(_asset.asset, _asset.amount);
-
-          // Get the normalized amount in (amount sent in by user in 18 decimals).
-          // NOTE: when getting the decimals from `_asset`, you don't know if you are looking for
-          // adopted or local assets
-          _params.normalizedIn = AssetLogic.normalizeDecimals(
-            config.decimals,
-            Constants.DEFAULT_NORMALIZED_DECIMALS,
-            _asset.amount
-          );
-        }
-      }
-
-      // Calculate the transfer ID.
-      _params.nonce = s.nonce++;
-      transferId = _calculateTransferId(_params);
-    }
-
-    // Handle the relayer fee.
-    // NOTE: This has to be done *after* transferring in + swapping assets because
-    // the transfer id uses the amount that is bridged (i.e. amount in local asset).
-    if (_relayer.amount > 0) {
-      _bumpTransfer(transferId, _relayer.asset, _relayer.amount);
-    }
-
-    // Send the crosschain message.
-    _sendMessageAndEmit(
-      transferId,
-      _params,
-      _asset.asset,
-      _asset.amount,
-      remoteInstance,
-      canonical,
-      local,
-      isCanonical
-    );
+    // emit event
+    emit XCalled(_transferId, _params.nonce, messageHash, _params, _asset, _amount, _local, messageBody);
 
     return transferId;
   }
@@ -698,21 +651,11 @@ contract BridgeFacet is BaseConnextFacet {
     // Save the addresses of all routers providing liquidity for this transfer.
     s.routedTransfers[_transferId] = _args.routers;
 
-    // Get the local asset contract address (if applicable).
-    address local;
-    if (_args.params.canonicalDomain != 0) {
-      local = _getLocalAsset(_key, _args.params.canonicalId, _args.params.canonicalDomain);
-    }
-
     // If this is a zero-value transfer, short-circuit remaining logic.
     if (_args.params.bridgedAmt == 0) {
       return (0, local, local);
     }
 
-    // Get the receive local status
-    bool receiveLocal = _args.params.receiveLocal || s.receiveLocalOverride[_transferId];
-
-    uint256 toSwap = _args.params.bridgedAmt;
     // If this is a fast liquidity path, we should handle deducting from applicable routers' liquidity.
     // If this is a slow liquidity path, the transfer must have been reconciled (if we've reached this point),
     // and the funds would have been custodied in this contract. The exact custodied amount is untracked in state
@@ -821,33 +764,16 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _params The TransferInfo.
    * @param _connextion The connext instance on the destination domain.
    * @param _canonical The canonical token ID/domain info.
-   * @param _local The local token address.
    * @param _amount The token amount.
-   * @param _isCanonical Whether or not the local token is the canonical asset (i.e. this is the token's
-   * "home" chain).
    */
-  function _sendMessageAndEmit(
+  function _sendMessage(
     bytes32 _transferId,
     TransferInfo memory _params,
     address _asset,
     uint256 _amount,
     bytes32 _connextion,
-    TokenId memory _canonical,
-    address _local,
-    bool _isCanonical
+    TokenId memory _canonical
   ) private {
-    // Remove tokens from circulation on this chain if applicable.
-    uint256 bridgedAmt = _params.bridgedAmt;
-    if (bridgedAmt > 0) {
-      if (!_isCanonical) {
-        // If the token originates on a remote chain, burn the representational tokens on this chain.
-        IBridgeToken(_local).burn(address(this), bridgedAmt);
-      }
-      // IFF the token IS the canonical token (i.e. originates on this chain), we lock the input tokens in escrow
-      // in this contract, as an equal amount of representational assets will be minted on the destination chain.
-      // NOTE: The tokens should be in the contract already at this point from xcall.
-    }
-
     bytes memory _messageBody = abi.encodePacked(
       _canonical.domain,
       _canonical.id,
@@ -863,9 +789,6 @@ contract BridgeFacet is BaseConnextFacet {
       _connextion,
       _messageBody
     );
-
-    // emit event
-    emit XCalled(_transferId, _params.nonce, messageHash, _params, _asset, _amount, _local, messageBody);
   }
 
   /**
