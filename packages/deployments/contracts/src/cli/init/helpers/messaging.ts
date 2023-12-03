@@ -173,26 +173,6 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           read: { method: "xAppConnectionManager", args: [] },
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
         });
-
-        /// MARK - RelayerProxy
-        console.log("\tVerifying relayer proxy are set as proposer correctly.");
-        await updateIfNeeded({
-          apply,
-          deployment: SpokeConnector,
-          desired: true,
-          read: { method: "allowlistedProposers", args: [RelayerProxy.address] },
-          write: { method: "addProposer", args: [RelayerProxy.address] },
-        });
-
-        for (const proposer of protocol.agents?.proposers?.allowlist || []) {
-          await updateIfNeeded({
-            apply,
-            deployment: SpokeConnector,
-            desired: true,
-            read: { method: "allowlistedProposers", args: [proposer] },
-            write: { method: "addProposer", args: [proposer] },
-          });
-        }
       }
     }
 
