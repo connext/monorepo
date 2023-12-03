@@ -91,7 +91,7 @@ const formatConnectorArgs = (
   }
   console.log(
     `spoke connector constructorArgs:`,
-    constructorArgs.map((c) => c.toString()),
+    Object.fromEntries(Object.entries(constructorArgs).map(([k, v]) => [k, v.toString()])),
   );
   return constructorArgs;
 };

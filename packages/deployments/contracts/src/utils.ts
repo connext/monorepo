@@ -279,7 +279,11 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
-  hre: HardhatRuntimeEnvironment & { deployments: DeploymentsExtension; ethers: any },
+  hre: HardhatRuntimeEnvironment & {
+    deployments: DeploymentsExtension;
+    ethers: any;
+    getChainId: () => Promise<string>;
+  },
   implementationArgs: any[] = [],
   deployName?: string,
 ): Promise<T> => {
