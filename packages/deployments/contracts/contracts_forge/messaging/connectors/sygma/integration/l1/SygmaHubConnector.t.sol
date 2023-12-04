@@ -27,7 +27,7 @@ contract Integration_Connector_SygmaHubConnector is Common {
       // uint16 len(executeFuncSignature)
       _lenFunctionSig,
       // bytes executeFuncSignature
-      sygmaHubConnector.receiveData.selector,
+      sygmaHubConnector.receiveMessage.selector,
       // uint8 len(executeContractAddress)
       _lenAddress,
       // bytes executeContractAddress
