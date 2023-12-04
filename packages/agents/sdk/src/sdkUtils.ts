@@ -245,8 +245,8 @@ export class SdkUtils extends SdkShared {
       ? `xcall_transaction_hash=eq.${transactionHash.toLowerCase()}&`
       : "";
     const xcallCallerIdentifier = xcallCaller ? `xcall_caller=eq.${xcallCaller.toLowerCase()}&` : "";
-    const originDomainIdentifier = originDomain ? `origin_domain.in.(${originDomain})&` : "";
-    const destinationDomainIdentifier = destinationDomain ? `destination_domain.in.(${destinationDomain})&` : "";
+    const originDomainIdentifier = originDomain ? `origin_domain.in(${originDomain})&` : "";
+    const destinationDomainIdentifier = destinationDomain ? `destination_domain.in(${destinationDomain})&` : "";
     const executeTransactionHashIdentifier = executeTransactionHash
       ? `execute_transaction_hash=eq.${executeTransactionHash.toLowerCase()}&`
       : "";
