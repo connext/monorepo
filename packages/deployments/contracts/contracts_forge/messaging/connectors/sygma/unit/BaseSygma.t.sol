@@ -6,25 +6,18 @@ import {BaseSygma, IConnector} from "../../../../../contracts/messaging/connecto
 import {IBridge} from "../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
 contract BaseSygmaForTest is BaseSygma {
-  constructor(address _amb, uint256 _gasCap) BaseSygma(_amb, _gasCap) {}
+  constructor(
+    address _amb,
+    address _permissionlessHandler,
+    uint256 _gasCap
+  ) BaseSygma(_amb, _permissionlessHandler, _gasCap) {}
 
   function forTest_checkDataLength(bytes memory _data) public pure returns (bool _validLength) {
     _validLength = _checkDataLength(_data);
   }
-
-  function forTest_parseDepositData(
-    bytes32 _root,
-    address _mirrorConnector
-  ) public view returns (bytes memory _depositData) {
-    _depositData = _parseDepositData(_root, _mirrorConnector);
-  }
 }
 
 contract Base is ConnectorHelper {
-  IBridge public bridge = IBridge(makeAddr("Bridge"));
-  BaseSygmaForTest public baseSygma;
-  address user = makeAddr("user");
-
   bytes32 internal constant _PERMISSIONLESS_HANDLER_ID = bytes32(0);
   uint256 internal constant _ROOT_LENGTH = 32;
   uint8 internal constant _ADDRESS_LEN = 20;
@@ -32,8 +25,13 @@ contract Base is ConnectorHelper {
   uint16 internal constant _FUNCTION_SIG_LEN = uint16(4);
   bytes4 internal constant _FUNCTION_SIG = IConnector.receiveMessage.selector;
 
+  IBridge public bridge = IBridge(makeAddr("Bridge"));
+  BaseSygmaForTest public baseSygma;
+  address user = makeAddr("user");
+  address permissionlessHandler = makeAddr("permissionlessHandler");
+
   function setUp() public {
-    baseSygma = new BaseSygmaForTest(address(bridge), _gasCap);
+    baseSygma = new BaseSygmaForTest(address(bridge), permissionlessHandler, _gasCap);
   }
 }
 
@@ -44,27 +42,13 @@ contract Unit_Connector_BaseSygma_Deployment is Base {
     assertEq(baseSygma.ADDRESS_LEN(), _ADDRESS_LEN);
     assertEq(baseSygma.ZERO_ADDRESS(), _ZERO_ADDRESS);
     assertEq(baseSygma.FUNCTION_SIG_LEN(), _FUNCTION_SIG_LEN);
-    bytes4 _functionSig = IConnector.receiveMessage.selector;
     assertEq(baseSygma.FUNCTION_SIG(), _FUNCTION_SIG);
   }
 
   function test_constructorArgs() public {
     assertEq(address(baseSygma.SYGMA_BRIDGE()), address(bridge));
+    assertEq(baseSygma.PERMISSIONLESS_HANDLER(), permissionlessHandler);
     assertEq(baseSygma.gasCap(), _gasCap);
-  }
-}
-
-contract Unit_Connector_BaseSygma_CheckDataLength is Base {
-  function test_returnFalse(bytes memory _data) public {
-    vm.assume(_data.length != baseSygma.ROOT_LENGTH());
-    bool _validLength = baseSygma.forTest_checkDataLength(_data);
-    assertEq(_validLength, false);
-  }
-
-  function test_returnTrue(bytes32 _root) public {
-    bytes memory _data = abi.encode(_root);
-    bool _validLength = baseSygma.forTest_checkDataLength(_data);
-    assertEq(_validLength, true);
   }
 }
 
@@ -87,7 +71,7 @@ contract Unit_Connector_BaseSygma_ParseDepositData is Base {
       _message
     );
 
-    bytes memory _depositData = baseSygma.forTest_parseDepositData(_root, _mirrorConnector);
+    bytes memory _depositData = baseSygma.parseDepositData(_root, _mirrorConnector);
     assertEq(_depositData, _expectedDepositData);
   }
 }
@@ -98,5 +82,19 @@ contract Unit_Connector_BaseSygma_Slice is Base {
     bytes memory _expectedSlicedData = _input[_position:];
     bytes memory _slicedData = baseSygma.slice(_input, _position);
     assertEq(_slicedData, _expectedSlicedData);
+  }
+}
+
+contract Unit_Connector_BaseSygma_CheckDataLength is Base {
+  function test_returnFalse(bytes memory _data) public {
+    vm.assume(_data.length != baseSygma.ROOT_LENGTH());
+    bool _validLength = baseSygma.forTest_checkDataLength(_data);
+    assertEq(_validLength, false);
+  }
+
+  function test_returnTrue(bytes32 _root) public {
+    bytes memory _data = abi.encode(_root);
+    bool _validLength = baseSygma.forTest_checkDataLength(_data);
+    assertEq(_validLength, true);
   }
 }

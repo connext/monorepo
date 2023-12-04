@@ -8,7 +8,8 @@ import {IBridge} from "../../../../contracts/messaging/interfaces/ambs/sygma/IBr
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 
 contract SygmaHubConnector is HubConnector, BaseSygma {
-  error SygmaHubConnector_SenderIsNotMirrorConnector();
+  error SygmaHubConnector_OnlyPermissionedHandler();
+  error SygmaHubConnector_OriginIsNotMirrorConnector();
   error SygmaHubConnector_DataLengthIsNot32();
 
   constructor(
@@ -17,11 +18,17 @@ contract SygmaHubConnector is HubConnector, BaseSygma {
     address _amb,
     address _rootManager,
     address _mirrorConnector,
+    address _permissionlessHandler,
     uint256 _gasCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseSygma(_amb, _gasCap) {}
+  )
+    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)
+    BaseSygma(_amb, _permissionlessHandler, _gasCap)
+  {}
 
-  function receiveMessage(address _originSender, bytes32 _root) external onlyAMB {
-    if (!_verifySender(_originSender)) revert SygmaHubConnector_SenderIsNotMirrorConnector();
+  // TODO: add permissionles handler here
+  function receiveMessage(address _originSender, bytes32 _root) external {
+    if (msg.sender != PERMISSIONLESS_HANDLER) revert SygmaHubConnector_OnlyPermissionedHandler();
+    if (!_verifySender(_originSender)) revert SygmaHubConnector_OriginIsNotMirrorConnector();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
   }
 
@@ -29,7 +36,7 @@ contract SygmaHubConnector is HubConnector, BaseSygma {
   function _sendMessage(bytes memory _root, bytes memory _encodedData) internal override {
     if (!_checkDataLength(_root)) revert SygmaHubConnector_DataLengthIsNot32();
     (uint8 sygmaDomainId, bytes memory _feeData) = abi.decode(_encodedData, (uint8, bytes));
-    bytes memory _depositData = _parseDepositData(bytes32(_root), mirrorConnector);
+    bytes memory _depositData = parseDepositData(bytes32(_root), mirrorConnector);
     SYGMA_BRIDGE.deposit{value: msg.value}(sygmaDomainId, PERMISSIONLESS_HANDLER_ID, _depositData, _feeData);
   }
 
@@ -37,12 +44,3 @@ contract SygmaHubConnector is HubConnector, BaseSygma {
     _validSender = _sender == mirrorConnector;
   }
 }
-
-// (uint256 _fee, ) = SygmaFeeRouter(FEE_ROUTER).calculateFee(
-//   msg.sender,
-//   DOMAIN_ID,
-//   messageData.destinationDomainId,
-//   messageData.resourceId,
-//   messageData.depositData,
-//   messageData.feeData
-// );

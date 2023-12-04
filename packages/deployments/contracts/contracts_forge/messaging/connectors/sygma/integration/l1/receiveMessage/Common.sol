@@ -2,13 +2,13 @@
 pragma solidity 0.8.17;
 
 import {BridgeForTest, Pausable, PermissionlessGenericHandlerForTest} from "./BridgeForTest.sol";
-import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
-import {ConnectorHelper} from "../../../../../utils/ConnectorHelper.sol";
-import {MerkleTreeManager} from "../../../../../../contracts/messaging/MerkleTreeManager.sol";
-import {RootManager} from "../../../../../../contracts/messaging/RootManager.sol";
-import {SygmaHubConnector} from "../../../../../../contracts/messaging/connectors/sygma/SygmaHubConnector.sol";
-import {WatcherManager} from "../../../../../../contracts/messaging/WatcherManager.sol";
-import {IBridge} from "../../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
+import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
+import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
+import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
+import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
+import {SygmaHubConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaHubConnector.sol";
+import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
+import {IBridge} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 18_586_480;
@@ -73,9 +73,10 @@ contract Common is ConnectorHelper {
     sygmaHubConnector = new SygmaHubConnector(
       DOMAIN,
       MIRROR_DOMAIN,
-      address(permissionlessGenericHandler),
+      _amb,
       address(rootManager),
       mirrorConnector,
+      address(permissionlessGenericHandler),
       _gasCap
     );
 

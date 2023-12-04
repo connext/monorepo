@@ -14,19 +14,14 @@ abstract contract BaseSygma is GasCap {
   uint16 public constant FUNCTION_SIG_LEN = 4;
   bytes4 public constant FUNCTION_SIG = IConnector.receiveMessage.selector;
   IBridge public immutable SYGMA_BRIDGE;
+  address public immutable PERMISSIONLESS_HANDLER;
 
-  constructor(address _amb, uint256 _gasCap) GasCap(_gasCap) {
+  constructor(address _amb, address _permissionlessHandler, uint256 _gasCap) GasCap(_gasCap) {
     SYGMA_BRIDGE = IBridge(_amb);
+    PERMISSIONLESS_HANDLER = _permissionlessHandler;
   }
 
-  function _checkDataLength(bytes memory _data) internal pure returns (bool _validLength) {
-    _validLength = _data.length == ROOT_LENGTH;
-  }
-
-  function _parseDepositData(
-    bytes32 _root,
-    address _mirrorConnector
-  ) internal view returns (bytes memory _depositData) {
+  function parseDepositData(bytes32 _root, address _mirrorConnector) public view returns (bytes memory _depositData) {
     // Parse the message on the required format by Sygma
     bytes memory _message = abi.encode(ZERO_ADDRESS, _root);
     _message = this.slice(_message, ROOT_LENGTH);
@@ -37,7 +32,7 @@ abstract contract BaseSygma is GasCap {
       // uint16 len(executeFuncSignature)
       FUNCTION_SIG_LEN,
       // bytes executeFuncSignature
-      FUNCTION_SIG, // TODO -> check this could break things
+      IConnector.receiveMessage.selector,
       // uint8 len(executeContractAddress)
       ADDRESS_LEN,
       // bytes executeContractAddress
@@ -53,6 +48,10 @@ abstract contract BaseSygma is GasCap {
 
   function slice(bytes calldata input, uint256 position) public pure returns (bytes memory _slicedData) {
     _slicedData = input[position:];
+  }
+
+  function _checkDataLength(bytes memory _data) internal pure returns (bool _validLength) {
+    _validLength = _data.length == ROOT_LENGTH;
   }
 }
 

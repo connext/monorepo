@@ -2,9 +2,9 @@
 pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
-import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
+import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 import {BridgeForTest} from "./BridgeForTest.sol";
-import {SygmaHubConnector} from "../../../../../../contracts/messaging/connectors/sygma/SygmaHubConnector.sol";
+import {SygmaHubConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaHubConnector.sol";
 
 contract Integration_Connector_SygmaHubConnector is Common {
   event RootReceived(uint32 _domain, bytes32 _receivedRoot, uint256 _queueIndex);
@@ -13,7 +13,7 @@ contract Integration_Connector_SygmaHubConnector is Common {
     return input[position:];
   }
 
-  function test_processMessage(bytes memory _root, uint64 _depositNonce, bytes memory _signature) external {
+  function test_receiveMessage(bytes memory _root, uint64 _depositNonce, bytes memory _signature) external {
     /* Prepare the data */
     bytes memory _prepareData = abi.encode(address(0), bytes32(_root));
     bytes memory _data = this.slice(_prepareData, 32);

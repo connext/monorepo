@@ -10,18 +10,12 @@ contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _spokeConstructorParams,
     uint8 _hubDomainId,
+    address _permissionlessHandler,
     uint256 _gasCap
-  ) SygmaSpokeConnector(_spokeConstructorParams, _hubDomainId, _gasCap) {}
+  ) SygmaSpokeConnector(_spokeConstructorParams, _hubDomainId, _permissionlessHandler, _gasCap) {}
 
   function forTest_sendMessage(bytes memory _data, bytes memory _feeData) external {
     _sendMessage(_data, _feeData);
-  }
-
-  function forTest_parseDepositData(
-    bytes32 _root,
-    address _mirrorConnector
-  ) external view returns (bytes memory _depositData) {
-    _depositData = _parseDepositData(_root, _mirrorConnector);
   }
 
   function forTest_processMessage(bytes memory _data) external pure {
@@ -35,6 +29,7 @@ contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
 
 contract Base is ConnectorHelper {
   address public user = makeAddr("user");
+  address public permissionlessHandler = makeAddr("permissionlessHandler");
   address public watcherManager = makeAddr("watcherManager");
 
   SygmaSpokeConnectorForTest public sygmaSpokeConnector;
@@ -60,7 +55,12 @@ contract Base is ConnectorHelper {
       disputeBlocks
     );
     vm.prank(_owner);
-    sygmaSpokeConnector = new SygmaSpokeConnectorForTest(_constructorParams, sygmaHubDomainId, _gasCap);
+    sygmaSpokeConnector = new SygmaSpokeConnectorForTest(
+      _constructorParams,
+      sygmaHubDomainId,
+      permissionlessHandler,
+      _gasCap
+    );
   }
 }
 
@@ -79,6 +79,7 @@ contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
     assertEq(sygmaSpokeConnector.minDisputeBlocks(), minDisputeBlocks);
     assertEq(sygmaSpokeConnector.disputeBlocks(), disputeBlocks);
     assertEq(sygmaSpokeConnector.HUB_DOMAIN_ID(), sygmaHubDomainId);
+    assertEq(sygmaSpokeConnector.PERMISSIONLESS_HANDLER(), permissionlessHandler);
     assertEq(sygmaSpokeConnector.gasCap(), _gasCap);
   }
 }
@@ -86,8 +87,8 @@ contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
 contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
-  function test_revertIfNotAMB(address _caller, address _originSender, bytes32 _root) public {
-    vm.expectRevert(bytes("!AMB"));
+  function test_revertIfNotPermissionlessHandler(address _caller, address _originSender, bytes32 _root) public {
+    vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_OnlyPermissionedHandler.selector);
     vm.assume(_caller != _amb);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
@@ -95,7 +96,7 @@ contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
   function test_revertIfOriginNotMirror(address _originSender, bytes32 _root) public {
     vm.assume(_originSender != sygmaSpokeConnector.mirrorConnector());
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_SenderIsNotMirrorConnector.selector);
-    vm.prank(_amb);
+    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 
@@ -103,7 +104,7 @@ contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
     vm.assume(_root != bytes32(""));
     vm.roll(_blockNumber);
     address _originSender = sygmaSpokeConnector.mirrorConnector();
-    vm.prank(_amb);
+    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
     assertEq(sygmaSpokeConnector.pendingAggregateRoots(_root), _blockNumber);
   }
@@ -116,7 +117,7 @@ contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
     vm.expectEmit(true, true, true, true, address(sygmaSpokeConnector));
     emit AggregateRootReceived(_root);
 
-    vm.prank(_amb);
+    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 }
@@ -137,7 +138,7 @@ contract Unit_Connector_SygmaSpokeConnector__SendMessage is Base {
   ) public {
     // Parse the root and then get the deposit data
     bytes memory _data = abi.encodePacked(_root);
-    bytes memory _depositData = sygmaSpokeConnector.forTest_parseDepositData(_root, _l1Connector);
+    bytes memory _depositData = sygmaSpokeConnector.parseDepositData(_root, _l1Connector);
     // Expect sygma bridge `deposit` method to be called correctly
     _mockAndExpect(
       _amb,
