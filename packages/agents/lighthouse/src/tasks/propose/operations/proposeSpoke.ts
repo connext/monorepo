@@ -77,7 +77,6 @@ export const proposeSpoke = async (spokeDomain: string) => {
     throw new NoSpokeConnector(spokeDomain, requestContext, methodContext);
   }
 
-  // TODO: V1.1 right way to find out the latest aggregate root
   let proposedAggregateRootHash: string = FINALIZED_HASH;
   let idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
   try {

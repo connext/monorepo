@@ -36,6 +36,7 @@ export const mockDatabase = (): Database => {
     getMessageRootIndex: stub().resolves(),
     getMessageRootAggregatedFromIndex: stub().resolves(),
     getMessageRootCount: stub().resolves(),
+    getOutboundRootTimestamp: stub().resolves(),
     getLatestMessageRoot: stub().resolves(),
     getLatestAggregateRoots: stub().resolves(),
     getMessageRootStatusFromIndex: stub().resolves(),

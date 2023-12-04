@@ -224,6 +224,7 @@ export const mock = {
         routers?: string[];
         relayerFee?: string; // deprecated
         relayerFees?: { [asset: string]: string };
+        xcall_timestamp?: number;
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -304,7 +305,7 @@ export const mock = {
                 // Event Data
                 caller: user,
                 transactionHash: getRandomBytes32(),
-                timestamp: Math.floor(Date.now() / 1000 - 60),
+                timestamp: overrides.xcall_timestamp ?? Math.floor(Date.now() / 1000 - 60),
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
                 blockNumber: 7654321,

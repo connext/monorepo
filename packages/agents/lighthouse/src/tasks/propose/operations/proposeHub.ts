@@ -70,6 +70,8 @@ export const proposeHub = async () => {
   }
 
   const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration);
+  const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
+
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
   });
@@ -86,10 +88,14 @@ export const proposeHub = async () => {
         if (!snapshotRoot) {
           throw new NoSnapshotRoot(domain, requestContext, methodContext);
         }
-        const latestDbSnapshotId = Math.floor(snapshotRoot.timestamp / config.snapshotDuration);
-        if (latestSnapshotId > latestDbSnapshotId) {
-          latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
-
+        const latestDbSnapshotId = +snapshotRoot.id;
+        latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
+        const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, latestSnapshotRoot);
+        if (
+          latestSnapshotId > latestDbSnapshotId &&
+          outboundRootTimestamp &&
+          outboundRootTimestamp < latestSnapshotTimestamp
+        ) {
           const messageRootCount = await database.getMessageRootCount(domain, latestSnapshotRoot);
           if (
             messageRootCount &&
@@ -108,7 +114,7 @@ export const proposeHub = async () => {
                 spokeDomain: +domain,
                 root: latestSnapshotRoot,
                 count: messageRootCount + 1,
-                timestamp: getNtpTimeSeconds(),
+                timestamp: latestSnapshotTimestamp,
               },
             ]);
           }

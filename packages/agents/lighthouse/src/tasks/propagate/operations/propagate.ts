@@ -56,7 +56,7 @@ export const propagate = async () => {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+  // const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
 
   // Check if LH should propagate as backup of keep3r
   // logger.info("Checking if LH propagate workable", requestContext, methodContext);
