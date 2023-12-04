@@ -540,6 +540,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
     },
   },
