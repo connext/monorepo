@@ -59,15 +59,19 @@ export const sanitizeAndInit = async () => {
     throw new Error(`Environment should be either staging or production, env: ${env}`);
   }
 
-  if (!["testnet", "mainnet"].includes(network as string)) {
+  if (!["local", "devnet", "testnet", "mainnet"].includes(network as string)) {
     throw new Error(`Network should be either testnet or mainnet, network: ${network}`);
   }
 
   const useStaging = env === "staging";
   console.log(`USING ${useStaging ? "STAGING" : "PRODUCTION"} AS ENVIRONMENT. DRYRUN: ${!apply}`);
 
+  console.log(`Network: `, network);
+
   // Read init.json if exists
-  const path = process.env.INIT_CONFIG_FILE ?? "init.json";
+  const path =
+    process.env.INIT_CONFIG_FILE ??
+    (network === "devnet" ? "devnet.init.json" : network === "local" ? "local.init.json" : "init.json");
   let overrideConfig: any;
   if (fs.existsSync(path)) {
     const json = fs.readFileSync(path, { encoding: "utf-8" });
@@ -127,7 +131,7 @@ export const sanitizeAndInit = async () => {
     };
 
     for (const domain of domains) {
-      if (domain === hubDomain) continue;
+      if (+domain === +asset.canonical.domain) continue;
       _extracted.representations[domain] = asset.representations[domain];
     }
 
@@ -152,6 +156,7 @@ export const sanitizeAndInit = async () => {
     const network = (hardhatNetworks as { [key: string]: any })[key];
     if (
       !key.includes("fork") &&
+      !key.includes("devnet") &&
       Object.keys(network as object).includes("chainId") &&
       Object.keys(network as object).includes("url")
     ) {
@@ -178,7 +183,7 @@ export const sanitizeAndInit = async () => {
     } else {
       deployer = chainConfig.zksync ? zk.Wallet.fromMnemonic(mnemonic!) : Wallet.fromMnemonic(mnemonic!);
     }
-    console.log("deployer: ", deployer.address);
+    console.log(`domain: ${domain}, deployer: ${deployer.address}, rpc: ${chainConfig.url}`);
 
     const rpc = chainConfig.zksync ? new zk.Provider(chainConfig.url) : new providers.JsonRpcProvider(chainConfig.url);
 
@@ -188,6 +193,7 @@ export const sanitizeAndInit = async () => {
       chainInfo: { chain: chainId.toString(), rpc, zksync: chainConfig.zksync || false },
       isHub,
       useStaging,
+      network,
     });
 
     // TODO: all agents should also be configured per-network

@@ -150,6 +150,8 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     console.error("Error starting Propagate task. Sad! :(", e);
     await closeDatabase();
   } finally {
-    process.exit();
+    context.logger.info("Propagate task complete!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
   }
 };

@@ -222,6 +222,7 @@ export const AssetSchema = Type.Object({
   id: TAddress,
   key: Type.String(),
   decimal: TIntegerString,
+  adoptedDecimal: TIntegerString,
   adoptedAsset: TAddress,
   canonicalId: Type.String(),
   canonicalDomain: Type.String(),
@@ -290,3 +291,24 @@ export const RouterDailyTVLSchema = Type.Object({
   balance: TIntegerString,
 });
 export type RouterDailyTVL = Static<typeof RouterDailyTVLSchema>;
+
+export const RouterLiquidityEventType = {
+  Add: "Add",
+  Remove: "Remove",
+} as const;
+export type RouterLiquidityEventType = (typeof RouterLiquidityEventType)[keyof typeof RouterLiquidityEventType];
+
+export const RouterLiquidityEventSchema = Type.Object({
+  id: Type.String(),
+  domain: Type.String(),
+  router: TAddress,
+  event: Type.Enum(RouterLiquidityEventType),
+  asset: TAddress,
+  amount: Type.Number(),
+  balance: Type.Number(),
+  blockNumber: Type.Number(),
+  transactionHash: Type.String(),
+  timestamp: Type.Number(),
+  nonce: Type.Number(),
+});
+export type RouterLiquidityEvent = Static<typeof RouterLiquidityEventSchema>;

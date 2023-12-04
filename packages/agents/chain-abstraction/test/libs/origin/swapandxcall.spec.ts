@@ -30,7 +30,9 @@ describe("Libs:origin", () => {
   describe("#calculateRouteForSwapAndXCall", () => {
     it("should throw if swapper config doesn't exist", async () => {
       await expect(
-        calculateRouteForSwapAndXCall("1337", constants.AddressZero, constants.AddressZero, "100", mkAddress("0x1")),
+        calculateRouteForSwapAndXCall("1337", constants.AddressZero, constants.AddressZero, "100", mkAddress("0x1"), {
+          apiKey: "12345",
+        }),
       ).to.be.rejectedWith("Swapper config not found for domain: 1337");
     });
     it("should work", async () => {
@@ -42,6 +44,7 @@ describe("Libs:origin", () => {
         BNB_USDC,
         "100000",
         mkAddress("0x1"),
+        { apiKey: "12345" },
       );
 
       expect(calculatedRoute).to.be.deep.eq({
@@ -63,7 +66,7 @@ describe("Libs:origin", () => {
     });
     it("happy-1: should work with default params", async () => {
       axiosGetStub.resolves({ data: { tx: { data: "0x1a1a1a" } } });
-      const res = await prepareSwapAndXCall(mockSwapAndXCallParams, mkAddress("0x123"));
+      const res = await prepareSwapAndXCall(mockSwapAndXCallParams, mkAddress("0x123"), { apiKey: "12345" });
       expect(res).to.be.deep.eq({
         to: "0x6e92344d08F8443a9C704452ac66bEFB90D32E12",
         value: BigNumber.from(0),

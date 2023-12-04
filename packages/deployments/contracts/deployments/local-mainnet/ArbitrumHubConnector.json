@@ -1,0 +1,652 @@
+{
+  "address": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_mirrorDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_rootManager",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "Connector__processMessage_notUsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_noProposal",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "MessageProcessed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "encodedData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "MessageSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "MirrorConnectorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "mirrorDomain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "amb",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "rootManager",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "mirrorConnector",
+          "type": "address"
+        }
+      ],
+      "name": "NewConnector",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposedOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "AMB",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DOMAIN",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIRROR_DOMAIN",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ROOT_MANAGER",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProposedOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_data",
+          "type": "bytes32"
+        }
+      ],
+      "name": "addSpokeRootToAggregate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "delay",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mirrorConnector",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "processMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newlyProposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeNewOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposedTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_encodedData",
+          "type": "bytes"
+        }
+      ],
+      "name": "sendMessage",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_mirrorConnector",
+          "type": "address"
+        }
+      ],
+      "name": "setMirrorConnector",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_expected",
+          "type": "address"
+        }
+      ],
+      "name": "verifySender",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0xeea232ef0da2301e58a14c636c6eb43ba91b5bd33f5d55749f571c0db32fbc2c",
+  "receipt": {
+    "to": null,
+    "from": "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+    "contractAddress": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+    "transactionIndex": 0,
+    "gasUsed": "783520",
+    "logsBloom": "0x00000000000000000000000000000000000000000000001000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000090000000000000000001000000000000000000000000000080000000020000000000000000000800000000000010000080000000000200400000000000000000000000000000000000000000000000000800010000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000400000000000000000000020000800000000000000000000000000000000000000000002000000000000000000",
+    "blockHash": "0x86b58473d83af60374759d174d7c42ecddd853ac8bda9fa3168b8356c1ee72bf",
+    "transactionHash": "0xeea232ef0da2301e58a14c636c6eb43ba91b5bd33f5d55749f571c0db32fbc2c",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 24,
+        "transactionHash": "0xeea232ef0da2301e58a14c636c6eb43ba91b5bd33f5d55749f571c0db32fbc2c",
+        "address": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x86b58473d83af60374759d174d7c42ecddd853ac8bda9fa3168b8356c1ee72bf"
+      },
+      {
+        "transactionIndex": 0,
+        "blockNumber": 24,
+        "transactionHash": "0xeea232ef0da2301e58a14c636c6eb43ba91b5bd33f5d55749f571c0db32fbc2c",
+        "address": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+        "topics": [
+          "0x4f9c27c2fe3f84576ea469d367d044da53c45e951617e8389f2b5ed8db9d25f0",
+          "0x0000000000000000000000000000000000000000000000000000000000007a69",
+          "0x0000000000000000000000000000000000000000000000000000000000007a6b"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000000",
+        "logIndex": 1,
+        "blockHash": "0x86b58473d83af60374759d174d7c42ecddd853ac8bda9fa3168b8356c1ee72bf"
+      },
+      {
+        "transactionIndex": 0,
+        "blockNumber": 24,
+        "transactionHash": "0xeea232ef0da2301e58a14c636c6eb43ba91b5bd33f5d55749f571c0db32fbc2c",
+        "address": "0x75c35C980C0d37ef46DF04d31A140b65503c0eEd",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57",
+          "0x000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57"
+        ],
+        "data": "0x",
+        "logIndex": 2,
+        "blockHash": "0x86b58473d83af60374759d174d7c42ecddd853ac8bda9fa3168b8356c1ee72bf"
+      }
+    ],
+    "blockNumber": 24,
+    "cumulativeGasUsed": "783520",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "31337",
+    "31339",
+    "0x0000000000000000000000000000000000000000",
+    "0x9FBDa871d559710256a2502A2517b794B482Db40",
+    "0x0000000000000000000000000000000000000000"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "658e0604d8512e235620028e7538de65",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"_domain\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"_mirrorDomain\",\"type\":\"uint32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_rootManager\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"Connector__processMessage_notUsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyOwner_notOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyProposed_notProposedOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__ownershipDelayElapsed_delayNotElapsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_noOwnershipChange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_noProposal\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MessageProcessed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"encodedData\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MessageSent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previous\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"current\",\"type\":\"address\"}],\"name\":\"MirrorConnectorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint32\",\"name\":\"domain\",\"type\":\"uint32\"},{\"indexed\":true,\"internalType\":\"uint32\",\"name\":\"mirrorDomain\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"amb\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"rootManager\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"mirrorConnector\",\"type\":\"address\"}],\"name\":\"NewConnector\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"OwnershipProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"AMB\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DOMAIN\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIRROR_DOMAIN\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ROOT_MANAGER\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"acceptProposedOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"_data\",\"type\":\"bytes32\"}],\"name\":\"addSpokeRootToAggregate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"delay\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mirrorConnector\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"processMessage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newlyProposed\",\"type\":\"address\"}],\"name\":\"proposeNewOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposed\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposedTimestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounced\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"_encodedData\",\"type\":\"bytes\"}],\"name\":\"sendMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_mirrorConnector\",\"type\":\"address\"}],\"name\":\"setMirrorConnector\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_expected\",\"type\":\"address\"}],\"name\":\"verifySender\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"Connext\",\"kind\":\"dev\",\"methods\":{\"addSpokeRootToAggregate(bytes32)\":{\"params\":{\"_data\":\"The data to be added to the merkle tree\"}},\"processMessage(bytes)\":{\"details\":\"This is called by AMBs to process messages originating from mirror connector\"},\"sendMessage(bytes,bytes)\":{\"details\":\"This is called by the root manager *only* on mainnet to propagate the aggregate root\"}},\"title\":\"AdminHubConnector\",\"version\":1},\"userdoc\":{\"events\":{\"MessageProcessed(bytes,address)\":{\"notice\":\"Emitted whenever a message is successfully received over an AMB\"},\"MessageSent(bytes,bytes,address)\":{\"notice\":\"Emitted whenever a message is successfully sent over an AMB\"}},\"kind\":\"user\",\"methods\":{\"AMB()\":{\"notice\":\"Address of the AMB on this domain.\"},\"DOMAIN()\":{\"notice\":\"The domain of this Messaging (i.e. Connector) contract.\"},\"MIRROR_DOMAIN()\":{\"notice\":\"The domain of the corresponding messaging (i.e. Connector) contract.\"},\"ROOT_MANAGER()\":{\"notice\":\"RootManager contract address.\"},\"acceptProposedOwner()\":{\"notice\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"addSpokeRootToAggregate(bytes32)\":{\"notice\":\"Owner only function that allows merkle roots to be added to the RootManager's merkle tree.\"},\"delay()\":{\"notice\":\"Returns the delay period before a new owner can be accepted.\"},\"mirrorConnector()\":{\"notice\":\"Connector on L2 for L1 connectors, and vice versa.\"},\"owner()\":{\"notice\":\"Returns the address of the current owner.\"},\"processMessage(bytes)\":{\"notice\":\"Processes a message received by an AMB\"},\"proposeNewOwner(address)\":{\"notice\":\"Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process\"},\"proposed()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"proposedTimestamp()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"renounceOwnership()\":{\"notice\":\"Renounces ownership of the contract after a delay\"},\"renounced()\":{\"notice\":\"Indicates if the ownership has been renounced() by checking if current owner is address(0)\"},\"sendMessage(bytes,bytes)\":{\"notice\":\"Sends a message over the amb\"},\"setMirrorConnector(address)\":{\"notice\":\"Sets the address of the l2Connector for this domain\"},\"verifySender(address)\":{\"notice\":\"Checks the cross domain sender for a given address\"}},\"notice\":\"This contract is a hub connector that allows the owner to create roots which will be added to the RootManager's merkle trees. This is meant to be deployed only as an emergency measure where an AMB is no longer operational and a root needs to be sent in order to allow users to withdraw funds. This contract should be deployed with the same domain as the AMB it is replacing.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/messaging/connectors/admin/AdminHubConnector.sol\":\"AdminHubConnector\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/messaging/connectors/Connector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {ProposedOwnable} from \\\"../../shared/ProposedOwnable.sol\\\";\\nimport {IConnector} from \\\"../interfaces/IConnector.sol\\\";\\n\\n/**\\n * @title Connector\\n * @author Connext Labs, Inc.\\n * @notice This contract has the messaging interface functions used by all connectors.\\n *\\n * @dev This contract stores information about mirror connectors, but can be used as a\\n * base for contracts that do not have a mirror (i.e. the connector handling messaging on\\n * mainnet). In this case, the `mirrorConnector` and `MIRROR_DOMAIN`\\n * will be empty\\n *\\n * @dev If ownership is renounced, this contract will be unable to update its `mirrorConnector`\\n * or `mirrorGas`\\n */\\nabstract contract Connector is ProposedOwnable, IConnector {\\n  // ========== Custom Errors ===========\\n\\n  error Connector__processMessage_notUsed();\\n\\n  // ============ Events ============\\n\\n  event NewConnector(\\n    uint32 indexed domain,\\n    uint32 indexed mirrorDomain,\\n    address amb,\\n    address rootManager,\\n    address mirrorConnector\\n  );\\n\\n  event MirrorConnectorUpdated(address previous, address current);\\n\\n  // ============ Public Storage ============\\n\\n  /**\\n   * @notice The domain of this Messaging (i.e. Connector) contract.\\n   */\\n  uint32 public immutable DOMAIN;\\n\\n  /**\\n   * @notice Address of the AMB on this domain.\\n   */\\n  address public immutable AMB;\\n\\n  /**\\n   * @notice RootManager contract address.\\n   */\\n  address public immutable ROOT_MANAGER;\\n\\n  /**\\n   * @notice The domain of the corresponding messaging (i.e. Connector) contract.\\n   */\\n  uint32 public immutable MIRROR_DOMAIN;\\n\\n  /**\\n   * @notice Connector on L2 for L1 connectors, and vice versa.\\n   */\\n  address public mirrorConnector;\\n\\n  // ============ Modifiers ============\\n\\n  /**\\n   * @notice Errors if the msg.sender is not the registered AMB\\n   */\\n  modifier onlyAMB() {\\n    require(msg.sender == AMB, \\\"!AMB\\\");\\n    _;\\n  }\\n\\n  /**\\n   * @notice Errors if the msg.sender is not the registered ROOT_MANAGER\\n   */\\n  modifier onlyRootManager() {\\n    // NOTE: RootManager will be zero address for spoke connectors.\\n    // Only root manager can dispatch a message to spokes/L2s via the hub connector.\\n    require(msg.sender == ROOT_MANAGER, \\\"!rootManager\\\");\\n    _;\\n  }\\n\\n  // ============ Constructor ============\\n\\n  /**\\n   * @notice Creates a new HubConnector instance\\n   * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.\\n   * for optimism, there is one connector on optimism and one connector on mainnet)\\n   * @param _domain The domain this connector lives on\\n   * @param _mirrorDomain The spoke domain\\n   * @param _amb The address of the amb on the domain this connector lives on\\n   * @param _rootManager The address of the RootManager on mainnet\\n   * @param _mirrorConnector The address of the spoke connector\\n   */\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address _amb,\\n    address _rootManager,\\n    address _mirrorConnector\\n  ) ProposedOwnable() {\\n    // set the owner\\n    _setOwner(msg.sender);\\n\\n    // sanity checks on values\\n    require(_domain != 0, \\\"empty domain\\\");\\n    require(_rootManager != address(0), \\\"empty rootManager\\\");\\n    // see note at top of contract on why the mirror values are not sanity checked\\n\\n    // set immutables\\n    DOMAIN = _domain;\\n    AMB = _amb;\\n    ROOT_MANAGER = _rootManager;\\n    MIRROR_DOMAIN = _mirrorDomain;\\n    // set mutables if defined\\n    if (_mirrorConnector != address(0)) {\\n      _setMirrorConnector(_mirrorConnector);\\n    }\\n\\n    emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);\\n  }\\n\\n  // ============ Receivable ============\\n  /**\\n   * @notice Connectors may need to receive native asset to handle fees when sending a\\n   * message\\n   */\\n  receive() external payable {}\\n\\n  // ============ Admin Functions ============\\n\\n  /**\\n   * @notice Sets the address of the l2Connector for this domain\\n   */\\n  function setMirrorConnector(address _mirrorConnector) public onlyOwner {\\n    _setMirrorConnector(_mirrorConnector);\\n  }\\n\\n  // ============ Public Functions ============\\n\\n  /**\\n   * @notice Processes a message received by an AMB\\n   * @dev This is called by AMBs to process messages originating from mirror connector\\n   */\\n  function processMessage(bytes memory _data) external virtual onlyAMB {\\n    _processMessage(_data);\\n    emit MessageProcessed(_data, msg.sender);\\n  }\\n\\n  /**\\n   * @notice Checks the cross domain sender for a given address\\n   */\\n  function verifySender(address _expected) external returns (bool) {\\n    return _verifySender(_expected);\\n  }\\n\\n  // ============ Virtual Functions ============\\n\\n  /**\\n   * @notice This function is used by the Connext contract on the l2 domain to send a message to the\\n   * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)\\n   * @param _data The contents of the message\\n   * @param _encodedData Data used to send the message; specific to connector\\n   */\\n  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal virtual;\\n\\n  /**\\n   * @notice This function is used by the AMBs to handle incoming messages. Should store the latest\\n   * root generated on the l2 domain.\\n   */\\n  function _processMessage(\\n    bytes memory /* _data */\\n  ) internal virtual {\\n    // By default, reverts. This is to ensure the call path is not used unless this function is\\n    // overridden by the inheriting class\\n    revert Connector__processMessage_notUsed();\\n  }\\n\\n  /**\\n   * @notice Verify that the msg.sender is the correct AMB contract, and that the message's origin sender\\n   * is the expected address.\\n   * @dev Should be overridden by the implementing Connector contract.\\n   */\\n  function _verifySender(address _expected) internal virtual returns (bool);\\n\\n  // ============ Private Functions ============\\n\\n  function _setMirrorConnector(address _mirrorConnector) internal virtual {\\n    emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);\\n    mirrorConnector = _mirrorConnector;\\n  }\\n}\\n\",\"keccak256\":\"0x08d4077a1b5caf9f46491206064bb24bee467dd741b42fed3d30a608eea83368\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/HubConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {Connector} from \\\"./Connector.sol\\\";\\n\\n/**\\n * @title HubConnector\\n * @author Connext Labs, Inc.\\n * @notice This contract implements the messaging functions needed on the hub-side of a given AMB.\\n * The HubConnector has a limited set of functionality compared to the SpokeConnector, namely that\\n * it contains no logic to store or prove messages.\\n *\\n * @dev This contract should be deployed on the hub-side of an AMB (i.e. on L1), and contracts\\n * which extend this should implement the virtual functions defined in the BaseConnector class\\n */\\nabstract contract HubConnector is Connector {\\n  /**\\n   * @notice Creates a new HubConnector instance\\n   * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.\\n   * for optimism, there is one connector on optimism and one connector on mainnet)\\n   * @param _domain The domain this connector lives on\\n   * @param _mirrorDomain The spoke domain\\n   * @param _amb The address of the amb on the domain this connector lives on\\n   * @param _rootManager The address of the RootManager on mainnet\\n   * @param _mirrorConnector The address of the spoke connector\\n   */\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address _amb,\\n    address _rootManager,\\n    address _mirrorConnector\\n  ) Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {}\\n\\n  // ============ Public fns ============\\n  /**\\n   * @notice Sends a message over the amb\\n   * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root\\n   */\\n  function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {\\n    _sendMessage(_data, _encodedData);\\n    emit MessageSent(_data, _encodedData, msg.sender);\\n  }\\n}\\n\",\"keccak256\":\"0xc35621419ca872ed0550b0943a577b39942f3d2c9b54de008fee382d5ad290e4\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/admin/AdminHubConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {IRootManager} from \\\"../../interfaces/IRootManager.sol\\\";\\nimport {HubConnector} from \\\"../HubConnector.sol\\\";\\nimport {ProposedOwnable} from \\\"../../../shared/ProposedOwnable.sol\\\";\\n\\n/**\\n * @title AdminHubConnector\\n * @author Connext\\n * @notice This contract is a hub connector that allows the owner to create roots which will be added to the RootManager's merkle trees.\\n * This is meant to be deployed only as an emergency measure where an AMB is no longer operational and a root needs to be sent in order to\\n * allow users to withdraw funds. This contract should be deployed with the same domain as the AMB it is replacing.\\n */\\ncontract AdminHubConnector is ProposedOwnable, HubConnector {\\n  // ============ Constructor ============\\n  // some params are unused so they will not be specified\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address,\\n    address _rootManager,\\n    address\\n  ) ProposedOwnable() HubConnector(_domain, _mirrorDomain, address(0), _rootManager, address(0)) {\\n    _setOwner(msg.sender);\\n  }\\n\\n  // ============ Admin fns ============\\n  /**\\n   * Owner only function that allows merkle roots to be added to the RootManager's merkle tree.\\n   * @param _data The data to be added to the merkle tree\\n   */\\n  function addSpokeRootToAggregate(bytes32 _data) external onlyOwner {\\n    // Sanity check: ensure the _data is nonzero\\n    require(_data != bytes32(0), \\\"empty\\\");\\n\\n    // Aggregate on the root manager\\n    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _data);\\n\\n    // Emit event\\n    emit MessageProcessed(abi.encode(_data), msg.sender);\\n  }\\n\\n  // ============ Private fns ============\\n\\n  /**\\n   * @notice Should not be used as this contract has no crosschain counterpart.\\n   * @dev Reverts if `Connector.verifySender` is called\\n   */\\n  function _verifySender(address) internal pure override returns (bool) {\\n    require(false, \\\"!supported\\\");\\n  }\\n\\n  /**\\n   * @notice This function is a no-op as this connector does NOT send messages across\\n   * chains.\\n   * @dev Is a no-op over a revert so `RootManager.sendMessage` does not revert.\\n   */\\n  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {}\\n}\\n\",\"keccak256\":\"0xe37ca72ee8779f81f84b5dfe1dae92790fbb9402a99fa942bd0cad6330abd7d0\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/interfaces/IConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"../../shared/interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @notice This interface is what the Connext contract will send and receive messages through.\\n * The messaging layer should conform to this interface, and should be interchangeable (i.e.\\n * could be Nomad or a generic AMB under the hood).\\n *\\n * @dev This uses the nomad format to ensure nomad can be added in as it comes back online.\\n *\\n * Flow from transfer from polygon to optimism:\\n * 1. User calls `xcall` with destination specified\\n * 2. This will swap in to the bridge assets\\n * 3. The swapped assets will get burned\\n * 4. The Connext contract will call `dispatch` on the messaging contract to add the transfer\\n *    to the root\\n * 5. [At some time interval] Relayers call `send` to send the current root from polygon to\\n *    mainnet. This is done on all \\\"spoke\\\" domains.\\n * 6. [At some time interval] Relayers call `propagate` [better name] on mainnet, this generates a new merkle\\n *    root from all of the AMBs\\n *    - This function must be able to read root data from all AMBs and aggregate them into a single merkle\\n *      tree root\\n *    - Will send the mixed root from all chains back through the respective AMBs to all other chains\\n * 7. AMB will call `update` to update the latest root on the messaging contract on spoke domains\\n * 8. [At any point] Relayers can call `proveAndProcess` to prove inclusion of dispatched message, and call\\n *    process on the `Connext` contract\\n * 9. Takes minted bridge tokens and credits the LP\\n *\\n * AMB requirements:\\n * - Access `msg.sender` both from mainnet -> spoke and vice versa\\n * - Ability to read *our root* from the AMB\\n *\\n * AMBs:\\n * - PoS bridge from polygon\\n * - arbitrum bridge\\n * - optimism bridge\\n * - gnosis chain\\n * - bsc (use multichain for messaging)\\n */\\ninterface IConnector is IProposedOwnable {\\n  // ============ Events ============\\n  /**\\n   * @notice Emitted whenever a message is successfully sent over an AMB\\n   * @param data The contents of the message\\n   * @param encodedData Data used to send the message; specific to connector\\n   * @param caller Who called the function (sent the message)\\n   */\\n  event MessageSent(bytes data, bytes encodedData, address caller);\\n\\n  /**\\n   * @notice Emitted whenever a message is successfully received over an AMB\\n   * @param data The contents of the message\\n   * @param caller Who called the function\\n   */\\n  event MessageProcessed(bytes data, address caller);\\n\\n  // ============ Public fns ============\\n\\n  function processMessage(bytes memory _data) external;\\n\\n  function verifySender(address _expected) external returns (bool);\\n}\\n\",\"keccak256\":\"0xfba166354b442fa72b05be07aed38400b47f68498e8dfdd94fc43df00c401ed1\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/interfaces/IRootManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\ninterface IRootManager {\\n  /**\\n   * @notice This is called by relayers to generate + send the mixed root from mainnet via AMB to\\n   * spoke domains.\\n   * @dev This must read information for the root from the registered AMBs.\\n   */\\n  function propagate(\\n    address[] calldata _connectors,\\n    uint256[] calldata _fees,\\n    bytes[] memory _encodedData\\n  ) external payable;\\n\\n  /**\\n   * @notice Called by the connectors for various domains on the hub to aggregate their latest\\n   * inbound root.\\n   * @dev This must read information for the root from the registered AMBs\\n   */\\n  function aggregate(uint32 _domain, bytes32 _outbound) external;\\n}\\n\",\"keccak256\":\"0xa895dfaa4baad37a636e7e7e7da72a0a4badfd2d3d8256f975e5101cd5a98236\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/shared/ProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"./interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @title ProposedOwnable\\n * @notice Contract module which provides a basic access control mechanism,\\n * where there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed via a two step process:\\n * 1. Call `proposeOwner`\\n * 2. Wait out the delay period\\n * 3. Call `acceptOwner`\\n *\\n * @dev This module is used through inheritance. It will make available the\\n * modifier `onlyOwner`, which can be applied to your functions to restrict\\n * their use to the owner.\\n *\\n * @dev The majority of this code was taken from the openzeppelin Ownable\\n * contract\\n *\\n */\\nabstract contract ProposedOwnable is IProposedOwnable {\\n  // ========== Custom Errors ===========\\n\\n  error ProposedOwnable__onlyOwner_notOwner();\\n  error ProposedOwnable__onlyProposed_notProposedOwner();\\n  error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n  error ProposedOwnable__proposeNewOwner_invalidProposal();\\n  error ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n  error ProposedOwnable__renounceOwnership_noProposal();\\n  error ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n  // ============ Properties ============\\n\\n  address private _owner;\\n\\n  address private _proposed;\\n  uint256 private _proposedOwnershipTimestamp;\\n\\n  uint256 private constant _delay = 7 days;\\n\\n  // ======== Getters =========\\n\\n  /**\\n   * @notice Returns the address of the current owner.\\n   */\\n  function owner() public view virtual returns (address) {\\n    return _owner;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposed() public view virtual returns (address) {\\n    return _proposed;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposedTimestamp() public view virtual returns (uint256) {\\n    return _proposedOwnershipTimestamp;\\n  }\\n\\n  /**\\n   * @notice Returns the delay period before a new owner can be accepted.\\n   */\\n  function delay() public view virtual returns (uint256) {\\n    return _delay;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the owner.\\n   */\\n  modifier onlyOwner() {\\n    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the proposed owner.\\n   */\\n  modifier onlyProposed() {\\n    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if the ownership delay has not elapsed\\n   */\\n  modifier ownershipDelayElapsed() {\\n    // Ensure delay has elapsed\\n    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)\\n      revert ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Indicates if the ownership has been renounced() by\\n   * checking if current owner is address(0)\\n   */\\n  function renounced() public view returns (bool) {\\n    return _owner == address(0);\\n  }\\n\\n  // ======== External =========\\n\\n  /**\\n   * @notice Sets the timestamp for an owner to be proposed, and sets the\\n   * newly proposed owner as step 1 in a 2-step process\\n   */\\n  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {\\n    // Contract as source of truth\\n    if (_proposed == newlyProposed && _proposedOwnershipTimestamp != 0)\\n      revert ProposedOwnable__proposeNewOwner_invalidProposal();\\n\\n    // Sanity check: reasonable proposal\\n    if (_owner == newlyProposed) revert ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n\\n    _setProposed(newlyProposed);\\n  }\\n\\n  /**\\n   * @notice Renounces ownership of the contract after a delay\\n   */\\n  function renounceOwnership() public virtual onlyOwner ownershipDelayElapsed {\\n    // Ensure there has been a proposal cycle started\\n    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();\\n\\n    // Require proposed is set to 0\\n    if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(address(0));\\n  }\\n\\n  /**\\n   * @notice Transfers ownership of the contract to a new account (`newOwner`).\\n   * Can only be called by the current owner.\\n   */\\n  function acceptProposedOwner() public virtual onlyProposed ownershipDelayElapsed {\\n    // NOTE: no need to check if _owner == _proposed, because the _proposed\\n    // is 0-d out and this check is implicitly enforced by modifier\\n\\n    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because\\n    // the only time this would happen is if the _proposed was never\\n    // set (will fail from modifier) or if the owner == _proposed (checked\\n    // above)\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(_proposed);\\n  }\\n\\n  // ======== Internal =========\\n\\n  function _setOwner(address newOwner) internal {\\n    emit OwnershipTransferred(_owner, newOwner);\\n    _owner = newOwner;\\n    delete _proposedOwnershipTimestamp;\\n    delete _proposed;\\n  }\\n\\n  function _setProposed(address newlyProposed) private {\\n    _proposedOwnershipTimestamp = block.timestamp;\\n    _proposed = newlyProposed;\\n    emit OwnershipProposed(newlyProposed);\\n  }\\n}\\n\",\"keccak256\":\"0xa96eff4fdff55ffa29cda5c18285a9af04c3cbaf55f83696085cdd2251a8d6c0\",\"license\":\"UNLICENSED\"},\"contracts/shared/interfaces/IProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/**\\n * @title IProposedOwnable\\n * @notice Defines a minimal interface for ownership with a two step proposal and acceptance\\n * process\\n */\\ninterface IProposedOwnable {\\n  /**\\n   * @dev This emits when change in ownership of a contract is proposed.\\n   */\\n  event OwnershipProposed(address indexed proposedOwner);\\n\\n  /**\\n   * @dev This emits when ownership of a contract changes.\\n   */\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Get the address of the owner\\n   * @return owner_ The address of the owner.\\n   */\\n  function owner() external view returns (address owner_);\\n\\n  /**\\n   * @notice Get the address of the proposed owner\\n   * @return proposed_ The address of the proposed.\\n   */\\n  function proposed() external view returns (address proposed_);\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   * @param newlyProposed The proposed new owner of the contract\\n   */\\n  function proposeNewOwner(address newlyProposed) external;\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   */\\n  function acceptProposedOwner() external;\\n}\\n\",\"keccak256\":\"0x4ec1aa589d37d0c1eac9966e26d2d3540d1661b81763e678f14d2c6fa0682323\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101006040523480156200001257600080fd5b5060405162000fc438038062000fc4833981016040819052620000359162000298565b84846000848184848284816200004b3362000198565b8463ffffffff16600003620000965760405162461bcd60e51b815260206004820152600c60248201526b32b6b83a3c903237b6b0b4b760a11b60448201526064015b60405180910390fd5b6001600160a01b038216620000e25760405162461bcd60e51b815260206004820152601160248201527032b6b83a3c903937b7ba26b0b730b3b2b960791b60448201526064016200008d565b63ffffffff8086166080526001600160a01b0380851660a05283811660c05290851660e0528116156200011a576200011a81620001fd565b604080516001600160a01b0385811682528481166020830152831681830152905163ffffffff86811692908816917f4f9c27c2fe3f84576ea469d367d044da53c45e951617e8389f2b5ed8db9d25f09181900360600190a3505050505050505050506200018d336200019860201b60201c565b505050505062000308565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b805163ffffffff811681146200027b57600080fd5b919050565b80516001600160a01b03811681146200027b57600080fd5b600080600080600060a08688031215620002b157600080fd5b620002bc8662000266565b9450620002cc6020870162000266565b9350620002dc6040870162000280565b9250620002ec6060870162000280565b9150620002fc6080870162000280565b90509295509295909350565b60805160a05160c05160e051610c666200035e6000396000818161012b0152610774015260008181610221015281816103c101526107a2015260008181610354015261046c015260006101cd0152610c666000f3fe60806040526004361061010d5760003560e01c80638da5cb5b11610095578063d1851c9211610064578063d1851c92146102f9578063d232c22014610317578063d69f9d6114610342578063d993bee314610376578063db1b76591461039657600080fd5b80638da5cb5b14610286578063b1f8100d146102a4578063c5b350df146102c4578063cc394283146102d957600080fd5b806352a9674b116100dc57806352a9674b146101bb5780635bd11efc146101ef5780635f61e3ec1461020f5780636a42b8f81461025b578063715018a61461027157600080fd5b806314168416146101195780633cf52ffb1461016757806348e6fa23146101865780634ff746f61461019b57600080fd5b3661011457005b600080fd5b34801561012557600080fd5b5061014d7f000000000000000000000000000000000000000000000000000000000000000081565b60405163ffffffff90911681526020015b60405180910390f35b34801561017357600080fd5b506002545b60405190815260200161015e565b610199610194366004610a77565b6103b6565b005b3480156101a757600080fd5b506101996101b6366004610adb565b610461565b3480156101c757600080fd5b5061014d7f000000000000000000000000000000000000000000000000000000000000000081565b3480156101fb57600080fd5b5061019961020a366004610b18565b610507565b34801561021b57600080fd5b506102437f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161015e565b34801561026757600080fd5b5062093a80610178565b34801561027d57600080fd5b5061019961053e565b34801561029257600080fd5b506000546001600160a01b0316610243565b3480156102b057600080fd5b506101996102bf366004610b18565b6105f2565b3480156102d057600080fd5b50610199610690565b3480156102e557600080fd5b50600354610243906001600160a01b031681565b34801561030557600080fd5b506001546001600160a01b0316610243565b34801561032357600080fd5b506000546001600160a01b0316155b604051901515815260200161015e565b34801561034e57600080fd5b506102437f000000000000000000000000000000000000000000000000000000000000000081565b34801561038257600080fd5b50610199610391366004610b48565b610700565b3480156103a257600080fd5b506103326103b1366004610b18565b610856565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104225760405162461bcd60e51b815260206004820152600c60248201526b10b937b7ba26b0b730b3b2b960a11b60448201526064015b60405180910390fd5b7fdcaa37a042a0087de79018c629bbd29cee82ca80bd9be394e1696bf9e935507782823360405161045593929190610ba7565b60405180910390a15050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104c25760405162461bcd60e51b81526004016104199060208082526004908201526310a0a6a160e11b604082015260600190565b6104cb81610867565b7fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced81336040516104fc929190610be5565b60405180910390a150565b6000546001600160a01b03163314610532576040516311a8a1bb60e31b815260040160405180910390fd5b61053b81610880565b50565b6000546001600160a01b03163314610569576040516311a8a1bb60e31b815260040160405180910390fd5b62093a806002544261057b9190610c0f565b11610599576040516324e0285f60e21b815260040160405180910390fd5b6002546000036105bc57604051630e4b303f60e21b815260040160405180910390fd5b6001546001600160a01b0316156105e6576040516323295ef960e01b815260040160405180910390fd5b6105f060006108e9565b565b6000546001600160a01b0316331461061d576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b03828116911614801561063b575060025415155b15610659576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831691160361068757604051634a2fb73f60e11b815260040160405180910390fd5b61053b8161094e565b6001546001600160a01b031633146106bb576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426106cd9190610c0f565b116106eb576040516324e0285f60e21b815260040160405180910390fd5b6001546105f0906001600160a01b03166108e9565b6000546001600160a01b0316331461072b576040516311a8a1bb60e31b815260040160405180910390fd5b806107605760405162461bcd60e51b8152602060048201526005602482015264656d70747960d81b6044820152606401610419565b60405163473ec9fd60e11b815263ffffffff7f0000000000000000000000000000000000000000000000000000000000000000166004820152602481018290527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690638e7d93fa90604401600060405180830381600087803b1580156107ee57600080fd5b505af1158015610802573d6000803e3d6000fd5b505050507fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8160405160200161083a91815260200190565b60408051601f19818403018152908290526104fc913390610be5565b60006108618261099c565b92915050565b6040516316c2fdb560e21b815260040160405180910390fd5b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b60405162461bcd60e51b815260206004820152600a602482015269085cdd5c1c1bdc9d195960b21b6044820152600090606401610419565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126109fb57600080fd5b813567ffffffffffffffff80821115610a1657610a166109d4565b604051601f8301601f19908116603f01168101908282118183101715610a3e57610a3e6109d4565b81604052838152866020858801011115610a5757600080fd5b836020870160208301376000602085830101528094505050505092915050565b60008060408385031215610a8a57600080fd5b823567ffffffffffffffff80821115610aa257600080fd5b610aae868387016109ea565b93506020850135915080821115610ac457600080fd5b50610ad1858286016109ea565b9150509250929050565b600060208284031215610aed57600080fd5b813567ffffffffffffffff811115610b0457600080fd5b610b10848285016109ea565b949350505050565b600060208284031215610b2a57600080fd5b81356001600160a01b0381168114610b4157600080fd5b9392505050565b600060208284031215610b5a57600080fd5b5035919050565b6000815180845260005b81811015610b8757602081850181015186830182015201610b6b565b506000602082860101526020601f19601f83011685010191505092915050565b606081526000610bba6060830186610b61565b8281036020840152610bcc8186610b61565b91505060018060a01b0383166040830152949350505050565b604081526000610bf86040830185610b61565b905060018060a01b03831660208301529392505050565b8181038181111561086157634e487b7160e01b600052601160045260246000fdfea26469706673582212201a68bb1fc2e8c53f7674ee390d55626807d8fc035d060e19abf2d43ac7b3e24664736f6c63430008110033",
+  "deployedBytecode": "0x60806040526004361061010d5760003560e01c80638da5cb5b11610095578063d1851c9211610064578063d1851c92146102f9578063d232c22014610317578063d69f9d6114610342578063d993bee314610376578063db1b76591461039657600080fd5b80638da5cb5b14610286578063b1f8100d146102a4578063c5b350df146102c4578063cc394283146102d957600080fd5b806352a9674b116100dc57806352a9674b146101bb5780635bd11efc146101ef5780635f61e3ec1461020f5780636a42b8f81461025b578063715018a61461027157600080fd5b806314168416146101195780633cf52ffb1461016757806348e6fa23146101865780634ff746f61461019b57600080fd5b3661011457005b600080fd5b34801561012557600080fd5b5061014d7f000000000000000000000000000000000000000000000000000000000000000081565b60405163ffffffff90911681526020015b60405180910390f35b34801561017357600080fd5b506002545b60405190815260200161015e565b610199610194366004610a77565b6103b6565b005b3480156101a757600080fd5b506101996101b6366004610adb565b610461565b3480156101c757600080fd5b5061014d7f000000000000000000000000000000000000000000000000000000000000000081565b3480156101fb57600080fd5b5061019961020a366004610b18565b610507565b34801561021b57600080fd5b506102437f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161015e565b34801561026757600080fd5b5062093a80610178565b34801561027d57600080fd5b5061019961053e565b34801561029257600080fd5b506000546001600160a01b0316610243565b3480156102b057600080fd5b506101996102bf366004610b18565b6105f2565b3480156102d057600080fd5b50610199610690565b3480156102e557600080fd5b50600354610243906001600160a01b031681565b34801561030557600080fd5b506001546001600160a01b0316610243565b34801561032357600080fd5b506000546001600160a01b0316155b604051901515815260200161015e565b34801561034e57600080fd5b506102437f000000000000000000000000000000000000000000000000000000000000000081565b34801561038257600080fd5b50610199610391366004610b48565b610700565b3480156103a257600080fd5b506103326103b1366004610b18565b610856565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104225760405162461bcd60e51b815260206004820152600c60248201526b10b937b7ba26b0b730b3b2b960a11b60448201526064015b60405180910390fd5b7fdcaa37a042a0087de79018c629bbd29cee82ca80bd9be394e1696bf9e935507782823360405161045593929190610ba7565b60405180910390a15050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146104c25760405162461bcd60e51b81526004016104199060208082526004908201526310a0a6a160e11b604082015260600190565b6104cb81610867565b7fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced81336040516104fc929190610be5565b60405180910390a150565b6000546001600160a01b03163314610532576040516311a8a1bb60e31b815260040160405180910390fd5b61053b81610880565b50565b6000546001600160a01b03163314610569576040516311a8a1bb60e31b815260040160405180910390fd5b62093a806002544261057b9190610c0f565b11610599576040516324e0285f60e21b815260040160405180910390fd5b6002546000036105bc57604051630e4b303f60e21b815260040160405180910390fd5b6001546001600160a01b0316156105e6576040516323295ef960e01b815260040160405180910390fd5b6105f060006108e9565b565b6000546001600160a01b0316331461061d576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b03828116911614801561063b575060025415155b15610659576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b0380831691160361068757604051634a2fb73f60e11b815260040160405180910390fd5b61053b8161094e565b6001546001600160a01b031633146106bb576040516311a7f27160e11b815260040160405180910390fd5b62093a80600254426106cd9190610c0f565b116106eb576040516324e0285f60e21b815260040160405180910390fd5b6001546105f0906001600160a01b03166108e9565b6000546001600160a01b0316331461072b576040516311a8a1bb60e31b815260040160405180910390fd5b806107605760405162461bcd60e51b8152602060048201526005602482015264656d70747960d81b6044820152606401610419565b60405163473ec9fd60e11b815263ffffffff7f0000000000000000000000000000000000000000000000000000000000000000166004820152602481018290527f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690638e7d93fa90604401600060405180830381600087803b1580156107ee57600080fd5b505af1158015610802573d6000803e3d6000fd5b505050507fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8160405160200161083a91815260200190565b60408051601f19818403018152908290526104fc913390610be5565b60006108618261099c565b92915050565b6040516316c2fdb560e21b815260040160405180910390fd5b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b60405162461bcd60e51b815260206004820152600a602482015269085cdd5c1c1bdc9d195960b21b6044820152600090606401610419565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126109fb57600080fd5b813567ffffffffffffffff80821115610a1657610a166109d4565b604051601f8301601f19908116603f01168101908282118183101715610a3e57610a3e6109d4565b81604052838152866020858801011115610a5757600080fd5b836020870160208301376000602085830101528094505050505092915050565b60008060408385031215610a8a57600080fd5b823567ffffffffffffffff80821115610aa257600080fd5b610aae868387016109ea565b93506020850135915080821115610ac457600080fd5b50610ad1858286016109ea565b9150509250929050565b600060208284031215610aed57600080fd5b813567ffffffffffffffff811115610b0457600080fd5b610b10848285016109ea565b949350505050565b600060208284031215610b2a57600080fd5b81356001600160a01b0381168114610b4157600080fd5b9392505050565b600060208284031215610b5a57600080fd5b5035919050565b6000815180845260005b81811015610b8757602081850181015186830182015201610b6b565b506000602082860101526020601f19601f83011685010191505092915050565b606081526000610bba6060830186610b61565b8281036020840152610bcc8186610b61565b91505060018060a01b0383166040830152949350505050565b604081526000610bf86040830185610b61565b905060018060a01b03831660208301529392505050565b8181038181111561086157634e487b7160e01b600052601160045260246000fdfea26469706673582212201a68bb1fc2e8c53f7674ee390d55626807d8fc035d060e19abf2d43ac7b3e24664736f6c63430008110033",
+  "devdoc": {
+    "author": "Connext",
+    "kind": "dev",
+    "methods": {
+      "addSpokeRootToAggregate(bytes32)": {
+        "params": {
+          "_data": "The data to be added to the merkle tree"
+        }
+      },
+      "processMessage(bytes)": {
+        "details": "This is called by AMBs to process messages originating from mirror connector"
+      },
+      "sendMessage(bytes,bytes)": {
+        "details": "This is called by the root manager *only* on mainnet to propagate the aggregate root"
+      }
+    },
+    "title": "AdminHubConnector",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "MessageProcessed(bytes,address)": {
+        "notice": "Emitted whenever a message is successfully received over an AMB"
+      },
+      "MessageSent(bytes,bytes,address)": {
+        "notice": "Emitted whenever a message is successfully sent over an AMB"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "AMB()": {
+        "notice": "Address of the AMB on this domain."
+      },
+      "DOMAIN()": {
+        "notice": "The domain of this Messaging (i.e. Connector) contract."
+      },
+      "MIRROR_DOMAIN()": {
+        "notice": "The domain of the corresponding messaging (i.e. Connector) contract."
+      },
+      "ROOT_MANAGER()": {
+        "notice": "RootManager contract address."
+      },
+      "acceptProposedOwner()": {
+        "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "addSpokeRootToAggregate(bytes32)": {
+        "notice": "Owner only function that allows merkle roots to be added to the RootManager's merkle tree."
+      },
+      "delay()": {
+        "notice": "Returns the delay period before a new owner can be accepted."
+      },
+      "mirrorConnector()": {
+        "notice": "Connector on L2 for L1 connectors, and vice versa."
+      },
+      "owner()": {
+        "notice": "Returns the address of the current owner."
+      },
+      "processMessage(bytes)": {
+        "notice": "Processes a message received by an AMB"
+      },
+      "proposeNewOwner(address)": {
+        "notice": "Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process"
+      },
+      "proposed()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "proposedTimestamp()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "renounceOwnership()": {
+        "notice": "Renounces ownership of the contract after a delay"
+      },
+      "renounced()": {
+        "notice": "Indicates if the ownership has been renounced() by checking if current owner is address(0)"
+      },
+      "sendMessage(bytes,bytes)": {
+        "notice": "Sends a message over the amb"
+      },
+      "setMirrorConnector(address)": {
+        "notice": "Sets the address of the l2Connector for this domain"
+      },
+      "verifySender(address)": {
+        "notice": "Checks the cross domain sender for a given address"
+      }
+    },
+    "notice": "This contract is a hub connector that allows the owner to create roots which will be added to the RootManager's merkle trees. This is meant to be deployed only as an emergency measure where an AMB is no longer operational and a root needs to be sent in order to allow users to withdraw funds. This contract should be deployed with the same domain as the AMB it is replacing.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 43533,
+        "contract": "contracts/messaging/connectors/admin/AdminHubConnector.sol:AdminHubConnector",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 43535,
+        "contract": "contracts/messaging/connectors/admin/AdminHubConnector.sol:AdminHubConnector",
+        "label": "_proposed",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 43537,
+        "contract": "contracts/messaging/connectors/admin/AdminHubConnector.sol:AdminHubConnector",
+        "label": "_proposedOwnershipTimestamp",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 32363,
+        "contract": "contracts/messaging/connectors/admin/AdminHubConnector.sol:AdminHubConnector",
+        "label": "mirrorConnector",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

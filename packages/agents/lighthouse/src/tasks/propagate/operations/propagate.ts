@@ -6,7 +6,7 @@ import { NoChainIdForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
-  getPropagateParamsConsensys,
+  getPropagateParamsLinea,
   getPropagateParamsGnosis,
   getPropagateParamsZkSync,
 } from "../helpers";
@@ -31,11 +31,14 @@ export const getParamsForDomainFn: Record<
   "1634886255": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
   "6778479": getPropagateParamsGnosis,
+  "1818848877": getPropagateParamsLinea,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
-  "1668247156": getPropagateParamsConsensys,
+  "1668247156": getPropagateParamsLinea,
   "2053862260": getPropagateParamsZkSync,
 };
+
+//const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {
@@ -52,6 +55,32 @@ export const propagate = async () => {
   if (!hubChainId) {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
+
+  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
+
+  // Check if LH should propagate as backup of keep3r
+  // logger.info("Checking if LH propagate workable", requestContext, methodContext);
+
+  // const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
+  // if (!l1RpcUrl) {
+  //   throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
+  // }
+  // const l1Provider = getJsonRpcProvider(l1RpcUrl);
+  // const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
+
+  // const [lastPropagateAt, propagateCooldown] = await Promise.all([
+  //   relayerProxyContract.lastPropagateAt(),
+  //   relayerProxyContract.propagateCooldown(),
+  // ]);
+  // const curTimeInSeconds = getNtpTimeSeconds();
+  // if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
+  //   logger.info("LH Propagate skipping", requestContext, methodContext, {
+  //     propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
+  //     LH_PROPAGATE_WINDOW,
+  //     curTimeInSeconds,
+  //   });
+  //   return;
+  // }
 
   const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];

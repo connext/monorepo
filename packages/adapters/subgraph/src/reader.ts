@@ -32,6 +32,7 @@ import {
   OptimisticRootPropagated,
   Snapshot,
   SpokeOptimisticRoot,
+  RouterLiquidityEvent,
 } from "@connext/nxtp-utils";
 
 import { getHelpers } from "./lib/helpers";
@@ -81,6 +82,7 @@ import {
   getRootManagerMetaQuery,
   getRootManagerModeQuery,
   getRouterDailyTVLQuery,
+  getRouterLiquidityEventsQuery,
   getSlippageUpdatesQuery,
   getStableSwapPoolsQuery,
 } from "./lib/operations/queries";
@@ -138,7 +140,7 @@ export class SubgraphReader {
     for (const domain of response.keys()) {
       if (response.has(domain) && response.get(domain)!.length > 0) {
         const blockInfo = response.get(domain)![0];
-        if (blockInfo.block?.number) {
+        if (blockInfo?.block?.number) {
           blockNumberRes.set(domain, Number(blockInfo.block.number));
         } else {
           console.error(`No block number found for domain ${domain}!`);
@@ -248,6 +250,7 @@ export class SubgraphReader {
             localAsset: a.asset.id,
             id: a.asset.id,
             decimal: a.asset.decimal,
+            adoptedDecimal: a.asset.adoptedDecimal,
             key: a.asset.key,
           } as AssetBalance;
         }),
@@ -620,6 +623,12 @@ export class SubgraphReader {
     allTxById: Map<string, XTransfer>,
   ): Promise<DestinationTransfer[]> {
     const { execute, parser } = getHelpers();
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
 
@@ -668,6 +677,12 @@ export class SubgraphReader {
     });
 
     const allTxById = new Map<string, XTransfer>(allOrigin);
+
+    // TODO: remove this once we have a subgraph solution for these chains
+    if (txIdsByDestinationDomain.has("2053862260")) {
+      txIdsByDestinationDomain.delete("2053862260");
+    }
+    if (txIdsByDestinationDomain.size == 0) return [];
 
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
     const response = await execute(destinationTransfersQuery);
@@ -1289,5 +1304,31 @@ export class SubgraphReader {
       .map(parser.routerDailyTvl);
 
     return routerTVLs;
+  }
+
+  public async getRouterLiquidityEventsByDomainAndNonce(
+    agents: Map<string, SubgraphQueryMetaParams>,
+  ): Promise<RouterLiquidityEvent[]> {
+    const { execute, parser } = getHelpers();
+    const eventsQuery = getRouterLiquidityEventsQuery(agents);
+    const response = await execute(eventsQuery);
+
+    const events: any[] = [];
+    for (const key of response.keys()) {
+      const value = response.get(key);
+      const _events = value?.flat();
+      events.push(
+        _events?.map((x) => {
+          return { ...x, domain: key };
+        }),
+      );
+    }
+
+    const domainEvents: RouterLiquidityEvent[] = events
+      .flat()
+      .filter((x: any) => !!x)
+      .map(parser.routerLiquidityEvent);
+
+    return domainEvents;
   }
 }

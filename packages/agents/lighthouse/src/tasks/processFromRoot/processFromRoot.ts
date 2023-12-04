@@ -109,6 +109,9 @@ export const makeProcessFromRoot = async (config: NxtpLighthouseConfig, chainDat
     console.error("Error starting processor. Sad! :(", e);
   } finally {
     await closeDatabase();
-    process.exit();
+
+    context.logger.info("Process from root complete!!!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
   }
 };

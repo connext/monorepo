@@ -34,6 +34,7 @@ import {
   StableSwapLpBalance,
   RootMessageStatus,
   convertFromDbSpokeOptimisticRoot,
+  RouterLiquidityEvent,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import * as db from "zapatos/db";
@@ -314,6 +315,20 @@ const convertToDbSpokeOptimisticRoot = (opRoot: SpokeOptimisticRoot): s.spoke_op
     propose_timestamp: opRoot.proposeTimestamp,
     propose_task_id: opRoot.proposeTaskId ?? undefined,
     relayer_type: opRoot.relayerType ?? undefined,
+  };
+};
+const convertToDbRouterLiquidityEvent = (event: RouterLiquidityEvent): s.router_liquidity_events.Insertable => {
+  return {
+    id: event.id,
+    domain: event.domain,
+    asset: event.asset,
+    router: event.router,
+    amount: event.amount,
+    balance: event.balance,
+    block_number: event.blockNumber,
+    transaction_hash: event.transactionHash,
+    timestamp: event.timestamp,
+    nonce: event.nonce,
   };
 };
 
@@ -729,6 +744,7 @@ export const saveRouterBalances = async (
           key: b.key,
           id: b.id,
           decimal: b.decimal as any,
+          adopted_decimal: b.adoptedDecimal as any,
           local: b.localAsset,
           adopted: b.adoptedAsset,
           canonical_id: b.canonicalId,
@@ -737,7 +753,6 @@ export const saveRouterBalances = async (
         },
       };
     });
-
     await db
       .upsert(
         "assets",
@@ -763,6 +778,7 @@ export const saveAssets = async (assets: Asset[], _pool?: Pool | db.TxnClientFor
       key: asset.key,
       id: asset.id,
       decimal: asset.decimal as any,
+      adopted_decimal: asset.adoptedDecimal as any,
       local: asset.localAsset,
       adopted: asset.adoptedAsset,
       canonical_id: asset.canonicalId,
@@ -1590,6 +1606,18 @@ export const saveRouterDailyTVL = async (
   const tvls: s.daily_router_tvl.Insertable[] = _tvls.map((m) => convertToDbRouterDailyTVL(m)).map(sanitizeNull);
 
   await db.upsert("daily_router_tvl", tvls, ["id"]).run(poolToUse);
+};
+
+export const saveRouterLiquidityEvents = async (
+  _events: RouterLiquidityEvent[],
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<void> => {
+  const poolToUse = _pool ?? pool;
+  const events: s.router_liquidity_events.Insertable[] = _events
+    .map((m) => convertToDbRouterLiquidityEvent(m))
+    .map(sanitizeNull);
+
+  await db.upsert("router_liquidity_events", events, ["id"]).run(poolToUse);
 };
 
 export const updateSlippage = async (

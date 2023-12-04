@@ -5,6 +5,7 @@
     "src/shared.ts",
     "src/config.ts",
     "src/index.ts",
+    "src/run.ts",
     "src/zapatos/schema.d.ts",
     "src/entryMessages.ts",
     "src/entryRouters.ts",

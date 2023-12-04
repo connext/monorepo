@@ -126,6 +126,27 @@
     ]
   },
   {
+    "subgraphName": "connext/amarok-runtime-v0-linea",
+    "network": "linea-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xa05eF29e9aC8C75c530c2795Fa6A800e188dE0a9",
+        "startBlock": 754343
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 753043
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
+        "startBlock": 753042
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/nxtp-amarok-runtime-v0-goerli",
     "network": "goerli",
     "source": [
@@ -211,7 +232,7 @@
   },
   {
     "subgraphName": "connext/runtime-v0-zksynct",
-    "network": "zkSync2-testnet",
+    "network": "zksync2-testnet",
     "source": [
       {
         "name": "Connext",
@@ -231,8 +252,8 @@
     ]
   },
   {
-    "subgraphName": "connext/amarok-runtime-v0-consensys-test",
-    "network": "consensys-test",
+    "subgraphName": "connext/amarok-runtime-v0-linea-goerli",
+    "network": "linea-goerli",
     "source": [
       {
         "name": "Connext",
@@ -253,7 +274,7 @@
   },
   {
     "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
-    "network": "polygonzk-test",
+    "network": "polygon-zkevm-testnet",
     "source": [
       {
         "name": "Connext",

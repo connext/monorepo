@@ -70,6 +70,7 @@ export type arbitrumone_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['arbitrumone_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
+  adoptedDecimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['arbitrumone_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['arbitrumone_Bytes']>;
@@ -203,6 +204,7 @@ export type arbitrumone_AssetBalance_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -265,6 +267,14 @@ export type arbitrumone_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_not?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
@@ -342,6 +352,7 @@ export type arbitrumone_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
+  | 'adoptedDecimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -852,6 +863,7 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1389,6 +1401,7 @@ export type arbitrumone_OriginTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1428,6 +1441,8 @@ export type Query = {
   arbitrumone_routers: Array<arbitrumone_Router>;
   arbitrumone_routerDailyTVL?: Maybe<arbitrumone_RouterDailyTVL>;
   arbitrumone_routerDailyTVLs: Array<arbitrumone_RouterDailyTVL>;
+  arbitrumone_routerLiquidityEvent?: Maybe<arbitrumone_RouterLiquidityEvent>;
+  arbitrumone_routerLiquidityEvents: Array<arbitrumone_RouterLiquidityEvent>;
   arbitrumone_setting?: Maybe<arbitrumone_Setting>;
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
@@ -1544,6 +1559,24 @@ export type Queryarbitrumone_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<arbitrumone_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_RouterDailyTVL_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RouterLiquidityEvent_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2356,6 +2389,7 @@ export type arbitrumone_RouterDailyTVL_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -2363,6 +2397,173 @@ export type arbitrumone_RouterDailyTVL_orderBy =
   | 'asset__blockNumber'
   | 'timestamp'
   | 'balance';
+
+export type arbitrumone_RouterLiquidityEvent = {
+  id: Scalars['ID'];
+  type?: Maybe<arbitrumone_RouterLiquidityEventType>;
+  router: arbitrumone_Router;
+  asset: arbitrumone_Asset;
+  amount: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+  caller?: Maybe<Scalars['arbitrumone_Bytes']>;
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transactionHash: Scalars['arbitrumone_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type arbitrumone_RouterLiquidityEventType =
+  | 'Add'
+  | 'Remove';
+
+export type arbitrumone_RouterLiquidityEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  type?: InputMaybe<arbitrumone_RouterLiquidityEventType>;
+  type_not?: InputMaybe<arbitrumone_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<arbitrumone_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<arbitrumone_RouterLiquidityEventType>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<arbitrumone_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<arbitrumone_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactionHash?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_RouterLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_RouterLiquidityEvent_filter>>>;
+};
+
+export type arbitrumone_RouterLiquidityEvent_orderBy =
+  | 'id'
+  | 'type'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__adoptedDecimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'amount'
+  | 'balance'
+  | 'caller'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'nonce';
 
 export type arbitrumone_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -2681,6 +2882,8 @@ export type Subscription = {
   arbitrumone_routers: Array<arbitrumone_Router>;
   arbitrumone_routerDailyTVL?: Maybe<arbitrumone_RouterDailyTVL>;
   arbitrumone_routerDailyTVLs: Array<arbitrumone_RouterDailyTVL>;
+  arbitrumone_routerLiquidityEvent?: Maybe<arbitrumone_RouterLiquidityEvent>;
+  arbitrumone_routerLiquidityEvents: Array<arbitrumone_RouterLiquidityEvent>;
   arbitrumone_setting?: Maybe<arbitrumone_Setting>;
   arbitrumone_settings: Array<arbitrumone_Setting>;
   arbitrumone_relayer?: Maybe<arbitrumone_Relayer>;
@@ -2797,6 +3000,24 @@ export type Subscriptionarbitrumone_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<arbitrumone_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_RouterDailyTVL_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_RouterLiquidityEvent_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3100,6 +3321,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   arbitrumone_routerDailyTVLs: InContextSdkMethod<Query['arbitrumone_routerDailyTVLs'], Queryarbitrumone_routerDailyTVLsArgs, MeshContext>,
   /** null **/
+  arbitrumone_routerLiquidityEvent: InContextSdkMethod<Query['arbitrumone_routerLiquidityEvent'], Queryarbitrumone_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerLiquidityEvents: InContextSdkMethod<Query['arbitrumone_routerLiquidityEvents'], Queryarbitrumone_routerLiquidityEventsArgs, MeshContext>,
+  /** null **/
   arbitrumone_setting: InContextSdkMethod<Query['arbitrumone_setting'], Queryarbitrumone_settingArgs, MeshContext>,
   /** null **/
   arbitrumone_settings: InContextSdkMethod<Query['arbitrumone_settings'], Queryarbitrumone_settingsArgs, MeshContext>,
@@ -3180,6 +3405,10 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_routerDailyTVL: InContextSdkMethod<Subscription['arbitrumone_routerDailyTVL'], Subscriptionarbitrumone_routerDailyTVLArgs, MeshContext>,
   /** null **/
   arbitrumone_routerDailyTVLs: InContextSdkMethod<Subscription['arbitrumone_routerDailyTVLs'], Subscriptionarbitrumone_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerLiquidityEvent: InContextSdkMethod<Subscription['arbitrumone_routerLiquidityEvent'], Subscriptionarbitrumone_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  arbitrumone_routerLiquidityEvents: InContextSdkMethod<Subscription['arbitrumone_routerLiquidityEvents'], Subscriptionarbitrumone_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
   arbitrumone_setting: InContextSdkMethod<Subscription['arbitrumone_setting'], Subscriptionarbitrumone_settingArgs, MeshContext>,
   /** null **/

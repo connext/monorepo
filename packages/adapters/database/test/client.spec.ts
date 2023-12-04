@@ -118,7 +118,7 @@ describe("Database client", () => {
 
   beforeEach(async () => {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5435/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
@@ -508,6 +508,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -524,6 +525,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -540,6 +542,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -556,6 +559,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -577,6 +581,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -593,6 +598,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -609,6 +615,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -625,6 +632,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -1354,6 +1362,7 @@ describe("Database client", () => {
         key: asset.key,
         id: asset.id,
         decimal: asset.decimal,
+        adopted_decimal: asset.adoptedDecimal,
         canonical_id: asset.canonicalId,
         canonical_domain: asset.canonicalDomain,
       });
@@ -1375,6 +1384,7 @@ describe("Database client", () => {
       expect(res).to.deep.include({
         ...asset,
         decimal: +asset.decimal,
+        adoptedDecimal: +asset.adoptedDecimal,
         blockNumber: undefined,
       });
     });

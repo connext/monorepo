@@ -9,17 +9,18 @@ export const DEPLOYER_WALLET = Wallet.fromMnemonic(
 export const USER_WALLET = Wallet.fromMnemonic(
   "define various win open delay annual edge wait embark fire brain novel",
 );
+export const ROUTER_WALLET = new Wallet("0xc88b703fb08cbea894b6aeff5a544fb92e78a18e19814cd85da83b71f772aa6c");
 
 export const PARAMETERS = {
   ENVIRONMENT: "production",
   AGENTS: {
     ROUTER: {
-      address: "0x627306090abaB3A6e1400e9345bC60c78a8BEf57",
+      address: "0x821aEa9a577a9b44299B9c15c88cf3087F3b5544",
     },
     SEQUENCER: {
       address: "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
     },
-    RELAYER: { address: "0xc5842D5870622B406a71eeC1EcB2Df01D9dF5C28" },
+    RELAYER: { address: "0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef" },
     CARTOGRAPHER: {
       url: "http://localhost:3000",
     },
@@ -32,16 +33,22 @@ export const PARAMETERS = {
       signer: DEPLOYER_WALLET,
     },
   },
-  A: {
-    DOMAIN: "133712",
-    CHAIN: 1337,
+  HUB: {
+    DOMAIN: "31337",
+    CHAIN: 31337,
     RPC: ["http://localhost:8547"],
     DEPLOYMENTS: null, // Must be set at runtime!
   },
+  A: {
+    DOMAIN: "31338",
+    CHAIN: 31338,
+    RPC: ["http://localhost:8548"],
+    DEPLOYMENTS: null, // Must be set at runtime!
+  },
   B: {
-    DOMAIN: "133812",
-    CHAIN: 1338,
-    RPC: ["http://localhost:8546"],
+    DOMAIN: "31339",
+    CHAIN: 31339,
+    RPC: ["http://localhost:8549"],
     DEPLOYMENTS: null, // Must be set at runtime!
   },
 };

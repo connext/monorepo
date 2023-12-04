@@ -8,7 +8,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
     "2053862260", /// ZKSYNC-TEST
-    "1668247156", /// CONSENSYS-ZKEVM-TEST
+    "1668247156", /// LINEA-GOERLI
     "1887071092", /// POLYGON-ZKEVM-TEST
   ],
   assets: [
@@ -38,7 +38,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x7C1412e456ad60B8ee458c4eb3A9852C3e389353",
           adopted: "0x7C1412e456ad60B8ee458c4eb3A9852C3e389353",
         },
-        /// CONSENSYS-ZKEVM-TEST
+        /// LINEA-GOERLI
         "1668247156": {
           local: "0xB706319D37b945727E71ae0d4353699d19112576",
           adopted: "0xB706319D37b945727E71ae0d4353699d19112576",
@@ -80,7 +80,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x0000000000000000000000000000000000000000",
           adopted: "0x0000000000000000000000000000000000000000",
         },
-        /// CONSENSYS-ZKEVM-TEST
+        /// LINEA-GOERLI
         "1668247156": {
           local: "0xcAA61BCAe7D37Fe9C33c0D8671448254eef44D63",
           adopted: "0xcAA61BCAe7D37Fe9C33c0D8671448254eef44D63",
@@ -136,7 +136,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "ALCX",
       canonical: {
         domain: "1735353714",
-        address: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        address: "0xb46eE2E4165F629b4aBCE04B7Eb4237f951AC66F",
         decimals: 18,
       },
       representations: {
@@ -182,8 +182,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// MUMBAI
         "9991": {
-          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
-          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
         },
       },
     },

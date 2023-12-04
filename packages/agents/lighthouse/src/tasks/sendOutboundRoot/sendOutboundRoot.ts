@@ -107,6 +107,8 @@ export const makeSendOutboundRoot = async (config: NxtpLighthouseConfig, chainDa
   } catch (e: unknown) {
     console.error("Error starting SendOutboundRoot task. Sad! :(", e);
   } finally {
-    process.exit();
+    context.logger.info("SendOutboundRoot task complete!!!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
   }
 };

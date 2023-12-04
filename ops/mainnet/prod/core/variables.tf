@@ -138,6 +138,10 @@ variable "blast_key" {
   type = string
 }
 
+variable "infura_key" {
+  type = string
+}
+
 variable "pokt_key" {
   type = string
 }

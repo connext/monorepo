@@ -185,6 +185,7 @@ export const mock = {
       canonicalDomain: mock.domain.A,
       canonicalId: getRandomBytes32(),
       decimal: "18",
+      adoptedDecimal: "18",
       domain: mock.domain.A,
       id: getRandomAddress(),
       key: getRandomBytes32(),

@@ -41,10 +41,10 @@ export const getSendOutboundRootParams = async (l2domain: string): Promise<Extra
   );
   const ambAddress = await l2SpokeConnectorContract.AMB();
 
-  // gasLimit on hub side = 200_000
+  // gasLimit on hub side = 110_000
   // actually it required about 100_000 gas on mainnet to call `receiveWormholeMessages`
   // remain gas will be refunded on mainnetto refund address (default: deployer address)
-  const gasLimit = "200000";
+  const gasLimit = "110000";
   const fee = await l2SpokeConnectorContract.quoteEVMDeliveryPrice(gasLimit, ambAddress);
   const encodedData = utils.defaultAbiCoder.encode(["uint256"], [gasLimit]);
 

@@ -119,8 +119,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       minDisputeBlocks: 0,
     },
     configs: {
-      1337: {
-        prefix: "Mainnet",
+      31337: {
+        prefix: "AdminMainnet",
+        networkName: "Mainnet",
         ambs: {
           hub: constants.AddressZero,
           spoke: constants.AddressZero,
@@ -131,11 +132,12 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
         minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
-      1338: {
-        prefix: "Optimism",
+      31338: {
+        prefix: "Admin",
+        networkName: "Optimism",
         ambs: {
-          hub: OPTIMISM_AMB.hub,
-          spoke: OPTIMISM_AMB.spoke,
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
@@ -148,6 +150,54 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
           },
         },
+      },
+    },
+  },
+  devnet: {
+    hub: {
+      chain: 1,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+      minDisputeBlocks: 0,
+    },
+    configs: {
+      1: {
+        prefix: "Admin",
+        networkName: "Mainnet",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+      },
+      10: {
+        prefix: "Admin",
+        networkName: "Optimism",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+      },
+      100: {
+        prefix: "Admin",
+        networkName: "Gnosis",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
     },
   },
@@ -257,7 +307,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
       },
       59140: {
-        prefix: "Consensys",
+        prefix: "Linea",
         ambs: {
           // ZkEvmV202 on goerli
           // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2
@@ -477,6 +527,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             mirrorChainId: "2", // mainnet wormhole chainid: 2
           },
         },
+      },
+      // Linea chain
+      59144: {
+        prefix: "Linea",
+        ambs: {
+          // https://etherscan.io/address/0xd19d4B5d358258f05D7B411E21A1460D11B0876F
+          hub: "0xd19d4B5d358258f05D7B411E21A1460D11B0876F",
+          // https://lineascan.build/address/0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec
+          spoke: "0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
     },
   },

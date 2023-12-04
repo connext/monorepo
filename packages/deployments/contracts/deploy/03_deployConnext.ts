@@ -5,7 +5,13 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
+import {
+  getConnectorName,
+  getDeploymentName,
+  getProtocolNetwork,
+  getRelayerProxyConfig,
+  ProtocolNetwork,
+} from "../src/utils";
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
 
@@ -25,8 +31,6 @@ const AUTONOLAS_PRIORITY = 0;
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chainId = await hre.getChainId();
 
-  const acceptanceDelay = SKIP_SETUP.includes(parseInt(chainId)) ? 604800 : 0; // 604800 = 7 days
-
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
   if (!_deployer) {
@@ -35,8 +39,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const deployer = _deployer as Wallet;
   console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
-
-  console.log("acceptance delay: ", acceptanceDelay);
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
@@ -51,7 +53,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Get connector manager
-  const messagingNetwork = getProtocolNetwork(chainId);
+  const messagingNetwork = getProtocolNetwork(chainId, hre.network.name);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
   if (!protocol.configs[protocol.hub.chain]) {
@@ -65,6 +67,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);
   }
+
+  const acceptanceDelay =
+    SKIP_SETUP.includes(parseInt(chainId)) && messagingNetwork !== ProtocolNetwork.DEVNET ? 604800 : 0; // 604800 = 7 days
+  console.log("acceptance delay: ", acceptanceDelay);
 
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
     from: deployer.address,
@@ -87,13 +93,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
   // Get all the facet options
-  const facetsToDeploy = getFacetsToDeploy(zksync);
+  let facetsToDeploy = getFacetsToDeploy(zksync);
   const facets: (FacetOptions & { abi: any[] })[] = [];
   for (const facet of facetsToDeploy) {
     const deployment = await hre.deployments.getOrNull(facet.name);
     if (!deployment) {
       throw new Error(`Failed to get deployment for ${facet.name}`);
     }
+
     facets.push({
       abi: deployment.abi,
       name: facet.name,
@@ -148,6 +155,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`upgrade failed`, e);
     }
   } else {
+    // hardhat-deploy push `DiamondLoupeFacet` as default
+    facetsToDeploy = facetsToDeploy.filter((f) => f.contract !== "DiamondLoupeFacet");
+
     connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
       from: deployer.address,
       owner: deployer.address,
@@ -234,7 +244,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log("relayerProxy: ", relayerProxy.address);
   }
 
-  if (!SKIP_SETUP.includes(parseInt(chainId))) {
+  if (!SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.DEVNET) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
     let deployment = await hre.deployments.deploy("TestERC20", {
@@ -269,5 +279,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Connext", "prod", "local", "mainnet"];
+func.tags = ["Connext", "prod", "local", "mainnet", "devnet"];
 // func.dependencies = ["Messaging", "Facets"];

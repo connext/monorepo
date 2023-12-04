@@ -123,14 +123,6 @@ variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "arbgoerli_alchemy_key_0" {
-  type = string
-}
-
-variable "arbgoerli_alchemy_key_1" {
-  type = string
-}
-
 variable "blast_key" {
   type = string
 }
@@ -194,6 +186,6 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
-variable "linea_node" {
+variable "drpc_key" {
   type = string
 }
