@@ -64,22 +64,23 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
       deployRootManager();
       deployMerkleTreeManager(false);
 
+      SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+        domain: uint32(cfg.domain()),
+        mirrorDomain: uint32(cfg.domain()),
+        amb: address(cfg.getMessagingConfig(chainId).hubAmb),
+        rootManager: mustGetAddress("RootManager"),
+        mirrorConnector: address(0),
+        processGas: cfg.getMessagingConfig(chainId).processGas,
+        reserveGas: cfg.getMessagingConfig(chainId).reserveGas,
+        delayBlocks: cfg.getMessagingConfig(chainId).delayBlocks,
+        merkle: mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
+        watcherManager: mustGetAddress("WatcherManager"),
+        minDisputeBlocks: cfg.getMessagingConfig(chainId).minDisputeBlocks,
+        disputeBlocks: cfg.getMessagingConfig(chainId).disputeBlocks
+      });
+
       // Deploy MainnetSpokeConnector
-      deploySpokeConnector(
-        "MainnetSpokeConnector",
-        uint32(cfg.domain()),
-        uint32(cfg.domain()),
-        address(cfg.getMessagingConfig(chainId).hubAmb),
-        mustGetAddress("RootManager"),
-        address(0),
-        cfg.getMessagingConfig(chainId).processGas,
-        cfg.getMessagingConfig(chainId).reserveGas,
-        cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
-        mustGetAddress("WatcherManager"),
-        cfg.getMessagingConfig(chainId).minDisputeBlocks,
-        cfg.getMessagingConfig(chainId).disputeBlocks
-      );
+      deploySpokeConnector("MainnetSpokeConnector", _baseParams);
 
       // Deploy Hub connectors
       for (uint256 i = 0; i < cfg.chainsLength(); i++) {
@@ -97,22 +98,23 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
       deployWatcherManager();
       deployMerkleTreeManager(false);
 
+      SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+        domain: uint32(cfg.domain()),
+        mirrorDomain: uint32(cfg.getMessagingConfig(cfg.hubChainId()).domain),
+        amb: address(cfg.getMessagingConfig(chainId).spokeAmb),
+        rootManager: address(1),
+        mirrorConnector: address(0),
+        processGas: cfg.getMessagingConfig(chainId).processGas,
+        reserveGas: cfg.getMessagingConfig(chainId).reserveGas,
+        delayBlocks: cfg.getMessagingConfig(chainId).delayBlocks,
+        merkle: mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
+        watcherManager: mustGetAddress("WatcherManager"),
+        minDisputeBlocks: cfg.getMessagingConfig(chainId).minDisputeBlocks,
+        disputeBlocks: cfg.getMessagingConfig(chainId).disputeBlocks
+      });
+
       // Deploy SpokeConnector
-      deploySpokeConnector(
-        string.concat(cfg.getMessagingConfig(chainId).prefix, "SpokeConnector"),
-        uint32(cfg.domain()),
-        uint32(cfg.getMessagingConfig(cfg.hubChainId()).domain),
-        address(cfg.getMessagingConfig(chainId).spokeAmb),
-        address(1), //mustGetAddress("RootManager"),
-        address(0),
-        cfg.getMessagingConfig(chainId).processGas,
-        cfg.getMessagingConfig(chainId).reserveGas,
-        cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
-        mustGetAddress("WatcherManager"),
-        cfg.getMessagingConfig(chainId).minDisputeBlocks,
-        cfg.getMessagingConfig(chainId).disputeBlocks
-      );
+      deploySpokeConnector(string.concat(cfg.getMessagingConfig(chainId).prefix, "SpokeConnector"), _baseParams);
     }
 
     // Deploy Connext Diamond proxy
@@ -198,34 +200,8 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   /// @notice Deploy Spoke Connector
   function deploySpokeConnector(
     string memory _connectorName,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
-    uint256 _minDisputeBlocks,
-    uint256 _disputeBlocks
+    SpokeConnector.ConstructorParams memory _baseParams
   ) public broadcast returns (address) {
-    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
-      domain: _domain,
-      mirrorDomain: _mirrorDomain,
-      amb: _amb,
-      rootManager: _rootManager,
-      mirrorConnector: _mirrorConnector,
-      processGas: _processGas,
-      reserveGas: _reserveGas,
-      delayBlocks: _delayBlocks,
-      merkle: _merkle,
-      watcherManager: _watcherManager,
-      minDisputeBlocks: _minDisputeBlocks,
-      disputeBlocks: _disputeBlocks
-    });
-
     AdminSpokeConnector adminConnector = new AdminSpokeConnector(_baseParams);
 
     save(_connectorName, address(adminConnector));
