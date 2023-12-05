@@ -30,7 +30,7 @@ contract Common is ConnectorHelper {
   WatcherManager public watcherManager;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl(vm.envString("BASE_RPC")), _FORK_BLOCK);
+    vm.createSelectFork(vm.rpcUrl(vm.envString("CRONOS_RPC")), _FORK_BLOCK);
 
     vm.startPrank(owner);
     // Deploy merkle tree manager (needed in root manager)

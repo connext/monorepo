@@ -94,7 +94,7 @@ jobs:
           touch ./packages/deployments/contracts/.env
           echo MAINNET_RPC="${{ secrets.MAINNET_RPC }}" >> ./packages/deployments/contracts/.env
           echo SCROLL_RPC="${{ secrets.SCROLL_RPC }}" >> ./packages/deployments/contracts/.env
-          echo BASE_RPC="${{ secrets.BASE_RPC }}" >> ./packages/deployments/contracts/.env
+          echo CRONOS_RPC="${{ secrets.CRONOS_RPC }}" >> ./packages/deployments/contracts/.env
           cat ./packages/deployments/contracts/.env
 
       ## TODO: Modify it to its previous state before merging to Connext

@@ -18,7 +18,7 @@ contract Integration_Connector_SygmaSpokeConnector_SendMessage is Common {
     (uint256 _fee, ) = FEE_ROUTER.calculateFee(
       address(rootManager),
       SYGMA_HUB_DOMAIN_ID,
-      SYGMA_BASE_DOMAIN_ID,
+      SYGMA_CRONOS_DOMAIN_ID,
       sygmaSpokeConnector.PERMISSIONLESS_HANDLER_ID(),
       _depositData,
       _feeData

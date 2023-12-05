@@ -11,15 +11,15 @@ import {IBridge} from "../../../../../../../contracts/messaging/interfaces/ambs/
 import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
 
 contract Common is ConnectorHelper {
-  uint256 internal constant _FORK_BLOCK = 7_497_107;
+  uint256 internal constant _FORK_BLOCK = 11_470_523;
 
-  uint32 public constant DOMAIN = 100; // Base
+  uint32 public constant DOMAIN = 100; // CRONOS
   uint32 public constant MIRROR_DOMAIN = 1; // Ethereum
-  uint8 public constant SYGMA_BASE_DOMAIN_ID = 1; // Base
+  uint8 public constant SYGMA_CRONOS_DOMAIN_ID = 1; // CRONOS
   uint8 public constant SYGMA_HUB_DOMAIN_ID = 1; // Ethereum
-  IBridge public constant SYGMA_BRIDGE = IBridge(0xC47468aeae431f5D0B7DA50F9f5D8a6c0eca4789);
-  IFeeRouter public constant FEE_ROUTER = IFeeRouter(0x5573Ae978A10B724705624C620E6a7977935c721);
-  address public PERMISSIONLESS_GENERIC_HANDLER = 0x2e1eE4153ad2F763ab8C612415AcF0DEe02Bc79B;
+  IBridge public constant SYGMA_BRIDGE = IBridge(0x44d1Ae962945c5B168282D5002705dE7A9B84657);
+  IFeeRouter public constant FEE_ROUTER = IFeeRouter(0xb18fEa28C8C9557aB65b2808c7b323A586687740);
+  address public PERMISSIONLESS_GENERIC_HANDLER = 0xB86bAe6A570a52cBc38Cf6Ac6557F169422cDf30;
 
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
@@ -32,7 +32,7 @@ contract Common is ConnectorHelper {
   WatcherManager public watcherManager;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl(vm.envString("BASE_RPC")), _FORK_BLOCK);
+    vm.createSelectFork(vm.rpcUrl(vm.envString("CRONOS_RPC")), _FORK_BLOCK);
 
     vm.startPrank(owner);
     // Deploy merkle tree manager (needed in root manager)
