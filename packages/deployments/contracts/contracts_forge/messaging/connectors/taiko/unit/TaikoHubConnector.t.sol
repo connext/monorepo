@@ -116,8 +116,8 @@ contract Unit_Connector_TaikoHubConnector_SendMessage is Base {
 contract Unit_Connector_TaikoHubConnector_ProcessMessage is Base {
   function test_revertIfSenderIsNotConnext(address _sender, bytes memory _data) public {
     vm.assume(_sender != address(_amb));
-    vm.prank(_sender);
     vm.expectRevert(TaikoHubConnector.TaikoHubConnector_SenderIsNotConnext.selector);
+    vm.prank(_sender);
     taikoHubConnector.forTest_processMessage(_data);
   }
 
