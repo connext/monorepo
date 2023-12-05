@@ -68,6 +68,7 @@ import {
   getBaseAggregateRoot,
   getMessageRootAggregatedFromIndex,
   getMessageRootCount,
+  getOutboundRootTimestamp,
   transaction,
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
@@ -814,6 +815,37 @@ describe("Database client", () => {
     expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
   });
 
+  it("should get xcall timestamp by root and domain", async () => {
+    const messages: XMessage[] = [];
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
+      const _xtransfer = mock.entity.xtransfer({
+        status: XTransferStatus.XCalled,
+        xcall_timestamp: _i,
+        transferId: message.transferId,
+      });
+      transfers.push(_xtransfer);
+    }
+    await saveMessages(messages, pool);
+    await saveTransfers(transfers, pool);
+
+    const rootTimestampFirst = await getOutboundRootTimestamp(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(rootTimestampFirst).to.eq(messages[0].origin.index);
+
+    const rootTimestampLast = await getOutboundRootTimestamp(
+      messages[0].originDomain,
+      messages[batchSize - 1].origin.root,
+      pool,
+    );
+    expect(rootTimestampLast).to.eq(messages[batchSize - 1].origin.index);
+
+    const missingRootTimestamp = await getOutboundRootTimestamp(messages[0].originDomain, "", pool);
+    expect(missingRootTimestamp).to.eq(undefined);
+  });
+
   it("should save multiple sent root messages", async () => {
     const messages: RootMessage[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
@@ -1109,6 +1141,7 @@ describe("Database client", () => {
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
+    expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getBaseAggregateRootCount("", pool)).to.eq(undefined);
@@ -1160,6 +1193,8 @@ describe("Database client", () => {
     await expect(getLatestPendingSpokeOptimisticRootByDomain(undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getOutboundRootTimestamp(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
       .be.rejected;

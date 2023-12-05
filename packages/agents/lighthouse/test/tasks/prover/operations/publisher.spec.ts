@@ -65,6 +65,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
@@ -84,6 +85,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
@@ -103,6 +105,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getFinalizedSnapshot as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getRootMessage as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
@@ -115,6 +118,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.cache.messages.getNonce as SinonStub).resolves(100);
@@ -127,6 +131,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       createBrokerMessageStub.resolves(mockBrokerMesage);
@@ -137,6 +142,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       expect(await enqueue()).to.throw;
@@ -146,6 +152,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(undefined);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       expect(await enqueue()).to.throw;
@@ -155,6 +162,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(undefined);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       expect(await enqueue()).to.throw;
@@ -164,6 +172,7 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getLatestAggregateRoots as SinonStub).resolves([mockReceivedRoot]);
       (proverCtxMock.adapters.database.getLatestMessageRoot as SinonStub).resolves(mockRootMessage);
       (proverCtxMock.adapters.database.getMessageRootCount as SinonStub).resolves(1);
+      (proverCtxMock.adapters.database.getOutboundRootTimestamp as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(undefined);
       expect(await enqueue()).to.throw;

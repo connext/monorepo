@@ -1328,6 +1328,23 @@ export const getMessageRootCount = async (
   return message ? convertFromDbMessage(message).origin?.index : undefined;
 };
 
+export const getOutboundRootTimestamp = async (
+  domain: string,
+  messageRoot: string,
+  _pool?: Pool | db.TxnClientForRepeatableRead,
+): Promise<number | undefined> => {
+  const poolToUse = _pool ?? pool;
+  // Find the index of the last message in the published messageRoot.
+  // This will be the count at the time messageRoot was sent
+  const message = await db.selectOne("messages", { origin_domain: domain, root: messageRoot }).run(poolToUse);
+  if (!message) return undefined;
+
+  const transfer = await db
+    .selectOne("transfers", { transfer_id: convertFromDbMessage(message).transferId })
+    .run(poolToUse);
+  return transfer ? convertFromDbTransfer(transfer).origin?.xcall.timestamp : undefined;
+};
+
 export const getMessageRootStatusFromIndex = async (
   spoke_domain: string,
   index: number,

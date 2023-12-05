@@ -56,32 +56,6 @@ export const propagate = async () => {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
-
-  // Check if LH should propagate as backup of keep3r
-  // logger.info("Checking if LH propagate workable", requestContext, methodContext);
-
-  // const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
-  // if (!l1RpcUrl) {
-  //   throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
-  // }
-  // const l1Provider = getJsonRpcProvider(l1RpcUrl);
-  // const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
-
-  // const [lastPropagateAt, propagateCooldown] = await Promise.all([
-  //   relayerProxyContract.lastPropagateAt(),
-  //   relayerProxyContract.propagateCooldown(),
-  // ]);
-  // const curTimeInSeconds = getNtpTimeSeconds();
-  // if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
-  //   logger.info("LH Propagate skipping", requestContext, methodContext, {
-  //     propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
-  //     LH_PROPAGATE_WINDOW,
-  //     curTimeInSeconds,
-  //   });
-  //   return;
-  // }
-
   const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
