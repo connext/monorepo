@@ -90,6 +90,19 @@ export const proposeHub = async () => {
         }
         const latestDbSnapshotId = +snapshotRoot.id;
         latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
+
+        /* Handle boundary case where snapshot for the outbound root is not yet saved.
+          There is a window between the time LH proposes the outbound root and watcher reads the spoke connector contract,
+          in which if there is a new xcall the outbound root gets updated. We were exposed to false alarm by watcher.
+
+          By introducing, what is effectively a “cooldown” period for the outbound root before including it in a proposal,
+          we make sure, one of these two happens on watcher in all cases:
+          1. Watcher finds the snapshot id on the contract and uses that root,
+              which will be the outboundRroot because LH waited
+              and ensured it was the outboundRoot that will be saved as snapshotRoot if and when there is an xcall
+          2. Watcher does not find the snapshotId of the proposal, as there was no xcall and hence no save,
+              and instead gets exact same outbound root from the spoke connector contract
+         */
         const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, latestSnapshotRoot);
         if (
           latestSnapshotId > latestDbSnapshotId &&
