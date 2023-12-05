@@ -57,8 +57,8 @@ contract Unit_Connector_SygmaHubConnector_Constructor is Base {
 }
 
 contract Unit_Connector_SygmaHubConnector_ReceiveMessage is Base {
-  function test_revertIfCallerNotAMB(address _caller, address _originSender, bytes32 _root) public {
-    vm.assume(_caller != _amb);
+  function test_revertIfCallerNotHandler(address _caller, address _originSender, bytes32 _root) public {
+    vm.assume(_caller != sygmaHubConnector.PERMISSIONLESS_HANDLER());
     vm.expectRevert(SygmaHubConnector.SygmaHubConnector_OnlyPermissionedHandler.selector);
     vm.prank(_caller);
     sygmaHubConnector.receiveMessage(_originSender, _root);

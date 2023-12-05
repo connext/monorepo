@@ -87,9 +87,9 @@ contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
 contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
-  function test_revertIfNotPermissionlessHandler(address _caller, address _originSender, bytes32 _root) public {
+  function test_revertIfCallerNotHandler(address _caller, address _originSender, bytes32 _root) public {
+    vm.assume(_caller != sygmaSpokeConnector.PERMISSIONLESS_HANDLER());
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_OnlyPermissionedHandler.selector);
-    vm.assume(_caller != _amb);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 

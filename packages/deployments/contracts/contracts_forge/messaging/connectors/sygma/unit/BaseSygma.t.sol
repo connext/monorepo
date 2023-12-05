@@ -2,7 +2,8 @@
 pragma solidity 0.8.17;
 
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
-import {BaseSygma, IConnector} from "../../../../../contracts/messaging/connectors/sygma/BaseSygma.sol";
+import {BaseSygma} from "../../../../../contracts/messaging/connectors/sygma/BaseSygma.sol";
+import {ISygmaConnector} from "../../../../../contracts/messaging/connectors/sygma/interfaces/ISygmaConnector.sol";
 import {IBridge} from "../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
 contract BaseSygmaForTest is BaseSygma {
@@ -23,7 +24,7 @@ contract Base is ConnectorHelper {
   uint8 internal constant _ADDRESS_LEN = 20;
   address internal constant _ZERO_ADDRESS = address(0);
   uint16 internal constant _FUNCTION_SIG_LEN = uint16(4);
-  bytes4 internal constant _FUNCTION_SIG = IConnector.receiveMessage.selector;
+  bytes4 internal constant _FUNCTION_SIG = ISygmaConnector.receiveMessage.selector;
 
   IBridge public bridge = IBridge(makeAddr("Bridge"));
   BaseSygmaForTest public baseSygma;
