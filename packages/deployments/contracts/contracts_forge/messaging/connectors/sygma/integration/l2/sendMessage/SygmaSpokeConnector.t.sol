@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
 import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
-import "forge-std/Console.sol";
+import {console} from "forge-std/Test.sol";
 
 contract Integration_Connector_SygmaSpokeConnector_SendMessage is Common {
   function test_sendMessage() public {
