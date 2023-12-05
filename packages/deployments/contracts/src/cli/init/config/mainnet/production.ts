@@ -455,6 +455,24 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "URUS",
+      canonical: {
+        domain: "11111",
+        address: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        decimals: 18,
+      },
+      representations: {
+        "6648936": {
+          local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        },
+        "6450786": {
+          local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        },
+      },
+    },
+    {
       name: "xGrumpy Cat",
       canonical: {
         domain: "11111",
@@ -527,32 +545,54 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "xIXT",
       canonical: {
-        // Pseudo-canonical domain
         domain: "11111",
         address: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         decimals: 18,
       },
       representations: {
-        /// POLYGON
         "1886350457": {
           local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
           adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
-        /// MAINNET
         "6648936": {
           local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
           adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
-        /// ARBITRUM
         "1634886255": {
           local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
           adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
-        // BINANCE
         "6450786": {
           local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
           adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
         },
+      },
+    },
+    {
+      name: "ZOOMER",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+          adopted: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        },
+        /// POLYGON
+        "1886350457": {
+          local: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+          adopted: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+          adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+        },
+        // BINANCE
       },
     },
   ],

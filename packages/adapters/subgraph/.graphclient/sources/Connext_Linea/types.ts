@@ -63,6 +63,7 @@ export type linea_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['linea_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
+  adoptedDecimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['linea_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['linea_Bytes']>;
@@ -236,6 +237,14 @@ export type linea_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_not?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['linea_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['linea_Bytes']>;
   canonicalId_in?: InputMaybe<Array<Scalars['linea_Bytes']>>;
@@ -299,6 +308,7 @@ export type linea_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
+  | 'adoptedDecimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -1220,6 +1230,8 @@ export type Query = {
   linea_routers: Array<linea_Router>;
   linea_routerDailyTVL?: Maybe<linea_RouterDailyTVL>;
   linea_routerDailyTVLs: Array<linea_RouterDailyTVL>;
+  linea_routerLiquidityEvent?: Maybe<linea_RouterLiquidityEvent>;
+  linea_routerLiquidityEvents: Array<linea_RouterLiquidityEvent>;
   linea_setting?: Maybe<linea_Setting>;
   linea_settings: Array<linea_Setting>;
   linea_relayer?: Maybe<linea_Relayer>;
@@ -1336,6 +1348,24 @@ export type Querylinea_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<linea_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<linea_OrderDirection>;
   where?: InputMaybe<linea_RouterDailyTVL_filter>;
+  block?: InputMaybe<linea_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylinea_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<linea_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylinea_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<linea_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<linea_OrderDirection>;
+  where?: InputMaybe<linea_RouterLiquidityEvent_filter>;
   block?: InputMaybe<linea_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2040,6 +2070,148 @@ export type linea_RouterDailyTVL_orderBy =
   | 'timestamp'
   | 'balance';
 
+export type linea_RouterLiquidityEvent = {
+  id: Scalars['ID'];
+  type?: Maybe<linea_RouterLiquidityEventType>;
+  router: linea_Router;
+  asset: linea_Asset;
+  amount: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+  caller?: Maybe<Scalars['linea_Bytes']>;
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transactionHash: Scalars['linea_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type linea_RouterLiquidityEventType =
+  | 'Add'
+  | 'Remove';
+
+export type linea_RouterLiquidityEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  type?: InputMaybe<linea_RouterLiquidityEventType>;
+  type_not?: InputMaybe<linea_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<linea_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<linea_RouterLiquidityEventType>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<linea_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<linea_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['linea_Bytes']>;
+  caller_not?: InputMaybe<Scalars['linea_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['linea_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['linea_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['linea_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['linea_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactionHash?: InputMaybe<Scalars['linea_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['linea_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['linea_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['linea_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['linea_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['linea_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<linea_BlockChangedFilter>;
+};
+
+export type linea_RouterLiquidityEvent_orderBy =
+  | 'id'
+  | 'type'
+  | 'router'
+  | 'asset'
+  | 'amount'
+  | 'balance'
+  | 'caller'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'nonce';
+
 export type linea_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -2285,6 +2457,8 @@ export type Subscription = {
   linea_routers: Array<linea_Router>;
   linea_routerDailyTVL?: Maybe<linea_RouterDailyTVL>;
   linea_routerDailyTVLs: Array<linea_RouterDailyTVL>;
+  linea_routerLiquidityEvent?: Maybe<linea_RouterLiquidityEvent>;
+  linea_routerLiquidityEvents: Array<linea_RouterLiquidityEvent>;
   linea_setting?: Maybe<linea_Setting>;
   linea_settings: Array<linea_Setting>;
   linea_relayer?: Maybe<linea_Relayer>;
@@ -2401,6 +2575,24 @@ export type Subscriptionlinea_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<linea_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<linea_OrderDirection>;
   where?: InputMaybe<linea_RouterDailyTVL_filter>;
+  block?: InputMaybe<linea_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlinea_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<linea_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlinea_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<linea_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<linea_OrderDirection>;
+  where?: InputMaybe<linea_RouterLiquidityEvent_filter>;
   block?: InputMaybe<linea_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2704,6 +2896,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   linea_routerDailyTVLs: InContextSdkMethod<Query['linea_routerDailyTVLs'], Querylinea_routerDailyTVLsArgs, MeshContext>,
   /** null **/
+  linea_routerLiquidityEvent: InContextSdkMethod<Query['linea_routerLiquidityEvent'], Querylinea_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  linea_routerLiquidityEvents: InContextSdkMethod<Query['linea_routerLiquidityEvents'], Querylinea_routerLiquidityEventsArgs, MeshContext>,
+  /** null **/
   linea_setting: InContextSdkMethod<Query['linea_setting'], Querylinea_settingArgs, MeshContext>,
   /** null **/
   linea_settings: InContextSdkMethod<Query['linea_settings'], Querylinea_settingsArgs, MeshContext>,
@@ -2784,6 +2980,10 @@ export type _SubgraphErrorPolicy_ =
   linea_routerDailyTVL: InContextSdkMethod<Subscription['linea_routerDailyTVL'], Subscriptionlinea_routerDailyTVLArgs, MeshContext>,
   /** null **/
   linea_routerDailyTVLs: InContextSdkMethod<Subscription['linea_routerDailyTVLs'], Subscriptionlinea_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
+  linea_routerLiquidityEvent: InContextSdkMethod<Subscription['linea_routerLiquidityEvent'], Subscriptionlinea_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  linea_routerLiquidityEvents: InContextSdkMethod<Subscription['linea_routerLiquidityEvents'], Subscriptionlinea_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
   linea_setting: InContextSdkMethod<Subscription['linea_setting'], Subscriptionlinea_settingArgs, MeshContext>,
   /** null **/

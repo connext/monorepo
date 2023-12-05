@@ -10,10 +10,17 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
 -- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA public;
 
 
 --
@@ -24,17 +31,20 @@ COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
 
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.action_type AS ENUM (
+    'Add',
+    'Remove'
+);
+
+
+--
+-- Name: event_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.event_type AS ENUM (
     'Add',
     'Remove'
 );
@@ -144,7 +154,8 @@ CREATE TABLE public.assets (
     domain character varying(255) NOT NULL,
     key character(66),
     id character(42),
-    "decimal" numeric DEFAULT 0
+    "decimal" numeric DEFAULT 0,
+    adopted_decimal numeric DEFAULT 0
 );
 
 
@@ -703,6 +714,7 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.supplied,
     asset_balances.removed,
     assets."decimal",
+    assets.adopted_decimal,
     COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price,
     (asset_prices.price * (asset_balances.balance / ((10)::numeric ^ assets."decimal"))) AS balance_usd,
     (asset_prices.price * (asset_balances.fees_earned / ((10)::numeric ^ assets."decimal"))) AS fee_earned_usd,
@@ -739,6 +751,25 @@ CREATE VIEW public.router_liquidity AS
 
 
 --
+-- Name: router_liquidity_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.router_liquidity_events (
+    id character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL,
+    router character(42) NOT NULL,
+    event public.event_type DEFAULT 'Add'::public.event_type NOT NULL,
+    asset character(42) NOT NULL,
+    amount numeric DEFAULT 0,
+    balance numeric DEFAULT 0,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
+);
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -763,7 +794,7 @@ CREATE VIEW public.router_tvl AS
 --
 
 CREATE TABLE public.schema_migrations (
-    version character varying(255) NOT NULL
+    version character varying(128) NOT NULL
 );
 
 
@@ -1116,6 +1147,14 @@ ALTER TABLE ONLY public.root_messages
 
 
 --
+-- Name: router_liquidity_events router_liquidity_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.router_liquidity_events
+    ADD CONSTRAINT router_liquidity_events_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1223,6 +1262,48 @@ CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_
 
 
 --
+-- Name: merkle_cache_tree_domain_domain_path_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_domain_domain_path_idx ON public.merkle_cache USING btree (domain, domain_path);
+
+
+--
+-- Name: merkle_cache_tree_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_domain_idx ON public.merkle_cache USING btree (domain);
+
+
+--
+-- Name: merkle_cache_tree_domain_path_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_domain_path_idx ON public.merkle_cache USING btree (domain_path);
+
+
+--
+-- Name: merkle_cache_tree_root_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_root_domain_idx ON public.merkle_cache USING btree (tree_root, domain);
+
+
+--
+-- Name: merkle_cache_tree_root_domain_path_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_root_domain_path_idx ON public.merkle_cache USING btree (tree_root, domain_path);
+
+
+--
+-- Name: merkle_cache_tree_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX merkle_cache_tree_root_idx ON public.merkle_cache USING btree (tree_root);
+
+
+--
 -- Name: messages_domain_leaf_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1234,6 +1315,27 @@ CREATE INDEX messages_domain_leaf_idx ON public.messages USING btree (origin_dom
 --
 
 CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: messages_processed_only_index_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_processed_only_index_idx ON public.messages USING btree (index);
+
+
+--
+-- Name: messages_processed_origin_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_processed_origin_domain_idx ON public.messages USING btree (origin_domain);
+
+
+--
+-- Name: messages_processed_origin_domain_index_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX messages_processed_origin_domain_index_idx ON public.messages USING btree (origin_domain, index);
 
 
 --
@@ -1417,4 +1519,8 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230530074124'),
     ('20230608135754'),
     ('20230608174759'),
-    ('20230613125451');
+    ('20230613125451'),
+    ('20231127165037'),
+    ('20231127165223'),
+    ('20231128023332'),
+    ('20231130084431');
