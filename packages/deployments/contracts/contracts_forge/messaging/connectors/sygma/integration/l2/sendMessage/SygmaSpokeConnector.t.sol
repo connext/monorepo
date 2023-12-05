@@ -2,8 +2,6 @@
 pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
-import {SygmaSpokeConnector, IBridge} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
 import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
 import {console} from "forge-std/Console.sol";
 
@@ -25,8 +23,8 @@ contract Integration_Connector_SygmaSpokeConnector_SendMessage is Common {
       _depositData,
       _feeData
     );
-
     console.log("fee: ", _fee);
+
     // Give the balance to the root manager for the fee
     vm.deal(address(rootManager), _fee);
 

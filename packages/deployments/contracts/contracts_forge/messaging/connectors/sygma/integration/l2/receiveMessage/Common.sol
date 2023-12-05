@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {BridgeForTest, Pausable, PermissionlessGenericHandlerForTest} from "./BridgeForTest.sol";
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
+import {BridgeForTest} from "../../sygma_for_test/BridgeForTest.sol";
 import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
 import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
+import {PermissionlessGenericHandler} from "../../sygma_for_test/PermissionlessGenericHandler.sol";
 import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
-import {SygmaSpokeConnector, SpokeConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
+import {SpokeConnector} from "../../../../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {SygmaSpokeConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
-import {IBridge} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 7_497_107;
@@ -23,7 +23,7 @@ contract Common is ConnectorHelper {
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
 
   BridgeForTest public sygmaBridge;
-  PermissionlessGenericHandlerForTest public permissionlessGenericHandler;
+  PermissionlessGenericHandler public permissionlessGenericHandler;
   SygmaSpokeConnector public sygmaSpokeConnector;
   RootManager public rootManager;
   MerkleTreeManager public merkleTreeManager;
@@ -58,18 +58,18 @@ contract Common is ConnectorHelper {
     address _accessControl = 0xf433EfDf1Fb438F9d79D1E71dF2c2bdeAc95e28E;
     sygmaBridge = new BridgeForTest(_domainId, _accessControl);
 
-    // sygmaBridge.adminUnpauseTransfers();
-
-    permissionlessGenericHandler = new PermissionlessGenericHandlerForTest(address(sygmaBridge));
-
+    // Deploy permissionless generic handler for test instance
+    permissionlessGenericHandler = new PermissionlessGenericHandler(address(sygmaBridge));
+    // Set the deployed permissionless generic handler address for the resource ID 0
+    bytes memory _args = "";
     sygmaBridge.adminSetResource(
       address(permissionlessGenericHandler),
       0x0000000000000000000000000000000000000000000000000000000000000000,
       address(permissionlessGenericHandler),
-      ""
+      _args
     );
 
-    // Deploy sygma hub connector with the l1 sygma messenger for test instance as argument
+    // Deploy sygma spoke connector with the l2 sygma bridge for test instance as argument
     SpokeConnector.ConstructorParams memory _constructorParams = SpokeConnector.ConstructorParams({
       domain: DOMAIN,
       mirrorDomain: MIRROR_DOMAIN,
@@ -95,7 +95,7 @@ contract Common is ConnectorHelper {
     rootManager.addConnector(MIRROR_DOMAIN, address(sygmaSpokeConnector));
     vm.stopPrank();
 
-    // Set root manager as slow mode so the L1_SCROLL_MESSENGER messages can be received
+    // Set root manager as slow mode so the SYGMA_BRIDGE messages can be received
     vm.prank(whitelistedWatcher);
     rootManager.activateSlowMode();
   }

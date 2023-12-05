@@ -2,17 +2,13 @@
 pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
-import {SygmaHubConnector, IBridge} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaHubConnector.sol";
-import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
-
-import "forge-std/Test.sol";
+import {console} from "forge-std/Console.sol";
 
 contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
   function test_sendMessage() public {
-    // Declare current (origin) domain
+    // Current (origin) domain
     uint8 _ethereumDomainId = 1;
-    // Declare destination fomain
+    // Destination fomain
     uint8 _cronosDomainId = 4;
     // Get the encoded data
     bytes memory _feeData = "";
@@ -22,9 +18,9 @@ contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
     bytes memory _depositData = sygmaHubConnector.parseDepositData(_aggregateRoot, _l2Connector);
 
     // Get the fee needed to send the message
-    vm.startPrank(address(rootManager));
-    (uint256 _fee, ) = IFeeRouter(0xC47468aeae431f5D0B7DA50F9f5D8a6c0eca4789).calculateFee(
-      address(rootManager),
+    vm.startPrank(ROOT_MANAGER);
+    (uint256 _fee, ) = FEE_ROUTER.calculateFee(
+      ROOT_MANAGER,
       _ethereumDomainId,
       _cronosDomainId,
       sygmaHubConnector.PERMISSIONLESS_HANDLER_ID(),
@@ -34,7 +30,7 @@ contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
 
     console.log("fee: ", _fee);
     // Give the balance to the root manager for the fee
-    vm.deal(address(rootManager), _fee);
+    vm.deal(ROOT_MANAGER, _fee);
 
     // Send the message
     bytes memory _data = abi.encodePacked(_aggregateRoot);

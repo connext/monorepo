@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {BridgeForTest} from "../../sygma_for_test/BridgeForTest.sol";
 import {Common} from "./Common.sol";
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
-import {BridgeForTest} from "./BridgeForTest.sol";
-import {SygmaSpokeConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
 
 contract Integration_Connector_SygmaSpokeConnector_ReceiveMessage is Common {
   event AggregateRootReceived(bytes32 indexed root);

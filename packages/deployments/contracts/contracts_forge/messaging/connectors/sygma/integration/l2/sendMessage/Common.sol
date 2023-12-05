@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
 import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
-import {SygmaSpokeConnector, SpokeConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
+import {SpokeConnector} from "../../../../../../../contracts/messaging/connectors/SpokeConnector.sol";
+import {SygmaSpokeConnector} from "../../../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
 import {IBridge} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
@@ -23,7 +23,6 @@ contract Common is ConnectorHelper {
 
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
-  address public relayer = makeAddr("relayer");
   address public mirrorConnector = makeAddr("mirrorConnector");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
 
@@ -56,7 +55,7 @@ contract Common is ConnectorHelper {
       _disputeBlocks
     );
 
-    // Deploy sygma hub connector with the l1 sygma messenger for test instance as argument
+    // Deploy sygma spoke connector with the l2 sygma bridge for test instance as argument
     SpokeConnector.ConstructorParams memory _constructorParams = SpokeConnector.ConstructorParams({
       domain: DOMAIN,
       mirrorDomain: MIRROR_DOMAIN,
