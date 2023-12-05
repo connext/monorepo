@@ -332,6 +332,8 @@ contract BridgeForTest is Pausable, Context, EIP712 {
     bytes calldata depositData,
     bytes calldata feeData
   ) external payable whenNotPaused returns (uint64 depositNonce, bytes memory handlerResponse) {
+    console.log("here");
+
     if (destinationDomainID == _domainID) revert DepositToCurrentDomain();
 
     address sender = _msgSender();

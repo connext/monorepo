@@ -63,7 +63,7 @@ contract Unit_Connector_BaseSygma_ParseDepositData is Base {
     bytes memory _expectedDepositData = abi.encodePacked(
       _gasCap,
       _FUNCTION_SIG_LEN,
-      _FUNCTION_SIG, // TODO -> check this could break things
+      _FUNCTION_SIG,
       _ADDRESS_LEN,
       _mirrorConnector,
       _ADDRESS_LEN,
