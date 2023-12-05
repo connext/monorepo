@@ -35,7 +35,7 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @notice Creates a new TaikoHubConnector instance
    * @param _domain L1 domain
    * @param _mirrorDomain L2 domain
-   * @param _amb Arbitrary Message Bridge address
+   * @param _offChainAgent The off-chain agent address allowed to call `processMessage`
    * @param _rootManager Root manager address
    * @param _mirrorConnector Mirror connector address
    * @param _gasCap Gas limit for cross domain message
@@ -43,13 +43,16 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
   constructor(
     uint32 _domain,
     uint32 _mirrorDomain,
-    address _amb,
+    address _offChainAgent,
     address _rootManager,
     address _mirrorConnector,
     address _taikoSignalService,
     uint256 _spokeChainId,
     uint256 _gasCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseTaiko(_taikoSignalService, _gasCap) {
+  )
+    HubConnector(_domain, _mirrorDomain, _offChainAgent, _rootManager, _mirrorConnector)
+    BaseTaiko(_taikoSignalService, _gasCap)
+  {
     SPOKE_CHAIN_ID = _spokeChainId;
   }
 
