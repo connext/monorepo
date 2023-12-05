@@ -95,6 +95,7 @@ jobs:
           echo MAINNET_RPC="${{ secrets.MAINNET_RPC }}" >> ./packages/deployments/contracts/.env
           echo SCROLL_RPC="${{ secrets.SCROLL_RPC }}" >> ./packages/deployments/contracts/.env
           echo SEPOLIA_RPC="${{ secrets.SEPOLIA_RPC }}" >> ./packages/deployments/contracts/.env
+          echo TAIKO_RPC="${{ secrets.TAIKO_RPC }}" >> ./packages/deployments/contracts/.env
           cat ./packages/deployments/contracts/.env
 
       ## TODO: Modify it to its previous state before merging to Connext
