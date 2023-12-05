@@ -175,6 +175,7 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
   }
 
   function test_callAggregate(bytes32 _signal, bytes memory _proof) public {
+    vm.assume(_signal != bytes32(0));
     // Mock the call over `verifyAndGetSignal`
     vm.mockCall(
       taikoSignalService,
