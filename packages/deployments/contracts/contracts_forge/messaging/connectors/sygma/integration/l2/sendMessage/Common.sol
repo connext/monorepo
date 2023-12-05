@@ -76,5 +76,6 @@ contract Common is ConnectorHelper {
       PERMISSIONLESS_GENERIC_HANDLER,
       _gasCap
     );
+    vm.stopPrank();
   }
 }
