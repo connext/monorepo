@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
-import {console} from "forge-std/Console.sol";
+import "forge-std/Console.sol";
 
 contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
   function test_sendMessage() public {
