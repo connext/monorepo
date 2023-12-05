@@ -12,7 +12,7 @@ contract RelayerProxyTest is ConnectorHelper {
   // ============ Events ============
   event FundsReceived(uint256 amount, uint256 balance);
 
-  event FundsDeducted(uint256 amount, uint256 balance);
+  event FundsDeducted(address token, uint256 amount, uint256 balance);
 
   event RelayerAdded(address relayer);
 
