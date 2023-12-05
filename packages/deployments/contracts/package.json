@@ -3,7 +3,7 @@
   "version": "2.2.0-alpha.2",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --no-match-path '*/fork/**.sol'",
+    "test": "yarn forge test --no-match-path '*/fork/**.sol' --via-ir",
     "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
     "test:fork": "yarn forge test --match-path '*/fork/**.sol'",
     "forge": "forge",
