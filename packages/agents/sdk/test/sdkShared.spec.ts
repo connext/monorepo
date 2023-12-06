@@ -317,6 +317,7 @@ describe("SdkShared", () => {
 
   describe("#getAssetsData", () => {
     it("happy: should work", async () => {
+      sdkShared.config.cartographerUrl = config.cartographerUrl;
       restore();
       stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
       const res = await sdkShared.getAssetsData();
