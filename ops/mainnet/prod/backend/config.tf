@@ -51,7 +51,8 @@ locals {
         providers = ["https://rpc.ankr.com/gnosis"]
       }
       "1818848877" = {
-        providers = ["https://rpc.linea.build"]
+        providers      = ["https://rpc.linea.build"]
+        disabledAssets = ["0xA219439258ca9da29E9Cc4cE5596924745e12B93", "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5"]
       }
     }
 
@@ -84,7 +85,7 @@ locals {
       "1634886255" = { confirmations = 1 }
       "6450786"    = { confirmations = 50 }
       "6778479"    = { confirmations = 100 }
-      "1818848877"    = { confirmations = 10 }
+      "1818848877" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {
