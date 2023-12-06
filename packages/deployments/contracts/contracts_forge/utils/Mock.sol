@@ -22,6 +22,7 @@ import {IXReceiver} from "../../contracts/core/connext/interfaces/IXReceiver.sol
 
 import {ProposedOwnable} from "../../contracts/shared/ProposedOwnable.sol";
 import {TypeCasts} from "../../contracts/shared/libraries/TypeCasts.sol";
+import {SnapshotId} from "../../contracts/messaging/libraries/SnapshotId.sol";
 
 import {TestERC20} from "../../contracts/test/TestERC20.sol";
 
@@ -214,32 +215,7 @@ contract MockSpokeConnector is SpokeConnector {
   // bytes32 public aggregateRoot;
   // uint32 public mirrorDomain;
 
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _merkle,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _watcherManager
-  )
-    ProposedOwnable()
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-  {
+  constructor(ConstructorParams memory _baseSpokeParams) ProposedOwnable() SpokeConnector(_baseSpokeParams) {
     _setOwner(msg.sender);
     verified = true;
     // mirrorDomain = _mirrorDomain;
@@ -251,6 +227,30 @@ contract MockSpokeConnector is SpokeConnector {
 
   function setUpdatesAggregate(bool _updatesAggregate) public {
     updatesAggregate = _updatesAggregate;
+  }
+
+  function setAllowlistedProposer(address _proposer, bool _isProposer) public {
+    allowlistedProposers[_proposer] = _isProposer;
+  }
+
+  function setOptimisticMode(bool _mode) public {
+    optimisticMode = _mode;
+  }
+
+  function setProposedAggregateRootHash(bytes32 _proposedAggregateRootHash) public {
+    proposedAggregateRootHash = _proposedAggregateRootHash;
+  }
+
+  function setPendingAggregateRoot(bytes32 _newRoot, uint256 _blockNumber) public {
+    pendingAggregateRoots[_newRoot] = _blockNumber;
+  }
+
+  function setProvenAggregateRoot(bytes32 _newRoot, bool _proven) public {
+    provenAggregateRoots[_newRoot] = _proven;
+  }
+
+  function receiveAggregateRootForTest(bytes32 _newRoot) public {
+    receiveAggregateRoot(_newRoot);
   }
 
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
@@ -267,6 +267,14 @@ contract MockSpokeConnector is SpokeConnector {
 
   function _verifySender(address _expected) internal override returns (bool) {
     return verified;
+  }
+
+  function setSnapshotRoot(uint256 _snapshotId, bytes32 _root) external {
+    snapshotRoots[_snapshotId] = _root;
+  }
+
+  function count() external returns (uint256) {
+    return MERKLE.count();
   }
 }
 

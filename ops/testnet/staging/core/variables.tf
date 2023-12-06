@@ -128,11 +128,7 @@ variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "arbgoerli_alchemy_key_0" {
-  type = string
-}
-
-variable "arbgoerli_alchemy_key_1" {
+variable "mumbai_alchemy_key_0" {
   type = string
 }
 
@@ -201,4 +197,8 @@ variable "betteruptime_api_key" {
 variable "betteruptime_requester_email" {
   type    = string
   default = "layne@proximalabs.io"
+}
+
+variable "lighthouse_web3_signer_private_key" {
+  type    = string
 }

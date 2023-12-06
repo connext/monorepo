@@ -15,7 +15,12 @@ import "../../../utils/ForgeHelper.sol";
 contract AdminHubConnectorTest is ForgeHelper {
   event MessageProcessed(bytes data, address caller);
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
-  event RootsAggregated(bytes32 aggregateRoot, uint256 count, bytes32[] aggregatedMessageRoots);
+  event AggregateRootSavedSlow(
+    bytes32 indexed aggregateRoot,
+    uint256 leafCount,
+    bytes32[] aggregatedRoots,
+    uint256 rootTimestamp
+  );
 
   // ============ Storage ============
   uint32 BNB_DOMAIN = 6450786;
@@ -50,7 +55,7 @@ contract AdminHubConnectorTest is ForgeHelper {
 
     // deploy root manager
     vm.prank(owner);
-    rootManager = new RootManager(0, address(merkleTreeManager), address(manager));
+    rootManager = new RootManager(0, address(merkleTreeManager), address(manager), 0, 0);
     vm.prank(address(rootManager));
     merkleTreeManager.initialize(address(rootManager));
 
@@ -141,6 +146,10 @@ contract AdminHubConnectorTest is ForgeHelper {
     address[] memory connectors = utils_getConnectors();
     (uint256[] memory fees, bytes[] memory encodedData) = utils_getFeesAndEncodedData();
 
+    // activate slow mode to be able to call aggregate on RootManager
+    vm.prank(watcher);
+    rootManager.activateSlowMode();
+
     // use admin connector to insert on spoke root (and assert events)
     vm.expectEmit(true, true, true, true, address(rootManager));
     emit RootReceived(BNB_DOMAIN, _rootToInsert, 1);
@@ -160,7 +169,7 @@ contract AdminHubConnectorTest is ForgeHelper {
     // NOTE: this event check ensures the root manager emitted the event, but not the data within
     // the event payload
     vm.expectEmit(true, true, true, true, address(rootManager));
-    emit RootsAggregated(aggregateRoot, count, leaves);
+    emit AggregateRootSavedSlow(aggregateRoot, count, leaves, block.timestamp);
     rootManager.propagate(connectors, fees, encodedData);
   }
 }

@@ -38,6 +38,8 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
     "executeSignatures(bytes,bytes)": FunctionFragment;
+    "floor()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "mirrorConnector()": FunctionFragment;
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
@@ -48,8 +50,10 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setGasCap(uint256)": FunctionFragment;
+    "setGasFloor(uint256)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -62,6 +66,8 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
       | "acceptProposedOwner"
       | "delay"
       | "executeSignatures"
+      | "floor"
+      | "gasCap"
       | "mirrorConnector"
       | "owner"
       | "processMessage"
@@ -72,8 +78,10 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
       | "renounced"
       | "sendMessage"
       | "setGasCap"
+      | "setGasFloor"
       | "setMirrorConnector"
       | "verifySender"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -99,6 +107,8 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     functionFragment: "executeSignatures",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "floor", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mirrorConnector",
     values?: undefined
@@ -131,11 +141,19 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setGasFloor",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setMirrorConnector",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -162,6 +180,8 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     functionFragment: "executeSignatures",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "floor", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "mirrorConnector",
     data: BytesLike
@@ -191,6 +211,10 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setGasCap", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setGasFloor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setMirrorConnector",
     data: BytesLike
   ): Result;
@@ -198,9 +222,15 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "GasCapUpdated(uint256,uint256)": EventFragment;
+    "GasFloorUpdated(uint256,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -209,7 +239,9 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasCapUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasFloorUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
@@ -217,6 +249,17 @@ export interface GnosisHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface GasCapUpdatedEventObject {
   _previous: BigNumber;
@@ -228,6 +271,17 @@ export type GasCapUpdatedEvent = TypedEvent<
 >;
 
 export type GasCapUpdatedEventFilter = TypedEventFilter<GasCapUpdatedEvent>;
+
+export interface GasFloorUpdatedEventObject {
+  previous: BigNumber;
+  updated: BigNumber;
+}
+export type GasFloorUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  GasFloorUpdatedEventObject
+>;
+
+export type GasFloorUpdatedEventFilter = TypedEventFilter<GasFloorUpdatedEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -351,6 +405,10 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    floor(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -386,6 +444,11 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -393,6 +456,11 @@ export interface GnosisHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -418,6 +486,10 @@ export interface GnosisHubConnector extends BaseContract {
     _signatures: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
   mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -454,6 +526,11 @@ export interface GnosisHubConnector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setGasFloor(
+    _floor: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setMirrorConnector(
     _mirrorConnector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -461,6 +538,11 @@ export interface GnosisHubConnector extends BaseContract {
 
   verifySender(
     _expected: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -484,6 +566,10 @@ export interface GnosisHubConnector extends BaseContract {
       _signatures: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<string>;
 
@@ -518,6 +604,11 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -527,14 +618,37 @@ export interface GnosisHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
     "GasCapUpdated(uint256,uint256)"(
       _previous?: null,
       _updated?: null
     ): GasCapUpdatedEventFilter;
     GasCapUpdated(_previous?: null, _updated?: null): GasCapUpdatedEventFilter;
+
+    "GasFloorUpdated(uint256,uint256)"(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
+    GasFloorUpdated(
+      previous?: null,
+      updated?: null
+    ): GasFloorUpdatedEventFilter;
 
     "MessageProcessed(bytes,address)"(
       data?: null,
@@ -617,6 +731,10 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    floor(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     mirrorConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -652,6 +770,11 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -659,6 +782,11 @@ export interface GnosisHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -685,6 +813,10 @@ export interface GnosisHubConnector extends BaseContract {
       _signatures: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    floor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mirrorConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -721,6 +853,11 @@ export interface GnosisHubConnector extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setGasFloor(
+      _floor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setMirrorConnector(
       _mirrorConnector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -728,6 +865,11 @@ export interface GnosisHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

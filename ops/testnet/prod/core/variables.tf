@@ -168,6 +168,10 @@ variable "lighthouse_propagate_heartbeat" {
   type = string
 }
 
+variable "lighthouse_propose_heartbeat" {
+  type = string
+}
+
 variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
@@ -188,4 +192,8 @@ variable "admin_token_relayer" {
 
 variable "drpc_key" {
   type = string
+}
+
+variable "lighthouse_web3_signer_private_key" {
+  type    = string
 }

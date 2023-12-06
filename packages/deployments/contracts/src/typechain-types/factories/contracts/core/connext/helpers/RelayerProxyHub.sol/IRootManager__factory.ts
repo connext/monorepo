@@ -11,6 +11,25 @@ import type {
 
 const _abi = [
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_proposer",
+        type: "address",
+      },
+    ],
+    name: "allowlistedProposers",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "dequeue",
     outputs: [
@@ -29,7 +48,64 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_proposedAggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_endOfDispute",
+        type: "uint256",
+      },
+    ],
+    name: "finalize",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "_connectors",
+        type: "address[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "_fees",
+        type: "uint256[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "_encodedData",
+        type: "bytes[]",
+      },
+      {
+        internalType: "bytes32",
+        name: "_proposedAggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_endOfDispute",
+        type: "uint256",
+      },
+    ],
+    name: "finalizeAndPropagate",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_domain",
+        type: "uint32",
+      },
+    ],
     name: "lastPropagatedRoot",
     outputs: [
       {
@@ -62,6 +138,41 @@ const _abi = [
     name: "propagate",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_snapshotId",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "_aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32[]",
+        name: "_snapshotsRoots",
+        type: "bytes32[]",
+      },
+      {
+        internalType: "uint32[]",
+        name: "_domains",
+        type: "uint32[]",
+      },
+    ],
+    name: "proposeAggregateRoot",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "sendRootToHubSpoke",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;

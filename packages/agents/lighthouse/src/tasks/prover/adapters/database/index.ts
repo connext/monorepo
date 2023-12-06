@@ -1,1 +1,1 @@
-export { HubDBHelper, SpokeDBHelper } from "./helper";
+export { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "./helper";

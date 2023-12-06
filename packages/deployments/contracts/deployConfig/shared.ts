@@ -21,7 +21,8 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 100;
+const DEFAULT_DELAY_BLOCKS = 120; // ~30min
+const DEFAULT_DISPUTE_BLOCKS = 120; // ~30min
 
 export type RelayerConfig = {
   [chain: number]: {
@@ -56,7 +57,11 @@ export const RELAYER_CONFIGS: {
 
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
-  hub: number;
+  hub: {
+    chain: number;
+    minDisputeBlocks: number;
+    disputeBlocks: number;
+  };
   configs: {
     // Map of chain ID => configs.
     [chain: number]: {
@@ -70,6 +75,8 @@ export type MessagingProtocolConfig = {
       processGas: BigNumber;
       reserveGas: BigNumber;
       delayBlocks: number;
+      disputeBlocks: number;
+      minDisputeBlocks: number;
       custom?: {
         hub?: { [key: string]: string | BigNumber };
         spoke?: { [key: string]: string | BigNumber };
@@ -106,7 +113,11 @@ export const getFacetsToDeploy = (zksync: boolean) => [
 
 export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig> = {
   local: {
-    hub: 31337,
+    hub: {
+      chain: 1337,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+      minDisputeBlocks: 0,
+    },
     configs: {
       31337: {
         prefix: "AdminMainnet",
@@ -117,7 +128,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: 1,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
       31338: {
         prefix: "Admin",
@@ -128,23 +141,24 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: 1,
-      },
-      31339: {
-        prefix: "Admin",
-        networkName: "Arbitrum",
-        ambs: {
-          hub: constants.AddressZero,
-          spoke: constants.AddressZero,
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
+            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
+          },
         },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: 1,
       },
     },
   },
   devnet: {
-    hub: 1,
+    hub: {
+      chain: 1,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+      minDisputeBlocks: 0,
+    },
     configs: {
       1: {
         prefix: "Admin",
@@ -156,6 +170,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
       10: {
         prefix: "Admin",
@@ -167,6 +183,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
       100: {
         prefix: "Admin",
@@ -178,11 +196,17 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: 1,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
     },
   },
   testnet: {
-    hub: 5, // Goerli hub.
+    hub: {
+      chain: 5,
+      minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+      disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+    }, // Goerli hub.
     configs: {
       // TODO: Configs for rinkeby, ropsten, etc.
       // Optimism goerli:
@@ -200,6 +224,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
@@ -224,6 +250,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
@@ -247,6 +275,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
@@ -268,6 +298,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             gasCap: DEFAULT_PROCESS_GAS,
@@ -287,29 +319,33 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
+      // // FIXME: wormhole relayer deployment not listed in docs for goerli
+      // // address used is core bridge; different from mainnet so this testnet is skipped
       // 97: {
-      //   prefix: "Multichain",
+      //   prefix: "Wormhole",
       //   networkName: "Chapel",
       //   ambs: {
-      //     // AnyCallV6Proxy on goerli
-      //     // https://goerli.etherscan.io/address/0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3
-      //     hub: "0x3D4e1981f822e87A1A4C05F2e4b3bcAdE5406AE3",
-      //     // AnyCallV6Proxy on chapel/bsc testnet
-      //     // https://testnet.bscscan.com/address/0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045
-      //     spoke: "0xD2b88BA56891d43fB7c108F23FE6f92FEbD32045",
+      //     // Wormhole Core bridge
+      //     hub: "0x706abc4E45D419950511e474C7B9Ed348A4a716c",
+      //     // Wormhole Relayer on BNB Chapel Chain
+      //     spoke: "0x80aC94316391752A193C1c47E27D382b507c93F3",
       //   },
+      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      // disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+      // minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
       //   custom: {
       //     hub: {
-      //       mirrorChainId: "97",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //       gasCap: "300000", // gas limit for receiveWormholeMessages on bnb
+      //       mirrorChainId: "4", // bsc wormhole chainId: 4
       //     },
       //     spoke: {
-      //       mirrorChainId: "5",
-      //       gasCap: "20000000000000000", // calcSrcFee: 10000320000000000
+      //       gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
+      //       mirrorChainId: "2", // mainnet wormhole chainid: 2
       //     },
       //   },
       // },
@@ -326,6 +362,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             mirrorNetworkId: "1",
@@ -344,11 +382,13 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
     },
   },
   mainnet: {
-    hub: 1,
+    hub: { chain: 1, minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2, disputeBlocks: DEFAULT_DISPUTE_BLOCKS },
     configs: {
       1: {
         prefix: "Mainnet",
@@ -359,6 +399,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
       10: {
         prefix: "Optimism",
@@ -374,6 +416,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: BigNumber.from("2000000"),
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             // https://etherscan.io/address/0xbEb5Fc579115071764c7423A4f12eDde41f106Ed#code
@@ -396,6 +440,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             gasCap: "4000000", // maxGasPerTx
@@ -417,6 +463,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           spoke: "0x8397259c983751DAf40400790063935a11afa28a",
         },
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         custom: {
@@ -440,6 +488,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         custom: {
           hub: {
             // https://etherscan.io/address/0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840
@@ -463,6 +513,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           spoke: "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
         },
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         custom: {
@@ -488,6 +540,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
+        disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
+        minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       },
     },
   },

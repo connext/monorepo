@@ -10,8 +10,14 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
 
   /// MARK - Contracts
   // Convenience setup for contracts.
-  const { RootManager, MainnetConnector, HubConnectors, MerkleTreeManagerForRoot, MerkleTreeManagerForSpoke } = hub
-    .deployments.messaging as HubMessagingDeployments;
+  const {
+    RootManager,
+    MainnetConnector,
+    HubConnectors,
+    MerkleTreeManagerForRoot,
+    MerkleTreeManagerForSpoke,
+    RelayerProxy,
+  } = hub.deployments.messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
@@ -19,8 +25,35 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
   // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
 
-  /// MARK - Connector Mirrors
+  // Set hub domain to the root manager, mandatorily requires since Op Roots v1.1
   console.log("\n\nMESSAGING");
+  await updateIfNeeded({
+    apply,
+    deployment: RootManager,
+    desired: +protocol.hub,
+    read: { method: "hubDomain" },
+    write: { method: "setHubDomain", args: [protocol.hub] },
+  });
+
+  // Set RelayerProxyHub address as proposer.
+  await updateIfNeeded({
+    apply,
+    deployment: RootManager,
+    desired: true,
+    read: { method: "allowlistedProposers", args: [RelayerProxy.address] },
+    write: { method: "addProposer", args: [RelayerProxy.address] },
+  });
+
+  for (const proposer of protocol.agents?.proposers?.allowlist || []) {
+    await updateIfNeeded({
+      apply,
+      deployment: RootManager,
+      desired: true,
+      read: { method: "allowlistedProposers", args: [proposer] },
+      write: { method: "addProposer", args: [proposer] },
+    });
+  }
+
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain (and convert to a string value).
@@ -39,7 +72,8 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           throw new Error("Mirror domain was hub? Bruh");
         }
         // foundMirror = true;
-        const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
+        const { SpokeConnector, MerkleTreeManager, RelayerProxy } = spoke.deployments
+          .messaging as SpokeMessagingDeployments;
 
         console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
 
@@ -139,6 +173,26 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           read: { method: "xAppConnectionManager", args: [] },
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
         });
+
+        /// MARK - RelayerProxy
+        console.log("\tVerifying relayer proxy are set as proposer correctly.");
+        await updateIfNeeded({
+          apply,
+          deployment: SpokeConnector,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [RelayerProxy.address] },
+          write: { method: "addProposer", args: [RelayerProxy.address] },
+        });
+
+        for (const proposer of protocol.agents?.proposers?.allowlist || []) {
+          await updateIfNeeded({
+            apply,
+            deployment: SpokeConnector,
+            desired: true,
+            read: { method: "allowlistedProposers", args: [proposer] },
+            write: { method: "addProposer", args: [proposer] },
+          });
+        }
       }
     }
 

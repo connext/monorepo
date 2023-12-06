@@ -45,6 +45,7 @@ export interface ConnectorInterface extends utils.Interface {
     "renounced()": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -65,6 +66,7 @@ export interface ConnectorInterface extends utils.Interface {
       | "renounced"
       | "setMirrorConnector"
       | "verifySender"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -111,6 +113,10 @@ export interface ConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -160,8 +166,13 @@ export interface ConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -170,6 +181,7 @@ export interface ConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
@@ -177,6 +189,17 @@ export interface ConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -325,6 +348,11 @@ export interface Connector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   AMB(overrides?: CallOverrides): Promise<string>;
@@ -375,6 +403,11 @@ export interface Connector extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     AMB(overrides?: CallOverrides): Promise<string>;
 
@@ -419,9 +452,23 @@ export interface Connector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
     "MessageProcessed(bytes,address)"(
       data?: null,
       caller?: null
@@ -528,6 +575,11 @@ export interface Connector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -576,6 +628,11 @@ export interface Connector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

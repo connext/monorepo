@@ -5,6 +5,7 @@ export * as ambs from "./ambs";
 export { IConnector__factory } from "./IConnector__factory";
 export { IConnectorManager__factory } from "./IConnectorManager__factory";
 export { IHubConnector__factory } from "./IHubConnector__factory";
+export { IHubSpokeConnector__factory } from "./IHubSpokeConnector__factory";
 export { IMessageRecipient__factory } from "./IMessageRecipient__factory";
 export { IOutbox__factory } from "./IOutbox__factory";
 export { IRootManager__factory } from "./IRootManager__factory";

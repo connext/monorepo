@@ -11,6 +11,7 @@ type RootPropagated @entity {
   aggregate: Bytes!
   domainsHash: Bytes!
   count: BigInt!
+  blockNumber: BigInt
 }
 
 type AggregatedMessageRoot @entity {
@@ -18,12 +19,44 @@ type AggregatedMessageRoot @entity {
   index: BigInt! # Index in the aggregate tree.
   receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
   domain: BigInt
+  blockNumber: BigInt
 }
 
 type RootManagerMeta @entity {
   id: ID! # "ROOT_MANAGER_META_ID"
   domains: [BigInt!]
   connectors: [Bytes!]
+}
+
+type RootManagerMode @entity {
+  id: ID! # "ROOT_MANAGER_MODE_ID"
+  mode: String!
+}
+
+type OptimisticRootProposed @entity {
+  id: ID!
+  disputeCliff: BigInt!
+  aggregateRoot: Bytes!
+  snapshotsRoots: [Bytes!]
+  domains: [BigInt!]
+  baseAggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type HubOptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type OptimisticRootPropagated @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  domainsHash: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
 }
 
 # POLYGON
@@ -118,4 +151,17 @@ type RootMessageProcessed @entity {
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
+}
+
+type AggregateRootSavedSlow @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  count: BigInt!
+  aggregatedRoots: [Bytes!]
+  rootTimestamp: BigInt!
+}
+
+type HubDomain @entity {
+  id: ID! # "HUB_DOMAIN_ID"
+  domain: BigInt
 }

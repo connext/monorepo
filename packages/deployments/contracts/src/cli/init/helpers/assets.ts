@@ -216,7 +216,7 @@ export const setupAsset = async (args: {
 
     // Deposit into pool in equal amounts
     const liquidity = decimals.map((decimal) =>
-      parseUnits((representation.pool?.initialLiquidity ?? "15") as string, decimal as number),
+      parseUnits(representation.pool?.initialLiquidity ?? "15", decimal as number),
     );
 
     // Verify there is sufficient amounts

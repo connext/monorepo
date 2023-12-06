@@ -26,19 +26,50 @@ import type {
 
 export interface IRootManagerInterface extends utils.Interface {
   functions: {
+    "allowlistedProposers(address)": FunctionFragment;
     "dequeue()": FunctionFragment;
-    "lastPropagatedRoot()": FunctionFragment;
+    "finalize(bytes32,uint256)": FunctionFragment;
+    "finalizeAndPropagate(address[],uint256[],bytes[],bytes32,uint256)": FunctionFragment;
+    "lastPropagatedRoot(uint32)": FunctionFragment;
     "propagate(address[],uint256[],bytes[])": FunctionFragment;
+    "proposeAggregateRoot(uint256,bytes32,bytes32[],uint32[])": FunctionFragment;
+    "sendRootToHubSpoke()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "dequeue" | "lastPropagatedRoot" | "propagate"
+    nameOrSignatureOrTopic:
+      | "allowlistedProposers"
+      | "dequeue"
+      | "finalize"
+      | "finalizeAndPropagate"
+      | "lastPropagatedRoot"
+      | "propagate"
+      | "proposeAggregateRoot"
+      | "sendRootToHubSpoke"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "allowlistedProposers",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "dequeue", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "finalize",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "finalizeAndPropagate",
+    values: [
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "lastPropagatedRoot",
-    values?: undefined
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "propagate",
@@ -48,13 +79,43 @@ export interface IRootManagerInterface extends utils.Interface {
       PromiseOrValue<BytesLike>[]
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "proposeAggregateRoot",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BigNumberish>[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sendRootToHubSpoke",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "allowlistedProposers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "dequeue", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "finalizeAndPropagate",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "lastPropagatedRoot",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "propagate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeAggregateRoot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sendRootToHubSpoke",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -86,11 +147,34 @@ export interface IRootManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<[string]>;
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    finalizeAndPropagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -98,13 +182,48 @@ export interface IRootManager extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    proposeAggregateRoot(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  allowlistedProposers(
+    _proposer: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   dequeue(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+  finalize(
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  finalizeAndPropagate(
+    _connectors: PromiseOrValue<string>[],
+    _fees: PromiseOrValue<BigNumberish>[],
+    _encodedData: PromiseOrValue<BytesLike>[],
+    _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+    _endOfDispute: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  lastPropagatedRoot(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   propagate(
     _connectors: PromiseOrValue<string>[],
@@ -113,10 +232,45 @@ export interface IRootManager extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  proposeAggregateRoot(
+    _snapshotId: PromiseOrValue<BigNumberish>,
+    _aggregateRoot: PromiseOrValue<BytesLike>,
+    _snapshotsRoots: PromiseOrValue<BytesLike>[],
+    _domains: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  sendRootToHubSpoke(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     dequeue(overrides?: CallOverrides): Promise<[string, BigNumber]>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<string>;
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    finalizeAndPropagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -124,16 +278,49 @@ export interface IRootManager extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    proposeAggregateRoot(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    sendRootToHubSpoke(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    lastPropagatedRoot(overrides?: CallOverrides): Promise<BigNumber>;
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    finalizeAndPropagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     propagate(
       _connectors: PromiseOrValue<string>[],
@@ -141,14 +328,47 @@ export interface IRootManager extends BaseContract {
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    proposeAggregateRoot(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    allowlistedProposers(
+      _proposer: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     dequeue(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    finalize(
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    finalizeAndPropagate(
+      _connectors: PromiseOrValue<string>[],
+      _fees: PromiseOrValue<BigNumberish>[],
+      _encodedData: PromiseOrValue<BytesLike>[],
+      _proposedAggregateRoot: PromiseOrValue<BytesLike>,
+      _endOfDispute: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     lastPropagatedRoot(
+      _domain: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -157,6 +377,18 @@ export interface IRootManager extends BaseContract {
       _fees: PromiseOrValue<BigNumberish>[],
       _encodedData: PromiseOrValue<BytesLike>[],
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    proposeAggregateRoot(
+      _snapshotId: PromiseOrValue<BigNumberish>,
+      _aggregateRoot: PromiseOrValue<BytesLike>,
+      _snapshotsRoots: PromiseOrValue<BytesLike>[],
+      _domains: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sendRootToHubSpoke(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

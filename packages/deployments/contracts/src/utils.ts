@@ -91,7 +91,7 @@ export const getConnectorName = (
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
+    config.hub.chain === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
       ? HUB_PREFIX
       : SPOKE_PREFIX
   }Connector`;
@@ -148,7 +148,7 @@ export const getMessagingProtocolConfig = (protocolNetwork: ProtocolNetwork): Me
   // TODO: "tesnet"  => "mainnet"  for production
   const protocol = MESSAGING_PROTOCOL_CONFIGS[protocolNetwork];
 
-  if (!protocol || !protocol.configs[protocol.hub]) {
+  if (!protocol || !protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${protocolNetwork} is not supported! (no messaging config)`);
   }
   return protocol;
@@ -170,11 +170,11 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.keys(protocol.configs).forEach((_chainId) => {
     const chainId = +_chainId;
-    if (protocol.hub === chainId) {
+    if (protocol.hub.chain === chainId) {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
-        chain: protocol.hub,
-        name: getDeploymentName(getConnectorName(protocol, protocol.hub), env),
+        chain: protocol.hub.chain,
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub.chain), env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
@@ -182,7 +182,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
     const hubName = getDeploymentName(
-      getConnectorName(protocol, chainId, protocol.hub),
+      getConnectorName(protocol, chainId, protocol.hub.chain),
       env,
       protocol.configs[chainId].networkName,
     );
@@ -192,7 +192,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       protocol.configs[chainId].networkName,
     );
     connectors.push({
-      chain: protocol.hub,
+      chain: protocol.hub.chain,
       name: hubName,
       mirrorName: spokeName,
       mirrorChain: chainId,
@@ -201,7 +201,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       chain: chainId,
       name: spokeName,
       mirrorName: hubName,
-      mirrorChain: protocol.hub,
+      mirrorChain: protocol.hub.chain,
     });
   });
 
