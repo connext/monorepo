@@ -2,6 +2,7 @@ type Asset @entity {
   id: ID! # local asset address
   key: Bytes
   decimal: BigInt
+  adoptedDecimal: BigInt
   canonicalId: Bytes
   canonicalDomain: BigInt
   adoptedAsset: Bytes
@@ -44,6 +45,26 @@ type RouterDailyTVL @entity {
   asset: Asset!
   timestamp: BigInt!
   balance: BigInt!
+}
+
+enum RouterLiquidityEventType {
+  Add
+  Remove
+}
+
+type RouterLiquidityEvent @entity {
+  id: ID!
+  type: RouterLiquidityEventType
+  router: Router!
+  asset: Asset!
+  amount: BigInt!
+  balance: BigInt!
+
+  caller: Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+  nonce: BigInt!
 }
 
 type Setting @entity {
@@ -275,4 +296,26 @@ type SnapshotRoot @entity {
   count: BigInt!
   timestamp: BigInt!
   blockNumber: BigInt!
+}
+
+type SpokeConnectorMode @entity {
+  id: ID!
+  mode: String!
+}
+
+type AggregateRootProposed @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type OptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
 }

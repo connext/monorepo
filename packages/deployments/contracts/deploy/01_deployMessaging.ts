@@ -241,8 +241,9 @@ const handleDeploySpoke = async (
       !contract.includes("Arbitrum") &&
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
-      !contract.includes("Consensys") &&
-      !contract.includes("Wormhole")) ||
+      !contract.includes("Linea") &&
+      !contract.includes("Wormhole") &&
+      !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
     return;
@@ -335,7 +336,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
@@ -364,5 +365,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Messaging", "prod", "local", "mainnet"];
+func.tags = ["Messaging", "prod", "local", "mainnet", "devnet"];
 func.dependencies = [];

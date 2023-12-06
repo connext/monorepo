@@ -5,7 +5,6 @@ import {
   jsonifyError,
   domainToChainId,
   sign,
-  getRandomBytes32,
 } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 import { solidityKeccak256 } from "ethers/lib/utils";
@@ -77,7 +76,6 @@ export const proposeSpoke = async (spokeDomain: string) => {
     throw new NoSpokeConnector(spokeDomain, requestContext, methodContext);
   }
 
-  // TODO: V1.1 right way to find out the latest aggregate root
   let proposedAggregateRootHash: string = FINALIZED_HASH;
   let idEncodedData = contracts.spokeConnector.encodeFunctionData("proposedAggregateRootHash");
   try {
@@ -143,8 +141,7 @@ export const proposeSpoke = async (spokeDomain: string) => {
 
   try {
     await proposeOptimisticRoot(
-      // latestFinalizedSnapshot.aggregateRoot,
-      getRandomBytes32(), // Test fraud proposal on spoke
+      latestFinalizedSnapshot.aggregateRoot,
       latestFinalizedSnapshot.finalizedTimestamp,
       lastProposeAggregateRootAt.toNumber(),
       spokeDomain,

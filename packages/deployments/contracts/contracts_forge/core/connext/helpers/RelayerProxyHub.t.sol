@@ -27,7 +27,7 @@ contract RelayerProxyHubTest is ConnectorHelper {
   // ============ Events ============
   event FundsReceived(uint256 amount, uint256 balance);
 
-  event FundsDeducted(uint256 amount, uint256 balance);
+  event FundsDeducted(address token, uint256 amount, uint256 balance);
 
   event RelayerAdded(address relayer);
 
@@ -311,9 +311,9 @@ contract RelayerProxyHubTest is ConnectorHelper {
     utils_mockPropagate();
     vm.prank(_gelatoRelayer);
     vm.expectEmit(true, true, true, true);
-    emit FundsDeducted(123 + 456, 1 ether);
+    emit FundsDeducted(address(0), 123 + 456, 1 ether);
     vm.expectEmit(true, true, true, true);
-    emit FundsDeducted(123, 1 ether - 123);
+    emit FundsDeducted(address(0), 123, 1 ether - 123);
     proxy.propagate(_hubConnectors, _messageFees, _encodedData, _relayerFee);
   }
 

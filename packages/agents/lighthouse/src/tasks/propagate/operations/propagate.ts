@@ -6,7 +6,7 @@ import { NoChainIdForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
-  getPropagateParamsConsensys,
+  getPropagateParamsLinea,
   getPropagateParamsGnosis,
   getPropagateParamsZkSync,
 } from "../helpers";
@@ -31,11 +31,14 @@ export const getParamsForDomainFn: Record<
   "1634886255": getPropagateParamsArbitrum,
   "6450786": getPropagateParamsBnb,
   "6778479": getPropagateParamsGnosis,
+  "1818848877": getPropagateParamsLinea,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
-  "1668247156": getPropagateParamsConsensys,
+  "1668247156": getPropagateParamsLinea,
   "2053862260": getPropagateParamsZkSync,
 };
+
+//const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {

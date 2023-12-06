@@ -400,7 +400,7 @@ contract RelayerProxyHub is RelayerProxy {
     uint256 _relayerFee
   ) external onlyRelayer onlyPropagateCooledDown nonReentrant {
     uint256 sum = _propagate(_connectors, _messageFees, _encodedData);
-    emit FundsDeducted(sum, address(this).balance);
+    emit FundsDeducted(address(0), sum, address(this).balance);
     transferRelayerFee(_relayerFee);
   }
 

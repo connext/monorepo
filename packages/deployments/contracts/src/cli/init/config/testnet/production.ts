@@ -136,7 +136,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "ALCX",
       canonical: {
         domain: "1735353714",
-        address: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        address: "0xb46eE2E4165F629b4aBCE04B7Eb4237f951AC66F",
         decimals: 18,
       },
       representations: {
@@ -182,8 +182,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// MUMBAI
         "9991": {
-          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
-          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
         },
       },
     },

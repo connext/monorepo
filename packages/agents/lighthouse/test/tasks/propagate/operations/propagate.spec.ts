@@ -22,18 +22,16 @@ describe("Operations: Propagate", () => {
       await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
 
-    // FIXME: check merge from staging against this test. no code exists like this in propagate
-    // function
-    it.skip("should skip if propagate is not workable", async () => {
-      const curTimestamp = getNtpTimeSeconds();
-      stub(Mockable, "getContract").returns({
-        lastPropagateAt: stub().resolves(BigNumber.from(curTimestamp)),
-        propagateCooldown: stub().resolves(BigNumber.from(1800)),
-      } as any);
+    // it("should skip if propagate is not workable", async () => {
+    //   const curTimestamp = getNtpTimeSeconds();
+    //   stub(Mockable, "getContract").returns({
+    //     lastPropagateAt: stub().resolves(BigNumber.from(curTimestamp)),
+    //     propagateCooldown: stub().resolves(BigNumber.from(1800)),
+    //   } as any);
 
-      await propagate();
-      expect(sendWithRelayerWithBackupStub).callCount(0);
-    });
+    //   await propagate();
+    //   expect(sendWithRelayerWithBackupStub).callCount(0);
+    // });
 
     it("should send encoded data to relayer succesfully", async () => {
       stub(PropagateFns, "getParamsForDomainFn").value({

@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
@@ -131,10 +132,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   /**
    * @notice Emitted when funds removed from the contract by admin
+   * @param token The token address
    * @param amount The amount removed
    * @param balance The updated balance of the contract
    */
-  event FundsDeducted(uint256 amount, uint256 balance);
+  event FundsDeducted(address token, uint256 amount, uint256 balance);
 
   /**
    * @notice Emitted when a new relayer is allowlisted by admin
@@ -355,12 +357,18 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   /**
-   * @notice Withdraws all funds stored on this contract to msg.sender.
+   * @notice Withdraws tokens stored on this contract to msg.sender.
    */
-  function withdraw() external onlyOwner nonReentrant {
-    uint256 balance = address(this).balance;
-    Address.sendValue(payable(msg.sender), balance);
-    emit FundsDeducted(balance, address(this).balance);
+  function withdraw(address _token) external onlyOwner nonReentrant {
+    uint256 balance = _token == address(0) ? address(this).balance : IERC20(_token).balanceOf(address(this));
+
+    if (_token == address(0)) {
+      Address.sendValue(payable(msg.sender), balance);
+    } else {
+      IERC20(_token).transfer(msg.sender, balance);
+    }
+
+    emit FundsDeducted(_token, balance, balance);
   }
 
   // ============ External Functions ============
@@ -414,7 +422,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   function send(bytes memory _encodedData, uint256 _messageFee, uint256 _relayerFee) external onlyRelayer nonReentrant {
     spokeConnector.send{value: _messageFee}(_encodedData);
-    emit FundsDeducted(_messageFee, address(this).balance);
+    emit FundsDeducted(address(0), _messageFee, address(this).balance);
     transferRelayerFee(_relayerFee);
   }
 
@@ -478,7 +486,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     } else {
       Address.sendValue(payable(msg.sender), _fee);
     }
-    emit FundsDeducted(_fee, address(this).balance);
+    emit FundsDeducted(address(0), _fee, address(this).balance);
   }
 
   function _addRelayer(address _relayer) internal {

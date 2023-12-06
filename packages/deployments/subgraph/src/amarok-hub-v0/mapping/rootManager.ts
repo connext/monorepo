@@ -2,30 +2,36 @@
 import { Address, Bytes } from "@graphprotocol/graph-ts";
 
 import {
-  RootPropagated as RootPropagatedEvent,
+  AggregateRootPropagated as AggregateRootPropagatedEvent,
   RootReceived as RootReceivedEvent,
   ConnectorAdded as ConnectorAddedEvent,
   ConnectorRemoved as ConnectorRemovedEvent,
   AggregateRootProposed as AggregateRootProposedEvent,
-  ProposedRootFinalized as ProposedRootFinalizedEvent,
-  OptimisticRootPropagated as OptimisticRootPropagatedEvent,
   SlowModeActivated as SlowModeActivatedEvent,
   OptimisticModeActivated as OptimisticModeActivatedEvent,
+  AggregateRootSavedOptimistic as AggregateRootSavedOptimisticEvent,
+  AggregateRootSavedSlow as AggregateRootSavedSlowEvent,
+  HubDomainSet,
+  HubDomainCleared,
 } from "../../../generated/RootManager/RootManager";
+
 import {
-  RootPropagated,
+  OptimisticRootPropagated,
   RootAggregated,
   RootManagerMeta,
   RootManagerMode,
   OptimisticRootProposed,
-  OptimisticRootFinalized,
-  OptimisticRootPropagated,
+  HubOptimisticRootFinalized,
+  AggregateRootSavedSlow,
+  HubDomain,
 } from "../../../generated/schema";
 
 const ROOT_MANAGER_META_ID = "ROOT_MANAGER_META_ID";
 const ROOT_MANAGER_MODE_ID = "ROOT_MANAGER_MODE_ID";
+const HUB_DOMAIN_ID = "HUB_DOMAIN_ID";
 const OPTIMISTIC_MODE = "OPTIMISTIC_MODE";
 const SLOW_MODE = "SLOW_MODE";
+const DEFUALT_HUB_DOMAIN = 0;
 
 /// MARK - ROOT MANAGER
 // TODO: Needed?
@@ -38,23 +44,6 @@ export function handleRootReceived(event: RootReceivedEvent): void {
   instance.domain = event.params.domain;
   instance.receivedRoot = event.params.receivedRoot;
   instance.index = event.params.queueIndex;
-
-  instance.save();
-}
-
-export function handleRootPropagated(event: RootPropagatedEvent): void {
-  const key = event.params.aggregateRoot.toHexString();
-  // Create the RootPropagated entity: this is used to track aggregate roots / propagated
-  // snapshots for the sake of proof generation off-chain.
-  let instance = RootPropagated.load(key);
-  // This should ALWAYS be null. Sending the same agg root twice is not possible in current
-  // construction.
-  if (instance == null) {
-    instance = new RootPropagated(key);
-  }
-  instance.aggregate = event.params.aggregateRoot;
-  instance.domainsHash = event.params.domainsHash;
-  instance.count = event.params.count;
 
   instance.save();
 }
@@ -92,33 +81,53 @@ export function handleAggregateRootProposed(event: AggregateRootProposedEvent): 
   snapshot.snapshotsRoots = event.params.snapshotsRoots;
   snapshot.domains = event.params.domains;
   snapshot.baseAggregateRoot = event.params.baseRoot;
-
-  snapshot.save();
-}
-
-export function handleProposedRootFinalized(event: ProposedRootFinalizedEvent): void {
-  let snapshot = OptimisticRootFinalized.load(event.params.aggregateRoot.toHexString());
-  if (snapshot == null) {
-    snapshot = new OptimisticRootFinalized(event.params.aggregateRoot.toHexString());
-  }
-
-  snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.timestamp = event.block.timestamp;
+  snapshot.blockNumber = event.block.number;
 
   snapshot.save();
 }
 
-export function handleOptimisticRootPropagated(event: OptimisticRootPropagatedEvent): void {
-  let snapshot = OptimisticRootPropagated.load(event.params.aggregateRoot.toHexString());
+export function handleAggregateRootSavedOptimistic(event: AggregateRootSavedOptimisticEvent): void {
+  const key = `${event.params.aggregateRoot.toHexString()}-${event.block.timestamp.toString()}`;
+  let snapshot = HubOptimisticRootFinalized.load(key);
   if (snapshot == null) {
-    snapshot = new OptimisticRootPropagated(event.params.aggregateRoot.toHexString());
+    snapshot = new HubOptimisticRootFinalized(key);
   }
+  snapshot.aggregateRoot = event.params.aggregateRoot;
+  snapshot.timestamp = event.params.rootTimestamp;
+  snapshot.blockNumber = event.block.number;
 
+  snapshot.save();
+}
+
+export function handleAggregateRootPropagated(event: AggregateRootPropagatedEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  // Create the OptimisticRootPropagated entity: this is used to track aggregate roots propagated
+  // needed for proof generation off-chain.
+  let snapshot = OptimisticRootPropagated.load(key);
+  if (snapshot == null) {
+    snapshot = new OptimisticRootPropagated(key);
+  }
   snapshot.aggregateRoot = event.params.aggregateRoot;
   snapshot.domainsHash = event.params.domainsHash;
   snapshot.timestamp = event.block.timestamp;
+  snapshot.blockNumber = event.block.number;
 
   snapshot.save();
+}
+
+export function handleAggregateRootSavedSlow(event: AggregateRootSavedSlowEvent): void {
+  const key = event.params.aggregateRoot.toHexString();
+  let instance = AggregateRootSavedSlow.load(key);
+  if (instance == null) {
+    instance = new AggregateRootSavedSlow(key);
+  }
+  instance.aggregateRoot = event.params.aggregateRoot;
+  instance.count = event.params.leafCount;
+  instance.aggregatedRoots = event.params.aggregatedRoots;
+  instance.rootTimestamp = event.params.rootTimestamp;
+
+  instance.save();
 }
 
 export function handleSlowModeActivated(event: SlowModeActivatedEvent): void {
@@ -140,5 +149,21 @@ export function handleOptimisticModeActivated(event: OptimisticModeActivatedEven
 
   instance.mode = OPTIMISTIC_MODE;
 
+  instance.save();
+}
+
+export function handleHubDomainSet(event: HubDomainSet): void {
+  let instance = HubDomain.load(HUB_DOMAIN_ID);
+  if (instance == null) {
+    instance = new HubDomain(HUB_DOMAIN_ID);
+  }
+
+  instance.domain = event.params.domain;
+
+  instance.save();
+}
+
+export function handleHubDomainCleared(event: HubDomainCleared): void {
+  const instance = new HubDomain(HUB_DOMAIN_ID);
   instance.save();
 }

@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## v2.2.0-alpha.3
+
+- `getTransfers`: Fix query syntax
+
+## v2.2.0-alpha.0
+
+- Linea mainnet support
+
 ## v2.1.3-alpha.2
 
 - Contracts: New staging contract deployments

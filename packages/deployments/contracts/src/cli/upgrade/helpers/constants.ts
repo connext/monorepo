@@ -16,7 +16,7 @@ export const FORK_BLOCKS = {
   5: 8622550, // goerli
   280: 2860225, // zksync2
   420: 6454570, // opt-goerli
-  59140: 98565, // consensys zkevm
+  59140: 98565, // Linea goerli
   80001: 32886110, // mumbai
   421613: 10527175, // arbitrum-goerli
 };

@@ -11,9 +11,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1634886255", // ARBITRUM ONE
     "6450786", // BNB
     "6778479", // GNOSIS
+    "1818848877", // LINEA
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
+
   assets: [
     {
       name: "USDT",
@@ -43,6 +45,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6778479": {
           local: "0xf4d944883d6fddc56d3534986fef82105cadbfa1",
           adopted: "0x4ECaBa5870353805a9F068101A40E0f32ed605C6",
+        },
+        "1818848877": {
+          local: "0xbd7eaed30936670c931b718f5d9014aff82fc767",
+          adopted: "0xA219439258ca9da29E9Cc4cE5596924745e12B93",
         },
       },
     },
@@ -75,6 +81,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x0e1d5bcd2ac5cf2f71841a9667afc1e995caaf4f",
           adopted: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
         },
+        "1818848877": {
+          local: "0x7360a597290612787833ee924c449c61cc0689e4",
+          adopted: "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5",
+        },
       },
     },
     {
@@ -106,6 +116,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x44CF74238d840a5fEBB0eAa089D05b763B73faB8",
           adopted: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
         },
+        "1818848877": {
+          local: "0x331152ca43b50b39f3a9f203685b98dbb9b42342",
+          adopted: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff",
+        },
       },
     },
     {
@@ -136,6 +150,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6778479": {
           local: "0x538E2dDbfDf476D24cCb1477A518A82C9EA81326",
           adopted: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1",
+        },
+        "1818848877": {
+          local: "0x0573ad07ca4f74757e5b2417bf225bebebcf66d9",
+          adopted: "0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f",
         },
       },
     },
@@ -284,6 +302,54 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      // TODO: This is the old config, to be removed in execution layer upgrade
+      name: "ALCX",
+      canonical: {
+        domain: "6648936",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
+      name: "ALCX",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+          adopted: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
       name: "XOC",
       // polygon
       canonical: {
@@ -337,6 +403,22 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "xRADAR",
+      canonical: {
+        domain: "6648936",
+        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        /// BSC
+        "6450786": {
+          local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+          adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+        },
+      },
+    },
+    {
       name: "NEXT",
       canonical: {
         domain: "6648936",
@@ -372,6 +454,147 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "URUS",
+      canonical: {
+        domain: "11111",
+        address: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        decimals: 18,
+      },
+      representations: {
+        "6648936": {
+          local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        },
+        "6450786": {
+          local: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+          adopted: "0x21d3a2faA153168C46Ac1428A84BdD859490505F",
+        },
+      },
+    },
+    {
+      name: "xGrumpy Cat",
+      canonical: {
+        domain: "11111",
+        address: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Optimsim
+        "1869640809": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Binance
+        "6450786": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+        // Arbitrum
+        "1634886255": {
+          local: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+          adopted: "0x3B350F202473932411772C8Cb76DB7975f42397E",
+        },
+      },
+    },
+    {
+      name: "FRACTION",
+      canonical: {
+        domain: "11111",
+        address: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+        decimals: 18,
+      },
+      representations: {
+        // gnosis
+        "6778479": {
+          local: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+          adopted: "0x4602e7CFE18d8b16ED13538603B00073F5c28bc8",
+        },
+        // optimism
+        "1869640809": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // bnb
+        "6450786": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+          adopted: "0xbD80CFA9d93A87D1bb895f810ea348E496611cD4",
+        },
+        // arbtirum-one
+        "1634886255": {
+          local: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+          adopted: "0x2bF2ba13735160624a0fEaE98f6aC8F70885eA61",
+        },
+      },
+    },
+    {
+      name: "xIXT",
+      canonical: {
+        domain: "11111",
+        address: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        decimals: 18,
+      },
+      representations: {
+        "1886350457": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "6648936": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "1634886255": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+        "6450786": {
+          local: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+          adopted: "0x8b04bf3358B88e3630aa64C1c76FF3B6C699C6a7",
+        },
+      },
+    },
+    {
+      name: "ZOOMER",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+          adopted: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
+        },
+        /// POLYGON
+        "1886350457": {
+          local: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+          adopted: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+          adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+        },
+        // BINANCE
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
@@ -381,9 +604,10 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1634886255": "0x5C711DB90dEc0a5B81C626968DEa4187a7f9C1F2",
       "6450786": "0x9435Ba7C661a0Fd477deED640491de8c100325A7",
       "6778479": "0x7616Bc6d0dee5E250BA5b3dDa6cbbB71786FB638",
+      "1818848877": "0x50d22a34183e7cD3164184011998a3D50303f75d",
     },
     watchers: {
-      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e"],
+      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e", "0x9c77788d761ee0347Ab550883237CeD274a0F248"],
     },
     routers: {
       allowlist: [

@@ -39,7 +39,9 @@ export const SdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   cartographerUrl: Type.Optional(Type.String()),
-  network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
+  network: Type.Optional(
+    Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local"), Type.Literal("devnet")]),
+  ),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
 
@@ -62,7 +64,12 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   cartographerUrl: Type.String(),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
@@ -110,7 +117,7 @@ export const getEnvConfig = (
         chainConfig.deployments?.connext ??
         (() => {
           if (chainDataForChain) {
-            const res = deployments.connext(chainDataForChain.chainId, contractPostfix);
+            const res = deployments.connext(chainDataForChain.chainId, contractPostfix, nxtpConfig.network);
             if (res) {
               return res.address;
             }
@@ -180,4 +187,5 @@ export const domainsToChainNames: Record<string, string> = {
   "1634886255": "arbitrum",
   "6450786": "bsc",
   "6778479": "xdai",
+  "1818848877": "linea",
 };

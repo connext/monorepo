@@ -11,7 +11,7 @@
   <br />
 
   <h3 align="center">About Connext</h3>
-  <h4 align="center">Connext is public infrastructure powering fast, trust-minimized communication between blockchains.</h4>
+  <h4 align="center">Connext is a public infrastructure powering fast, trust-minimized communication between blockchains.</h4>
 
   <p align="center">
     Useful Links
@@ -61,7 +61,7 @@
 
 ## Connext Architecture
 
-The Connext architecture can be seen as a layered system, as follows:
+The Connext architecture can be seen as a layered system, as follows :
 
 | Layer                            | Protocol/Stakeholders                  |
 | -------------------------------- | -------------------------------------- |
@@ -79,7 +79,7 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 
 - [adapters](https://github.com/connext/monorepo/tree/main/packages/adapters) - Wrappers around external modules. These adapters can be shared between different packages.
 
-  - [Cache](https://github.com/connext/monorepo/tree/main/packages/adapters/cache) is a wrapper around all the redis based caches that are used.
+  - [Cache](https://github.com/connext/monorepo/tree/main/packages/adapters/cache) is a wrapper around all the Redis-based caches that are used.
   - [Database](https://github.com/connext/monorepo/tree/main/packages/adapters/database) is implementation of schema and client for the database.
   - [Subrgaph](https://github.com/connext/monorepo/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
   - [TxService](https://github.com/connext/monorepo/tree/main/packages/adapters/txservice) resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
@@ -97,13 +97,13 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 - [deployments](https://github.com/connext/monorepo/tree/main/packages/deployments)
 
   - [Contracts](https://github.com/connext/monorepo/tree/main/packages/deployments/contracts) - Contracts are the contracts that we deploy and the deployment scripts
-  - [Subgraph](https://github.com/connext/monorepo/tree/main/packages/deployments/subgraph) is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third party graph providers
+  - [Subgraph](https://github.com/connext/monorepo/tree/main/packages/deployments/subgraph) is all the subgraph source code to define all the mappings and contains all the configurations to deploy to different graph hosted services or third-party graph providers
 
-- [examples](https://github.com/connext/monorepo/tree/main/packages/examples) - these are not used in production, but contains ways to use the SDK that are illustrative of how to integrate Connext
+- [examples](https://github.com/connext/monorepo/tree/main/packages/examples) - these are not used in production, but contain ways to use the SDK that are illustrative of how to integrate Connext
 - [integration](https://github.com/connext/monorepo/tree/main/packages/integration) - Utilities for integration test
 - [utils](https://github.com/connext/monorepo/tree/main/packages/utils) - Collection of helper functions that are shared throughout the different packages
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">⬆️ back to top</a>)</p>
 
 ## First time setup
 
@@ -134,7 +134,7 @@ To run Redis, execute the following command:
 
 `docker run -it --rm --name redis -p 6379:6379 redis`
 
-This command will download the latest Redis image and start a container with the name redis.
+This command will download the latest Redis image and start a container with the name Redis.
 
 And now you are all ready to interact with Monorepo.
 
@@ -181,7 +181,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 - Update the [`CHANGELOG.md`](./CHANGELOG.md).
 - Run `yarn version:all X.X.X` where `X.X.X` is the full version string of the NPM version to deploy (i.e. `0.0.1`).
-  - Use `X.X.X-beta.N` for Amarok releases from `production` branch and `X.X.X-alpha.N` for Amarok releases from `main` branch.
+  - Use `X.X.X-beta.N` for Amarok releases from the `production` branch and `X.X.X-alpha.N` for Amarok releases from `main` branch.
 - Commit and add a tag matching the version: `git commit -am "<version>" && git tag -am "<version>"`
 - Run `git push --follow-tags`.
 - The [GitHub action will](./.github/workflows/build-docker-image-and-verify.yml) publish the packages by recognizing the version tag.
@@ -190,7 +190,7 @@ Note: We use `node-lib` as the template for all the packages. There are some oth
 
 ## Contributing
 
-Contributions are what makes the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
@@ -201,7 +201,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">⬆️ back to top</a>)</p>
 
 <!-- LICENSE -->
 
@@ -209,11 +209,11 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">⬆️ back to top</a>)</p>
 
 Project Link: [https://github.com/connext/monorepo](https://github.com/connext/monorepo)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">⬆️ back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

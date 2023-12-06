@@ -68,6 +68,7 @@ import {
   getBaseAggregateRoot,
   getMessageRootAggregatedFromIndex,
   getMessageRootCount,
+  getOutboundRootTimestamp,
   transaction,
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
@@ -118,7 +119,7 @@ describe("Database client", () => {
 
   beforeEach(async () => {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5435/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
@@ -508,6 +509,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -524,6 +526,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -540,6 +543,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -556,6 +560,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -577,6 +582,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -593,6 +599,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -609,6 +616,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -625,6 +633,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -804,6 +813,37 @@ describe("Database client", () => {
     expect(firstCount).to.eq(messages[0].origin.index);
     const lastCount = await getMessageRootCount(messages[0].originDomain, messages[batchSize - 1].origin.root, pool);
     expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
+  });
+
+  it("should get xcall timestamp by root and domain", async () => {
+    const messages: XMessage[] = [];
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
+      const _xtransfer = mock.entity.xtransfer({
+        status: XTransferStatus.XCalled,
+        xcall_timestamp: _i,
+        transferId: message.transferId,
+      });
+      transfers.push(_xtransfer);
+    }
+    await saveMessages(messages, pool);
+    await saveTransfers(transfers, pool);
+
+    const rootTimestampFirst = await getOutboundRootTimestamp(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(rootTimestampFirst).to.eq(messages[0].origin.index);
+
+    const rootTimestampLast = await getOutboundRootTimestamp(
+      messages[0].originDomain,
+      messages[batchSize - 1].origin.root,
+      pool,
+    );
+    expect(rootTimestampLast).to.eq(messages[batchSize - 1].origin.index);
+
+    const missingRootTimestamp = await getOutboundRootTimestamp(messages[0].originDomain, "", pool);
+    expect(missingRootTimestamp).to.eq(undefined);
   });
 
   it("should save multiple sent root messages", async () => {
@@ -1101,6 +1141,7 @@ describe("Database client", () => {
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
+    expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getBaseAggregateRootCount("", pool)).to.eq(undefined);
@@ -1152,6 +1193,8 @@ describe("Database client", () => {
     await expect(getLatestPendingSpokeOptimisticRootByDomain(undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getOutboundRootTimestamp(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
       .be.rejected;
@@ -1354,6 +1397,7 @@ describe("Database client", () => {
         key: asset.key,
         id: asset.id,
         decimal: asset.decimal,
+        adopted_decimal: asset.adoptedDecimal,
         canonical_id: asset.canonicalId,
         canonical_domain: asset.canonicalDomain,
       });
@@ -1375,6 +1419,7 @@ describe("Database client", () => {
       expect(res).to.deep.include({
         ...asset,
         decimal: +asset.decimal,
+        adoptedDecimal: +asset.adoptedDecimal,
         blockNumber: undefined,
       });
     });
