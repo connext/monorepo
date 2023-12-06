@@ -302,7 +302,6 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
     MERKLE = MerkleTreeManager(_merkle);
 
     delayBlocks = _delayBlocks;
-    optimisticMode = true;
     minDisputeBlocks = _minDisputeBlocks;
     disputeBlocks = _disputeBlocks;
 

@@ -48,7 +48,9 @@ contract RootManagerForTest is DomainIndexer, RootManager {
     address _watcherManager,
     uint256 _minDisputeBlocks,
     uint256 _disputeBlocks
-  ) RootManager(_delayBlocks, _merkle, _watcherManager, _minDisputeBlocks, _disputeBlocks) {}
+  ) RootManager(_delayBlocks, _merkle, _watcherManager, _minDisputeBlocks, _disputeBlocks) {
+    optimisticMode = true;
+  }
 
   function forTest_setProposer(address _proposer, bool _isProposer) public {
     allowlistedProposers[_proposer] = _isProposer;
@@ -143,7 +145,7 @@ contract Base is ForgeHelper {
   // ============ Storage ============
   RootManagerForTest _rootManager;
   uint256 _delayBlocks = 40;
-  bool _optimisticMode = true;
+  bool _optimisticMode = true; // set on RootManagerForTest constructor
   uint256 _minDisputeBlocks = 120;
   uint256 _disputeBlocks = 150;
   bytes32 _finalizedHash = 0x0000000000000000000000000000000000000000000000000000000000000001;

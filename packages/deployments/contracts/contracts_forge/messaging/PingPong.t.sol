@@ -168,6 +168,12 @@ contract PingPong is ConnectorHelper {
     // check setup
     assertTrue(WatcherManager(_watcherManager).isWatcher(address(this)));
 
+    // set root manager to optimistic mode
+    if (!RootManager(_rootManager).optimisticMode()) {
+      vm.prank(RootManager(_rootManager).owner());
+      RootManager(_rootManager).activateOptimisticMode();
+    }
+
     // configure root manager with connectors
     RootManager(_rootManager).addConnector(_originDomain, _originConnectors.hub);
     RootManager(_rootManager).addConnector(_destinationDomain, _destinationConnectors.hub);
