@@ -244,9 +244,6 @@ locals {
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
-      "1668247156" = {
-        providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
-      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -327,7 +324,7 @@ locals {
       }
       prefetchSize = 1
     }
-    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
+    web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
