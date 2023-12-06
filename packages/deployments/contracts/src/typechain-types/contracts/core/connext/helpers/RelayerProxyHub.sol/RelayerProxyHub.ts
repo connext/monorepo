@@ -212,7 +212,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "setRootManager(address)": FunctionFragment;
     "setSpokeConnector(address)": FunctionFragment;
     "spokeConnector()": FunctionFragment;
-    "withdraw()": FunctionFragment;
+    "withdraw(address)": FunctionFragment;
   };
 
   getFunction(
@@ -536,7 +536,10 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     functionFragment: "spokeConnector",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "withdraw",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "acceptProposedOwner",
@@ -725,7 +728,7 @@ export interface RelayerProxyHubInterface extends utils.Interface {
     "ConnextChanged(address,address)": EventFragment;
     "FeeCollectorChanged(address,address)": EventFragment;
     "FinalizeCooldownChanged(uint256,uint256)": EventFragment;
-    "FundsDeducted(uint256,uint256)": EventFragment;
+    "FundsDeducted(address,uint256,uint256)": EventFragment;
     "FundsReceived(uint256,uint256)": EventFragment;
     "GelatoRelayerChanged(address,address)": EventFragment;
     "HubConnectorChanged(address,address,uint32)": EventFragment;
@@ -823,11 +826,12 @@ export type FinalizeCooldownChangedEventFilter =
   TypedEventFilter<FinalizeCooldownChangedEvent>;
 
 export interface FundsDeductedEventObject {
+  token: string;
   amount: BigNumber;
   balance: BigNumber;
 }
 export type FundsDeductedEvent = TypedEvent<
-  [BigNumber, BigNumber],
+  [string, BigNumber, BigNumber],
   FundsDeductedEventObject
 >;
 
@@ -1259,6 +1263,7 @@ export interface RelayerProxyHub extends BaseContract {
     spokeConnector(overrides?: CallOverrides): Promise<[string]>;
 
     withdraw(
+      _token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1525,6 +1530,7 @@ export interface RelayerProxyHub extends BaseContract {
   spokeConnector(overrides?: CallOverrides): Promise<string>;
 
   withdraw(
+    _token: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1784,7 +1790,10 @@ export interface RelayerProxyHub extends BaseContract {
 
     spokeConnector(overrides?: CallOverrides): Promise<string>;
 
-    withdraw(overrides?: CallOverrides): Promise<void>;
+    withdraw(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1832,11 +1841,16 @@ export interface RelayerProxyHub extends BaseContract {
       oldFinalizeCooldown?: null
     ): FinalizeCooldownChangedEventFilter;
 
-    "FundsDeducted(uint256,uint256)"(
+    "FundsDeducted(address,uint256,uint256)"(
+      token?: null,
       amount?: null,
       balance?: null
     ): FundsDeductedEventFilter;
-    FundsDeducted(amount?: null, balance?: null): FundsDeductedEventFilter;
+    FundsDeducted(
+      token?: null,
+      amount?: null,
+      balance?: null
+    ): FundsDeductedEventFilter;
 
     "FundsReceived(uint256,uint256)"(
       amount?: null,
@@ -2192,6 +2206,7 @@ export interface RelayerProxyHub extends BaseContract {
     spokeConnector(overrides?: CallOverrides): Promise<BigNumber>;
 
     withdraw(
+      _token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -2463,6 +2478,7 @@ export interface RelayerProxyHub extends BaseContract {
     spokeConnector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     withdraw(
+      _token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
