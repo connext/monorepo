@@ -157,8 +157,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xE9c7095c956F9F75e21dD99027aDF6bFfFa9BA9A",
-        "startBlock": 8173343
+        "address": "0xEf2D3E622dB0b790b6513681e925b4ABFeD5F38B",
+        "startBlock": 10168633
       },
       {
         "name": "MerkleTreeManager",
@@ -178,8 +178,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8073a764c4651a9BE132032d7B5E3B319311904E",
-        "startBlock": 7067115
+        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
+        "startBlock": 53023760
       },
       {
         "name": "MerkleTreeManager",
@@ -199,55 +199,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8d2690fDc417a231d6D919F9cb1f2fB317B36af5",
-        "startBlock": 29956468
+        "address": "0x15941A9DBBAE0A4eb53321A43a1b4DF4E76fB6a6",
+        "startBlock": 43258261
       },
       {
         "name": "MerkleTreeManager",
         "address": "0xEf8317C06643aDDeC80441ce5ae184aa207a94fD",
         "startBlock": 29956465
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/amarok-runtime-v0-arb-goerli",
-    "network": "arbitrum-goerli",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2",
-        "startBlock": 3268972
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0x0f4e2866d874b94fc7424d7469deb13c8ae7738f",
-        "startBlock": 3268962
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x88D6229f1d6f3512aeAF5e0790af91606ADbC7dc",
-        "startBlock": 3268960
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/runtime-v0-zksynct",
-    "network": "zksync2-testnet",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0xB0694fEcEdd88e5590A563aDb5f194d2dE30F0b6",
-        "startBlock": 1166677
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0xb664Ba7D8808099Ac5eEFD4dd03cBc1DBB33Ba1b",
-        "startBlock": 1372088
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x571BaF5E320E636d6F78422C3034c21681d727a1",
-        "startBlock": 1372083
       }
     ]
   },
@@ -269,27 +227,6 @@
         "name": "MerkleTreeManager",
         "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
         "startBlock": 88563
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
-    "network": "polygon-zkevm-testnet",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2",
-        "startBlock": 485026
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0x27842eA2c3d472cE345315B2A8aE26039Fc53a2D",
-        "startBlock": 484972
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
-        "startBlock": 484732
       }
     ]
   }

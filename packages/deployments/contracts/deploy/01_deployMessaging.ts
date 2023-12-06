@@ -309,13 +309,6 @@ const handleDeploySpoke = async (
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
   console.log("merkleContract: ", merkleContract.address);
-
-  console.log("await merkleContract.arborist(): ", await merkleContract.arborist());
-  if (!(await merkleContract.arborist())) {
-    const tx = await merkleContract.setArborist(deployment.address);
-    console.log(`setArborist tx submitted:`, tx.hash);
-    await tx.wait();
-  }
   return deployment;
 };
 

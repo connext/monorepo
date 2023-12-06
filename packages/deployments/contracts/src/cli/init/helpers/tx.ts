@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { Contract, providers } from "ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { Deployment } from "../../types";
@@ -46,7 +46,7 @@ export const waitForTx = async (
 
 export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
   const { deployment, read: _read, write: _write, desired, chainData, apply } = schema;
-  const { contract } = deployment;
+  let { contract } = deployment;
 
   // Check if desired is defined
   const desiredExists = desired != undefined;
@@ -69,10 +69,16 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
   // Sanity check: contract has methods.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
-    log.error.method({ deployment, method: read.method, callable });
+    if (!deployment.abi.map((f) => f?.name?.includes(read.method))) {
+      log.error.method({ deployment, method: read.method, callable });
+    }
+    contract = new Contract(contract.address, deployment.abi, contract.provider);
   }
   if (!callable.includes(write.method)) {
-    log.error.method({ deployment, method: write.method, callable });
+    if (!deployment.abi.map((f) => f?.name?.includes(write.method))) {
+      log.error.method({ deployment, method: write.method, callable });
+    }
+    contract = new Contract(contract.address, deployment.abi, contract.provider);
   }
 
   const readCall = async (): Promise<T> => {
