@@ -375,7 +375,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
           to: controller.address,
           chainId: await hre.getChainId(),
           from: owner,
-          data: await controller.upgrade.encodeFunctionData(beaconAddress, implementation),
+          data: controller.interface.encodeFunctionData("upgrade", [beaconAddress, implementation]),
         });
         console.log("=============================================");
 
