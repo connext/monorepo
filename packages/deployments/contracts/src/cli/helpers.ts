@@ -4,7 +4,6 @@ import { Contract, providers, Wallet } from "ethers";
 import _Deployments from "../../deployments.json";
 import _DevnetDeployments from "../../devnet.deployments.json";
 import _LocalDeployments from "../../local.deployments.json";
-import { ConnextInterface } from "../contracts";
 
 import { Deployment } from "./types";
 import { ProtocolNetwork } from "..";

@@ -477,6 +477,55 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         // TODO: Blacklist/remove watchers.
       }
 
+      /// MARK - Proposers
+      console.log("\n\nWHITELIST PROPOSERS");
+
+      // Define helper function
+      const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
+        const isHub = network.domain === protocol.hub;
+        // Whitelist on spoke connector
+        await updateIfNeeded({
+          apply,
+          deployment: isHub
+            ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
+            : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          chainData,
+        });
+
+        if (!isHub) {
+          return;
+        }
+
+        // Whitelist on root manager
+        await updateIfNeeded({
+          apply,
+          deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          chainData,
+        });
+      };
+
+      for (const network of protocol.networks) {
+        console.log("\tVerifying RelayerProxies are set as proposers.");
+        await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+      }
+
+      if (protocol.agents.proposers?.allowlist) {
+        // Allowlist named proposers.
+        for (const proposer of protocol.agents.proposers.allowlist) {
+          for (const network of protocol.networks) {
+            await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+          }
+
+          // TODO: Blacklist/remove proposers.
+        }
+      }
+
       /// MARK - Relayers
       if (protocol.agents.relayers) {
         if (protocol.agents.relayers.allowlist) {

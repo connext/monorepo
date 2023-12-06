@@ -5,23 +5,9 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
-import {
-  getConnectorName,
-  getDeploymentName,
-  getProtocolNetwork,
-  getRelayerProxyConfig,
-  ProtocolNetwork,
-} from "../src/utils";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, ProtocolNetwork } from "../src/utils";
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
-
-const KEEP3R_ADDRESSES: Record<number, string> = {
-  1: "0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC",
-  5: "0x85063437C02Ba7F4f82F898859e4992380DEd3bb",
-};
-
-const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
-const AUTONOLAS_PRIORITY = 0;
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -176,75 +162,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
   }
 
-  // const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
-  const connextAddress = connext.address;
-  console.log("connextAddress: ", connextAddress);
-
-  console.log("Deploying Relayer Proxy...");
-
-  const { feeCollector, gelatoRelayer } = getRelayerProxyConfig(chainId);
-  const spokeConnector = await hre.ethers.getContract(
-    getDeploymentName(getConnectorName(protocol, +chainId), undefined, protocol.configs[Number(chainId)].networkName),
-  );
-
-  const { configs } = protocol;
-
-  if (protocol.hub.chain === network.chainId) {
-    const chains = [];
-    const hubConnectors = [];
-    for (const spokeChain of Object.keys(configs)) {
-      const contract = getConnectorName(protocol, +spokeChain, protocol.hub.chain);
-      const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
-      const hubConnector = await hre.ethers.getContract(deploymentName);
-      chains.push(+spokeChain);
-      hubConnectors.push(hubConnector.address);
-    }
-    const rootManager = await hre.ethers.getContract(getDeploymentName("RootManager"));
-    const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
-      from: deployer.address,
-      log: true,
-      contract: "RelayerProxyHub",
-      args: [
-        {
-          connext: connextAddress,
-          spokeConnector: spokeConnector.address,
-          gelatoRelayer: gelatoRelayer,
-          feeCollector: feeCollector,
-          keep3r: KEEP3R_ADDRESSES[network.chainId],
-          rootManager: rootManager.address,
-          autonolas: constants.AddressZero,
-          propagateCooldown: PROPAGATE_COOLDOWN,
-          finalizeCooldown: PROPAGATE_COOLDOWN,
-          proposeAggregateRootCooldown: PROPAGATE_COOLDOWN,
-          hubConnectors: hubConnectors,
-          hubConnectorChains: chains,
-        },
-      ],
-    });
-
-    console.log("relayerProxyHub: ", relayerProxyHub.address);
-  } else {
-    const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
-      from: deployer.address,
-      log: true,
-      contract: "RelayerProxy",
-      args: [
-        {
-          connext: connextAddress,
-          spokeConnector: spokeConnector.address,
-          gelatoRelayer: gelatoRelayer,
-          feeCollector: feeCollector,
-          keep3r: KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
-          proposeAggregateRootCooldown: PROPAGATE_COOLDOWN,
-          finalizeCooldown: PROPAGATE_COOLDOWN,
-        },
-      ],
-    });
-
-    console.log("relayerProxy: ", relayerProxy.address);
-  }
-
-  if (!SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.DEVNET) {
+  if (!SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.LOCAL) {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
     let deployment = await hre.deployments.deploy("TestERC20", {
