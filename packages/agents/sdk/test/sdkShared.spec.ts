@@ -52,6 +52,9 @@ describe("SdkShared", () => {
     stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
+    // console.log(sdkShared.config.chains);
+    // console.log(sdkShared.config.chains[13337]);
+    // console.log(sdkShared.config.chains[13338]);
   });
 
   afterEach(() => {
@@ -130,14 +133,6 @@ describe("SdkShared", () => {
       stub(sdkShared, "providerSanityCheck").resolves(false);
 
       await expect(sdkShared.getERC20(mock.domain.A, mock.asset.A.address)).to.be.rejectedWith(ProviderMissing);
-    });
-  });
-
-  describe("#getSupported", () => {
-    it("happy: should work", async () => {
-      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
-      const connext = await sdkShared.getSupported();
-      expect(connext).to.not.be.undefined;
     });
   });
 
@@ -427,9 +422,22 @@ describe("SdkShared", () => {
 
   describe("#getSupported", () => {
     it("happy: should work", async () => {
-      (sdkShared as any).config.cartographerUrl = config.cartographerUrl;
-      const connext = await sdkShared.getSupported();
-      expect(connext).to.not.be.undefined;
+      sdkShared.config.cartographerUrl = config.cartographerUrl;
+      restore();
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+
+      const supported = await sdkShared.getSupported();
+      expect(supported.length).to.be.eq(1);
+    });
+
+    it("happy: should filter out assets disabled in config", async () => {
+      sdkShared.config.cartographerUrl = config.cartographerUrl;
+      restore();
+      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      sdkShared.config.chains[mock.domain.A].disabledAssets = [mock.asset.B.address];
+
+      const supported = await sdkShared.getSupported();
+      expect(supported.length).to.be.eq(0);
     });
   });
 
