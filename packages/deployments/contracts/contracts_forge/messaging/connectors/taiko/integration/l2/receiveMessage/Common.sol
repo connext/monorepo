@@ -18,10 +18,14 @@ contract Common is ConnectorHelper {
   ISignalService public constant SIGNAL_SERVICE = ISignalService(0x1000777700000000000000000000000000000007);
   uint32 public constant DOMAIN = 1; // Ethereum
   uint32 public constant MIRROR_DOMAIN = 101; // Taiko
+  /**
+   * @dev The receive integration test is tested with a real signal sent. In order to
+   * succeed, the from address of the transaction that sends the signal must be the mirror connector.
+   */
+  address public constant TX_FROM_ADDRESS = 0xEA17E4094E04339f250a910e10809Ab6A90746d2;
 
   address public owner = makeAddr("owner");
   address public relayer = makeAddr("relayer");
-  address public mirrorConnector = makeAddr("mirrorConnector");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
   // Connext's off chain agent in charge of sending messages to the Taiko Hub Connector
   address public offChainAgent = makeAddr("offChainAgent");
@@ -61,7 +65,7 @@ contract Common is ConnectorHelper {
       MIRROR_DOMAIN,
       offChainAgent,
       address(rootManager),
-      mirrorConnector,
+      TX_FROM_ADDRESS,
       _processGas,
       _reserveGas,
       _delayBlocks,

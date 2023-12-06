@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
 
-contract Integration_Connector_TaikoHubConnector_ProcessMessage is Common {
+contract Integration_Connector_TaikoHubConnector_ReceiveMessage is Common {
   function test_receiveMessage() public {
     bytes32 _signal = 0xf8c15826bf02f723864208066ac5f5795296c062b06a544ab7788d19f23f9926;
     bytes
