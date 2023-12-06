@@ -272,9 +272,9 @@ locals {
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
       }
-      "1668247156" = {
-        providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
-      }
+      # "1668247156" = {
+      #   providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
+      # }
       "2053862260" = {
         providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       }
@@ -308,7 +308,7 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10,
+      # "1668247156" = 10,
       "9991"       = 10,
       "1735353714" = 10,
       # "2053862260" = 10,
