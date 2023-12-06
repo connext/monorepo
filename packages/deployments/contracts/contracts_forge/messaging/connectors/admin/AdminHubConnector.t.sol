@@ -147,8 +147,10 @@ contract AdminHubConnectorTest is ForgeHelper {
     (uint256[] memory fees, bytes[] memory encodedData) = utils_getFeesAndEncodedData();
 
     // activate slow mode to be able to call aggregate on RootManager
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
+    if (rootManager.optimisticMode()) {
+      vm.prank(watcher);
+      rootManager.activateSlowMode();
+    }
 
     // use admin connector to insert on spoke root (and assert events)
     vm.expectEmit(true, true, true, true, address(rootManager));
