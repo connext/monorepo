@@ -26,7 +26,7 @@
   "event ConnextChanged(address updated, address previous)",
   "event FeeCollectorChanged(address updated, address previous)",
   "event FinalizeCooldownChanged(uint256 finalizeCooldown, uint256 oldFinalizeCooldown)",
-  "event FundsDeducted(uint256 amount, uint256 balance)",
+  "event FundsDeducted(address token, uint256 amount, uint256 balance)",
   "event FundsReceived(uint256 amount, uint256 balance)",
   "event GelatoRelayerChanged(address updated, address previous)",
   "event HubConnectorChanged(address hubConnector, address oldHubConnector, uint32 chain)",
@@ -95,5 +95,5 @@
   "function setRootManager(address _rootManager)",
   "function setSpokeConnector(address _spokeConnector)",
   "function spokeConnector() view returns (address)",
-  "function withdraw()"
+  "function withdraw(address _token)"
 ]
