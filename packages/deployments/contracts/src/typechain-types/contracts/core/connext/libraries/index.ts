@@ -3,6 +3,7 @@
 /* eslint-disable */
 export type { AmplificationUtils } from "./AmplificationUtils";
 export type { AssetLogic } from "./AssetLogic";
+export type { ChainIDs } from "./ChainIDs";
 export type { Constants } from "./Constants";
 export type { LibDiamond } from "./LibDiamond";
 export type { SwapUtils } from "./SwapUtils";

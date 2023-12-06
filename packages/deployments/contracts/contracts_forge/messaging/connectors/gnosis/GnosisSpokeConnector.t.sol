@@ -9,9 +9,13 @@ import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
 contract GnosisSpokeConnectorTest is ConnectorHelper {
+  // ============ Events ============
+  event GasFloorUpdated(uint256 previous, uint256 updated);
   // setup chain ids
   uint256 _mirrorChainId = 1238786754;
   uint256 _chainId = 123213;
+
+  // ============ Storage ============
 
   function setUp() public {
     // Allow future contract mock
@@ -22,24 +26,23 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     _merkle = address(new MerkleTreeManager());
 
     _l1Connector = payable(address(123123));
-    _l2Connector = payable(
-      address(
-        new GnosisSpokeConnector(
-          _l2Domain,
-          _l1Domain,
-          _amb,
-          _rootManager,
-          _l1Connector,
-          _processGas,
-          _reserveGas,
-          0, // uint256 _delayBlocks
-          _merkle,
-          address(1), // watcher manager
-          _gasCap,
-          _mirrorChainId
-        )
-      )
-    );
+
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l2Domain,
+      mirrorDomain: _l1Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: _l1Connector,
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: _merkle,
+      watcherManager: address(1),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
+    _l2Connector = payable(address(new GnosisSpokeConnector(_baseParams, _gasCap, _mirrorChainId)));
   }
 
   // ============ Utils ============
@@ -48,6 +51,28 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.destinationChainId.selector), abi.encode(_mirrorChainId));
     // 2. call to amb on message sender
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.messageSender.selector), abi.encode(_sender));
+  }
+
+  // ============ GnosisSpokeConnector.setGasFloor ============
+  function test_GnosisSpokeConnector__setGasFloor_failsIfLt100() public {
+    vm.expectRevert(bytes("<100"));
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(20);
+  }
+
+  function test_GnosisSpokeConnector__setGasFloor_failsIfNoChange() public {
+    vm.expectRevert(bytes("<100"));
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(20);
+  }
+
+  function test_GnosisSpokeConnector__setGasFloor_shouldWork() public {
+    vm.expectEmit(true, true, true, true);
+    emit GasFloorUpdated(100, 200);
+
+    vm.prank(address(this));
+    GnosisSpokeConnector(_l2Connector).setGasFloor(200);
+    assertEq(GnosisSpokeConnector(_l2Connector).floor(), 200);
   }
 
   // ============ GnosisSpokeConnector.verifySender ============
@@ -77,6 +102,20 @@ contract GnosisSpokeConnectorTest is ConnectorHelper {
   }
 
   // ============ GnosisSpokeConnector._sendMessage ============
+  function test_GnosisSpokeConnector__sendMessage_failsIfGasBelowFloor() public {
+    // setup mock
+    vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.requireToPassMessage.selector), abi.encode(123));
+
+    // encoded data
+    bytes memory _encodedData = abi.encode(50);
+
+    // should revert getting gas cap
+    vm.expectRevert("<floor");
+
+    vm.prank(_rootManager);
+    GnosisSpokeConnector(_l2Connector).send(_encodedData);
+  }
+
   function test_GnosisSpokeConnector__sendMessage_shouldWork() public {
     // setup mock
     vm.mockCall(_amb, abi.encodeWithSelector(GnosisAmb.requireToPassMessage.selector), abi.encode(123));

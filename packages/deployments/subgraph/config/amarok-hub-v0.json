@@ -51,8 +51,8 @@
     "source": [
       {
         "name": "RootManager",
-        "address": "0x94e1c90fb33FEc184B183625BBf096F713CA74a3",
-        "startBlock": 8173339
+        "address": "0xA63DF6af82091BdB11402800B56c9440BD97f1bB",
+        "startBlock": 10168630
       },
       {
         "name": "MerkleTreeManager",
@@ -61,33 +61,18 @@
       },
       {
         "name": "PolygonHubConnector",
-        "address": "0x9060E2B92a4e8D4EAd05B7f3D736e3DA33955fa5",
-        "startBlock": 8173346
+        "address": "0x5C9d14CCfC6481EC6bDAaA9f0D7663f1e7349eE4",
+        "startBlock": 10168636
       },
       {
         "name": "OptimismHubConnector",
-        "address": "0x49174424E29950Ad18d07b4d9Ad2F77d0CbDDA2a",
-        "startBlock": 8703528
-      },
-      {
-        "name": "ArbitrumHubConnector",
-        "address": "0x58d3464e5AAb9c598A7059d182720a04aD59b01F",
-        "startBlock": 8173347
-      },
-      {
-        "name": "ZkSyncHubConnector",
-        "address": "0x80231092091d752E1506D4aaB393675eBe388e9e",
-        "startBlock": 8584827
-      },
-      {
-        "name": "PolygonZkHubConnector",
-        "address": "0xd045F03686575f042b21D0B3D20FFAE4D3a3482f",
-        "startBlock": 8608178
+        "address": "0x4e1A541A3217799C58AEECDE3bbe00D6f2aA7Afb",
+        "startBlock": 10168634
       },
       {
         "name": "LineaHubConnector",
-        "address": "0x677d171172b395B2526ebb7Eb5Aa1a230b975ac0",
-        "startBlock": 9957169
+        "address": "0x7cF93aDe5C9E84b1875987d976805D0A3b87B4eb",
+        "startBlock": 10168635
       }
     ]
   }

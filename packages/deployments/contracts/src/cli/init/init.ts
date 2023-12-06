@@ -29,7 +29,7 @@ const STAGES = ["messaging", "agents", "assets", "all"] as const;
 type Stage = (typeof STAGES)[number];
 
 export const optionDefinitions = [
-  { name: "name", defaultOption: true, defaultValue: "all" },
+  { name: "name", defaultOption: true, defaultValue: "all", multiple: true },
   { name: "network", type: String },
   { name: "env", type: String },
   { name: "apply", type: String, defaultValue: "false" },
@@ -48,9 +48,10 @@ export const sanitizeAndInit = async () => {
   }
 
   // Validate command line arguments
-  const { network, env, domains: _domains, apply: _apply, name } = cmdArgs;
+  const { network, env, domains: _domains, apply: _apply, name: _name } = cmdArgs;
   const apply = _apply === "true";
-  if (!STAGES.includes(name as Stage)) {
+  const name = _name as Stage[];
+  if (!name.every((n) => STAGES.includes(n))) {
     throw new Error(`Name should be one of ${STAGES.join()}, name: ${name}`);
   }
 
@@ -243,7 +244,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized, apply, name as Stage);
+  await initProtocol(sanitized, apply, name);
 };
 
 /**
@@ -254,7 +255,7 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stage: Stage) => {
+export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stages: Stage[]) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
@@ -262,7 +263,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
 
   /// MARK - Stage helper
   const shouldExecute = (s: Stage): boolean => {
-    return stage === s || stage === "all";
+    return stages.includes(s) || stages[0] === "all";
   };
 
   /// ********************* Messaging **********************
@@ -459,9 +460,70 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
               write: { method: "addWatcher", args: [watcher] },
               chainData,
             });
+
+            // Whitelist on execution layer as well
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: 2,
+                read: { method: "queryRole", args: [watcher] },
+                write: { method: "assignRoleWatcher", args: [watcher] },
+                chainData,
+              });
+            }
           }
         }
         // TODO: Blacklist/remove watchers.
+      }
+
+      /// MARK - Proposers
+      console.log("\n\nWHITELIST PROPOSERS");
+
+      // Define helper function
+      const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
+        const isHub = network.domain === protocol.hub;
+        // Whitelist on spoke connector
+        await updateIfNeeded({
+          apply,
+          deployment: isHub
+            ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
+            : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          chainData,
+        });
+
+        if (!isHub) {
+          return;
+        }
+
+        // Whitelist on root manager
+        await updateIfNeeded({
+          apply,
+          deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          chainData,
+        });
+      };
+
+      for (const network of protocol.networks) {
+        console.log("\tVerifying RelayerProxies are set as proposers.");
+        await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+      }
+
+      if (protocol.agents.proposers?.allowlist) {
+        // Allowlist named proposers.
+        for (const proposer of protocol.agents.proposers.allowlist) {
+          for (const network of protocol.networks) {
+            await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+          }
+
+          // TODO: Blacklist/remove proposers.
+        }
       }
 
       /// MARK - Relayers

@@ -16,6 +16,7 @@ import {TestERC20} from "../contracts/test/TestERC20.sol";
 import {WatcherManager} from "../contracts/messaging/WatcherManager.sol";
 import {MerkleTreeManager} from "../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../contracts/messaging/RootManager.sol";
+import {SpokeConnector} from "../contracts/messaging/connectors/SpokeConnector.sol";
 import {AdminHubConnector} from "../contracts/messaging/connectors/admin/AdminHubConnector.sol";
 import {AdminSpokeConnector} from "../contracts/messaging/connectors/admin/AdminSpokeConnector.sol";
 import {RelayerProxyHub} from "../contracts/core/connext/helpers/RelayerProxyHub.sol";
@@ -63,20 +64,23 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
       deployRootManager();
       deployMerkleTreeManager(false);
 
+      SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+        domain: uint32(cfg.domain()),
+        mirrorDomain: uint32(cfg.domain()),
+        amb: address(cfg.getMessagingConfig(chainId).hubAmb),
+        rootManager: mustGetAddress("RootManager"),
+        mirrorConnector: address(0),
+        processGas: cfg.getMessagingConfig(chainId).processGas,
+        reserveGas: cfg.getMessagingConfig(chainId).reserveGas,
+        delayBlocks: cfg.getMessagingConfig(chainId).delayBlocks,
+        merkle: mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
+        watcherManager: mustGetAddress("WatcherManager"),
+        minDisputeBlocks: cfg.getMessagingConfig(chainId).minDisputeBlocks,
+        disputeBlocks: cfg.getMessagingConfig(chainId).disputeBlocks
+      });
+
       // Deploy MainnetSpokeConnector
-      deploySpokeConnector(
-        "MainnetSpokeConnector",
-        uint32(cfg.domain()),
-        uint32(cfg.domain()),
-        address(cfg.getMessagingConfig(chainId).hubAmb),
-        mustGetAddress("RootManager"),
-        address(0),
-        cfg.getMessagingConfig(chainId).processGas,
-        cfg.getMessagingConfig(chainId).reserveGas,
-        cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
-        mustGetAddress("WatcherManager")
-      );
+      deploySpokeConnector("MainnetSpokeConnector", _baseParams);
 
       // Deploy Hub connectors
       for (uint256 i = 0; i < cfg.chainsLength(); i++) {
@@ -94,20 +98,23 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
       deployWatcherManager();
       deployMerkleTreeManager(false);
 
+      SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+        domain: uint32(cfg.domain()),
+        mirrorDomain: uint32(cfg.getMessagingConfig(cfg.hubChainId()).domain),
+        amb: address(cfg.getMessagingConfig(chainId).spokeAmb),
+        rootManager: address(1),
+        mirrorConnector: address(0),
+        processGas: cfg.getMessagingConfig(chainId).processGas,
+        reserveGas: cfg.getMessagingConfig(chainId).reserveGas,
+        delayBlocks: cfg.getMessagingConfig(chainId).delayBlocks,
+        merkle: mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
+        watcherManager: mustGetAddress("WatcherManager"),
+        minDisputeBlocks: cfg.getMessagingConfig(chainId).minDisputeBlocks,
+        disputeBlocks: cfg.getMessagingConfig(chainId).disputeBlocks
+      });
+
       // Deploy SpokeConnector
-      deploySpokeConnector(
-        string.concat(cfg.getMessagingConfig(chainId).prefix, "SpokeConnector"),
-        uint32(cfg.domain()),
-        uint32(cfg.getMessagingConfig(cfg.hubChainId()).domain),
-        address(cfg.getMessagingConfig(chainId).spokeAmb),
-        address(1), //mustGetAddress("RootManager"),
-        address(0),
-        cfg.getMessagingConfig(chainId).processGas,
-        cfg.getMessagingConfig(chainId).reserveGas,
-        cfg.getMessagingConfig(chainId).delayBlocks,
-        mustGetAddress("MerkleTreeManagerSpokeUpgradeBeaconProxy"),
-        mustGetAddress("WatcherManager")
-      );
+      deploySpokeConnector(string.concat(cfg.getMessagingConfig(chainId).prefix, "SpokeConnector"), _baseParams);
     }
 
     // Deploy Connext Diamond proxy
@@ -183,7 +190,7 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   function deployRootManager() public broadcast returns (address) {
     address watcherManager = mustGetAddress("WatcherManager");
     address merkleTreeManagerForRoot = mustGetAddress("MerkleTreeManagerRootUpgradeBeaconProxy");
-    RootManager rootManager = new RootManager(100, watcherManager, merkleTreeManagerForRoot);
+    RootManager rootManager = new RootManager(100, watcherManager, merkleTreeManagerForRoot, 100, 100);
 
     save("RootManager", address(rootManager));
     console.log("RootManager deployed at %s", address(rootManager));
@@ -193,29 +200,9 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
   /// @notice Deploy Spoke Connector
   function deploySpokeConnector(
     string memory _connectorName,
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
+    SpokeConnector.ConstructorParams memory _baseParams
   ) public broadcast returns (address) {
-    AdminSpokeConnector adminConnector = new AdminSpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    );
+    AdminSpokeConnector adminConnector = new AdminSpokeConnector(_baseParams);
 
     save(_connectorName, address(adminConnector));
     console.log("%s deployed at %s", _connectorName, address(adminConnector));
@@ -282,34 +269,38 @@ contract Deploy is Deployer, ProxyDeployer, DiamondDeployer {
       }
     }
 
-    RelayerProxyHub proxy = new RelayerProxyHub(
-      mustGetAddress("Connext_DiamondProxy"),
-      mustGetAddress("MainnetSpokeConnector"),
-      address(0), //gelato relayer
-      address(0), //fee collector
-      mustGetAddress("RootManager"),
-      address(0), //Keep3r address
-      address(0),
-      0,
-      0,
-      connectors,
-      chainIds
-    );
+    RelayerProxyHub.HubConstructorParams memory _baseParams = RelayerProxyHub.HubConstructorParams({
+      connext: mustGetAddress("Connext_DiamondProxy"),
+      spokeConnector: mustGetAddress("MainnetSpokeConnector"),
+      gelatoRelayer: address(0),
+      feeCollector: address(0),
+      keep3r: address(0),
+      rootManager: mustGetAddress("RootManager"),
+      autonolas: address(0),
+      propagateCooldown: 0,
+      finalizeCooldown: 0,
+      proposeAggregateRootCooldown: 0,
+      hubConnectors: connectors,
+      hubConnectorChains: chainIds
+    });
+
+    RelayerProxyHub proxy = new RelayerProxyHub(_baseParams);
     save("RelayerProxyHub", address(proxy));
     return address(proxy);
   }
 
   /// @notice Deploy Relayer Proxy
   function deployRelayerProxy() public broadcast returns (address) {
-    RelayerProxy proxy = new RelayerProxy(
-      mustGetAddress("Connext_DiamondProxy"),
-      mustGetAddress(string.concat(cfg.getMessagingConfig(block.chainid).prefix, "SpokeConnector")),
-      address(0), //gelato relayer
-      address(0), //fee collector
-      address(0), //Keep3r address
-      address(0),
-      0
-    );
+    RelayerProxy.ConstructorParams memory _baseParams = RelayerProxy.ConstructorParams({
+      connext: mustGetAddress("Connext_DiamondProxy"),
+      spokeConnector: mustGetAddress(string.concat(cfg.getMessagingConfig(block.chainid).prefix, "SpokeConnector")),
+      gelatoRelayer: address(0),
+      feeCollector: address(0),
+      keep3r: address(0),
+      proposeAggregateRootCooldown: 0,
+      finalizeCooldown: 0
+    });
+    RelayerProxy proxy = new RelayerProxy(_baseParams);
     save("RelayerProxy", address(proxy));
     return address(proxy);
   }

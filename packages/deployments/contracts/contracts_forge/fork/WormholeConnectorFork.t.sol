@@ -167,7 +167,7 @@ contract WormholeConnectorForkTest is MotherForker {
 
     require(newSpokeConnector.provenAggregateRoots(transfer.aggregateRoot), "failed to prove aggregate root");
     require(
-      newSpokeConnector.messages(keccak256(transfer.proof.message)) == SpokeConnector.MessageStatus.Processed,
+      uint256(newSpokeConnector.MERKLE().leaves(keccak256(transfer.proof.message))) == 2,
       "failed to prove message"
     );
 

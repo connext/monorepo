@@ -142,6 +142,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "goerli",
     },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
     verify: {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
@@ -301,7 +302,7 @@ export const hardhatNetworks = {
   "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
-    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
     url: urlOverride || process.env.LINEA_GOERLI_PROVIDER_URL || "https://rpc.goerli.linea.build",
     companionNetworks: {
       hub: "goerli",
@@ -316,7 +317,7 @@ export const hardhatNetworks = {
   linea: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 59144,
-    gasPrice: utils.parseUnits("3", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
     url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
     companionNetworks: {
       hub: "mainnet",

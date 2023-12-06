@@ -66,7 +66,7 @@ export const log = {
     method: (args: { deployment: Deployment; method: string; callable: any[] }) => {
       const { deployment, method, callable } = args;
       throw new Error(
-        `Method ${method} not found in contract ${deployment.name} functions! Is the ABI from the implementation ` +
+        `Method ${method} not found in contract ${deployment.name} (${deployment.address}) functions! Is the ABI from the implementation ` +
           `contract? \nCallable methods: ${callable ? callable.join(",") : "None found!"}`,
       );
     },

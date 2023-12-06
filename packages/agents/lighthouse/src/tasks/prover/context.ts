@@ -5,6 +5,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import Broker from "amqplib";
 import { Pool } from "pg";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -19,7 +20,9 @@ export type ProverContext = {
     databaseWriter: { database: Database; pool: Pool };
     cache: StoreManager;
     mqClient: Broker.Connection;
+    subgraph: SubgraphReader;
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;
+  mode: string;
 };

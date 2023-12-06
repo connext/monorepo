@@ -5,8 +5,6 @@ import type * as admin from "./admin";
 export type { admin };
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
-import type * as consensys from "./consensys";
-export type { consensys };
 import type * as gnosis from "./gnosis";
 export type { gnosis };
 import type * as linea from "./linea";

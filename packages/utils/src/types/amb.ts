@@ -84,6 +84,13 @@ export const RootManagerMetaSchema = Type.Object({
 });
 export type RootManagerMeta = Static<typeof RootManagerMetaSchema>;
 
+export const RootManagerModeSchema = Type.Object({
+  id: Type.String(),
+  mode: Type.String(),
+});
+export type RootManagerMode = Static<typeof RootManagerModeSchema>;
+export type SpokeConnectorMode = Static<typeof RootManagerModeSchema>;
+
 export const ReceivedAggregateRootSchema = Type.Object({
   id: Type.String(),
   root: Type.String(),
@@ -99,3 +106,75 @@ export const RootMessageStatusSchema = Type.Object({
   lastAggregatedRoot: Type.Optional(Type.String()),
 });
 export type RootMessageStatus = Static<typeof RootMessageStatusSchema>;
+
+export const SnapshotSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  baseAggregateRoot: Type.String(),
+  roots: Type.Array(Type.String()),
+  domains: Type.Array(Type.String()),
+  endOfDispute: Type.Number(),
+  processed: Type.Optional(Type.Boolean()),
+  status: Type.Optional(Type.String()),
+  proposedTimestamp: Type.Number(),
+  propagateTimestamp: Type.Optional(Type.Number()),
+  finalizedTimestamp: Type.Optional(Type.Number()),
+  propagateTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
+});
+export type Snapshot = Static<typeof SnapshotSchema>;
+
+export const ModeType = {
+  SlowMode: "SLOW_MODE",
+  OptimisticMode: "OPTIMISTIC_MODE",
+} as const;
+export type Mode = (typeof ModeType)[keyof typeof ModeType];
+
+export const OptimisticRootProposedSchema = Type.Object({
+  id: Type.String(),
+  endOfDispute: Type.Number(),
+  aggregateRoot: Type.String(),
+  snapshotsRoots: Type.Array(Type.String()),
+  domains: Type.Array(Type.Number()),
+  baseAggregateRoot: Type.String(),
+});
+export type OptimisticRootProposed = Static<typeof OptimisticRootProposedSchema>;
+
+export const SnapshotRootSchema = Type.Object({
+  id: Type.String(),
+  spokeDomain: Type.Number(),
+  root: Type.String(),
+  count: Type.Number(),
+  timestamp: Type.Number(),
+  blockNumber: Type.Optional(Type.Number()),
+});
+export type SnapshotRoot = Static<typeof SnapshotRootSchema>;
+
+export const OptimisticRootFinalizedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootFinalized = Static<typeof OptimisticRootFinalizedSchema>;
+
+export const OptimisticRootPropagatedSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  domainsHash: Type.String(),
+  timestamp: Type.Number(),
+});
+export type OptimisticRootPropagated = Static<typeof OptimisticRootPropagatedSchema>;
+
+export const SpokeOptimisticRootSchema = Type.Object({
+  id: Type.String(),
+  aggregateRoot: Type.String(),
+  rootTimestamp: Type.Number(),
+  endOfDispute: Type.Number(),
+  domain: Type.String(),
+  processed: Type.Optional(Type.Boolean()),
+  status: Type.Optional(Type.String()),
+  proposeTimestamp: Type.Optional(Type.Number()),
+  proposeTaskId: Type.Optional(TBytes32),
+  relayerType: Type.Optional(Type.String()),
+});
+export type SpokeOptimisticRoot = Static<typeof SpokeOptimisticRootSchema>;

@@ -125,6 +125,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
 
     // default cap is v high
     _cap = 100_000 ether;
+
+    vm.stopPrank();
   }
 
   // ============ Utils ============
@@ -180,10 +182,10 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Makes some mock execute arguments with given router/key pairs.
-  function utils_makeExecuteArgs(address[] memory routers, uint256[] memory keys)
-    public
-    returns (bytes32, ExecuteArgs memory)
-  {
+  function utils_makeExecuteArgs(
+    address[] memory routers,
+    uint256[] memory keys
+  ) public returns (bytes32, ExecuteArgs memory) {
     s.domain = _destinationDomain;
 
     // Format TransferInfo.
@@ -247,16 +249,16 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     uint256 amount,
     bool shouldSwap
   ) public {
-    if (_relayerFee > 0) {
-      vm.expectEmit(true, true, true, true);
-      emit TransferRelayerFeesIncreased(transferId, _relayerFee, address(0), params.originSender);
-    }
-
     // Bridged asset will either local or canonical, depending on domain xcall originates on.
     address bridged = asset == address(0) ? address(0) : _canonicalDomain == s.domain ? _canonical : _local;
     uint256 bridgedAmt = params.bridgedAmt;
     bytes memory messageBody = MessagingUtils.formatDispatchedTransferMessage(params, address(this), address(this), 0);
     bytes32 messageHash = keccak256(messageBody);
+
+    if (_relayerFee > 0) {
+      vm.expectEmit(true, true, true, true);
+      emit TransferRelayerFeesIncreased(transferId, _relayerFee, address(0), params.originSender);
+    }
 
     vm.expectEmit(true, true, true, true);
     emit XCalled(transferId, s.nonce, messageHash, params, asset, amount, bridged, messageBody);
@@ -281,11 +283,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Helper to prevent stack too deep issues (since there a lot of arguments to xcall).
-  function helpers_wrappedXCall(
-    TransferInfo memory params,
-    address asset,
-    uint256 amount
-  ) public returns (bytes32) {
+  function helpers_wrappedXCall(TransferInfo memory params, address asset, uint256 amount) public returns (bytes32) {
     vm.prank(params.originSender);
     return
       params.receiveLocal
@@ -473,12 +471,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
   }
 
   // Shortcut for the main fn. Uses default params.
-  function helpers_xcallAndAssert(
-    address asset,
-    uint256 amount,
-    bytes4 expectedError,
-    bool shouldSwap
-  ) public {
+  function helpers_xcallAndAssert(address asset, uint256 amount, bytes4 expectedError, bool shouldSwap) public {
     _defaultParams.originDomain = _originDomain;
     _defaultParams.destinationDomain = _destinationDomain;
     helpers_xcallAndAssert(_defaultParams, asset, amount, expectedError, shouldSwap);
@@ -811,11 +804,7 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     helpers_executeAndAssert(transferId, _args, expected, false, false, shouldSwap, false, false);
   }
 
-  function helpers_executeAndAssert(
-    bytes32 transferId,
-    ExecuteArgs memory _args,
-    bool useDelegate
-  ) public {
+  function helpers_executeAndAssert(bytes32 transferId, ExecuteArgs memory _args, bool useDelegate) public {
     uint256 expected = _args.params.bridgedAmt;
     if (_args.routers.length != 0) {
       expected = utils_getFastTransferAmount(_args.params.bridgedAmt);
@@ -870,8 +859,8 @@ contract BridgeFacetTest is BridgeFacet, FacetHelper {
     s.approvedSequencers[sequencer] = true;
 
     // test revert
-    vm.prank(LibDiamond.contractOwner());
     vm.expectRevert(BridgeFacet.BridgeFacet__addSequencer_alreadyApproved.selector);
+    vm.prank(LibDiamond.contractOwner());
     this.addSequencer(sequencer);
   }
 

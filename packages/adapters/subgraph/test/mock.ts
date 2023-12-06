@@ -7,6 +7,7 @@ import {
   mkBytes32,
   mkHash,
   mock,
+  OptimisticRootFinalized,
   OriginMessage,
   OriginTransfer,
   PropagatedRoot,
@@ -17,6 +18,7 @@ import {
   RouterDailyTVL,
   RouterLiquidityEvent,
   SlippageUpdate,
+  Snapshot,
   StableSwapExchange,
   StableSwapLpBalance,
   StableSwapPool,
@@ -24,6 +26,8 @@ import {
   StableSwapTransfer,
   XMessage,
   XTransferStatus,
+  OptimisticRootPropagated,
+  SnapshotRoot,
 } from "@connext/nxtp-utils";
 import { stub, SinonStub, createStubInstance } from "sinon";
 import { SubgraphMap } from "../src/lib/entities";
@@ -190,6 +194,22 @@ export const mockPropagatedRootSubgraphResponse = [
   mock.entity.propagatedRoot() as PropagatedRoot,
   mock.entity.propagatedRoot() as PropagatedRoot,
 ];
+export const mockProposedSnapshotsSubgraphResponse = [
+  mock.entity.snapshot() as Snapshot,
+  mock.entity.snapshot() as Snapshot,
+];
+export const mockFinalizedRootsByDomainSubgraphResponse = [
+  mock.entity.optimisticRootFinalized() as OptimisticRootFinalized,
+  mock.entity.optimisticRootFinalized() as OptimisticRootFinalized,
+];
+export const mockPropagatedOptimisticRootsByDomainSubgraphResponse = [
+  mock.entity.optimisticRootPropagated() as OptimisticRootPropagated,
+  mock.entity.optimisticRootPropagated() as OptimisticRootPropagated,
+];
+export const mockgetSavedSnapshotRootsByDomainSubgraphResponse = [
+  mock.entity.snapshotRoot() as SnapshotRoot,
+  mock.entity.snapshotRoot() as SnapshotRoot,
+];
 export const mockReceivedAggregateRootSubgraphResponse = [
   mock.entity.receivedAggregateRoot() as ReceivedAggregateRoot,
   mock.entity.receivedAggregateRoot() as ReceivedAggregateRoot,
@@ -200,6 +220,8 @@ export const mockBlockNumber: Map<string, number> = new Map();
 mockBlockNumber.set("2000", 1234567);
 mockBlockNumber.set("3000", 1234567);
 mockBlockNumber.set("1337", 1234567);
+mockBlockNumber.set("13337", 1234567);
+mockBlockNumber.set("13338", 1234567);
 mockBlockNumber.set("1338", 1234567);
 mockBlockNumber.set("10", 1234567);
 

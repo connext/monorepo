@@ -9,9 +9,6 @@ import { runCommand } from "../src";
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   console.log("\n============================= Exporting + Verifying Deployments ===============================");
-  // await hre.run("export", {
-  //   exportAll: "./deployments.json",
-  // });
   await runCommand("run export");
 
   await hre.run("etherscan-verify", {

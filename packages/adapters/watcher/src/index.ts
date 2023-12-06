@@ -1,2 +1,2 @@
-export { WatcherAdapter } from "./adapter";
+export { WatcherAdapter, OpModeMonitor } from "./adapter";
 export * from "./types";

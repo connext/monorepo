@@ -35,32 +35,8 @@ contract ArbitrumSpokeConnector is SpokeConnector {
 
   // ============ Constructor ============
 
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-  {
-    _setAliasedSender(_mirrorConnector);
+  constructor(ConstructorParams memory _baseSpokeParams) SpokeConnector(_baseSpokeParams) {
+    _setAliasedSender(_baseSpokeParams.mirrorConnector);
   }
 
   // ============ Public Functions ============

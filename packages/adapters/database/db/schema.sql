@@ -41,6 +41,27 @@ CREATE TYPE public.action_type AS ENUM (
 
 
 --
+-- Name: snapshot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.snapshot_status AS ENUM (
+    'Proposed',
+    'Finalized',
+    'Propagated'
+);
+
+
+--
+-- Name: spoke_root_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.spoke_root_status AS ENUM (
+    'Submitted',
+    'Proposed',
+    'Finalized'
+)
+
+--
 -- Name: event_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -799,6 +820,59 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: snapshot_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshot_roots (
+    id character varying(255) NOT NULL,
+    spoke_domain integer NOT NULL,
+    root character(66) NOT NULL,
+    count integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    "timestamp" integer NOT NULL
+);
+
+
+--
+-- Name: snapshots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshots (
+    id character varying(255) NOT NULL,
+    aggregate_root character(66) NOT NULL,
+    base_aggregate_root character(66) NOT NULL,
+    roots character(66)[] DEFAULT (ARRAY[]::bpchar[])::character(66)[] NOT NULL,
+    domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    end_of_dispute integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
+    propagate_timestamp integer,
+    propagate_task_id character(66),
+    relayer_type text,
+    proposed_timestamp integer,
+    finalized_timestamp integer
+);
+
+
+--
+-- Name: spoke_optimistic_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.spoke_optimistic_roots (
+    id character varying(255) NOT NULL,
+    root character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    end_of_dispute integer NOT NULL,
+    root_timestamp integer NOT NULL,
+    status public.spoke_root_status DEFAULT 'Proposed'::public.spoke_root_status NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    propose_timestamp integer,
+    propose_task_id character varying(255),
+    relayer_type text
+);
+
+
+--
 -- Name: stableswap_lp_balances; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1171,6 +1245,30 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: snapshot_roots snapshot_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshot_roots
+    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (id, spoke_domain);
+
+
+--
+-- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_key UNIQUE (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_id_key UNIQUE (id);
+
+
+--
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1318,6 +1416,59 @@ CREATE INDEX messages_processed_index_idx ON public.messages USING btree (proces
 
 
 --
+-- Name: snapshot_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_idx ON public.snapshot_roots USING btree (id);
+
+
+--
+-- Name: snapshot_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_root_idx ON public.snapshot_roots USING btree (root);
+
+
+--
+-- Name: snapshot_roots_spoke_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btree (spoke_domain);
+
+
+--
+-- Name: snapshots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_domain_idx ON public.spoke_optimistic_roots USING btree (domain);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_root_propose_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_propose_timestamp_idx ON public.spoke_optimistic_roots USING btree (domain, root, propose_timestamp);
+
+
+--
+-- Name: spoke_optimistic_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_idx ON public.spoke_optimistic_roots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_root_idx ON public.spoke_optimistic_roots USING btree (root);
 -- Name: messages_processed_only_index_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1502,6 +1653,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230308083252'),
     ('20230308162843'),
     ('20230310035445'),
+    ('20230405050248'),
     ('20230405091124'),
     ('20230412003613'),
     ('20230412084403'),
@@ -1520,6 +1672,11 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230608135754'),
     ('20230608174759'),
     ('20230613125451'),
+    ('20231012233640'),
+    ('20231020201556'),
+    ('20231031081722'),
+    ('20231031145848'),
+    ('20231102213156');
     ('20231127165037'),
     ('20231127165223'),
     ('20231128023332'),

@@ -10,33 +10,10 @@ import {BaseWormhole} from "./BaseWormhole.sol";
 contract WormholeSpokeConnector is SpokeConnector, BaseWormhole, IWormholeReceiver {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
+    ConstructorParams memory _baseSpokeParams,
     uint256 _gasCap,
     uint16 _mirrorWormholeChainId
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    BaseWormhole(_gasCap, _mirrorWormholeChainId)
-  {}
+  ) SpokeConnector(_baseSpokeParams) BaseWormhole(_gasCap, _mirrorWormholeChainId) {}
 
   // ============ Admin fns ============
 

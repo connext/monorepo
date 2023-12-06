@@ -23,24 +23,23 @@ contract OptimismSpokeConnectorTest is ConnectorHelper {
 
     _merkle = address(new MerkleTreeManager());
 
+    SpokeConnector.ConstructorParams memory _baseParams = SpokeConnector.ConstructorParams({
+      domain: _l2Domain,
+      mirrorDomain: _l1Domain,
+      amb: _amb,
+      rootManager: _rootManager,
+      mirrorConnector: _l1Connector,
+      processGas: _processGas,
+      reserveGas: _reserveGas,
+      delayBlocks: 0,
+      merkle: _merkle,
+      watcherManager: address(0),
+      minDisputeBlocks: _minDisputeBlocks,
+      disputeBlocks: _disputeBlocks
+    });
+
     // deploy
-    _l2Connector = payable(
-      address(
-        new OptimismSpokeConnector(
-          _l2Domain,
-          _l1Domain,
-          _amb,
-          _rootManager,
-          _l1Connector,
-          _processGas,
-          _reserveGas,
-          0, // delay blocks
-          _merkle,
-          address(0), // watcher manager
-          _gasCap
-        )
-      )
-    );
+    _l2Connector = payable(address(new OptimismSpokeConnector(_baseParams, _gasCap)));
   }
 
   // ============ Utils ============

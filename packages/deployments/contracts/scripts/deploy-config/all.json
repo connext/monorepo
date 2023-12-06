@@ -12,7 +12,9 @@
         "spokeAmb": "0x0000000000000000000000000000000000000000",
         "processGas": 850000,
         "reserveGas": 15000,
-        "delayBlocks": 0
+        "delayBlocks": 0,
+        "minDisputeBlocks": 20,
+        "disputeBlocks": 50
       },
       {
         "chainId": 10,
@@ -23,7 +25,9 @@
         "spokeAmb": "0x0000000000000000000000000000000000000000",
         "processGas": 2000000,
         "reserveGas": 15000,
-        "delayBlocks": 0
+        "delayBlocks": 0,
+        "minDisputeBlocks": 20,
+        "disputeBlocks": 50
       },
       {
         "chainId": 100,
@@ -34,7 +38,9 @@
         "spokeAmb": "0x0000000000000000000000000000000000000000",
         "processGas": 850000,
         "reserveGas": 15000,
-        "delayBlocks": 0
+        "delayBlocks": 0,
+        "minDisputeBlocks": 20,
+        "disputeBlocks": 50
       }
     ]
   },

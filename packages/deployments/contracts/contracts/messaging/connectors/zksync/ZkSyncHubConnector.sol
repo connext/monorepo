@@ -39,21 +39,27 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
   }
 
   /**
-   * @dev Sends `aggregateRoot` to messaging on l2
+   * @notice Sends `aggregateRoot` to messaging on l2.
+   * @dev Caller must provide the following:
+   * - L2 gas: gas limit of l2 transaction
+   * - l2GasPerPubdataByteLimit: gas required to publish l1 -> l2 transactions
+   * - refund recipient: who gets excess fees on executino. If the _refundRecipient is a smart contract,
+   * then during the L1 to L2 transaction its address is aliased.
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
-    // Should include  L2 gas that transaction can consume during execution on L2
-    require(_encodedData.length == 32, "!data length");
+    // Should include L2 gas that transaction can consume during execution on L2 + pubdata + address of
+    // refund recipient (32 + 32 + 20 bytes - padded)
+    require(_encodedData.length == 96, "!data length");
     // Should always be dispatching the aggregate root
     require(_data.length == 32, "!length");
     // Get the calldata
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
 
-    // Maximum amount of L2 gas that transaction can consume during execution on L2
-    uint256 l2GasLimit = abi.decode(_encodedData, (uint256));
-
-    // The maximum amount L2 gas that the operator may charge the user for.
-    uint256 l2GasPerPubdataByteLimit = 800;
+    // Decode all passed-through data
+    (uint256 l2GasLimit, uint256 l2GasPerPubdataByteLimit, address refundRecipient) = abi.decode(
+      _encodedData,
+      (uint256, uint256, address)
+    );
 
     // Get the max supplied
     uint256 fee = _getGas(msg.value);
@@ -79,7 +85,8 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
       l2GasPerPubdataByteLimit,
       // factory dependencies
       new bytes[](0),
-      msg.sender
+      // fee refund address
+      refundRecipient
     );
   }
 
@@ -121,12 +128,11 @@ contract ZkSyncHubConnector is HubConnector, GasCap {
     // NOTE: there are no guarantees the messages are processed once, so processed roots
     // must be tracked within the connector. See:
     // https://v2-docs.zksync.io/dev/developer-guides/Bridging/l2-l1.html#prove-inclusion-of-the-message-into-the-l2-block
-    if (!processed[_root]) {
-      // set root to processed
-      processed[_root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
-      emit MessageProcessed(_message, msg.sender);
-    } // otherwise root was already sent to root manager
+    require(!processed[_root], "processed");
+    // set root to processed
+    processed[_root] = true;
+
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+    emit MessageProcessed(_message, msg.sender);
   }
 }

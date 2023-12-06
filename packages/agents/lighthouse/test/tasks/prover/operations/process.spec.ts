@@ -16,6 +16,7 @@ const mockBrokerMesage: BrokerMessage = {
   messageRootCount: 2,
   aggregateRoot: mkBytes32("0x222"),
   aggregateRootCount: 2,
+  snapshotRoots: [],
 };
 
 const requestContext = createRequestContext("Publisher");
@@ -26,11 +27,13 @@ describe("Operations: Process", () => {
     let getMessageStub: SinonStub;
     let addTaskPendingStub: SinonStub;
     let setStatusStub: SinonStub;
+    let encodeFunctionDataStubMT: SinonStub;
     let encodeFunctionDataStubSC: SinonStub;
 
     beforeEach(() => {
       getProofStub = stub(SparseMerkleTree.prototype, "getProof");
       verifyStub = stub(SparseMerkleTree.prototype, "verify");
+      encodeFunctionDataStubMT = proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub;
       encodeFunctionDataStubSC = proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub;
       getMessageStub = proverCtxMock.adapters.cache.messages.getMessage as SinonStub;
       addTaskPendingStub = proverCtxMock.adapters.cache.messages.addTaskPending as SinonStub;
@@ -49,6 +52,7 @@ describe("Operations: Process", () => {
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
       encodeFunctionDataStubSC.returns("0x");
+      encodeFunctionDataStubMT.returns("0x");
       sendWithRelayerWithBackupStub.resolves({
         taskId: "0x123",
       });
@@ -64,9 +68,9 @@ describe("Operations: Process", () => {
       mockXMessage2.leaf = mockBrokerMesage.messages[0].leaf;
       mockBrokerMesage.messages.push(mockXMessage2);
       await processMessages(mockBrokerMesage, requestContext);
-
-      // 2 getProof calls for leaves, 1 getProof call for root
       expect(getProofStub.callCount).to.equal(3);
+      expect(encodeFunctionDataStubSC.callCount).to.equal(1);
+      expect(sendWithRelayerWithBackupStub).to.have.been.calledOnce;
     });
 
     it("should be fulfilled", async () => {
@@ -75,46 +79,59 @@ describe("Operations: Process", () => {
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
       verifyStub.returns({ verified: true });
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
       await processMessages(mockBrokerMesage, requestContext);
     });
+
     it("should catch error if no destination domain proof", async () => {
-      getProofStub.resolves(["0x1"]);
-      verifyStub.resolves({ verified: true });
-      (proverCtxMock.adapters.contracts.spokeConnector.encodeFunctionData as SinonStub).returns("0x");
+      getProofStub.returns(["0x1"]);
+      verifyStub.returns({ verified: true });
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
       await expect(
         processMessages({ ...mockBrokerMesage, destinationDomain: "101010" }, requestContext),
       ).to.eventually.be.rejectedWith(NoDestinationDomainForProof);
     });
+
     it("should catch error if no message proof", async () => {
       getProofStub.returns(undefined);
       verifyStub.returns({ verified: true });
       getMessageStub.resolves(mockXMessage1);
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.merkleTreeManager.decodeFunctionResult as SinonStub).returns([0]);
       await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(NoMessageProof);
     });
+
     it("should do nothing if empty message proof", async () => {
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
       await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(EmptyMessageProofs);
     });
+
     it("should do nothing if already processed", async () => {
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.merkleTreeManager.decodeFunctionResult as SinonStub).returns([2]);
       await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(EmptyMessageProofs);
     });
+
     it("should do nothing if status unused", async () => {
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
       addTaskPendingStub.resolves();
       setStatusStub.resolves();
+      (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
+      (proverCtxMock.adapters.contracts.merkleTreeManager.decodeFunctionResult as SinonStub).returns([1]);
       await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(EmptyMessageProofs);
     });
   });

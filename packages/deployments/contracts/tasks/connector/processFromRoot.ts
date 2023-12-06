@@ -185,7 +185,7 @@ const processFromOptimismRoot = async (
   const messenger = new CrossChainMessenger({
     l2ChainId: spoke,
     l2SignerOrProvider: spokeProvider,
-    l1ChainId: protocolConfig.hub,
+    l1ChainId: protocolConfig.hub.chain,
     l1SignerOrProvider: hubProvider,
     bedrock: true,
   });
@@ -252,7 +252,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       // get the l2 provider
       const l2Provider = getProviderFromHardhatConfig(spoke);
       // get the l1 provider
-      const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub);
+      const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub.chain);
 
       // see what prefix this spoke is
       const prefix = protocolConfig.configs[spoke].prefix;
@@ -276,7 +276,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       }
 
       // try to call process from root on hub connector
-      const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub), env);
+      const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub.chain), env);
       const deployment = await deployments.get(deploymentName);
       const address = deployment.address;
       console.log(deploymentName, "connector:", address);

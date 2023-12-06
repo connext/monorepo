@@ -69,15 +69,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arbitrum/sdk@npm:3.1.3":
-  version: 3.1.3
-  resolution: "@arbitrum/sdk@npm:3.1.3"
+"@arbitrum/sdk@npm:3.1.11":
+  version: 3.1.11
+  resolution: "@arbitrum/sdk@npm:3.1.11"
   dependencies:
     "@ethersproject/address": ^5.0.8
     "@ethersproject/bignumber": ^5.1.1
     "@ethersproject/bytes": ^5.0.8
     ethers: ^5.1.0
-  checksum: 1b3527090b302c3f65d61abca61c18cc1e99fa5e7cd80160bcc62f467e1c99af2ade4cc5ee088f0bb6b7672628c094e8aa02158cb314cba5a17d94676d911feb
+  checksum: 79066b07d685755c53f4d7a2862f84c189ab07207d7c4cf8909b540cfbeb07007fec5d7cb9057c2c01df4ee196653cdbe17674bf80eb45bf2fb64f07b8d5f6a2
   languageName: node
   linkType: hard
 
@@ -2412,7 +2412,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/lighthouse@workspace:packages/agents/lighthouse"
   dependencies:
-    "@arbitrum/sdk": 3.1.3
+    "@arbitrum/sdk": 3.1.11
     "@connext/nxtp-adapters-database": "workspace:*"
     "@connext/nxtp-adapters-relayer": "workspace:*"
     "@connext/nxtp-adapters-subgraph": "workspace:*"
@@ -2928,7 +2928,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/smart-contracts@workspace:packages/deployments/contracts"
   dependencies:
-    "@arbitrum/sdk": 3.1.3
+    "@arbitrum/sdk": 3.1.11
     "@certusone/wormhole-sdk": 0.9.21
     "@connext/nxtp-utils": "workspace:*"
     "@consensys/linea-sdk": 0.1.6
