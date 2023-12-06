@@ -42,7 +42,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Get connector manager
-  const messagingNetwork = getProtocolNetwork(chainId);
+  const messagingNetwork = getProtocolNetwork(chainId, network.name);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
   if (!protocol.configs[protocol.hub.chain]) {
