@@ -15,24 +15,10 @@ contract TaikoHubConnectorForTest is TaikoHubConnector {
     address _rootManager,
     address _mirrorConnector,
     address _taikoSignalService,
-    uint256 _spokeChainId,
-    uint256 _gasCap
+    uint256 _spokeChainId
   )
-    TaikoHubConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _taikoSignalService,
-      _spokeChainId,
-      _gasCap
-    )
+    TaikoHubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector, _taikoSignalService, _spokeChainId)
   {}
-
-  function forTest_gasCap() public view returns (uint256 _gasCap) {
-    _gasCap = gasCap;
-  }
 
   function forTest_sendMessage(bytes memory _data, bytes memory _extraData) external {
     _sendMessage(_data, _extraData);
@@ -69,8 +55,7 @@ contract Base is ConnectorHelper {
       _rootManager,
       _l2Connector,
       taikoSignalService,
-      SPOKE_CHAIN_ID,
-      _gasCap
+      SPOKE_CHAIN_ID
     );
   }
 }
@@ -83,7 +68,6 @@ contract Unit_Connector_TaikoHubConnector_Constructor is Base {
     assertEq(taikoHubConnector.ROOT_MANAGER(), _rootManager);
     assertEq(taikoHubConnector.mirrorConnector(), _l2Connector);
     assertEq(taikoHubConnector.SPOKE_CHAIN_ID(), SPOKE_CHAIN_ID);
-    assertEq(taikoHubConnector.forTest_gasCap(), _gasCap);
   }
 }
 

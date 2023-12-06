@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity =0.8.17;
 
-import {GasCap} from "../GasCap.sol";
 import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
 
 /**
  * @title BaseTaiko
  * @notice Base contract for Taiko Hub and Spoke Connectors
  */
-abstract contract BaseTaiko is GasCap {
+abstract contract BaseTaiko {
   /**
    * @notice Constant used to represent the required length of a message
    */
@@ -20,9 +19,9 @@ abstract contract BaseTaiko is GasCap {
   ISignalService public immutable TAIKO_SIGNAL_SERVICE;
 
   /**
-   * @param _gasCap Gas limit for cross domain message
+   * @param _taikoSignalService Taiko Signal Service address
    */
-  constructor(address _taikoSignalService, uint256 _gasCap) GasCap(_gasCap) {
+  constructor(address _taikoSignalService) {
     TAIKO_SIGNAL_SERVICE = ISignalService(_taikoSignalService);
   }
 

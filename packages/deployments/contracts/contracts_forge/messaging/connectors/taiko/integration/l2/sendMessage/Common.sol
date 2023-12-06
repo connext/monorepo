@@ -15,9 +15,8 @@ contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _spokeConstructorParams,
     address _signalService,
-    uint256 _hubChainId,
-    uint256 _gasCap
-  ) TaikoSpokeConnector(_spokeConstructorParams, _signalService, _hubChainId, _gasCap) {}
+    uint256 _hubChainId
+  ) TaikoSpokeConnector(_spokeConstructorParams, _signalService, _hubChainId) {}
 
   function forTest_updateMirrorConnector(address _mirrorConnector) external {
     mirrorConnector = _mirrorConnector;
@@ -83,12 +82,7 @@ contract Common is ConnectorHelper {
       _minDisputeBlocks,
       _disputeBlocks
     );
-    taikoSpokeConnector = new TaikoSpokeConnectorForTest(
-      _constructorParams,
-      address(SIGNAL_SERVICE),
-      SEPOLIA_CHAIN_ID,
-      _gasCap
-    );
+    taikoSpokeConnector = new TaikoSpokeConnectorForTest(_constructorParams, address(SIGNAL_SERVICE), SEPOLIA_CHAIN_ID);
 
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(taikoSpokeConnector));

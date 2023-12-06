@@ -69,8 +69,7 @@ contract Common is ConnectorHelper {
       address(rootManager),
       BRIGE_ON_TAIKO,
       address(SIGNAL_SERVICE),
-      TAIKO_CHAIN_ID,
-      _gasCap
+      TAIKO_CHAIN_ID
     );
 
     // Add connector as a new supported domain

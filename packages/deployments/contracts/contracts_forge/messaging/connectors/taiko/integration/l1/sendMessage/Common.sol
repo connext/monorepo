@@ -62,8 +62,7 @@ contract Common is ConnectorHelper {
       address(rootManager),
       mirrorConnector,
       address(SIGNAL_SERVICE),
-      TAIKO_CHAIN_ID,
-      _gasCap
+      TAIKO_CHAIN_ID
     );
 
     // Add connector as a new supported domain

@@ -27,7 +27,7 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
   error TaikoHubConnector_SignalNotReceived();
 
   /**
-   * @notice The spoke chain id
+   * @notice The Taiko's spoke chain id
    */
   uint256 public immutable SPOKE_CHAIN_ID;
 
@@ -38,7 +38,8 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @param _offChainAgent The off-chain agent address allowed to call `processMessage`
    * @param _rootManager Root manager address
    * @param _mirrorConnector Mirror connector address
-   * @param _gasCap Gas limit for cross domain message
+   * @param _taikoSignalService Taiko Signal Service address
+   * @param _spokeChainId The Taiko's spoke chain id
    */
   constructor(
     uint32 _domain,
@@ -47,11 +48,10 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
     address _rootManager,
     address _mirrorConnector,
     address _taikoSignalService,
-    uint256 _spokeChainId,
-    uint256 _gasCap
+    uint256 _spokeChainId
   )
     HubConnector(_domain, _mirrorDomain, _offChainAgent, _rootManager, _mirrorConnector)
-    BaseTaiko(_taikoSignalService, _gasCap)
+    BaseTaiko(_taikoSignalService)
   {
     SPOKE_CHAIN_ID = _spokeChainId;
   }
@@ -67,10 +67,10 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
   }
 
   /**
-   * @notice Receives a message sent from the L1 Taiko Signal Service and aggregates it on the root manager
-   * @param _data Message data
-   * @dev The sender must be the connext off-chain agent
-   * @dev The message length must be 32 bytes
+   * @notice Receives a message sent from the L2 Taiko Signal Service and aggregates it on the root manager
+   * @param _data Message data containing the signal and the proof
+   * @dev The sender must be the allowed off-chain agent
+   * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
     if (!_verifySender(address(AMB))) revert TaikoHubConnector_SenderIsNotConnext();

@@ -12,13 +12,8 @@ contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _constructorParams,
     address _taikoSignalService,
-    uint256 _hubChainId,
-    uint256 _gasCap
-  ) TaikoSpokeConnector(_constructorParams, _taikoSignalService, _hubChainId, _gasCap) {}
-
-  function forTest_gasCap() public view returns (uint256 _gasCap) {
-    _gasCap = gasCap;
-  }
+    uint256 _hubChainId
+  ) TaikoSpokeConnector(_constructorParams, _taikoSignalService, _hubChainId) {}
 
   function forTest_sendMessage(bytes memory _data, bytes memory _extraData) external {
     _sendMessage(_data, _extraData);
@@ -63,7 +58,7 @@ contract Base is ConnectorHelper {
       minDisputeBlocks: _minDisputeBlocks,
       disputeBlocks: _disputeBlocks
     });
-    taikoSpokeConnector = new TaikoSpokeConnectorForTest(_params, taikoSignalService, HUB_CHAIN_ID, _gasCap);
+    taikoSpokeConnector = new TaikoSpokeConnectorForTest(_params, taikoSignalService, HUB_CHAIN_ID);
   }
 }
 
@@ -83,7 +78,6 @@ contract Unit_Connector_TaikoSpokeConnector_Constructor is Base {
     assertEq(taikoSpokeConnector.disputeBlocks(), _disputeBlocks);
     assertEq(address(taikoSpokeConnector.TAIKO_SIGNAL_SERVICE()), taikoSignalService);
     assertEq(taikoSpokeConnector.HUB_CHAIN_ID(), HUB_CHAIN_ID);
-    assertEq(taikoSpokeConnector.forTest_gasCap(), _gasCap);
   }
 }
 

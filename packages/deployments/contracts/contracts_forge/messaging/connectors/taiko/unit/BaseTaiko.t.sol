@@ -7,11 +7,7 @@ import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
 import {ISignalService} from "../../../../../contracts/messaging/interfaces/ambs/taiko/ISignalService.sol";
 
 contract BaseTaikoForTest is BaseTaiko {
-  constructor(address _taikoSignalService, uint256 _gasCap) BaseTaiko(_taikoSignalService, _gasCap) {}
-
-  function forTest_gasCap() public view returns (uint256 _gasCap) {
-    _gasCap = gasCap;
-  }
+  constructor(address _taikoSignalService) BaseTaiko(_taikoSignalService) {}
 
   function forTest_checkMessageLength(bytes memory _data) external pure returns (bool _isValid) {
     _isValid = _checkMessageLength(_data);
@@ -37,7 +33,7 @@ contract Base is ConnectorHelper {
   BaseTaikoForTest public baseTaiko;
 
   function setUp() public {
-    baseTaiko = new BaseTaikoForTest(signalService, _gasCap);
+    baseTaiko = new BaseTaikoForTest(signalService);
   }
 }
 
@@ -49,7 +45,6 @@ contract Unit_Connector_BaseTaiko_Constructor is Base {
 
   function test_checkConstructorArgs() public {
     assertEq(address(baseTaiko.TAIKO_SIGNAL_SERVICE()), signalService);
-    assertEq(baseTaiko.forTest_gasCap(), _gasCap);
   }
 }
 

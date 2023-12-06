@@ -33,16 +33,21 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
   error TaikoSpokeConnector_NotImplementedMethod();
 
   /**
-   * @notice The hub chain id
+   * @notice The Taiko's hub chain id
    */
   uint256 public immutable HUB_CHAIN_ID;
 
+  /**
+   * @notice Creates a new TaikoSpokeConnector instance
+   * @param _constructorParams Spoke Connector constructor params
+   * @param _taikoSignalService Taiko Signal Service address
+   * @param _hubChainId The Taiko's hub chain id
+   */
   constructor(
     SpokeConnector.ConstructorParams memory _constructorParams,
     address _taikoSignalService,
-    uint256 _hubChainId,
-    uint256 _gasCap
-  ) SpokeConnector(_constructorParams) BaseTaiko(_taikoSignalService, _gasCap) {
+    uint256 _hubChainId
+  ) SpokeConnector(_constructorParams) BaseTaiko(_taikoSignalService) {
     HUB_CHAIN_ID = _hubChainId;
   }
 
@@ -50,7 +55,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @notice Renounces ownership
    * @dev Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, SpokeConnector) {
+  function renounceOwnership() public virtual override(SpokeConnector) {
     revert TaikoSpokeConnector_NotImplementedMethod();
   }
 
@@ -66,9 +71,9 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
 
   /**
    * @notice Receives a message sent from the L1 Scroll Hub Connector through the L2 Taiko Signal Service
-   * @param _data Message data
-   * @dev The sender must be the connext off-chain agent
-   * @dev The message length must be 32 bytes
+   * @param _data Message data containing the signal (the root) and the proof
+   * @dev The sender must be the allowed off-chain agent
+   * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
     if (!_verifySender(address(AMB))) revert TaikoSpokeConnector_SenderIsNotConnext();
