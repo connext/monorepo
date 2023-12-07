@@ -151,36 +151,6 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: arbitrumgoerli_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-staging-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingarbitrumgoerli_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
   - name: Connext_LineaGoerli
     handler:
       graphql:
@@ -296,36 +266,6 @@ sources:
     transforms:
       - prefix:
           value: stagingmumbai_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: arbitrumgoerli_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingarbitrumgoerli_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
