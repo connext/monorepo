@@ -27,6 +27,8 @@ contract BaseTaikoForTest is BaseTaiko {
 }
 
 contract Base is ConnectorHelper {
+  uint256 public constant ROOT_LENGTH = 32;
+
   address public user = makeAddr("user");
   address public offChainAgent = makeAddr("offChainAgent");
   address public signalService = makeAddr("SignalService");
@@ -39,8 +41,7 @@ contract Base is ConnectorHelper {
 
 contract Unit_Connector_BaseTaiko_Constructor is Base {
   function test_constants() public {
-    uint256 _messageLength = 32;
-    assertEq(baseTaiko.MESSAGE_LENGTH(), _messageLength);
+    assertEq(baseTaiko.ROOT_LENGTH(), ROOT_LENGTH);
   }
 
   function test_checkConstructorArgs() public {
@@ -50,26 +51,23 @@ contract Unit_Connector_BaseTaiko_Constructor is Base {
 
 contract Unit_Connector_BaseTaiko_CheckMessageLength is Base {
   function test_returnFalseOnInvalidLength(bytes memory _data) public {
-    uint256 _validMessageLength = 32;
-    vm.assume(_data.length != _validMessageLength);
+    vm.assume(_data.length != ROOT_LENGTH);
     assertEq(baseTaiko.forTest_checkMessageLength(_data), false);
   }
 
   function test_checkMessageLength() public {
-    uint256 _validMessageLength = 32;
-    bytes memory _data = new bytes(_validMessageLength);
+    bytes memory _data = new bytes(ROOT_LENGTH);
     assertEq(baseTaiko.forTest_checkMessageLength(_data), true);
   }
 }
 
 contract Unit_Connector_BaseTaiko_sendMessage is Base {
-  function test_callSendSignal(bytes32 _signal) public {
-    bytes memory _storageSlotResponse = abi.encode("storageSlot1");
+  function test_callSendSignal(bytes32 _signal, bytes32 _storageSlotResponse) public {
     // Mock the call over `sendSignal` and expect it to be called
     _mockAndExpect(
       signalService,
       abi.encodeWithSelector(ISignalService.sendSignal.selector, _signal),
-      _storageSlotResponse
+      abi.encode(_storageSlotResponse)
     );
     // Call `sendSignal` function
     vm.prank(user);
@@ -78,19 +76,13 @@ contract Unit_Connector_BaseTaiko_sendMessage is Base {
 }
 
 contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
-  struct SignalVerificationData {
-    bytes32 signal;
-    bytes proof;
-  }
-
-  function test_callIsSignalReceived(
+  modifier happyPath(
     uint256 _sourceChainId,
     address _mirrorConnector,
     bytes32 _signal,
-    bytes memory _proof
-  ) public {
-    bytes memory _data = abi.encode(_signal, _proof);
-    // Mock the call over `isSignalReceived` and expect it to be called
+    bytes memory _proof,
+    bool _received
+  ) {
     _mockAndExpect(
       signalService,
       abi.encodeWithSelector(
@@ -100,11 +92,20 @@ contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
         _signal,
         _proof
       ),
-      abi.encode(true)
+      abi.encode(_received)
     );
+    vm.startPrank(offChainAgent);
+    _;
+  }
 
+  function test_callIsSignalReceived(
+    uint256 _sourceChainId,
+    address _mirrorConnector,
+    bytes32 _signal,
+    bytes memory _proof
+  ) public happyPath(_sourceChainId, _mirrorConnector, _signal, _proof, true) {
     // Call `verifyAndGetSignal` function
-    vm.prank(offChainAgent);
+    bytes memory _data = abi.encode(_signal, _proof);
     baseTaiko.forTest_verifyAndGetSignal(_sourceChainId, _mirrorConnector, _data);
   }
 
@@ -114,28 +115,15 @@ contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
     bytes32 _signal,
     bytes memory _proof,
     bool _isReceived
-  ) public {
-    bytes memory _data = abi.encode(_signal, _proof);
-    // Mock the call over `isSignalReceived`
-    vm.mockCall(
-      signalService,
-      abi.encodeWithSelector(
-        ISignalService.isSignalReceived.selector,
-        _sourceChainId,
-        _mirrorConnector,
-        _signal,
-        _proof
-      ),
-      abi.encode(_isReceived)
-    );
-
+  ) public happyPath(_sourceChainId, _mirrorConnector, _signal, _proof, _isReceived) {
     // Call `verifyAndGetSignal` function
-    vm.prank(offChainAgent);
+    bytes memory _data = abi.encode(_signal, _proof);
     (bool _actualIsReceived, bytes32 _actualSignal) = baseTaiko.forTest_verifyAndGetSignal(
       _sourceChainId,
       _mirrorConnector,
       _data
     );
+
     // Assert the returned values are correct
     assertEq(_actualIsReceived, _isReceived);
     assertEq(_actualSignal, _signal);

@@ -9,9 +9,9 @@ import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
  */
 abstract contract BaseTaiko {
   /**
-   * @notice Constant used to represent the required length of a message
+   * @notice The root length in bytes for a message
    */
-  uint256 public constant MESSAGE_LENGTH = 32;
+  uint256 public constant ROOT_LENGTH = 32;
 
   /**
    * @notice Taiko Signal Service address
@@ -31,7 +31,7 @@ abstract contract BaseTaiko {
    * @return _validLength True if the message length is 32 bytes, false otherwise
    */
   function _checkMessageLength(bytes memory _data) internal pure returns (bool _validLength) {
-    _validLength = _data.length == MESSAGE_LENGTH;
+    _validLength = _data.length == ROOT_LENGTH;
   }
 
   /**
@@ -43,7 +43,7 @@ abstract contract BaseTaiko {
   }
 
   /**
-   * @notice Verifies if a signal was received or not
+   * @notice Verifies if a signal was received and returns it with the signal itself
    * @param _data Message data
    * @return _isReceived True if the signal was received, false otherwise
    * @return _signal The message that was sent

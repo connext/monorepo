@@ -19,9 +19,9 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
   error TaikoSpokeConnector_LengthIsNot32();
 
   /**
-   * @notice Thrown when the sender is not connext
+   * @notice Thrown when the `msg.sender` is not the allowed agent
    */
-  error TaikoSpokeConnector_SenderIsNotConnext();
+  error TaikoSpokeConnector_SenderNotAllowedAgent();
 
   /**
    * @notice Thrown when the message is not received on the destination chain yet
@@ -76,7 +76,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
-    if (!_verifySender(address(AMB))) revert TaikoSpokeConnector_SenderIsNotConnext();
+    if (!_verifySender(address(AMB))) revert TaikoSpokeConnector_SenderNotAllowedAgent();
     (bool _received, bytes32 _signal) = _verifyAndGetSignal(HUB_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoSpokeConnector_SignalNotReceived();
     receiveAggregateRoot(_signal);

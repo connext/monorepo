@@ -29,6 +29,7 @@ contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
 }
 
 contract Base is ConnectorHelper {
+  uint256 public constant ROOT_LENGTH = 32;
   uint256 public constant DELAY_BLOCKS = 0;
   uint256 public constant HUB_CHAIN_ID = 1;
 
@@ -90,23 +91,19 @@ contract Unit_Connector_TaikoSpokeConnector_RenounceOwnership is Base {
 }
 
 contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
-  function test_revertIfDataIsNot32Length(bytes memory _data) public {
-    vm.assume(_data.length != 32);
-    bytes memory _encodedData = "";
-
+  function test_revertIfDataIsNot32Length(bytes memory _data, bytes memory _encodedData) public {
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(user);
     vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_LengthIsNot32.selector);
     taikoSpokeConnector.forTest_sendMessage(_data, _encodedData);
   }
 
-  function test_callSendSignal(bytes32 _signal) public {
-    bytes memory _encodedData = "";
-    bytes memory _storageSlotResponse = abi.encode("storageSlot1");
+  function test_callSendSignal(bytes32 _signal, bytes memory _encodedData, bytes32 _storageSlotResponse) public {
     // Mock the call over `sendSignal` and expect it to be called
     _mockAndExpect(
       address(taikoSpokeConnector.TAIKO_SIGNAL_SERVICE()),
       abi.encodeWithSelector(ISignalService.sendSignal.selector, _signal),
-      _storageSlotResponse
+      abi.encode(_storageSlotResponse)
     );
 
     // Call `sendSignal` function
@@ -118,37 +115,21 @@ contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
 contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
-  function test_revertIfSenderIsNotConnext(address _sender, bytes memory _data) public {
+  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
     vm.assume(_sender != address(_amb));
     vm.prank(_sender);
-    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderIsNotConnext.selector);
+    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderNotAllowedAgent.selector);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
-  function test_callIsSignalReceived(bytes32 _signal, bytes memory _proof) public {
+  modifier happyPath(
+    bytes32 _signal,
+    bytes memory _proof,
+    bool _received
+  ) {
+    vm.assume(_signal != bytes32(0));
     // Mock the call over `verifyAndGetSignal` and expect it to be called
     _mockAndExpect(
-      taikoSignalService,
-      abi.encodeWithSelector(
-        ISignalService.isSignalReceived.selector,
-        taikoSpokeConnector.HUB_CHAIN_ID(),
-        _l1Connector,
-        _signal,
-        _proof
-      ),
-      abi.encode(true)
-    );
-
-    // Call `processMessage` function
-    bytes memory _data = abi.encode(_signal, _proof);
-    vm.prank(offChainAgent);
-    taikoSpokeConnector.forTest_processMessage(_data);
-  }
-
-  function test_revertIfSignalNotReceived(bytes32 _signal, bytes memory _proof) public {
-    // Mock the call over `verifyAndGetSignal`
-    bool _isReceived = false;
-    vm.mockCall(
       taikoSignalService,
       abi.encodeWithSelector(
         ISignalService.isSignalReceived.selector,
@@ -157,8 +138,22 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
         _signal,
         _proof
       ),
-      abi.encode(_isReceived)
+      abi.encode(_received)
     );
+    _;
+  }
+
+  function test_callIsSignalReceived(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
+    // Call `processMessage` function
+    bytes memory _data = abi.encode(_signal, _proof);
+    vm.prank(offChainAgent);
+    taikoSpokeConnector.forTest_processMessage(_data);
+  }
+
+  function test_revertIfSignalNotReceived(
+    bytes32 _signal,
+    bytes memory _proof
+  ) public happyPath(_signal, _proof, false) {
     // Expect revert since signal was not received
     vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SignalNotReceived.selector);
 
@@ -168,21 +163,7 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
-  function test_callAggregate(bytes32 _signal, bytes memory _proof) public {
-    vm.assume(_signal != bytes32(0));
-    // Mock the call over `verifyAndGetSignal`
-    vm.mockCall(
-      taikoSignalService,
-      abi.encodeWithSelector(
-        ISignalService.isSignalReceived.selector,
-        taikoSpokeConnector.HUB_CHAIN_ID(),
-        _l2Connector,
-        _signal,
-        _proof
-      ),
-      abi.encode(true)
-    );
-
+  function test_callAggregate(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
     // Expect AggregateRootReceived to be emitted
     vm.expectEmit(true, true, true, true);
     emit AggregateRootReceived(_signal);

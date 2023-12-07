@@ -8,7 +8,7 @@ contract Integration_Connector_TaikoHubConnector_SendMessage is Common {
     // Send message from the root manager
     vm.prank(address(rootManager));
     bytes32 _message = bytes32("aggregateRoot");
-    bytes memory _encodedData = "";
+    bytes memory _encodedData = abi.encode("encodedData");
     taikoHubConnector.sendMessage(abi.encode(_message), _encodedData);
 
     // Check is signal sent to be true
