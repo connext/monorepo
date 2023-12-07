@@ -626,7 +626,10 @@ export class SubgraphReader {
 
     // TODO: remove this once we have a subgraph solution for these chains
     if (txIdsByDestinationDomain.has("2053862260")) {
-      txIdsByDestinationDomain.delete("2053862260");
+      txIdsByDestinationDomain.delete("2053862260"); // zksync2-testnet
+    }
+    if (txIdsByDestinationDomain.has("1734439522")) {
+      txIdsByDestinationDomain.delete("1734439522"); // arb-goerli
     }
     if (txIdsByDestinationDomain.size == 0) return [];
     const destinationTransfersQuery = getDestinationTransfersByDomainAndIdsQuery(txIdsByDestinationDomain);
@@ -680,7 +683,10 @@ export class SubgraphReader {
 
     // TODO: remove this once we have a subgraph solution for these chains
     if (txIdsByDestinationDomain.has("2053862260")) {
-      txIdsByDestinationDomain.delete("2053862260");
+      txIdsByDestinationDomain.delete("2053862260"); // zksync2-testnet
+    }
+    if (txIdsByDestinationDomain.has("1734439522")) {
+      txIdsByDestinationDomain.delete("1734439522"); // arb-goerli
     }
     if (txIdsByDestinationDomain.size == 0) return [];
 
