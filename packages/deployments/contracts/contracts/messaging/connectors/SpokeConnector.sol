@@ -538,15 +538,14 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
    * @notice This dispatches outbound root to hub via AMB
    * @param _encodedData Data needed to send crosschain message by associated amb
    */
-  function send(bytes memory _encodedData) external payable whenNotPaused rateLimited {
+  function send(bytes memory _encodedData) external payable virtual whenNotPaused rateLimited {
     bytes32 root = MERKLE.root();
     require(sentMessageRoots[root] == false, "root already sent");
     // mark as sent
     sentMessageRoots[root] = true;
+
     // call internal function
-    bytes memory _data = abi.encodePacked(root);
-    _sendMessage(_data, _encodedData);
-    emit MessageSent(_data, _encodedData, msg.sender);
+    _sendRoot(root, _encodedData);
   }
 
   /**
@@ -747,6 +746,13 @@ abstract contract SpokeConnector is Connector, ConnectorManager, WatcherClient, 
   }
 
   // ============ Private Functions ============
+
+  function _sendRoot(bytes32 _root, bytes memory _encodedData) internal {
+    // call internal function
+    bytes memory _data = abi.encodePacked(_root);
+    _sendMessage(_data, _encodedData);
+    emit MessageSent(_data, _encodedData, msg.sender);
+  }
 
   /**
    * @notice Called to accept aggregate root dispatched from the RootManager on the hub.
