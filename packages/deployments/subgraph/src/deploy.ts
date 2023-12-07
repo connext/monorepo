@@ -152,7 +152,7 @@ const run = async () => {
       console.log("Skipping deployments");
     } else {
       console.log("Running Deployment command for " + n.network);
-      const { stdout, stderr } = await exec(`graph deploy --node https://graph-deploy.linea.build ${n.subgraphName}`);
+      const { stdout, stderr } = await exec(`graph deploy --product hosted-service ${n.subgraphName}`);
 
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
