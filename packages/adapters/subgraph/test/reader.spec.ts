@@ -730,7 +730,7 @@ describe("SubgraphReader", () => {
     it("should return the default value", async () => {
       const defaultMode = {
         id: "ROOT_MANAGER_MODE_ID",
-        mode: "SLOW_MODE",
+        mode: "OPTIMISTIC_MODE",
       };
       executeStub.resolves(response);
 
@@ -755,7 +755,7 @@ describe("SubgraphReader", () => {
     it("should return the default value", async () => {
       const defaultMode = {
         id: "CONNECTOR_MODE_ID",
-        mode: "SLOW_MODE",
+        mode: "OPTIMISTIC_MODE",
       };
       executeStub.resolves(response);
 
