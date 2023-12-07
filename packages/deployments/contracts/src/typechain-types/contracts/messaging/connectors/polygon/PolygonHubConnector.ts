@@ -44,6 +44,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processedExits(bytes32)": FunctionFragment;
+    "processedMessageRoots(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -72,6 +73,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "owner"
       | "processMessage"
       | "processedExits"
+      | "processedMessageRoots"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -123,6 +125,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "processedExits",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "processedMessageRoots",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -199,6 +205,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "processedExits",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "processedMessageRoots",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -402,6 +412,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -480,6 +495,11 @@ export interface PolygonHubConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  processedMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -552,6 +572,11 @@ export interface PolygonHubConnector extends BaseContract {
     ): Promise<void>;
 
     processedExits(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    processedMessageRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -701,6 +726,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -778,6 +808,11 @@ export interface PolygonHubConnector extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     processedExits(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    processedMessageRoots(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
