@@ -12,7 +12,7 @@ import {ISygmaConnector} from "./interfaces/ISygmaConnector.sol";
  */
 abstract contract BaseSygma is GasCap {
   /**
-   * @notice The length of the root
+   * @notice The length in bytes of the root
    */
   uint256 public constant ROOT_LENGTH = 32;
   /**

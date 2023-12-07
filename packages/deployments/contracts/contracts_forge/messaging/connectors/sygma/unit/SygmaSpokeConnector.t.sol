@@ -28,6 +28,8 @@ contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
 }
 
 contract Base is ConnectorHelper {
+  uint256 public constant ROOT_LENGTH = 32;
+
   address public user = makeAddr("user");
   address public permissionlessHandler = makeAddr("permissionlessHandler");
   address public watcherManager = makeAddr("watcherManager");
@@ -38,7 +40,7 @@ contract Base is ConnectorHelper {
   uint256 public disputeBlocks = 0;
   uint256 public minDisputeBlocks = 0;
 
-  function setUp() public {
+  function setUp() public virtual {
     _merkle = address(new MerkleTreeManager());
     SpokeConnector.ConstructorParams memory _constructorParams = SpokeConnector.ConstructorParams(
       _l2Domain,
@@ -87,8 +89,20 @@ contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
 contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
+  modifier happyPath(bytes32 _root) {
+    vm.assume(_root != bytes32(""));
+    _;
+  }
+
+  function setUp() public override {
+    super.setUp();
+    vm.startPrank(permissionlessHandler);
+  }
+
   function test_revertIfCallerNotHandler(address _caller, address _originSender, bytes32 _root) public {
     vm.assume(_caller != sygmaSpokeConnector.PERMISSIONLESS_HANDLER());
+    vm.stopPrank();
+    vm.prank(_caller);
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_OnlyPermissionedHandler.selector);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
@@ -96,35 +110,28 @@ contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
   function test_revertIfOriginNotMirror(address _originSender, bytes32 _root) public {
     vm.assume(_originSender != sygmaSpokeConnector.mirrorConnector());
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_SenderIsNotMirrorConnector.selector);
-    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 
-  function test_receiveAggregateRoot(uint256 _blockNumber, bytes32 _root) public {
-    vm.assume(_root != bytes32(""));
+  function test_receiveAggregateRoot(uint256 _blockNumber, bytes32 _root) public happyPath(_root) {
     vm.roll(_blockNumber);
     address _originSender = sygmaSpokeConnector.mirrorConnector();
-    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
     assertEq(sygmaSpokeConnector.pendingAggregateRoots(_root), _blockNumber);
   }
 
-  function test_emitEvent(bytes32 _root) public {
-    vm.assume(_root != bytes32(""));
+  function test_emitEvent(bytes32 _root) public happyPath(_root) {
     address _originSender = sygmaSpokeConnector.mirrorConnector();
-
     // Expect `AggregateRootReceived` event to be emitted with the root
     vm.expectEmit(true, true, true, true, address(sygmaSpokeConnector));
     emit AggregateRootReceived(_root);
-
-    vm.prank(permissionlessHandler);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 }
 
 contract Unit_Connector_SygmaSpokeConnector__SendMessage is Base {
   function test_revertIfDataLengthIsNot32(bytes memory _data, bytes memory _feeData) public {
-    vm.assume(_data.length != 32);
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_DataLengthIsNot32.selector);
     vm.prank(user);
     sygmaSpokeConnector.forTest_sendMessage(_data, _feeData);

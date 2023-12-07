@@ -12,28 +12,27 @@ contract Integration_Connector_SygmaHubConnector_ReceiveMessage is Common {
     bytes memory _prepareData = abi.encode(address(0), bytes32(_root));
     bytes memory _data = sygmaHubConnector.slice(_prepareData, 32);
 
-    /* Create a new proposal */
-    uint16 _lenFunctionSig = 4;
-    uint8 _lenAddress = 20;
+    // Get the proposal data
     bytes memory _proposalData = abi.encodePacked(
       // uint256 maxFee
       _gasCap,
       // uint16 len(executeFuncSignature)
-      _lenFunctionSig,
+      sygmaHubConnector.FUNCTION_SIG_LEN(),
       // bytes executeFuncSignature
       sygmaHubConnector.receiveMessage.selector,
       // uint8 len(executeContractAddress)
-      _lenAddress,
+      sygmaHubConnector.ADDRESS_LEN(),
       // bytes executeContractAddress
       address(sygmaHubConnector),
       // uint8 len(executionDataDepositor)
-      _lenAddress,
+      sygmaHubConnector.ADDRESS_LEN(),
       // bytes executionDataDepositor
       mirrorConnector,
       // bytes executionDataDepositor
       _data
     );
 
+    /* Create a new proposal */
     uint8 _cronosDomainId = 4;
     BridgeForTest.Proposal memory _proposal = BridgeForTest.Proposal({
       originDomainID: _cronosDomainId,
