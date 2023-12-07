@@ -332,6 +332,7 @@ export const hardhatNetworks = {
   "base-goerli": {
     accounts: { mnemonic },
     chainId: 84531,
+    gasPrice: utils.parseUnits("0.2", "gwei").toNumber(),
     url: urlOverride || process.env.BASE_GOERLI_PROVIDER_URL || "https://goerli.base.org",
     companionNetworks: {
       hub: "goerli",

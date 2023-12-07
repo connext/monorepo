@@ -287,6 +287,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       // https://community.optimism.io/docs/useful-tools/networks/#op-goerli
       84531: {
         prefix: "Optimism",
+        networkName: "Base",
         ambs: {
           // L1CrossDomainMessenger
           // https://goerli.etherscan.io/address/0x8e5693140eA606bcEB98761d9beB1BC87383706D
