@@ -91,9 +91,7 @@ export const processFromRoot = async () => {
 
   const { requestContext: _requestContext, methodContext } = createLoggingContext("processFromRoot");
   logger.info("processFromRoot method start", _requestContext, methodContext);
-  const unprocessed = (await database.getRootMessages(false)).filter(
-    (m) => m.spokeDomain !== "2053862260" && m.spokeDomain !== "1734439522",
-  );
+  const unprocessed = await database.getRootMessages(false);
   if (unprocessed.length > 0) {
     logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
   }
