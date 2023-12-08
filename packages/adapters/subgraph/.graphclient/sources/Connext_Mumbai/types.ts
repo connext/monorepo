@@ -28,6 +28,90 @@ export type mumbai_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type mumbai_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['mumbai_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type mumbai_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mumbai_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mumbai_AggregateRootProposed_filter>>>;
+};
+
+export type mumbai_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type mumbai_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -888,6 +972,60 @@ export type mumbai_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type mumbai_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['mumbai_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type mumbai_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mumbai_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mumbai_OptimisticRootFinalized_filter>>>;
+};
+
+export type mumbai_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type mumbai_OrderDirection =
   | 'asc'
@@ -1469,6 +1607,14 @@ export type Query = {
   mumbai_relayerFeesIncreases: Array<mumbai_RelayerFeesIncrease>;
   mumbai_slippageUpdate?: Maybe<mumbai_SlippageUpdate>;
   mumbai_slippageUpdates: Array<mumbai_SlippageUpdate>;
+  mumbai_snapshotRoot?: Maybe<mumbai_SnapshotRoot>;
+  mumbai_snapshotRoots: Array<mumbai_SnapshotRoot>;
+  mumbai_spokeConnectorMode?: Maybe<mumbai_SpokeConnectorMode>;
+  mumbai_spokeConnectorModes: Array<mumbai_SpokeConnectorMode>;
+  mumbai_aggregateRootProposed?: Maybe<mumbai_AggregateRootProposed>;
+  mumbai_aggregateRootProposeds: Array<mumbai_AggregateRootProposed>;
+  mumbai_optimisticRootFinalized?: Maybe<mumbai_OptimisticRootFinalized>;
+  mumbai_optimisticRootFinalizeds: Array<mumbai_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   mumbai__meta?: Maybe<mumbai__Meta_>;
 };
@@ -1811,6 +1957,78 @@ export type Querymumbai_slippageUpdatesArgs = {
   orderBy?: InputMaybe<mumbai_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<mumbai_OrderDirection>;
   where?: InputMaybe<mumbai_SlippageUpdate_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_SnapshotRoot_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_SpokeConnectorMode_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_AggregateRootProposed_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymumbai_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_OptimisticRootFinalized_filter>;
   block?: InputMaybe<mumbai_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2871,6 +3089,124 @@ export type mumbai_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type mumbai_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['mumbai_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mumbai_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mumbai_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mumbai_SnapshotRoot_filter>>>;
+};
+
+export type mumbai_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type mumbai_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type mumbai_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mumbai_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mumbai_SpokeConnectorMode_filter>>>;
+};
+
+export type mumbai_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   mumbai_asset?: Maybe<mumbai_Asset>;
   mumbai_assets: Array<mumbai_Asset>;
@@ -2910,6 +3246,14 @@ export type Subscription = {
   mumbai_relayerFeesIncreases: Array<mumbai_RelayerFeesIncrease>;
   mumbai_slippageUpdate?: Maybe<mumbai_SlippageUpdate>;
   mumbai_slippageUpdates: Array<mumbai_SlippageUpdate>;
+  mumbai_snapshotRoot?: Maybe<mumbai_SnapshotRoot>;
+  mumbai_snapshotRoots: Array<mumbai_SnapshotRoot>;
+  mumbai_spokeConnectorMode?: Maybe<mumbai_SpokeConnectorMode>;
+  mumbai_spokeConnectorModes: Array<mumbai_SpokeConnectorMode>;
+  mumbai_aggregateRootProposed?: Maybe<mumbai_AggregateRootProposed>;
+  mumbai_aggregateRootProposeds: Array<mumbai_AggregateRootProposed>;
+  mumbai_optimisticRootFinalized?: Maybe<mumbai_OptimisticRootFinalized>;
+  mumbai_optimisticRootFinalizeds: Array<mumbai_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   mumbai__meta?: Maybe<mumbai__Meta_>;
 };
@@ -3257,6 +3601,78 @@ export type Subscriptionmumbai_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionmumbai_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_SnapshotRoot_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_SpokeConnectorMode_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_AggregateRootProposed_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmumbai_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mumbai_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<mumbai_OrderDirection>;
+  where?: InputMaybe<mumbai_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<mumbai_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmumbai__metaArgs = {
   block?: InputMaybe<mumbai_Block_height>;
 };
@@ -3376,6 +3792,22 @@ export type _SubgraphErrorPolicy_ =
   mumbai_slippageUpdate: InContextSdkMethod<Query['mumbai_slippageUpdate'], Querymumbai_slippageUpdateArgs, MeshContext>,
   /** null **/
   mumbai_slippageUpdates: InContextSdkMethod<Query['mumbai_slippageUpdates'], Querymumbai_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  mumbai_snapshotRoot: InContextSdkMethod<Query['mumbai_snapshotRoot'], Querymumbai_snapshotRootArgs, MeshContext>,
+  /** null **/
+  mumbai_snapshotRoots: InContextSdkMethod<Query['mumbai_snapshotRoots'], Querymumbai_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  mumbai_spokeConnectorMode: InContextSdkMethod<Query['mumbai_spokeConnectorMode'], Querymumbai_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  mumbai_spokeConnectorModes: InContextSdkMethod<Query['mumbai_spokeConnectorModes'], Querymumbai_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  mumbai_aggregateRootProposed: InContextSdkMethod<Query['mumbai_aggregateRootProposed'], Querymumbai_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  mumbai_aggregateRootProposeds: InContextSdkMethod<Query['mumbai_aggregateRootProposeds'], Querymumbai_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  mumbai_optimisticRootFinalized: InContextSdkMethod<Query['mumbai_optimisticRootFinalized'], Querymumbai_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  mumbai_optimisticRootFinalizeds: InContextSdkMethod<Query['mumbai_optimisticRootFinalizeds'], Querymumbai_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mumbai__meta: InContextSdkMethod<Query['mumbai__meta'], Querymumbai__metaArgs, MeshContext>
   };
@@ -3461,6 +3893,22 @@ export type _SubgraphErrorPolicy_ =
   mumbai_slippageUpdate: InContextSdkMethod<Subscription['mumbai_slippageUpdate'], Subscriptionmumbai_slippageUpdateArgs, MeshContext>,
   /** null **/
   mumbai_slippageUpdates: InContextSdkMethod<Subscription['mumbai_slippageUpdates'], Subscriptionmumbai_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  mumbai_snapshotRoot: InContextSdkMethod<Subscription['mumbai_snapshotRoot'], Subscriptionmumbai_snapshotRootArgs, MeshContext>,
+  /** null **/
+  mumbai_snapshotRoots: InContextSdkMethod<Subscription['mumbai_snapshotRoots'], Subscriptionmumbai_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  mumbai_spokeConnectorMode: InContextSdkMethod<Subscription['mumbai_spokeConnectorMode'], Subscriptionmumbai_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  mumbai_spokeConnectorModes: InContextSdkMethod<Subscription['mumbai_spokeConnectorModes'], Subscriptionmumbai_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  mumbai_aggregateRootProposed: InContextSdkMethod<Subscription['mumbai_aggregateRootProposed'], Subscriptionmumbai_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  mumbai_aggregateRootProposeds: InContextSdkMethod<Subscription['mumbai_aggregateRootProposeds'], Subscriptionmumbai_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  mumbai_optimisticRootFinalized: InContextSdkMethod<Subscription['mumbai_optimisticRootFinalized'], Subscriptionmumbai_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  mumbai_optimisticRootFinalizeds: InContextSdkMethod<Subscription['mumbai_optimisticRootFinalizeds'], Subscriptionmumbai_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mumbai__meta: InContextSdkMethod<Subscription['mumbai__meta'], Subscriptionmumbai__metaArgs, MeshContext>
   };

@@ -18,6 +18,91 @@ type optimismgoerli_AggregateRoot {
   blockNumber: BigInt!
 }
 
+type optimismgoerli_AggregateRootProposed {
+  id: ID!
+  aggregateRoot: optimismgoerli_Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+input optimismgoerli_AggregateRootProposed_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: optimismgoerli_Bytes
+  aggregateRoot_not: optimismgoerli_Bytes
+  aggregateRoot_gt: optimismgoerli_Bytes
+  aggregateRoot_lt: optimismgoerli_Bytes
+  aggregateRoot_gte: optimismgoerli_Bytes
+  aggregateRoot_lte: optimismgoerli_Bytes
+  aggregateRoot_in: [optimismgoerli_Bytes!]
+  aggregateRoot_not_in: [optimismgoerli_Bytes!]
+  aggregateRoot_contains: optimismgoerli_Bytes
+  aggregateRoot_not_contains: optimismgoerli_Bytes
+  rootTimestamp: BigInt
+  rootTimestamp_not: BigInt
+  rootTimestamp_gt: BigInt
+  rootTimestamp_lt: BigInt
+  rootTimestamp_gte: BigInt
+  rootTimestamp_lte: BigInt
+  rootTimestamp_in: [BigInt!]
+  rootTimestamp_not_in: [BigInt!]
+  endOfDispute: BigInt
+  endOfDispute_not: BigInt
+  endOfDispute_gt: BigInt
+  endOfDispute_lt: BigInt
+  endOfDispute_gte: BigInt
+  endOfDispute_lte: BigInt
+  endOfDispute_in: [BigInt!]
+  endOfDispute_not_in: [BigInt!]
+  domain: BigInt
+  domain_not: BigInt
+  domain_gt: BigInt
+  domain_lt: BigInt
+  domain_gte: BigInt
+  domain_lte: BigInt
+  domain_in: [BigInt!]
+  domain_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+  and: [optimismgoerli_AggregateRootProposed_filter]
+  or: [optimismgoerli_AggregateRootProposed_filter]
+}
+
+enum optimismgoerli_AggregateRootProposed_orderBy {
+  id
+  aggregateRoot
+  rootTimestamp
+  endOfDispute
+  domain
+  timestamp
+  blockNumber
+}
+
 input optimismgoerli_AggregateRoot_filter {
   id: ID
   id_not: ID
@@ -886,6 +971,61 @@ enum optimismgoerli_DestinationTransfer_orderBy {
 
 """
 scalar optimismgoerli_Int8
+
+type optimismgoerli_OptimisticRootFinalized {
+  id: ID!
+  aggregateRoot: optimismgoerli_Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+input optimismgoerli_OptimisticRootFinalized_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  aggregateRoot: optimismgoerli_Bytes
+  aggregateRoot_not: optimismgoerli_Bytes
+  aggregateRoot_gt: optimismgoerli_Bytes
+  aggregateRoot_lt: optimismgoerli_Bytes
+  aggregateRoot_gte: optimismgoerli_Bytes
+  aggregateRoot_lte: optimismgoerli_Bytes
+  aggregateRoot_in: [optimismgoerli_Bytes!]
+  aggregateRoot_not_in: [optimismgoerli_Bytes!]
+  aggregateRoot_contains: optimismgoerli_Bytes
+  aggregateRoot_not_contains: optimismgoerli_Bytes
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+  and: [optimismgoerli_OptimisticRootFinalized_filter]
+  or: [optimismgoerli_OptimisticRootFinalized_filter]
+}
+
+enum optimismgoerli_OptimisticRootFinalized_orderBy {
+  id
+  aggregateRoot
+  timestamp
+  blockNumber
+}
 
 """Defines the order direction, either ascending or descending"""
 enum optimismgoerli_OrderDirection {
@@ -1918,6 +2058,110 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_SlippageUpdate!]!
+  optimismgoerli_snapshotRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SnapshotRoot
+  optimismgoerli_snapshotRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SnapshotRoot_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SnapshotRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SnapshotRoot!]!
+  optimismgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SpokeConnectorMode
+  optimismgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SpokeConnectorMode_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SpokeConnectorMode!]!
+  optimismgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_AggregateRootProposed
+  optimismgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_AggregateRootProposed_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_AggregateRootProposed!]!
+  optimismgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_OptimisticRootFinalized
+  optimismgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
 }
@@ -2976,6 +3220,126 @@ enum optimismgoerli_SlippageUpdate_orderBy {
   blockNumber
 }
 
+type optimismgoerli_SnapshotRoot {
+  id: ID!
+  spokeDomain: BigInt
+  root: optimismgoerli_Bytes!
+  count: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+input optimismgoerli_SnapshotRoot_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  spokeDomain: BigInt
+  spokeDomain_not: BigInt
+  spokeDomain_gt: BigInt
+  spokeDomain_lt: BigInt
+  spokeDomain_gte: BigInt
+  spokeDomain_lte: BigInt
+  spokeDomain_in: [BigInt!]
+  spokeDomain_not_in: [BigInt!]
+  root: optimismgoerli_Bytes
+  root_not: optimismgoerli_Bytes
+  root_gt: optimismgoerli_Bytes
+  root_lt: optimismgoerli_Bytes
+  root_gte: optimismgoerli_Bytes
+  root_lte: optimismgoerli_Bytes
+  root_in: [optimismgoerli_Bytes!]
+  root_not_in: [optimismgoerli_Bytes!]
+  root_contains: optimismgoerli_Bytes
+  root_not_contains: optimismgoerli_Bytes
+  count: BigInt
+  count_not: BigInt
+  count_gt: BigInt
+  count_lt: BigInt
+  count_gte: BigInt
+  count_lte: BigInt
+  count_in: [BigInt!]
+  count_not_in: [BigInt!]
+  timestamp: BigInt
+  timestamp_not: BigInt
+  timestamp_gt: BigInt
+  timestamp_lt: BigInt
+  timestamp_gte: BigInt
+  timestamp_lte: BigInt
+  timestamp_in: [BigInt!]
+  timestamp_not_in: [BigInt!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+  and: [optimismgoerli_SnapshotRoot_filter]
+  or: [optimismgoerli_SnapshotRoot_filter]
+}
+
+enum optimismgoerli_SnapshotRoot_orderBy {
+  id
+  spokeDomain
+  root
+  count
+  timestamp
+  blockNumber
+}
+
+type optimismgoerli_SpokeConnectorMode {
+  id: ID!
+  mode: String!
+}
+
+input optimismgoerli_SpokeConnectorMode_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  mode: String
+  mode_not: String
+  mode_gt: String
+  mode_lt: String
+  mode_gte: String
+  mode_lte: String
+  mode_in: [String!]
+  mode_not_in: [String!]
+  mode_contains: String
+  mode_contains_nocase: String
+  mode_not_contains: String
+  mode_not_contains_nocase: String
+  mode_starts_with: String
+  mode_starts_with_nocase: String
+  mode_not_starts_with: String
+  mode_not_starts_with_nocase: String
+  mode_ends_with: String
+  mode_ends_with_nocase: String
+  mode_not_ends_with: String
+  mode_not_ends_with_nocase: String
+  """Filter for the block changed event."""
+  _change_block: optimismgoerli_BlockChangedFilter
+  and: [optimismgoerli_SpokeConnectorMode_filter]
+  or: [optimismgoerli_SpokeConnectorMode_filter]
+}
+
+enum optimismgoerli_SpokeConnectorMode_orderBy {
+  id
+  mode
+}
+
 type Subscription {
   optimismgoerli_asset(
     id: ID!
@@ -3471,6 +3835,110 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [optimismgoerli_SlippageUpdate!]!
+  optimismgoerli_snapshotRoot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SnapshotRoot
+  optimismgoerli_snapshotRoots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SnapshotRoot_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SnapshotRoot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SnapshotRoot!]!
+  optimismgoerli_spokeConnectorMode(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_SpokeConnectorMode
+  optimismgoerli_spokeConnectorModes(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_SpokeConnectorMode_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_SpokeConnectorMode_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_SpokeConnectorMode!]!
+  optimismgoerli_aggregateRootProposed(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_AggregateRootProposed
+  optimismgoerli_aggregateRootProposeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_AggregateRootProposed_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_AggregateRootProposed_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_AggregateRootProposed!]!
+  optimismgoerli_optimisticRootFinalized(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): optimismgoerli_OptimisticRootFinalized
+  optimismgoerli_optimisticRootFinalizeds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: optimismgoerli_OptimisticRootFinalized_orderBy
+    orderDirection: optimismgoerli_OrderDirection
+    where: optimismgoerli_OptimisticRootFinalized_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: optimismgoerli_Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [optimismgoerli_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
   optimismgoerli__meta(block: optimismgoerli_Block_height): optimismgoerli__Meta_
 }
