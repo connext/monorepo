@@ -337,6 +337,34 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // Taiko testnet Sepolia-Taiko Joinr L2
+      167007: {
+        prefix: "Taiko",
+        networkName: "Sepolia",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          hub: "",
+          spoke: "",
+        },
+
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"), // The test thrown 21_628 as gas needed. So 200_000 is almost 10x to be safe.
+            // Sepolia SignalService
+            // https://sepolia.etherscan.io/address/0xcD5e2bebd3DfE46e4BF96aE2ac7B89B22cc6a982
+            taikoSignalService: "0xcD5e2bebd3DfE46e4BF96aE2ac7B89B22cc6a982",
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+            // Taiko Joinr SignalService
+            // https://explorer.jolnir.taiko.xyz/address/0x1000777700000000000000000000000000000007
+            taikoSignalService: "0x1000777700000000000000000000000000000007",
+          },
+        },
+      },
     },
   },
   mainnet: {
