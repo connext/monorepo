@@ -136,6 +136,17 @@ type LineaConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# BASE
+type BaseConnectorMeta @entity {
+  id: ID! # "BaseConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
