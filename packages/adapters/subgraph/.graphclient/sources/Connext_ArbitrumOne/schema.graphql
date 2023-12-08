@@ -61,7 +61,6 @@ type arbitrumone_Asset {
   id: ID!
   key: arbitrumone_Bytes
   decimal: BigInt
-  adoptedDecimal: BigInt
   canonicalId: arbitrumone_Bytes
   canonicalDomain: BigInt
   adoptedAsset: arbitrumone_Bytes
@@ -195,7 +194,6 @@ enum arbitrumone_AssetBalance_orderBy {
   asset__id
   asset__key
   asset__decimal
-  asset__adoptedDecimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -260,14 +258,6 @@ input arbitrumone_Asset_filter {
   decimal_lte: BigInt
   decimal_in: [BigInt!]
   decimal_not_in: [BigInt!]
-  adoptedDecimal: BigInt
-  adoptedDecimal_not: BigInt
-  adoptedDecimal_gt: BigInt
-  adoptedDecimal_lt: BigInt
-  adoptedDecimal_gte: BigInt
-  adoptedDecimal_lte: BigInt
-  adoptedDecimal_in: [BigInt!]
-  adoptedDecimal_not_in: [BigInt!]
   canonicalId: arbitrumone_Bytes
   canonicalId_not: arbitrumone_Bytes
   canonicalId_gt: arbitrumone_Bytes
@@ -345,7 +335,6 @@ enum arbitrumone_Asset_orderBy {
   id
   key
   decimal
-  adoptedDecimal
   canonicalId
   canonicalDomain
   adoptedAsset
@@ -855,7 +844,6 @@ enum arbitrumone_DestinationTransfer_orderBy {
   asset__id
   asset__key
   asset__decimal
-  asset__adoptedDecimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1393,7 +1381,6 @@ enum arbitrumone_OriginTransfer_orderBy {
   asset__id
   asset__key
   asset__decimal
-  asset__adoptedDecimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -1554,32 +1541,6 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [arbitrumone_RouterDailyTVL!]!
-  arbitrumone_routerLiquidityEvent(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: arbitrumone_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): arbitrumone_RouterLiquidityEvent
-  arbitrumone_routerLiquidityEvents(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: arbitrumone_RouterLiquidityEvent_orderBy
-    orderDirection: arbitrumone_OrderDirection
-    where: arbitrumone_RouterLiquidityEvent_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: arbitrumone_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [arbitrumone_RouterLiquidityEvent!]!
   arbitrumone_setting(
     id: ID!
     """
@@ -2487,7 +2448,6 @@ enum arbitrumone_RouterDailyTVL_orderBy {
   asset__id
   asset__key
   asset__decimal
-  asset__adoptedDecimal
   asset__canonicalId
   asset__canonicalDomain
   asset__adoptedAsset
@@ -2495,175 +2455,6 @@ enum arbitrumone_RouterDailyTVL_orderBy {
   asset__blockNumber
   timestamp
   balance
-}
-
-type arbitrumone_RouterLiquidityEvent {
-  id: ID!
-  type: arbitrumone_RouterLiquidityEventType
-  router: arbitrumone_Router!
-  asset: arbitrumone_Asset!
-  amount: BigInt!
-  balance: BigInt!
-  caller: arbitrumone_Bytes
-  blockNumber: BigInt!
-  timestamp: BigInt!
-  transactionHash: arbitrumone_Bytes!
-  nonce: BigInt!
-}
-
-enum arbitrumone_RouterLiquidityEventType {
-  Add
-  Remove
-}
-
-input arbitrumone_RouterLiquidityEvent_filter {
-  id: ID
-  id_not: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  type: arbitrumone_RouterLiquidityEventType
-  type_not: arbitrumone_RouterLiquidityEventType
-  type_in: [arbitrumone_RouterLiquidityEventType!]
-  type_not_in: [arbitrumone_RouterLiquidityEventType!]
-  router: String
-  router_not: String
-  router_gt: String
-  router_lt: String
-  router_gte: String
-  router_lte: String
-  router_in: [String!]
-  router_not_in: [String!]
-  router_contains: String
-  router_contains_nocase: String
-  router_not_contains: String
-  router_not_contains_nocase: String
-  router_starts_with: String
-  router_starts_with_nocase: String
-  router_not_starts_with: String
-  router_not_starts_with_nocase: String
-  router_ends_with: String
-  router_ends_with_nocase: String
-  router_not_ends_with: String
-  router_not_ends_with_nocase: String
-  router_: arbitrumone_Router_filter
-  asset: String
-  asset_not: String
-  asset_gt: String
-  asset_lt: String
-  asset_gte: String
-  asset_lte: String
-  asset_in: [String!]
-  asset_not_in: [String!]
-  asset_contains: String
-  asset_contains_nocase: String
-  asset_not_contains: String
-  asset_not_contains_nocase: String
-  asset_starts_with: String
-  asset_starts_with_nocase: String
-  asset_not_starts_with: String
-  asset_not_starts_with_nocase: String
-  asset_ends_with: String
-  asset_ends_with_nocase: String
-  asset_not_ends_with: String
-  asset_not_ends_with_nocase: String
-  asset_: arbitrumone_Asset_filter
-  amount: BigInt
-  amount_not: BigInt
-  amount_gt: BigInt
-  amount_lt: BigInt
-  amount_gte: BigInt
-  amount_lte: BigInt
-  amount_in: [BigInt!]
-  amount_not_in: [BigInt!]
-  balance: BigInt
-  balance_not: BigInt
-  balance_gt: BigInt
-  balance_lt: BigInt
-  balance_gte: BigInt
-  balance_lte: BigInt
-  balance_in: [BigInt!]
-  balance_not_in: [BigInt!]
-  caller: arbitrumone_Bytes
-  caller_not: arbitrumone_Bytes
-  caller_gt: arbitrumone_Bytes
-  caller_lt: arbitrumone_Bytes
-  caller_gte: arbitrumone_Bytes
-  caller_lte: arbitrumone_Bytes
-  caller_in: [arbitrumone_Bytes!]
-  caller_not_in: [arbitrumone_Bytes!]
-  caller_contains: arbitrumone_Bytes
-  caller_not_contains: arbitrumone_Bytes
-  blockNumber: BigInt
-  blockNumber_not: BigInt
-  blockNumber_gt: BigInt
-  blockNumber_lt: BigInt
-  blockNumber_gte: BigInt
-  blockNumber_lte: BigInt
-  blockNumber_in: [BigInt!]
-  blockNumber_not_in: [BigInt!]
-  timestamp: BigInt
-  timestamp_not: BigInt
-  timestamp_gt: BigInt
-  timestamp_lt: BigInt
-  timestamp_gte: BigInt
-  timestamp_lte: BigInt
-  timestamp_in: [BigInt!]
-  timestamp_not_in: [BigInt!]
-  transactionHash: arbitrumone_Bytes
-  transactionHash_not: arbitrumone_Bytes
-  transactionHash_gt: arbitrumone_Bytes
-  transactionHash_lt: arbitrumone_Bytes
-  transactionHash_gte: arbitrumone_Bytes
-  transactionHash_lte: arbitrumone_Bytes
-  transactionHash_in: [arbitrumone_Bytes!]
-  transactionHash_not_in: [arbitrumone_Bytes!]
-  transactionHash_contains: arbitrumone_Bytes
-  transactionHash_not_contains: arbitrumone_Bytes
-  nonce: BigInt
-  nonce_not: BigInt
-  nonce_gt: BigInt
-  nonce_lt: BigInt
-  nonce_gte: BigInt
-  nonce_lte: BigInt
-  nonce_in: [BigInt!]
-  nonce_not_in: [BigInt!]
-  """Filter for the block changed event."""
-  _change_block: arbitrumone_BlockChangedFilter
-  and: [arbitrumone_RouterLiquidityEvent_filter]
-  or: [arbitrumone_RouterLiquidityEvent_filter]
-}
-
-enum arbitrumone_RouterLiquidityEvent_orderBy {
-  id
-  type
-  router
-  router__id
-  router__isActive
-  router__owner
-  router__recipient
-  router__proposedOwner
-  router__proposedTimestamp
-  asset
-  asset__id
-  asset__key
-  asset__decimal
-  asset__adoptedDecimal
-  asset__canonicalId
-  asset__canonicalDomain
-  asset__adoptedAsset
-  asset__localAsset
-  asset__blockNumber
-  amount
-  balance
-  caller
-  blockNumber
-  timestamp
-  transactionHash
-  nonce
 }
 
 input arbitrumone_Router_filter {
@@ -3107,32 +2898,6 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [arbitrumone_RouterDailyTVL!]!
-  arbitrumone_routerLiquidityEvent(
-    id: ID!
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: arbitrumone_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): arbitrumone_RouterLiquidityEvent
-  arbitrumone_routerLiquidityEvents(
-    skip: Int = 0
-    first: Int = 100
-    orderBy: arbitrumone_RouterLiquidityEvent_orderBy
-    orderDirection: arbitrumone_OrderDirection
-    where: arbitrumone_RouterLiquidityEvent_filter
-    """
-    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
-    """
-    block: arbitrumone_Block_height
-    """
-    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
-    """
-    subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [arbitrumone_RouterLiquidityEvent!]!
   arbitrumone_setting(
     id: ID!
     """
