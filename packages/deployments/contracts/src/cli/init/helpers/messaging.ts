@@ -10,30 +10,15 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
 
   /// MARK - Contracts
   // Convenience setup for contracts.
-  const {
-    RootManager,
-    MainnetConnector,
-    HubConnectors,
-    MerkleTreeManagerForRoot,
-    MerkleTreeManagerForSpoke,
-    RelayerProxy,
-  } = hub.deployments.messaging as HubMessagingDeployments;
+  const { RootManager, MainnetConnector, HubConnectors, MerkleTreeManagerForRoot, MerkleTreeManagerForSpoke } = hub
+    .deployments.messaging as HubMessagingDeployments;
 
   /// ******************** MESSAGING ********************
   /// MARK - Init
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
   // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
-
-  // Set hub domain to the root manager, mandatorily requires since Op Roots v1.1
   console.log("\n\nMESSAGING");
-  await updateIfNeeded({
-    apply,
-    deployment: RootManager,
-    desired: +protocol.hub,
-    read: { method: "hubDomain" },
-    write: { method: "setHubDomain", args: [protocol.hub] },
-  });
 
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
@@ -53,8 +38,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           throw new Error("Mirror domain was hub? Bruh");
         }
         // foundMirror = true;
-        const { SpokeConnector, MerkleTreeManager, RelayerProxy } = spoke.deployments
-          .messaging as SpokeMessagingDeployments;
+        const { SpokeConnector, MerkleTreeManager } = spoke.deployments.messaging as SpokeMessagingDeployments;
 
         console.log(`\tVerifying connection: ${hub.chain}<>${spoke.chain}:`);
 
@@ -217,6 +201,16 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: MainnetConnector.address,
     read: { method: "getConnectorForDomain", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
+  });
+
+  /// MARK - Set Hub Domain (must happen after domain is supported)
+  // Set hub domain to the root manager, mandatorily requires since Op Roots v1.1
+  await updateIfNeeded({
+    apply,
+    deployment: RootManager,
+    desired: +protocol.hub,
+    read: { method: "hubDomain" },
+    write: { method: "setHubDomain", args: [protocol.hub] },
   });
 
   await updateIfNeeded({
