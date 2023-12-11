@@ -44,8 +44,8 @@ export const waitForTx = async (
   return { receipt, result: value };
 };
 
-export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
-  const { deployment, read: _read, write: _write, desired, chainData, apply } = schema;
+export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<void> => {
+  const { deployment, read: _read, write: _write, desired, chainData, apply, auth: _auth } = schema;
   let { contract } = deployment;
 
   // Check if desired is defined
@@ -66,6 +66,13 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
           args: _read.args ?? [],
         };
 
+  const auth = _auth
+    ? {
+        ..._auth,
+        args: _auth.args ?? [],
+      }
+    : undefined;
+
   // Sanity check: contract has methods.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
   if (!callable.includes(read.method)) {
@@ -81,16 +88,20 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
     contract = new Contract(contract.address, deployment.abi, contract.provider);
   }
 
-  const readCall = async (): Promise<T> => {
-    return await contract.callStatic[read.method](...read.args);
+  const readCall = async <T = string>(method: string, args: any[]): Promise<T> => {
+    return await contract.callStatic[method](...args);
   };
+
   const writeCall = async (chain: number): Promise<providers.TransactionResponse | undefined> => {
+    const authed = auth ? auth.eval(await readCall(auth.method, auth.args)) : true;
     const tx = {
       to: contract.address,
       data: contract.interface.encodeFunctionData(write.method, write.args),
       chain,
+      from: authed ? await contract.signer.getAddress() : undefined,
     };
-    if (!apply) {
+
+    if (!apply || !authed) {
       log.info.tx({ ...tx, deployment, chain, call: write });
       return;
     }
@@ -122,7 +133,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
   if (desiredExists) {
     try {
-      value = await readCall();
+      value = await readCall(read.method, read.args);
       if (typeof desired === "string" && typeof value === "string") {
         valid = value.toLowerCase() === desired.toLowerCase();
       } else {
@@ -146,7 +157,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
 
     if (desiredExists) {
       waitForTxParam.checkResult = {
-        method: readCall,
+        method: () => readCall(read.method, read.args),
         desired,
       };
     }
