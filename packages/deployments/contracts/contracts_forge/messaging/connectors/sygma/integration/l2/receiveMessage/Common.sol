@@ -11,7 +11,7 @@ import {SygmaSpokeConnector} from "../../../../../../../contracts/messaging/conn
 import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
 
 contract Common is ConnectorHelper {
-  uint256 internal constant _FORK_BLOCK = 7_497_107;
+  uint256 internal constant _FORK_BLOCK = 11_557_705;
 
   uint32 public constant DOMAIN = 100; // Base
   uint32 public constant MIRROR_DOMAIN = 1; // Ethereum

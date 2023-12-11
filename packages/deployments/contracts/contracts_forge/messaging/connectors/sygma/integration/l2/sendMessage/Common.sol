@@ -11,7 +11,7 @@ import {IBridge} from "../../../../../../../contracts/messaging/interfaces/ambs/
 import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/ambs/sygma/IFeeRouter.sol";
 
 contract Common is ConnectorHelper {
-  uint256 internal constant _FORK_BLOCK = 11_470_523;
+  uint256 internal constant _FORK_BLOCK = 11_557_705;
 
   uint32 public constant DOMAIN = 100; // CRONOS
   uint32 public constant MIRROR_DOMAIN = 1; // Ethereum
