@@ -442,27 +442,21 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         if (protocol.agents.watchers.allowlist) {
           console.log("\n\nWHITELIST WATCHERS");
 
-          // Get hub domain for specific use.
-          const hub: NetworkStack = protocol.networks.filter((d) => d.domain === protocol.hub)[0];
-
-          /// MARK - Contracts
-          // Convenience setup for contracts.
-          const { WatcherManager } = hub.deployments.messaging as HubMessagingDeployments;
-
           // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-          // Allowlist watchers in RootManager.
+          // Allowlist watchers in WatcherManager + Connext.
           for (const watcher of protocol.agents.watchers.allowlist) {
-            await updateIfNeeded({
-              apply,
-              deployment: WatcherManager,
-              desired: true,
-              read: { method: "isWatcher", args: [watcher] },
-              write: { method: "addWatcher", args: [watcher] },
-              chainData,
-            });
-
-            // Whitelist on execution layer as well
             for (const network of protocol.networks) {
+              // Messaging layer watchers
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.messaging.WatcherManager,
+                desired: true,
+                read: { method: "isWatcher", args: [watcher] },
+                write: { method: "addWatcher", args: [watcher] },
+                chainData,
+              });
+
+              // Execution layer watchers
               await updateIfNeeded({
                 apply,
                 deployment: network.deployments.Connext,
@@ -510,16 +504,17 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         });
       };
 
+      // Allowlist proxy address as proposer
       for (const network of protocol.networks) {
         console.log("\tVerifying RelayerProxies are set as proposers.");
         await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
       }
 
+      // Allowlist named proposers.
       if (protocol.agents.proposers?.allowlist) {
-        // Allowlist named proposers.
         for (const proposer of protocol.agents.proposers.allowlist) {
           for (const network of protocol.networks) {
-            await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+            await whitelistProposerOnRootAndSpoke(proposer, network);
           }
 
           // TODO: Blacklist/remove proposers.
