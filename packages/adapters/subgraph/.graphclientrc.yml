@@ -212,6 +212,22 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
+  - name: Connext_BaseGoerli
+    handler:
+      graphql:
+        endpoint: "https://api.studio.thegraph.com/query/51161/connext-rumtime-v0-base-goerli/version/latest"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: basegoerli_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   - name: StableSwap_Goerli
     handler:
       graphql:
