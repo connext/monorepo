@@ -518,14 +518,15 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
       };
 
       // Allowlist proxy address as proposer
+      console.log("\tVerifying RelayerProxies are set as proposers.");
       for (const network of protocol.networks) {
-        console.log("\tVerifying RelayerProxies are set as proposers.");
         await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
       }
 
       // Allowlist named proposers.
       if (protocol.agents.proposers?.allowlist) {
         for (const proposer of protocol.agents.proposers.allowlist) {
+          console.log("\tVerifying agents are set as proposers.");
           for (const network of protocol.networks) {
             await whitelistProposerOnRootAndSpoke(proposer, network);
           }
