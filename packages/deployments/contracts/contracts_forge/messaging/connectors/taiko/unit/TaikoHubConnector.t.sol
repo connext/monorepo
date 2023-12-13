@@ -122,8 +122,9 @@ contract Unit_Connector_TaikoHubConnector_ProcessMessage is Base {
     _;
   }
 
-  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
+  function test_revertIfSenderNotAgent(address _sender, bytes32 signal, bytes memory _proof) public {
     vm.assume(_sender != address(_amb));
+    bytes memory _data = abi.encode(signal, _proof);
     vm.expectRevert(TaikoHubConnector.TaikoHubConnector_SenderNotAllowedAgent.selector);
     vm.prank(_sender);
     taikoHubConnector.forTest_processMessage(_data);

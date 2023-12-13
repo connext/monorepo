@@ -115,9 +115,9 @@ contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
 contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
-  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
+  function test_revertIfSenderNotAgent(address _sender, bytes32 signal, bytes memory _proof) public {
     vm.assume(_sender != address(_amb));
-    vm.prank(_sender);
+    bytes memory _data = abi.encode(signal, _proof);
     vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderNotAllowedAgent.selector);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
