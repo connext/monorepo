@@ -28,6 +28,90 @@ export type mainnet_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type mainnet_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['mainnet_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type mainnet_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_AggregateRootProposed_filter>>>;
+};
+
+export type mainnet_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type mainnet_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -888,6 +972,60 @@ export type mainnet_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type mainnet_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['mainnet_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type mainnet_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootFinalized_filter>>>;
+};
+
+export type mainnet_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type mainnet_OrderDirection =
   | 'asc'
@@ -1469,6 +1607,14 @@ export type Query = {
   mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
   mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
   mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
+  mainnet_snapshotRoot?: Maybe<mainnet_SnapshotRoot>;
+  mainnet_snapshotRoots: Array<mainnet_SnapshotRoot>;
+  mainnet_spokeConnectorMode?: Maybe<mainnet_SpokeConnectorMode>;
+  mainnet_spokeConnectorModes: Array<mainnet_SpokeConnectorMode>;
+  mainnet_aggregateRootProposed?: Maybe<mainnet_AggregateRootProposed>;
+  mainnet_aggregateRootProposeds: Array<mainnet_AggregateRootProposed>;
+  mainnet_optimisticRootFinalized?: Maybe<mainnet_OptimisticRootFinalized>;
+  mainnet_optimisticRootFinalizeds: Array<mainnet_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -1811,6 +1957,78 @@ export type Querymainnet_slippageUpdatesArgs = {
   orderBy?: InputMaybe<mainnet_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<mainnet_OrderDirection>;
   where?: InputMaybe<mainnet_SlippageUpdate_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SnapshotRoot_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SpokeConnectorMode_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_AggregateRootProposed_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querymainnet_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_OptimisticRootFinalized_filter>;
   block?: InputMaybe<mainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2871,6 +3089,124 @@ export type mainnet_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type mainnet_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['mainnet_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type mainnet_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_SnapshotRoot_filter>>>;
+};
+
+export type mainnet_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type mainnet_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type mainnet_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<mainnet_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<mainnet_SpokeConnectorMode_filter>>>;
+};
+
+export type mainnet_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   mainnet_asset?: Maybe<mainnet_Asset>;
   mainnet_assets: Array<mainnet_Asset>;
@@ -2910,6 +3246,14 @@ export type Subscription = {
   mainnet_relayerFeesIncreases: Array<mainnet_RelayerFeesIncrease>;
   mainnet_slippageUpdate?: Maybe<mainnet_SlippageUpdate>;
   mainnet_slippageUpdates: Array<mainnet_SlippageUpdate>;
+  mainnet_snapshotRoot?: Maybe<mainnet_SnapshotRoot>;
+  mainnet_snapshotRoots: Array<mainnet_SnapshotRoot>;
+  mainnet_spokeConnectorMode?: Maybe<mainnet_SpokeConnectorMode>;
+  mainnet_spokeConnectorModes: Array<mainnet_SpokeConnectorMode>;
+  mainnet_aggregateRootProposed?: Maybe<mainnet_AggregateRootProposed>;
+  mainnet_aggregateRootProposeds: Array<mainnet_AggregateRootProposed>;
+  mainnet_optimisticRootFinalized?: Maybe<mainnet_OptimisticRootFinalized>;
+  mainnet_optimisticRootFinalizeds: Array<mainnet_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   mainnet__meta?: Maybe<mainnet__Meta_>;
 };
@@ -3257,6 +3601,78 @@ export type Subscriptionmainnet_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionmainnet_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SnapshotRoot_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_SpokeConnectorMode_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_AggregateRootProposed_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionmainnet_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<mainnet_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<mainnet_OrderDirection>;
+  where?: InputMaybe<mainnet_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<mainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionmainnet__metaArgs = {
   block?: InputMaybe<mainnet_Block_height>;
 };
@@ -3376,6 +3792,22 @@ export type _SubgraphErrorPolicy_ =
   mainnet_slippageUpdate: InContextSdkMethod<Query['mainnet_slippageUpdate'], Querymainnet_slippageUpdateArgs, MeshContext>,
   /** null **/
   mainnet_slippageUpdates: InContextSdkMethod<Query['mainnet_slippageUpdates'], Querymainnet_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  mainnet_snapshotRoot: InContextSdkMethod<Query['mainnet_snapshotRoot'], Querymainnet_snapshotRootArgs, MeshContext>,
+  /** null **/
+  mainnet_snapshotRoots: InContextSdkMethod<Query['mainnet_snapshotRoots'], Querymainnet_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  mainnet_spokeConnectorMode: InContextSdkMethod<Query['mainnet_spokeConnectorMode'], Querymainnet_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  mainnet_spokeConnectorModes: InContextSdkMethod<Query['mainnet_spokeConnectorModes'], Querymainnet_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  mainnet_aggregateRootProposed: InContextSdkMethod<Query['mainnet_aggregateRootProposed'], Querymainnet_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  mainnet_aggregateRootProposeds: InContextSdkMethod<Query['mainnet_aggregateRootProposeds'], Querymainnet_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  mainnet_optimisticRootFinalized: InContextSdkMethod<Query['mainnet_optimisticRootFinalized'], Querymainnet_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  mainnet_optimisticRootFinalizeds: InContextSdkMethod<Query['mainnet_optimisticRootFinalizeds'], Querymainnet_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Query['mainnet__meta'], Querymainnet__metaArgs, MeshContext>
   };
@@ -3461,6 +3893,22 @@ export type _SubgraphErrorPolicy_ =
   mainnet_slippageUpdate: InContextSdkMethod<Subscription['mainnet_slippageUpdate'], Subscriptionmainnet_slippageUpdateArgs, MeshContext>,
   /** null **/
   mainnet_slippageUpdates: InContextSdkMethod<Subscription['mainnet_slippageUpdates'], Subscriptionmainnet_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  mainnet_snapshotRoot: InContextSdkMethod<Subscription['mainnet_snapshotRoot'], Subscriptionmainnet_snapshotRootArgs, MeshContext>,
+  /** null **/
+  mainnet_snapshotRoots: InContextSdkMethod<Subscription['mainnet_snapshotRoots'], Subscriptionmainnet_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  mainnet_spokeConnectorMode: InContextSdkMethod<Subscription['mainnet_spokeConnectorMode'], Subscriptionmainnet_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  mainnet_spokeConnectorModes: InContextSdkMethod<Subscription['mainnet_spokeConnectorModes'], Subscriptionmainnet_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  mainnet_aggregateRootProposed: InContextSdkMethod<Subscription['mainnet_aggregateRootProposed'], Subscriptionmainnet_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  mainnet_aggregateRootProposeds: InContextSdkMethod<Subscription['mainnet_aggregateRootProposeds'], Subscriptionmainnet_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  mainnet_optimisticRootFinalized: InContextSdkMethod<Subscription['mainnet_optimisticRootFinalized'], Subscriptionmainnet_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  mainnet_optimisticRootFinalizeds: InContextSdkMethod<Subscription['mainnet_optimisticRootFinalizeds'], Subscriptionmainnet_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   mainnet__meta: InContextSdkMethod<Subscription['mainnet__meta'], Subscriptionmainnet__metaArgs, MeshContext>
   };

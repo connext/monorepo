@@ -28,6 +28,90 @@ export type arbitrumone_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type arbitrumone_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['arbitrumone_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type arbitrumone_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_AggregateRootProposed_filter>>>;
+};
+
+export type arbitrumone_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type arbitrumone_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -888,6 +972,60 @@ export type arbitrumone_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type arbitrumone_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['arbitrumone_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type arbitrumone_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_OptimisticRootFinalized_filter>>>;
+};
+
+export type arbitrumone_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type arbitrumone_OrderDirection =
   | 'asc'
@@ -1469,6 +1607,14 @@ export type Query = {
   arbitrumone_relayerFeesIncreases: Array<arbitrumone_RelayerFeesIncrease>;
   arbitrumone_slippageUpdate?: Maybe<arbitrumone_SlippageUpdate>;
   arbitrumone_slippageUpdates: Array<arbitrumone_SlippageUpdate>;
+  arbitrumone_snapshotRoot?: Maybe<arbitrumone_SnapshotRoot>;
+  arbitrumone_snapshotRoots: Array<arbitrumone_SnapshotRoot>;
+  arbitrumone_spokeConnectorMode?: Maybe<arbitrumone_SpokeConnectorMode>;
+  arbitrumone_spokeConnectorModes: Array<arbitrumone_SpokeConnectorMode>;
+  arbitrumone_aggregateRootProposed?: Maybe<arbitrumone_AggregateRootProposed>;
+  arbitrumone_aggregateRootProposeds: Array<arbitrumone_AggregateRootProposed>;
+  arbitrumone_optimisticRootFinalized?: Maybe<arbitrumone_OptimisticRootFinalized>;
+  arbitrumone_optimisticRootFinalizeds: Array<arbitrumone_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -1811,6 +1957,78 @@ export type Queryarbitrumone_slippageUpdatesArgs = {
   orderBy?: InputMaybe<arbitrumone_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
   where?: InputMaybe<arbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SnapshotRoot_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SpokeConnectorMode_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_AggregateRootProposed_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Queryarbitrumone_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_OptimisticRootFinalized_filter>;
   block?: InputMaybe<arbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2871,6 +3089,124 @@ export type arbitrumone_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type arbitrumone_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['arbitrumone_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type arbitrumone_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_gt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_lt?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_gte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_lte?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['arbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['arbitrumone_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_SnapshotRoot_filter>>>;
+};
+
+export type arbitrumone_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type arbitrumone_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type arbitrumone_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<arbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<arbitrumone_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<arbitrumone_SpokeConnectorMode_filter>>>;
+};
+
+export type arbitrumone_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   arbitrumone_asset?: Maybe<arbitrumone_Asset>;
   arbitrumone_assets: Array<arbitrumone_Asset>;
@@ -2910,6 +3246,14 @@ export type Subscription = {
   arbitrumone_relayerFeesIncreases: Array<arbitrumone_RelayerFeesIncrease>;
   arbitrumone_slippageUpdate?: Maybe<arbitrumone_SlippageUpdate>;
   arbitrumone_slippageUpdates: Array<arbitrumone_SlippageUpdate>;
+  arbitrumone_snapshotRoot?: Maybe<arbitrumone_SnapshotRoot>;
+  arbitrumone_snapshotRoots: Array<arbitrumone_SnapshotRoot>;
+  arbitrumone_spokeConnectorMode?: Maybe<arbitrumone_SpokeConnectorMode>;
+  arbitrumone_spokeConnectorModes: Array<arbitrumone_SpokeConnectorMode>;
+  arbitrumone_aggregateRootProposed?: Maybe<arbitrumone_AggregateRootProposed>;
+  arbitrumone_aggregateRootProposeds: Array<arbitrumone_AggregateRootProposed>;
+  arbitrumone_optimisticRootFinalized?: Maybe<arbitrumone_OptimisticRootFinalized>;
+  arbitrumone_optimisticRootFinalizeds: Array<arbitrumone_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   arbitrumone__meta?: Maybe<arbitrumone__Meta_>;
 };
@@ -3257,6 +3601,78 @@ export type Subscriptionarbitrumone_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionarbitrumone_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SnapshotRoot_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_SpokeConnectorMode_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_AggregateRootProposed_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionarbitrumone_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<arbitrumone_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<arbitrumone_OrderDirection>;
+  where?: InputMaybe<arbitrumone_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<arbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionarbitrumone__metaArgs = {
   block?: InputMaybe<arbitrumone_Block_height>;
 };
@@ -3376,6 +3792,22 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_slippageUpdate: InContextSdkMethod<Query['arbitrumone_slippageUpdate'], Queryarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
   arbitrumone_slippageUpdates: InContextSdkMethod<Query['arbitrumone_slippageUpdates'], Queryarbitrumone_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_snapshotRoot: InContextSdkMethod<Query['arbitrumone_snapshotRoot'], Queryarbitrumone_snapshotRootArgs, MeshContext>,
+  /** null **/
+  arbitrumone_snapshotRoots: InContextSdkMethod<Query['arbitrumone_snapshotRoots'], Queryarbitrumone_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_spokeConnectorMode: InContextSdkMethod<Query['arbitrumone_spokeConnectorMode'], Queryarbitrumone_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  arbitrumone_spokeConnectorModes: InContextSdkMethod<Query['arbitrumone_spokeConnectorModes'], Queryarbitrumone_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_aggregateRootProposed: InContextSdkMethod<Query['arbitrumone_aggregateRootProposed'], Queryarbitrumone_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  arbitrumone_aggregateRootProposeds: InContextSdkMethod<Query['arbitrumone_aggregateRootProposeds'], Queryarbitrumone_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_optimisticRootFinalized: InContextSdkMethod<Query['arbitrumone_optimisticRootFinalized'], Queryarbitrumone_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  arbitrumone_optimisticRootFinalizeds: InContextSdkMethod<Query['arbitrumone_optimisticRootFinalizeds'], Queryarbitrumone_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Query['arbitrumone__meta'], Queryarbitrumone__metaArgs, MeshContext>
   };
@@ -3461,6 +3893,22 @@ export type _SubgraphErrorPolicy_ =
   arbitrumone_slippageUpdate: InContextSdkMethod<Subscription['arbitrumone_slippageUpdate'], Subscriptionarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
   arbitrumone_slippageUpdates: InContextSdkMethod<Subscription['arbitrumone_slippageUpdates'], Subscriptionarbitrumone_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_snapshotRoot: InContextSdkMethod<Subscription['arbitrumone_snapshotRoot'], Subscriptionarbitrumone_snapshotRootArgs, MeshContext>,
+  /** null **/
+  arbitrumone_snapshotRoots: InContextSdkMethod<Subscription['arbitrumone_snapshotRoots'], Subscriptionarbitrumone_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_spokeConnectorMode: InContextSdkMethod<Subscription['arbitrumone_spokeConnectorMode'], Subscriptionarbitrumone_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  arbitrumone_spokeConnectorModes: InContextSdkMethod<Subscription['arbitrumone_spokeConnectorModes'], Subscriptionarbitrumone_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  arbitrumone_aggregateRootProposed: InContextSdkMethod<Subscription['arbitrumone_aggregateRootProposed'], Subscriptionarbitrumone_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  arbitrumone_aggregateRootProposeds: InContextSdkMethod<Subscription['arbitrumone_aggregateRootProposeds'], Subscriptionarbitrumone_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  arbitrumone_optimisticRootFinalized: InContextSdkMethod<Subscription['arbitrumone_optimisticRootFinalized'], Subscriptionarbitrumone_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  arbitrumone_optimisticRootFinalizeds: InContextSdkMethod<Subscription['arbitrumone_optimisticRootFinalizeds'], Subscriptionarbitrumone_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   arbitrumone__meta: InContextSdkMethod<Subscription['arbitrumone__meta'], Subscriptionarbitrumone__metaArgs, MeshContext>
   };

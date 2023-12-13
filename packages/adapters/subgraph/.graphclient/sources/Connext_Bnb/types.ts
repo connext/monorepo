@@ -28,6 +28,90 @@ export type bnb_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type bnb_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['bnb_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type bnb_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_AggregateRootProposed_filter>>>;
+};
+
+export type bnb_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type bnb_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -888,6 +972,60 @@ export type bnb_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type bnb_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['bnb_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type bnb_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_OptimisticRootFinalized_filter>>>;
+};
+
+export type bnb_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type bnb_OrderDirection =
   | 'asc'
@@ -1469,6 +1607,14 @@ export type Query = {
   bnb_relayerFeesIncreases: Array<bnb_RelayerFeesIncrease>;
   bnb_slippageUpdate?: Maybe<bnb_SlippageUpdate>;
   bnb_slippageUpdates: Array<bnb_SlippageUpdate>;
+  bnb_snapshotRoot?: Maybe<bnb_SnapshotRoot>;
+  bnb_snapshotRoots: Array<bnb_SnapshotRoot>;
+  bnb_spokeConnectorMode?: Maybe<bnb_SpokeConnectorMode>;
+  bnb_spokeConnectorModes: Array<bnb_SpokeConnectorMode>;
+  bnb_aggregateRootProposed?: Maybe<bnb_AggregateRootProposed>;
+  bnb_aggregateRootProposeds: Array<bnb_AggregateRootProposed>;
+  bnb_optimisticRootFinalized?: Maybe<bnb_OptimisticRootFinalized>;
+  bnb_optimisticRootFinalizeds: Array<bnb_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -1811,6 +1957,78 @@ export type Querybnb_slippageUpdatesArgs = {
   orderBy?: InputMaybe<bnb_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<bnb_OrderDirection>;
   where?: InputMaybe<bnb_SlippageUpdate_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SnapshotRoot_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SpokeConnectorMode_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_AggregateRootProposed_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querybnb_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_OptimisticRootFinalized_filter>;
   block?: InputMaybe<bnb_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2871,6 +3089,124 @@ export type bnb_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type bnb_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['bnb_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type bnb_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_not?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_gt?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_lt?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_gte?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_lte?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['bnb_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['bnb_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_SnapshotRoot_filter>>>;
+};
+
+export type bnb_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type bnb_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type bnb_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<bnb_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<bnb_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<bnb_SpokeConnectorMode_filter>>>;
+};
+
+export type bnb_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   bnb_asset?: Maybe<bnb_Asset>;
   bnb_assets: Array<bnb_Asset>;
@@ -2910,6 +3246,14 @@ export type Subscription = {
   bnb_relayerFeesIncreases: Array<bnb_RelayerFeesIncrease>;
   bnb_slippageUpdate?: Maybe<bnb_SlippageUpdate>;
   bnb_slippageUpdates: Array<bnb_SlippageUpdate>;
+  bnb_snapshotRoot?: Maybe<bnb_SnapshotRoot>;
+  bnb_snapshotRoots: Array<bnb_SnapshotRoot>;
+  bnb_spokeConnectorMode?: Maybe<bnb_SpokeConnectorMode>;
+  bnb_spokeConnectorModes: Array<bnb_SpokeConnectorMode>;
+  bnb_aggregateRootProposed?: Maybe<bnb_AggregateRootProposed>;
+  bnb_aggregateRootProposeds: Array<bnb_AggregateRootProposed>;
+  bnb_optimisticRootFinalized?: Maybe<bnb_OptimisticRootFinalized>;
+  bnb_optimisticRootFinalizeds: Array<bnb_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   bnb__meta?: Maybe<bnb__Meta_>;
 };
@@ -3257,6 +3601,78 @@ export type Subscriptionbnb_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionbnb_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SnapshotRoot_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_SpokeConnectorMode_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_AggregateRootProposed_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionbnb_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<bnb_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<bnb_OrderDirection>;
+  where?: InputMaybe<bnb_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<bnb_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionbnb__metaArgs = {
   block?: InputMaybe<bnb_Block_height>;
 };
@@ -3376,6 +3792,22 @@ export type _SubgraphErrorPolicy_ =
   bnb_slippageUpdate: InContextSdkMethod<Query['bnb_slippageUpdate'], Querybnb_slippageUpdateArgs, MeshContext>,
   /** null **/
   bnb_slippageUpdates: InContextSdkMethod<Query['bnb_slippageUpdates'], Querybnb_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  bnb_snapshotRoot: InContextSdkMethod<Query['bnb_snapshotRoot'], Querybnb_snapshotRootArgs, MeshContext>,
+  /** null **/
+  bnb_snapshotRoots: InContextSdkMethod<Query['bnb_snapshotRoots'], Querybnb_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  bnb_spokeConnectorMode: InContextSdkMethod<Query['bnb_spokeConnectorMode'], Querybnb_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  bnb_spokeConnectorModes: InContextSdkMethod<Query['bnb_spokeConnectorModes'], Querybnb_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  bnb_aggregateRootProposed: InContextSdkMethod<Query['bnb_aggregateRootProposed'], Querybnb_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  bnb_aggregateRootProposeds: InContextSdkMethod<Query['bnb_aggregateRootProposeds'], Querybnb_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  bnb_optimisticRootFinalized: InContextSdkMethod<Query['bnb_optimisticRootFinalized'], Querybnb_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  bnb_optimisticRootFinalizeds: InContextSdkMethod<Query['bnb_optimisticRootFinalizeds'], Querybnb_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Query['bnb__meta'], Querybnb__metaArgs, MeshContext>
   };
@@ -3461,6 +3893,22 @@ export type _SubgraphErrorPolicy_ =
   bnb_slippageUpdate: InContextSdkMethod<Subscription['bnb_slippageUpdate'], Subscriptionbnb_slippageUpdateArgs, MeshContext>,
   /** null **/
   bnb_slippageUpdates: InContextSdkMethod<Subscription['bnb_slippageUpdates'], Subscriptionbnb_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  bnb_snapshotRoot: InContextSdkMethod<Subscription['bnb_snapshotRoot'], Subscriptionbnb_snapshotRootArgs, MeshContext>,
+  /** null **/
+  bnb_snapshotRoots: InContextSdkMethod<Subscription['bnb_snapshotRoots'], Subscriptionbnb_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  bnb_spokeConnectorMode: InContextSdkMethod<Subscription['bnb_spokeConnectorMode'], Subscriptionbnb_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  bnb_spokeConnectorModes: InContextSdkMethod<Subscription['bnb_spokeConnectorModes'], Subscriptionbnb_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  bnb_aggregateRootProposed: InContextSdkMethod<Subscription['bnb_aggregateRootProposed'], Subscriptionbnb_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  bnb_aggregateRootProposeds: InContextSdkMethod<Subscription['bnb_aggregateRootProposeds'], Subscriptionbnb_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  bnb_optimisticRootFinalized: InContextSdkMethod<Subscription['bnb_optimisticRootFinalized'], Subscriptionbnb_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  bnb_optimisticRootFinalizeds: InContextSdkMethod<Subscription['bnb_optimisticRootFinalizeds'], Subscriptionbnb_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   bnb__meta: InContextSdkMethod<Subscription['bnb__meta'], Subscriptionbnb__metaArgs, MeshContext>
   };
