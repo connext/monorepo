@@ -11,16 +11,26 @@ import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherMa
 import {IL1ScrollMessenger} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";
 
+/**
+ * @dev 2 different common contracts are needed for receive and send messages flows on the
+ * integration tests because on the receive flow, because on the receive flow, we are using a
+ * L1ScrollMessengerForTest instance as L1 Scroll Messenger, which is the same contract but without
+ * the proof verification on the `relayMessage` function. This is needed since we don't have the proof
+ * but we need to relay the message in order to get it received.
+ */
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 18_586_480;
 
+  // Scroll L1 Messenger address on Ethereum
   IL1ScrollMessenger public constant L1_SCROLL_MESSENGER =
-    IL1ScrollMessenger(0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367); // Scroll L1 Messenger
-  address public constant L2_SCROLL_MESSENGER = 0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC; // Scroll Messenger L2 Proxy address
+    IL1ScrollMessenger(0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367);
+  // L2 Oracle Gas Price contract address on Ethereum
   IL2OracleGasPrice internal constant L2_ORACLE_GAS_PRICE =
     IL2OracleGasPrice(0x987e300fDfb06093859358522a79098848C33852);
-  uint32 public constant DOMAIN = 1; // Ethereum
-  uint32 public constant MIRROR_DOMAIN = 100; // Scroll
+  // Ethereum domain id for Connext
+  uint32 public constant DOMAIN = 1;
+  // Scroll domain id for Connext
+  uint32 public constant MIRROR_DOMAIN = 100;
 
   address public owner = makeAddr("owner");
   address public relayer = makeAddr("relayer");

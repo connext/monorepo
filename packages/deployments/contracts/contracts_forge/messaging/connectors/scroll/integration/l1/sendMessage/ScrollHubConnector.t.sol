@@ -14,6 +14,9 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     bytes message
   );
 
+  /**
+   * @notice Tests that the tx for sending the message succeeds
+   */
   function test_sendMessage() public {
     // Get the root that will be sent from the merkle tree manager
     bytes32 _root = merkleTreeManager.root();
@@ -44,6 +47,9 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     scrollHubConnector.sendMessage{value: _fee}(_data, _extraData);
   }
 
+  /**
+   * @notice Tests that the refund address receives the extra gas
+   */
   function test_addressWasRefunded(uint256 _gasExtra) public {
     // Get the root that will be sent from the merkle tree manager
     bytes32 _root = merkleTreeManager.root();
