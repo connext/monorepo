@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IL1ScrollMessenger} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
+import {IL1ScrollMessenger} from "../../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 
 /**
  * @dev This contract is used for testing purpose only. It is used to simulate the `relayMessageWithProof` of the real L1ScrollMessenger contract,
