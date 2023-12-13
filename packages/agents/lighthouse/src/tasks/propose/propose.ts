@@ -52,7 +52,12 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
-    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+
+    // Default to database url if no writer url is provided.
+    const databaseWriter = context.config.databaseWriter
+      ? context.config.databaseWriter.url
+      : context.config.database.url;
+    context.adapters.database = await getDatabase(databaseWriter, context.logger);
 
     context.adapters.wallet = context.config.mnemonic
       ? Wallet.fromMnemonic(context.config.mnemonic)

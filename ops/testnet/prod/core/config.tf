@@ -292,12 +292,9 @@ locals {
       # "1668247156" = {
       #   providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       # }
-      "2053862260" = {
-        providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
-      }
-      "1650553703" = {
-        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
+      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
