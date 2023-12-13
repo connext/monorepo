@@ -229,5 +229,26 @@
         "startBlock": 88563
       }
     ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-base-goerli",
+    "network": "base-testnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x544e3f759a35cD534c6411d0c106884488c0ADD4",
+        "startBlock": 13383760
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x4efC4F82C2ef4CD0c24877103c24DabdDb0d37dd",
+        "startBlock": 13384262
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x4fA03719D17B5683A7410f723074d3c989326Ac5",
+        "startBlock": 13383551
+      }
+    ]
   }
 ]

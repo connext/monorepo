@@ -73,6 +73,11 @@
         "name": "LineaHubConnector",
         "address": "0x7cF93aDe5C9E84b1875987d976805D0A3b87B4eb",
         "startBlock": 10168635
+      },
+      {
+        "name": "BaseHubConnector",
+        "address": "0x202a0dF67c25d9D0eCb155287FDD0a7C582CF9e7",
+        "startBlock": 10173826
       }
     ]
   }

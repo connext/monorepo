@@ -8,8 +8,9 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
     // "2053862260", /// ZKSYNC-TEST
-    "1668247156", /// LINGEA-GOERLI
+    // "1668247156", /// LINGEA-GOERLI
     // "1887071092", /// POLYGON-ZKEVM-TEST
+    "1650553703", /// BASE-GOERLI
   ],
   assets: [
     {
@@ -48,6 +49,11 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         //   local: "0x5f921E4DE609472632CEFc72a3846eCcfbed4ed8",
         //   adopted: "0x5f921E4DE609472632CEFc72a3846eCcfbed4ed8",
         // },
+        /// BASE_GOERLI
+        "1650553703": {
+          local: "0x8f26fd87384b0524aAd9bB7d3be9704303bBC65e",
+          adopted: "0x8f26fd87384b0524aAd9bB7d3be9704303bBC65e",
+        },
       },
     },
     {
@@ -182,8 +188,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       representations: {
         /// MUMBAI
         "9991": {
-          local: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
-          adopted: "0x3fC9473d9dF84887D483A93a8d207f90D9bE63C4",
+          local: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
+          adopted: "0xEc537a40dC272Dd8abCda95e2a8713E57A58f211",
         },
       },
     },
@@ -257,6 +263,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       // "2053862260": "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006",
       "1668247156": "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006",
       // "1887071092": "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006",
+      "1650553703": "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006",
     },
     watchers: {
       allowlist: ["0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006"],
