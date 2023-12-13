@@ -6,6 +6,7 @@ export { getProcessFromGnosisRootArgs } from "./gnosis";
 export { getProcessFromArbitrumRootArgs } from "./arbitrum";
 export { getProcessFromZkSyncRootArgs } from "./zksync";
 export { getProcessFromLineaRootArgs } from "./linea";
+export { getProcessFromBaseRootArgs } from "./base";
 
 export type GetProcessArgsParams = {
   spokeChainId: number;

@@ -27,12 +27,14 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   137: 30, // polygon
   42161: 30, // arbitrum one
   59144: 30, // linea
+  8453: 30, // base
 
   // testnets
   5: 4, // goerli
   420: 30, // optimism-goerli
   80001: 30, // mumbai
   59140: 30, // linea-goerli
+  84531: 30, // base-goerli
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -280,6 +282,33 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140] / 2,
+      },
+      // Base goerli:
+      // https://community.optimism.io/docs/useful-tools/networks/#op-goerli
+      84531: {
+        prefix: "Optimism",
+        networkName: "Base",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://goerli.etherscan.io/address/0x8e5693140eA606bcEB98761d9beB1BC87383706D
+          hub: "0x8e5693140eA606bcEB98761d9beB1BC87383706D", // L1 cross domain messenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531] / 2,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e#code
+            optimismPortal: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
       // // FIXME: wormhole relayer deployment not listed in docs for goerli
       // // address used is core bridge; different from mainnet so this testnet is skipped
