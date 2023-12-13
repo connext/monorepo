@@ -5,6 +5,7 @@ import {Common} from "./Common.sol";
 import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 
 contract Integration_Connector_ScrollHubConnector_ReceiveMessage is Common {
+  // Events
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
   /**

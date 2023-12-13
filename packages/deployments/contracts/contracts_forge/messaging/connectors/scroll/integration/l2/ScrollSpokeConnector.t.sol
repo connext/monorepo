@@ -5,8 +5,8 @@ import {Common} from "./Common.sol";
 import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
 
 contract Integration_Connector_ScrollSpokeConnector is Common {
+  // Events
   event AggregateRootReceived(bytes32 indexed root);
-
   event SentMessage(
     address indexed sender,
     address indexed target,
@@ -17,7 +17,7 @@ contract Integration_Connector_ScrollSpokeConnector is Common {
   );
 
   /**
-   * @notice Tests that the tx for sending the message succeeds
+   * @notice Tests that the tx for sending the message succeeds using the scroll spoke connector
    */
   function test_sendMessage() public {
     // Get the root that will be sent from the merkle tree manager

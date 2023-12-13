@@ -18,9 +18,9 @@ contract L1ScrollMessengerForTest {
   /// @param messageHash The hash of the message.
   event FailedRelayedMessage(bytes32 indexed messageHash);
 
-  address internal constant DEFAULT_XDOMAIN_MESSAGE_SENDER = address(1);
-
   IL1ScrollMessenger public immutable L1_SCROLL_MESSENGER;
+
+  address internal constant DEFAULT_XDOMAIN_MESSAGE_SENDER = address(1);
   address public xDomainMessageSender;
 
   mapping(bytes32 => bool) public isL2MessageExecuted;

@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
-import {L1ScrollMessengerForTest} from "./L1ScrollMessengerForTest.sol";
+import {L1ScrollMessengerForTest} from "./for-test/L1ScrollMessengerForTest.sol";
 import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
 import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
 import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
@@ -32,14 +32,16 @@ contract Common is ConnectorHelper {
   // Scroll domain id for Connext
   uint32 public constant MIRROR_DOMAIN = 100;
 
+  // EOAs and external addresses
   address public owner = makeAddr("owner");
   address public relayer = makeAddr("relayer");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
+  address public mirrorConnector = makeAddr("mirrorConnector");
 
+  // Contracts
   ScrollHubConnector public scrollHubConnector;
   L1ScrollMessengerForTest public l1ScrollMessenger;
   RootManager public rootManager;
-  address public mirrorConnector = makeAddr("mirrorConnector");
   MerkleTreeManager public merkleTreeManager;
   WatcherManager public watcherManager;
 
