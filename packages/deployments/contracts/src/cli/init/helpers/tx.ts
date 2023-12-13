@@ -116,7 +116,7 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
       });
     } else if (chain == 59144) {
       return await contract[write.method](...write.args, {
-        gasPrice: "3000000000",
+        gasPrice: "4500000000",
       });
     } else {
       return await contract[write.method](...write.args, {
