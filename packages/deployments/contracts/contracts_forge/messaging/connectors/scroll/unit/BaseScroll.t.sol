@@ -63,7 +63,7 @@ contract Unit_Connector_BaseScroll_CheckMessageLength is Base {
   /**
    * @notice Tests that returns true on data valid length
    */
-  function test_checkMessageLength(bytes32 _msg) public {
+  function test_returnTrue(bytes32 _msg) public {
     bytes memory _data = abi.encode(_msg);
     assertEq(baseScroll.forTest_checkMessageLength(_data), true);
   }

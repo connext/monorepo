@@ -39,6 +39,12 @@ contract ScrollSpokeConnectorForTest is ScrollSpokeConnector {
  * @dev Base contract for the `ScrollSpokeConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
+  // The root length in bytes for a message
+  uint256 public constant ROOT_LENGTH = 32;
+  uint256 public constant DELAY_BLOCKS = 0;
+  uint256 public constant MIN_DISPUTE_BLOCKS = 1;
+  uint256 public constant DISPUTE_BLOCKS = 10;
+
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
@@ -46,9 +52,6 @@ contract Base is ConnectorHelper {
   bytes32 public rootSnapshot = bytes32("rootSnapshot");
   bytes32 public aggregateRoot = bytes32("aggregateRoot");
   ScrollSpokeConnectorForTest public scrollSpokeConnector;
-  uint256 public constant DELAY_BLOCKS = 0;
-  uint256 public constant MIN_DISPUTE_BLOCKS = 1;
-  uint256 public constant DISPUTE_BLOCKS = 10;
 
   /**
    * @notice Deploys a new `ScrollSpokeConnectorForTest` contract instance
@@ -127,8 +130,8 @@ contract Unit_Connector_ScrollSpokeConnector_SendMessage is Base {
    * @param _data Message data
    * @param _encodedData Encoded data to be sent
    */
-  function test_revertIfDataIsNot32Length(bytes memory _data, bytes memory _encodedData) public {
-    vm.assume(_data.length != 32);
+  function test_revertIfDataNotRootLength(bytes memory _data, bytes memory _encodedData) public {
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(user);
     vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_DataLengthIsNot32.selector);
     scrollSpokeConnector.forTest_sendMessage(_data, _encodedData);
@@ -213,8 +216,8 @@ contract Unit_Connector_ScrollSpokeConnector_ProcessMessage is Base {
    * @notice Tests that reverts when the data length is not 32
    * @param _data Message data
    */
-  function test_revertIfDataIsNot32Length(bytes memory _data) public {
-    vm.assume(_data.length != 32);
+  function test_revertIfDataNotRootLength(bytes memory _data) public {
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(_amb);
     vm.expectRevert(ScrollSpokeConnector.ScrollSpokeConnector_DataLengthIsNot32.selector);
     scrollSpokeConnector.forTest_processMessage(_data);

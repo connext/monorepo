@@ -42,11 +42,14 @@ contract ScrollHubConnectorForTest is ScrollHubConnector {
  * @dev Base contract for the `ScrollHubConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
+  // The root length in bytes for a message
+  uint256 public constant ROOT_LENGTH = 32;
+  uint256 public constant DELAY_BLOCKS = 0;
+
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
   ScrollHubConnectorForTest public scrollHubConnector;
-  uint256 public constant DELAY_BLOCKS = 0;
 
   /**
    * @notice Deploys a new `ScrollHubConnectorForTest` contract instance
@@ -91,8 +94,8 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
    * @param _data Message data to be sent
    * @param _encodedData Encoded data to be sent
    */
-  function test_revertIfDataIsNot32Length(bytes memory _data, bytes memory _encodedData) public {
-    vm.assume(_data.length != 32);
+  function test_revertIfDataNotRootLength(bytes memory _data, bytes memory _encodedData) public {
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(user);
     vm.expectRevert(ScrollHubConnector.ScrollHubConnector_DataLengthIsNot32.selector);
     scrollHubConnector.forTest_sendMessage(_data, _encodedData);
@@ -181,8 +184,8 @@ contract Unit_Connector_ScrollHubConnector_forTest_ProcessMessage is Base {
    * @notice Tests that reverts when the data length is not 32
    * @param _data Message data
    */
-  function test_revertIfDataIsNot32Length(bytes memory _data) public {
-    vm.assume(_data.length != 32);
+  function test_revertIfDataNotRootLength(bytes memory _data) public {
+    vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(_amb);
     vm.expectRevert(ScrollHubConnector.ScrollHubConnector_DataLengthIsNot32.selector);
     scrollHubConnector.forTest_processMessage(_data);
