@@ -608,7 +608,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"],
     },
     watchers: {
-      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e", "0x9c77788d761ee0347Ab550883237CeD274a0F248"],
+      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
