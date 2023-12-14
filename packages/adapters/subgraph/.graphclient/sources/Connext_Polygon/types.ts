@@ -28,6 +28,90 @@ export type polygon_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type polygon_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['polygon_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type polygon_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_AggregateRootProposed_filter>>>;
+};
+
+export type polygon_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type polygon_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -888,6 +972,60 @@ export type polygon_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type polygon_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['polygon_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type polygon_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_OptimisticRootFinalized_filter>>>;
+};
+
+export type polygon_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type polygon_OrderDirection =
   | 'asc'
@@ -1469,6 +1607,14 @@ export type Query = {
   polygon_relayerFeesIncreases: Array<polygon_RelayerFeesIncrease>;
   polygon_slippageUpdate?: Maybe<polygon_SlippageUpdate>;
   polygon_slippageUpdates: Array<polygon_SlippageUpdate>;
+  polygon_snapshotRoot?: Maybe<polygon_SnapshotRoot>;
+  polygon_snapshotRoots: Array<polygon_SnapshotRoot>;
+  polygon_spokeConnectorMode?: Maybe<polygon_SpokeConnectorMode>;
+  polygon_spokeConnectorModes: Array<polygon_SpokeConnectorMode>;
+  polygon_aggregateRootProposed?: Maybe<polygon_AggregateRootProposed>;
+  polygon_aggregateRootProposeds: Array<polygon_AggregateRootProposed>;
+  polygon_optimisticRootFinalized?: Maybe<polygon_OptimisticRootFinalized>;
+  polygon_optimisticRootFinalizeds: Array<polygon_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   polygon__meta?: Maybe<polygon__Meta_>;
 };
@@ -1811,6 +1957,78 @@ export type Querypolygon_slippageUpdatesArgs = {
   orderBy?: InputMaybe<polygon_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<polygon_OrderDirection>;
   where?: InputMaybe<polygon_SlippageUpdate_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SnapshotRoot_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SpokeConnectorMode_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_AggregateRootProposed_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querypolygon_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_OptimisticRootFinalized_filter>;
   block?: InputMaybe<polygon_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2871,6 +3089,124 @@ export type polygon_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type polygon_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['polygon_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type polygon_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_not?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_gt?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_lt?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_gte?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_lte?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['polygon_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['polygon_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_SnapshotRoot_filter>>>;
+};
+
+export type polygon_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type polygon_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type polygon_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<polygon_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<polygon_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<polygon_SpokeConnectorMode_filter>>>;
+};
+
+export type polygon_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   polygon_asset?: Maybe<polygon_Asset>;
   polygon_assets: Array<polygon_Asset>;
@@ -2910,6 +3246,14 @@ export type Subscription = {
   polygon_relayerFeesIncreases: Array<polygon_RelayerFeesIncrease>;
   polygon_slippageUpdate?: Maybe<polygon_SlippageUpdate>;
   polygon_slippageUpdates: Array<polygon_SlippageUpdate>;
+  polygon_snapshotRoot?: Maybe<polygon_SnapshotRoot>;
+  polygon_snapshotRoots: Array<polygon_SnapshotRoot>;
+  polygon_spokeConnectorMode?: Maybe<polygon_SpokeConnectorMode>;
+  polygon_spokeConnectorModes: Array<polygon_SpokeConnectorMode>;
+  polygon_aggregateRootProposed?: Maybe<polygon_AggregateRootProposed>;
+  polygon_aggregateRootProposeds: Array<polygon_AggregateRootProposed>;
+  polygon_optimisticRootFinalized?: Maybe<polygon_OptimisticRootFinalized>;
+  polygon_optimisticRootFinalizeds: Array<polygon_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   polygon__meta?: Maybe<polygon__Meta_>;
 };
@@ -3257,6 +3601,78 @@ export type Subscriptionpolygon_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionpolygon_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SnapshotRoot_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_SpokeConnectorMode_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_AggregateRootProposed_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionpolygon_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<polygon_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<polygon_OrderDirection>;
+  where?: InputMaybe<polygon_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<polygon_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionpolygon__metaArgs = {
   block?: InputMaybe<polygon_Block_height>;
 };
@@ -3376,6 +3792,22 @@ export type _SubgraphErrorPolicy_ =
   polygon_slippageUpdate: InContextSdkMethod<Query['polygon_slippageUpdate'], Querypolygon_slippageUpdateArgs, MeshContext>,
   /** null **/
   polygon_slippageUpdates: InContextSdkMethod<Query['polygon_slippageUpdates'], Querypolygon_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  polygon_snapshotRoot: InContextSdkMethod<Query['polygon_snapshotRoot'], Querypolygon_snapshotRootArgs, MeshContext>,
+  /** null **/
+  polygon_snapshotRoots: InContextSdkMethod<Query['polygon_snapshotRoots'], Querypolygon_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  polygon_spokeConnectorMode: InContextSdkMethod<Query['polygon_spokeConnectorMode'], Querypolygon_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  polygon_spokeConnectorModes: InContextSdkMethod<Query['polygon_spokeConnectorModes'], Querypolygon_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  polygon_aggregateRootProposed: InContextSdkMethod<Query['polygon_aggregateRootProposed'], Querypolygon_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  polygon_aggregateRootProposeds: InContextSdkMethod<Query['polygon_aggregateRootProposeds'], Querypolygon_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  polygon_optimisticRootFinalized: InContextSdkMethod<Query['polygon_optimisticRootFinalized'], Querypolygon_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  polygon_optimisticRootFinalizeds: InContextSdkMethod<Query['polygon_optimisticRootFinalizeds'], Querypolygon_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon__meta: InContextSdkMethod<Query['polygon__meta'], Querypolygon__metaArgs, MeshContext>
   };
@@ -3461,6 +3893,22 @@ export type _SubgraphErrorPolicy_ =
   polygon_slippageUpdate: InContextSdkMethod<Subscription['polygon_slippageUpdate'], Subscriptionpolygon_slippageUpdateArgs, MeshContext>,
   /** null **/
   polygon_slippageUpdates: InContextSdkMethod<Subscription['polygon_slippageUpdates'], Subscriptionpolygon_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  polygon_snapshotRoot: InContextSdkMethod<Subscription['polygon_snapshotRoot'], Subscriptionpolygon_snapshotRootArgs, MeshContext>,
+  /** null **/
+  polygon_snapshotRoots: InContextSdkMethod<Subscription['polygon_snapshotRoots'], Subscriptionpolygon_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  polygon_spokeConnectorMode: InContextSdkMethod<Subscription['polygon_spokeConnectorMode'], Subscriptionpolygon_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  polygon_spokeConnectorModes: InContextSdkMethod<Subscription['polygon_spokeConnectorModes'], Subscriptionpolygon_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  polygon_aggregateRootProposed: InContextSdkMethod<Subscription['polygon_aggregateRootProposed'], Subscriptionpolygon_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  polygon_aggregateRootProposeds: InContextSdkMethod<Subscription['polygon_aggregateRootProposeds'], Subscriptionpolygon_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  polygon_optimisticRootFinalized: InContextSdkMethod<Subscription['polygon_optimisticRootFinalized'], Subscriptionpolygon_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  polygon_optimisticRootFinalizeds: InContextSdkMethod<Subscription['polygon_optimisticRootFinalizeds'], Subscriptionpolygon_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   polygon__meta: InContextSdkMethod<Subscription['polygon__meta'], Subscriptionpolygon__metaArgs, MeshContext>
   };
