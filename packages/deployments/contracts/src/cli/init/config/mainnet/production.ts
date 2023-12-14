@@ -441,6 +441,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xoLIT",
+      canonical: {
+        domain: "11111",
+        address: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
