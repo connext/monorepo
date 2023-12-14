@@ -300,8 +300,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531] / 2,
         custom: {
           hub: {
-            // https://goerli.etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e#code
-            optimismPortal: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+            // https://goerli.etherscan.io/address/0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA#code
+            optimismPortal: "0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA",
             gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
