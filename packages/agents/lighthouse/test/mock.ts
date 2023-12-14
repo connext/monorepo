@@ -176,6 +176,7 @@ export const mock = {
       [mock.domain.A]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
           spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
@@ -184,6 +185,7 @@ export const mock = {
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
           spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),

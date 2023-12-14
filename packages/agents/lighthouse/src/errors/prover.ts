@@ -10,6 +10,12 @@ export class NoDestinationDomainForProof extends NxtpError {
   }
 }
 
+export class NoDestinationDomainConnext extends NxtpError {
+  constructor(destinationDomain: string, context: any = {}) {
+    super(`No connext found on destination domain ${destinationDomain}`, context, NoDestinationDomainConnext.name);
+  }
+}
+
 export class MessageRootVerificationFailed extends NxtpError {
   constructor(context: any = {}) {
     super(`MessageRoot verification failed.`, context, MessageRootVerificationFailed.name);
@@ -107,5 +113,11 @@ export class EmptyMessageProofs extends NxtpError {
       context,
       EmptyMessageProofs.name,
     );
+  }
+}
+
+export class ExecutionLayerPaused extends NxtpError {
+  constructor(connext: string, domain: string, context: any = {}) {
+    super(`Execution layer paused, connext: ${connext} and domain: ${domain}`, context, EmptyMessageProofs.name);
   }
 }

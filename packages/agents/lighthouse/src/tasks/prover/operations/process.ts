@@ -17,6 +17,8 @@ import {
   MessageRootVerificationFailed,
   EmptyMessageProofs,
   RelayerSendFailed,
+  NoDestinationDomainConnext,
+  ExecutionLayerPaused,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
@@ -43,6 +45,23 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
     snapshotRoots,
   } = brokerMessage;
+
+  // Ensure execution layer is not paused prior to proving
+  const connext = config.chains[destinationDomain]?.deployments?.connext;
+  if (!connext) {
+    throw new NoDestinationDomainConnext(destinationDomain);
+  }
+
+  const pauseData = await chainreader.readTx({
+    domain: +destinationDomain,
+    to: connext,
+    data: contracts.connext.encodeFunctionData("paused"),
+  });
+
+  const [paused] = contracts.connext.decodeFunctionResult("paused", pauseData);
+  if (paused) {
+    throw new ExecutionLayerPaused(connext, destinationDomain);
+  }
 
   // Dedup the batch
   messages.splice(

@@ -3,7 +3,13 @@ import { SinonStub, stub, restore, reset } from "sinon";
 
 import { mock, mockXMessage1, mockXMessage2 } from "../../../mock";
 import { proverCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
-import { EmptyMessageProofs, NoDestinationDomainForProof, NoMessageProof } from "../../../../src/errors";
+import {
+  EmptyMessageProofs,
+  ExecutionLayerPaused,
+  NoDestinationDomainConnext,
+  NoDestinationDomainForProof,
+  NoMessageProof,
+} from "../../../../src/errors";
 import { BrokerMessage } from "../../../../src/tasks/prover/operations/types";
 import { processMessages } from "../../../../src/tasks/prover/operations";
 
@@ -46,6 +52,8 @@ describe("Operations: Process", () => {
     });
 
     it("happy case should work", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x1"]);
       verifyStub.returns({ calculated: "0x", verified: true });
       getMessageStub.resolves(mockXMessage1);
@@ -74,6 +82,8 @@ describe("Operations: Process", () => {
     });
 
     it("should be fulfilled", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x1"]);
       getMessageStub.resolves(mockXMessage1);
       addTaskPendingStub.resolves();
@@ -83,16 +93,34 @@ describe("Operations: Process", () => {
       await processMessages(mockBrokerMesage, requestContext);
     });
 
+    it("should fail if cannot find connext", async () => {
+      await expect(
+        processMessages({ ...mockBrokerMesage, destinationDomain: "101010" }, requestContext),
+      ).to.eventually.be.rejectedWith(NoDestinationDomainConnext);
+    });
+
+    it("should do nothing if connext paused", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x1");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([true]);
+      await expect(processMessages(mockBrokerMesage, requestContext)).to.eventually.be.rejectedWith(
+        ExecutionLayerPaused,
+      );
+    });
+
     it("should catch error if no destination domain proof", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x1"]);
       verifyStub.returns({ verified: true });
       (proverCtxMock.adapters.contracts.merkleTreeManager.encodeFunctionData as SinonStub).returns("0x");
       await expect(
         processMessages({ ...mockBrokerMesage, destinationDomain: "101010" }, requestContext),
-      ).to.eventually.be.rejectedWith(NoDestinationDomainForProof);
+      ).to.eventually.be.rejectedWith(`No connext found on destination domain`);
     });
 
     it("should catch error if no message proof", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(undefined);
       verifyStub.returns({ verified: true });
       getMessageStub.resolves(mockXMessage1);
@@ -104,6 +132,8 @@ describe("Operations: Process", () => {
     });
 
     it("should do nothing if empty message proof", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
@@ -114,6 +144,8 @@ describe("Operations: Process", () => {
     });
 
     it("should do nothing if already processed", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
@@ -125,6 +157,8 @@ describe("Operations: Process", () => {
     });
 
     it("should do nothing if status unused", async () => {
+      (proverCtxMock.adapters.contracts.connext.encodeFunctionData as SinonStub).returns("0x0");
+      (proverCtxMock.adapters.contracts.connext.decodeFunctionResult as SinonStub).returns([false]);
       getProofStub.returns(["0x"]);
       verifyStub.returns({ verified: false });
       getMessageStub.resolves(mockXMessage1);
