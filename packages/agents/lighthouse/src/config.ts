@@ -20,6 +20,7 @@ dotenvConfig();
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
+    connext: TAddress,
     spokeMerkleTree: TAddress,
     hubMerkleTree: TAddress,
     spokeConnector: TAddress,
@@ -287,6 +288,18 @@ export const getEnvConfig = (
           if (!res) {
             throw new Error(
               `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
+            );
+          }
+          return res.address;
+        })(),
+
+      connext:
+        nxtpConfig.chains[domainId].deployments?.connext ??
+        (() => {
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          if (!res) {
+            throw new Error(
+              `No Connext${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
             );
           }
           return res.address;
