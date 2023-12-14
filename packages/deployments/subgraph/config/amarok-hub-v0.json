@@ -76,8 +76,8 @@
       },
       {
         "name": "BaseHubConnector",
-        "address": "0x202a0dF67c25d9D0eCb155287FDD0a7C582CF9e7",
-        "startBlock": 10173826
+        "address": "0x5CF82cB512A3CDCDb117c09D3bFFF34709900647",
+        "startBlock": 10209383
       }
     ]
   }
