@@ -5,8 +5,8 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 280, 420, 59140, 80001, 421613],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -326,6 +326,35 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.LINEASCAN_API_KEY!,
         apiUrl: "https://api.lineascan.build",
+      },
+    },
+  },
+  "base-goerli": {
+    accounts: { mnemonic },
+    chainId: 84531,
+    gasPrice: utils.parseUnits("0.2", "gwei").toNumber(),
+    url: urlOverride || process.env.BASE_GOERLI_PROVIDER_URL || "https://goerli.base.org",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api-goerli.basescan.org",
+      },
+    },
+  },
+  base: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 8453,
+    url: urlOverride || process.env.BASE_PROVIDER_URL || "https://mainnet.base.org",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api.basescan.org",
       },
     },
   },
