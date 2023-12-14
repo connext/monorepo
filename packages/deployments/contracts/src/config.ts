@@ -325,7 +325,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.LINEASCAN_API_KEY!,
-        apiUrl: "https://explorer.goerli.linea.build",
+        apiUrl: "https://api.lineascan.build",
       },
     },
   },
