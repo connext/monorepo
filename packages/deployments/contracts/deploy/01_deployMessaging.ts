@@ -166,18 +166,6 @@ const handleDeployHub = async (
   });
   console.log(`${connectorName} deployed to ${deployment.address}`);
 
-  // setArborist for Spoke to Merkle
-  const merkleForSpokeContract = await hre.ethers.getContractAt(
-    "MerkleTreeManager",
-    merkleTreeManagerForSpoke.address,
-    deployer,
-  );
-  if (!(await merkleForSpokeContract.arborist())) {
-    const tx = await merkleForSpokeContract.setArborist(deployment.address);
-    console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
-    await tx.wait();
-  }
-
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
