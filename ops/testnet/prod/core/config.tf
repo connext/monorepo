@@ -295,6 +295,9 @@ locals {
       # "2053862260" = {
       #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       # }
+      "1650553703" = {
+        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
