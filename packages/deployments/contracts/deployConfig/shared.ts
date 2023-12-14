@@ -54,7 +54,6 @@ export type MessagingProtocolConfig = {
     // Map of chain ID => configs.
     [chain: number]: {
       prefix: string; // The chain's name and the Connector name prefix.
-      // Official AMB contract addresses.
       networkName?: string;
       ambs: {
         hub: string;
@@ -531,6 +530,36 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
+      },
+      // Base chain
+      8453: {
+        prefix: "Optimism",
+        networkName: "Base",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://docs.base.org/base-contracts/#ethereum-mainnet
+          hub: "0x866E82a600A1414e583f7F13623F1aC5d58b0Afa",
+          // L2CrossDomainMessenger
+          // https://docs.base.org/base-contracts/#base-mainnet
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: BigNumber.from("2000000"),
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[8453],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[8453],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[8453] / 2,
+        custom: {
+          hub: {
+            // BasePortal
+            // https://docs.base.org/base-contracts/#ethereum-mainnet
+            // https://etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e#code
+            optimismPortal: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
     },
   },
