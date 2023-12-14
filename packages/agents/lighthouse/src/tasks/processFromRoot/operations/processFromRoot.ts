@@ -85,12 +85,12 @@ export const processorConfigs: Record<string, ProcessConfig> = {
   "1650553709": {
     getArgs: getProcessFromBaseRootArgs,
     hubConnectorPrefix: "Base",
-    processorFunctionName: "claimMessage",
+    processorFunctionName: "processMessageFromRoot",
   },
   "1650553703": {
     getArgs: getProcessFromBaseRootArgs,
     hubConnectorPrefix: "Base",
-    processorFunctionName: "claimMessage",
+    processorFunctionName: "processMessageFromRoot",
   },
 };
 
