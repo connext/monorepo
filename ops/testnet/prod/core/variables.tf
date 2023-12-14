@@ -123,6 +123,10 @@ variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
+variable "basegoerli_alchemy_key_0" {
+  type = string
+}
+
 variable "blast_key" {
   type = string
 }
@@ -195,5 +199,5 @@ variable "drpc_key" {
 }
 
 variable "lighthouse_web3_signer_private_key" {
-  type    = string
+  type = string
 }
