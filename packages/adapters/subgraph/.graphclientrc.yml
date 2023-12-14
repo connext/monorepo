@@ -443,9 +443,9 @@ sources:
           # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
           #   retry: 2
           #   timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-bnb"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_
@@ -510,9 +510,9 @@ sources:
           # - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea"
           #   retry: 2
           #   timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-linea"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-linea"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: linea_
