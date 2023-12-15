@@ -233,14 +233,13 @@ export class SdkShared {
       const [isXERC20] = await xerc20Registry.functions.isXERC20(tokenAddress);
       if (!isXERC20) {
         const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
-        console.log(xerc20, "xerc20 address");
         if (xerc20) {
           isValidAsset = true;
         }
       }
       return isValidAsset;
     } catch (err: any) {
-      throw new Error(err);
+      return false;
     }
   }
 
@@ -344,7 +343,7 @@ export class SdkShared {
 
     const isValidAsset = await this.hasXERC20(domainId, assetId, options);
     const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
-    console.log(isValidAsset, "from approve", assetId);
+
     if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
       throw new Error("Lockbox adapter not deployed on given domain");
     }
