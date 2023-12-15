@@ -228,7 +228,7 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const isValidAsset = await this.hasLockbox(origin, asset, options);
+    const isValidAsset = await this.hasXERC20(origin, asset, options);
     const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[origin];
 
     if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {

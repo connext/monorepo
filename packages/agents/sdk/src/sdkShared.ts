@@ -225,21 +225,22 @@ export class SdkShared {
     }
   }
 
-  async hasLockbox(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
+  async hasXERC20(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
     try {
       let isValidAsset = false;
-      // Checking if given asset is xERC20 and have lockbox
+      // Checking if given asset is erc20 and have a xERC20 representation
       const xerc20Registry = await this.getXERC20Registry(domainId, options);
-      const isXERC20 = await xerc20Registry.functions.isXERC20(tokenAddress);
-      if (isXERC20) {
-        const lockbox = await xerc20Registry.functions.getLockbox(tokenAddress);
-        if (lockbox !== "0x0000000000000000000000000000000000000000") {
+      const [isXERC20] = await xerc20Registry.functions.isXERC20(tokenAddress);
+      if (!isXERC20) {
+        const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
+        console.log(xerc20, "xerc20 address");
+        if (xerc20) {
           isValidAsset = true;
         }
       }
       return isValidAsset;
     } catch (err: any) {
-      throw new Error("failed to get Lockbox");
+      throw new Error(err);
     }
   }
 
@@ -341,9 +342,9 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const isValidAsset = await this.hasLockbox(domainId, assetId, options);
+    const isValidAsset = await this.hasXERC20(domainId, assetId, options);
     const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
-
+    console.log(isValidAsset, "from approve", assetId);
     if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
       throw new Error("Lockbox adapter not deployed on given domain");
     }
@@ -351,6 +352,7 @@ export class SdkShared {
     const connextContractAddress = isValidAsset
       ? LOCKBOX_ADAPTER_ADDRESS
       : (await this.getConnext(domainId, options)).address;
+
     const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
