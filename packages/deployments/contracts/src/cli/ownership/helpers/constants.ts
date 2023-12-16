@@ -14,6 +14,7 @@ export const SUPPORTED_DOMAINS = {
     9991, // mumbai
     1734439522, // arbitrum-goerli
     1668247156, // linea-goerli
+    1650553703, // base-goerli testnet
     // 2053862260, // zksync2 testnet
   ],
 };
@@ -36,6 +37,7 @@ export const PROTOCOL_ADMINS: AddressBook = {
     9991: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // mumbai
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
     1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // linea-goerli
+    1650553703: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // base-goerli
   },
 };
 
@@ -56,6 +58,7 @@ export const DAO_CONTRACTS: AddressBook = {
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
     1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // linea-goerli
     2053862260: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // zksync2 testnet
+    1650553703: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // base-goerli
   },
 };
 
