@@ -209,13 +209,13 @@ describe("SdkBase", () => {
     });
 
     it("happy-1: should work if ERC20", async () => {
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(sdkXCallArgs);
       expect(res).to.be.deep.eq(mockXCallRequest);
     });
 
     it("happy-1.1: should work if ERC20 and if asset is xERC20", async () => {
-      stub(sdkBase, "hasXERC20").resolves(true);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(true);
       // Changing domain to mainnet
       const mockXcallArgs = {
         ...sdkXCallArgs,
@@ -254,13 +254,13 @@ describe("SdkBase", () => {
         value: relayerFee,
         chainId,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(_sdkXCallArgs);
       expect(res).to.be.deep.eq(xcallRequest);
     });
 
     it("happy-3: should use xcallIntoLocal if receiveLocal is used", async () => {
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
@@ -280,7 +280,7 @@ describe("SdkBase", () => {
         value: relayerFee.add(amount),
         chainId,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
@@ -302,7 +302,7 @@ describe("SdkBase", () => {
         value: relayerFee.add(amount),
         chainId,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
@@ -335,7 +335,7 @@ describe("SdkBase", () => {
         value: relayerFee,
         chainId,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         unwrapNativeOnDestination: true,
@@ -373,7 +373,7 @@ describe("SdkBase", () => {
         value: relayerFee.add(amount),
         chainId,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
@@ -423,8 +423,8 @@ describe("SdkBase", () => {
         ...mock.entity.xcallArgs(),
         origin,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(sdkXcallArgs);
 
       expect(res).to.be.deep.eq(mockXCallRequest);
@@ -440,7 +440,7 @@ describe("SdkBase", () => {
         ...mock.entity.xcallArgs(),
         origin,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({ ...sdkXcallArgs, options });
 
       expect(res).to.not.be.undefined;
@@ -453,12 +453,12 @@ describe("SdkBase", () => {
         ...mock.entity.xcallArgs(),
         origin,
       };
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(sdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
     });
 
     it("throws CannotUnwrapOnDestination if receiveLocal && unwrapNativeOnDestination", async () => {
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(
         sdkBase.xcall({
           ...sdkXCallArgs,
@@ -469,7 +469,7 @@ describe("SdkBase", () => {
     });
 
     it("throws CannotUnwrapOnDestination if callData specified && unwrapNativeOnDestination", async () => {
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(
         sdkBase.xcall({
           ...sdkXCallArgs,
@@ -481,7 +481,7 @@ describe("SdkBase", () => {
 
     it("should error if provider sanity check returns false", async () => {
       stub(sdkBase, "providerSanityCheck").resolves(false);
-      stub(sdkBase, "hasXERC20").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(sdkBase.xcall(sdkXCallArgs)).to.be.rejectedWith(ProviderMissing);
     });
   });

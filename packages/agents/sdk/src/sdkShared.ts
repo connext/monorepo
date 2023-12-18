@@ -225,19 +225,26 @@ export class SdkShared {
     }
   }
 
-  async hasXERC20(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
+  /**
+   * Checks whether a given asset is an xERC20 with a Lockbox setup.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The domain ID.
+   * @returns Registry Contract object.
+   */
+  async isXERC20WithLockbox(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
     try {
-      let isValidAsset = false;
+      let isLockboxAsset = false;
       // Checking if given asset is erc20 and have a xERC20 representation
       const xerc20Registry = await this.getXERC20Registry(domainId, options);
       const [isXERC20] = await xerc20Registry.functions.isXERC20(tokenAddress);
       if (!isXERC20) {
         const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
         if (xerc20) {
-          isValidAsset = true;
+          isLockboxAsset = true;
         }
       }
-      return isValidAsset;
+      return isLockboxAsset;
     } catch (err: any) {
       return false;
     }
@@ -341,7 +348,7 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const isValidAsset = await this.hasXERC20(domainId, assetId, options);
+    const isValidAsset = await this.isXERC20WithLockbox(domainId, assetId, options);
     const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
 
     if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {

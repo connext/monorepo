@@ -212,7 +212,7 @@ describe("SdkShared", () => {
     });
 
     it("happy: should work for Native", async () => {
-      stub(sdkShared, "hasXERC20").resolves(false);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(false);
       const res = await sdkShared.approveIfNeeded(mock.domain.A, constants.AddressZero, "1");
 
       expect(res).to.be.undefined;
@@ -224,7 +224,7 @@ describe("SdkShared", () => {
           return 1;
         },
       };
-      stub(sdkShared, "hasXERC20").resolves(false);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(false);
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockERC20 as any);
 
@@ -242,7 +242,7 @@ describe("SdkShared", () => {
       //Using Ethereum domain to get the deployments.
       const mockDomain = "6648936";
       stub(sdkShared, "providerSanityCheck").resolves(true);
-      stub(sdkShared, "hasXERC20").resolves(true);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(true);
       stub(sdkShared, "getERC20").resolves(mockXERC20 as any);
 
       const res = await sdkShared.approveIfNeeded(mockDomain, mock.asset.A.address, "1");
@@ -264,7 +264,7 @@ describe("SdkShared", () => {
           },
         },
       };
-      stub(sdkShared, "hasXERC20").resolves(false);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(false);
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockERC20 as any);
       const approve = spy(mockERC20.populateTransaction, "approve");
@@ -290,7 +290,7 @@ describe("SdkShared", () => {
       };
       const mockDomain = "6648936";
       stub(sdkShared, "providerSanityCheck").resolves(true);
-      stub(sdkShared, "hasXERC20").resolves(true);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(true);
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockXERC20 as any);
       const approve = spy(mockXERC20.populateTransaction, "approve");
@@ -317,7 +317,7 @@ describe("SdkShared", () => {
       stub(sdkShared, "getProvider").resolves(undefined);
       stub(sdkShared, "getConnext").resolves(connextContract);
       stub(sdkShared, "getERC20").resolves(mockERC20 as any);
-      stub(sdkShared, "hasXERC20").resolves(false);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(false);
       const options = {
         originProviderUrl: "http://example.com",
       };
@@ -329,7 +329,7 @@ describe("SdkShared", () => {
 
     it("should error if signerAddress is undefined", async () => {
       sdkShared.config.signerAddress = undefined;
-      stub(sdkShared, "hasXERC20").resolves(false);
+      stub(sdkShared, "isXERC20WithLockbox").resolves(false);
       await expect(sdkShared.approveIfNeeded(mock.domain.A, mock.asset.A.address, "1")).to.be.rejectedWith(
         SignerAddressMissing,
       );

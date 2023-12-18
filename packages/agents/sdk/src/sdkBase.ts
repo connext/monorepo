@@ -228,14 +228,14 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const isValidAsset = await this.hasXERC20(origin, asset, options);
+    const isLockboxAsset = await this.isXERC20WithLockbox(origin, asset, options);
     const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[origin];
-    if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+    if (isLockboxAsset && !LOCKBOX_ADAPTER_ADDRESS) {
       throw new Error("Lockbox adapter not deployed on given domain");
     }
 
     // In case given asset is XERC20 and have lockbox tx should hit adapter rather than connext contracts
-    const connextContractAddress = isValidAsset
+    const connextContractAddress = isLockboxAsset
       ? LOCKBOX_ADAPTER_ADDRESS
       : (await this.getConnext(origin, options)).address;
 
