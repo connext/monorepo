@@ -48,7 +48,8 @@ locals {
         providers = ["https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://rpc.ankr.com/gnosis"]
+        providers      = ["https://rpc.ankr.com/gnosis"]
+        disabledAssets = ["0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"]
       }
       "1818848877" = {
         providers      = ["https://rpc.linea.build"]
