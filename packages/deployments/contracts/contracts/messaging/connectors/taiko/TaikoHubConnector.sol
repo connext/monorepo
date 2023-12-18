@@ -73,7 +73,7 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
-    if (!_verifySender(address(AMB))) revert TaikoHubConnector_SenderNotAllowedAgent();
+    if (!_verifySender(AMB)) revert TaikoHubConnector_SenderNotAllowedAgent();
     (bool _received, bytes32 _signal) = _verifyAndGetSignal(SPOKE_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoHubConnector_SignalNotReceived();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _signal);
