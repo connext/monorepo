@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {BaseFuel} from "./BaseFuel.sol";
 import {Connector} from "../Connector.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {IFuelMessagePortal} from "../../interfaces/ambs/fuel/IFuelMessagePortal.sol";
@@ -12,7 +11,7 @@ import {IRootManager} from "../../interfaces/IRootManager.sol";
  * @notice Fuel Hub Connector contract in charge of sending messages to the L2 Fuel Hub Connector through the
  * L1 Fuel Messenger, and receiving messages from the L2 Fuel Hub Connector through the L1 Fuel Messenger
  */
-contract FuelHubConnector is HubConnector, BaseFuel {
+contract FuelHubConnector is HubConnector {
   /**
    * @notice Thrown when the message length is not 32 bytes
    */
@@ -21,6 +20,15 @@ contract FuelHubConnector is HubConnector, BaseFuel {
    * @notice Thrown when the origin sender of the cross domain message is not the mirror connector
    */
   error FuelHubConnector_OriginSenderIsNotMirror();
+
+  /**
+   * @notice Constant used to represent the zero value of a message
+   */
+  uint256 public constant ZERO_MSG_VALUE = 0;
+  /**
+   * @notice Constant used to represent the required length of a message
+   */
+  uint256 public constant MESSAGE_LENGTH = 32;
 
   /**
    * @notice L1 Fuel Messenge portal
@@ -50,21 +58,22 @@ contract FuelHubConnector is HubConnector, BaseFuel {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert FuelHubConnector_DataLengthIsNot32();
+    if (!(_data.length == MESSAGE_LENGTH)) revert FuelHubConnector_DataLengthIsNot32();
     _;
   }
 
   /**
    * @notice Sends a message to the mirror connector through the Fuel Messenger Portal
    * @param _data Message data
-   * @param _encodedData Encoded data, used to get the refund address
+   * @param _encodedData Encoded data, used to get the recipient address
    * @dev The message length must be 32 bytes
+   * @dev No fees needed to pay for the message execution. If you add `msg.value` it will go the recipient address
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override checkMessageLength(_data) {
-    address _refundAddress = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
+    address _recipient = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
+    bytes32 _bytes32RecipientAddress = _addressToBytes32(_recipient);
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    bytes32 _bytes32RefoundAddress = _addressToBytes32(_refundAddress);
-    FUEL_MESSENGER_PORTAL.sendMessage{value: msg.value}(_bytes32RefoundAddress, _calldata);
+    FUEL_MESSENGER_PORTAL.sendMessage{value: msg.value}(_bytes32RecipientAddress, _calldata);
   }
 
   /**
@@ -82,10 +91,28 @@ contract FuelHubConnector is HubConnector, BaseFuel {
   /**
    * @notice Verifies that the origin sender of the cross domain message is the mirror connector
    * @param _mirrorSender The mirror sender address
-   * @dev    Fuel returns the origin sender as a bytes32, so we need to convert it to an address
+   * @dev Fuel returns the origin sender as a bytes32, so we need to convert it to an address
    * @return _isValid True if the origin sender is the mirror connector, otherwise false
    */
   function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
     _isValid = _bytes32ToAddress(FUEL_MESSENGER_PORTAL.messageSender()) == _mirrorSender;
+  }
+
+  /**
+   * @notice Converts bytes32 to address
+   * @param _bytes The bytes32 value
+   * @return _address The address value
+   */
+  function _bytes32ToAddress(bytes32 _bytes) internal pure returns (address _address) {
+    _address = address(uint160(uint256(_bytes)));
+  }
+
+  /**
+   * @notice Converts address to bytes32
+   * @param _address The address value
+   * @return _bytes The bytes32 value
+   */
+  function _addressToBytes32(address _address) internal pure returns (bytes32 _bytes) {
+    _bytes = bytes32(uint256(uint160(_address)));
   }
 }
