@@ -5,8 +5,19 @@ import {BridgeForTest} from "../../sygma_for_test/BridgeForTest.sol";
 import {Common} from "./Common.sol";
 
 contract Integration_Connector_SygmaSpokeConnector_ReceiveMessage is Common {
-  event AggregateRootReceived(bytes32 indexed root);
+  /**
+   * @notice Emitted when a root is received by the root manager
+   * @param _root The root of the message
+   */
+  event AggregateRootReceived(bytes32 indexed _root);
 
+  /**
+   * @notice Tests it receives a message through the Sygma Bridge using the `receiveMessage` function successfully and it emits
+   * the `AggregateRootReceived` event.
+   * @param _root The root of the message
+   * @param _depositNonce The deposit nonce of the message
+   * @param _signature The signature of the message
+   */
   function test_receiveMessage(bytes memory _root, uint64 _depositNonce, bytes memory _signature) external {
     vm.assume(bytes32(_root) != bytes32(0));
 

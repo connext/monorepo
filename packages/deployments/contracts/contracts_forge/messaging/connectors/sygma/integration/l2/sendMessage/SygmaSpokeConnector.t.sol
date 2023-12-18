@@ -6,6 +6,9 @@ import {IFeeRouter} from "../../../../../../../contracts/messaging/interfaces/am
 import {console} from "forge-std/Test.sol";
 
 contract Integration_Connector_SygmaSpokeConnector_SendMessage is Common {
+  /**
+   * @notice Tests it send a message through the Sygma Bridge using the Sygma Hub Connector successfully
+   */
   function test_sendMessage() public {
     // Get the encoded data
     // Get and parse the deposit data

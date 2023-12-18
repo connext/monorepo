@@ -5,6 +5,9 @@ import {Common} from "./Common.sol";
 import {console} from "forge-std/Test.sol";
 
 contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
+  /**
+   * @notice Tests it send a message through the Sygma Bridge using the `sendMessage` function successfully
+   */
   function test_sendMessage() public {
     // Current (origin) domain
     uint8 _ethereumDomainId = 1;
