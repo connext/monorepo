@@ -66,7 +66,7 @@ contract Base is ConnectorHelper {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
+contract Unit_Connector_SygmaSpokeConnector_Constructor is Base {
   function test_constructor() public {
     assertEq(sygmaSpokeConnector.DOMAIN(), _l2Domain);
     assertEq(sygmaSpokeConnector.MIRROR_DOMAIN(), _l1Domain);
@@ -86,7 +86,7 @@ contract Unit_Connector_SygmaSpokeConnector__Constructor is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
+contract Unit_Connector_SygmaSpokeConnector_ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
   modifier happyPath(bytes32 _root) {
@@ -127,9 +127,16 @@ contract Unit_Connector_SygmaSpokeConnector__ReceiveMessage is Base {
     emit AggregateRootReceived(_root);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
+
+  function test_emitMessageProcessed(bytes32 _root) public happyPath(_root) {
+    vm.expectEmit(true, true, true, true, address(sygmaSpokeConnector));
+    emit MessageProcessed(abi.encodePacked(_root), permissionlessHandler);
+
+    sygmaSpokeConnector.receiveMessage(_l2Connector, _root);
+  }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__SendMessage is Base {
+contract Unit_Connector_SygmaSpokeConnector_SendMessage is Base {
   function test_revertIfDataLengthIsNot32(bytes memory _data, bytes memory _feeData) public {
     vm.assume(_data.length != ROOT_LENGTH);
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_DataLengthIsNot32.selector);
@@ -175,7 +182,7 @@ contract Unit_Connector_SygmaSpokeConnector_VerifySender is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__RenounceOwnership is Base {
+contract Unit_Connector_SygmaSpokeConnector_RenounceOwnership is Base {
   function test_revertIfCallerNotOwner(address _caller) public {
     vm.assume(_caller != _owner);
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
@@ -190,7 +197,7 @@ contract Unit_Connector_SygmaSpokeConnector__RenounceOwnership is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__ProcessMessage is Base {
+contract Unit_Connector_SygmaSpokeConnector_ProcessMessage is Base {
   function test_revertWhenCalled(bytes memory _data) public {
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_UnimplementedMethod.selector);
     vm.prank(_owner);
