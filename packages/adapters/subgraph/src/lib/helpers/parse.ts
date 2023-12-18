@@ -8,6 +8,11 @@ import {
   OriginTransfer,
   ConnectorMeta,
   RootManagerMeta,
+  RootManagerMode,
+  SpokeConnectorMode,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+  SnapshotRoot,
   ReceivedAggregateRoot,
   StableSwapPool,
   StableSwapExchange,
@@ -18,6 +23,8 @@ import {
   PoolActionType,
   RouterDailyTVL,
   isValidBytes32,
+  Snapshot,
+  SpokeOptimisticRoot,
   RouterLiquidityEvent,
   RouterLiquidityEventType,
 } from "@connext/nxtp-utils";
@@ -386,6 +393,130 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
   };
 };
 
+export const proposedRoot = (entity: any): Snapshot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `proposedRoot` entity parser: proposedRoot, entity is `undefined`.");
+  }
+  for (const field of [
+    "id",
+    "disputeCliff",
+    "aggregateRoot",
+    "snapshotsRoots",
+    "domains",
+    "baseAggregateRoot",
+    "timestamp",
+  ]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    endOfDispute: entity.disputeCliff,
+    aggregateRoot: entity.aggregateRoot,
+    roots: entity.snapshotsRoots,
+    domains: entity.domains,
+    baseAggregateRoot: entity.baseAggregateRoot,
+    proposedTimestamp: entity.timestamp,
+  };
+};
+export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: SpokeOptimisticRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregateRoot", "rootTimestamp", "endOfDispute", "domain", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    rootTimestamp: entity.rootTimestamp,
+    endOfDispute: entity.endOfDispute,
+    domain: entity.domain,
+    proposeTimestamp: entity.timestamp,
+  };
+};
+export const snapshotRoot = (entity: any): SnapshotRoot => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `snapshotRoot` entity parser: snapshotRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "spokeDomain", "root", "count", "timestamp", "blockNumber"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `snapshotRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    spokeDomain: entity.spokeDomain,
+    root: entity.root,
+    count: entity.count,
+    timestamp: entity.timestamp,
+    blockNumber: entity.blockNumber,
+  };
+};
+
+export const finalizedRoot = (entity: any): OptimisticRootFinalized => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `finalizedRoot` entity parser: finalizedRoot, entity is `undefined`.");
+  }
+  for (const field of ["id", "aggregateRoot", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `finalizedRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    timestamp: entity.timestamp,
+  };
+};
+
+export const propagatedOptimisticRoot = (entity: any): OptimisticRootPropagated => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError(
+      "Subgraph `propagatedOptimisticRoot` entity parser: propagatedOptimisticRoot, entity is `undefined`.",
+    );
+  }
+  for (const field of ["id", "aggregateRoot", "domainsHash", "timestamp"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `propagatedOptimisticRoot` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    aggregateRoot: entity.aggregateRoot,
+    domainsHash: entity.domainsHash,
+    timestamp: entity.timestamp,
+  };
+};
+
 export const connectorMeta = (entity: any): ConnectorMeta => {
   // Sanity checks.
   if (!entity) {
@@ -428,6 +559,46 @@ export const rootManagerMeta = (entity: any): RootManagerMeta => {
     id: entity.id,
     connectors: entity.connectors,
     domains: entity.domains,
+  };
+};
+
+export const rootManagerMode = (entity: any): RootManagerMode => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `RootManagerMode` entity parser: RootManagerMode, entity is `undefined`.");
+  }
+  for (const field of ["id", "mode"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `RootManagerMode` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    mode: entity.mode,
+  };
+};
+
+export const spokeConnectorMode = (entity: any): SpokeConnectorMode => {
+  // Sanity checks.
+  if (!entity) {
+    throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: SpokeConnectorMode, entity is `undefined`.");
+  }
+  for (const field of ["id", "mode"]) {
+    if (!entity[field]) {
+      throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: Message entity missing required field", {
+        missingField: field,
+        entity,
+      });
+    }
+  }
+
+  return {
+    id: entity.id,
+    mode: entity.mode,
   };
 };
 

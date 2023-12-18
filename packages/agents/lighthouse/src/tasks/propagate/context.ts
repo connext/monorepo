@@ -7,6 +7,9 @@ import {
 import { ChainData, Logger, RelayerType } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { Database } from "@connext/nxtp-adapters-database";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { Wallet } from "ethers";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -20,6 +23,8 @@ export type PropagateContext = {
     ambs: AmbContractABIs;
     relayers: { instance: Relayer; apiKey: string; type: RelayerType }[];
     subgraph: SubgraphReader; // Aggregates subgraphs in a FallbackSubgraph for each chain.
+    database: Database;
+    wallet: Wallet | Web3Signer; // Used for signing metatxs for propagate.
   };
   config: NxtpLighthouseConfig;
   chainData: Map<string, ChainData>;

@@ -24,6 +24,8 @@ contract DeployConfig is Script {
     uint256 processGas;
     uint256 reserveGas;
     address spokeAmb;
+    uint256 minDisputeBlocks;
+    uint256 disputeBlocks;
   }
 
   struct AgentConfig {

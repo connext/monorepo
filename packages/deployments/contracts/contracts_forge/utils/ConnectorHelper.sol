@@ -10,7 +10,7 @@ contract ConnectorHelper is ForgeHelper {
   event SenderAdded(address sender);
   event SenderRemoved(address sender);
   event AggregateRootUpdated(bytes32 current, bytes32 previous);
-  event Dispatch(bytes32 leaf, uint256 index, bytes32 root, bytes message);
+  event Dispatch(bytes32 indexed leaf, uint256 indexed index, bytes32 indexed root, bytes message);
   event Process(bytes32 leaf, bool success, bytes returnData);
   event MessageSent(bytes data, bytes encodedData, address caller);
   event MessageProcessed(bytes data, address caller);
@@ -36,4 +36,7 @@ contract ConnectorHelper is ForgeHelper {
   address payable _l1Connector;
   address payable _l2Connector;
   address _merkle;
+
+  uint256 _minDisputeBlocks = 125;
+  uint256 _disputeBlocks = 150;
 }

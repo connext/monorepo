@@ -29,6 +29,14 @@ import {
   AssetPrice,
   StableSwapTransfer,
   StableSwapLpBalance,
+  SnapshotRoot,
+  Snapshot,
+  OptimisticRootFinalized,
+  OptimisticRootPropagated,
+  RouterDailyTVL,
+  RelayerFeesIncrease,
+  SlippageUpdate,
+  SpokeOptimisticRoot,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -216,6 +224,7 @@ export const mock = {
         routers?: string[];
         relayerFee?: string; // deprecated
         relayerFees?: { [asset: string]: string };
+        xcall_timestamp?: number;
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -296,7 +305,7 @@ export const mock = {
                 // Event Data
                 caller: user,
                 transactionHash: getRandomBytes32(),
-                timestamp: Math.floor(Date.now() / 1000 - 60),
+                timestamp: overrides.xcall_timestamp ?? Math.floor(Date.now() / 1000 - 60),
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
                 blockNumber: 7654321,
@@ -475,6 +484,48 @@ export const mock = {
       blockNumber: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
+    snapshotRoot: (overrides: Partial<SnapshotRoot> = {}): SnapshotRoot => ({
+      id: getRandomBytes32(),
+      root: getRandomBytes32(),
+      spokeDomain: +mock.domain.A,
+      timestamp: Math.floor(Date.now() / 1000),
+      blockNumber: Math.floor(Date.now() / 1000),
+      count: 1,
+      ...overrides,
+    }),
+    snapshot: (overrides: Partial<Snapshot> = {}): Snapshot => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      baseAggregateRoot: getRandomBytes32(),
+      roots: [getRandomBytes32(), getRandomBytes32()],
+      domains: [mock.domain.A, mock.domain.B],
+      endOfDispute: Math.floor(Date.now() / 1000),
+      proposedTimestamp: Math.floor(Date.now() / 1000),
+      finalizedTimestamp: Math.floor(Date.now() / 1000),
+      propagateTimestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    optimisticRootFinalized: (overrides: Partial<OptimisticRootFinalized> = {}): OptimisticRootFinalized => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    optimisticRootPropagated: (overrides: Partial<OptimisticRootPropagated> = {}): OptimisticRootPropagated => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      domainsHash: getRandomBytes32(),
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    spokeOptimisticRoot: (overrides: Partial<SpokeOptimisticRoot> = {}): SpokeOptimisticRoot => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      domain: mock.domain.A,
+      rootTimestamp: Math.floor(Date.now() / 1000),
+      endOfDispute: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
     stableSwapPool: (overrides: Partial<StableSwapPool> = {}): StableSwapPool => ({
       key: getRandomBytes32(),
       domain: mock.domain.A,
@@ -556,6 +607,32 @@ export const mock = {
       lastTimestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
+    routerDailyTVL: (overrides: Partial<RouterDailyTVL> = {}): RouterDailyTVL => ({
+      id: getRandomBytes32(),
+      asset: getRandomAddress(),
+      router: getRandomAddress(),
+      domain: mock.domain.A,
+      balance: "200",
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    relayerFeesIncrease: (overrides: Partial<RelayerFeesIncrease> = {}): RelayerFeesIncrease => ({
+      id: getRandomBytes32(),
+      transferId: getRandomBytes32(),
+      asset: getRandomAddress(),
+      domain: mock.domain.A,
+      increase: "200",
+      timestamp: "1234",
+      ...overrides,
+    }),
+    slippageUpdate: (overrides: Partial<SlippageUpdate> = {}): SlippageUpdate => ({
+      id: getRandomBytes32(),
+      transferId: getRandomBytes32(),
+      domain: mock.domain.A,
+      slippage: "200",
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
   },
   ethers: {
     receipt: (overrides: Partial<providers.TransactionReceipt> = {}): providers.TransactionReceipt =>
@@ -629,4 +706,5 @@ export const mock = {
       },
     },
   },
+  snapshotDuration: 1800,
 };

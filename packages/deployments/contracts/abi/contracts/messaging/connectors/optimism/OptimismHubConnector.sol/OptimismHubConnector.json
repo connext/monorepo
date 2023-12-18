@@ -8,8 +8,7 @@
   "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
-  "error TypedMemView__index_indexMoreThan32Bytes()",
-  "error TypedMemView__index_overrun(uint256 loc, uint256 len, uint256 index, uint256 slice)",
+  "event FundsWithdrawn(address indexed to, uint256 amount)",
   "event GasCapUpdated(uint256 _previous, uint256 _updated)",
   "event MessageProcessed(bytes data, address caller)",
   "event MessageSent(bytes data, bytes encodedData, address caller)",
@@ -24,6 +23,7 @@
   "function ROOT_MANAGER() view returns (address)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
+  "function gasCap() view returns (uint256)",
   "function mirrorConnector() view returns (address)",
   "function owner() view returns (address)",
   "function processMessage(bytes _data)",
@@ -37,5 +37,6 @@
   "function sendMessage(bytes _data, bytes _encodedData) payable",
   "function setGasCap(uint256 _gasCap)",
   "function setMirrorConnector(address _mirrorConnector)",
-  "function verifySender(address _expected) returns (bool)"
+  "function verifySender(address _expected) returns (bool)",
+  "function withdrawFunds(address _to)"
 ]

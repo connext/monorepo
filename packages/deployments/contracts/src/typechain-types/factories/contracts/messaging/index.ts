@@ -4,6 +4,7 @@
 export * as connectors from "./connectors";
 export * as interfaces from "./interfaces";
 export * as libraries from "./libraries";
+export { Conductor__factory } from "./Conductor__factory";
 export { MerkleTreeManager__factory } from "./MerkleTreeManager__factory";
 export { RootManager__factory } from "./RootManager__factory";
 export { WatcherClient__factory } from "./WatcherClient__factory";

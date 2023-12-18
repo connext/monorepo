@@ -2,7 +2,7 @@
 
 import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
-import { ajv, ChainData, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
+import { ajv, ChainData, domainToChainId, TAddress, TDatabaseConfig, TLogLevel } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { existsSync, readFileSync } from "./mockable";
@@ -13,14 +13,19 @@ const DEFAULT_CARTOGRAPHER_POLL_INTERVAL = 60_000;
 export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 export const DEFAULT_PROVER_PUB_MAX = 5000;
+export const DEFAULT_LH_SNAPSHOT_DURATION = 1800; // 30 minutes
 
 dotenvConfig();
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
+    connext: TAddress,
+    spokeMerkleTree: TAddress,
+    hubMerkleTree: TAddress,
     spokeConnector: TAddress,
     relayerProxy: TAddress,
+    rootManager: TAddress,
   }),
 });
 
@@ -88,6 +93,8 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
   database: TDatabaseConfig,
   databaseWriter: TDatabaseConfig,
+  mnemonic: Type.Optional(Type.String()),
+  web3SignerUrl: Type.Optional(Type.String()),
   redis: TRedisConfig,
   subgraphPrefix: Type.Optional(Type.String()),
   healthUrls: Type.Partial(
@@ -96,12 +103,14 @@ export const NxtpLighthouseConfigSchema = Type.Object({
       processor: Type.String({ format: "uri" }),
       propagate: Type.String({ format: "uri" }),
       sendOutboundRoot: Type.String({ format: "uri" }),
+      propose: Type.String({ format: "uri" }),
     }),
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
+    Type.Literal("propose"),
     Type.Literal("prover-pub"),
     Type.Literal("prover-sub"),
     Type.Literal("prover-func"),
@@ -111,6 +120,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   ]),
   messageQueue: TMQConfig,
   server: TServerConfig,
+  snapshotDuration: Type.Integer({ minimum: 1, maximum: 10000 }),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -124,6 +134,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
   "1668247156": "Linea",
+  "1650553703": "Base",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
@@ -132,6 +143,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1634886255": "Arbitrum",
   "6450786": "Bnb",
   "1818848877": "Linea",
+  "1650553709": "Base",
 };
 
 /**
@@ -202,6 +214,8 @@ export const getEnvConfig = (
         ? +process.env.REDIS_PORT
         : undefined || configJson.redis?.port || configFile.redis?.port || 6379,
     },
+    mnemonic: process.env.NXTP_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
+    web3SignerUrl: process.env.NXTP_WEB3_SIGNER_URL || configJson.web3SignerUrl || configFile.web3SignerUrl,
     environment: process.env.NXTP_ENVIRONMENT || configJson.environment || configFile.environment || "production",
     cartographerUrl: process.env.NXTP_CARTOGRAPHER_URL || configJson.cartographerUrl || configFile.cartographerUrl,
     subgraphPrefix: process.env.NXTP_SUBGRAPH_PREFIX || configJson.subgraphPrefix || configFile.subgraphPrefix,
@@ -236,6 +250,9 @@ export const getEnvConfig = (
         configFile.server?.adminToken ||
         "blahblah",
     },
+    snapshotDuration: process.env.LH_SNAPSHOT_DURATION
+      ? +process.env.LH_SNAPSHOT_DURATION
+      : configJson.snapshotDuration || configFile.snapshotDuration || DEFAULT_LH_SNAPSHOT_DURATION,
   };
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??
@@ -248,7 +265,12 @@ export const getEnvConfig = (
       ? ""
       : (`${nxtpConfig.environment[0].toUpperCase()}${nxtpConfig.environment.slice(1)}` as ContractPostfix);
 
+  if (!nxtpConfig.mnemonic && !nxtpConfig.web3SignerUrl) {
+    throw new Error(`Wallet missing, please add either mnemonic or web3SignerUrl: ${JSON.stringify(nxtpConfig)}`);
+  }
+
   // add contract deployments if they exist
+  const hubChain = domainToChainId(+nxtpConfig.hubDomain);
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     const chainDataForChain = chainData.get(domainId);
     // Make sure deployments is filled out correctly.
@@ -273,6 +295,45 @@ export const getEnvConfig = (
           return res.address;
         })(),
 
+      connext:
+        nxtpConfig.chains[domainId].deployments?.connext ??
+        (() => {
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          if (!res) {
+            throw new Error(
+              `No Connext${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
+            );
+          }
+          return res.address;
+        })(),
+
+      spokeMerkleTree:
+        chainConfig.deployments?.spokeMerkleTree ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.spokeMerkleTreeManager(
+                chainDataForChain.chainId,
+                hubChain === chainDataForChain.chainId,
+                contractPostfix,
+              )
+            : undefined;
+
+          if (!res) {
+            throw new Error(`No spoke MerkleTreeManager contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      hubMerkleTree:
+        chainConfig.deployments?.hubMerkleTree ??
+        (() => {
+          const res = chainDataForChain ? deployments.rootMerkleTreeManager(hubChain, contractPostfix) : undefined;
+
+          if (!res) {
+            throw new Error(`No hub MerkleTreeManager contract address for domain ${hubChain}`);
+          }
+          return res.address;
+        })(),
       relayerProxy:
         chainConfig.deployments?.relayerProxy ??
         (() => {
@@ -282,6 +343,17 @@ export const getEnvConfig = (
 
           if (!res) {
             throw new Error(`No RelayerProxy contract address for domain ${domainId}`);
+          }
+          return res.address;
+        })(),
+
+      rootManager:
+        chainConfig.deployments?.rootManager ??
+        (() => {
+          const res = chainDataForChain ? deployments.rootManager(hubChain, contractPostfix) : undefined;
+
+          if (!res) {
+            throw new Error(`No Rootmanager contract address for domain ${hubChain}`);
           }
           return res.address;
         })(),

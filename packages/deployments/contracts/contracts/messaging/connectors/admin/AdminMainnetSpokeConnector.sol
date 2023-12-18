@@ -16,31 +16,7 @@ import {SpokeConnector} from "../SpokeConnector.sol";
 contract AdminMainnetSpokeConnector is SpokeConnector, IHubConnector {
   // ============ Constructor ============
   // some params are unused so they will not be specified
-  constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-  {}
+  constructor(ConstructorParams memory _baseSpokeParams) SpokeConnector(_baseSpokeParams) {}
 
   // ============ Admin fns ============
 

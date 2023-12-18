@@ -5,8 +5,8 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 280, 420, 59140, 80001, 421613],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -142,6 +142,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "goerli",
     },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
     verify: {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
@@ -301,7 +302,7 @@ export const hardhatNetworks = {
   "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
-    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
     url: urlOverride || process.env.LINEA_GOERLI_PROVIDER_URL || "https://rpc.goerli.linea.build",
     companionNetworks: {
       hub: "goerli",
@@ -316,7 +317,7 @@ export const hardhatNetworks = {
   linea: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 59144,
-    gasPrice: utils.parseUnits("3", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
     url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
     companionNetworks: {
       hub: "mainnet",
@@ -324,7 +325,36 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.LINEASCAN_API_KEY!,
-        apiUrl: "https://explorer.goerli.linea.build",
+        apiUrl: "https://api.lineascan.build",
+      },
+    },
+  },
+  "base-goerli": {
+    accounts: { mnemonic },
+    chainId: 84531,
+    gasPrice: utils.parseUnits("0.2", "gwei").toNumber(),
+    url: urlOverride || process.env.BASE_GOERLI_PROVIDER_URL || "https://goerli.base.org",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api-goerli.basescan.org",
+      },
+    },
+  },
+  base: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 8453,
+    url: urlOverride || process.env.BASE_PROVIDER_URL || "https://mainnet.base.org",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api.basescan.org",
       },
     },
   },

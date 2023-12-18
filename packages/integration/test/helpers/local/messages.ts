@@ -1,5 +1,5 @@
 import { TransactionService } from "@connext/nxtp-txservice";
-import { createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext, getNtpTimeSeconds } from "@connext/nxtp-utils";
 import {
   AdminSpokeConnectorInterface,
   AdminHubConnectorInterface,
@@ -95,7 +95,7 @@ export const propagateAggregatedRootToSpokes = async (
 
   let encodeLastPropagated = await txService.readTx({
     domain: +propagateData.domain,
-    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot"),
+    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot", [getNtpTimeSeconds()]),
     to: propagateData.to,
   });
   let [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);
@@ -125,7 +125,7 @@ export const propagateAggregatedRootToSpokes = async (
 
   encodeLastPropagated = await txService.readTx({
     domain: +propagateData.domain,
-    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot"),
+    data: RootManagerInterface.encodeFunctionData("lastPropagatedRoot", [getNtpTimeSeconds()]),
     to: propagateData.to,
   });
   [lastPropagated] = RootManagerInterface.decodeFunctionResult("lastPropagatedRoot", encodeLastPropagated);

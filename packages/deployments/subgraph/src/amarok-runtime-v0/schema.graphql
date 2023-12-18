@@ -287,3 +287,35 @@ type SlippageUpdate @entity {
   gasLimit: BigInt!
   blockNumber: BigInt!
 }
+
+type SnapshotRoot @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  root: Bytes!
+  count: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type SpokeConnectorMode @entity {
+  id: ID!
+  mode: String!
+}
+
+type AggregateRootProposed @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type OptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}

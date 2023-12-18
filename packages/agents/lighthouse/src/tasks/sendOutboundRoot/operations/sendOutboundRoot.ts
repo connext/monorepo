@@ -7,6 +7,7 @@ import {
   getSendOutboundRootParamsZkSync,
   getSendOutboundRootParamsGnosis,
   getSendOutboundRootParamsOptimism,
+  getSendOutboundRootParamsBase,
 } from "../helpers";
 import { getContext } from "../sendOutboundRoot";
 
@@ -21,10 +22,12 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "1869640809": getSendOutboundRootParamsOptimism,
   "6778479": getSendOutboundRootParamsGnosis,
   "1818848877": getSendOutboundRootParamsLinea,
+  "1650553709": getSendOutboundRootParamsBase,
   // testnet
   "1668247156": getSendOutboundRootParamsLinea,
   "2053862260": getSendOutboundRootParamsZkSync,
   "1735356532": getSendOutboundRootParamsOptimism,
+  "1650553703": getSendOutboundRootParamsBase,
 };
 
 export const sendOutboundRoot = async () => {

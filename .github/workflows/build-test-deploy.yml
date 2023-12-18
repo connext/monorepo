@@ -17,7 +17,6 @@ on:
 
 jobs:
   build-and-test:
-    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read

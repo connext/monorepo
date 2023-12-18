@@ -12,6 +12,7 @@ import {MerkleLib} from "./libraries/MerkleLib.sol";
 contract MerkleTreeManager is ProposedOwnableUpgradeable {
   // ========== Custom Errors ===========
 
+  error MerkleTreeManager__renounceOwnership_prohibited();
   error MerkleTreeManager__setArborist_zeroAddress();
   error MerkleTreeManager__setArborist_alreadyArborist();
 
@@ -22,6 +23,18 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   event LeafInserted(bytes32 root, uint256 count, bytes32 leaf);
 
   event LeavesInserted(bytes32 root, uint256 count, bytes32[] leaves);
+
+  // ============ Structs ============
+
+  // Status of Message:
+  //   0 - None - message has not been proven or processed
+  //   1 - Proven - message inclusion proof has been validated
+  //   2 - Processed - message has been dispatched to recipient
+  enum LeafStatus {
+    None,
+    Proven,
+    Processed
+  }
 
   // ============ Libraries ============
 
@@ -40,6 +53,16 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @dev This could be the root manager contract or a spoke connector contract, for example.
    */
   address public arborist;
+
+  /**
+   * @notice The leaves that are proven already
+   */
+  mapping(bytes32 => LeafStatus) public leaves;
+
+  /**
+   * @notice domain => next available nonce for the domain.
+   */
+  mapping(uint32 => uint32) public nonces;
 
   // ============ Modifiers ============
 
@@ -118,26 +141,55 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
    * @dev Renounce ownership should be impossible as long as there is a possibility the
    * arborist may change.
    */
-  function renounceOwnership() public virtual override onlyOwner {}
+  function renounceOwnership() public virtual override onlyOwner {
+    revert MerkleTreeManager__renounceOwnership_prohibited();
+  }
 
   // ========= Public Functions =========
 
   /**
+   * @notice Used to increment nonce
+   * @param _domain The domain the nonce will be used for
+   * @return _nonce The incremented nonce
+   */
+  function incrementNonce(uint32 _domain) public onlyArborist returns (uint32 _nonce) {
+    _nonce = nonces[_domain]++;
+  }
+
+  /**
+   * @notice Used to track proven leaves
+   * @param _leaf The leaf to mark as proven
+   */
+  function markAsProven(bytes32 _leaf) public onlyArborist {
+    require(leaves[_leaf] == LeafStatus.None, "!empty");
+    leaves[_leaf] = LeafStatus.Proven;
+  }
+
+  /**
+   * @notice Used to track processed leaves
+   * @param _leaf The leaf to mark as proven
+   */
+  function markAsProcessed(bytes32 _leaf) public onlyArborist {
+    require(leaves[_leaf] == LeafStatus.Proven, "!proven");
+    leaves[_leaf] = LeafStatus.Processed;
+  }
+
+  /**
    * @notice Inserts the given leaves into the tree.
-   * @param leaves The leaves to be inserted into the tree.
+   * @param _leaves The leaves to be inserted into the tree.
    * @return _root Current root for convenience.
    * @return _count Current node count (i.e. number of indices) AFTER the insertion of the new leaf,
    * provided for convenience.
    */
-  function insert(bytes32[] memory leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
+  function insert(bytes32[] memory _leaves) public onlyArborist returns (bytes32 _root, uint256 _count) {
     // For > 1 leaf, considerably more efficient to put this tree into memory, conduct operations,
     // then re-assign it to storage - *especially* if we have multiple leaves to insert.
     MerkleLib.Tree memory _tree = tree;
 
-    uint256 leafCount = leaves.length;
+    uint256 leafCount = _leaves.length;
     for (uint256 i; i < leafCount; ) {
       // Insert the new node (using in-memory method).
-      _tree = _tree.insert(leaves[i]);
+      _tree = _tree.insert(_leaves[i]);
       unchecked {
         ++i;
       }
@@ -150,7 +202,7 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
     // NOTE: Root calculation method currently reads from storage only.
     _root = tree.root();
 
-    emit LeavesInserted(_root, _count, leaves);
+    emit LeavesInserted(_root, _count, _leaves);
   }
 
   /**
@@ -170,5 +222,5 @@ contract MerkleTreeManager is ProposedOwnableUpgradeable {
   }
 
   // ============ Upgrade Gap ============
-  uint256[48] private __GAP; // gap for upgrade safety
+  uint256[46] private __GAP; // gap for upgrade safety
 }
