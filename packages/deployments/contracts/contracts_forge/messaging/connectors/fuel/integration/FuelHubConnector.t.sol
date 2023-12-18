@@ -5,7 +5,10 @@ import {Connector} from "../../../../../contracts/messaging/connectors/Connector
 import {Common} from "./Common.sol";
 
 contract Integration_Connector_FuelHubConnector is Common {
-  /// @dev Emitted when a message is sent from Ethereum to Fuel
+  /**
+   * @notice Emitted when a message is sent from Ethereum to Fuel
+   * @dev Emitted by the `FuelMessagePortal`
+   */
   event MessageSent(
     bytes32 indexed sender,
     bytes32 indexed recipient,
@@ -15,7 +18,8 @@ contract Integration_Connector_FuelHubConnector is Common {
   );
 
   /**
-   * @notice Sends a message trough the Fuel AMB using the Fuel Hub Connector successfully
+   * @notice Sends a message trough the Fuel AMB using the Fuel Hub Connector and
+   * checks the `MessageSent` event is successfully emitted by the `FuelMessagePortal`
    */
   function test_sendMessage() public {
     // Encode the root

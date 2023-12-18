@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
 import {FuelHubConnector} from "../../../../../contracts/messaging/connectors/fuel/FuelHubConnector.sol";
 import {MerkleTreeManager} from "../../../../../contracts/messaging/MerkleTreeManager.sol";
@@ -14,16 +13,19 @@ import {IFuelMessagePortal} from "../../../../../contracts/messaging/interfaces/
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 4_913_146;
 
+  // FuelMessagePortal address on Sepolia
   IFuelMessagePortal public constant FUEL_MESSAGE_PORTAL =
     IFuelMessagePortal(0x457A5a9320d06118764c400163c441cb8551cfa2);
   uint32 public constant DOMAIN = 100; // Sepolia
   uint32 public constant MIRROR_DOMAIN = 110; // Fuel
   uint256 public constant DELAY_BLOCKS = 0;
 
+  // External EOAs
   address public owner = makeAddr("owner");
   address public user = makeAddr("user");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
 
+  // Contracts and mirror connector
   FuelHubConnector public fuelHubConnector;
   RootManager public rootManager;
   MerkleTreeManager public merkleTreeManager;

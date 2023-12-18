@@ -8,8 +8,8 @@ import {IRootManager} from "../../interfaces/IRootManager.sol";
 
 /**
  * @title FuelHubConnector
- * @notice Fuel Hub Connector contract in charge of sending messages to the L2 Fuel Hub Connector through the
- * L1 Fuel Messenger, and receiving messages from the L2 Fuel Hub Connector through the L1 Fuel Messenger
+ * @notice Fuel Hub Connector contract in charge of sending messages to the L2 Fuel Spoke Connector through the
+ * L1 Fuel Message Portal, and receiving messages from the L2 Fuel Hub Connector through the same Fuel Message Portal
  */
 contract FuelHubConnector is HubConnector {
   /**
@@ -22,10 +22,6 @@ contract FuelHubConnector is HubConnector {
   error FuelHubConnector_OriginSenderIsNotMirror();
 
   /**
-   * @notice Constant used to represent the zero value of a message
-   */
-  uint256 public constant ZERO_MSG_VALUE = 0;
-  /**
    * @notice Constant used to represent the required length of a message
    */
   uint256 public constant MESSAGE_LENGTH = 32;
@@ -33,7 +29,7 @@ contract FuelHubConnector is HubConnector {
   /**
    * @notice L1 Fuel Messenge portal
    */
-  IFuelMessagePortal public immutable FUEL_MESSENGER_PORTAL;
+  IFuelMessagePortal public immutable FUEL_MESSAGE_PORTAL;
 
   /**
    * @notice Creates a new FuelHubConnector instance
@@ -50,7 +46,7 @@ contract FuelHubConnector is HubConnector {
     address _rootManager,
     address _mirrorConnector
   ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {
-    FUEL_MESSENGER_PORTAL = IFuelMessagePortal(_amb);
+    FUEL_MESSAGE_PORTAL = IFuelMessagePortal(_amb);
   }
 
   /**
@@ -63,7 +59,7 @@ contract FuelHubConnector is HubConnector {
   }
 
   /**
-   * @notice Sends a message to the mirror connector through the Fuel Messenger Portal
+   * @notice Sends a message to the mirror connector through the Fuel Messenger Portal (AMB)
    * @param _data Message data
    * @param _encodedData Encoded data, used to get the recipient address
    * @dev The message length must be 32 bytes
@@ -73,13 +69,13 @@ contract FuelHubConnector is HubConnector {
     address _recipient = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
     bytes32 _bytes32RecipientAddress = _addressToBytes32(_recipient);
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    FUEL_MESSENGER_PORTAL.sendMessage{value: msg.value}(_bytes32RecipientAddress, _calldata);
+    FUEL_MESSAGE_PORTAL.sendMessage{value: msg.value}(_bytes32RecipientAddress, _calldata);
   }
 
   /**
    * @notice Receives a message from the Fuel Messenger Portal and aggregates it on the root manager
    * @param _data Message data
-   * @dev The sender must be the Fuel Messenger Portal
+   * @dev The sender must be the Fuel Messenger Portal (AMB)
    * @dev The message length must be 32 bytes
    * @dev The origin sender of the cross domain message must be the mirror connector
    */
@@ -91,11 +87,11 @@ contract FuelHubConnector is HubConnector {
   /**
    * @notice Verifies that the origin sender of the cross domain message is the mirror connector
    * @param _mirrorSender The mirror sender address
-   * @dev Fuel returns the origin sender as a bytes32, so we need to convert it to an address
-   * @return _isValid True if the origin sender is the mirror connector, otherwise false
+   * @return _isValid True if the origin sender is the mirror connector, false otherwise
+   * @dev Fuel returns the origin sender as a bytes32, so it needs to be converted into an address
    */
   function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
-    _isValid = _bytes32ToAddress(FUEL_MESSENGER_PORTAL.messageSender()) == _mirrorSender;
+    _isValid = _bytes32ToAddress(FUEL_MESSAGE_PORTAL.messageSender()) == _mirrorSender;
   }
 
   /**
