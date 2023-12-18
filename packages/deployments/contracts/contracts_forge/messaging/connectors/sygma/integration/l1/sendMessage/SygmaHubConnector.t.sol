@@ -6,6 +6,24 @@ import {console} from "forge-std/Test.sol";
 
 contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
   /**
+   * @notice Emitted when a message is deposited on the Sygma Bridge
+   * @param destinationDomainID The domain ID of the destination chain
+   * @param resourceID The resource ID of the message
+   * @param depositNonce The nonce of the message
+   * @param user The user who sent the message
+   * @param data The data of the message
+   * @param handlerResponse The response of the handler
+   */
+  event Deposit(
+    uint8 destinationDomainID,
+    bytes32 resourceID,
+    uint64 depositNonce,
+    address indexed user,
+    bytes data,
+    bytes handlerResponse
+  );
+
+  /**
    * @notice Tests it send a message through the Sygma Bridge using the `sendMessage` function successfully
    */
   function test_sendMessage() public {
@@ -18,7 +36,21 @@ contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
     bytes memory _encodedData = abi.encode(_cronosDomainId, _feeData);
     // Get and parse the deposit data
     bytes32 _aggregateRoot = bytes32("aggregateRoot");
-    bytes memory _depositData = sygmaHubConnector.parseDepositData(_aggregateRoot, _l2Connector);
+    bytes memory _depositData = sygmaHubConnector.parseDepositData(_aggregateRoot, mirrorConnector);
+
+    // Deposit nonce grabbed from the Sygma Bridge
+    uint64 _depositNonce = 4;
+    bytes memory _handlerResponse = "";
+    // Expect `deposit` event to be emitted on the Sygma Bridge with the correct values
+    vm.expectEmit(true, true, true, true, address(sygmaHubConnector.SYGMA_BRIDGE()));
+    emit Deposit(
+      _cronosDomainId,
+      sygmaHubConnector.PERMISSIONLESS_HANDLER_ID(),
+      _depositNonce,
+      address(sygmaHubConnector),
+      _depositData,
+      _handlerResponse
+    );
 
     // Get the fee needed to send the message
     vm.startPrank(ROOT_MANAGER);
@@ -36,7 +68,7 @@ contract Integration_Connector_SygmaHubConnector_SendMessage is Common {
     vm.deal(ROOT_MANAGER, _fee);
 
     // Send the message
-    bytes memory _data = abi.encodePacked(_aggregateRoot);
+    bytes memory _data = abi.encode(_aggregateRoot);
     sygmaHubConnector.sendMessage{value: _fee}(_data, _encodedData);
   }
 }
