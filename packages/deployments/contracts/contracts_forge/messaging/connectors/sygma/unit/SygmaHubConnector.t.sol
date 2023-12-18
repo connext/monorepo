@@ -106,6 +106,16 @@ contract Unit_Connector_SygmaHubConnector_ReceiveMessage is Base {
     vm.prank(permissionlessHandler);
     sygmaHubConnector.receiveMessage(_l2Connector, _root);
   }
+
+  function test_emitMessageProcessed(bytes32 _root) public {
+    _mockAndExpect(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root), "");
+
+    vm.expectEmit(true, true, true, true, address(sygmaHubConnector));
+    emit MessageProcessed(abi.encodePacked(_root), permissionlessHandler);
+
+    vm.prank(permissionlessHandler);
+    sygmaHubConnector.receiveMessage(_l2Connector, _root);
+  }
 }
 
 contract Unit_Connector_SygmaHubConnector_SendMessage is Base {

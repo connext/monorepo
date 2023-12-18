@@ -100,7 +100,7 @@ contract Unit_Connector_SygmaSpokeConnector_Constructor is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__ReeiveMessage is Base {
+contract Unit_Connector_SygmaSpokeConnector_ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
   /**
@@ -167,15 +167,17 @@ contract Unit_Connector_SygmaSpokeConnector__ReeiveMessage is Base {
     emit AggregateRootReceived(_root);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
+
+  function test_emitMessageProcessed(bytes32 _root) public happyPath(_root) {
+    vm.expectEmit(true, true, true, true, address(sygmaSpokeConnector));
+    emit MessageProcessed(abi.encodePacked(_root), permissionlessHandler);
+
+    sygmaSpokeConnector.receiveMessage(_l2Connector, _root);
+  }
 }
 
 contract Unit_Connector_SygmaSpokeConnector_SendMessage is Base {
-  /**
-   * @notice Tests it reverts when the data length is not 32
-   * @param _data The data
-   * @param _feeData The fee data
-   */
-  function test_revertIfDataNotRootLength(bytes memory _data, bytes memory _feeData) public {
+  function test_revertIfDataLengthIsNot32(bytes memory _data, bytes memory _feeData) public {
     vm.assume(_data.length != ROOT_LENGTH);
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_DataLengthIsNot32.selector);
     vm.prank(user);
@@ -234,11 +236,7 @@ contract Unit_Connector_SygmaSpokeConnector_VerifySender is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__RenouceOwnership is Base {
-  /**
-   * @notice Tests it reverts when the caller is not the owner
-   * @param _caller The address of the caller
-   */
+contract Unit_Connector_SygmaSpokeConnector_RenounceOwnership is Base {
   function test_revertIfCallerNotOwner(address _caller) public {
     vm.assume(_caller != _owner);
     vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
@@ -256,11 +254,7 @@ contract Unit_Connector_SygmaSpokeConnector__RenouceOwnership is Base {
   }
 }
 
-contract Unit_Connector_SygmaSpokeConnector__PrcessMessage is Base {
-  /**
-   * @notice Tests it reverts when the method is called
-   * @param _data The data
-   */
+contract Unit_Connector_SygmaSpokeConnector_ProcessMessage is Base {
   function test_revertWhenCalled(bytes memory _data) public {
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_UnimplementedMethod.selector);
     vm.prank(_owner);

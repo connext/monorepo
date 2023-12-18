@@ -76,7 +76,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
-    if (!_verifySender(address(AMB))) revert TaikoSpokeConnector_SenderNotAllowedAgent();
+    if (!_verifySender(AMB)) revert TaikoSpokeConnector_SenderNotAllowedAgent();
     (bool _received, bytes32 _signal) = _verifyAndGetSignal(HUB_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoSpokeConnector_SignalNotReceived();
     receiveAggregateRoot(_signal);
