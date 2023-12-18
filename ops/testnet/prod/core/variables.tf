@@ -123,6 +123,10 @@ variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
+variable "basegoerli_alchemy_key_0" {
+  type = string
+}
+
 variable "blast_key" {
   type = string
 }
@@ -168,6 +172,10 @@ variable "lighthouse_propagate_heartbeat" {
   type = string
 }
 
+variable "lighthouse_propose_heartbeat" {
+  type = string
+}
+
 variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
@@ -184,4 +192,12 @@ variable "relayer_web3_signer_private_key" {
 variable "admin_token_relayer" {
   type    = string
   default = "blahblah"
+}
+
+variable "drpc_key" {
+  type = string
+}
+
+variable "lighthouse_web3_signer_private_key" {
+  type = string
 }

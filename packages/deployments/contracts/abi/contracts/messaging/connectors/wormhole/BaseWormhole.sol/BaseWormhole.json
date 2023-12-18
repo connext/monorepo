@@ -13,6 +13,7 @@
   "function MIRROR_WORMHOLE_ID() view returns (uint16)",
   "function acceptProposedOwner()",
   "function delay() view returns (uint256)",
+  "function gasCap() view returns (uint256)",
   "function owner() view returns (address)",
   "function processedWhMessages(bytes32) view returns (bool)",
   "function proposeNewOwner(address newlyProposed)",

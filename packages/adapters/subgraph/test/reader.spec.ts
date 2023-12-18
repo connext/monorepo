@@ -10,12 +10,15 @@ import {
   SubgraphQueryByTransferIDsMetaParams,
   XTransfer,
   mock,
+  mkHash,
 } from "@connext/nxtp-utils";
 import {
   mockChainData,
   mockDestinationTransferEntity,
   mockOriginTransferEntity,
   mockResponse,
+  mockRouterDailyTVLResponse,
+  mockRouterLiquidityEventsResponse,
   stubContext,
 } from "./mock";
 import { SubgraphReader } from "../src/reader";
@@ -109,6 +112,8 @@ describe("SubgraphReader", () => {
                   canonicalId: mkAddress("0x11111"),
                   key: mkBytes32(),
                   localAsset: mkAddress("0x222"),
+                  decimal: "18",
+                  adoptedDecimal: "18",
                 },
                 domain: "1111",
                 amount: "100",
@@ -132,7 +137,8 @@ describe("SubgraphReader", () => {
               canonicalDomain: "1111",
               canonicalId: mkAddress("0x11111"),
               key: mkBytes32(),
-              decimal: undefined,
+              decimal: "18",
+              adoptedDecimal: "18",
               localAsset: mkAddress("0x222"),
               domain: "1111",
               balance: "100",
@@ -590,7 +596,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const originMessages = await subgraphReader.getOriginMessagesByDomain([
-        { domain: "1111", offset: 0, limit: 100 },
+        { domain: "1111", offset: 0, limit: 100, maxBlockNumber: 1 },
       ]);
       expect(originMessages).to.be.deep.eq(
         messages.map((r) => {
@@ -607,7 +613,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getGetAggregatedRootsByDomain([
-        { hub: "1111", index: 0, limit: 100 },
+        { hub: "1111", index: 0, limit: 100, maxBlockNumber: 10000 },
       ]);
       expect(aggregatedRoots).to.be.deep.eq(
         roots.map((r) => {
@@ -623,7 +629,7 @@ describe("SubgraphReader", () => {
       response.set("1111", [root]);
       executeStub.resolves(response);
 
-      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100);
+      const propagatedRoots = await subgraphReader.getGetPropagatedRoots("1111", 0, 100, 1000);
       expect(propagatedRoots).to.be.deep.eq([root]);
     });
   });
@@ -684,7 +690,7 @@ describe("SubgraphReader", () => {
       executeStub.resolves(response);
 
       const aggregatedRoots = await subgraphReader.getReceivedAggregatedRootsByDomain([
-        { domain: "1111", offset: 0, limit: 100 },
+        { domain: "1111", offset: 0, limit: 100, maxBlockNumber: 1000 },
       ]);
       expect(aggregatedRoots).to.be.deep.eq(
         roots.map((r) => {
@@ -709,6 +715,54 @@ describe("SubgraphReader", () => {
     });
   });
 
+  describe("#getRootManagerMode", () => {
+    it("should return the root manager mode", async () => {
+      const mode = {
+        id: "ROOT_MANAGER_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      response.set("1111", [mode]);
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getRootManagerMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(mode);
+    });
+    it("should return the default value", async () => {
+      const defaultMode = {
+        id: "ROOT_MANAGER_MODE_ID",
+        mode: "SLOW_MODE",
+      };
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getRootManagerMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(defaultMode);
+    });
+  });
+
+  describe("#getSpokeConnectorMode", () => {
+    it("should return the root manager meta", async () => {
+      const mode = {
+        id: "CONNECTOR_MODE_ID",
+        mode: "OPTIMISTIC_MODE",
+      };
+      response.set("1111", [mode]);
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getSpokeConnectorMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(mode);
+    });
+
+    it("should return the default value", async () => {
+      const defaultMode = {
+        id: "CONNECTOR_MODE_ID",
+        mode: "SLOW_MODE",
+      };
+      executeStub.resolves(response);
+
+      const rootManagerMode = await subgraphReader.getSpokeConnectorMode("1111");
+      expect(rootManagerMode).to.be.deep.eq(defaultMode);
+    });
+  });
   describe("#getStableSwapPools", () => {
     it("should return the stable swap pools", async () => {
       const pool = {
@@ -735,6 +789,172 @@ describe("SubgraphReader", () => {
 
       const swapPool = await subgraphReader.getStableSwapPools("1111");
       expect(swapPool).to.be.deep.eq([ParserFns.stableSwapPool(pool)]);
+    });
+  });
+
+  describe("#getStableSwapPoolEventsByDomainAndNonce", () => {
+    it("should return the stable swap pool", async () => {
+      const pool = mock.entity.stableswapPoolEvent();
+      pool["stableSwap"] = {
+        key: pool.poolId,
+        pooledTokens: pool.pooledTokens,
+        asset: mkAddress("0xb"),
+        tokenPrecisionMultipliers: ["1", "1"],
+      };
+      pool["block"] = pool.blockNumber;
+      pool["transaction"] = pool.transactionHash;
+
+      response.set("1111", [pool]);
+      executeStub.resolves(response);
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0, orderDirection: "asc" });
+
+      const swapPool = await subgraphReader.getStableSwapPoolEventsByDomainAndNonce(agents, "add");
+      expect(swapPool[0].poolId).to.be.eq(pool.poolId);
+    });
+  });
+
+  describe("#getStableSwapLpTransferEventsByDomainAndNonce", () => {
+    it("should return the stable swap transfer", async () => {
+      const transfer = mock.entity.stableSwapLpTransfer();
+      transfer["token"] = {
+        stableSwap: { key: transfer.poolId, pooledTokens: transfer.pooledTokens },
+        address: transfer.lpToken,
+      };
+      transfer["block"] = transfer.blockNumber;
+      transfer["transaction"] = transfer.transactionHash;
+      transfer["from"] = transfer.fromAddress;
+      transfer["to"] = transfer.toAddress;
+      transfer["fromBalance"] = transfer.balances[0];
+      transfer["toBalance"] = transfer.balances[1];
+
+      response.set("1111", [transfer]);
+      executeStub.resolves(response);
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set("1111", { maxBlockNumber: 99999999, latestNonce: 0, orderDirection: "asc" });
+
+      const swapPool = await subgraphReader.getStableSwapLpTransferEventsByDomainAndNonce(agents);
+      expect(swapPool[0].poolId).to.be.eq(transfer.poolId);
+    });
+  });
+
+  describe("#getProposedSnapshotsByDomain", () => {
+    it("should getProposedSnapshotsByDomain", async () => {
+      const snapshot = mock.entity.snapshot();
+      snapshot["disputeCliff"] = snapshot.endOfDispute;
+      snapshot["snapshotsRoots"] = snapshot.roots;
+      snapshot["timestamp"] = snapshot.proposedTimestamp;
+
+      response.set("1111", [snapshot]);
+      executeStub.resolves(response);
+
+      const graphSnapshot = await subgraphReader.getProposedSnapshotsByDomain([
+        { hub: "1111", snapshotId: 1, limit: 100, maxBlockNumber: 1000 },
+      ]);
+      expect(graphSnapshot[0].aggregateRoot).to.be.eq(snapshot.aggregateRoot);
+    });
+  });
+
+  describe("#getSavedSnapshotRootsByDomain", () => {
+    it("should getSavedSnapshotRootsByDomain", async () => {
+      const snapshot = mock.entity.snapshotRoot();
+
+      response.set("1111", [snapshot]);
+      executeStub.resolves(response);
+
+      const graphSnapshot = await subgraphReader.getSavedSnapshotRootsByDomain([
+        { hub: "1111", snapshotId: 1, limit: 100, maxBlockNumber: 1000 },
+      ]);
+      expect(graphSnapshot[0]).to.deep.eq(snapshot);
+    });
+  });
+
+  describe("#getFinalizedRootsByDomain", () => {
+    it("should getFinalizedRootsByDomain", async () => {
+      const snapshot = mock.entity.optimisticRootFinalized();
+
+      response.set("1111", [snapshot]);
+      executeStub.resolves(response);
+
+      const graphSnapshot = await subgraphReader.getFinalizedRootsByDomain(
+        [{ domain: "1111", timestamp: 1, limit: 100, maxBlockNumber: 1000 }],
+        false,
+      );
+      expect(graphSnapshot[0]).to.deep.eq(snapshot);
+    });
+  });
+
+  describe("#getPropagatedOptimisticRootsByDomain", () => {
+    it("should getPropagatedOptimisticRootsByDomain", async () => {
+      const snapshot = mock.entity.optimisticRootPropagated();
+
+      response.set("1111", [snapshot]);
+      executeStub.resolves(response);
+
+      const graphSnapshot = await subgraphReader.getPropagatedOptimisticRootsByDomain([
+        { hub: "1111", timestamp: 1, limit: 100, maxBlockNumber: 1000 },
+      ]);
+      expect(graphSnapshot[0]).to.deep.eq(snapshot);
+    });
+  });
+
+  describe("#getGetPropagatedRoots", () => {
+    it("should getGetPropagatedRoots", async () => {
+      const root = mock.entity.propagatedRoot();
+
+      response.set("1111", [root]);
+      executeStub.resolves(response);
+
+      const roots = await subgraphReader.getGetPropagatedRoots("1111", 1, 100, 1000);
+      expect(roots[0]).to.deep.eq(root);
+    });
+  });
+
+  describe("#getRelayerFeesIncreasesByDomainAndTimestamp", () => {
+    it("should getRelayerFeesIncreasesByDomainAndTimestamp", async () => {
+      const increase = mock.entity.relayerFeesIncrease();
+      increase["transfer"] = { id: increase.transferId };
+
+      response.set("1111", [increase]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("1111", { fromTimestamp: 0, orderDirection: "asc" });
+
+      const graphIncrease = await subgraphReader.getRelayerFeesIncreasesByDomainAndTimestamp(agents);
+      expect(graphIncrease[0].id).to.deep.eq(increase.id);
+    });
+  });
+
+  describe("#getSlippageUpdatesByDomainAndTimestamp", () => {
+    it("should getSlippageUpdatesByDomainAndTimestamp", async () => {
+      const slippage = mock.entity.slippageUpdate();
+      slippage["transfer"] = { id: slippage.transferId };
+
+      response.set("1111", [slippage]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("1111", { fromTimestamp: 0, orderDirection: "asc" });
+
+      const graphSlippage = await subgraphReader.getSlippageUpdatesByDomainAndTimestamp(agents);
+      expect(graphSlippage[0].id).to.deep.eq(slippage.id);
+    });
+  });
+
+  describe("#getRouterDailyTVLByDomainAndTimestamp", () => {
+    it("should getRouterDailyTVLByDomainAndTimestamp", async () => {
+      const _routerTvl = mock.entity.routerDailyTVL();
+      const routerTvl = { ..._routerTvl, asset: mkAddress(_routerTvl.asset), router: mkAddress(_routerTvl.asset) };
+
+      response.set("13337", [routerTvl]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set("13337", { fromTimestamp: 0, orderDirection: "asc" });
+
+      const graphRouterTvl = await subgraphReader.getRouterDailyTVLByDomainAndTimestamp(agents);
+      expect(graphRouterTvl[0].id).to.eq(`${routerTvl.domain}-${routerTvl.id}`);
     });
   });
 
@@ -768,6 +988,55 @@ describe("SubgraphReader", () => {
 
       const swapExchange = await subgraphReader.getStableSwapExchangeByDomainAndNonce(agents);
       expect(swapExchange).to.be.deep.eq([ParserFns.stableSwapExchange(exchange)]);
+    });
+  });
+
+  describe("#getRouterDailyTVLByDomainAndTimestamp", () => {
+    it("should return the router daily tvl", async () => {
+      const tvl = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+      };
+      response.set(tvl.domain, [tvl]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
+      agents.set(tvl.domain, { maxBlockNumber: 99999999, fromTimestamp: 0 });
+
+      const dailyTvl = await subgraphReader.getRouterDailyTVLByDomainAndTimestamp(agents);
+      expect(dailyTvl).to.be.deep.eq([ParserFns.routerDailyTvl(tvl)]);
+    });
+  });
+
+  describe("#getRouterLiquidityEventsByDomainAndNonce", () => {
+    it("should return the router liquidity events", async () => {
+      const event = {
+        id: mkBytes32("0xa"),
+        domain: "1111",
+        type: "Add",
+        asset: { id: mkAddress("0xa"), decimal: 18 },
+        router: { id: mkAddress("0xb") },
+        timestamp: 1673421076,
+        balance: "123122343",
+        amount: "100298394",
+        blockNumber: 1234,
+        transactionHash: mkHash("0xa"),
+        nonce: 1123,
+      };
+      response.set(event.domain, [event]);
+      executeStub.resolves(response);
+
+      const agents: Map<string, SubgraphQueryMetaParams> = new Map();
+      agents.set(event.domain, { maxBlockNumber: 99999999, latestNonce: 0 });
+
+      const liquidityEvent = await subgraphReader.getRouterLiquidityEventsByDomainAndNonce(agents);
+      expect(liquidityEvent).to.be.deep.eq([ParserFns.routerLiquidityEvent(event)]);
     });
   });
 });

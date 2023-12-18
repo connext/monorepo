@@ -1,12 +1,26 @@
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import { closeDatabase, getDatabase } from "@connext/nxtp-adapters-database";
+import {
+  ChainData,
+  createLoggingContext,
+  Logger,
+  RelayerType,
+  sendHeartbeat,
+  RootManagerMode,
+  SpokeConnectorMode,
+  ModeType,
+  jsonifyError,
+  NxtpError,
+} from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
+import { Wallet } from "ethers";
 
 import { NxtpLighthouseConfig } from "../../config";
 
 import { PropagateContext } from "./context";
-import { propagate } from "./operations";
+import { propagate, finalize, finalizeSpoke } from "./operations";
 
 const context: PropagateContext = {} as any;
 export const getContext = () => context;
@@ -38,6 +52,11 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
       context.logger.child({ module: "ChainReader" }),
       context.config.chains,
     );
+    context.adapters.database = await getDatabase(context.config.database.url, context.logger);
+
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
 
     context.adapters.relayers = [];
     for (const relayerConfig of context.config.relayers) {
@@ -84,12 +103,52 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
     );
 
     // Start the propagate task.
-    await propagate();
+    const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    const domains: string[] = Object.keys(config.chains);
+    for (const domain of domains) {
+      const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
+      if (spokeConnectorMode.mode !== rootManagerMode.mode) {
+        context.logger.info("Mode MISMATCH. Stop", requestContext, methodContext, {
+          hubMode: rootManagerMode.mode,
+          hubDomain: config.hubDomain,
+          spokeMode: spokeConnectorMode.mode,
+          spokeDomain: domain,
+        });
+        throw new Error(
+          `Unknown mode detected: RootMode - ${JSON.stringify(rootManagerMode)} SpokeMode - ${JSON.stringify(
+            spokeConnectorMode,
+          )} SpokeDomain: ${domain} HubDomain: ${config.hubDomain}`,
+        );
+      }
+    }
+    if (rootManagerMode.mode === ModeType.OptimisticMode) {
+      context.logger.info("In Optimistic Mode", requestContext, methodContext);
+      await finalize();
+      for (const spokeDomain of domains) {
+        try {
+          await finalizeSpoke(spokeDomain);
+        } catch (e: unknown) {
+          context.logger.error(
+            "Failed to finalize spoke ",
+            requestContext,
+            methodContext,
+            jsonifyError(e as NxtpError),
+            { spokeDomain },
+          );
+        }
+      }
+    } else if (rootManagerMode.mode === ModeType.SlowMode) {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
+      await propagate();
+    } else {
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
+    }
     if (context.config.healthUrls.propagate) {
       await sendHeartbeat(context.config.healthUrls.propagate, context.logger);
     }
   } catch (e: unknown) {
     console.error("Error starting Propagate task. Sad! :(", e);
+    await closeDatabase();
   } finally {
     context.logger.info("Propagate task complete!", requestContext, methodContext, {
       chains: [...Object.keys(context.config.chains)],

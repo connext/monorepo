@@ -1,6 +1,7 @@
 import { createLoggingContext, XMessage, RootMessage, jsonifyError } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
+
 import { DEFAULT_LOAD_SIZE, DEFAULT_SAFE_CONFIRMATIONS } from ".";
 
 const markableDomainsForRootMessage = [

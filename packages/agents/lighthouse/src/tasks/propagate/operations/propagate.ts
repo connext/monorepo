@@ -1,14 +1,8 @@
-import {
-  createLoggingContext,
-  getNtpTimeSeconds,
-  NxtpError,
-  RequestContext,
-  RootManagerMeta,
-} from "@connext/nxtp-utils";
+import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
-import { getBestProvider, getContract, getJsonRpcProvider, sendWithRelayerWithBackup } from "../../../mockable";
-import { NoChainIdForHubDomain, NoProviderForDomain } from "../errors";
+import { sendWithRelayerWithBackup } from "../../../mockable";
+import { NoChainIdForDomain } from "../errors";
 import {
   getPropagateParamsArbitrum,
   getPropagateParamsBnb,
@@ -44,7 +38,7 @@ export const getParamsForDomainFn: Record<
   "2053862260": getPropagateParamsZkSync,
 };
 
-const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
+//const LH_PROPAGATE_WINDOW = 10 * 60; // 10mins
 
 export const propagate = async () => {
   const {
@@ -59,35 +53,10 @@ export const propagate = async () => {
   const domains = rootManagerMeta.domains;
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
-    throw new NoChainIdForHubDomain(config.hubDomain, requestContext, methodContext);
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
   }
 
-  const relayerProxyHubAddress = config.chains[config.hubDomain].deployments.relayerProxy;
-
-  // Check if LH should propagate as backup of keep3r
-  logger.info("Checking if LH propagate workable", requestContext, methodContext);
-
-  const l1RpcUrl = await getBestProvider(config.chains[config.hubDomain]?.providers ?? []);
-  if (!l1RpcUrl) {
-    throw new NoProviderForDomain(config.hubDomain, requestContext, methodContext);
-  }
-  const l1Provider = getJsonRpcProvider(l1RpcUrl);
-  const relayerProxyContract = getContract(relayerProxyHubAddress, contracts.relayerProxyHub, l1Provider);
-
-  const [lastPropagateAt, propagateCooldown] = await Promise.all([
-    relayerProxyContract.lastPropagateAt(),
-    relayerProxyContract.propagateCooldown(),
-  ]);
-  const curTimeInSeconds = getNtpTimeSeconds();
-  if ((lastPropagateAt.add(propagateCooldown).toNumber() as number) + LH_PROPAGATE_WINDOW >= curTimeInSeconds) {
-    logger.info("LH Propagate skipping", requestContext, methodContext, {
-      propagateWorkableAt: lastPropagateAt.add(propagateCooldown).toNumber(),
-      LH_PROPAGATE_WINDOW,
-      curTimeInSeconds,
-    });
-    return;
-  }
-
+  const relayerProxyAddress = config.chains[config.hubDomain].deployments.relayerProxy;
   const _connectors: string[] = [];
   const _encodedData: string[] = [];
   const _fees: string[] = [];
@@ -134,7 +103,7 @@ export const propagate = async () => {
     const { taskId } = await sendWithRelayerWithBackup(
       hubChainId,
       config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
       encodedDataForRelayer,
       relayers,
       chainreader,
@@ -146,7 +115,95 @@ export const propagate = async () => {
     logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
       hubChainId,
       hubDomain: config.hubDomain,
-      relayerProxyHubAddress,
+      relayerProxyAddress,
+      encodedDataForRelayer,
+    });
+  }
+};
+
+export const finalize = async () => {
+  const {
+    logger,
+    config,
+    chainData,
+    adapters: { chainreader, contracts, relayers, subgraph, database },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(propagate.name);
+  logger.info("Starting finalize operation", requestContext, methodContext);
+  const hubChainId = chainData.get(config.hubDomain)?.chainId;
+  if (!hubChainId) {
+    throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
+  }
+
+  const rootManagerAddress = config.chains[config.hubDomain].deployments.rootManager;
+
+  const currentSnapshot = await database.getCurrentProposedSnapshot();
+
+  if (!currentSnapshot) {
+    //Throw
+    logger.info("No current proposed snapshot found. Ending run.", requestContext, methodContext);
+    return;
+  }
+
+  const _proposedAggregateRoot = currentSnapshot.aggregateRoot;
+  const _endOfDispute = currentSnapshot.endOfDispute;
+  const latestBlockNumbers = await subgraph.getLatestBlockNumber([config.hubDomain]);
+  let latestBlockNumber: number | undefined = undefined;
+  if (latestBlockNumbers.has(config.hubDomain)) {
+    latestBlockNumber = latestBlockNumbers.get(config.hubDomain)!;
+  }
+
+  if (!latestBlockNumber) {
+    logger.error("Error getting the latestBlockNumber for hub domain.", requestContext, methodContext, undefined, {
+      hubDomain: config.hubDomain,
+      latestBlockNumber,
+      latestBlockNumbers,
+    });
+    return;
+  }
+
+  if (_endOfDispute > latestBlockNumber) {
+    logger.error(
+      "Dispute window is still active. End of dispute block is ahead of latest block",
+      requestContext,
+      methodContext,
+      undefined,
+      {
+        proposedSnapshot: currentSnapshot,
+        latestBlockNumber,
+        _endOfDispute,
+      },
+    );
+    return;
+  }
+
+  logger.info("Got params for finalizing", requestContext, methodContext, {
+    _proposedAggregateRoot,
+    _endOfDispute,
+  });
+
+  const encodedDataForRelayer = contracts.rootManager.encodeFunctionData("finalize", [
+    _proposedAggregateRoot,
+    _endOfDispute,
+  ]);
+
+  try {
+    const { taskId } = await sendWithRelayerWithBackup(
+      hubChainId,
+      config.hubDomain,
+      rootManagerAddress,
+      encodedDataForRelayer,
+      relayers,
+      chainreader,
+      logger,
+      requestContext,
+    );
+    logger.info("finalize tx sent", requestContext, methodContext, { taskId });
+  } catch (e: unknown) {
+    logger.error("Error at sendWithRelayerWithBackup", requestContext, methodContext, e as NxtpError, {
+      hubChainId,
+      hubDomain: config.hubDomain,
+      rootManagerAddress,
       encodedDataForRelayer,
     });
   }

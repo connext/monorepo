@@ -44,6 +44,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "1442": ProtocolNetwork.TESTNET,
   "280": ProtocolNetwork.TESTNET,
   "59140": ProtocolNetwork.TESTNET,
+  "84531": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -53,6 +54,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "42161": ProtocolNetwork.MAINNET,
   "100": ProtocolNetwork.MAINNET,
   "59144": ProtocolNetwork.MAINNET,
+  "8453": ProtocolNetwork.MAINNET,
 };
 
 export const isDevnetName = (_name: string): boolean => {
@@ -91,7 +93,7 @@ export const getConnectorName = (
   }
   // Only spoke connectors deployed for mainnet contracts
   return `${naming.prefix}${
-    config.hub === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
+    config.hub.chain === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
       ? HUB_PREFIX
       : SPOKE_PREFIX
   }Connector`;
@@ -114,6 +116,8 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
     contractName = contractName.replace(/AdminMainnet/g, networkName!);
   } else if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
     contractName = contractName.replace(/Admin/g, networkName!);
+  } else if (/^(?=.*Optimism)(?=.*Connector)/.test(contractName) && _networkName == "Base") {
+    contractName = contractName.replace(/Optimism/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
@@ -148,7 +152,7 @@ export const getMessagingProtocolConfig = (protocolNetwork: ProtocolNetwork): Me
   // TODO: "tesnet"  => "mainnet"  for production
   const protocol = MESSAGING_PROTOCOL_CONFIGS[protocolNetwork];
 
-  if (!protocol || !protocol.configs[protocol.hub]) {
+  if (!protocol || !protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${protocolNetwork} is not supported! (no messaging config)`);
   }
   return protocol;
@@ -170,11 +174,11 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.keys(protocol.configs).forEach((_chainId) => {
     const chainId = +_chainId;
-    if (protocol.hub === chainId) {
+    if (protocol.hub.chain === chainId) {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
-        chain: protocol.hub,
-        name: getDeploymentName(getConnectorName(protocol, protocol.hub), env),
+        chain: protocol.hub.chain,
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub.chain), env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
@@ -182,7 +186,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
     const hubName = getDeploymentName(
-      getConnectorName(protocol, chainId, protocol.hub),
+      getConnectorName(protocol, chainId, protocol.hub.chain),
       env,
       protocol.configs[chainId].networkName,
     );
@@ -192,7 +196,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       protocol.configs[chainId].networkName,
     );
     connectors.push({
-      chain: protocol.hub,
+      chain: protocol.hub.chain,
       name: hubName,
       mirrorName: spokeName,
       mirrorChain: chainId,
@@ -201,7 +205,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       chain: chainId,
       name: spokeName,
       mirrorName: hubName,
-      mirrorChain: protocol.hub,
+      mirrorChain: protocol.hub.chain,
     });
   });
 
@@ -301,7 +305,11 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
-  hre: HardhatRuntimeEnvironment & { deployments: DeploymentsExtension; ethers: any },
+  hre: HardhatRuntimeEnvironment & {
+    deployments: DeploymentsExtension;
+    ethers: any;
+    getChainId: () => Promise<string>;
+  },
   implementationArgs: any[] = [],
   deployName?: string,
 ): Promise<T> => {
@@ -333,7 +341,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   let beaconAddress: string | undefined;
 
   if (proxyDeployment) {
-    console.log(`${implementationName} proxy deployed. upgrading...`);
+    console.log(`${implementationName} proxy deployed. attempting to upgrade...`);
     // Get beacon and implementation addresses
     beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
     implementation = (await hre.deployments.getOrNull(implementationName))?.address;
@@ -359,6 +367,25 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
 
       // Then, upgrade proxy via beacon controller
       const controller = new Contract(controllerDeployment.address, controllerDeployment.abi).connect(deployer);
+
+      // The deployer can only submit this transaction _if_ it is the owner. If not, simply log the
+      // upgrade transaction.
+      const owner = await controller.owner();
+      if (deployer.address.toLowerCase() !== owner.toLowerCase()) {
+        console.log("=============================================");
+        console.log(`WARNING: deployer ${deployer.address} is not the owner of the controller ${controller.address}.`);
+        console.log(`please submit the upgrade transaction manually:`);
+        console.log(`- tx: `, {
+          to: controller.address,
+          chainId: await hre.getChainId(),
+          from: owner,
+          data: controller.interface.encodeFunctionData("upgrade", [beaconAddress, implementation]),
+        });
+        console.log("=============================================");
+
+        return new Contract(proxyDeployment.address, proxyDeployment.abi).connect(deployer) as unknown as T;
+      }
+
       const upgrade = await controller.upgrade(beaconAddress, implementation, { gasLimit: BigNumber.from(1_000_000) });
       console.log(`${implementationName} upgrade transaction:`, upgrade.hash);
       const receipt = await upgrade.wait();

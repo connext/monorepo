@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -33,9 +34,14 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     "branch()": FunctionFragment;
     "count()": FunctionFragment;
     "delay()": FunctionFragment;
+    "incrementNonce(uint32)": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "insert(bytes32)": FunctionFragment;
     "insert(bytes32[])": FunctionFragment;
+    "leaves(bytes32)": FunctionFragment;
+    "markAsProcessed(bytes32)": FunctionFragment;
+    "markAsProven(bytes32)": FunctionFragment;
+    "nonces(uint32)": FunctionFragment;
     "owner()": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
@@ -55,9 +61,14 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
       | "branch"
       | "count"
       | "delay"
+      | "incrementNonce"
       | "initialize"
       | "insert(bytes32)"
       | "insert(bytes32[])"
+      | "leaves"
+      | "markAsProcessed"
+      | "markAsProven"
+      | "nonces"
       | "owner"
       | "proposeNewOwner"
       | "proposed"
@@ -79,6 +90,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "count", values?: undefined): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "incrementNonce",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "initialize",
     values: [PromiseOrValue<string>]
   ): string;
@@ -89,6 +104,22 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "insert(bytes32[])",
     values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "leaves",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "markAsProcessed",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "markAsProven",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "nonces",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -124,6 +155,10 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "branch", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "count", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "incrementNonce",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "insert(bytes32)",
@@ -133,6 +168,16 @@ export interface MerkleTreeManagerInterface extends utils.Interface {
     functionFragment: "insert(bytes32[])",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "leaves", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "markAsProcessed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "markAsProven",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeNewOwner",
@@ -280,6 +325,11 @@ export interface MerkleTreeManager extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    incrementNonce(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     initialize(
       _arborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -291,9 +341,29 @@ export interface MerkleTreeManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
+      _leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    leaves(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
+    markAsProcessed(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    markAsProven(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    nonces(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -338,6 +408,11 @@ export interface MerkleTreeManager extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  incrementNonce(
+    _domain: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   initialize(
     _arborist: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -349,9 +424,29 @@ export interface MerkleTreeManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   "insert(bytes32[])"(
-    leaves: PromiseOrValue<BytesLike>[],
+    _leaves: PromiseOrValue<BytesLike>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  leaves(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
+  markAsProcessed(
+    _leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  markAsProven(
+    _leaf: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  nonces(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -392,6 +487,11 @@ export interface MerkleTreeManager extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    incrementNonce(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
     initialize(
       _arborist: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -403,9 +503,29 @@ export interface MerkleTreeManager extends BaseContract {
     ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
 
     "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
+      _leaves: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { _root: string; _count: BigNumber }>;
+
+    leaves(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
+    markAsProcessed(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    markAsProven(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    nonces(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -499,6 +619,11 @@ export interface MerkleTreeManager extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    incrementNonce(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     initialize(
       _arborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -510,8 +635,28 @@ export interface MerkleTreeManager extends BaseContract {
     ): Promise<BigNumber>;
 
     "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
+      _leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    leaves(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    markAsProcessed(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    markAsProven(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    nonces(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -556,6 +701,11 @@ export interface MerkleTreeManager extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    incrementNonce(
+      _domain: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     initialize(
       _arborist: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -567,8 +717,28 @@ export interface MerkleTreeManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "insert(bytes32[])"(
-      leaves: PromiseOrValue<BytesLike>[],
+      _leaves: PromiseOrValue<BytesLike>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    leaves(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    markAsProcessed(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    markAsProven(
+      _leaf: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    nonces(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;

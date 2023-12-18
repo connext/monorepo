@@ -1,5 +1,13 @@
 import { ChainReader, contractDeployments, getAmbABIs, getContractInterfaces } from "@connext/nxtp-txservice";
-import { ChainData, createLoggingContext, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  createLoggingContext,
+  Logger,
+  RelayerType,
+  sendHeartbeat,
+  RootManagerMode,
+  ModeType,
+} from "@connext/nxtp-utils";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
@@ -84,7 +92,15 @@ export const makeSendOutboundRoot = async (config: NxtpLighthouseConfig, chainDa
     );
 
     // Start the sendOutboundRoot task.
-    await sendOutboundRoot();
+    const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    if (rootManagerMode.mode === ModeType.OptimisticMode) {
+      context.logger.info("In Optimistic Mode. No Op", requestContext, methodContext);
+    } else if (rootManagerMode.mode === ModeType.SlowMode) {
+      context.logger.info("In Slow Mode", requestContext, methodContext);
+      await sendOutboundRoot();
+    } else {
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
+    }
     if (context.config.healthUrls.sendOutboundRoot) {
       await sendHeartbeat(context.config.healthUrls.sendOutboundRoot, context.logger);
     }

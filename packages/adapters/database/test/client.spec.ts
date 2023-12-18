@@ -20,6 +20,12 @@ import {
   getNtpTimeSeconds,
   XTransferMessageStatus,
   getRandomBytes32,
+  SnapshotRoot,
+  Snapshot,
+  OptimisticRootPropagated,
+  OptimisticRootFinalized,
+  SpokeOptimisticRoot,
+  RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
 import { utils } from "ethers";
@@ -43,6 +49,8 @@ import {
   saveAggregatedRoots,
   saveReceivedAggregateRoot,
   savePropagatedRoots,
+  saveProposedSpokeRoots,
+  saveFinalizedSpokeRoots,
   getHubNode,
   getHubNodes,
   putRoot,
@@ -51,11 +59,16 @@ import {
   getLatestMessageRoot,
   getLatestAggregateRoots,
   getAggregateRootCount,
+  getBaseAggregateRootCount,
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
-  getAggregateRoot,
+  getUnProcessedMessagesByDomains,
+  getSnapshot,
+  getFinalizedSnapshot,
+  getBaseAggregateRoot,
   getMessageRootAggregatedFromIndex,
   getMessageRootCount,
+  getOutboundRootTimestamp,
   transaction,
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
@@ -78,6 +91,26 @@ import {
   getAggregateRootByRootAndDomain,
   getMessageByLeaf,
   deleteNonExistTransfers,
+  getAggregateRoots,
+  getCurrentProposedOptimisticRoot,
+  getLatestFinalizedOptimisticRoot,
+  getLatestSpokeOptimisticRoot,
+  getSpokeOptimisticRoot,
+  saveSnapshotRoots,
+  getLatestPendingSnapshotRootByDomain,
+  getLatestPendingSpokeOptimisticRootByDomain,
+  saveProposedSnapshots,
+  savePropagatedOptimisticRoots,
+  getCurrentProposedSnapshot,
+  getCurrentFinalizedSnapshot,
+  getLatestSnapshot,
+  saveFinalizedRoots,
+  saveStableSwapExchange,
+  saveRouterDailyTVL,
+  getRootMessage,
+  getAggregateRoot,
+  getMessageByRoot,
+  deleteCache,
 } from "../src/client";
 
 describe("Database client", () => {
@@ -86,7 +119,7 @@ describe("Database client", () => {
 
   beforeEach(async () => {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5435/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
@@ -109,7 +142,11 @@ describe("Database client", () => {
     await pool.query("DELETE FROM stableswap_pool_events CASCADE");
     await pool.query("DELETE FROM stableswap_lp_balances CASCADE");
     await pool.query("DELETE FROM stableswap_lp_transfers CASCADE");
-
+    await pool.query("DELETE FROM snapshot_roots CASCADE");
+    await pool.query("DELETE FROM snapshots CASCADE");
+    await pool.query("DELETE FROM stableswap_exchanges CASCADE");
+    await pool.query("DELETE FROM spoke_optimistic_roots CASCADE");
+    await pool.end();
     restore();
     reset();
   });
@@ -472,6 +509,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -488,6 +526,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -504,6 +543,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -520,6 +560,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -541,6 +582,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -557,6 +599,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -573,6 +616,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -589,6 +633,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -733,6 +778,72 @@ describe("Database client", () => {
     expect(firstCount).to.eq(messages[0].origin.index);
     const lastCount = await getMessageRootCount(messages[0].originDomain, messages[batchSize - 1].origin.root, pool);
     expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
+
+    // Get single message
+    const byRoot = await getMessageByRoot(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(byRoot).to.deep.eq(messages[0]);
+    const byRootMissing = await getMessageByRoot(messages[0].originDomain, "", pool);
+    expect(byRootMissing).to.deep.eq(undefined);
+  });
+
+  it("should get multiple messages by domain", async () => {
+    const messages: XMessage[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
+    }
+    await saveMessages(messages, pool);
+    for (let message of messages) {
+      message.destination!.processed = false;
+    }
+    await saveMessages(messages, pool);
+    const pendingMessages = await getUnProcessedMessagesByDomains(
+      mock.domain.A,
+      mock.domain.B,
+      0,
+      batchSize,
+      "ASC",
+      pool,
+    );
+    for (const message of pendingMessages) {
+      expect(message.destination!.processed).equal(false);
+    }
+    const firstCount = await getMessageRootCount(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(firstCount).to.eq(messages[0].origin.index);
+    const lastCount = await getMessageRootCount(messages[0].originDomain, messages[batchSize - 1].origin.root, pool);
+    expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
+  });
+
+  it("should get xcall timestamp by root and domain", async () => {
+    const messages: XMessage[] = [];
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
+      const _xtransfer = mock.entity.xtransfer({
+        status: XTransferStatus.XCalled,
+        xcall_timestamp: _i,
+        transferId: message.transferId,
+      });
+      transfers.push(_xtransfer);
+    }
+    await saveMessages(messages, pool);
+    await saveTransfers(transfers, pool);
+
+    const rootTimestampFirst = await getOutboundRootTimestamp(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(rootTimestampFirst).to.eq(messages[0].origin.index);
+
+    const rootTimestampLast = await getOutboundRootTimestamp(
+      messages[0].originDomain,
+      messages[batchSize - 1].origin.root,
+      pool,
+    );
+    expect(rootTimestampLast).to.eq(messages[batchSize - 1].origin.index);
+
+    const missingRootTimestamp = await getOutboundRootTimestamp(messages[0].originDomain, "", pool);
+    expect(missingRootTimestamp).to.eq(undefined);
   });
 
   it("should save multiple sent root messages", async () => {
@@ -743,6 +854,18 @@ describe("Database client", () => {
     await saveSentRootMessages(messages, pool);
     const _messages = await getRootMessages(undefined, 100, "ASC", pool);
     expect(_messages).to.deep.eq(messages);
+  });
+
+  it("should get single root messages", async () => {
+    const messages: RootMessage[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      messages.push(mock.entity.rootMessage());
+    }
+    await saveSentRootMessages(messages, pool);
+    const _messages = await getRootMessages(undefined, 100, "ASC", pool);
+    expect(_messages).to.deep.eq(messages);
+    const _message = await getRootMessage(messages[0].spokeDomain, messages[0].root, pool);
+    expect(_message).to.deep.eq(messages[0]);
   });
 
   it("should upsert multiple sent root messages with relayer data", async () => {
@@ -936,22 +1059,15 @@ describe("Database client", () => {
       messages.push(rootMessage);
       const m = mock.entity.aggregatedRoot();
       m.index = _i;
+      m.id = _i.toString();
       m.receivedRoot = rootMessage.root;
       roots.push(m);
-      const propRoot = mock.entity.propagatedRoot();
-      propRoot.count = _i + 1;
-      propRoots.push(propRoot);
     }
 
     await saveSentRootMessages(messages, pool);
     await saveAggregatedRoots(roots, pool);
-    await savePropagatedRoots(propRoots, pool);
 
-    const dbRoots = await getLatestMessageRoot(
-      mock.entity.rootMessage().spokeDomain,
-      propRoots[batchSize - 1].aggregate,
-      pool,
-    );
+    const dbRoots = await getLatestMessageRoot(mock.entity.rootMessage().spokeDomain, roots[batchSize - 1].id, pool);
     dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
     expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
   });
@@ -983,6 +1099,22 @@ describe("Database client", () => {
     expect(rootFirst).to.eq(roots[0].index);
     const rootLast = await getMessageRootIndex(roots[batchSize - 1].domain, roots[batchSize - 1].receivedRoot, pool);
     expect(rootLast).to.eq(roots[batchSize - 1].index);
+    const aggregatedRoots = await getAggregateRoots(batchSize + 1, pool);
+    expect(aggregatedRoots.length).to.eq(roots.length);
+    const aggregatedRoot = await getAggregateRoot(roots[0].receivedRoot, pool);
+    expect(aggregatedRoot).to.eq(roots[0].id.split("-")[0]);
+  });
+
+  it("should get base aggregated root", async () => {
+    const roots: AggregatedRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const root = mock.entity.aggregatedRoot();
+      root.index = _i;
+      roots.push(root);
+    }
+    await saveAggregatedRoots(roots, pool);
+    const aggregatedRoot = await getBaseAggregateRoot(pool);
+    expect(aggregatedRoot).to.eq(roots[batchSize - 1].receivedRoot);
   });
 
   it("should save multiple propagated roots", async () => {
@@ -992,11 +1124,7 @@ describe("Database client", () => {
       root.count = _i;
       roots.push(root);
     }
-    await savePropagatedRoots(roots, pool);
-    const firstIndex = await getAggregateRootCount(roots[0].aggregate, pool);
-    expect(firstIndex).to.eq(roots[0].count);
-    const lastIndex = await getAggregateRootCount(roots[batchSize - 1].aggregate, pool);
-    expect(lastIndex).to.eq(roots[batchSize - 1].count);
+    await expect(savePropagatedRoots(roots, pool)).to.eventually.not.be.rejected;
   });
 
   it("should start a transaction", async () => {
@@ -1013,8 +1141,10 @@ describe("Database client", () => {
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
+    expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
+    expect(await getBaseAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getAggregateRoot("", pool)).to.eq(undefined);
     expect(await getLatestMessageRoot("", "", pool)).to.eq(undefined);
     expect(await getLatestAggregateRoots("", 1, "DESC", pool)).to.be.deep.eq([]);
@@ -1036,6 +1166,8 @@ describe("Database client", () => {
       .not.be.rejected;
     await expect(saveAggregatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(saveProposedSpokeRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(saveFinalizedSpokeRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(
       getUnProcessedMessages(
@@ -1047,13 +1179,22 @@ describe("Database client", () => {
         undefined as any,
       ),
     ).to.eventually.not.be.rejected;
-    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getFinalizedSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getCurrentProposedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestFinalizedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
-    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually
-      .not.be.rejected;
+    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getLatestPendingSpokeOptimisticRootByDomain(undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getOutboundRootTimestamp(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
       .be.rejected;
@@ -1066,6 +1207,9 @@ describe("Database client", () => {
     await expect(getRoot(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(putRoot(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
+    await expect(getRootMessage(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getMessageByRoot(undefined as any, undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(deleteCache(undefined as any, undefined as any)).to.eventually.not.be.rejected;
   });
 
   it("should increase and reset the backoff", async () => {
@@ -1126,6 +1270,7 @@ describe("Database client", () => {
       timestamp1 = Math.floor(Date.now() / 1000);
       await increaseBackoff(transfer1.transferId, pool);
     }
+    await increaseBackoff("UNKNOWN", pool);
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(86400 * 7);
@@ -1252,6 +1397,7 @@ describe("Database client", () => {
         key: asset.key,
         id: asset.id,
         decimal: asset.decimal,
+        adopted_decimal: asset.adoptedDecimal,
         canonical_id: asset.canonicalId,
         canonical_domain: asset.canonicalDomain,
       });
@@ -1273,6 +1419,7 @@ describe("Database client", () => {
       expect(res).to.deep.include({
         ...asset,
         decimal: +asset.decimal,
+        adoptedDecimal: +asset.adoptedDecimal,
         blockNumber: undefined,
       });
     });
@@ -1461,4 +1608,250 @@ describe("Database client", () => {
       });
     });
   });
+
+  it("should save stable swap exchange", async () => {
+    const balances = [mock.entity.stableSwapExchange(), mock.entity.stableSwapExchange()];
+    await saveStableSwapExchange(balances, pool);
+    let queryRes = await pool.query("SELECT * FROM stableswap_exchanges");
+
+    balances.forEach((event) => {
+      const expected = {
+        id: event.id,
+        pool_id: event.poolId,
+        domain: event.domain,
+        buyer: event.buyer,
+        bought_id: event.boughtId,
+        sold_id: event.soldId,
+        tokens_sold: event.tokensSold.toString(),
+        tokens_bought: event.tokensBought.toString(),
+        block_number: event.blockNumber,
+        transaction_hash: event.transactionHash,
+        timestamp: event.timestamp,
+        balances: event.balances,
+        fee: event.fee.toString(),
+        nonce: event.nonce.toString(),
+      };
+      expect(queryRes.rows).to.deep.include(expected);
+    });
+  });
+
+  it("should save and get snapshot root", async () => {
+    const roots: SnapshotRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.snapshotRoot();
+      m.id = `${_i}`;
+      roots.push(m);
+    }
+    await saveSnapshotRoots(roots, pool);
+
+    const dbRootLast = await getLatestPendingSnapshotRootByDomain(+roots[batchSize - 1].spokeDomain, pool);
+    expect(dbRootLast?.root).to.eq(roots[batchSize - 1].root);
+  });
+
+  it("should save and get snapshots", async () => {
+    const snapshots: Snapshot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.snapshot();
+      m.id = `${_i}`;
+      snapshots.push(m);
+    }
+    await saveProposedSnapshots(snapshots, pool);
+
+    const dbSnapshot = await getCurrentProposedSnapshot(pool);
+    expect(dbSnapshot).to.not.eq(undefined);
+    expect(dbSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
+  });
+
+  it("should save and get single snapshot", async () => {
+    const snapshots: Snapshot[] = [];
+    const optimisticRootFinalized: OptimisticRootFinalized[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.snapshot();
+      m.id = `${_i}`;
+      snapshots.push(m);
+      const o = mock.entity.optimisticRootFinalized();
+      o.id = m.id;
+      o.aggregateRoot = m.aggregateRoot;
+      optimisticRootFinalized.push(o);
+    }
+    await saveProposedSnapshots(snapshots, pool);
+    await saveFinalizedRoots(optimisticRootFinalized, pool);
+
+    const propagagtedSnapshot = await getCurrentFinalizedSnapshot(pool);
+    expect(propagagtedSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
+
+    const latestSnapshot = await getLatestSnapshot(pool);
+    expect(latestSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
+  });
+
+  it("should save and get Propagated snapshots", async () => {
+    const snapshots: Snapshot[] = [];
+    const propagatedRoots: OptimisticRootPropagated[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.optimisticRootPropagated();
+      m.id = `${_i}`;
+      m.aggregateRoot = `${_i}`;
+      propagatedRoots.push(m);
+      const s = mock.entity.snapshot();
+      s.id = `${_i}`;
+      s.aggregateRoot = `${_i}`;
+      snapshots.push(s);
+    }
+    await saveProposedSnapshots(snapshots, pool);
+    let queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
+    expect(queryRes.rows.length).to.eq(0);
+    await savePropagatedOptimisticRoots(propagatedRoots, pool);
+    const dbSnapshot = await getSnapshot(snapshots[0].aggregateRoot, pool);
+    expect(dbSnapshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getSnapshot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
+    queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
+    expect(queryRes.rows.length).to.eq(propagatedRoots.length);
+  });
+
+  it("should save and get Finalized snapshots", async () => {
+    const snapshots: Snapshot[] = [];
+    const finalizedRoots: OptimisticRootFinalized[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.optimisticRootFinalized();
+      m.id = `${_i}`;
+      m.aggregateRoot = `${_i}`;
+      finalizedRoots.push(m);
+      const s = mock.entity.snapshot();
+      s.id = `${_i}`;
+      s.aggregateRoot = `${_i}`;
+      snapshots.push(s);
+    }
+    await saveProposedSnapshots(snapshots, pool);
+    let queryRes = await pool.query("SELECT * FROM snapshots where status = 'Finalized'");
+    expect(queryRes.rows.length).to.eq(0);
+    await saveFinalizedRoots(finalizedRoots, pool);
+    queryRes = await pool.query("SELECT * FROM snapshots where status = 'Finalized'");
+    expect(queryRes.rows.length).to.eq(finalizedRoots.length);
+
+    const finalizedSanpshot = await getFinalizedSnapshot(finalizedRoots[0].aggregateRoot, pool);
+    expect(finalizedSanpshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getFinalizedSnapshot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
+  });
+
+  it("should save and get spoke optimistic roots", async () => {
+    const spokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.spokeOptimisticRoot();
+      m.id = `${_i}`;
+      m.rootTimestamp = _i;
+      m.proposeTimestamp = _i;
+      spokeOptimisticRoots.push(m);
+    }
+    await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
+
+    const latestProposedSpokeRoot = await getCurrentProposedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestProposedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
+    expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestSpokeRoot = await getLatestSpokeOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+  });
+
+  it("should save and get finalized spoke optimistic roots", async () => {
+    const spokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+    const finalizedRoots: OptimisticRootFinalized[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.optimisticRootFinalized();
+      m.id = `${_i}`;
+      m.aggregateRoot = `${_i}`;
+      m.timestamp = _i * 1000;
+      finalizedRoots.push(m);
+
+      const s = mock.entity.spokeOptimisticRoot();
+      s.id = `${_i}`;
+      s.aggregateRoot = `${_i}`;
+      s.rootTimestamp = _i;
+      s.proposeTimestamp = _i + 10;
+      spokeOptimisticRoots.push(s);
+    }
+    await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
+    await saveFinalizedSpokeRoots(mock.domain.A, finalizedRoots, pool);
+
+    const latestSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbLatestSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
+    expect(missingDbLatestSpokeRoot).to.eq(undefined);
+
+    const spokeRoot = await getSpokeOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].aggregateRoot,
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(spokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbSpokeRoot = await getSpokeOptimisticRoot("", "", pool);
+    expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestFinalizedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+    const missingFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot("", pool);
+    expect(missingFinalizedSpokeRoot).to.eq(undefined);
+  });
+
+  it("should save and get RouterDailyTVL", async () => {
+    const tvls: RouterDailyTVL[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.routerDailyTVL();
+      m.id = `${_i}`;
+      tvls.push(m);
+    }
+    await saveRouterDailyTVL(tvls, pool);
+    let queryRes = await pool.query("SELECT * FROM daily_router_tvl");
+    expect(queryRes.rows.length).to.eq(tvls.length);
+  });
+
+  // it.only("should update slippage", async () => {
+  //   const originDomain = mock.domain.A;
+  //   const destinationDomain = mock.domain.B;
+  //   const xTransfer1: XTransfer = mock.entity.xtransfer({
+  //     transferId: getRandomBytes32(),
+  //     originDomain,
+  //     destinationDomain,
+  //     status: XTransferStatus.Executed,
+  //   });
+  //   const xTransfer2: XTransfer = mock.entity.xtransfer({
+  //     transferId: getRandomBytes32(),
+  //     originDomain,
+  //     destinationDomain,
+  //     status: XTransferStatus.Reconciled,
+  //   });
+  //   await saveTransfers([xTransfer1, xTransfer2], pool);
+  //   const slippageUpdates = [
+  //     mock.entity.slippageUpdate({ transferId: xTransfer1.transferId }),
+  //     mock.entity.slippageUpdate({ transferId: xTransfer2.transferId }),
+  //   ];
+  //   await updateSlippage(slippageUpdates, pool);
+  //   const query = `SELECT * FROM transfers where transfer_id in ('${slippageUpdates[0].transferId}','${slippageUpdates[1].transferId}')`;
+  //   console.log(query);
+  //   let queryRes = await pool.query(query);
+  //   console.log(queryRes.rowCount);
+  //   const updatedSlippage = [queryRes.rows.map(row) => row.transfer_id]
+
+  //   slippageUpdates.forEach((event) => {
+  //     queryRes.rows.forEach((row) => {});
+  //     expect(queryRes.rows).to.include({
+  //       transfer_id: event.transferId,
+  //       updated_slippage: event.slippage,
+  //     });
+  //   });
+  // });
 });

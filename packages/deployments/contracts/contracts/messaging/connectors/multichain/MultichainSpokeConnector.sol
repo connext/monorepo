@@ -9,40 +9,28 @@ import {BaseMultichain} from "./BaseMultichain.sol";
 contract MultichainSpokeConnector is SpokeConnector, BaseMultichain {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
+    ConstructorParams memory _baseSpokeParams,
     uint256 _mirrorChainId,
     uint256 _gasCap
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    BaseMultichain(_amb, _mirrorChainId, _gasCap)
-  {}
+  ) SpokeConnector(_baseSpokeParams) BaseMultichain(_baseSpokeParams.amb, _mirrorChainId, _gasCap) {}
 
   // ============ Admin fns ============
 
   /**
    * @notice Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {
+    require(false, "prohibited");
+  }
+
+  // ============ Public fns ============
+  /**
+   * @notice Overrides `Connector.processMessage` to revert as multichain should
+   * use `anyExecute` pathway instead.
+   */
+  function processMessage(bytes memory /*_data*/) external override {
+    revert Connector__processMessage_notUsed();
+  }
 
   // ============ Private fns ============
   /**

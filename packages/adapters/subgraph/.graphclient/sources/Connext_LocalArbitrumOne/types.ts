@@ -28,6 +28,90 @@ export type localarbitrumone_AggregateRoot = {
   blockNumber: Scalars['BigInt'];
 };
 
+export type localarbitrumone_AggregateRootProposed = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['localarbitrumone_Bytes'];
+  rootTimestamp: Scalars['BigInt'];
+  endOfDispute: Scalars['BigInt'];
+  domain: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type localarbitrumone_AggregateRootProposed_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_not?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lt?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_gte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_lte?: InputMaybe<Scalars['BigInt']>;
+  endOfDispute_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  endOfDispute_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<localarbitrumone_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<localarbitrumone_AggregateRootProposed_filter>>>;
+};
+
+export type localarbitrumone_AggregateRootProposed_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'rootTimestamp'
+  | 'endOfDispute'
+  | 'domain'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type localarbitrumone_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
@@ -876,6 +960,60 @@ export type localarbitrumone_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
+export type localarbitrumone_OptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['localarbitrumone_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type localarbitrumone_OptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<localarbitrumone_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<localarbitrumone_OptimisticRootFinalized_filter>>>;
+};
+
+export type localarbitrumone_OptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 /** Defines the order direction, either ascending or descending */
 export type localarbitrumone_OrderDirection =
   | 'asc'
@@ -1454,6 +1592,14 @@ export type Query = {
   localarbitrumone_relayerFeesIncreases: Array<localarbitrumone_RelayerFeesIncrease>;
   localarbitrumone_slippageUpdate?: Maybe<localarbitrumone_SlippageUpdate>;
   localarbitrumone_slippageUpdates: Array<localarbitrumone_SlippageUpdate>;
+  localarbitrumone_snapshotRoot?: Maybe<localarbitrumone_SnapshotRoot>;
+  localarbitrumone_snapshotRoots: Array<localarbitrumone_SnapshotRoot>;
+  localarbitrumone_spokeConnectorMode?: Maybe<localarbitrumone_SpokeConnectorMode>;
+  localarbitrumone_spokeConnectorModes: Array<localarbitrumone_SpokeConnectorMode>;
+  localarbitrumone_aggregateRootProposed?: Maybe<localarbitrumone_AggregateRootProposed>;
+  localarbitrumone_aggregateRootProposeds: Array<localarbitrumone_AggregateRootProposed>;
+  localarbitrumone_optimisticRootFinalized?: Maybe<localarbitrumone_OptimisticRootFinalized>;
+  localarbitrumone_optimisticRootFinalizeds: Array<localarbitrumone_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   localarbitrumone__meta?: Maybe<localarbitrumone__Meta_>;
 };
@@ -1778,6 +1924,78 @@ export type Querylocalarbitrumone_slippageUpdatesArgs = {
   orderBy?: InputMaybe<localarbitrumone_SlippageUpdate_orderBy>;
   orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
   where?: InputMaybe<localarbitrumone_SlippageUpdate_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SnapshotRoot_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SpokeConnectorMode_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AggregateRootProposed_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalarbitrumone_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OptimisticRootFinalized_filter>;
   block?: InputMaybe<localarbitrumone_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2670,6 +2888,124 @@ export type localarbitrumone_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type localarbitrumone_SnapshotRoot = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  root: Scalars['localarbitrumone_Bytes'];
+  count: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  blockNumber: Scalars['BigInt'];
+};
+
+export type localarbitrumone_SnapshotRoot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_gt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_lt?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_gte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_lte?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['localarbitrumone_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['localarbitrumone_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<localarbitrumone_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<localarbitrumone_SnapshotRoot_filter>>>;
+};
+
+export type localarbitrumone_SnapshotRoot_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'root'
+  | 'count'
+  | 'timestamp'
+  | 'blockNumber';
+
+export type localarbitrumone_SpokeConnectorMode = {
+  id: Scalars['ID'];
+  mode: Scalars['String'];
+};
+
+export type localarbitrumone_SpokeConnectorMode_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  mode?: InputMaybe<Scalars['String']>;
+  mode_not?: InputMaybe<Scalars['String']>;
+  mode_gt?: InputMaybe<Scalars['String']>;
+  mode_lt?: InputMaybe<Scalars['String']>;
+  mode_gte?: InputMaybe<Scalars['String']>;
+  mode_lte?: InputMaybe<Scalars['String']>;
+  mode_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_not_in?: InputMaybe<Array<Scalars['String']>>;
+  mode_contains?: InputMaybe<Scalars['String']>;
+  mode_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_contains?: InputMaybe<Scalars['String']>;
+  mode_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  mode_starts_with?: InputMaybe<Scalars['String']>;
+  mode_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with?: InputMaybe<Scalars['String']>;
+  mode_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_ends_with?: InputMaybe<Scalars['String']>;
+  mode_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with?: InputMaybe<Scalars['String']>;
+  mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<localarbitrumone_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<localarbitrumone_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<localarbitrumone_SpokeConnectorMode_filter>>>;
+};
+
+export type localarbitrumone_SpokeConnectorMode_orderBy =
+  | 'id'
+  | 'mode';
+
 export type Subscription = {
   localarbitrumone_asset?: Maybe<localarbitrumone_Asset>;
   localarbitrumone_assets: Array<localarbitrumone_Asset>;
@@ -2707,6 +3043,14 @@ export type Subscription = {
   localarbitrumone_relayerFeesIncreases: Array<localarbitrumone_RelayerFeesIncrease>;
   localarbitrumone_slippageUpdate?: Maybe<localarbitrumone_SlippageUpdate>;
   localarbitrumone_slippageUpdates: Array<localarbitrumone_SlippageUpdate>;
+  localarbitrumone_snapshotRoot?: Maybe<localarbitrumone_SnapshotRoot>;
+  localarbitrumone_snapshotRoots: Array<localarbitrumone_SnapshotRoot>;
+  localarbitrumone_spokeConnectorMode?: Maybe<localarbitrumone_SpokeConnectorMode>;
+  localarbitrumone_spokeConnectorModes: Array<localarbitrumone_SpokeConnectorMode>;
+  localarbitrumone_aggregateRootProposed?: Maybe<localarbitrumone_AggregateRootProposed>;
+  localarbitrumone_aggregateRootProposeds: Array<localarbitrumone_AggregateRootProposed>;
+  localarbitrumone_optimisticRootFinalized?: Maybe<localarbitrumone_OptimisticRootFinalized>;
+  localarbitrumone_optimisticRootFinalizeds: Array<localarbitrumone_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
   localarbitrumone__meta?: Maybe<localarbitrumone__Meta_>;
 };
@@ -3036,6 +3380,78 @@ export type Subscriptionlocalarbitrumone_slippageUpdatesArgs = {
 };
 
 
+export type Subscriptionlocalarbitrumone_snapshotRootArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_snapshotRootsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SnapshotRoot_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_spokeConnectorModeArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_spokeConnectorModesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_SpokeConnectorMode_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_aggregateRootProposedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_aggregateRootProposedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_AggregateRootProposed_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_optimisticRootFinalizedArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalarbitrumone_optimisticRootFinalizedsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localarbitrumone_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<localarbitrumone_OrderDirection>;
+  where?: InputMaybe<localarbitrumone_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<localarbitrumone_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionlocalarbitrumone__metaArgs = {
   block?: InputMaybe<localarbitrumone_Block_height>;
 };
@@ -3151,6 +3567,22 @@ export type _SubgraphErrorPolicy_ =
   localarbitrumone_slippageUpdate: InContextSdkMethod<Query['localarbitrumone_slippageUpdate'], Querylocalarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
   localarbitrumone_slippageUpdates: InContextSdkMethod<Query['localarbitrumone_slippageUpdates'], Querylocalarbitrumone_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_snapshotRoot: InContextSdkMethod<Query['localarbitrumone_snapshotRoot'], Querylocalarbitrumone_snapshotRootArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_snapshotRoots: InContextSdkMethod<Query['localarbitrumone_snapshotRoots'], Querylocalarbitrumone_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_spokeConnectorMode: InContextSdkMethod<Query['localarbitrumone_spokeConnectorMode'], Querylocalarbitrumone_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_spokeConnectorModes: InContextSdkMethod<Query['localarbitrumone_spokeConnectorModes'], Querylocalarbitrumone_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_aggregateRootProposed: InContextSdkMethod<Query['localarbitrumone_aggregateRootProposed'], Querylocalarbitrumone_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_aggregateRootProposeds: InContextSdkMethod<Query['localarbitrumone_aggregateRootProposeds'], Querylocalarbitrumone_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_optimisticRootFinalized: InContextSdkMethod<Query['localarbitrumone_optimisticRootFinalized'], Querylocalarbitrumone_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_optimisticRootFinalizeds: InContextSdkMethod<Query['localarbitrumone_optimisticRootFinalizeds'], Querylocalarbitrumone_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   localarbitrumone__meta: InContextSdkMethod<Query['localarbitrumone__meta'], Querylocalarbitrumone__metaArgs, MeshContext>
   };
@@ -3232,6 +3664,22 @@ export type _SubgraphErrorPolicy_ =
   localarbitrumone_slippageUpdate: InContextSdkMethod<Subscription['localarbitrumone_slippageUpdate'], Subscriptionlocalarbitrumone_slippageUpdateArgs, MeshContext>,
   /** null **/
   localarbitrumone_slippageUpdates: InContextSdkMethod<Subscription['localarbitrumone_slippageUpdates'], Subscriptionlocalarbitrumone_slippageUpdatesArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_snapshotRoot: InContextSdkMethod<Subscription['localarbitrumone_snapshotRoot'], Subscriptionlocalarbitrumone_snapshotRootArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_snapshotRoots: InContextSdkMethod<Subscription['localarbitrumone_snapshotRoots'], Subscriptionlocalarbitrumone_snapshotRootsArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_spokeConnectorMode: InContextSdkMethod<Subscription['localarbitrumone_spokeConnectorMode'], Subscriptionlocalarbitrumone_spokeConnectorModeArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_spokeConnectorModes: InContextSdkMethod<Subscription['localarbitrumone_spokeConnectorModes'], Subscriptionlocalarbitrumone_spokeConnectorModesArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_aggregateRootProposed: InContextSdkMethod<Subscription['localarbitrumone_aggregateRootProposed'], Subscriptionlocalarbitrumone_aggregateRootProposedArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_aggregateRootProposeds: InContextSdkMethod<Subscription['localarbitrumone_aggregateRootProposeds'], Subscriptionlocalarbitrumone_aggregateRootProposedsArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_optimisticRootFinalized: InContextSdkMethod<Subscription['localarbitrumone_optimisticRootFinalized'], Subscriptionlocalarbitrumone_optimisticRootFinalizedArgs, MeshContext>,
+  /** null **/
+  localarbitrumone_optimisticRootFinalizeds: InContextSdkMethod<Subscription['localarbitrumone_optimisticRootFinalizeds'], Subscriptionlocalarbitrumone_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   localarbitrumone__meta: InContextSdkMethod<Subscription['localarbitrumone__meta'], Subscriptionlocalarbitrumone__metaArgs, MeshContext>
   };

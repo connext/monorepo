@@ -12,6 +12,7 @@
   "function acceptProposedOwner()",
   "function anyExecute(bytes _data) returns (bool success, bytes result)",
   "function delay() view returns (uint256)",
+  "function gasCap() view returns (uint256)",
   "function owner() view returns (address)",
   "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",

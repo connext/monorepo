@@ -21,6 +21,10 @@ describe("contracts", () => {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
+            StableSwap: {
+              address: testAddress,
+              abi: ["fakeAbi()"],
+            },
             Connext: {
               address: testAddress,
               abi: ["fakeAbi()"],
@@ -157,6 +161,22 @@ describe("contracts", () => {
 
     it("should be same as test", async () => {
       let oracleContract = ContractFns.getDeployedPriceOracleContract(testChainId1);
+      expect(oracleContract!.address).to.be.equal(testAddress);
+      expect(oracleContract!.abi[0]).to.be.equal("fakeAbi()");
+    });
+  });
+
+  describe("#getDeployedStableSwapContract", () => {
+    beforeEach(() => {
+      contractDeploymentStub.returns(contractDeployment);
+    });
+
+    it("should be undefined for unknown chainId", async () => {
+      expect(ContractFns.getDeployedStableSwapContract(testChainId2)).to.be.equal(undefined);
+    });
+
+    it("should be same as test", async () => {
+      let oracleContract = ContractFns.getDeployedStableSwapContract(testChainId1);
       expect(oracleContract!.address).to.be.equal(testAddress);
       expect(oracleContract!.abi[0]).to.be.equal("fakeAbi()");
     });

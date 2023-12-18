@@ -443,21 +443,23 @@ export class SdkShared {
    */
   async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
-
     const supported: Map<string, ConnextSupport> = new Map();
 
     for (const asset of data) {
-      const support = supported.get(asset.domain);
-      if (support) {
-        support.assets.push(asset.adopted);
-      } else {
-        const entry: ConnextSupport = {
-          name: domainsToChainNames[asset.domain],
-          chainId: _domainToChainId(+asset.domain),
-          domainId: asset.domain,
-          assets: [asset.adopted],
-        };
-        supported.set(asset.domain, entry);
+      const chainConfig = this.config.chains[asset.domain];
+      if (!chainConfig.disabled && !chainConfig.disabledAssets?.includes(utils.getAddress(asset.adopted))) {
+        const support = supported.get(asset.domain);
+        if (support) {
+          support.assets.push(asset.adopted);
+        } else {
+          const entry: ConnextSupport = {
+            name: domainsToChainNames[asset.domain],
+            chainId: _domainToChainId(+asset.domain),
+            domainId: asset.domain,
+            assets: [asset.adopted],
+          };
+          supported.set(asset.domain, entry);
+        }
       }
     }
 

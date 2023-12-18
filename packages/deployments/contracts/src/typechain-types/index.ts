@@ -146,6 +146,8 @@ export type { AmplificationUtils } from "./contracts/core/connext/libraries/Ampl
 export { AmplificationUtils__factory } from "./factories/contracts/core/connext/libraries/AmplificationUtils__factory";
 export type { AssetLogic } from "./contracts/core/connext/libraries/AssetLogic";
 export { AssetLogic__factory } from "./factories/contracts/core/connext/libraries/AssetLogic__factory";
+export type { ChainIDs } from "./contracts/core/connext/libraries/ChainIDs";
+export { ChainIDs__factory } from "./factories/contracts/core/connext/libraries/ChainIDs__factory";
 export type { Constants } from "./contracts/core/connext/libraries/Constants";
 export { Constants__factory } from "./factories/contracts/core/connext/libraries/Constants__factory";
 export type { LibDiamond } from "./contracts/core/connext/libraries/LibDiamond";
@@ -158,6 +160,8 @@ export type { IWrapper } from "./contracts/core/xreceivers/Unwrapper.sol/IWrappe
 export { IWrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/IWrapper__factory";
 export type { Unwrapper } from "./contracts/core/xreceivers/Unwrapper.sol/Unwrapper";
 export { Unwrapper__factory } from "./factories/contracts/core/xreceivers/Unwrapper.sol/Unwrapper__factory";
+export type { Conductor } from "./contracts/messaging/Conductor";
+export { Conductor__factory } from "./factories/contracts/messaging/Conductor__factory";
 export type { AdminHubConnector } from "./contracts/messaging/connectors/admin/AdminHubConnector";
 export { AdminHubConnector__factory } from "./factories/contracts/messaging/connectors/admin/AdminHubConnector__factory";
 export type { AdminMainnetSpokeConnector } from "./contracts/messaging/connectors/admin/AdminMainnetSpokeConnector";
@@ -172,10 +176,6 @@ export type { Connector } from "./contracts/messaging/connectors/Connector";
 export { Connector__factory } from "./factories/contracts/messaging/connectors/Connector__factory";
 export type { ConnectorManager } from "./contracts/messaging/connectors/ConnectorManager";
 export { ConnectorManager__factory } from "./factories/contracts/messaging/connectors/ConnectorManager__factory";
-export type { ConsensysHubConnector } from "./contracts/messaging/connectors/consensys/ConsensysHubConnector";
-export { ConsensysHubConnector__factory } from "./factories/contracts/messaging/connectors/consensys/ConsensysHubConnector__factory";
-export type { ConsensysSpokeConnector } from "./contracts/messaging/connectors/consensys/ConsensysSpokeConnector";
-export { ConsensysSpokeConnector__factory } from "./factories/contracts/messaging/connectors/consensys/ConsensysSpokeConnector__factory";
 export type { GasCap } from "./contracts/messaging/connectors/GasCap";
 export { GasCap__factory } from "./factories/contracts/messaging/connectors/GasCap__factory";
 export type { GnosisBase } from "./contracts/messaging/connectors/gnosis/GnosisBase";
@@ -244,8 +244,6 @@ export type { IArbitrumOutbox } from "./contracts/messaging/interfaces/ambs/arbi
 export { IArbitrumOutbox__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumOutbox__factory";
 export type { IArbitrumRollup } from "./contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup";
 export { IArbitrumRollup__factory } from "./factories/contracts/messaging/interfaces/ambs/arbitrum/IArbitrumRollup__factory";
-export type { ConsensysAmb } from "./contracts/messaging/interfaces/ambs/ConsensysAmb";
-export { ConsensysAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/ConsensysAmb__factory";
 export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb";
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { LineaAmb } from "./contracts/messaging/interfaces/ambs/LineaAmb";
@@ -280,6 +278,8 @@ export type { IConnectorManager } from "./contracts/messaging/interfaces/IConnec
 export { IConnectorManager__factory } from "./factories/contracts/messaging/interfaces/IConnectorManager__factory";
 export type { IHubConnector } from "./contracts/messaging/interfaces/IHubConnector";
 export { IHubConnector__factory } from "./factories/contracts/messaging/interfaces/IHubConnector__factory";
+export type { IHubSpokeConnector } from "./contracts/messaging/interfaces/IHubSpokeConnector";
+export { IHubSpokeConnector__factory } from "./factories/contracts/messaging/interfaces/IHubSpokeConnector__factory";
 export type { IMessageRecipient } from "./contracts/messaging/interfaces/IMessageRecipient";
 export { IMessageRecipient__factory } from "./factories/contracts/messaging/interfaces/IMessageRecipient__factory";
 export type { DomainIndexer } from "./contracts/messaging/libraries/DomainIndexer";

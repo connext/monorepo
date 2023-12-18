@@ -16,31 +16,8 @@ import {SpokeConnector} from "../SpokeConnector.sol";
 contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    FxBaseChildTunnel(_amb)
-  {}
+    ConstructorParams memory _baseSpokeParams
+  ) SpokeConnector(_baseSpokeParams) FxBaseChildTunnel(_baseSpokeParams.amb) {}
 
   // ============ Private fns ============
 
@@ -50,6 +27,15 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     return false;
   }
 
+  /**
+   * @notice This overrides the `SpokeConnector.send` message to remove the `sentMessageRoots` check.
+   * @dev The FxTunnel contract on L1 expects the full receipt of the L2 transaction, meaning if
+   * there are more L2 events than the L1 block limit can handle the message cannot be processed.
+   */
+  function send(bytes memory _encodedData) external payable virtual override whenNotPaused rateLimited {
+    _sendRoot(MERKLE.root(), _encodedData);
+  }
+
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");
@@ -57,7 +43,7 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
   }
 
   function _processMessageFromRoot(
-    uint256, /* stateId */
+    uint256 /* stateId */,
     address sender,
     bytes memory data
   ) internal override validateSender(sender) {

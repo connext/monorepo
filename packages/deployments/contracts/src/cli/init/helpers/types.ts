@@ -16,6 +16,7 @@ export const AgentsSchema = Type.Object({
   sequencers: Type.Optional(AgentStackSchema),
   routers: Type.Optional(AgentStackSchema),
   watchers: Type.Optional(AgentStackSchema),
+  proposers: Type.Optional(AgentStackSchema),
   relayerFeeVaults: Type.Record(Type.String(), Type.String()),
 });
 export type Agents = Static<typeof AgentsSchema>;
@@ -88,6 +89,7 @@ export type NetworkStack = {
   // Meta info.
   chain: string;
   domain: string;
+  signerAddress: string;
 
   // RPC provider to use for this network.
   rpc: providers.JsonRpcProvider;
@@ -123,13 +125,20 @@ export type ReadSchema<T> = {
     | string;
   caseSensitive?: boolean;
 };
-export type CallSchema<T> = ReadSchema<T> & {
+export type CallSchema<T, P = string> = ReadSchema<T> & {
   apply: boolean;
   // Write method to call to update value on contract.
   write: {
     method: string;
     args?: any[];
   };
+  // Optional auth (enforces sender by call)
+  auth?: {
+    method: string;
+    args?: any[];
+    eval: (ret: P) => boolean; // address or role id for permission check
+  };
+
   chainData?: any;
 };
 

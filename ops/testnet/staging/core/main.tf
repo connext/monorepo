@@ -302,7 +302,7 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(30 minutes)"
+  schedule_expression    = "rate(10 minutes)"
   timeout                = 300
   memory_size            = 512
   lambda_in_vpc          = true
@@ -373,7 +373,7 @@ module "lighthouse_propagate_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
-  schedule_expression = "rate(30 minutes)"
+  schedule_expression = "rate(10 minutes)"
   memory_size         = 2048
 }
 
@@ -385,21 +385,53 @@ module "lighthouse_sendoutboundroot_cron" {
   environment         = var.environment
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "sendoutboundroot" })
-  schedule_expression = "rate(30 minutes)"
+  schedule_expression = "rate(10 minutes)"
   memory_size         = 2048
 }
 
+module "lighthouse_web3signer" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  lb_subnets               = module.network.private_subnets
+  docker_image             = "ghcr.io/connext/web3signer:latest"
+  container_family         = "lighthouse-web3signer"
+  health_check_path        = "/upcheck"
+  container_port           = 9000
+  loadbalancer_port        = 80
+  cpu                      = 256
+  memory                   = 512
+  instance_count           = 1
+  timeout                  = 180
+  internal_lb              = true
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = local.lighthouse_web3signer_env_vars
+}
 
 module "lighthouse_propose_cron" {
-  source              = "../../../modules/lambda"
-  ecr_repository_name = "nxtp-lighthouse"
-  docker_image_tag    = var.lighthouse_image_tag
-  container_family    = "lighthouse-propose"
-  environment         = var.environment
-  stage               = var.stage
-  container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
-  schedule_expression = "rate(30 minutes)"
-  memory_size         = 1536
+  source                 = "../../../modules/lambda"
+  ecr_repository_name    = "nxtp-lighthouse"
+  docker_image_tag       = var.lighthouse_image_tag
+  container_family       = "lighthouse-propose"
+  environment            = var.environment
+  stage                  = var.stage
+  container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
+  schedule_expression    = "rate(10 minutes)"
+  memory_size            = 1536
+  timeout                = 900
+  lambda_in_vpc          = true
+  subnet_ids             = module.network.private_subnets
+  lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
 }
 
 module "relayer" {

@@ -10,8 +10,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xF7c4d7dcEc2c09A15f2Db5831d6d25eAEf0a296c",
-        "startBlock": 16232872
+        "address": "0x02fdF04AF077687CDA03Bd3162388b7972A4a1Cc",
+        "startBlock": 18737765
       },
       {
         "name": "MerkleTreeManager",
@@ -31,8 +31,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x96fDDc1A6FBDb232e9adA1fFc1026799F85128e9",
-        "startBlock": 37100525
+        "address": "0xa052EF2D4Eb460c3886B0fd687FA33D3dc8b15EE",
+        "startBlock": 50869197
       },
       {
         "name": "MerkleTreeManager",
@@ -52,8 +52,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x32155C9d39084F040Ba17890fE8134dbE2a0453f",
-        "startBlock": 53023760
+        "address": "0x432006CEd3BBa818e3D0d8730426B32Bb34a42aB",
+        "startBlock": 113197430
       },
       {
         "name": "MerkleTreeManager",
@@ -73,8 +73,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xFD81392229b6252cF761459d370C239Be3aFc54F",
-        "startBlock": 47824521
+        "address": "0x5f0F58c8939565C0C553303849Bc5Bf7c530e816",
+        "startBlock": 157906667
       },
       {
         "name": "MerkleTreeManager",
@@ -94,8 +94,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xC667DE991c8B40C969f6996b4F6167851527c9f6",
-        "startBlock": 29748608
+        "address": "0x779D30a8BDD8f8A1cEC0292d7799350a8cCef119",
+        "startBlock": 34159655
       },
       {
         "name": "MerkleTreeManager",
@@ -115,8 +115,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x771B2c910D76ecf84B100559CF3Ec4cB2e8D4aC5",
-        "startBlock": 25562274
+        "address": "0xDF97CadbcCeE9cfdB12A3e9BB7663E6753A71a0C",
+        "startBlock": 31329684
       },
       {
         "name": "MerkleTreeManager",
@@ -136,8 +136,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
-        "startBlock": 753043
+        "address": "0xA401e30E6b7Eb50e9355a4FA8F29118d28386E33",
+        "startBlock": 1114314
       },
       {
         "name": "MerkleTreeManager",
@@ -157,8 +157,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xE9c7095c956F9F75e21dD99027aDF6bFfFa9BA9A",
-        "startBlock": 8173343
+        "address": "0xEf2D3E622dB0b790b6513681e925b4ABFeD5F38B",
+        "startBlock": 10168633
       },
       {
         "name": "MerkleTreeManager",
@@ -178,8 +178,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8073a764c4651a9BE132032d7B5E3B319311904E",
-        "startBlock": 7067115
+        "address": "0x844d6790a41e967Acb0810808f07AA28d5870b92",
+        "startBlock": 18226883
       },
       {
         "name": "MerkleTreeManager",
@@ -199,55 +199,13 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0x8d2690fDc417a231d6D919F9cb1f2fB317B36af5",
-        "startBlock": 29956468
+        "address": "0x15941A9DBBAE0A4eb53321A43a1b4DF4E76fB6a6",
+        "startBlock": 43258261
       },
       {
         "name": "MerkleTreeManager",
         "address": "0xEf8317C06643aDDeC80441ce5ae184aa207a94fD",
         "startBlock": 29956465
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/amarok-runtime-v0-arb-goerli",
-    "network": "arbitrum-goerli",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2",
-        "startBlock": 3268972
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0x0f4e2866d874b94fc7424d7469deb13c8ae7738f",
-        "startBlock": 3268962
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x88D6229f1d6f3512aeAF5e0790af91606ADbC7dc",
-        "startBlock": 3268960
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/runtime-v0-zksynct",
-    "network": "zksync2-testnet",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0xB0694fEcEdd88e5590A563aDb5f194d2dE30F0b6",
-        "startBlock": 1166677
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0xb664Ba7D8808099Ac5eEFD4dd03cBc1DBB33Ba1b",
-        "startBlock": 1372088
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x571BaF5E320E636d6F78422C3034c21681d727a1",
-        "startBlock": 1372083
       }
     ]
   },
@@ -262,8 +220,8 @@
       },
       {
         "name": "SpokeConnector",
-        "address": "0xa34ba01baD13F35290Fc8F40ff356A5d9dB3Eb90",
-        "startBlock": 926084
+        "address": "0xc4C19CEa6bDbFA21Ac5FF37D825b2F6fc53CdAC6",
+        "startBlock": 2490352
       },
       {
         "name": "MerkleTreeManager",
@@ -273,23 +231,23 @@
     ]
   },
   {
-    "subgraphName": "connext/amarok-runtime-v0-polygonzk-test",
-    "network": "polygon-zkevm-testnet",
+    "subgraphName": "connext/amarok-runtime-v0-base-goerli",
+    "network": "base-testnet",
     "source": [
       {
         "name": "Connext",
-        "address": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2",
-        "startBlock": 485026
+        "address": "0x544e3f759a35cD534c6411d0c106884488c0ADD4",
+        "startBlock": 13383760
       },
       {
         "name": "SpokeConnector",
-        "address": "0x27842eA2c3d472cE345315B2A8aE26039Fc53a2D",
-        "startBlock": 484972
+        "address": "0x4efC4F82C2ef4CD0c24877103c24DabdDb0d37dd",
+        "startBlock": 13384262
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x94Cc86DbCed4928527b06d91CD72a39956dd79aF",
-        "startBlock": 484732
+        "address": "0x4fA03719D17B5683A7410f723074d3c989326Ac5",
+        "startBlock": 13383551
       }
     ]
   }

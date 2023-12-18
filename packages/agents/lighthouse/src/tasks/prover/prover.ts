@@ -1,9 +1,19 @@
-import { ChainData, createLoggingContext, jsonifyError, Logger, RelayerType, sendHeartbeat } from "@connext/nxtp-utils";
+import {
+  ChainData,
+  createLoggingContext,
+  jsonifyError,
+  Logger,
+  RelayerType,
+  sendHeartbeat,
+  RootManagerMode,
+  ModeType,
+} from "@connext/nxtp-utils";
 import { getContractInterfaces, ChainReader } from "@connext/nxtp-txservice";
 import { closeDatabase, getDatabase, getDatabaseAndPool } from "@connext/nxtp-adapters-database";
 import { setupConnextRelayer, setupGelatoRelayer } from "@connext/nxtp-adapters-relayer";
 import Broker from "amqplib";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
+import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 
 import { NxtpLighthouseConfig } from "../../config";
 
@@ -120,6 +130,11 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
     });
   }
   context.adapters.contracts = getContractInterfaces();
+  context.adapters.subgraph = await SubgraphReader.create(
+    chainData,
+    context.config.environment,
+    context.config.subgraphPrefix as string,
+  );
 
   context.logger.info("Prover boot complete!", requestContext, methodContext, {
     chains: [...Object.keys(context.config.chains)],
@@ -135,4 +150,25 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
 
       `,
   );
+
+  // Start the prover.
+  try {
+    const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
+    if (rootManagerMode.mode === ModeType.OptimisticMode) {
+      context.logger.info("Prover started in Optimistic Mode", requestContext, methodContext);
+      context.mode = ModeType.OptimisticMode;
+    } else if (rootManagerMode.mode === ModeType.SlowMode) {
+      context.logger.info("Prover started in Slow Mode", requestContext, methodContext);
+      context.mode = ModeType.SlowMode;
+    } else {
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
+    }
+    if (context.config.healthUrls.prover) {
+      await sendHeartbeat(context.config.healthUrls.prover, context.logger);
+    }
+  } catch (e: unknown) {
+    console.error("Error starting Prover. Sad! :(", e);
+    await closeDatabase();
+    process.exit();
+  }
 };

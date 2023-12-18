@@ -44,6 +44,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "processMessage(bytes)": FunctionFragment;
     "processedExits(bytes32)": FunctionFragment;
+    "processedMessageRoots(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
     "proposed()": FunctionFragment;
     "proposedTimestamp()": FunctionFragment;
@@ -53,6 +54,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "sendMessage(bytes,bytes)": FunctionFragment;
     "setMirrorConnector(address)": FunctionFragment;
     "verifySender(address)": FunctionFragment;
+    "withdrawFunds(address)": FunctionFragment;
   };
 
   getFunction(
@@ -71,6 +73,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "owner"
       | "processMessage"
       | "processedExits"
+      | "processedMessageRoots"
       | "proposeNewOwner"
       | "proposed"
       | "proposedTimestamp"
@@ -80,6 +83,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
       | "sendMessage"
       | "setMirrorConnector"
       | "verifySender"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "AMB", values?: undefined): string;
@@ -124,6 +128,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "processedMessageRoots",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "proposeNewOwner",
     values: [PromiseOrValue<string>]
   ): string;
@@ -151,6 +159,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "verifySender",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
     values: [PromiseOrValue<string>]
   ): string;
 
@@ -196,6 +208,10 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "processedMessageRoots",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proposeNewOwner",
     data: BytesLike
   ): Result;
@@ -225,8 +241,13 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     functionFragment: "verifySender",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFunds",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "FundsWithdrawn(address,uint256)": EventFragment;
     "MessageProcessed(bytes,address)": EventFragment;
     "MessageSent(bytes,bytes,address)": EventFragment;
     "MirrorConnectorUpdated(address,address)": EventFragment;
@@ -235,6 +256,7 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "FundsWithdrawn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageProcessed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MessageSent"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MirrorConnectorUpdated"): EventFragment;
@@ -242,6 +264,17 @@ export interface PolygonHubConnectorInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipProposed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
+
+export interface FundsWithdrawnEventObject {
+  to: string;
+  amount: BigNumber;
+}
+export type FundsWithdrawnEvent = TypedEvent<
+  [string, BigNumber],
+  FundsWithdrawnEventObject
+>;
+
+export type FundsWithdrawnEventFilter = TypedEventFilter<FundsWithdrawnEvent>;
 
 export interface MessageProcessedEventObject {
   data: string;
@@ -379,6 +412,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -412,6 +450,11 @@ export interface PolygonHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -452,6 +495,11 @@ export interface PolygonHubConnector extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  processedMessageRoots(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   proposeNewOwner(
     newlyProposed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -485,6 +533,11 @@ export interface PolygonHubConnector extends BaseContract {
 
   verifySender(
     _expected: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawFunds(
+    _to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -523,6 +576,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -556,9 +614,23 @@ export interface PolygonHubConnector extends BaseContract {
       _expected: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
+    "FundsWithdrawn(address,uint256)"(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+    FundsWithdrawn(
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): FundsWithdrawnEventFilter;
+
     "MessageProcessed(bytes,address)"(
       data?: null,
       caller?: null
@@ -654,6 +726,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -687,6 +764,11 @@ export interface PolygonHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -730,6 +812,11 @@ export interface PolygonHubConnector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    processedMessageRoots(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proposeNewOwner(
       newlyProposed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -763,6 +850,11 @@ export interface PolygonHubConnector extends BaseContract {
 
     verifySender(
       _expected: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFunds(
+      _to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -1,4 +1,4 @@
-import { NxtpError } from "@connext/nxtp-utils";
+import { NxtpError, Snapshot } from "@connext/nxtp-utils";
 
 export class NoDestinationDomainForProof extends NxtpError {
   constructor(destinationDomain: string, context: any = {}) {
@@ -7,6 +7,12 @@ export class NoDestinationDomainForProof extends NxtpError {
       context,
       NoDestinationDomainForProof.name,
     );
+  }
+}
+
+export class NoDestinationDomainConnext extends NxtpError {
+  constructor(destinationDomain: string, context: any = {}) {
+    super(`No connext found on destination domain ${destinationDomain}`, context, NoDestinationDomainConnext.name);
   }
 }
 
@@ -42,9 +48,16 @@ export class NoTargetMessageRoot extends NxtpError {
     super(`No target outbound root in ${domain}`, context, NoTargetMessageRoot.name);
   }
 }
+
 export class NoReceivedAggregateRoot extends NxtpError {
   constructor(domain: string | undefined, context: any = {}) {
     super(`No received aggregate root in ${domain}`, context, NoReceivedAggregateRoot.name);
+  }
+}
+
+export class NoFinalizedAggregateRoot extends NxtpError {
+  constructor(domain: string | undefined, context: any = {}) {
+    super(`No finalized aggregate root in ${domain}`, context, NoFinalizedAggregateRoot.name);
   }
 }
 
@@ -60,6 +73,39 @@ export class NoMessageProof extends NxtpError {
   }
 }
 
+export class NoBaseAggregateRootCount extends NxtpError {
+  constructor(aggregateRoot: string, context: any = {}) {
+    super(`No base aggregate root count found for ${aggregateRoot}`, context, NoBaseAggregateRootCount.name);
+  }
+}
+export class NoBaseAggregateRoot extends NxtpError {
+  constructor(context: any = {}) {
+    super(`No base aggregate root found`, context, NoBaseAggregateRoot.name);
+  }
+}
+
+export class NoMessageRoot extends NxtpError {
+  constructor(originDomain: string, messageRoot: string, context: any = {}) {
+    super(
+      `No message with message root ${messageRoot} found in origin domain ${originDomain}`,
+      context,
+      NoMessageRoot.name,
+    );
+  }
+}
+
+export class NoDomainInSnapshot extends NxtpError {
+  constructor(originDomain: string, snapshot: Snapshot, context: any = {}) {
+    super(`No domain ${originDomain} found in snapshot ${snapshot}`, context, NoDomainInSnapshot.name);
+  }
+}
+
+export class AggregateRootDuplicated extends NxtpError {
+  constructor(aggregateRoot: string, context: any = {}) {
+    super(`Trying to propose same aggregate root for ${aggregateRoot}`, context, AggregateRootDuplicated.name);
+  }
+}
+
 export class EmptyMessageProofs extends NxtpError {
   constructor(originDomain: string, destinationDomain: string, context: any = {}) {
     super(
@@ -67,5 +113,11 @@ export class EmptyMessageProofs extends NxtpError {
       context,
       EmptyMessageProofs.name,
     );
+  }
+}
+
+export class ExecutionLayerPaused extends NxtpError {
+  constructor(connext: string, domain: string, context: any = {}) {
+    super(`Execution layer paused, connext: ${connext} and domain: ${domain}`, context, EmptyMessageProofs.name);
   }
 }
