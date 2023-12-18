@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.2.1-alpha.0
+
+- `xcall`: Handles Lockbox adapter flow for xERC20s
+
 ## v2.2.0-alpha.0
 
 - Linea mainnet support
