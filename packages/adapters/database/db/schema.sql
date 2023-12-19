@@ -1278,6 +1278,14 @@ ALTER TABLE ONLY public.spoke_optimistic_roots
 
 
 --
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: stableswap_exchanges stableswap_exchanges_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1630,4 +1638,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20231127165223'),
     ('20231128023332'),
     ('20231130084431'),
-    ('20231219013906');
+    ('20231219013906'),
+    ('20231219072355');
