@@ -27,6 +27,15 @@ contract PolygonSpokeConnector is SpokeConnector, FxBaseChildTunnel {
     return false;
   }
 
+  /**
+   * @notice This overrides the `SpokeConnector.send` message to remove the `sentMessageRoots` check.
+   * @dev The FxTunnel contract on L1 expects the full receipt of the L2 transaction, meaning if
+   * there are more L2 events than the L1 block limit can handle the message cannot be processed.
+   */
+  function send(bytes memory _encodedData) external payable virtual override whenNotPaused rateLimited {
+    _sendRoot(MERKLE.root(), _encodedData);
+  }
+
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {
     // Should not include specialized calldata
     require(_encodedData.length == 0, "!data length");

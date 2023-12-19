@@ -29,7 +29,8 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
   chainId: Type.Optional(Type.Number()),
   deployments: Type.Optional(TChainDeployments),
-  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
+  disabled: Type.Optional(Type.Boolean()),
+  disabledAssets: Type.Optional(Type.Array(TAddress)), // By adopted address
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -105,6 +106,9 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment![0].toUpperCase()}${nxtpConfig.environment!.slice(1)}` as ContractPostfix);
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+    nxtpConfig.chains[domainId].disabled = chainConfig.disabled ?? false;
+    nxtpConfig.chains[domainId].disabledAssets = chainConfig.disabledAssets ?? [];
+
     const chainDataForChain = chainData.get(domainId);
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
@@ -188,4 +192,26 @@ export const domainsToChainNames: Record<string, string> = {
   "6450786": "bsc",
   "6778479": "xdai",
   "1818848877": "linea",
+};
+
+// Need to add more domains here.
+export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
+  "6648936": "0xbf29a2d67efb6766e44c163b19c6f4118b164702",
+  "1869640809": "0x5543eafd20e25fbbbd66e2c154ff8ff8407e3a57",
+  "1886350457": "0x3606b0d9c84224892c7407d4e8dcfd7e9e2126a2",
+  "1634886255": "0x63828ede703f981a3c4a4460b730faeb97028df1",
+  "6450786": "0x222af8c1411dc8b125338cf876547b03467bb3d1",
+  "6778479": "0x2056c11b071ae4cdd55007136c2493f3d4c1b678",
+  "1818848877": "0x11984dc4465481512eb5b777e44061c158cf2259",
+};
+
+// Need to add more domains here.
+export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
+  "6648936": "0x45bf3c737e57b059a5855280ca1adb8e9606ac68",
+  "1869640809": "0x81dADc774d2ae44Eb30D2290d076Ae67F9800bd5",
+  "1886350457": "0x6777c6713F13e499232B3a0CdA246e357a9Cf5EB",
+  "1634886255": "0x0B52cA1406eeA3Ce1fcc37dC0121845eF1de3Ae8",
+  "6450786": "0xB71D06f2e73918386B75c24dD26c95DD938f7912",
+  "6778479": "0x3Cb55bFBB1f4973FCb9705Bab4aBb7E72BF85eAF",
+  "1818848877": "0x4895aa5d666c81a04ebcc7a9aa47f249b1c46aa6",
 };

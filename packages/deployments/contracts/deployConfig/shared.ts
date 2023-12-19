@@ -27,12 +27,14 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   137: 30, // polygon
   42161: 30, // arbitrum one
   59144: 30, // linea
+  8453: 30, // base
 
   // testnets
   5: 4, // goerli
   420: 30, // optimism-goerli
   80001: 30, // mumbai
   59140: 30, // linea-goerli
+  84531: 30, // base-goerli
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -220,32 +222,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // Arbitrum nitro goerli testnet:
-      // https://developer.offchainlabs.com/docs/Useful_Addresses
-      421613: {
-        prefix: "Arbitrum",
-        ambs: {
-          //
-          // https://goerli.etherscan.io/address/0x6BEbC4925716945D46F0Ec336D5C2564F419682C
-          hub: "0x6BEbC4925716945D46F0Ec336D5C2564F419682C",
-          // https://goerli-rollup-explorer.arbitrum.io/address/0x0000000000000000000000000000000000000064
-          spoke: "0x0000000000000000000000000000000000000064",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[421613],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[421613],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[421613] / 2,
-        custom: {
-          hub: {
-            // https://goerli.etherscan.io/address/0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049
-            outbox: "0x45Af9Ed1D03703e480CE7d328fB684bb67DA5049",
-            maxSubmissionCostCap: utils.parseUnits("100000", "gwei"),
-            maxGasCap: DEFAULT_PROCESS_GAS,
-            gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
-          },
-        },
-      },
       80001: {
         prefix: "Polygon",
         ambs: {
@@ -268,28 +244,29 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      280: {
-        prefix: "ZkSync",
-        ambs: {
-          // zkSync Diamond on goerli
-          // https://goerli.etherscan.io/address/0x1908e2bf4a88f91e4ef0dc72f02b8ea36bea2319
-          hub: "0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319",
-          // zkSync on testnet
-          // https://goerli.explorer.zksync.io/address/0x0000000000000000000000000000000000008008
-          // https://github.com/matter-labs/era-system-contracts/blob/5a6c728576de5db68ad577a09f34e7b85c374192/contracts/Constants.sol#L40
-          spoke: "0x0000000000000000000000000000000000008008",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[280],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[280],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[280] / 2,
-        custom: {
-          hub: {
-            gasCap: DEFAULT_PROCESS_GAS,
-          },
-        },
-      },
+      // FIXME: not added in op-roots, sepolia?
+      // 280: {
+      //   prefix: "ZkSync",
+      //   ambs: {
+      //     // zkSync Diamond on goerli
+      //     // https://goerli.etherscan.io/address/0x1908e2bf4a88f91e4ef0dc72f02b8ea36bea2319
+      //     hub: "0x1908e2BF4a88F91E4eF0DC72f02b8Ea36BEa2319",
+      //     // zkSync on testnet
+      //     // https://goerli.explorer.zksync.io/address/0x0000000000000000000000000000000000008008
+      //     // https://github.com/matter-labs/era-system-contracts/blob/5a6c728576de5db68ad577a09f34e7b85c374192/contracts/Constants.sol#L40
+      //     spoke: "0x0000000000000000000000000000000000008008",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[280],
+      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[280],
+      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[280] / 2,
+      //   custom: {
+      //     hub: {
+      //       gasCap: DEFAULT_PROCESS_GAS,
+      //     },
+      //   },
+      // },
       59140: {
         prefix: "Linea",
         ambs: {
@@ -305,6 +282,33 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140] / 2,
+      },
+      // Base goerli:
+      // https://community.optimism.io/docs/useful-tools/networks/#op-goerli
+      84531: {
+        prefix: "Optimism",
+        networkName: "Base",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://goerli.etherscan.io/address/0x8e5693140eA606bcEB98761d9beB1BC87383706D
+          hub: "0x8e5693140eA606bcEB98761d9beB1BC87383706D", // L1 cross domain messenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531] / 2,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA#code
+            optimismPortal: "0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
       // // FIXME: wormhole relayer deployment not listed in docs for goerli
       // // address used is core bridge; different from mainnet so this testnet is skipped
@@ -333,30 +337,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
-      1442: {
-        prefix: "PolygonZk",
-        ambs: {
-          // PolygonZkEVMBridge on goerli
-          // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
-          hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
-          // PolygonZkEVMBridge on polygon-zkevm
-          // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
-          spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442] / 2,
-        custom: {
-          hub: {
-            mirrorNetworkId: "1",
-          },
-          spoke: {
-            mirrorNetworkId: "0",
-          },
-        },
-      },
+      // FIXME: not added in op-roots, sepolia?
+      // 1442: {
+      //   prefix: "PolygonZk",
+      //   ambs: {
+      //     // PolygonZkEVMBridge on goerli
+      //     // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+      //     hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+      //     // PolygonZkEVMBridge on polygon-zkevm
+      //     // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
+      //     spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
+      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
+      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442] / 2,
+      //   custom: {
+      //     hub: {
+      //       mirrorNetworkId: "1",
+      //     },
+      //     spoke: {
+      //       mirrorNetworkId: "0",
+      //     },
+      //   },
+      // },
       5: {
         prefix: "Mainnet",
         ambs: {

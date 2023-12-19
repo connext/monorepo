@@ -29,6 +29,7 @@
   "function owner() view returns (address)",
   "function processMessage(bytes _data)",
   "function processedExits(bytes32) view returns (bool)",
+  "function processedMessageRoots(bytes32) view returns (bool)",
   "function proposeNewOwner(address newlyProposed)",
   "function proposed() view returns (address)",
   "function proposedTimestamp() view returns (uint256)",

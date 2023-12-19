@@ -17,6 +17,8 @@ import {
   MessageRootVerificationFailed,
   EmptyMessageProofs,
   RelayerSendFailed,
+  NoDestinationDomainConnext,
+  ExecutionLayerPaused,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
@@ -43,6 +45,23 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     aggregateRootCount,
     snapshotRoots,
   } = brokerMessage;
+
+  // Ensure execution layer is not paused prior to proving
+  const connext = config.chains[destinationDomain]?.deployments?.connext;
+  if (!connext) {
+    throw new NoDestinationDomainConnext(destinationDomain);
+  }
+
+  const pauseData = await chainreader.readTx({
+    domain: +destinationDomain,
+    to: connext,
+    data: contracts.connext.encodeFunctionData("paused"),
+  });
+
+  const [paused] = contracts.connext.decodeFunctionResult("paused", pauseData);
+  if (paused) {
+    throw new ExecutionLayerPaused(connext, destinationDomain);
+  }
 
   // Dedup the batch
   messages.splice(
@@ -90,8 +109,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
 
   const hubSMT = new SparseMerkleTree(hubStore);
-  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-  if (!destinationSpokeConnector) {
+  const { spokeConnector: destinationSpokeConnector, spokeMerkleTree: destinationMerkleTree } =
+    config.chains[destinationDomain]?.deployments ?? {};
+  if (!destinationSpokeConnector || !destinationMerkleTree) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
 
@@ -107,7 +127,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     try {
       const messageResultData = await chainreader.readTx({
         domain: +destinationDomain,
-        to: destinationSpokeConnector,
+        to: destinationMerkleTree,
         data: messageEncodedData,
       });
 

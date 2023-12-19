@@ -108,6 +108,9 @@ locals {
       # "2053862260" = {
       #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       # }
+      "1650553703" = {
+        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -169,6 +172,12 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
+        },
+        {
+          name       = "1650553703"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
         }
         # {
         #   name       = "2053862260"
@@ -202,6 +211,11 @@ locals {
           exchange = "sequencerX"
           target   = "1668247156"
           keys     = ["1668247156"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1650553703"
+          keys     = ["1650553703"]
         }
         # {
         #   exchange = "sequencerX"
@@ -247,6 +261,9 @@ locals {
       "1668247156" = {
         providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
       }
+      "1650553703" = {
+        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -272,11 +289,14 @@ locals {
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
       }
-      "1668247156" = {
-        providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
-      }
-      "2053862260" = {
-        providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
+      # "1668247156" = {
+      #   providers = ["https://lb.drpc.org/ogrpc?network=linea-goerli&dkey=${var.drpc_key}", "https://linea-goerli.infura.io/v3/${var.infura_key}", "https://rpc.goerli.linea.build"]
+      # }
+      # "2053862260" = {
+      #   providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
+      # }
+      "1650553703" = {
+        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -308,11 +328,12 @@ locals {
     }
     hubDomain = "1735353714"
     proverBatchSize = {
-      "1668247156" = 10,
+      # "1668247156" = 10,
       "9991"       = 10,
       "1735353714" = 10,
       # "2053862260" = 10,
-      "1735356532" = 10
+      "1735356532" = 10,
+      "1650553703" = 10
     }
     messageQueue = {
       connection = {
@@ -327,7 +348,7 @@ locals {
       }
       prefetchSize = 1
     }
-    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
+    web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
@@ -355,6 +376,9 @@ locals {
       # "2053862260" = {
       #  providers = ["https://zksync-era-testnet.blockpi.network/v1/rpc/public", "https://testnet.era.zksync.dev"]
       # }
+      "1650553703" = {
+        providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"

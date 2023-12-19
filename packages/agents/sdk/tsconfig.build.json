@@ -7,7 +7,7 @@
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
   "exclude": ["test/**/*.ts"],
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/**/**/*.json"],
   "references": [
     {
       "path": "../../adapters/txservice/tsconfig.build.json"

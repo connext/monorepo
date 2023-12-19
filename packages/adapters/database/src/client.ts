@@ -321,6 +321,7 @@ const convertToDbRouterLiquidityEvent = (event: RouterLiquidityEvent): s.router_
   return {
     id: event.id,
     domain: event.domain,
+    event: event.event as s.event_type,
     asset: event.asset,
     router: event.router,
     amount: event.amount,

@@ -20,6 +20,7 @@ dotenvConfig();
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   deployments: Type.Object({
+    connext: TAddress,
     spokeMerkleTree: TAddress,
     hubMerkleTree: TAddress,
     spokeConnector: TAddress,
@@ -133,6 +134,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
   "1668247156": "Linea",
+  "1650553703": "Base",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
@@ -141,6 +143,7 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1634886255": "Arbitrum",
   "6450786": "Bnb",
   "1818848877": "Linea",
+  "1650553709": "Base",
 };
 
 /**
@@ -287,6 +290,18 @@ export const getEnvConfig = (
           if (!res) {
             throw new Error(
               `No ${prefix}SpokeConnector${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
+            );
+          }
+          return res.address;
+        })(),
+
+      connext:
+        nxtpConfig.chains[domainId].deployments?.connext ??
+        (() => {
+          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          if (!res) {
+            throw new Error(
+              `No Connext${contractPostfix} contract address for domain ${domainId}, chain ${chainDataForChain?.chainId}`,
             );
           }
           return res.address;

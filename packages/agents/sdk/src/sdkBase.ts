@@ -20,7 +20,7 @@ import {
   SlippageInvalid,
   ProviderMissing,
 } from "./lib/errors";
-import { SdkConfig, getConfig } from "./config";
+import { SdkConfig, getConfig, LOCKBOX_ADAPTER_DOMAIN_ADDRESS } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
   SdkXCallParamsSchema,
@@ -228,7 +228,16 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const connextContractAddress = (await this.getConnext(origin, options)).address;
+    const isLockboxAsset = await this.isXERC20WithLockbox(origin, asset, options);
+    const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[origin];
+    if (isLockboxAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+      throw new Error("Lockbox adapter not deployed on given domain");
+    }
+
+    // In case given asset is XERC20 and have lockbox tx should hit adapter rather than connext contracts
+    const connextContractAddress = isLockboxAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(origin, options)).address;
 
     const chainId = await this.getChainId(origin);
 

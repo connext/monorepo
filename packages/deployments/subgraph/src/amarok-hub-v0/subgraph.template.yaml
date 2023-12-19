@@ -179,33 +179,6 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleArbitrumNewConnector
       file: ./src/amarok-hub-v0/mapping/arbitrum.ts
-  # ZkSyncHubConnector.sol events
-  - kind: ethereum/contract
-    name: ZkSyncHubConnector
-    network: "{{network}}"
-    source:
-      address: "{{address}}"
-      abi: ZkSyncHubConnector
-      # prettier-ignore
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - Asset
-        - AssetBalance
-        - Router
-        - Transfer
-      abis:
-        - name: ZkSyncHubConnector
-          file: ./src/amarok-hub-v0/abis/ZkSyncHubConnector.json
-      eventHandlers:
-        - event: MessageProcessed(bytes,address)
-          handler: handleZkSyncMessageProcessed
-        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-          handler: handleZkSyncNewConnector
-      file: ./src/amarok-hub-v0/mapping/zksync.ts
   # BnbHubConnector.sol events
   - kind: ethereum/contract
     name: BnbHubConnector
