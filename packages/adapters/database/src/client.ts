@@ -1064,11 +1064,16 @@ export const getFinalizedSnapshot = async (
 
 export const getLatestPendingSnapshotRootByDomain = async (
   spoke_domain: number,
+  id: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<SnapshotRoot | undefined> => {
   const poolToUse = _pool ?? pool;
   const snapshot = await db
-    .select("snapshot_roots", { processed: false, spoke_domain }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .select(
+      "snapshot_roots",
+      { processed: false, spoke_domain, id },
+      { limit: 1, order: { by: "id", direction: "DESC" } },
+    )
     .run(poolToUse);
   return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]) : undefined;
 };
