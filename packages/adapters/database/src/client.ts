@@ -555,7 +555,7 @@ export const saveSnapshotRoots = async (
   const roots: s.snapshot_roots.Insertable[] = _roots.map((r) => convertToDbSnapshotRoot(r)).map(sanitizeNull);
 
   // use upsert here. if the root exists, we don't want to overwrite anything
-  await db.upsert("snapshot_roots", roots, ["id", "spoke_domain"], { updateColumns: [] }).run(poolToUse);
+  await db.upsert("snapshot_roots", roots, ["spoke_domain", "root"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (
