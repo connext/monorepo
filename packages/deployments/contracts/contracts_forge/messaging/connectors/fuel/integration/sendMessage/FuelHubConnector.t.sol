@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {Connector} from "../../../../../contracts/messaging/connectors/Connector.sol";
+import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
 import {Common} from "./Common.sol";
+import {IFuelMessagePortal} from "../../../../../../contracts/messaging/interfaces/ambs/fuel/IFuelMessagePortal.sol";
 
-contract Integration_Connector_FuelHubConnector is Common {
+contract Integration_Connector_FuelHubConnector_SendMessage is Common {
   /**
    * @notice Emitted when a message is sent from Ethereum to Fuel
    * @dev Emitted by the `FuelMessagePortal`
@@ -43,6 +44,4 @@ contract Integration_Connector_FuelHubConnector is Common {
     vm.prank(address(rootManager));
     fuelHubConnector.sendMessage(_root, _encodedData);
   }
-
-  function test_receiveMessage() public {}
 }
