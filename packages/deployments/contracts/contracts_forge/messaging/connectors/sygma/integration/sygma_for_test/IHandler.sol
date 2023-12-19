@@ -2,8 +2,7 @@
 pragma solidity 0.8.17;
 
 /**
-    @title Interface for handler that handles generic deposits and deposit executions.
-    @author ChainSafe Systems.
+ * @title Interface for handler that handles generic deposits and deposit executions.
  */
 interface IHandler {
   /**

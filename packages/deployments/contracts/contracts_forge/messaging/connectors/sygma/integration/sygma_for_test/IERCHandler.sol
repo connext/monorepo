@@ -2,8 +2,7 @@
 pragma solidity 0.8.17;
 
 /**
-    @title Interface to be used with handlers that support ERC20s and ERC721s.
-    @author ChainSafe Systems.
+ * @title Interface to be used with handlers that support ERC20s and ERC721s.
  */
 interface IERCHandler {
   /**

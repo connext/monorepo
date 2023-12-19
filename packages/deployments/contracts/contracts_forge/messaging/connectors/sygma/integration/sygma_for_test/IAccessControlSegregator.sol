@@ -2,8 +2,7 @@
 pragma solidity 0.8.17;
 
 /**
-    @title Interface to be used with contracts that want per function access control.
-    @author ChainSafe Systems.
+ * @title Interface to be used with contracts that want per function access control.
  */
 interface IAccessControlSegregator {
   /**

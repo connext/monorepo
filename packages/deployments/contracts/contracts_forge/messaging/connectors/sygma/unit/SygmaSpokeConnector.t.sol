@@ -6,6 +6,9 @@ import {MerkleTreeManager} from "../../../../../contracts/messaging/MerkleTreeMa
 import {SygmaSpokeConnector, SpokeConnector, ProposedOwnable} from "../../../../../contracts/messaging/connectors/sygma/SygmaSpokeConnector.sol";
 import {IBridge} from "../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
+/**
+ * @dev For test contract to access internal functions of `SygmaSpokeConnector`
+ */
 contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _spokeConstructorParams,
@@ -27,19 +30,27 @@ contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
   }
 }
 
+/**
+ * @dev Base contract for the `SygmaSpokeConnector` unit tests contracts to inherit from
+ */
 contract Base is ConnectorHelper {
+  // The root length in bytes
   uint256 public constant ROOT_LENGTH = 32;
 
   address public user = makeAddr("user");
   address public permissionlessHandler = makeAddr("permissionlessHandler");
   address public watcherManager = makeAddr("watcherManager");
 
-  SygmaSpokeConnectorForTest public sygmaSpokeConnector;
   uint8 public sygmaHubDomainId = 1;
   uint256 public delayBlocks = 0;
   uint256 public disputeBlocks = 0;
   uint256 public minDisputeBlocks = 0;
 
+  SygmaSpokeConnectorForTest public sygmaSpokeConnector;
+
+  /**
+   * @notice Deploys a new `SygmaSpokeConnectorForTest` contract instance
+   */
   function setUp() public virtual {
     _merkle = address(new MerkleTreeManager());
     SpokeConnector.ConstructorParams memory _constructorParams = SpokeConnector.ConstructorParams(
@@ -67,7 +78,10 @@ contract Base is ConnectorHelper {
 }
 
 contract Unit_Connector_SygmaSpokeConnector_Constructor is Base {
-  function test_constructor() public {
+  /**
+   * @notice Tests the values of the constructor arguments
+   */
+  function test_constructorArgs() public {
     assertEq(sygmaSpokeConnector.DOMAIN(), _l2Domain);
     assertEq(sygmaSpokeConnector.MIRROR_DOMAIN(), _l1Domain);
     assertEq(sygmaSpokeConnector.AMB(), _amb);
@@ -89,16 +103,28 @@ contract Unit_Connector_SygmaSpokeConnector_Constructor is Base {
 contract Unit_Connector_SygmaSpokeConnector_ReceiveMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
+  /**
+   * @notice Modifier to assume the root is not empty
+   */
   modifier happyPath(bytes32 _root) {
     vm.assume(_root != bytes32(""));
     _;
   }
 
+  /**
+   * @notice Executes the setUp and then starts the prank as the permissionless handler
+   */
   function setUp() public override {
     super.setUp();
     vm.startPrank(permissionlessHandler);
   }
 
+  /**
+   * @notice Tests it reverts when the caller is not the permissionless handler
+   * @param _caller The address of the caller
+   * @param _originSender The address of the origin sender
+   * @param _root The message's root
+   */
   function test_revertIfCallerNotHandler(address _caller, address _originSender, bytes32 _root) public {
     vm.assume(_caller != sygmaSpokeConnector.PERMISSIONLESS_HANDLER());
     vm.stopPrank();
@@ -107,12 +133,22 @@ contract Unit_Connector_SygmaSpokeConnector_ReceiveMessage is Base {
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 
+  /**
+   * @notice Tests it reverts when the origin sender is not the mirror connector
+   * @param _originSender The address of the origin sender
+   * @param _root The message's root
+   */
   function test_revertIfOriginNotMirror(address _originSender, bytes32 _root) public {
     vm.assume(_originSender != sygmaSpokeConnector.mirrorConnector());
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_SenderIsNotMirrorConnector.selector);
     sygmaSpokeConnector.receiveMessage(_originSender, _root);
   }
 
+  /**
+   * @notice Tests it receives the aggregate root correctly
+   * @param _blockNumber The block number in which the message was sent
+   * @param _root The message's root
+   */
   function test_receiveAggregateRoot(uint256 _blockNumber, bytes32 _root) public happyPath(_root) {
     vm.roll(_blockNumber);
     address _originSender = sygmaSpokeConnector.mirrorConnector();
@@ -120,6 +156,10 @@ contract Unit_Connector_SygmaSpokeConnector_ReceiveMessage is Base {
     assertEq(sygmaSpokeConnector.pendingAggregateRoots(_root), _blockNumber);
   }
 
+  /**
+   * @notice Tests it emits the `AggregateRootReceived` event
+   * @param _root The message's root
+   */
   function test_emitEvent(bytes32 _root) public happyPath(_root) {
     address _originSender = sygmaSpokeConnector.mirrorConnector();
     // Expect `AggregateRootReceived` event to be emitted with the root
@@ -144,6 +184,13 @@ contract Unit_Connector_SygmaSpokeConnector_SendMessage is Base {
     sygmaSpokeConnector.forTest_sendMessage(_data, _feeData);
   }
 
+  /**
+   * @notice Tests it calls `deposit` on the sygma bridge
+   * @param _root The message's root
+   * @param _feeData The fee data
+   * @param _depositNonce The deposit nonce
+   * @param _handlerResponse The handler response
+   */
   function test_callDeposit(
     bytes32 _root,
     bytes memory _feeData,
@@ -172,11 +219,18 @@ contract Unit_Connector_SygmaSpokeConnector_SendMessage is Base {
 }
 
 contract Unit_Connector_SygmaSpokeConnector_VerifySender is Base {
+  /**
+   * @notice Tests it returns false if the origin sender is not the mirror connector
+   * @param _originSender The address of the origin sender
+   */
   function test_returnFalseIfOriginSenderNotMirror(address _originSender) public {
     vm.assume(_originSender != _l1Connector);
     assertEq(sygmaSpokeConnector.forTest_verifySender(_originSender), false);
   }
 
+  /**
+   * @notice Tests it returns true if the origin sender is the mirror connector
+   */
   function test_returnTrueIfOriginSenderIsMirror() public {
     assertEq(sygmaSpokeConnector.forTest_verifySender(_l1Connector), true);
   }
@@ -190,6 +244,9 @@ contract Unit_Connector_SygmaSpokeConnector_RenounceOwnership is Base {
     sygmaSpokeConnector.renounceOwnership();
   }
 
+  /**
+   * @notice Tests it reverts the method is called
+   */
   function test_revertWhenCalled() public {
     vm.expectRevert(SygmaSpokeConnector.SygmaSpokeConnector_UnimplementedMethod.selector);
     vm.prank(_owner);

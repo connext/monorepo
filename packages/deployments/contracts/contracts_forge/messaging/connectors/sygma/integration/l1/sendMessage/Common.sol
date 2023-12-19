@@ -15,8 +15,11 @@ contract Common is ConnectorHelper {
 
   uint32 public constant DOMAIN = 1; // Ethereum
   uint32 public constant MIRROR_DOMAIN = 100; // Cronos
+  // Connext's root manager address on Ethereum
   address public constant ROOT_MANAGER = 0x9FBDa871d559710256a2502A2517b794B482Db40;
+  // Sygma's Bridge address on Ethereum
   IBridge public constant SYGMA_BRIDGE = IBridge(0x4D878E8Fb90178588Cda4cf1DCcdC9a6d2757089);
+  // Sygma's Fee Router address on Ethereum
   IFeeRouter public constant FEE_ROUTER = IFeeRouter(0xC47468aeae431f5D0B7DA50F9f5D8a6c0eca4789);
 
   address public user = makeAddr("user");
