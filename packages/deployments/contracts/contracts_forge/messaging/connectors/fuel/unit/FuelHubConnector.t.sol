@@ -6,6 +6,7 @@ import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
 import {FuelHubConnector} from "../../../../../contracts/messaging/connectors/fuel/FuelHubConnector.sol";
 import {IFuelMessagePortal} from "../../../../../contracts/messaging/interfaces/ambs/fuel/IFuelMessagePortal.sol";
 import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
+import {console} from "forge-std/Test.sol";
 
 /**
  * @dev For test contract to access internal functions of `FuelHubConnector`
@@ -125,12 +126,23 @@ contract Unit_Connector_FuelHubConnector_SendMessage is Base {
 }
 
 contract Unit_Connector_FuelHubConnector_ProcessMessage is Base {
+  bytes internal _data;
+  modifier happyPath(bytes32 _root) {
+    // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
+    _mockAndExpect(_amb, abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector), abi.encode(_l2Connector));
+    // Mock `aggregate` call on Root Manager
+    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root), "");
+
+    // Encode the root
+    _data = abi.encode(_root);
+    _;
+  }
+
   /**
    * @notice Tests that reverts when the sender is not the AMB
-   * @param _data Message data
    * @param _sender The caller address
    */
-  function test_revertIfSenderNotAMB(address _sender, bytes memory _data) public {
+  function test_revertIfSenderNotAMB(address _sender) public {
     vm.assume(_sender != _amb);
     // The message error of the revert is not specified since foundry doesn't able to use '!AMB' as arg on `vm.expectRevert()`
     vm.expectRevert();
@@ -140,28 +152,22 @@ contract Unit_Connector_FuelHubConnector_ProcessMessage is Base {
 
   /**
    * @notice Tests that reverts when the data length is not 32
-   * @param _data Message data
+   * @param _badData Message data
    */
-  function test_revertIfDataNotRootLength(bytes memory _data) public {
-    vm.assume(_data.length != ROOT_LENGTH);
+  function test_revertIfDataNotRootLength(bytes memory _badData) public {
+    vm.assume(_badData.length != ROOT_LENGTH);
     vm.expectRevert();
     vm.prank(_amb);
-    fuelHubConnector.forTest_processMessage(_data);
+    fuelHubConnector.forTest_processMessage(_badData);
   }
 
   /**
    * @notice Tests that calls the `messageSender` function on the amb
    * @param _root The received root
    */
-  function test_callMessageSender(bytes32 _root) public {
-    // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
-    _mockAndExpect(_amb, abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector), abi.encode(_l2Connector));
-    // Mock `aggregate` call on Root Manager
-    vm.mockCall(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root), "");
-
-    // Encode the root
-    bytes memory _data = abi.encode(_root);
+  function test_callMessageSender(bytes32 _root) public happyPath(_root) {
     vm.prank(_amb);
+
     fuelHubConnector.forTest_processMessage(_data);
   }
 
@@ -169,28 +175,33 @@ contract Unit_Connector_FuelHubConnector_ProcessMessage is Base {
    * @notice Tests that calls the `aggregate` function on the root manager
    * @param _root The received root
    */
-  function test_callAggregate(bytes32 _root) public {
-    // Mock `messageSender` call on Fuel Messenger Portal to return the mirror sender
-    vm.mockCall(_amb, abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector), abi.encode(_l2Connector));
-    // Mock `aggregate` call on Root Manager and expect it to be called with the correct arguments
-    _mockAndExpect(_rootManager, abi.encodeWithSelector(IRootManager.aggregate.selector, _l2Domain, _root), "");
-
-    // Encode the root
-    bytes memory _data = abi.encode(_root);
+  function test_callAggregate(bytes32 _root) public happyPath(_root) {
     vm.prank(_amb);
     fuelHubConnector.forTest_processMessage(_data);
   }
 }
 
 contract Unit_Connector_FuelHubConnector_VerifySender is Base {
+  modifier happyPath(address _mirrorConnector) {
+    // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
+    _mockAndExpect(
+      _amb,
+      abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector),
+      abi.encode(_mirrorConnector)
+    );
+    _;
+  }
+
   /**
    * @notice Tests that reverts when the origin sender is not the mirror connector
    * @param _originSender The origin sender address
    * @param _mirrorConnector The mirror connector address
    */
-  function test_returnFalseIfSenderNotMirror(address _originSender, address _mirrorConnector) public {
+  function test_returnFalseIfSenderNotMirror(
+    address _originSender,
+    address _mirrorConnector
+  ) public happyPath(_mirrorConnector) {
     vm.assume(_originSender != _mirrorConnector);
-    vm.mockCall(_amb, abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector), abi.encode(_mirrorConnector));
     assertEq(fuelHubConnector.forTest_verifySender(_originSender), false);
   }
 
@@ -198,8 +209,7 @@ contract Unit_Connector_FuelHubConnector_VerifySender is Base {
    * @notice Tests that returns true when the origin sender is the mirror connector
    * @param _mirrorConnector The mirror connector address
    */
-  function test_returnTrueIfSenderIsMirror(address _mirrorConnector) public {
-    vm.mockCall(_amb, abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector), abi.encode(_mirrorConnector));
+  function test_returnTrueIfSenderIsMirror(address _mirrorConnector) public happyPath(_mirrorConnector) {
     assertEq(fuelHubConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }
