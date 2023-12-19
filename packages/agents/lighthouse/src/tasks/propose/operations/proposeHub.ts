@@ -20,6 +20,7 @@ import {
   MissingRequiredDomain,
   NoSnapshotRoot,
   NoSpokeConnector,
+  SubgraphDelayed,
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
   AggregateRootChecksFailed,
@@ -132,6 +133,20 @@ export const proposeHub = async () => {
             ]);
           }
         } else {
+          // If the latest db snapshot id for the domain is more than 1 snapshot behind latest,
+          // and ouboundroot has not cooled down, stop.
+          // This can happen when the subgraph or carto data is stale.
+          // And if there is infact a proposal at n-1 on the spoke, it will be picked up by the watcher.
+          // This is to avoid false alarms.
+          if (latestDbSnapshotId < latestSnapshotId - 1) {
+            throw new SubgraphDelayed(config.hubDomain, requestContext, methodContext, {
+              snapshotRoot,
+              latestSnapshotId,
+              latestDbSnapshotId,
+              outboundRootTimestamp,
+              latestSnapshotTimestamp,
+            });
+          }
           latestSnapshotRoot = snapshotRoot.root;
         }
         snapshotRoots.set(domain, latestSnapshotRoot);
@@ -150,6 +165,9 @@ export const proposeHub = async () => {
       methodContext,
       jsonifyError(err as NxtpError),
     );
+
+    // Cannot proceed without successful proposal.
+    throw err as NxtpError;
   }
 };
 
