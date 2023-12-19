@@ -131,3 +131,18 @@ export class AggregateRootChecksFailed extends NxtpError {
     });
   }
 }
+
+export class SubgraphDelayed extends NxtpError {
+  constructor(
+    public readonly hubDomain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Subgraph is more than 1 snapshot behind the latest snapshot for domain ${hubDomain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}

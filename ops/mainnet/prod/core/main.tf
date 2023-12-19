@@ -427,7 +427,7 @@ module "lighthouse_propose_cron" {
   environment            = var.environment
   stage                  = var.stage
   container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
-  schedule_expression    = "rate(30 minutes)"
+  schedule_expression    = "rate(15 minutes)"
   memory_size            = 4096
   timeout                = 900
   lambda_in_vpc          = true

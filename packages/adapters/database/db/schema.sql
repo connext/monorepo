@@ -10,17 +10,10 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
 -- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA public;
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 
 
 --
@@ -31,10 +24,27 @@ COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
 
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
 -- Name: action_type; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.action_type AS ENUM (
+    'Add',
+    'Remove'
+);
+
+
+--
+-- Name: event_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.event_type AS ENUM (
     'Add',
     'Remove'
 );
@@ -59,15 +69,6 @@ CREATE TYPE public.spoke_root_status AS ENUM (
     'Submitted',
     'Proposed',
     'Finalized'
-)
-
---
--- Name: event_type; Type: TYPE; Schema: public; Owner: -
---
-
-CREATE TYPE public.event_type AS ENUM (
-    'Add',
-    'Remove'
 );
 
 
@@ -815,7 +816,7 @@ CREATE VIEW public.router_tvl AS
 --
 
 CREATE TABLE public.schema_migrations (
-    version character varying(128) NOT NULL
+    version character varying(255) NOT NULL
 );
 
 
@@ -1261,11 +1262,27 @@ ALTER TABLE ONLY public.snapshots
 
 
 --
+-- Name: snapshots snapshots_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: spoke_optimistic_roots spoke_optimistic_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.spoke_optimistic_roots
     ADD CONSTRAINT spoke_optimistic_roots_id_key UNIQUE (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_pkey PRIMARY KEY (id);
 
 
 --
@@ -1360,48 +1377,6 @@ CREATE INDEX idx_hourly_transfer_volume_transfer_hour ON public.hourly_transfer_
 
 
 --
--- Name: merkle_cache_tree_domain_domain_path_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_domain_domain_path_idx ON public.merkle_cache USING btree (domain, domain_path);
-
-
---
--- Name: merkle_cache_tree_domain_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_domain_idx ON public.merkle_cache USING btree (domain);
-
-
---
--- Name: merkle_cache_tree_domain_path_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_domain_path_idx ON public.merkle_cache USING btree (domain_path);
-
-
---
--- Name: merkle_cache_tree_root_domain_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_root_domain_idx ON public.merkle_cache USING btree (tree_root, domain);
-
-
---
--- Name: merkle_cache_tree_root_domain_path_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_root_domain_path_idx ON public.merkle_cache USING btree (tree_root, domain_path);
-
-
---
--- Name: merkle_cache_tree_root_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX merkle_cache_tree_root_idx ON public.merkle_cache USING btree (tree_root);
-
-
---
 -- Name: messages_domain_leaf_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1469,24 +1444,6 @@ CREATE INDEX spoke_optimistic_roots_idx ON public.spoke_optimistic_roots USING b
 --
 
 CREATE INDEX spoke_optimistic_roots_root_idx ON public.spoke_optimistic_roots USING btree (root);
--- Name: messages_processed_only_index_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX messages_processed_only_index_idx ON public.messages USING btree (index);
-
-
---
--- Name: messages_processed_origin_domain_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX messages_processed_origin_domain_idx ON public.messages USING btree (origin_domain);
-
-
---
--- Name: messages_processed_origin_domain_index_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX messages_processed_origin_domain_index_idx ON public.messages USING btree (origin_domain, index);
 
 
 --
@@ -1676,8 +1633,10 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20231020201556'),
     ('20231031081722'),
     ('20231031145848'),
-    ('20231102213156');
+    ('20231102213156'),
     ('20231127165037'),
     ('20231127165223'),
     ('20231128023332'),
-    ('20231130084431');
+    ('20231130084431'),
+    ('20231219013906'),
+    ('20231219072355');
