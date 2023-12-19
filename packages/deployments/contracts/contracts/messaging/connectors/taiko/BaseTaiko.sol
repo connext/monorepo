@@ -26,15 +26,6 @@ abstract contract BaseTaiko {
   }
 
   /**
-   * @notice Checks that the message length is 32 bytes
-   * @param _data Message data
-   * @return _validLength True if the message length is 32 bytes, false otherwise
-   */
-  function _checkMessageLength(bytes memory _data) internal pure returns (bool _validLength) {
-    _validLength = _data.length == ROOT_LENGTH;
-  }
-
-  /**
    * @notice Sends a message to the mirror connector through the Taiko Signal Service
    * @param _signal The message to send
    */

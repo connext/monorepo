@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseTaiko} from "./BaseTaiko.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
@@ -62,7 +63,7 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @dev The message length must be 32 bytes
    */
   function _sendMessage(bytes memory _data, bytes memory) internal override {
-    if (!_checkMessageLength(_data)) revert TaikoHubConnector_LengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert TaikoHubConnector_LengthIsNot32();
     _sendSignal(bytes32(_data));
   }
 

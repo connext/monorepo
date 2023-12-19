@@ -22,6 +22,10 @@ contract ConnectorHelper is ForgeHelper {
 
   // ============ Storage ============
 
+  // The root length in bytes for a message
+  uint256 public constant ROOT_LENGTH = 32;
+  uint256 public constant DELAY_BLOCKS = 0;
+
   uint32 _l1Domain = 1000;
   uint32 _l2Domain = 2000;
 

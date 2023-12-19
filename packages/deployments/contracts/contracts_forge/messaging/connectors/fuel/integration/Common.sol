@@ -18,7 +18,6 @@ contract Common is ConnectorHelper {
     IFuelMessagePortal(0x457A5a9320d06118764c400163c441cb8551cfa2);
   uint32 public constant DOMAIN = 100; // Sepolia
   uint32 public constant MIRROR_DOMAIN = 110; // Fuel
-  uint256 public constant DELAY_BLOCKS = 0;
 
   // External EOAs
   address public owner = makeAddr("owner");

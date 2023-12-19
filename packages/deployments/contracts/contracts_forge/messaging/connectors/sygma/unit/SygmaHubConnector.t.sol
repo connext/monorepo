@@ -31,9 +31,6 @@ contract SygmaHubConnectorForTest is SygmaHubConnector {
  * @dev Base contract for the `SygmaHubConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes
-  uint256 internal constant _ROOT_LENGTH = 32;
-
   address public user = makeAddr("user");
   address public permissionlessHandler = makeAddr("permissionlessHandler");
   address public watcherManager = makeAddr("watcherManager");
@@ -125,7 +122,7 @@ contract Unit_Connector_SygmaHubConnector_SendMessage is Base {
    * @param _encodedData The encoded data
    */
   function test_revertIfDataNotRootLength(bytes memory _root, bytes memory _encodedData) public {
-    vm.assume(_root.length != _ROOT_LENGTH);
+    vm.assume(_root.length != ROOT_LENGTH);
     vm.expectRevert(SygmaHubConnector.SygmaHubConnector_DataLengthIsNot32.selector);
     vm.prank(user);
     sygmaHubConnector.forTest_sendMessage(_root, _encodedData);

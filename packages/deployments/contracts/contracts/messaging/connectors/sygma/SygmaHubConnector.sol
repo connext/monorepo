@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseSygma} from "./BaseSygma.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {IBridge} from "../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
@@ -76,7 +77,7 @@ contract SygmaHubConnector is HubConnector, BaseSygma {
    * @dev `_feeData` can be empty but it must be passed
    */
   function _sendMessage(bytes memory _root, bytes memory _encodedData) internal override {
-    if (!_checkDataLength(_root)) revert SygmaHubConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_root)) revert SygmaHubConnector_DataLengthIsNot32();
     (uint8 sygmaDomainId, bytes memory _feeData) = abi.decode(_encodedData, (uint8, bytes));
     bytes memory _depositData = parseDepositData(bytes32(_root), mirrorConnector);
     SYGMA_BRIDGE.deposit{value: msg.value}(sygmaDomainId, PERMISSIONLESS_HANDLER_ID, _depositData, _feeData);

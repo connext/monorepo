@@ -45,9 +45,6 @@ contract FuelHubConnectorForTest is FuelHubConnector {
  * @dev Base contract for the `FuelHubConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
-
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");

@@ -39,12 +39,6 @@ contract ScrollSpokeConnectorForTest is ScrollSpokeConnector {
  * @dev Base contract for the `ScrollSpokeConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
-  uint256 public constant DELAY_BLOCKS = 0;
-  uint256 public constant MIN_DISPUTE_BLOCKS = 1;
-  uint256 public constant DISPUTE_BLOCKS = 10;
-
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
@@ -72,8 +66,8 @@ contract Base is ConnectorHelper {
       DELAY_BLOCKS,
       _merkle,
       watcherManager,
-      MIN_DISPUTE_BLOCKS,
-      DISPUTE_BLOCKS
+      _minDisputeBlocks,
+      _disputeBlocks
     );
     scrollSpokeConnector = new ScrollSpokeConnectorForTest(_spokeConstructorParams, _gasCap);
   }

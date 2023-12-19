@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseScroll} from "./BaseScroll.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 import {WatcherClient} from "../../WatcherClient.sol";
@@ -49,7 +50,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert ScrollSpokeConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert ScrollSpokeConnector_DataLengthIsNot32();
     _;
   }
 

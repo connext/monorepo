@@ -42,10 +42,6 @@ contract ScrollHubConnectorForTest is ScrollHubConnector {
  * @dev Base contract for the `ScrollHubConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
-  uint256 public constant DELAY_BLOCKS = 0;
-
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");

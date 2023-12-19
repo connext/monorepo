@@ -101,13 +101,4 @@ abstract contract BaseSygma is GasCap {
   function slice(bytes calldata input, uint256 position) public pure returns (bytes memory _slicedData) {
     _slicedData = input[position:];
   }
-
-  /**
-   * @notice Checks if the data length is 32
-   * @param _data The data to check
-   * @return _validLength True if the data length is 32
-   */
-  function _checkDataLength(bytes memory _data) internal pure returns (bool _validLength) {
-    _validLength = _data.length == ROOT_LENGTH;
-  }
 }

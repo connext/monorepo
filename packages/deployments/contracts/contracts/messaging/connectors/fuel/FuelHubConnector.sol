@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {IFuelMessagePortal} from "../../interfaces/ambs/fuel/IFuelMessagePortal.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
@@ -54,7 +55,7 @@ contract FuelHubConnector is HubConnector {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!(_data.length == MESSAGE_LENGTH)) revert FuelHubConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert FuelHubConnector_DataLengthIsNot32();
     _;
   }
 

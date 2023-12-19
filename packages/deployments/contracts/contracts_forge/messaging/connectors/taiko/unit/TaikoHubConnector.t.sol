@@ -40,8 +40,6 @@ contract TaikoHubConnectorForTest is TaikoHubConnector {
  * @dev Base contract for the `TaikoHubConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
   // The taiko l2 chain id
   uint256 public constant SPOKE_CHAIN_ID = 167007;
 

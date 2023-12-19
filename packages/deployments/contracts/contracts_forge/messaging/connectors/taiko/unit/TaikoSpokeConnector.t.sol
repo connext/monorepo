@@ -32,10 +32,6 @@ contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
 }
 
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
-  // The delay blocks
-  uint256 public constant DELAY_BLOCKS = 0;
   // The Ethereum chain id
   uint256 public constant HUB_CHAIN_ID = 1;
 
