@@ -308,7 +308,7 @@ export const retrieveSavedSnapshotRoot = async (maxBlockNumbers: Map<string, num
     ]);
 
     // Reset offset at the end of the cycle.
-    const newOffset = roots.length == 0 ? 0 : Math.max(...roots.map((root) => root.timestamp ?? 0));
+    const newOffset = roots.length == 0 ? 0 : Math.max(...roots.map((root) => +root.id ?? 0));
 
     await database.saveSnapshotRoots(roots);
 
