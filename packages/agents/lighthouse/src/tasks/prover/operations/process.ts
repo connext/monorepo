@@ -109,8 +109,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   }
 
   const hubSMT = new SparseMerkleTree(hubStore);
-  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-  if (!destinationSpokeConnector) {
+  const { spokeConnector: destinationSpokeConnector, spokeMerkleTree: destinationMerkleTree } =
+    config.chains[destinationDomain]?.deployments ?? {};
+  if (!destinationSpokeConnector || !destinationMerkleTree) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
 
@@ -126,7 +127,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     try {
       const messageResultData = await chainreader.readTx({
         domain: +destinationDomain,
-        to: destinationSpokeConnector,
+        to: destinationMerkleTree,
         data: messageEncodedData,
       });
 
