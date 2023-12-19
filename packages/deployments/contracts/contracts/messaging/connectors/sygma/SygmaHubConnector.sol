@@ -62,6 +62,7 @@ contract SygmaHubConnector is HubConnector, BaseSygma {
     if (msg.sender != PERMISSIONLESS_HANDLER) revert SygmaHubConnector_OnlyPermissionedHandler();
     if (!_verifySender(_originSender)) revert SygmaHubConnector_OriginIsNotMirrorConnector();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _root);
+    emit MessageProcessed(abi.encode(_root), msg.sender);
   }
 
   /**

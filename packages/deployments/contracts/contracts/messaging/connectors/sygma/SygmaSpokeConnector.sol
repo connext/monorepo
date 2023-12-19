@@ -65,6 +65,7 @@ contract SygmaSpokeConnector is SpokeConnector, BaseSygma {
     if (msg.sender != PERMISSIONLESS_HANDLER) revert SygmaSpokeConnector_OnlyPermissionedHandler();
     if (!_verifySender(_originSender)) revert SygmaSpokeConnector_SenderIsNotMirrorConnector();
     receiveAggregateRoot(_root);
+    emit MessageProcessed(abi.encode(_root), msg.sender);
   }
 
   /**

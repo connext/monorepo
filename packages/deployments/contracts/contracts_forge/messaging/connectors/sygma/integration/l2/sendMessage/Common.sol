@@ -17,8 +17,11 @@ contract Common is ConnectorHelper {
   uint32 public constant MIRROR_DOMAIN = 1; // Ethereum
   uint8 public constant SYGMA_CRONOS_DOMAIN_ID = 1; // CRONOS
   uint8 public constant SYGMA_HUB_DOMAIN_ID = 1; // Ethereum
+  // Sygma's Bridge address on Cronos
   IBridge public constant SYGMA_BRIDGE = IBridge(0x44d1Ae962945c5B168282D5002705dE7A9B84657);
+  // Sygma's Fee Router address on Cronos
   IFeeRouter public constant FEE_ROUTER = IFeeRouter(0xb18fEa28C8C9557aB65b2808c7b323A586687740);
+  // The permissionless generic handler address on Cronos
   address public PERMISSIONLESS_GENERIC_HANDLER = 0xB86bAe6A570a52cBc38Cf6Ac6557F169422cDf30;
 
   address public user = makeAddr("user");

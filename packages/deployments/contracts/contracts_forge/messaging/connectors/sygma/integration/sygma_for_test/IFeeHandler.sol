@@ -2,8 +2,7 @@
 pragma solidity 0.8.17;
 
 /**
-    @title Interface to be used with fee handlers.
-    @author ChainSafe Systems.
+ * @title Interface to be used with fee handlers.
  */
 interface IFeeHandler {
   /**

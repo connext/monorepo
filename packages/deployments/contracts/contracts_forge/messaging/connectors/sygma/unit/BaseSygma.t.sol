@@ -6,6 +6,9 @@ import {BaseSygma} from "../../../../../contracts/messaging/connectors/sygma/Bas
 import {ISygmaConnector} from "../../../../../contracts/messaging/connectors/sygma/interfaces/ISygmaConnector.sol";
 import {IBridge} from "../../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 
+/**
+ * @dev For test contract to access internal functions of `BaseSygma`
+ */
 contract BaseSygmaForTest is BaseSygma {
   constructor(
     address _amb,
@@ -18,25 +21,36 @@ contract BaseSygmaForTest is BaseSygma {
   }
 }
 
+/**
+ * @dev Base contract for the `BaseSygma` unit tests contracts to inherit from
+ */
 contract Base is ConnectorHelper {
-  bytes32 internal constant _PERMISSIONLESS_HANDLER_ID = bytes32(0);
+  // The root length in bytes
   uint256 internal constant _ROOT_LENGTH = 32;
+  bytes32 internal constant _PERMISSIONLESS_HANDLER_ID = bytes32(0);
   uint8 internal constant _ADDRESS_LEN = 20;
   address internal constant _ZERO_ADDRESS = address(0);
   uint16 internal constant _FUNCTION_SIG_LEN = uint16(4);
+  // The function signature of the `receiveMessage` function
   bytes4 internal constant _FUNCTION_SIG = ISygmaConnector.receiveMessage.selector;
 
-  IBridge public bridge = IBridge(makeAddr("Bridge"));
-  BaseSygmaForTest public baseSygma;
   address user = makeAddr("user");
   address permissionlessHandler = makeAddr("permissionlessHandler");
+  IBridge public bridge = IBridge(makeAddr("Bridge"));
+  BaseSygmaForTest public baseSygma;
 
+  /**
+   * @notice Deploys a new `BaseSygmaForTest` contract instance
+   */
   function setUp() public {
     baseSygma = new BaseSygmaForTest(address(bridge), permissionlessHandler, _gasCap);
   }
 }
 
 contract Unit_Connector_BaseSygma_Deployment is Base {
+  /**
+   * @notice Tests the constants values are set correctly
+   */
   function test_constants() public {
     assertEq(baseSygma.PERMISSIONLESS_HANDLER_ID(), _PERMISSIONLESS_HANDLER_ID);
     assertEq(baseSygma.ROOT_LENGTH(), _ROOT_LENGTH);
@@ -46,6 +60,9 @@ contract Unit_Connector_BaseSygma_Deployment is Base {
     assertEq(baseSygma.FUNCTION_SIG(), _FUNCTION_SIG);
   }
 
+  /**
+   * @notice Tests the constructor arguments are set correctly
+   */
   function test_constructorArgs() public {
     assertEq(address(baseSygma.SYGMA_BRIDGE()), address(bridge));
     assertEq(baseSygma.PERMISSIONLESS_HANDLER(), permissionlessHandler);
@@ -54,10 +71,21 @@ contract Unit_Connector_BaseSygma_Deployment is Base {
 }
 
 contract Unit_Connector_BaseSygma_ParseDepositData is Base {
+  /**
+   * @notice Helper function to slice a bytes array
+   * @param input The bytes array to slice
+   * @param position The position to start slicing from
+   * @return _slicedData The sliced bytes array
+   */
   function sliceHelper(bytes calldata input, uint256 position) public pure returns (bytes memory _slicedData) {
     _slicedData = input[position:];
   }
 
+  /**
+   * @notice Tests it reverts when the root length is incorrect
+   * @param _root The message's root
+   * @param _mirrorConnector The address of the mirror connector
+   */
   function test_parseDepositData(bytes32 _root, address _mirrorConnector) public {
     bytes memory _message = abi.encode(_ZERO_ADDRESS, _root);
     _message = this.sliceHelper(_message, _ROOT_LENGTH);
@@ -78,6 +106,11 @@ contract Unit_Connector_BaseSygma_ParseDepositData is Base {
 }
 
 contract Unit_Connector_BaseSygma_Slice is Base {
+  /**
+   * @notice Tests it slices the input correctly
+   * @param _input The input to slice
+   * @param _position The position to start slicing from
+   */
   function test_sliceInput(bytes calldata _input, uint256 _position) public {
     vm.assume(_input.length >= _position);
     bytes memory _expectedSlicedData = _input[_position:];
@@ -87,12 +120,20 @@ contract Unit_Connector_BaseSygma_Slice is Base {
 }
 
 contract Unit_Connector_BaseSygma_CheckDataLength is Base {
+  /**
+   * @notice Tests it returns false when the data length is not 32
+   * @param _data The data
+   */
   function test_returnFalse(bytes memory _data) public {
-    vm.assume(_data.length != baseSygma.ROOT_LENGTH());
+    vm.assume(_data.length != _ROOT_LENGTH);
     bool _validLength = baseSygma.forTest_checkDataLength(_data);
     assertEq(_validLength, false);
   }
 
+  /**
+   * @notice Tests it returns true when the data length is 32
+   * @param _root The root
+   */
   function test_returnTrue(bytes32 _root) public {
     bytes memory _data = abi.encode(_root);
     bool _validLength = baseSygma.forTest_checkDataLength(_data);

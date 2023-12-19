@@ -4,9 +4,8 @@ pragma solidity 0.8.17;
 import {IHandler} from "./IHandler.sol";
 
 /**
-    @title Handles generic deposits and deposit executions.
-    @author ChainSafe Systems.
-    @notice This contract is intended to be used with the Bridge contract.
+ * @title Handles generic deposits and deposit executions.
+ * @notice This contract is intended to be used with the Bridge contract.
  */
 contract PermissionlessGenericHandler is IHandler {
   uint256 public constant MAX_FEE = 1000000;
