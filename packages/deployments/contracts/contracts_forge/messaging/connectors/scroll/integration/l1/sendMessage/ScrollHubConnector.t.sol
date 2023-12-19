@@ -5,6 +5,7 @@ import {Common} from "./Common.sol";
 import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 
 contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
+  // Events
   event SentMessage(
     address indexed sender,
     address indexed target,
@@ -14,6 +15,9 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     bytes message
   );
 
+  /**
+   * @notice Tests that the tx for sending the message through the Scroll Messenger succeeds using the scroll hub connector
+   */
   function test_sendMessage() public {
     // Get the root that will be sent from the merkle tree manager
     bytes32 _root = merkleTreeManager.root();
@@ -44,6 +48,10 @@ contract Integration_Connector_ScrollHubConnector_SendMessage is Common {
     scrollHubConnector.sendMessage{value: _fee}(_data, _extraData);
   }
 
+  /**
+   * @notice Tests that the refund address receives the refund amount when sending the message with extra gas through
+   * the Scroll Messenger using the scroll hub connector
+   */
   function test_addressWasRefunded(uint256 _gasExtra) public {
     // Get the root that will be sent from the merkle tree manager
     bytes32 _root = merkleTreeManager.root();

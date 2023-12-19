@@ -5,8 +5,12 @@ import {Common} from "./Common.sol";
 import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
 
 contract Integration_Connector_ScrollHubConnector_ReceiveMessage is Common {
+  // Events
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
+  /**
+   * @notice Tests that the message is received from the scroll relayer and processed correctly
+   */
   function test_processMessage(uint256 _nonce) public {
     // Get a root and parse it
     bytes32 _root = merkleTreeManager.root();
