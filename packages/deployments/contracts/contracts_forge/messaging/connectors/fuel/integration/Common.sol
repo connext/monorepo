@@ -64,18 +64,31 @@ contract Common is ConnectorHelper {
     bytes32 _recipientBytes = hex"0000000000000000000000008d8bb34fb9a1a52ac0bddc9901c5c7b5e7347d05";
     // Convert the bytes to address
     address _recipient = address(uint160(uint256(_recipientBytes)));
-    // Deploy the Fuel Hub Connector to the recipient address so the message can be received when relayed
-    deployCodeTo(
-      "FuelHubConnector.sol",
-      abi.encode(DOMAIN, MIRROR_DOMAIN, address(FUEL_MESSAGE_PORTAL), address(rootManager), mirrorConnector),
-      _recipient
+
+    // Deploy the fuel hub connector and get its bytecode to be deployed on the recipient address
+    // `deployCodeTo` function of foundry doesn't work if the contract uses a library. So I had to use `vm.etch` instead.
+    fuelHubConnector = new FuelHubConnector(
+      DOMAIN,
+      MIRROR_DOMAIN,
+      address(FUEL_MESSAGE_PORTAL),
+      address(rootManager),
+      mirrorConnector
     );
+    bytes memory _bytecode = address(fuelHubConnector).code;
+
+    // Set the bytecode on the recipient address
+    vm.etch(_recipient, _bytecode);
+
     // Set the fuel hub connector instance to the recipient address after deployment
     fuelHubConnector = FuelHubConnector(payable(_recipient));
 
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, _recipient);
     vm.stopPrank();
+
+    // Update the mirror connector to the one we set on the fuel hub connector (`vm.etch` fails and sets it as the 0 address)
+    vm.prank(fuelHubConnector.owner());
+    fuelHubConnector.setMirrorConnector(mirrorConnector);
 
     // Set root manager as slow mode so the FUEL_MESSAGE_PORTAL messages can be received
     vm.prank(whitelistedWatcher);
