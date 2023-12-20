@@ -361,6 +361,7 @@ export const hardhatNetworks = {
   "x1-testnet": {
     accounts: { mnemonic },
     chainId: 195,
+    gasPrice: utils.parseUnits("150", "gwei").toNumber(),
     url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
     companionNetworks: {
       hub: "goerli",
