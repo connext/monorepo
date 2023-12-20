@@ -372,8 +372,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         networkName: "Fuel",
         // The AMB argument must be the allowed off chain agent address.
         ambs: {
-          // https://sepolia.etherscan.io/address/0x457A5a9320d06118764c400163c441cb8551cfa2
-          hub: "0x457A5a9320d06118764c400163c441cb8551cfa2",
+          // https://sepolia.etherscan.io/address/0x03f2901Db5723639978deBed3aBA66d4EA03aF73
+          hub: "0x03f2901Db5723639978deBed3aBA66d4EA03aF73",
           // There is no Fuel L2 AMB publicly available yet
           spoke: "",
         },
