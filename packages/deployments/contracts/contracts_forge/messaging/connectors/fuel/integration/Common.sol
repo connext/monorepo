@@ -11,11 +11,11 @@ import {WatcherManager} from "../../../../../contracts/messaging/WatcherManager.
 import {IFuelMessagePortal} from "../../../../../contracts/messaging/interfaces/ambs/fuel/IFuelMessagePortal.sol";
 
 contract Common is ConnectorHelper {
-  uint256 internal constant _FORK_BLOCK = 4_913_146;
+  uint256 internal constant _FORK_BLOCK = 4_924_669;
 
   // FuelMessagePortal address on Sepolia
   IFuelMessagePortal public constant FUEL_MESSAGE_PORTAL =
-    IFuelMessagePortal(0x457A5a9320d06118764c400163c441cb8551cfa2);
+    IFuelMessagePortal(0x03f2901Db5723639978deBed3aBA66d4EA03aF73);
   uint32 public constant DOMAIN = 100; // Sepolia
   uint32 public constant MIRROR_DOMAIN = 110; // Fuel
 
@@ -43,6 +43,12 @@ contract Common is ConnectorHelper {
     // Add a watcher (need for setting the slow mode)
     watcherManager.addWatcher(whitelistedWatcher);
 
+    // Parse the mirror connector address from the sender on fuel in bytes - This is the sender
+    // Of the message sent from Fuel L2 to Sepolia that we grabbed, we need to set as the mirror connector
+    // to get it received successfully.
+    bytes32 _senderOnFuel = hex"27fc60f2d13d959e5c756ac770e74ce34cf2e11f802ce2cd61961f2e6d399b14";
+    mirrorConnector = address(uint160(uint256(_senderOnFuel)));
+
     // Deploy root manager (needed in fuel spoke connector)
     uint256 _minDisputeBlocks = 1;
     uint256 _disputeBlocks = 10;
@@ -54,23 +60,21 @@ contract Common is ConnectorHelper {
       _disputeBlocks
     );
 
-    // Parse the mirror connector address from the sender on fuel in bytes - This is the sender
-    // Of the message sent from Fuel L2 to Sepolia that we grabbed, we need to set as the mirror connector
-    // to get it received successfully.
-    bytes memory _senderOnFuel = "128573a29021c87688cd5cff01f2247400c210741b563c9ad8140009dea2b620";
-    mirrorConnector = address(uint160(uint256(bytes32(_senderOnFuel))));
-
-    // Deploy fuel hub connector
-    fuelHubConnector = new FuelHubConnector(
-      DOMAIN,
-      MIRROR_DOMAIN,
-      address(FUEL_MESSAGE_PORTAL),
-      address(rootManager),
-      mirrorConnector
+    // Recipient in bytes picked from the tx sent on Fuel network
+    bytes32 _recipientBytes = hex"0000000000000000000000008d8bb34fb9a1a52ac0bddc9901c5c7b5e7347d05";
+    // Convert the bytes to address
+    address _recipient = address(uint160(uint256(_recipientBytes)));
+    // Deploy the Fuel Hub Connector to the recipient address so the message can be received when relayed
+    deployCodeTo(
+      "FuelHubConnector.sol",
+      abi.encode(DOMAIN, MIRROR_DOMAIN, address(FUEL_MESSAGE_PORTAL), address(rootManager), mirrorConnector),
+      _recipient
     );
+    // Set the fuel hub connector instance to the recipient address after deployment
+    fuelHubConnector = FuelHubConnector(payable(_recipient));
 
     // Add connector as a new supported domain
-    rootManager.addConnector(MIRROR_DOMAIN, address(fuelHubConnector));
+    rootManager.addConnector(MIRROR_DOMAIN, _recipient);
     vm.stopPrank();
 
     // Set root manager as slow mode so the FUEL_MESSAGE_PORTAL messages can be received
