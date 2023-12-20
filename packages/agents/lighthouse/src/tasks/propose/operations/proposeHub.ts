@@ -70,8 +70,17 @@ export const proposeHub = async () => {
   }
 
   // Use N snapshot ID to ensure that the proposal submitted.
-  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration);
+  const currentTimestamp = getNtpTimeSeconds();
+  const latestSnapshotId: number = Math.floor(currentTimestamp / config.snapshotDuration);
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
+
+  const timeSinceSnapshotStart = currentTimestamp - latestSnapshotTimestamp;
+  if (timeSinceSnapshotStart < config.snapshotDuration / 3) {
+    const waitTime = config.snapshotDuration / 3 - timeSinceSnapshotStart;
+    // Wait for 1/3 of the snapshot duration to help accommodate time boundary conditions
+    logger.info("Waiting for the snapshot timeout", requestContext, methodContext, { waitTime });
+    await new Promise((f) => setTimeout(f, waitTime * 1000));
+  }
 
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
