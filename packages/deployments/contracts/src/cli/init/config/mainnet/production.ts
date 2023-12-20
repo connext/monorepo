@@ -596,6 +596,45 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         // BINANCE
       },
     },
+    {
+      name: "xQuid",
+      canonical: {
+        domain: "11111",
+        address: "0x7A460CDA90ee8ED87F17864106E1d31c9C8875B5",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0x7A460CDA90ee8ED87F17864106E1d31c9C8875B5",
+          adopted: "0x7A460CDA90ee8ED87F17864106E1d31c9C8875B5",
+        },
+        // Optimsim
+        "1869640809": {
+          local: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+          adopted: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x4a8ecc48a6fa684e8c60604a6016ca35dd18293f",
+          adopted: "0x4a8ecc48a6fa684e8c60604a6016ca35dd18293f",
+        },
+        // Binance
+        "6450786": {
+          local: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+          adopted: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+        },
+        // Arbitrum
+        "1634886255": {
+          local: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+          adopted: "0xF0EB88b8c83347092eF321aE5d1d54c88Ee89219",
+        },
+        "6778479": {
+          local: "0x4a8ECc48a6fa684E8C60604A6016ca35DD18293f",
+          adopted: "0x4a8ECc48a6fa684E8C60604A6016ca35DD18293f",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
