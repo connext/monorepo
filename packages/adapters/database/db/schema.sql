@@ -1250,7 +1250,7 @@ ALTER TABLE ONLY public.schema_migrations
 --
 
 ALTER TABLE ONLY public.snapshot_roots
-    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (id, spoke_domain);
+    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (spoke_domain, root);
 
 
 --
@@ -1639,4 +1639,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20231128023332'),
     ('20231130084431'),
     ('20231219013906'),
-    ('20231219072355');
+    ('20231219072355'),
+    ('20231219231640');
