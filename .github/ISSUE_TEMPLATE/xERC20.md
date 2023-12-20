@@ -20,6 +20,6 @@ assignees: ''
 - [ ] Whitelisting complete: _\<link to transaction(s)\>_
 - [ ] PR to Bridge UI: _\<link to PR\>_
 - [ ] PR to Connextscan: _\<link to PR\>_
-- [ ] Lockbox Adapter deployed: _\<link to transaction(s)\>_
+- [ ] xERC20s added to Connext registries: _\<link to transaction(s)\>_
 - [ ] Slow path tested: _<link to transfer(s)>_
 - [ ] Router liquidity added and fast path tested: _\<link to transfer(s)\>_
