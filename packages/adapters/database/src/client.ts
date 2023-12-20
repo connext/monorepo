@@ -1150,7 +1150,7 @@ export const getCurrentProposedOptimisticRoot = async (
     .selectOne(
       "spoke_optimistic_roots",
       { domain, status: "Proposed" },
-      { limit: 1, order: { by: "root_timestamp", direction: "DESC" } },
+      { limit: 1, order: { by: "end_of_dispute", direction: "DESC" } },
     )
     .run(poolToUse);
   return opRoot ? convertFromDbSpokeOptimisticRoot(opRoot) : undefined;
