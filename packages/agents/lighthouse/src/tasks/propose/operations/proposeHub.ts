@@ -76,7 +76,7 @@ export const proposeHub = async () => {
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
 
   const timeSinceSnapshotStart = currentTimestamp - latestSnapshotTimestamp;
-  const waitTime = config.snapshotDuration / 3;
+  const waitTime = Math.floor(config.snapshotDuration / 3);
   if (timeSinceSnapshotStart < waitTime) {
     // Exit if earlier than 1/3 of the snapshot duration to help accommodate time boundary conditions
     logger.info("Skipping ProposeHub. Wait time not completed", requestContext, methodContext, {
