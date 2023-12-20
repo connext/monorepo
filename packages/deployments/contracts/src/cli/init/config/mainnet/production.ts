@@ -572,28 +572,41 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "ZOOMER",
       canonical: {
-        // Pseudo-canonical domain
         domain: "11111",
         address: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
         decimals: 18,
+        cap: utils.parseUnits("500000000", 18).toString(),
       },
       representations: {
-        /// MAINNET
         "6648936": {
           local: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
           adopted: "0x425F81E2fe53256B9a7AEA91949dA2210bd049bE",
         },
-        /// POLYGON
-        "1886350457": {
-          local: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
-          adopted: "0xb2588731d8f6F854037936d6ffac4c13d0b6bd62",
+        // optimism
+        "1869640809": {
+          local: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+          adopted: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
         },
-        /// ARBITRUM
+        // arbitrum one
         "1634886255": {
-          local: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
-          adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
+          local: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+          adopted: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
         },
-        // BINANCE
+        // polygon
+        "1886350457": {
+          local: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+          adopted: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+        },
+        // bsc
+        "6450786": {
+          local: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+          adopted: "0xB962150760F9A3bB00e3E9Cf48297EE20AdA4A33",
+        },
+        // gnosis
+        "6778479": {
+          local: "0x68dEff5C5c132467316522B0a66436573aBBa80e",
+          adopted: "0x68dEff5C5c132467316522B0a66436573aBBa80e",
+        },
       },
     },
   ],
