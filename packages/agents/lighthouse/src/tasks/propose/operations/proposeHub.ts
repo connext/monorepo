@@ -23,6 +23,7 @@ import {
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
   AggregateRootChecksFailed,
+  WaitTimeNotCompleted,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -69,9 +70,22 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  // Use N -1 snapshot ID to ensure that the proposal is safe from time boundary conditions.
-  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration) - 1;
+  // Use N snapshot ID to ensure that the proposal submitted.
+  const currentTimestamp = getNtpTimeSeconds();
+  const latestSnapshotId: number = Math.floor(currentTimestamp / config.snapshotDuration);
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
+
+  const timeSinceSnapshotStart = currentTimestamp - latestSnapshotTimestamp;
+  const waitTime = config.snapshotDuration / 3;
+  if (timeSinceSnapshotStart < waitTime) {
+    // Exit if earlier than 1/3 of the snapshot duration to help accommodate time boundary conditions
+    logger.info("Skipping ProposeHub. Wait time not completed", requestContext, methodContext, {
+      remainingTime: waitTime - timeSinceSnapshotStart,
+      currentTimestamp,
+      latestSnapshotTimestamp,
+    });
+    throw new WaitTimeNotCompleted(config.hubDomain, requestContext, methodContext);
+  }
 
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
@@ -111,7 +125,7 @@ export const proposeHub = async () => {
               logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
                 domain,
                 count: messageRootCount + 1,
-                snapshotId: latestSnapshotId + 1, // We are using N - 1 snapshot ID
+                snapshotId: latestSnapshotId,
               });
               await database.saveSnapshotRoots([
                 {
