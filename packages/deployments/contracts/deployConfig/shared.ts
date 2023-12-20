@@ -365,6 +365,23 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // Fuel Testnet Sepolia-Fuel
+      // Fuel doesn't have chain id yet
+      44444444: {
+        prefix: "Fuel",
+        networkName: "Fuel",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          // https://sepolia.etherscan.io/address/0x457A5a9320d06118764c400163c441cb8551cfa2
+          hub: "0x457A5a9320d06118764c400163c441cb8551cfa2",
+          // There is no Fuel L2 AMB publicly available yet
+          spoke: "",
+        },
+        delayBlocks: DEFAULT_DELAY_BLOCKS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {},
+      },
     },
   },
   mainnet: {
