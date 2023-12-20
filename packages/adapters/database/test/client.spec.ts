@@ -1746,6 +1746,7 @@ describe("Database client", () => {
       m.id = `${_i}`;
       m.rootTimestamp = _i;
       m.proposeTimestamp = _i;
+      m.endOfDispute = _i;
       spokeOptimisticRoots.push(m);
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
