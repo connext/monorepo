@@ -403,8 +403,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         ambs: {
           // https://sepolia.etherscan.io/address/0x03f2901Db5723639978deBed3aBA66d4EA03aF73
           hub: "0x03f2901Db5723639978deBed3aBA66d4EA03aF73",
-          // There is no Fuel L2 AMB publicly available yet
-          spoke: "",
+          // https://fuellabs.github.io/block-explorer-v2/beta-4/#/address/0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b
+          spoke: "0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b",
         },
         delayBlocks: DEFAULT_DELAY_BLOCKS,
         processGas: DEFAULT_PROCESS_GAS,
