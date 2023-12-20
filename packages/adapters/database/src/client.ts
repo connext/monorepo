@@ -555,7 +555,7 @@ export const saveSnapshotRoots = async (
   const roots: s.snapshot_roots.Insertable[] = _roots.map((r) => convertToDbSnapshotRoot(r)).map(sanitizeNull);
 
   // use upsert here. if the root exists, we don't want to overwrite anything
-  await db.upsert("snapshot_roots", roots, ["id", "spoke_domain"], { updateColumns: [] }).run(poolToUse);
+  await db.upsert("snapshot_roots", roots, ["spoke_domain", "root"], { updateColumns: [] }).run(poolToUse);
 };
 
 export const saveCheckPoint = async (
@@ -1064,11 +1064,16 @@ export const getFinalizedSnapshot = async (
 
 export const getLatestPendingSnapshotRootByDomain = async (
   spoke_domain: number,
+  id: string,
   _pool?: Pool | db.TxnClientForRepeatableRead,
 ): Promise<SnapshotRoot | undefined> => {
   const poolToUse = _pool ?? pool;
   const snapshot = await db
-    .select("snapshot_roots", { processed: false, spoke_domain }, { limit: 1, order: { by: "id", direction: "DESC" } })
+    .select(
+      "snapshot_roots",
+      { processed: false, spoke_domain, id },
+      { limit: 1, order: { by: "id", direction: "DESC" } },
+    )
     .run(poolToUse);
   return snapshot.length > 0 ? convertFromDbSnapshotRoot(snapshot[0]) : undefined;
 };
