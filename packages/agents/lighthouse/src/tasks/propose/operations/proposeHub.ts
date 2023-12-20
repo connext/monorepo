@@ -69,8 +69,8 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  // Use N -1 snapshot ID to ensure that the proposal is safe from time boundary conditions.
-  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration) - 1;
+  // Use N snapshot ID to ensure that the proposal submitted.
+  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration);
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
 
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
@@ -111,7 +111,7 @@ export const proposeHub = async () => {
               logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
                 domain,
                 count: messageRootCount + 1,
-                snapshotId: latestSnapshotId + 1, // We are using N - 1 snapshot ID
+                snapshotId: latestSnapshotId,
               });
               await database.saveSnapshotRoots([
                 {
