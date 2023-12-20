@@ -23,6 +23,7 @@ import {
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
   AggregateRootChecksFailed,
+  WaitTimeNotCompleted,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -75,11 +76,15 @@ export const proposeHub = async () => {
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
 
   const timeSinceSnapshotStart = currentTimestamp - latestSnapshotTimestamp;
-  if (timeSinceSnapshotStart < config.snapshotDuration / 3) {
-    const waitTime = config.snapshotDuration / 3 - timeSinceSnapshotStart;
-    // Wait for 1/3 of the snapshot duration to help accommodate time boundary conditions
-    logger.info("Waiting for the snapshot timeout", requestContext, methodContext, { waitTime });
-    await new Promise((f) => setTimeout(f, waitTime * 1000));
+  const waitTime = config.snapshotDuration / 3;
+  if (timeSinceSnapshotStart < waitTime) {
+    // Exit if earlier than 1/3 of the snapshot duration to help accommodate time boundary conditions
+    logger.info("Skipping ProposeHub. Wait time not completed", requestContext, methodContext, {
+      remainingTime: waitTime - timeSinceSnapshotStart,
+      currentTimestamp,
+      latestSnapshotTimestamp,
+    });
+    throw new WaitTimeNotCompleted(config.hubDomain, requestContext, methodContext);
   }
 
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
