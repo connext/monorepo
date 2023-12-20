@@ -454,6 +454,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
           // Allowlist watchers in WatcherManager + Connext.
           for (const watcher of protocol.agents.watchers.allowlist) {
             for (const network of protocol.networks) {
+              if (network.chain !== "195") continue;
               // Messaging layer watchers
               await updateIfNeeded({
                 apply,
