@@ -25,9 +25,7 @@ describe("Operations: ProposeSpoke", () => {
     it("should early exit if root already finalized on chain but not db", async () => {
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(true);
       (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
-      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
-        mock.entity.spokeOptimisticRoot(),
-      );
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(undefined);
 
       const result = await proposeSpoke("");
       expect(result).to.eq(undefined);
@@ -49,9 +47,7 @@ describe("Operations: ProposeSpoke", () => {
       let aggregateRootCheckStub = stub(ProposeFns, "aggregateRootCheck").resolves(false);
 
       (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
-      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
-        mock.entity.spokeOptimisticRoot(),
-      );
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(undefined);
       (proposeCtxMock.adapters.contracts.spokeConnector.decodeFunctionResult as SinonStub).returns([
         "0x0000000000000000000000000000000000000000000000000000000000000001",
       ]);
@@ -66,9 +62,7 @@ describe("Operations: ProposeSpoke", () => {
       let sendRootToHubSpokeStub = stub(ProposeFns, "sendRootToHubSpoke").resolves();
 
       (proposeCtxMock.adapters.database.getCurrentFinalizedSnapshot as SinonStub).resolves(mock.entity.snapshot());
-      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(
-        mock.entity.spokeOptimisticRoot(),
-      );
+      (proposeCtxMock.adapters.database.getSpokeOptimisticRoot as SinonStub).resolves(undefined);
 
       await proposeSpoke(mock.domain.A);
       expect(sendRootToHubSpokeStub).callCount(1);

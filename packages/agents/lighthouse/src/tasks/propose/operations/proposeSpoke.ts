@@ -38,12 +38,19 @@ export const proposeSpoke = async (spokeDomain: string) => {
   }
 
   const spokeRoot = await database.getSpokeOptimisticRoot(latestFinalizedSnapshot.aggregateRoot, spokeDomain);
-  if (spokeRoot && spokeRoot.status === "Finalized") {
-    logger.info("Aggregate root already finalized on spoke.", requestContext, methodContext, {
+
+  if (!spokeRoot) {
+    logger.info("Aggregate root not found in DB spoke proposals", requestContext, methodContext, {
       aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
       spokeDomain,
     });
-    // End propose. Aggregate root already finalized
+  } else {
+    logger.info("Aggregate root already proposed", requestContext, methodContext, {
+      aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
+      spokeDomain,
+      spokeRoot,
+    });
+    // End propose. Aggregate root already proposed or finalized.
     return;
   }
 
