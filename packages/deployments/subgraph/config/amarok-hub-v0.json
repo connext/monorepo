@@ -78,6 +78,11 @@
         "name": "BaseHubConnector",
         "address": "0x5CF82cB512A3CDCDb117c09D3bFFF34709900647",
         "startBlock": 10209383
+      },
+      {
+        "name": "X1HubConnector",
+        "address": "0x4e1312Ecb1f7f3211C49139b0524D54bF98D9538",
+        "startBlock": 10242705
       }
     ]
   }
