@@ -1138,7 +1138,7 @@ export const getProposedSnapshotsByDomainQuery = (
 };
 
 export const getProposedSpokeOptimisticRootsByDomainQuery = (
-  params: { domain: string; rootTimestamp: number; limit: number; maxBlockNumber: number }[],
+  params: { domain: string; proposeTimestamp: number; limit: number; maxBlockNumber: number }[],
 ) => {
   const { config } = getContext();
   let combinedQuery = "";
@@ -1148,10 +1148,10 @@ export const getProposedSpokeOptimisticRootsByDomainQuery = (
     ${prefix}_aggregateRootProposeds ( 
       first: ${param.limit}, 
       where: { 
-        rootTimestamp_gt: ${param.rootTimestamp},
+        timestamp_gt: ${param.proposeTimestamp},
         blockNumber_lte: ${param.maxBlockNumber}
       }
-      orderBy: rootTimestamp,
+      orderBy: timestamp,
       orderDirection: asc
     ) {
       ${SPOKE_OPTIMISTIC_ROOT_ENTITY}
