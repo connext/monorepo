@@ -110,6 +110,9 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     // Start the propose task.
     const rootManagerMode: RootManagerMode = await context.adapters.subgraph.getRootManagerMode(config.hubDomain);
     const domains: string[] = Object.keys(config.chains);
+    let proposeHubSuccess = true;
+    let proposeSpokeSuccess = true;
+
     for (const domain of domains) {
       const spokeConnectorMode: SpokeConnectorMode = await context.adapters.subgraph.getSpokeConnectorMode(domain);
       if (spokeConnectorMode.mode !== rootManagerMode.mode) {
@@ -126,9 +129,20 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
         );
       }
     }
+
     if (rootManagerMode.mode === ModeType.OptimisticMode) {
       context.logger.info("In Optimistic Mode", requestContext, methodContext);
-      await proposeHub();
+
+      try {
+        await proposeHub();
+      } catch (e: unknown) {
+        context.logger.error("Failed to propose to hub ", requestContext, methodContext, jsonifyError(e as NxtpError), {
+          hubDomain: config.hubDomain,
+        });
+
+        proposeHubSuccess = false;
+      }
+
       for (const spokeDomain of domains) {
         try {
           await proposeSpoke(spokeDomain);
@@ -140,6 +154,8 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
             jsonifyError(e as NxtpError),
             { spokeDomain },
           );
+
+          proposeSpokeSuccess = false;
         }
       }
     } else if (rootManagerMode.mode === ModeType.SlowMode) {
@@ -147,13 +163,16 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     } else {
       throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
-    if (context.config.healthUrls.propose) {
+
+    if (context.config.healthUrls.propose && proposeHubSuccess && proposeSpokeSuccess) {
       await sendHeartbeat(context.config.healthUrls.propose, context.logger);
     }
   } catch (e: unknown) {
     console.error("Error starting Propose task. Sad! :(", e);
     await closeDatabase();
   } finally {
-    process.exit();
+    context.logger.info("Propose task complete!!!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
   }
 };

@@ -1644,7 +1644,11 @@ describe("Database client", () => {
     }
     await saveSnapshotRoots(roots, pool);
 
-    const dbRootLast = await getLatestPendingSnapshotRootByDomain(+roots[batchSize - 1].spokeDomain, pool);
+    const dbRootLast = await getLatestPendingSnapshotRootByDomain(
+      +roots[batchSize - 1].spokeDomain,
+      (batchSize - 1).toString(),
+      pool,
+    );
     expect(dbRootLast?.root).to.eq(roots[batchSize - 1].root);
   });
 
@@ -1742,6 +1746,7 @@ describe("Database client", () => {
       m.id = `${_i}`;
       m.rootTimestamp = _i;
       m.proposeTimestamp = _i;
+      m.endOfDispute = _i;
       spokeOptimisticRoots.push(m);
     }
     await saveProposedSpokeRoots(spokeOptimisticRoots, pool);

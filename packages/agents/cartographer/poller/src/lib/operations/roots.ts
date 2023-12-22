@@ -126,27 +126,27 @@ export const updateProposedSpokeOptimisticRoot = async (maxBlockNumbers: Map<str
       continue;
     }
 
-    const rootTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
+    const proposeTimestamp = await database.getCheckPoint("proposed_optimistic_root_" + domain);
     const limit = 100;
     logger.debug("Retrieving proposed optimistic root for spoke", requestContext, methodContext, {
       domain,
-      rootTimestamp: rootTimestamp,
+      proposeTimestamp: proposeTimestamp,
       limit: limit,
     });
 
     const opRoots: SpokeOptimisticRoot[] = await subgraph.getProposedSpokeOptimisticRootsByDomain([
-      { domain, rootTimestamp, limit, maxBlockNumber },
+      { domain, proposeTimestamp, limit, maxBlockNumber },
     ]);
 
-    const newRootTimestamp =
-      opRoots.length == 0 ? 0 : opRoots.sort((a, b) => b.rootTimestamp - a.rootTimestamp)[0].rootTimestamp;
-    if (rootTimestamp === 0 || newRootTimestamp > rootTimestamp) {
+    const newProposeTimestamp =
+      opRoots.length == 0 ? 0 : opRoots.sort((a, b) => b.proposeTimestamp! - a.proposeTimestamp!)[0].proposeTimestamp!;
+    if (proposeTimestamp === 0 || newProposeTimestamp > proposeTimestamp) {
       await database.saveProposedSpokeRoots(opRoots);
 
-      await database.saveCheckPoint("proposed_optimistic_root_" + domain, newRootTimestamp);
+      await database.saveCheckPoint("proposed_optimistic_root_" + domain, newProposeTimestamp);
       logger.debug("Saved proposed optimistic root for spoke", requestContext, methodContext, {
         domain,
-        rootTimestamp: newRootTimestamp,
+        proposeTimestamp: newProposeTimestamp,
       });
     }
   }
@@ -308,7 +308,7 @@ export const retrieveSavedSnapshotRoot = async (maxBlockNumbers: Map<string, num
     ]);
 
     // Reset offset at the end of the cycle.
-    const newOffset = roots.length == 0 ? 0 : Math.max(...roots.map((root) => root.timestamp ?? 0));
+    const newOffset = roots.length == 0 ? 0 : Math.max(...roots.map((root) => +root.id ?? 0));
 
     await database.saveSnapshotRoots(roots);
 
