@@ -45,13 +45,16 @@ export const proposeSpoke = async (spokeDomain: string) => {
       spokeDomain,
     });
   } else {
-    logger.info("Aggregate root already proposed", requestContext, methodContext, {
-      aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
-      spokeDomain,
-      spokeRoot,
-    });
-    // End propose. Aggregate root already proposed or finalized.
-    return;
+    // Spoke root on hub is always in `Proposed` state, as it is created when corresponding hub snapshot is finalized.
+    if (spokeDomain !== config.hubDomain) {
+      logger.info("Aggregate root already proposed", requestContext, methodContext, {
+        aggregateRoot: latestFinalizedSnapshot.aggregateRoot,
+        spokeDomain,
+        spokeRoot,
+      });
+      // End propose. Aggregate root already proposed or finalized.
+      return;
+    }
   }
 
   const isProven = await aggregateRootCheck(latestFinalizedSnapshot.aggregateRoot, spokeDomain, requestContext);
@@ -64,7 +67,8 @@ export const proposeSpoke = async (spokeDomain: string) => {
   }
 
   if (spokeDomain === config.hubDomain) {
-    logger.info("Starting propose operation for hub", requestContext, methodContext, spokeDomain);
+    // For hub spoke root proposal, we can directly finalize it.
+    logger.info("Starting finalize operation for hub", requestContext, methodContext, spokeDomain);
     await sendRootToHubSpoke(requestContext);
     return;
   }
