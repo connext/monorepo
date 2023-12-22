@@ -80,12 +80,13 @@
     "ethers": "5.7.2",
     "js-yaml": "4.1.0",
     "mustache": "4.2.0",
+    "npm": "^7.20.5",
     "ts-node": "10.9.1",
     "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.50.1",
-    "@graphprotocol/graph-ts": "0.30.0",
+    "@graphprotocol/graph-cli": "^0.20.1",
+    "@graphprotocol/graph-ts": "^0.20.1",
     "@protofire/subgraph-toolkit": "0.1.2",
     "@types/js-yaml": "4.0.5",
     "@types/mustache": "4.2.2",
