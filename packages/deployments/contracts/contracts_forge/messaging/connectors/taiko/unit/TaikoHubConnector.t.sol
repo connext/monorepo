@@ -213,8 +213,8 @@ contract Unit_Connector_TaikoHubConnector_VerifySender is Base {
    * @notice Tests that returns true if the sender is the expected one
    */
   function test_returnTrue() public {
-    vm.prank(_amb);
-    assertEq(taikoHubConnector.forTest_verifySender(_amb), true);
+    vm.prank(offChainAgent);
+    assertEq(taikoHubConnector.forTest_verifySender(offChainAgent), true);
   }
 
   /**

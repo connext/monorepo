@@ -9,11 +9,6 @@ import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
  */
 abstract contract BaseTaiko {
   /**
-   * @notice The root length in bytes for a message
-   */
-  uint256 public constant ROOT_LENGTH = 32;
-
-  /**
    * @notice Taiko Signal Service address
    */
   ISignalService public immutable TAIKO_SIGNAL_SERVICE;

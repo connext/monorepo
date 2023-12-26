@@ -37,8 +37,6 @@ contract Unit_Connector_BaseScroll_Constructor is Base {
    */
   function test_constants() public {
     uint256 _expectedZeroMsgValue = 0;
-    uint256 _expectedMessageLength = 32;
     assertEq(baseScroll.ZERO_MSG_VALUE(), _expectedZeroMsgValue);
-    assertEq(baseScroll.MESSAGE_LENGTH(), _expectedMessageLength);
   }
 }

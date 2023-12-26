@@ -28,6 +28,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @notice Thrown when the message is not received on the destination chain yet
    */
   error TaikoSpokeConnector_SignalNotReceived();
+
   /**
    * @notice Thrown when `renounceOwnership` is called
    */
@@ -77,7 +78,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
-    if (!_verifySender(AMB)) revert TaikoSpokeConnector_SenderNotAllowedAgent();
+    if (!_verifySender(msg.sender)) revert TaikoSpokeConnector_SenderNotAllowedAgent();
     (bool _received, bytes32 _signal) = _verifyAndGetSignal(HUB_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoSpokeConnector_SignalNotReceived();
     receiveAggregateRoot(_signal);
@@ -85,10 +86,10 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
 
   /**
    * @notice Verifies that the origin sender of the cross domain message is the mirror connector
-   * @param _mirrorSender Mirror sender address
-   * @return _isValid True if the origin sender is the mirror connector, otherwise false
+   * @param _sender The sender address
+   * @return _isValid True if the origin sender is allowed off-chain agent (declared as AMB), false otherwise
    */
-  function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
-    _isValid = msg.sender == _mirrorSender;
+  function _verifySender(address _sender) internal view override returns (bool _isValid) {
+    _isValid = _sender == AMB;
   }
 }

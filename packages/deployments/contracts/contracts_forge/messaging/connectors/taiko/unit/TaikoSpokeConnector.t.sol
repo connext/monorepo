@@ -231,8 +231,8 @@ contract Unit_Connector_TaikoSpokeConnector_VerifySender is Base {
    * @notice Tests that returns true if the sender is the expected one
    */
   function test_returnTrue() public {
-    vm.prank(_amb);
-    assertEq(taikoSpokeConnector.forTest_verifySender(_amb), true);
+    vm.prank(offChainAgent);
+    assertEq(taikoSpokeConnector.forTest_verifySender(offChainAgent), true);
   }
 
   /**

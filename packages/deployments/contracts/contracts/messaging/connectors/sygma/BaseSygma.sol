@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib, ROOT_LENGTH} from "../ConnectorsLib.sol";
 import {GasCap} from "../GasCap.sol";
 import {IBridge} from "../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
 import {ISygmaConnector} from "./interfaces/ISygmaConnector.sol";
@@ -11,10 +12,6 @@ import {ISygmaConnector} from "./interfaces/ISygmaConnector.sol";
  * @notice Contract containing common logic for Sygma connectors
  */
 abstract contract BaseSygma is GasCap {
-  /**
-   * @notice The length in bytes of the root
-   */
-  uint256 public constant ROOT_LENGTH = 32;
   /**
    * @notice The ID of the Sygma's permissionless handler
    */
