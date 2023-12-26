@@ -56,7 +56,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @notice Renounces ownership
    * @dev Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector) {
+  function renounceOwnership() public pure override(SpokeConnector) {
     revert TaikoSpokeConnector_NotImplementedMethod();
   }
 
