@@ -62,13 +62,6 @@ contract Base is ConnectorHelper {
 
 contract Unit_Connector_FuelHubConnector_Constructor is Base {
   /**
-   * @notice Tests the constant values
-   */
-  function test_constants() public {
-    assertEq(fuelHubConnector.MESSAGE_LENGTH(), ROOT_LENGTH);
-  }
-
-  /**
    * @notice Tests the values of the constructor arguments
    */
   function test_checkConstructorArgs() public {

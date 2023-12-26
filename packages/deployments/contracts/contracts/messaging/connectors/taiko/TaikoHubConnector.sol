@@ -74,7 +74,7 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
    * @dev The signal must be received on the chain
    */
   function _processMessage(bytes memory _data) internal override {
-    if (!_verifySender(AMB)) revert TaikoHubConnector_SenderNotAllowedAgent();
+    if (!_verifySender(msg.sender)) revert TaikoHubConnector_SenderNotAllowedAgent();
     (bool _received, bytes32 _signal) = _verifyAndGetSignal(SPOKE_CHAIN_ID, mirrorConnector, _data);
     if (!_received) revert TaikoHubConnector_SignalNotReceived();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, _signal);
@@ -82,10 +82,10 @@ contract TaikoHubConnector is HubConnector, BaseTaiko {
 
   /**
    * @notice Verifies that the origin sender of the cross domain message is the mirror connector
-   * @param _mirrorSender Mirror sender address
+   * @param _sender The sender address
    * @return _isValid True if the origin sender is the mirror connector, otherwise false
    */
-  function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
-    _isValid = msg.sender == _mirrorSender;
+  function _verifySender(address _sender) internal view override returns (bool _isValid) {
+    _isValid = _sender == AMB;
   }
 }

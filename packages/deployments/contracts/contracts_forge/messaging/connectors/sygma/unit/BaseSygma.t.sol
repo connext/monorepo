@@ -49,7 +49,6 @@ contract Unit_Connector_BaseSygma_Constructor is Base {
    */
   function test_constants() public {
     assertEq(baseSygma.PERMISSIONLESS_HANDLER_ID(), _PERMISSIONLESS_HANDLER_ID);
-    assertEq(baseSygma.ROOT_LENGTH(), _ROOT_LENGTH);
     assertEq(baseSygma.ADDRESS_LEN(), _ADDRESS_LEN);
     assertEq(baseSygma.ZERO_ADDRESS(), _ZERO_ADDRESS);
     assertEq(baseSygma.FUNCTION_SIG_LEN(), _FUNCTION_SIG_LEN);

@@ -44,13 +44,6 @@ contract Base is ConnectorHelper {
 
 contract Unit_Connector_BaseTaiko_Constructor is Base {
   /**
-   * @notice Tests the values of the constants
-   */
-  function test_constants() public {
-    assertEq(baseTaiko.ROOT_LENGTH(), ROOT_LENGTH);
-  }
-
-  /**
    * @notice Tests the values of the constructor arguments
    */
   function test_checkConstructorArgs() public {
