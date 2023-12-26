@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseSygma} from "./BaseSygma.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {ProposedOwnable} from "../../../shared/ProposedOwnable.sol";
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {IBridge} from "../../../../contracts/messaging/interfaces/ambs/sygma/IBridge.sol";
@@ -77,7 +78,7 @@ contract SygmaSpokeConnector is SpokeConnector, BaseSygma {
    * @dev The `_feeData` can be empty
    */
   function _sendMessage(bytes memory _data, bytes memory _feeData) internal override {
-    if (!_checkDataLength(_data)) revert SygmaSpokeConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert SygmaSpokeConnector_DataLengthIsNot32();
     bytes memory _depositData = parseDepositData(bytes32(_data), mirrorConnector);
     SYGMA_BRIDGE.deposit{value: msg.value}(HUB_DOMAIN_ID, PERMISSIONLESS_HANDLER_ID, _depositData, _feeData);
   }

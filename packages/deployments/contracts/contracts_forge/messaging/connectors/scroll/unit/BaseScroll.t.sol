@@ -14,10 +14,6 @@ contract BaseScrollForTest is BaseScroll {
   function forTest_gasCap() public view returns (uint256 _gasCap) {
     _gasCap = gasCap;
   }
-
-  function forTest_checkMessageLength(bytes memory _data) external pure returns (bool _isValid) {
-    _isValid = _checkMessageLength(_data);
-  }
 }
 
 /**
@@ -44,27 +40,5 @@ contract Unit_Connector_BaseScroll_Constructor is Base {
     uint256 _expectedMessageLength = 32;
     assertEq(baseScroll.ZERO_MSG_VALUE(), _expectedZeroMsgValue);
     assertEq(baseScroll.MESSAGE_LENGTH(), _expectedMessageLength);
-  }
-}
-
-contract Unit_Connector_BaseScroll_CheckMessageLength is Base {
-  // The root length in bytes for a message
-  uint256 internal constant VALID_MSG_LENGTH = 32;
-
-  /**
-   * @notice Tests that reverts when called with invalid length data
-   * @param _data Message data
-   */
-  function test_returnFalseOnInvalidLength(bytes memory _data) public {
-    vm.assume(_data.length != VALID_MSG_LENGTH);
-    assertEq(baseScroll.forTest_checkMessageLength(_data), false);
-  }
-
-  /**
-   * @notice Tests that returns true on data valid length
-   */
-  function test_returnTrue(bytes32 _msg) public {
-    bytes memory _data = abi.encode(_msg);
-    assertEq(baseScroll.forTest_checkMessageLength(_data), true);
   }
 }

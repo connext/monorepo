@@ -3,6 +3,7 @@ pragma solidity =0.8.17;
 
 import {BaseTaiko} from "./BaseTaiko.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
@@ -65,7 +66,7 @@ contract TaikoSpokeConnector is SpokeConnector, BaseTaiko {
    * @dev The message length must be 32 bytes
    */
   function _sendMessage(bytes memory _data, bytes memory) internal override {
-    if (!_checkMessageLength(_data)) revert TaikoSpokeConnector_LengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert TaikoSpokeConnector_LengthIsNot32();
     _sendSignal(bytes32(_data));
   }
 

@@ -15,10 +15,6 @@ contract BaseSygmaForTest is BaseSygma {
     address _permissionlessHandler,
     uint256 _gasCap
   ) BaseSygma(_amb, _permissionlessHandler, _gasCap) {}
-
-  function forTest_checkDataLength(bytes memory _data) public pure returns (bool _validLength) {
-    _validLength = _checkDataLength(_data);
-  }
 }
 
 /**
@@ -47,7 +43,7 @@ contract Base is ConnectorHelper {
   }
 }
 
-contract Unit_Connector_BaseSygma_Deployment is Base {
+contract Unit_Connector_BaseSygma_Constructor is Base {
   /**
    * @notice Tests the constants values are set correctly
    */
@@ -116,27 +112,5 @@ contract Unit_Connector_BaseSygma_Slice is Base {
     bytes memory _expectedSlicedData = _input[_position:];
     bytes memory _slicedData = baseSygma.slice(_input, _position);
     assertEq(_slicedData, _expectedSlicedData);
-  }
-}
-
-contract Unit_Connector_BaseSygma_CheckDataLength is Base {
-  /**
-   * @notice Tests it returns false when the data length is not 32
-   * @param _data The data
-   */
-  function test_returnFalse(bytes memory _data) public {
-    vm.assume(_data.length != _ROOT_LENGTH);
-    bool _validLength = baseSygma.forTest_checkDataLength(_data);
-    assertEq(_validLength, false);
-  }
-
-  /**
-   * @notice Tests it returns true when the data length is 32
-   * @param _root The root
-   */
-  function test_returnTrue(bytes32 _root) public {
-    bytes memory _data = abi.encode(_root);
-    bool _validLength = baseSygma.forTest_checkDataLength(_data);
-    assertEq(_validLength, true);
   }
 }

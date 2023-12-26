@@ -23,8 +23,6 @@ contract Common is ConnectorHelper {
   uint32 public constant DOMAIN = 100;
   // Mirror domain id which is Ethereum
   uint32 public constant MIRROR_DOMAIN = 1;
-  // Delay blocks for the root manager
-  uint256 public constant DELAY_BLOCKS = 0;
 
   // EOAs and external addresses
   address public owner = makeAddr("owner");

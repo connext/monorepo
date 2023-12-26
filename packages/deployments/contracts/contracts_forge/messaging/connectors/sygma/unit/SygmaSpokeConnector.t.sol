@@ -34,17 +34,10 @@ contract SygmaSpokeConnectorForTest is SygmaSpokeConnector {
  * @dev Base contract for the `SygmaSpokeConnector` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes
-  uint256 public constant ROOT_LENGTH = 32;
-
+  uint8 public constant SYGMA_HUB_DOMAIN_ID = 1;
   address public user = makeAddr("user");
   address public permissionlessHandler = makeAddr("permissionlessHandler");
   address public watcherManager = makeAddr("watcherManager");
-
-  uint8 public sygmaHubDomainId = 1;
-  uint256 public delayBlocks = 0;
-  uint256 public disputeBlocks = 0;
-  uint256 public minDisputeBlocks = 0;
 
   SygmaSpokeConnectorForTest public sygmaSpokeConnector;
 
@@ -61,16 +54,16 @@ contract Base is ConnectorHelper {
       _l1Connector,
       _processGas,
       _reserveGas,
-      delayBlocks,
+      DELAY_BLOCKS,
       _merkle,
       watcherManager,
-      minDisputeBlocks,
-      disputeBlocks
+      _minDisputeBlocks,
+      _disputeBlocks
     );
     vm.prank(_owner);
     sygmaSpokeConnector = new SygmaSpokeConnectorForTest(
       _constructorParams,
-      sygmaHubDomainId,
+      SYGMA_HUB_DOMAIN_ID,
       permissionlessHandler,
       _gasCap
     );
@@ -89,12 +82,12 @@ contract Unit_Connector_SygmaSpokeConnector_Constructor is Base {
     assertEq(sygmaSpokeConnector.mirrorConnector(), _l1Connector);
     assertEq(sygmaSpokeConnector.PROCESS_GAS(), _processGas);
     assertEq(sygmaSpokeConnector.RESERVE_GAS(), _reserveGas);
-    assertEq(sygmaSpokeConnector.delayBlocks(), delayBlocks);
+    assertEq(sygmaSpokeConnector.delayBlocks(), DELAY_BLOCKS);
     assertEq(address(sygmaSpokeConnector.MERKLE()), _merkle);
     assertEq(address(sygmaSpokeConnector.watcherManager()), watcherManager);
-    assertEq(sygmaSpokeConnector.minDisputeBlocks(), minDisputeBlocks);
-    assertEq(sygmaSpokeConnector.disputeBlocks(), disputeBlocks);
-    assertEq(sygmaSpokeConnector.HUB_DOMAIN_ID(), sygmaHubDomainId);
+    assertEq(sygmaSpokeConnector.minDisputeBlocks(), _minDisputeBlocks);
+    assertEq(sygmaSpokeConnector.disputeBlocks(), _disputeBlocks);
+    assertEq(sygmaSpokeConnector.HUB_DOMAIN_ID(), SYGMA_HUB_DOMAIN_ID);
     assertEq(sygmaSpokeConnector.PERMISSIONLESS_HANDLER(), permissionlessHandler);
     assertEq(sygmaSpokeConnector.gasCap(), _gasCap);
   }
@@ -205,7 +198,7 @@ contract Unit_Connector_SygmaSpokeConnector_SendMessage is Base {
       _amb,
       abi.encodeWithSelector(
         IBridge.deposit.selector,
-        sygmaHubDomainId,
+        SYGMA_HUB_DOMAIN_ID,
         sygmaSpokeConnector.PERMISSIONLESS_HANDLER_ID(),
         _depositData,
         _feeData

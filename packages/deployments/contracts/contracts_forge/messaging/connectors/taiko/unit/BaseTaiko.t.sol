@@ -12,10 +12,6 @@ import {ISignalService} from "../../../../../contracts/messaging/interfaces/ambs
 contract BaseTaikoForTest is BaseTaiko {
   constructor(address _taikoSignalService) BaseTaiko(_taikoSignalService) {}
 
-  function forTest_checkMessageLength(bytes memory _data) external pure returns (bool _isValid) {
-    _isValid = _checkMessageLength(_data);
-  }
-
   function forTest_sendSignal(bytes32 _signal) external {
     _sendSignal(_signal);
   }
@@ -33,9 +29,6 @@ contract BaseTaikoForTest is BaseTaiko {
  * @dev Base contract for the `BaseTaiko` unit tests contracts to inherit from
  */
 contract Base is ConnectorHelper {
-  // The root length in bytes for a message
-  uint256 public constant ROOT_LENGTH = 32;
-
   address public user = makeAddr("user");
   address public offChainAgent = makeAddr("offChainAgent");
   address public signalService = makeAddr("SignalService");
@@ -62,25 +55,6 @@ contract Unit_Connector_BaseTaiko_Constructor is Base {
    */
   function test_checkConstructorArgs() public {
     assertEq(address(baseTaiko.TAIKO_SIGNAL_SERVICE()), signalService);
-  }
-}
-
-contract Unit_Connector_BaseTaiko_CheckMessageLength is Base {
-  /**
-   * @notice Tests that reverts when called with invalid length data
-   * @param _data Message data
-   */
-  function test_returnFalseOnInvalidLength(bytes memory _data) public {
-    vm.assume(_data.length != ROOT_LENGTH);
-    assertEq(baseTaiko.forTest_checkMessageLength(_data), false);
-  }
-
-  /**
-   * @notice Tests that returns true on data valid length
-   */
-  function test_checkMessageLength() public {
-    bytes memory _data = new bytes(ROOT_LENGTH);
-    assertEq(baseTaiko.forTest_checkMessageLength(_data), true);
   }
 }
 
