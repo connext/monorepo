@@ -179,20 +179,26 @@ contract Unit_Connector_FuelHubConnector_ProcessMessage is Base {
 }
 
 contract Unit_Connector_FuelHubConnector_VerifySender is Base {
-  /**
-   * @notice Tests that reverts when the origin sender is not the mirror connector
-   * @param _originSender The origin sender address
-   * @param _mirrorConnector The mirror connector address
-   */
-  function test_returnFalseIfSenderNotMirror(address _originSender, address _mirrorConnector) public {
-    vm.assume(_originSender != _mirrorConnector);
-
+  modifier happyPath(address _mirrorConnector, address _originSender) {
+    vm.assume(_mirrorConnector != _originSender);
     // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
     _mockAndExpect(
       _amb,
       abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector),
       abi.encode(_mirrorConnector)
     );
+    _;
+  }
+
+  /**
+   * @notice Tests that reverts when the origin sender is not the mirror connector
+   * @param _originSender The origin sender address
+   * @param _mirrorConnector The mirror connector address
+   */
+  function test_returnFalseIfSenderNotMirror(
+    address _mirrorConnector,
+    address _originSender
+  ) public happyPath(_mirrorConnector, _originSender) {
     assertEq(fuelHubConnector.forTest_verifySender(_originSender), false);
   }
 
@@ -200,13 +206,10 @@ contract Unit_Connector_FuelHubConnector_VerifySender is Base {
    * @notice Tests that returns true when the origin sender is the mirror connector
    * @param _mirrorConnector The mirror connector address
    */
-  function test_returnTrueIfSenderIsMirror(address _mirrorConnector) public {
-    // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
-    _mockAndExpect(
-      _amb,
-      abi.encodeWithSelector(IFuelMessagePortal.messageSender.selector),
-      abi.encode(_mirrorConnector)
-    );
+  function test_returnTrueIfSenderIsMirror(
+    address _mirrorConnector,
+    address _originSender
+  ) public happyPath(_mirrorConnector, _originSender) {
     assertEq(fuelHubConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }
