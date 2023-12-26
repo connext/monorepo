@@ -96,7 +96,7 @@ contract SygmaSpokeConnector is SpokeConnector, BaseSygma {
    * @notice Renounces the ownership of the contract
    * @dev This method is not implemented
    */
-  function renounceOwnership() public view override(SpokeConnector, ProposedOwnable) onlyOwner {
+  function renounceOwnership() public pure override(SpokeConnector, ProposedOwnable) {
     revert SygmaSpokeConnector_UnimplementedMethod();
   }
 

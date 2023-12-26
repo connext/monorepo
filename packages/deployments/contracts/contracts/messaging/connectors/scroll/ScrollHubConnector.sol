@@ -4,7 +4,6 @@ pragma solidity 0.8.17;
 import {BaseScroll} from "./BaseScroll.sol";
 import {Connector} from "../Connector.sol";
 import {ConnectorsLib} from "../ConnectorsLib.sol";
-
 import {HubConnector} from "../HubConnector.sol";
 import {IL1ScrollMessenger} from "../../interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";

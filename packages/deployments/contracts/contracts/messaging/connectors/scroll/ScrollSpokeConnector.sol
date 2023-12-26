@@ -58,7 +58,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
    * @notice Renounces ownership
    * @dev Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, SpokeConnector) {
+  function renounceOwnership() public pure override(ProposedOwnable, SpokeConnector) {
     revert ScrollSpokeConnector_NotImplementedMethod();
   }
 

@@ -23,11 +23,6 @@ contract FuelHubConnector is HubConnector {
   error FuelHubConnector_OriginSenderIsNotMirror();
 
   /**
-   * @notice Constant used to represent the required length of a message
-   */
-  uint256 public constant MESSAGE_LENGTH = 32;
-
-  /**
    * @notice L1 Fuel Messenge portal
    */
   IFuelMessagePortal public immutable FUEL_MESSAGE_PORTAL;

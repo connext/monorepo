@@ -2,14 +2,14 @@
 pragma solidity 0.8.17;
 
 /**
+ * @dev The length in bytes of the root
+ */
+uint256 constant ROOT_LENGTH = 32;
+
+/**
  * @title Library for common functions used by the connectors.
  */
 library ConnectorsLib {
-  /**
-   * @dev The length in bytes of the root
-   */
-  uint256 public constant ROOT_LENGTH = 32;
-
   /**
    * @notice Checks that the message length is equal than 32 bytes
    * @param _data Message data

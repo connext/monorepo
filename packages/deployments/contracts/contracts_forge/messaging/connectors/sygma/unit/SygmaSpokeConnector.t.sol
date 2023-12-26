@@ -230,13 +230,6 @@ contract Unit_Connector_SygmaSpokeConnector_VerifySender is Base {
 }
 
 contract Unit_Connector_SygmaSpokeConnector_RenounceOwnership is Base {
-  function test_revertIfCallerNotOwner(address _caller) public {
-    vm.assume(_caller != _owner);
-    vm.expectRevert(ProposedOwnable.ProposedOwnable__onlyOwner_notOwner.selector);
-    vm.prank(_caller);
-    sygmaSpokeConnector.renounceOwnership();
-  }
-
   /**
    * @notice Tests it reverts the method is called
    */
