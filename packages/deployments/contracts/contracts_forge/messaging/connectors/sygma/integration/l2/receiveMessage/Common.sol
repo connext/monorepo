@@ -94,9 +94,5 @@ contract Common is ConnectorHelper {
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(sygmaSpokeConnector));
     vm.stopPrank();
-
-    // Set root manager as slow mode so the SYGMA_BRIDGE messages can be received
-    vm.prank(whitelistedWatcher);
-    rootManager.activateSlowMode();
   }
 }

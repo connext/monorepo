@@ -95,9 +95,5 @@ contract Common is ConnectorHelper {
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(scrollHubConnector));
     vm.stopPrank();
-
-    // Set root manager as slow mode so the L1_SCROLL_MESSENGER messages can be received
-    vm.prank(whitelistedWatcher);
-    rootManager.activateSlowMode();
   }
 }
