@@ -151,61 +151,46 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_ArbitrumGoerli
+  - name: Connext_LineaGoerli
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://graph-query.goerli.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea-goerli"
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-linea-goerli
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: arbitrumgoerli_
+          value: lineagoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Staging_ArbitrumGoerli
+
+  - name: Connext_BaseGoerli
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-staging-arb-goerli
+        endpoint: "https://api.studio.thegraph.com/query/51161/connext-rumtime-v0-base-goerli/version/latest"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingarbitrumgoerli_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  # TODO: Restore this when we have a new subgraph for the zkevm testnet
-  # - name: Connext_ConsensysTest
-  #   handler:
-  #     graphql:
-  #       endpoint: https://thegraph.goerli.zkevm.consensys.net/subgraphs/name/connext/amarok-runtime-v0-consensys-test
-  #       retry: 5
-  #       timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: consensystest_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
-  - name: Connext_ZkSync2Test
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v0-zksynct
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: zksync2test_
+          value: basegoerli_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -303,43 +288,13 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: StableSwap_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: arbitrumgoerli_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_ArbitrumGoerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-staging-arb-goerli
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingarbitrumgoerli_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
 
   #####################################################
   # MAINNETS
   - name: Hub_Mainnet
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-hub-v0-mainnet
+        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/5CyM1dx63qdRyBb64PX6Pf7CAZxuAVdx6gQUzCevVR8S"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -354,14 +309,27 @@ sources:
   - name: Connext_Mainnet
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DfD1tZSmDtjCGC2LeYEQbVzj9j8kNqKAQEsYL27Vg6Sw"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FfTxiY98LJG6zoiAjCXdT34pAmCKDEP8vZRVuC8D5Gf"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet
-            retry: 5
-            timeout: 30000 # 30 seconds
+          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DfD1tZSmDtjCGC2LeYEQbVzj9j8kNqKAQEsYL27Vg6Sw"
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-mainnet
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mainnet_
@@ -374,14 +342,27 @@ sources:
   - name: Connext_Optimism
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-optimism
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
-            retry: 5
-            timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-optimism
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_
@@ -394,14 +375,27 @@ sources:
   - name: Connext_Polygon
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6NccoNRo22DgB7oCHaG7U5MxvfYXcCERRN1oVtCWm32x"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/7mDXK2K6UfkVXiJMhXU8VEFuh7qi2TwdYxeyaRjkmexo"
             retry: 5
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
-            retry: 2
-            timeout: 30000 # 30 seconds
+          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6NccoNRo22DgB7oCHaG7U5MxvfYXcCERRN1oVtCWm32x"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-polygon
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygon_
@@ -414,14 +408,27 @@ sources:
   - name: Connext_ArbitrumOne
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DNQfRxJou184r5YagTz9HUQST5URsY2WdYkegH9Rrdkf"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/F325dMRiLVCJpX8EUFHg3SX8LE3kXBUmrsLRASisPEQ3"
             retry: 5
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
-            retry: 2
-            timeout: 30000 # 30 seconds
+          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DNQfRxJou184r5YagTz9HUQST5URsY2WdYkegH9Rrdkf"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-arbitrum-one
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: arbitrumone_
@@ -434,12 +441,25 @@ sources:
   - name: Connext_Bnb
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-bnb
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-bnb"
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -454,20 +474,64 @@ sources:
   - name: Connext_Xdai
     handler:
       graphql:
-        strategy: fallback
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
         sources:
-          - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EdS5b1Zbw8A5KHs4JRnWDKdM5K2Hnq97UuE8RG9b61Ey"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6oJrPk9YJEU9rWU4DAizjZdALSccxe5ZahBsTtFaGksU"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
-            retry: 5
+          # - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: xdai_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_Linea
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/amarok-runtime-v1-linea"
+            retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp"
+          # - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea"
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-linea"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: xdai_
+          value: linea_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -550,33 +614,78 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-
-  #####################################################
-  # LOCAL
-  - name: Connext_Local1337
+  - name: StableSwap_Linea
     handler:
       graphql:
-        endpoint: "{env.GRAPH_1337_ENDPOINT}"
+        endpoint: https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-linea
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: local1337_
+          value: linea_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Local1338
+
+  #####################################################
+  # LOCAL
+  - name: Hub_LocalMainnet
     handler:
       graphql:
-        endpoint: "{env.GRAPH_1338_ENDPOINT}"
+        endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: local1338_
+          value: localmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalMainnet
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localmainnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalOptimism
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localoptimism_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_LocalArbitrumOne
+    handler:
+      graphql:
+        endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: localarbitrumone_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

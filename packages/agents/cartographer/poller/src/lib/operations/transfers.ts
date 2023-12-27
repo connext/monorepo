@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
+
 import { DEFAULT_LOAD_SIZE } from ".";
 
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {

@@ -24,6 +24,7 @@ export function handleLeavesInserted(event: LeavesInserted): void {
     }
     instance.index = index;
     instance.receivedRoot = Bytes.fromHexString(leaf);
+    instance.blockNumber = event.block.number;
     instance.save();
   }
 }

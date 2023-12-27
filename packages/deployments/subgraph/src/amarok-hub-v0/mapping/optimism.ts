@@ -1,6 +1,4 @@
 /* eslint-disable prefer-const */
-import { Bytes } from "@graphprotocol/graph-ts";
-
 import { NewConnector, MessageProcessed } from "../../../generated/OptimismHubConnector/OptimismHubConnector";
 import { OptimismConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
 
@@ -28,19 +26,15 @@ export function handleOptimismMessageProcessed(event: MessageProcessed): void {
   if (meta == null) {
     meta = new OptimismConnectorMeta(DEFAULT_OPTIMISM_HUB_CONNECTOR_META_ID);
   }
-  let message = RootMessageProcessed.load(
-    `0x${event.params.data.toHexString().slice(-64)}-${meta.spokeDomain.toString()}`,
-  );
+  let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   if (message == null) {
-    message = new RootMessageProcessed(
-      `0x${event.params.data.toHexString().slice(-64)}-${meta.spokeDomain.toString()}`,
-    );
+    message = new RootMessageProcessed(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;
   message.hubDomain = meta.hubDomain;
 
-  message.root = Bytes.fromHexString(event.params.data.toHexString().slice(-64));
+  message.root = event.params.data;
   message.caller = event.params.caller;
   message.transactionHash = event.transaction.hash;
   message.timestamp = event.block.timestamp;

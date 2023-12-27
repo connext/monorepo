@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {GelatoRelayFeeCollector} from "@gelatonetwork/relay-context/contracts/GelatoRelayFeeCollector.sol";
 
@@ -15,6 +17,8 @@ interface ISpokeConnector {
     uint256 index;
   }
 
+  function DOMAIN() external view returns (uint32);
+
   function proveAndProcess(
     Proof[] calldata _proofs,
     bytes32 _aggregateRoot,
@@ -23,6 +27,12 @@ interface ISpokeConnector {
   ) external;
 
   function send(bytes memory _encodedData) external payable;
+
+  function proposeAggregateRoot(bytes32 _aggregateRoot, uint256 _rootTimestamp) external;
+
+  function finalize(bytes32 _proposedAggregateRoot, uint256 _rootTimestamp, uint256 _endOfDispute) external;
+
+  function allowlistedProposers(address _proposer) external view returns (bool);
 }
 
 interface IKeep3rV2 {
@@ -38,12 +48,35 @@ interface IKeep3rV2 {
  * Gelato's legacy relayer network. The contract stores native assets and pays them to the relayer on function call.
  */
 contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollector {
+  using ECDSA for bytes32;
   // ============ Properties ============
   address public gelatoRelayer;
   address public feeCollector;
   IKeep3rV2 public keep3r;
   IConnext public connext;
   ISpokeConnector public spokeConnector;
+  uint32 public domain;
+
+  /**
+   * @notice Delay for the proposeAggregateRoot function
+   * @dev Can be updated by admin
+   */
+  uint256 public proposeAggregateRootCooldown;
+
+  /**
+   * @notice Timestamp of when last aggregate was proposed
+   */
+  uint256 public lastProposeAggregateRootAt;
+
+  /**
+   * @notice Delay for the finalize function
+   */
+  uint256 public finalizeCooldown;
+
+  /**
+   * @notice Timestamp of the last time the finalize job was worked.
+   */
+  uint256 public lastFinalizeAt;
 
   mapping(address => bool) public allowedRelayer;
 
@@ -51,14 +84,14 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   modifier onlyRelayer() {
     if (!allowedRelayer[msg.sender]) {
-      revert RelayerProxy__onlyRelayer_notRelayer(msg.sender);
+      revert RelayerProxy__onlyRelayer_notRelayer();
     }
     _;
   }
 
   modifier definedAddress(address _input) {
     if (_input == address(0)) {
-      revert RelayerProxy__definedAddress_empty(_input);
+      revert RelayerProxy__definedAddress_empty();
     }
     _;
   }
@@ -67,12 +100,27 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   // rewarding them with an amount of KP3R equal to their gas spent + premium.
   modifier validateAndPayWithCredits(address _keeper) {
     if (!keep3r.isKeeper(_keeper)) {
-      revert RelayerProxy__validateAndPayWithCredits_notKeep3r(_keeper);
+      revert RelayerProxy__validateAndPayWithCredits_notKeep3r();
     }
     _;
     keep3r.worked(_keeper); // Pays the keeper for the work.
   }
 
+  modifier onlyProposeCooledDown() {
+    if (block.timestamp < lastProposeAggregateRootAt + proposeAggregateRootCooldown) {
+      revert RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
+    }
+    _;
+    lastProposeAggregateRootAt = block.timestamp;
+  }
+
+  modifier onlyFinalizeCooledDown() {
+    if (block.timestamp < lastFinalizeAt + finalizeCooldown) {
+      revert RelayerProxy__finalizeCooledDown_notCooledDown();
+    }
+    _;
+    lastFinalizeAt = block.timestamp;
+  }
   // ============ Events ============
 
   /**
@@ -84,10 +132,11 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   /**
    * @notice Emitted when funds removed from the contract by admin
+   * @param token The token address
    * @param amount The amount removed
    * @param balance The updated balance of the contract
    */
-  event FundsDeducted(uint256 amount, uint256 balance);
+  event FundsDeducted(address token, uint256 amount, uint256 balance);
 
   /**
    * @notice Emitted when a new relayer is allowlisted by admin
@@ -136,39 +185,74 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   event Keep3rChanged(address updated, address previous);
 
+  /**
+   * @notice Emitted when the cooldown period for proposeAggregateRoot is updated
+   * @param proposeAggregateRootCooldown New cooldown period
+   * @param oldProposeAggregateRootCooldown Old cooldown period
+   */
+  event ProposeAggregateRootCooldownChanged(
+    uint256 proposeAggregateRootCooldown,
+    uint256 oldProposeAggregateRootCooldown
+  );
+
+  /**
+   * @notice Emitted when the cooldown period for finalize is updated
+   * @param finalizeCooldown New cooldown period
+   * @param oldFinalizeCooldown Old cooldown period
+   */
+  event FinalizeCooldownChanged(uint256 finalizeCooldown, uint256 oldFinalizeCooldown);
+
   // ============ Error ============
-  error RelayerProxy__addRelayer_relayerAdded(address _relayer);
-  error RelayerProxy__removeRelayer_relayerNotAdded(address _relayer);
-  error RelayerProxy__onlyRelayer_notRelayer(address _sender);
-  error RelayerProxy__definedAddress_empty(address _address);
-  error RelayerProxy__isWorkableBySender_notWorkable(address _sender);
-  error RelayerProxy__validateAndPayWithCredits_notKeep3r(address _sender);
+  error RelayerProxy__addRelayer_relayerAdded();
+  error RelayerProxy__removeRelayer_relayerNotAdded();
+  error RelayerProxy__onlyRelayer_notRelayer();
+  error RelayerProxy__definedAddress_empty();
+  error RelayerProxy__isWorkableBySender_notWorkable();
+  error RelayerProxy__validateAndPayWithCredits_notKeep3r();
+  error RelayerProxy__validateProposeSignature_notProposer(address signer);
+  error RelayerProxy__proposeAggregateRootCooledDown_notCooledDown();
+  error RelayerProxy__finalizeCooledDown_notCooledDown();
+
+  // ============ Structs ============
+
+  /**
+   * Struct containing the construstor arguments of a RelayerProxy
+   * @param connext The address of the Connext on this domain.
+   * @param spokeConnector The address of the SpokeConnector on this domain.
+   * @param gelatoRelayer The address of the Gelato relayer on this domain.
+   * @param feeCollector The address of the Gelato Fee Collector on this domain.
+   * @param keep3r The address of the Keep3r on this domain.
+   * @param proposeAggregateRootCooldown The delay for the propose function.
+   * @param finalizeCooldown The delay for the finalize function.
+   */
+  struct ConstructorParams {
+    address connext;
+    address spokeConnector;
+    address gelatoRelayer;
+    address feeCollector;
+    address keep3r;
+    uint256 proposeAggregateRootCooldown;
+    uint256 finalizeCooldown;
+  }
 
   // ============ Constructor ============
 
   /**
    * @notice Creates a new RelayerProxy instance.
-   * @param _connext The address of the Connext on this domain.
-   * @param _spokeConnector The address of the SpokeConnector on this domain.
-   * @param _gelatoRelayer The address of the Gelato relayer on this domain.
-   * @param _feeCollector The address of the Gelato Fee Collector on this domain.
-   * @param _keep3r The address of the Keep3r on this domain.
    */
-  constructor(
-    address _connext,
-    address _spokeConnector,
-    address _gelatoRelayer,
-    address _feeCollector,
-    address _keep3r
-  ) ProposedOwnable() {
+  constructor(ConstructorParams memory _params) ProposedOwnable() {
     _setOwner(msg.sender);
-    _setConnext(_connext);
-    _setSpokeConnector(_spokeConnector);
-    _setGelatoRelayer(_gelatoRelayer);
-    _setFeeCollector(_feeCollector);
-    _setKeep3r(_keep3r);
+    _setConnext(_params.connext);
+    _setSpokeConnector(_params.spokeConnector);
+    _setGelatoRelayer(_params.gelatoRelayer);
+    _setFeeCollector(_params.feeCollector);
+    _setKeep3r(_params.keep3r);
+    _setProposeAggregateRootCooldown(_params.proposeAggregateRootCooldown);
+    _setFinalizeCooldown(_params.finalizeCooldown);
 
-    _addRelayer(_gelatoRelayer);
+    _addRelayer(_params.gelatoRelayer);
+
+    domain = ISpokeConnector(_params.spokeConnector).DOMAIN();
   }
 
   // ============ Admin Functions ============
@@ -237,12 +321,54 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   }
 
   /**
-   * @notice Withdraws all funds stored on this contract to msg.sender.
+   * @notice Updates the propose cooldown.
+   * @param _proposeCooldown The new cooldown in seconds.
    */
-  function withdraw() external onlyOwner nonReentrant {
-    uint256 balance = address(this).balance;
-    Address.sendValue(payable(msg.sender), balance);
-    emit FundsDeducted(balance, address(this).balance);
+  function setProposeAggregateRootCooldown(uint256 _proposeCooldown) external onlyOwner {
+    _setProposeAggregateRootCooldown(_proposeCooldown);
+  }
+
+  /**
+   * @notice Updates the finalize cooldown.
+   * @param _finalizeCooldown The new cooldown in seconds.
+   */
+  function setFinalizeCooldown(uint256 _finalizeCooldown) external onlyOwner {
+    _setFinalizeCooldown(_finalizeCooldown);
+  }
+
+  /**
+   * @notice Updates the propose cooldown period on this contract.
+   *
+   * @param _proposeAggregateRootCooldown - Delay for propose.
+   */
+  function _setProposeAggregateRootCooldown(uint256 _proposeAggregateRootCooldown) internal {
+    emit ProposeAggregateRootCooldownChanged(_proposeAggregateRootCooldown, proposeAggregateRootCooldown);
+    proposeAggregateRootCooldown = _proposeAggregateRootCooldown;
+  }
+
+  /**
+   * @notice Updates the finalize cooldown period on this contract.
+   *
+   * @param _finalizeCooldown - Delay for finalize.
+   */
+  function _setFinalizeCooldown(uint256 _finalizeCooldown) internal {
+    emit FinalizeCooldownChanged(_finalizeCooldown, finalizeCooldown);
+    finalizeCooldown = _finalizeCooldown;
+  }
+
+  /**
+   * @notice Withdraws tokens stored on this contract to msg.sender.
+   */
+  function withdraw(address _token) external onlyOwner nonReentrant {
+    uint256 balance = _token == address(0) ? address(this).balance : IERC20(_token).balanceOf(address(this));
+
+    if (_token == address(0)) {
+      Address.sendValue(payable(msg.sender), balance);
+    } else {
+      IERC20(_token).transfer(msg.sender, balance);
+    }
+
+    emit FundsDeducted(_token, balance, balance);
   }
 
   // ============ External Functions ============
@@ -296,8 +422,47 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
    */
   function send(bytes memory _encodedData, uint256 _messageFee, uint256 _relayerFee) external onlyRelayer nonReentrant {
     spokeConnector.send{value: _messageFee}(_encodedData);
-    emit FundsDeducted(_messageFee, address(this).balance);
+    emit FundsDeducted(address(0), _messageFee, address(this).balance);
     transferRelayerFee(_relayerFee);
+  }
+
+  /**
+   * @notice Wraps the call to proposeAggregateRoot() on SpokeConnector and pays either the caller or hardcoded relayer
+   * @dev _rootTimestamp is required for off-chain agents to be able to know which root they should fetch from the root manager contract
+   *                     in order to compare it with the one being proposed. The off-chain agents should also ensure the proposed root is
+   *                     not an old one.
+   * @param _aggregateRoot The aggregate root to propose.
+   * @param _rootTimestamp Block.timestamp at which the root was finalized in the root manager contract.
+   * @param _signature Signature from the approved proposer.
+   * @param _fee - Fee to be paid to relayer.
+   */
+  function proposeAggregateRoot(
+    bytes32 _aggregateRoot,
+    uint256 _rootTimestamp,
+    bytes memory _signature,
+    uint256 _fee
+  ) external onlyRelayer onlyProposeCooledDown nonReentrant {
+    // Validate the signer
+    _validateProposeSignature(_aggregateRoot, _rootTimestamp, lastProposeAggregateRootAt, _signature);
+
+    spokeConnector.proposeAggregateRoot(_aggregateRoot, _rootTimestamp);
+
+    transferRelayerFee(_fee);
+  }
+
+  /**
+   * @notice Wraps the `finalize` function on root manager
+   * @param _proposedAggregateRoot The aggregate root currently proposed
+   * @param _rootTimestamp         Block.timestamp at which the root was finalized in the root manager contract.
+   * @param _endOfDispute          The block in which the dispute period for proposed root finalizes
+   */
+  function finalize(
+    bytes32 _proposedAggregateRoot,
+    uint256 _rootTimestamp,
+    uint256 _endOfDispute
+  ) external onlyFinalizeCooledDown nonReentrant {
+    // Finalized the proposed aggregate root
+    spokeConnector.finalize(_proposedAggregateRoot, _rootTimestamp, _endOfDispute);
   }
 
   receive() external payable {
@@ -321,12 +486,12 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
     } else {
       Address.sendValue(payable(msg.sender), _fee);
     }
-    emit FundsDeducted(_fee, address(this).balance);
+    emit FundsDeducted(address(0), _fee, address(this).balance);
   }
 
   function _addRelayer(address _relayer) internal {
     if (allowedRelayer[_relayer]) {
-      revert RelayerProxy__addRelayer_relayerAdded(_relayer);
+      revert RelayerProxy__addRelayer_relayerAdded();
     }
 
     allowedRelayer[_relayer] = true;
@@ -335,7 +500,7 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
 
   function _removeRelayer(address _relayer) internal {
     if (!allowedRelayer[_relayer]) {
-      revert RelayerProxy__removeRelayer_relayerNotAdded(_relayer);
+      revert RelayerProxy__removeRelayer_relayerNotAdded();
     }
 
     allowedRelayer[_relayer] = false;
@@ -365,5 +530,23 @@ contract RelayerProxy is ProposedOwnable, ReentrancyGuard, GelatoRelayFeeCollect
   function _setKeep3r(address _keep3r) internal {
     emit Keep3rChanged(_keep3r, address(keep3r));
     keep3r = IKeep3rV2(_keep3r);
+  }
+
+  function _validateProposeSignature(
+    bytes32 _aggregateRoot,
+    uint256 _rootTimestamp,
+    uint256 _lastProposeAggregateRootAt,
+    bytes memory _signature
+  ) internal view {
+    // Get the payload
+    // To prevent signature replay, added `lastProposeAggregateRootAt` and `domain`.
+    // `lastProposeAggregateRootAt` will be strictly increased after proposed, so same signature can't be used again.
+    // Also domain will prevent the replay from other chains.
+    bytes32 payload = keccak256(abi.encodePacked(_aggregateRoot, _rootTimestamp, _lastProposeAggregateRootAt, domain));
+    // Recover signer
+    address signer = payload.toEthSignedMessageHash().recover(_signature);
+    if (!spokeConnector.allowlistedProposers(signer)) {
+      revert RelayerProxy__validateProposeSignature_notProposer(signer);
+    }
   }
 }

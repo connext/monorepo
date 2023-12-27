@@ -1,0 +1,4 @@
+{
+  "logLevel": "debug",
+  "environment": "production"
+}

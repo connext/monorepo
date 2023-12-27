@@ -5,8 +5,8 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 280, 420, 59140, 80001, 421613],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -61,21 +61,46 @@ export const hardhatNetworks = {
     url: urlOverride || "http://localhost:8545",
     allowUnlimitedContractSize: true,
   },
-  local_1337: {
+  "local-mainnet": {
     accounts: { mnemonic },
-    chainId: 1337,
+    chainId: 31337,
     url: "http://localhost:8547",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
   },
-  local_1338: {
+  "local-optimism": {
     accounts: { mnemonic },
-    chainId: 1338,
-    url: "http://localhost:8546",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
+    chainId: 31338,
+    url: "http://localhost:8548",
     companionNetworks: {
-      hub: "local_1337",
+      hub: "local-mainnet",
+    },
+  },
+  "local-arbitrum": {
+    accounts: { mnemonic },
+    chainId: 31339,
+    url: "http://localhost:8549",
+    companionNetworks: {
+      hub: "local-mainnet",
+    },
+  },
+  "devnet-mainnet": {
+    accounts: { mnemonic },
+    chainId: 1,
+    url: process.env.MAINNET_DEVNET_RPC_URL || "http://localhost:8545",
+  },
+  "devnet-optimism": {
+    accounts: { mnemonic },
+    chainId: 10,
+    url: process.env.OPTIMISM_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
+    },
+  },
+  "devnet-gnosis": {
+    accounts: { mnemonic },
+    chainId: 100,
+    url: process.env.GNOSIS_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
     },
   },
   mainnet: {
@@ -117,6 +142,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "goerli",
     },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
     verify: {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
@@ -273,13 +299,63 @@ export const hardhatNetworks = {
       },
     },
   },
-  consensys: {
+  "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
-    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
-    url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
+    url: urlOverride || process.env.LINEA_GOERLI_PROVIDER_URL || "https://rpc.goerli.linea.build",
     companionNetworks: {
       hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api-testnet.lineascan.build",
+      },
+    },
+  },
+  linea: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 59144,
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
+    url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api.lineascan.build",
+      },
+    },
+  },
+  "base-goerli": {
+    accounts: { mnemonic },
+    chainId: 84531,
+    gasPrice: utils.parseUnits("0.2", "gwei").toNumber(),
+    url: urlOverride || process.env.BASE_GOERLI_PROVIDER_URL || "https://goerli.base.org",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api-goerli.basescan.org",
+      },
+    },
+  },
+  base: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 8453,
+    url: urlOverride || process.env.BASE_PROVIDER_URL || "https://mainnet.base.org",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api.basescan.org",
+      },
     },
   },
 };

@@ -57,6 +57,66 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "SpokeConnector_activateOptimisticMode__OptimisticModeOn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_constructor__DisputeBlocksLowerThanMin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_finalize__InvalidInputHash",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_finalize__ProposeInProgress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_finalize__ProposedHashIsFinalizedHash",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_onlyOptimisticMode__SlowModeOn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_onlyProposer__NotAllowlistedProposer",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_proposeAggregateRoot__ProposeInProgress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_receiveAggregateRoot__OptimisticModeOn",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_setDisputeBlocks__DisputeBlocksLowerThanMin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_setDisputeBlocks__SameDisputeBlocksAsBefore",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "SpokeConnector_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TypedMemView__index_indexMoreThan32Bytes",
     type: "error",
   },
@@ -100,6 +160,37 @@ const _abi = [
     inputs: [],
     name: "TypedMemView__unsafeCopyTo_nullPointer",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "rootTimestamp",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "endOfDispute",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "domain",
+        type: "uint32",
+      },
+    ],
+    name: "AggregateRootProposed",
+    type: "event",
   },
   {
     anonymous: false,
@@ -188,6 +279,25 @@ const _abi = [
       },
     ],
     name: "Dispatch",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+    ],
+    name: "DisputeBlocksUpdated",
     type: "event",
   },
   {
@@ -283,6 +393,25 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "previous",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "updated",
+        type: "uint256",
+      },
+    ],
+    name: "MinDisputeBlocksUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "previous",
         type: "address",
@@ -336,6 +465,12 @@ const _abi = [
   },
   {
     anonymous: false,
+    inputs: [],
+    name: "OptimisticModeActivated",
+    type: "event",
+  },
+  {
+    anonymous: false,
     inputs: [
       {
         indexed: true,
@@ -385,6 +520,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
+        name: "aggregateRoot",
+        type: "bytes32",
+      },
+    ],
+    name: "PendingAggregateRootDeleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
         name: "leaf",
         type: "bytes32",
       },
@@ -402,6 +550,45 @@ const _abi = [
       },
     ],
     name: "Process",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "aggregateRoot",
+        type: "bytes32",
+      },
+    ],
+    name: "ProposedRootFinalized",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proposer",
+        type: "address",
+      },
+    ],
+    name: "ProposerAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proposer",
+        type: "address",
+      },
+    ],
+    name: "ProposerRemoved",
     type: "event",
   },
   {
@@ -447,6 +634,19 @@ const _abi = [
       },
     ],
     name: "SenderRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "watcher",
+        type: "address",
+      },
+    ],
+    name: "SlowModeActivated",
     type: "event",
   },
   {
@@ -528,6 +728,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "FINALIZED_HASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "MERKLE",
     outputs: [
       {
@@ -599,6 +812,33 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "activateOptimisticMode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "activateSlowMode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_proposer",
+        type: "address",
+      },
+    ],
+    name: "addProposer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -609,6 +849,25 @@ const _abi = [
     name: "addSender",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "allowlistedProposers",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -687,6 +946,42 @@ const _abi = [
         type: "bytes",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "disputeBlocks",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_proposedAggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_rootTimestamp",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_endOfDispute",
+        type: "uint256",
+      },
+    ],
+    name: "finalize",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -776,12 +1071,38 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "minDisputeBlocks",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "mirrorConnector",
     outputs: [
       {
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "optimisticMode",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -868,6 +1189,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "_aggregateRoot",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_rootTimestamp",
+        type: "uint256",
+      },
+    ],
+    name: "proposeAggregateRoot",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "newlyProposed",
         type: "address",
@@ -886,6 +1225,19 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "proposedAggregateRootHash",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -1017,6 +1369,19 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "_proposer",
+        type: "address",
+      },
+    ],
+    name: "removeProposer",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_sender",
         type: "address",
       },
@@ -1087,6 +1452,32 @@ const _abi = [
       },
     ],
     name: "setDelayBlocks",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_disputeBlocks",
+        type: "uint256",
+      },
+    ],
+    name: "setDisputeBlocks",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_minDisputeBlocks",
+        type: "uint256",
+      },
+    ],
+    name: "setMinDisputeBlocks",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

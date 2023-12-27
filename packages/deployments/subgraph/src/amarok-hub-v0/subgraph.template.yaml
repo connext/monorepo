@@ -27,22 +27,26 @@ dataSources:
       eventHandlers:
         - event: RootReceived(uint32,bytes32,uint256)
           handler: handleRootReceived
-        - event: RootPropagated(bytes32,uint256,bytes32)
-          handler: handleRootPropagated
+        - event: AggregateRootPropagated(indexed bytes32,bytes32)
+          handler: handleAggregateRootPropagated
         - event: ConnectorAdded(uint32,address,uint32[],address[])
           handler: handleConnectorAdded
         - event: ConnectorRemoved(uint32,address,uint32[],address[],address)
           handler: handleConnectorRemoved
-        - event: AggregateRootProposed(uint256,uint256,bytes32,bytes32[],uint32[],bytes32)
+        - event: AggregateRootProposed(indexed uint256,uint256,indexed bytes32,indexed bytes32,bytes32[],uint32[])
           handler: handleAggregateRootProposed
-        - event: ProposedRootFinalized(bytes32)
-          handler: handleProposedRootFinalized
-        - event: OptimisticRootPropagated(bytes32,bytes32)
-          handler: handleOptimisticRootPropagated
-        - event: SlowModeActivated()
+        - event: SlowModeActivated(indexed address)
           handler: handleSlowModeActivated
         - event: OptimisticModeActivated()
           handler: handleOptimisticModeActivated
+        - event: AggregateRootSavedOptimistic(indexed bytes32,uint256)
+          handler: handleAggregateRootSavedOptimistic
+        - event: AggregateRootSavedSlow(indexed bytes32,uint256,bytes32[],uint256)
+          handler: handleAggregateRootSavedSlow
+        - event: HubDomainSet(uint32)
+          handler: handleHubDomainSet
+        - event: HubDomainCleared()
+          handler: handleHubDomainCleared
       file: ./src/amarok-hub-v0/mapping/rootManager.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract
@@ -175,33 +179,6 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleArbitrumNewConnector
       file: ./src/amarok-hub-v0/mapping/arbitrum.ts
-  # ZkSyncHubConnector.sol events
-  - kind: ethereum/contract
-    name: ZkSyncHubConnector
-    network: "{{network}}"
-    source:
-      address: "{{address}}"
-      abi: ZkSyncHubConnector
-      # prettier-ignore
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.6
-      language: wasm/assemblyscript
-      entities:
-        - Asset
-        - AssetBalance
-        - Router
-        - Transfer
-      abis:
-        - name: ZkSyncHubConnector
-          file: ./src/amarok-hub-v0/abis/ZkSyncHubConnector.json
-      eventHandlers:
-        - event: MessageProcessed(bytes,address)
-          handler: handleZkSyncMessageProcessed
-        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
-          handler: handleZkSyncNewConnector
-      file: ./src/amarok-hub-v0/mapping/zksync.ts
   # BnbHubConnector.sol events
   - kind: ethereum/contract
     name: BnbHubConnector
@@ -229,3 +206,30 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleBnbNewConnector
       file: ./src/amarok-hub-v0/mapping/bnb.ts
+  # LineaHubConnector.sol events
+  - kind: ethereum/contract
+    name: LineaHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: LineaHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: LineaHubConnector
+          file: ./src/amarok-hub-v0/abis/LineaHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleLineaMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleLineaNewConnector
+      file: ./src/amarok-hub-v0/mapping/linea.ts

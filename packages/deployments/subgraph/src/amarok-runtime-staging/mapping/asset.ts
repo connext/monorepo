@@ -13,6 +13,7 @@ export function handleAssetAdded(event: AssetAdded): void {
   }
   asset.key = event.params.key;
   asset.decimal = getTokenDecimals(event.params.localAsset);
+  asset.adoptedDecimal = getTokenDecimals(event.params.adoptedAsset);
   asset.canonicalId = event.params.canonicalId;
   asset.canonicalDomain = event.params.domain;
   asset.adoptedAsset = event.params.adoptedAsset;

@@ -40,6 +40,9 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai"]
       }
+      "1650553703" = {
+        providers = ["https://goerli.base.org"]
+      }
     }
 
     # The following are defined in variables.tf and don't map to the
@@ -67,9 +70,7 @@ locals {
       "1735356532" = { confirmations = 1 }
       "1735353714" = { confirmations = 10 }
       "9991"       = { confirmations = 200 }
-      "1734439522" = { confirmations = 1 }
-      # "2053862260" = { confirmations = 1 }
-      # "1668247156" = { confirmations = 1 }
+      "1650553703" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {

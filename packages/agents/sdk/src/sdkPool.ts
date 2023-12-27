@@ -246,7 +246,6 @@ export class SdkPool extends SdkShared {
       this.getCanonicalTokenId(originDomain, _originTokenAddress),
     ]);
     const isNextAsset = originPool ? utils.getAddress(originPool.local.address) === _originTokenAddress : undefined;
-
     const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
     const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
     if (!destinationAssetData) {

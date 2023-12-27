@@ -67,6 +67,11 @@
   },
   {
     "inputs": [],
+    "name": "RootManager__renounceOwnership_prohibited",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "RootManager_activateOptimisticMode__OptimisticModeOn",
     "type": "error"
   },
@@ -118,7 +123,7 @@
   },
   {
     "inputs": [],
-    "name": "RootManager_optimisticPropagate__ForbiddenOptimisticRoot",
+    "name": "RootManager_propagate__AggregateRootIsZero",
     "type": "error"
   },
   {
@@ -139,6 +144,11 @@
   },
   {
     "inputs": [],
+    "name": "RootManager_sendRootToHub__NoMessageSent",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "RootManager_setDisputeBlocks__DisputeBlocksLowerThanMin",
     "type": "error"
   },
@@ -149,13 +159,32 @@
   },
   {
     "inputs": [],
-    "name": "RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore",
+    "name": "RootManager_setHubDomain__InvalidDomain",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "RootManager_slowPropagate__OldAggregateRoot",
+    "name": "RootManager_setMinDisputeBlocks__SameMinDisputeBlocksAsBefore",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "aggregateRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "domainsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "AggregateRootPropagated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -198,6 +227,56 @@
       }
     ],
     "name": "AggregateRootProposed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "aggregateRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rootTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AggregateRootSavedOptimistic",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "aggregateRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "leafCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32[]",
+        "name": "aggregatedRoots",
+        "type": "bytes32[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rootTimestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AggregateRootSavedSlow",
     "type": "event"
   },
   {
@@ -340,6 +419,25 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "HubDomainCleared",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "domain",
+        "type": "uint32"
+      }
+    ],
+    "name": "HubDomainSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -361,25 +459,6 @@
     "anonymous": false,
     "inputs": [],
     "name": "OptimisticModeActivated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "aggregateRoot",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "domainsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "OptimisticRootPropagated",
     "type": "event"
   },
   {
@@ -450,19 +529,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "aggregateRoot",
-        "type": "bytes32"
-      }
-    ],
-    "name": "ProposedRootFinalized",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "proposer",
@@ -503,31 +569,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "aggregateRoot",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "count",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "domainsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "RootPropagated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint32",
         "name": "domain",
         "type": "uint32"
@@ -546,31 +587,6 @@
       }
     ],
     "name": "RootReceived",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "aggregateRoot",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "count",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32[]",
-        "name": "aggregatedMessageRoots",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "RootsAggregated",
     "type": "event"
   },
   {
@@ -751,6 +767,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "clearHubDomain",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -939,19 +962,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "finalizedOptimisticAggregateRoot",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint32",
@@ -1016,6 +1026,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "hubDomain",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint32",
@@ -1035,13 +1058,19 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "lastCountBeforeOpMode",
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "",
+        "type": "uint32"
+      }
+    ],
+    "name": "lastPropagatedRoot",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint256"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -1049,12 +1078,12 @@
   },
   {
     "inputs": [],
-    "name": "lastPropagatedRoot",
+    "name": "lastSavedAggregateRootTimestamp",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "internalType": "uint256",
         "name": "",
-        "type": "bytes32"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1287,6 +1316,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "sendRootToHubSpoke",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -1308,6 +1344,19 @@
       }
     ],
     "name": "setDisputeBlocks",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_domain",
+        "type": "uint32"
+      }
+    ],
+    "name": "setHubDomain",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1343,6 +1392,25 @@
     "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "validAggregateRoots",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

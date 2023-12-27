@@ -16,7 +16,7 @@ contract AdminHubConnectorTest is ForgeHelper {
   event MessageProcessed(bytes data, address caller);
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
   event AggregateRootSavedSlow(
-    bytes32 aggregateRoot,
+    bytes32 indexed aggregateRoot,
     uint256 leafCount,
     bytes32[] aggregatedRoots,
     uint256 rootTimestamp
@@ -61,7 +61,7 @@ contract AdminHubConnectorTest is ForgeHelper {
 
     // deploy admin connector
     vm.prank(owner);
-    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(rootManager));
+    adminHubConnector = new AdminHubConnector(ETH_DOMAIN, BNB_DOMAIN, address(0), address(rootManager), address(0));
 
     // deploy mock hub connectors (mirrors and ambs set to empty for both)
     vm.prank(owner);
@@ -147,8 +147,10 @@ contract AdminHubConnectorTest is ForgeHelper {
     (uint256[] memory fees, bytes[] memory encodedData) = utils_getFeesAndEncodedData();
 
     // activate slow mode to be able to call aggregate on RootManager
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
+    if (rootManager.optimisticMode()) {
+      vm.prank(watcher);
+      rootManager.activateSlowMode();
+    }
 
     // use admin connector to insert on spoke root (and assert events)
     vm.expectEmit(true, true, true, true, address(rootManager));

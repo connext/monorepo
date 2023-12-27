@@ -123,11 +123,7 @@ variable "optgoerli_alchemy_key_1" {
   type = string
 }
 
-variable "arbgoerli_alchemy_key_0" {
-  type = string
-}
-
-variable "arbgoerli_alchemy_key_1" {
+variable "basegoerli_alchemy_key_0" {
   type = string
 }
 
@@ -176,6 +172,10 @@ variable "lighthouse_propagate_heartbeat" {
   type = string
 }
 
+variable "lighthouse_propose_heartbeat" {
+  type = string
+}
+
 variable "lighthouse_send_outbound_root_heartbeat" {
   type = string
 }
@@ -194,6 +194,10 @@ variable "admin_token_relayer" {
   default = "blahblah"
 }
 
-variable "linea_node" {
+variable "drpc_key" {
+  type = string
+}
+
+variable "lighthouse_web3_signer_private_key" {
   type = string
 }
