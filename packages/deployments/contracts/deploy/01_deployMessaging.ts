@@ -81,8 +81,8 @@ const formatConnectorArgs = (
       delayBlocks: config.delayBlocks,
       merkle: merkleManager,
       watcherManager,
-      minDisputeBlocks: config.minDisputeBlocks,
-      disputeBlocks: config.disputeBlocks,
+      minDisputeBlocks: protocol.hub.minDisputeBlocks,
+      disputeBlocks: protocol.hub.disputeBlocks,
     },
   ];
 
