@@ -6,12 +6,11 @@ import {Connector} from "../../../../../contracts/messaging/connectors/Connector
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
 import {ISignalService} from "../../../../../contracts/messaging/interfaces/ambs/taiko/ISignalService.sol";
 
+/**
+ * @dev For test contract to access internal functions of `BaseTaiko`
+ */
 contract BaseTaikoForTest is BaseTaiko {
   constructor(address _taikoSignalService) BaseTaiko(_taikoSignalService) {}
-
-  function forTest_checkMessageLength(bytes memory _data) external pure returns (bool _isValid) {
-    _isValid = _checkMessageLength(_data);
-  }
 
   function forTest_sendSignal(bytes32 _signal) external {
     _sendSignal(_signal);
@@ -26,42 +25,38 @@ contract BaseTaikoForTest is BaseTaiko {
   }
 }
 
+/**
+ * @dev Base contract for the `BaseTaiko` unit tests contracts to inherit from
+ */
 contract Base is ConnectorHelper {
-  uint256 public constant ROOT_LENGTH = 32;
-
   address public user = makeAddr("user");
   address public offChainAgent = makeAddr("offChainAgent");
   address public signalService = makeAddr("SignalService");
   BaseTaikoForTest public baseTaiko;
 
+  /**
+   * @notice Deploys a new `BaseTaikoForTest` contract instance
+   */
   function setUp() public {
     baseTaiko = new BaseTaikoForTest(signalService);
   }
 }
 
 contract Unit_Connector_BaseTaiko_Constructor is Base {
-  function test_constants() public {
-    assertEq(baseTaiko.ROOT_LENGTH(), ROOT_LENGTH);
-  }
-
+  /**
+   * @notice Tests the values of the constructor arguments
+   */
   function test_checkConstructorArgs() public {
     assertEq(address(baseTaiko.TAIKO_SIGNAL_SERVICE()), signalService);
   }
 }
 
-contract Unit_Connector_BaseTaiko_CheckMessageLength is Base {
-  function test_returnFalseOnInvalidLength(bytes memory _data) public {
-    vm.assume(_data.length != ROOT_LENGTH);
-    assertEq(baseTaiko.forTest_checkMessageLength(_data), false);
-  }
-
-  function test_checkMessageLength() public {
-    bytes memory _data = new bytes(ROOT_LENGTH);
-    assertEq(baseTaiko.forTest_checkMessageLength(_data), true);
-  }
-}
-
 contract Unit_Connector_BaseTaiko_sendMessage is Base {
+  /**
+   * @notice Tests that `sendSignal` function is called correctly
+   * @param _signal The signal (or message) to send
+   * @param _storageSlotResponse The storage slot response of the `sendSignal` call
+   */
   function test_callSendSignal(bytes32 _signal, bytes32 _storageSlotResponse) public {
     // Mock the call over `sendSignal` and expect it to be called
     _mockAndExpect(
@@ -76,6 +71,15 @@ contract Unit_Connector_BaseTaiko_sendMessage is Base {
 }
 
 contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
+  /**
+   * @notice Mocks the call over `verifyAndGetSignal` and expect it to be called
+   * @dev It also starts the prank on the offChainAgent
+   * @param _sourceChainId The source chain id
+   * @param _mirrorConnector The mirror connector address
+   * @param _signal The signal (or message) to send
+   * @param _proof The proof of the signal sent
+   * @param _received Whether the signal was received or not
+   */
   modifier happyPath(
     uint256 _sourceChainId,
     address _mirrorConnector,
@@ -98,6 +102,14 @@ contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
     _;
   }
 
+  /**
+   * @notice Tests that `isSignalReceived` function is called correctly
+   * @param _sourceChainId The source chain id
+   * @param _mirrorConnector The mirror connector address
+   * @param _signal The signal (or message) to send
+   * @param _proof The proof of the signal sent
+   * @dev It uses the `happyPath` modifier setting `_received` to true
+   */
   function test_callIsSignalReceived(
     uint256 _sourceChainId,
     address _mirrorConnector,
@@ -109,6 +121,14 @@ contract Unit_Connector_BaseTaiko_VerifyAndGetSignal is Base {
     baseTaiko.forTest_verifyAndGetSignal(_sourceChainId, _mirrorConnector, _data);
   }
 
+  /**
+   * @notice Tests the returned values of `verifyAndGetSignal` function based on `_received` value
+   * @param _sourceChainId The source chain id
+   * @param _mirrorConnector The mirror connector address
+   * @param _signal The signal (or message) to send
+   * @param _proof The proof of the signal sent
+   * @param _isReceived Whether the signal was received or not
+   */
   function test_returnVars(
     uint256 _sourceChainId,
     address _mirrorConnector,

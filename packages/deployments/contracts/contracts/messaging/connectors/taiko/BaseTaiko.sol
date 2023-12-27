@@ -9,11 +9,6 @@ import {ISignalService} from "../../interfaces/ambs/taiko/ISignalService.sol";
  */
 abstract contract BaseTaiko {
   /**
-   * @notice The root length in bytes for a message
-   */
-  uint256 public constant ROOT_LENGTH = 32;
-
-  /**
    * @notice Taiko Signal Service address
    */
   ISignalService public immutable TAIKO_SIGNAL_SERVICE;
@@ -23,15 +18,6 @@ abstract contract BaseTaiko {
    */
   constructor(address _taikoSignalService) {
     TAIKO_SIGNAL_SERVICE = ISignalService(_taikoSignalService);
-  }
-
-  /**
-   * @notice Checks that the message length is 32 bytes
-   * @param _data Message data
-   * @return _validLength True if the message length is 32 bytes, false otherwise
-   */
-  function _checkMessageLength(bytes memory _data) internal pure returns (bool _validLength) {
-    _validLength = _data.length == ROOT_LENGTH;
   }
 
   /**

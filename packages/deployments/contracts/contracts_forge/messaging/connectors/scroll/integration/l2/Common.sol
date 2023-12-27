@@ -14,20 +14,25 @@ import {IL2ScrollMessenger} from "../../../../../../contracts/messaging/interfac
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 815_854;
 
+  // Scroll L2 Messenger address on Ethereum
   IL2ScrollMessenger public constant L2_SCROLL_MESSENGER =
-    IL2ScrollMessenger(0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC); // Scroll Messenger L2 Proxy address
+    IL2ScrollMessenger(0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC);
+  // L2 scroll relayer address on Ethereum
   address public constant SCROLL_RELAYER = 0x7885BcBd5CeCEf1336b5300fb5186A12DDD8c478;
-  uint32 public constant DOMAIN = 100; // Scroll
-  uint32 public constant MIRROR_DOMAIN = 1; // Etherem
-  uint256 public constant DELAY_BLOCKS = 0;
+  // L2 domain id for Connext
+  uint32 public constant DOMAIN = 100;
+  // Mirror domain id which is Ethereum
+  uint32 public constant MIRROR_DOMAIN = 1;
 
+  // EOAs and external addresses
   address public owner = makeAddr("owner");
   address public user = makeAddr("user");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
+  address public mirrorConnector = makeAddr("mirrorConnector");
 
+  // Contracts
   ScrollSpokeConnector public scrollSpokeConnector;
   RootManager public rootManager;
-  address public mirrorConnector = makeAddr("mirrorConnector");
   MerkleTreeManager public merkleTreeManager;
   WatcherManager public watcherManager;
 

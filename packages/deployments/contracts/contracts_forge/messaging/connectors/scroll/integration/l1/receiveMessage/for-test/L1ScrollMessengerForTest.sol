@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {IL1ScrollMessenger} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
+import {IL1ScrollMessenger} from "../../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 
 /**
  * @dev This contract is used for testing purpose only. It is used to simulate the `relayMessageWithProof` of the real L1ScrollMessenger contract,
@@ -18,9 +18,9 @@ contract L1ScrollMessengerForTest {
   /// @param messageHash The hash of the message.
   event FailedRelayedMessage(bytes32 indexed messageHash);
 
-  address internal constant DEFAULT_XDOMAIN_MESSAGE_SENDER = address(1);
-
   IL1ScrollMessenger public immutable L1_SCROLL_MESSENGER;
+
+  address internal constant DEFAULT_XDOMAIN_MESSAGE_SENDER = address(1);
   address public xDomainMessageSender;
 
   mapping(bytes32 => bool) public isL2MessageExecuted;

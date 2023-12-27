@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseScroll} from "./BaseScroll.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {HubConnector} from "../HubConnector.sol";
 import {IL1ScrollMessenger} from "../../interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
@@ -52,7 +53,7 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert ScrollHubConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert ScrollHubConnector_DataLengthIsNot32();
     _;
   }
 

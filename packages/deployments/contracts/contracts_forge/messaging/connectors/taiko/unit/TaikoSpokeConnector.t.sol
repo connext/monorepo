@@ -8,6 +8,9 @@ import {TaikoSpokeConnector} from "../../../../../contracts/messaging/connectors
 import {ISignalService} from "../../../../../contracts/messaging/interfaces/ambs/taiko/ISignalService.sol";
 import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
 
+/**
+ * @dev For test contract to access internal functions of `TaikoSpokeConnector`
+ */
 contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _constructorParams,
@@ -29,8 +32,7 @@ contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
 }
 
 contract Base is ConnectorHelper {
-  uint256 public constant ROOT_LENGTH = 32;
-  uint256 public constant DELAY_BLOCKS = 0;
+  // The Ethereum chain id
   uint256 public constant HUB_CHAIN_ID = 1;
 
   address public user = makeAddr("user");
@@ -43,6 +45,9 @@ contract Base is ConnectorHelper {
 
   TaikoSpokeConnectorForTest public taikoSpokeConnector;
 
+  /**
+   * @notice Deploys a new `TaikoSpokeConnectorForTest` contract instance
+   */
   function setUp() public {
     vm.prank(owner);
     SpokeConnector.ConstructorParams memory _params = SpokeConnector.ConstructorParams({
@@ -64,6 +69,9 @@ contract Base is ConnectorHelper {
 }
 
 contract Unit_Connector_TaikoSpokeConnector_Constructor is Base {
+  /**
+   * @notice Tests the values of constructor arguments
+   */
   function test_checkConstructorArgs() public {
     assertEq(taikoSpokeConnector.DOMAIN(), _l1Domain);
     assertEq(taikoSpokeConnector.MIRROR_DOMAIN(), _l2Domain);
@@ -83,6 +91,9 @@ contract Unit_Connector_TaikoSpokeConnector_Constructor is Base {
 }
 
 contract Unit_Connector_TaikoSpokeConnector_RenounceOwnership is Base {
+  /**
+   * @notice Tests that reverts when `renounceOwnership` is called
+   */
   function test_revertIfCalled() public {
     vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_NotImplementedMethod.selector);
     vm.prank(owner);
@@ -91,6 +102,11 @@ contract Unit_Connector_TaikoSpokeConnector_RenounceOwnership is Base {
 }
 
 contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
+  /**
+   * @notice Tests that reverts when called with invalid length data
+   * @param _data Message data
+   * @param _encodedData Encoded data
+   */
   function test_revertIfDataIsNot32Length(bytes memory _data, bytes memory _encodedData) public {
     vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(user);
@@ -98,6 +114,12 @@ contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
     taikoSpokeConnector.forTest_sendMessage(_data, _encodedData);
   }
 
+  /**
+   * @notice Tests that `sendSignal` function is called correctly
+   * @param _signal The signal (or message) to send
+   * @param _encodedData The encoded data
+   * @param _storageSlotResponse The storage slot response of the `sendSignal` call
+   */
   function test_callSendSignal(bytes32 _signal, bytes memory _encodedData, bytes32 _storageSlotResponse) public {
     // Mock the call over `sendSignal` and expect it to be called
     _mockAndExpect(
@@ -115,13 +137,13 @@ contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
 contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
   event AggregateRootReceived(bytes32 indexed _aggregateRoot);
 
-  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
-    vm.assume(_sender != address(_amb));
-    vm.prank(_sender);
-    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderNotAllowedAgent.selector);
-    taikoSpokeConnector.forTest_processMessage(_data);
-  }
-
+  /**
+   * @notice Mocks the call over `verifyAndGetSignal` and expect it to be called
+   * @dev It also starts the prank on the offChainAgent
+   * @param _signal The signal (or message) to send
+   * @param _proof The proof of the signal sent
+   * @param _received Whether the signal was received or not
+   */
   modifier happyPath(
     bytes32 _signal,
     bytes memory _proof,
@@ -143,13 +165,23 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
     _;
   }
 
-  function test_callIsSignalReceived(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
-    // Call `processMessage` function
-    bytes memory _data = abi.encode(_signal, _proof);
-    vm.prank(offChainAgent);
+  /**
+   * @notice Tests that reverts when the caller is not the allowed `offChainAgent`
+   * @param _data Message data
+   */
+  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
+    vm.assume(_sender != offChainAgent);
+    vm.prank(_sender);
+    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderNotAllowedAgent.selector);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
+  /**
+   * @notice Tests that reverts if the signal is not received
+   * @param _signal The signal (or message) sent
+   * @param _proof The proof of the signal sent
+   * @dev It uses the `happyPath` modifier setting `_received` to false
+   */
   function test_revertIfSignalNotReceived(
     bytes32 _signal,
     bytes memory _proof
@@ -163,6 +195,25 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
+  /**
+   * @notice Tests that `isSignalReceived` function is called correctly
+   * @param _signal The signal (or message) sent
+   * @param _proof The proof of the signal sent
+   * @dev It uses the `happyPath` modifier setting `_received` to true
+   */
+  function test_callIsSignalReceived(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
+    // Call `processMessage` function
+    bytes memory _data = abi.encode(_signal, _proof);
+    vm.prank(offChainAgent);
+    taikoSpokeConnector.forTest_processMessage(_data);
+  }
+
+  /**
+   * @notice Tests that `aggregate` function is called correctly and `AggregateRootReceived` is emitted
+   * @param _signal The signal (or message) sent
+   * @param _proof The proof of the signal sent
+   * @dev It uses the `happyPath` modifier setting `_received` to true
+   */
   function test_callAggregate(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
     // Expect AggregateRootReceived to be emitted
     vm.expectEmit(true, true, true, true);
@@ -176,11 +227,17 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
 }
 
 contract Unit_Connector_TaikoSpokeConnector_VerifySender is Base {
+  /**
+   * @notice Tests that returns true if the sender is the expected one
+   */
   function test_returnTrue() public {
-    vm.prank(_amb);
-    assertEq(taikoSpokeConnector.forTest_verifySender(_amb), true);
+    vm.prank(offChainAgent);
+    assertEq(taikoSpokeConnector.forTest_verifySender(offChainAgent), true);
   }
 
+  /**
+   * @notice Tests that returns false if the sender is not the expected one
+   */
   function test_returnFalse() public {
     vm.prank(stranger);
     assertEq(taikoSpokeConnector.forTest_verifySender(_amb), false);

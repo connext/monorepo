@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 
 import {BaseScroll} from "./BaseScroll.sol";
 import {Connector} from "../Connector.sol";
+import {ConnectorsLib} from "../ConnectorsLib.sol";
 import {SpokeConnector} from "../SpokeConnector.sol";
 import {ProposedOwnable} from "../../../../contracts/shared/ProposedOwnable.sol";
 import {WatcherClient} from "../../WatcherClient.sol";
@@ -49,7 +50,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
    * @param _data Message data
    */
   modifier checkMessageLength(bytes memory _data) {
-    if (!_checkMessageLength(_data)) revert ScrollSpokeConnector_DataLengthIsNot32();
+    if (!ConnectorsLib.checkMessageLength(_data)) revert ScrollSpokeConnector_DataLengthIsNot32();
     _;
   }
 
@@ -57,7 +58,7 @@ contract ScrollSpokeConnector is SpokeConnector, BaseScroll {
    * @notice Renounces ownership
    * @dev Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(ProposedOwnable, SpokeConnector) {
+  function renounceOwnership() public pure override(ProposedOwnable, SpokeConnector) {
     revert ScrollSpokeConnector_NotImplementedMethod();
   }
 
