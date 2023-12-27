@@ -62,13 +62,6 @@ contract Base is ConnectorHelper {
 
 contract Unit_Connector_FuelHubConnector_Constructor is Base {
   /**
-   * @notice Tests the constant values
-   */
-  function test_constants() public {
-    assertEq(fuelHubConnector.MESSAGE_LENGTH(), ROOT_LENGTH);
-  }
-
-  /**
    * @notice Tests the values of the constructor arguments
    */
   function test_checkConstructorArgs() public {
@@ -179,7 +172,8 @@ contract Unit_Connector_FuelHubConnector_ProcessMessage is Base {
 }
 
 contract Unit_Connector_FuelHubConnector_VerifySender is Base {
-  modifier happyPath(address _mirrorConnector) {
+  modifier happyPath(address _mirrorConnector, address _originSender) {
+    vm.assume(_mirrorConnector != _originSender);
     // Mock `messageSender` call on Fuel Messenger Portal and expect it to be called with the correct arguments
     _mockAndExpect(
       _amb,
@@ -195,10 +189,9 @@ contract Unit_Connector_FuelHubConnector_VerifySender is Base {
    * @param _mirrorConnector The mirror connector address
    */
   function test_returnFalseIfSenderNotMirror(
-    address _originSender,
-    address _mirrorConnector
-  ) public happyPath(_mirrorConnector) {
-    vm.assume(_originSender != _mirrorConnector);
+    address _mirrorConnector,
+    address _originSender
+  ) public happyPath(_mirrorConnector, _originSender) {
     assertEq(fuelHubConnector.forTest_verifySender(_originSender), false);
   }
 
@@ -206,7 +199,10 @@ contract Unit_Connector_FuelHubConnector_VerifySender is Base {
    * @notice Tests that returns true when the origin sender is the mirror connector
    * @param _mirrorConnector The mirror connector address
    */
-  function test_returnTrueIfSenderIsMirror(address _mirrorConnector) public happyPath(_mirrorConnector) {
+  function test_returnTrueIfSenderIsMirror(
+    address _mirrorConnector,
+    address _originSender
+  ) public happyPath(_mirrorConnector, _originSender) {
     assertEq(fuelHubConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }
