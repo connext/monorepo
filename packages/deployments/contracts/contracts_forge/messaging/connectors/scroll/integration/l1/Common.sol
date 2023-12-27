@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
-import {Connector} from "../../../../../../../contracts/messaging/connectors/Connector.sol";
-import {ConnectorHelper} from "../../../../../../utils/ConnectorHelper.sol";
-import {MerkleTreeManager} from "../../../../../../../contracts/messaging/MerkleTreeManager.sol";
-import {RootManager} from "../../../../../../../contracts/messaging/RootManager.sol";
-import {ScrollHubConnector} from "../../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
-import {WatcherManager} from "../../../../../../../contracts/messaging/WatcherManager.sol";
-import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";
+import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
+import {ConnectorHelper} from "../../../../../utils/ConnectorHelper.sol";
+import {MerkleTreeManager} from "../../../../../../contracts/messaging/MerkleTreeManager.sol";
+import {RootManager} from "../../../../../../contracts/messaging/RootManager.sol";
+import {ScrollHubConnector} from "../../../../../../contracts/messaging/connectors/scroll/ScrollHubConnector.sol";
+import {WatcherManager} from "../../../../../../contracts/messaging/WatcherManager.sol";
+import {IL1ScrollMessenger} from "../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
+import {IL2OracleGasPrice} from "../../../../../../contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol";
 
 /**
  * @dev 2 different common contracts are needed for receive and send messages flows on the
@@ -17,23 +18,25 @@ import {IL2OracleGasPrice} from "../../../../../../../contracts/messaging/interf
  * but we need to relay the message in order to get it received.
  */
 contract Common is ConnectorHelper {
-  uint256 internal constant _FORK_BLOCK = 18_586_480;
+  uint256 internal constant _FORK_BLOCK = 4_932_652;
 
   // Scroll L1 Messenger address on Ethereum
-  address public constant L1_SCROLL_MESSENGER = 0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367;
+  IL1ScrollMessenger public constant L1_SCROLL_MESSENGER =
+    IL1ScrollMessenger(0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A);
   // L2 Oracle Gas Price contract address on Ethereum
   IL2OracleGasPrice internal constant L2_ORACLE_GAS_PRICE =
-    IL2OracleGasPrice(0x987e300fDfb06093859358522a79098848C33852);
+    IL2OracleGasPrice(0x247969F4fad93a33d4826046bc3eAE0D36BdE548);
   // Ethereum domain id for Connext
   uint32 public constant DOMAIN = 1;
   // Scroll domain id for Connext
   uint32 public constant MIRROR_DOMAIN = 100;
+  // The mirror connector is set to the sender address on the message sent from the L2 Scroll Spoke Connector
+  address public MIRROR_CONNECTOR = 0x0006e19078A46C296eb6b44d37f05ce926403A82;
 
   // EOAs and external addresses
   address public owner = makeAddr("owner");
   address public relayer = makeAddr("relayer");
   address public whitelistedWatcher = makeAddr("whitelistedWatcher");
-  address public mirrorConnector = makeAddr("mirrorConnector");
 
   // Contracts
   ScrollHubConnector public scrollHubConnector;
@@ -42,7 +45,7 @@ contract Common is ConnectorHelper {
   WatcherManager public watcherManager;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl(vm.envString("MAINNET_RPC")), _FORK_BLOCK);
+    vm.createSelectFork(vm.rpcUrl(vm.envString("SEPOLIA_RPC")), _FORK_BLOCK);
 
     vm.startPrank(owner);
     // Deploy merkle tree manager (needed in root manager)
@@ -77,19 +80,34 @@ contract Common is ConnectorHelper {
     // Check if the gas cap is enough, if not, set it to double the gas needed (to be sure in case it gets updated in the future)
     _gasCap = _gasNeeded * 2;
 
-    // Deploy scroll hub connector
+    // Deploy the scroll hub connector and get its bytecode to be deployed on the recipient address
+    // `deployCodeTo` function of foundry doesn't work if the contract uses a library. So I had to use `vm.etch` instead.
     scrollHubConnector = new ScrollHubConnector(
       DOMAIN,
       MIRROR_DOMAIN,
-      L1_SCROLL_MESSENGER,
+      address(L1_SCROLL_MESSENGER),
       address(rootManager),
-      mirrorConnector,
+      MIRROR_CONNECTOR,
       _gasCap
     );
+    bytes memory _bytecode = address(scrollHubConnector).code;
+
+    // Set the bytecode on the recipient address
+    vm.etch(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073, _bytecode);
+
+    scrollHubConnector = ScrollHubConnector(payable(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073));
 
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(scrollHubConnector));
     vm.stopPrank();
+
+    // Update the mirror connector to the one we set on the scroll hub connector (`vm.etch` fails and sets it as the 0 address)
+    vm.prank(scrollHubConnector.owner());
+    scrollHubConnector.setMirrorConnector(MIRROR_CONNECTOR);
+
+    // Update the gas cap to the one we set on the scroll hub connector (`vm.etch` fails and sets it as 0)
+    vm.prank(scrollHubConnector.owner());
+    scrollHubConnector.setGasCap(_gasCap);
 
     // Set root manager as slow mode so the L1_SCROLL_MESSENGER messages can be received
     vm.prank(whitelistedWatcher);

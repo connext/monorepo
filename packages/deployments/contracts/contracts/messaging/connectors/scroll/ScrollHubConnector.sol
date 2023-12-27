@@ -4,10 +4,11 @@ pragma solidity 0.8.17;
 import {BaseScroll} from "./BaseScroll.sol";
 import {Connector} from "../Connector.sol";
 import {ConnectorsLib} from "../ConnectorsLib.sol";
-
 import {HubConnector} from "../HubConnector.sol";
 import {IL1ScrollMessenger} from "../../interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 import {IRootManager} from "../../interfaces/IRootManager.sol";
+
+import "forge-std/Test.sol";
 
 /**
  * @title ScrollHubConnector
@@ -94,6 +95,9 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
    * @return _isValid True if the origin sender is the mirror connector, otherwise false
    */
   function _verifySender(address _mirrorSender) internal view override returns (bool _isValid) {
+    console.log("L1_SCROLL_MESSENGER.xDomainMessageSender()", L1_SCROLL_MESSENGER.xDomainMessageSender());
+
+    console.log("_mirrorSender", _mirrorSender);
     _isValid = L1_SCROLL_MESSENGER.xDomainMessageSender() == _mirrorSender;
   }
 }
