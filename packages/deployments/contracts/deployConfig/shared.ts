@@ -319,8 +319,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         networkName: "Sepolia",
         ambs: {
           // Ethreum L1ScrollMessenger
-          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
-          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // https://sepolia.etherscan.io/address/0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A
+          hub: "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A",
           // L2ScrollMessenger
           // https://sepolia.scrollscan.com/address/0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d
           spoke: "0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d",
