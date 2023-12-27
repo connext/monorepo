@@ -89,9 +89,5 @@ contract Common is ConnectorHelper {
     // Update the mirror connector to the one we set on the fuel hub connector (`vm.etch` fails and sets it as the 0 address)
     vm.prank(fuelHubConnector.owner());
     fuelHubConnector.setMirrorConnector(mirrorConnector);
-
-    // Set root manager as slow mode so the FUEL_MESSAGE_PORTAL messages can be received
-    vm.prank(whitelistedWatcher);
-    rootManager.activateSlowMode();
   }
 }

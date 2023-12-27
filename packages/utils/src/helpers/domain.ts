@@ -12,6 +12,8 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [42170, 0x6172626e], // Arbitrum Nova ('arbn interpreted as int) 1634886262
   [324, 0x7a6b7363], // zkSync2 Mainnet ('zksc interpreted as int) 2053862243
   [1101, 0x707a6b6d], // Polygon zkEvm Mainnet (pzkm interpreted as int) 1887071085
+  [59144, 0x6c696e6d], // Consensys Linea Mainnet ('linm' interpreted as int) 1818848877
+  [8453, 0x6261736d], // Base Mainnet ('basm' interpreted as int) 1650553709
   [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
   [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1634886247
   [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 2053862243
@@ -32,13 +34,17 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [10200, 0x63686961], // gnosis-chiado (chiado interpreted as int) 1667787105
   [97, 0x63686170], // chapel (chapel interpreted as int) 1667785072
   [280, 0x7a6b7374], // zkSync2 Testnet (zkst interpreted as int) 2053862260
-  [59140, 0x636f6e74], // Consensys zkEvm test (cont interpreted as int) 1668247156
+  [59140, 0x636f6e74], // Consensys Linea goerli (cont interpreted as int) 1668247156
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
+  [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
   // local
   [1337, 133712],
   [1338, 133812],
   [13337, 13337],
   [13338, 13338],
+  [31337, 31337],
+  [31338, 31338],
+  [31339, 31339],
 ]);
 
 /**

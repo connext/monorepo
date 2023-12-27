@@ -41,6 +41,16 @@ CREATE TYPE public.action_type AS ENUM (
 
 
 --
+-- Name: event_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.event_type AS ENUM (
+    'Add',
+    'Remove'
+);
+
+
+--
 -- Name: snapshot_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -48,6 +58,17 @@ CREATE TYPE public.snapshot_status AS ENUM (
     'Proposed',
     'Finalized',
     'Propagated'
+);
+
+
+--
+-- Name: spoke_root_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.spoke_root_status AS ENUM (
+    'Submitted',
+    'Proposed',
+    'Finalized'
 );
 
 
@@ -155,7 +176,8 @@ CREATE TABLE public.assets (
     domain character varying(255) NOT NULL,
     key character(66),
     id character(42),
-    "decimal" numeric DEFAULT 0
+    "decimal" numeric DEFAULT 0,
+    adopted_decimal numeric DEFAULT 0
 );
 
 
@@ -714,6 +736,7 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.supplied,
     asset_balances.removed,
     assets."decimal",
+    assets.adopted_decimal,
     COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price,
     (asset_prices.price * (asset_balances.balance / ((10)::numeric ^ assets."decimal"))) AS balance_usd,
     (asset_prices.price * (asset_balances.fees_earned / ((10)::numeric ^ assets."decimal"))) AS fee_earned_usd,
@@ -747,6 +770,25 @@ CREATE VIEW public.router_liquidity AS
    FROM public.routers_with_balances r
   GROUP BY r.domain, r.local, r.adopted
   ORDER BY r.domain;
+
+
+--
+-- Name: router_liquidity_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.router_liquidity_events (
+    id character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL,
+    router character(42) NOT NULL,
+    event public.event_type DEFAULT 'Add'::public.event_type NOT NULL,
+    asset character(42) NOT NULL,
+    amount numeric DEFAULT 0,
+    balance numeric DEFAULT 0,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -787,7 +829,8 @@ CREATE TABLE public.snapshot_roots (
     spoke_domain integer NOT NULL,
     root character(66) NOT NULL,
     count integer NOT NULL,
-    processed boolean DEFAULT false NOT NULL
+    processed boolean DEFAULT false NOT NULL,
+    "timestamp" integer NOT NULL
 );
 
 
@@ -806,6 +849,26 @@ CREATE TABLE public.snapshots (
     status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
     propagate_timestamp integer,
     propagate_task_id character(66),
+    relayer_type text,
+    proposed_timestamp integer,
+    finalized_timestamp integer
+);
+
+
+--
+-- Name: spoke_optimistic_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.spoke_optimistic_roots (
+    id character varying(255) NOT NULL,
+    root character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    end_of_dispute integer NOT NULL,
+    root_timestamp integer NOT NULL,
+    status public.spoke_root_status DEFAULT 'Proposed'::public.spoke_root_status NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    propose_timestamp integer,
+    propose_task_id character varying(255),
     relayer_type text
 );
 
@@ -1159,6 +1222,14 @@ ALTER TABLE ONLY public.root_messages
 
 
 --
+-- Name: router_liquidity_events router_liquidity_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.router_liquidity_events
+    ADD CONSTRAINT router_liquidity_events_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1179,7 +1250,7 @@ ALTER TABLE ONLY public.schema_migrations
 --
 
 ALTER TABLE ONLY public.snapshot_roots
-    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (id, spoke_domain);
+    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (spoke_domain, root);
 
 
 --
@@ -1188,6 +1259,30 @@ ALTER TABLE ONLY public.snapshot_roots
 
 ALTER TABLE ONLY public.snapshots
     ADD CONSTRAINT snapshots_id_key UNIQUE (id);
+
+
+--
+-- Name: snapshots snapshots_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_id_key UNIQUE (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_pkey PRIMARY KEY (id);
 
 
 --
@@ -1321,6 +1416,34 @@ CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btre
 --
 
 CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_domain_idx ON public.spoke_optimistic_roots USING btree (domain);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_root_propose_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_propose_timestamp_idx ON public.spoke_optimistic_roots USING btree (domain, root, propose_timestamp);
+
+
+--
+-- Name: spoke_optimistic_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_idx ON public.spoke_optimistic_roots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_root_idx ON public.spoke_optimistic_roots USING btree (root);
 
 
 --
@@ -1506,4 +1629,15 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230608135754'),
     ('20230608174759'),
     ('20230613125451'),
-    ('20231012233640');
+    ('20231012233640'),
+    ('20231020201556'),
+    ('20231031081722'),
+    ('20231031145848'),
+    ('20231102213156'),
+    ('20231127165037'),
+    ('20231127165223'),
+    ('20231128023332'),
+    ('20231130084431'),
+    ('20231219013906'),
+    ('20231219072355'),
+    ('20231219231640');

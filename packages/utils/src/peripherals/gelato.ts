@@ -9,6 +9,9 @@ import { GelatoEstimatedFeeRequestError, GelatoConversionRateRequestError } from
 
 export const GELATO_SERVER = "https://api.gelato.digital";
 
+// FIXME: this is not the mainnet zksync era gelato address:
+// https://docs.gelato.network/developer-services/relay/networks-and-rate-limits#zksync-era-mainnet-testnet
+
 export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
 
 /**
@@ -66,7 +69,6 @@ const EquivalentChainsForGelato: Record<number, number> = {
   13337: 1, // local chain
   13338: 1, // local chain
 
-
   // TESTNETS
   4: 1, // rinkeby
   5: 1, // goerli
@@ -75,6 +77,11 @@ const EquivalentChainsForGelato: Record<number, number> = {
   80001: 137, // mumbai (polygon testnet)
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
+
+  // LOCAL NETWORKS
+  31337: 1,
+  31338: 1,
+  31339: 1,
 };
 
 /**

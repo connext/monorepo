@@ -65,8 +65,12 @@ contract ProposeFinalizePropagate is ForgeHelper {
       abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
       abi.encode(true)
     );
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
+
+    // Set in slowMode
+    if (rootManager.optimisticMode()) {
+      vm.prank(watcher);
+      rootManager.activateSlowMode();
+    }
 
     // Checks that we are in slow mode
     isSlow();
@@ -133,9 +137,12 @@ contract ProposeFinalizePropagate is ForgeHelper {
       abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
       abi.encode(true)
     );
-    vm.prank(watcher);
+
     // Set in slowMode
-    rootManager.activateSlowMode();
+    if (rootManager.optimisticMode()) {
+      vm.prank(watcher);
+      rootManager.activateSlowMode();
+    }
 
     // Checks that we are in slow mode
     isSlow();
@@ -214,8 +221,12 @@ contract ProposeFinalizePropagate is ForgeHelper {
       abi.encodeWithSelector(WatcherManager(watcherManager).isWatcher.selector),
       abi.encode(true)
     );
-    vm.prank(watcher);
-    rootManager.activateSlowMode();
+
+    // Set in slowMode
+    if (rootManager.optimisticMode()) {
+      vm.prank(watcher);
+      rootManager.activateSlowMode();
+    }
 
     // Checks that we are in slow mode
     isSlow();

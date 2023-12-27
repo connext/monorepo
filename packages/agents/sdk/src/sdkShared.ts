@@ -1,4 +1,4 @@
-import { constants, providers, BigNumber, utils } from "ethers";
+import { constants, providers, BigNumber, utils, ethers } from "ethers";
 import {
   Logger,
   createLoggingContext,
@@ -16,7 +16,14 @@ import memoize from "memoizee";
 import { parseConnextLog, validateUri, axiosGetRequest } from "./lib/helpers";
 import { AssetData, ConnextSupport, Options, ProviderSanityCheck } from "./interfaces";
 import { SignerAddressMissing, ContractAddressMissing, ProviderMissing } from "./lib/errors";
-import { SdkConfig, domainsToChainNames, ChainDeployments } from "./config";
+import {
+  SdkConfig,
+  domainsToChainNames,
+  ChainDeployments,
+  XERC20REGISTRY_DOMAIN_ADDRESS,
+  LOCKBOX_ADAPTER_DOMAIN_ADDRESS,
+} from "./config";
+import XERC20RegistryAbi from "./lib/abi/XERC20/XERC20Registry.sol/XERC20Registry.json";
 
 declare global {
   interface Window {
@@ -180,6 +187,70 @@ export class SdkShared {
   }
 
   /**
+   * Returns the Registry contract for the specified domain.
+   *
+   * @param domainId - The domain ID.
+   * @returns Registry Contract object.
+   */
+  async getXERC20Registry(domainId: string, options?: Options): Promise<ethers.Contract> {
+    try {
+      const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+      if (!isProviderValid) {
+        throw new ProviderMissing(domainId);
+      }
+
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
+        : await this.getProvider(domainId);
+
+      const XERC20REGISTRY_ADDRESS = XERC20REGISTRY_DOMAIN_ADDRESS[domainId];
+
+      if (!XERC20REGISTRY_ADDRESS) {
+        throw new Error("Registry not deployed on given domain");
+      }
+      return new ethers.Contract(XERC20REGISTRY_ADDRESS, XERC20RegistryAbi, provider);
+    } catch (err: any) {
+      throw new Error("Failed to get XERC20 registry Contract");
+    }
+  }
+
+  /**
+   * Checks whether a given asset is an xERC20 with a Lockbox setup.
+   *
+   * @param domainId - The domain ID.
+   * @param tokenAddress - The domain ID.
+   * @returns Registry Contract object.
+   */
+  async isXERC20WithLockbox(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
+    try {
+      let isLockboxAsset = false;
+      // Checking if given asset is erc20 and have a xERC20 representation
+      const xerc20Registry = await this.getXERC20Registry(domainId, options);
+      const [isXERC20] = await xerc20Registry.functions.isXERC20(tokenAddress);
+      if (!isXERC20) {
+        const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
+        if (xerc20) {
+          isLockboxAsset = true;
+        }
+      }
+      return isLockboxAsset;
+    } catch (err: any) {
+      return false;
+    }
+  }
+
+  /**
    * Returns the chain ID for a specified domain.
    *
    * @param domainId - The domain ID.
@@ -277,15 +348,25 @@ export class SdkShared {
       throw new SignerAddressMissing();
     }
 
-    const connextContract = await this.getConnext(domainId, options);
+    const isValidAsset = await this.isXERC20WithLockbox(domainId, assetId, options);
+    const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
+
+    if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+      throw new Error("Lockbox adapter not deployed on given domain");
+    }
+
+    const connextContractAddress = isValidAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(domainId, options)).address;
+
     const erc20Contract = await this.getERC20(domainId, assetId, options);
 
     if (assetId !== constants.AddressZero) {
-      const approved = await erc20Contract.allowance(_signerAddress, connextContract.address);
+      const approved = await erc20Contract.allowance(_signerAddress, connextContractAddress);
 
       if (BigNumber.from(approved).lt(amount)) {
         const approveData = erc20Contract.populateTransaction.approve(
-          connextContract.address,
+          connextContractAddress,
           infiniteApprove ?? true ? constants.MaxUint256 : amount,
         );
         return approveData;
@@ -362,21 +443,23 @@ export class SdkShared {
    */
   async getSupported(): Promise<ConnextSupport[]> {
     const data: AssetData[] = await this.getAssetsData();
-
     const supported: Map<string, ConnextSupport> = new Map();
 
     for (const asset of data) {
-      const support = supported.get(asset.domain);
-      if (support) {
-        support.assets.push(asset.adopted);
-      } else {
-        const entry: ConnextSupport = {
-          name: domainsToChainNames[asset.domain],
-          chainId: _domainToChainId(+asset.domain),
-          domainId: asset.domain,
-          assets: [asset.adopted],
-        };
-        supported.set(asset.domain, entry);
+      const chainConfig = this.config.chains[asset.domain];
+      if (!chainConfig.disabled && !chainConfig.disabledAssets?.includes(utils.getAddress(asset.adopted))) {
+        const support = supported.get(asset.domain);
+        if (support) {
+          support.assets.push(asset.adopted);
+        } else {
+          const entry: ConnextSupport = {
+            name: domainsToChainNames[asset.domain],
+            chainId: _domainToChainId(+asset.domain),
+            domainId: asset.domain,
+            assets: [asset.adopted],
+          };
+          supported.set(asset.domain, entry);
+        }
       }
     }
 

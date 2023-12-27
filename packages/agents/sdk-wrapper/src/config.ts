@@ -29,7 +29,8 @@ export const TChainConfig = Type.Object({
   confirmations: Type.Optional(Type.Integer({ minimum: 1 })), // What we consider the "safe confirmations" number for this chain.
   chainId: Type.Optional(Type.Number()),
   deployments: Type.Optional(TChainDeployments),
-  assets: Type.Optional(Type.Array(TAssetDescription)), /// Not Being Used
+  disabled: Type.Optional(Type.Boolean()),
+  disabledAssets: Type.Optional(Type.Array(TAddress)), // By adopted address
 });
 
 export type ChainConfig = Static<typeof TChainConfig>;
@@ -39,7 +40,9 @@ export const SdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: Type.Optional(TLogLevel),
   cartographerUrl: Type.Optional(Type.String()),
-  network: Type.Optional(Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")])),
+  network: Type.Optional(
+    Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local"), Type.Literal("devnet")]),
+  ),
   environment: Type.Optional(Type.Union([Type.Literal("staging"), Type.Literal("production")])),
 });
 
@@ -62,7 +65,12 @@ export const NxtpValidationSdkConfigSchema = Type.Object({
   signerAddress: Type.Optional(TAddress),
   logLevel: TLogLevel,
   cartographerUrl: Type.String(),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
 
@@ -98,6 +106,9 @@ export const getEnvConfig = (
       : (`${nxtpConfig.environment![0].toUpperCase()}${nxtpConfig.environment!.slice(1)}` as ContractPostfix);
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
+    nxtpConfig.chains[domainId].disabled = chainConfig.disabled ?? false;
+    nxtpConfig.chains[domainId].disabledAssets = chainConfig.disabledAssets ?? [];
+
     const chainDataForChain = chainData.get(domainId);
     const chainRecommendedConfirmations = chainDataForChain?.confirmations ?? defaultConfirmations;
     const chainRecommendedGasStations = chainDataForChain?.gasStations ?? [];
@@ -180,4 +191,5 @@ export const domainsToChainNames: Record<string, string> = {
   "1634886255": "arbitrum",
   "6450786": "bsc",
   "6778479": "xdai",
+  "1818848877": "linea",
 };

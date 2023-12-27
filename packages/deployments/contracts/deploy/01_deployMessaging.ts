@@ -39,36 +39,60 @@ const formatConnectorArgs = (
 
   const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 
-  const hubArgs = [
-    deploymentDomain,
-    // Mirror domain should be known.
-    mirrorDomain,
-    amb,
-    rootManager,
-    mirrorConnector ?? constants.AddressZero,
-    ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
-  ];
   if (isHub) {
+    const hubArgs = [
+      deploymentDomain,
+      // Mirror domain should be known.
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector ?? constants.AddressZero,
+      ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
+    ];
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
     return hubArgs;
   }
-  const constructorArgs = [
-    ...hubArgs,
-    config.processGas,
-    config.reserveGas,
-    config.delayBlocks,
-    merkleManager!,
-    watcherManager!,
-    ...Object.values(config?.custom?.spoke ?? {}),
+  // struct ConstructorParams {
+  //   uint32 domain;
+  //   uint32 mirrorDomain;
+  //   address amb;
+  //   address rootManager;
+  //   address mirrorConnector;
+  //   uint256 processGas;
+  //   uint256 reserveGas;
+  //   uint256 delayBlocks;
+  //   address merkle;
+  //   address watcherManager;
+  //   uint256 minDisputeBlocks;
+  //   uint256 disputeBlocks;
+  // }
+  const constructorArgs: any[] = [
+    {
+      domain: deploymentDomain,
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector: mirrorConnector ?? constants.AddressZero,
+      processGas: config.processGas,
+      reserveGas: config.reserveGas,
+      delayBlocks: config.delayBlocks,
+      merkle: merkleManager,
+      watcherManager,
+      minDisputeBlocks: protocol.hub.minDisputeBlocks,
+      disputeBlocks: protocol.hub.disputeBlocks,
+    },
   ];
+
+  if (config.custom?.spoke) {
+    constructorArgs.push(...Object.values(config.custom.spoke));
+  }
   console.log(
     `spoke connector constructorArgs:`,
-    constructorArgs.map((c) => c.toString()),
+    Object.fromEntries(Object.entries(constructorArgs).map(([k, v]) => [k, v.toString()])),
   );
-  // console.log(`- domain:`, constructorArgs[0].toString());
   return constructorArgs;
 };
 
@@ -148,11 +172,6 @@ const handleDeployHub = async (
     merkleTreeManagerForSpoke.address,
     deployer,
   );
-  if (!(await merkleForSpokeContract.arborist())) {
-    const tx = await merkleForSpokeContract.setArborist(deployment.address);
-    console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
-    await tx.wait();
-  }
 
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
@@ -217,8 +236,9 @@ const handleDeploySpoke = async (
       !contract.includes("Arbitrum") &&
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
-      !contract.includes("Consensys") &&
-      !contract.includes("Wormhole")) ||
+      !contract.includes("Linea") &&
+      !contract.includes("Wormhole") &&
+      !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
     return;
@@ -284,13 +304,6 @@ const handleDeploySpoke = async (
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
   console.log("merkleContract: ", merkleContract.address);
-
-  console.log("await merkleContract.arborist(): ", await merkleContract.arborist());
-  if (!(await merkleContract.arborist())) {
-    const tx = await merkleContract.setArborist(deployment.address);
-    console.log(`setArborist tx submitted:`, tx.hash);
-    await tx.wait();
-  }
   return deployment;
 };
 
@@ -311,7 +324,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
@@ -340,5 +353,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Messaging", "prod", "local", "mainnet"];
+func.tags = ["Messaging", "prod", "local", "mainnet", "devnet"];
 func.dependencies = [];

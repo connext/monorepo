@@ -1,8 +1,8 @@
 import { expect, getNtpTimeSeconds } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
-import { NoChainIdForHubDomain, RelayerProxyHubNotFound } from "../../../../src/tasks/propagate/errors";
-import { propagate, finalizeAndPropagate } from "../../../../src/tasks/propagate/operations";
+import { NoChainIdForDomain, RelayerProxyHubNotFound } from "../../../../src/tasks/propagate/errors";
+import { propagate, finalize } from "../../../../src/tasks/propagate/operations";
 import * as PropagateFns from "../../../../src/tasks/propagate/operations/propagate";
 import { propagateCtxMock, sendWithRelayerWithBackupStub } from "../../../globalTestHook";
 import { mock } from "../../../mock";
@@ -19,21 +19,19 @@ describe("Operations: Propagate", () => {
 
     it("should throw an error if no hub domain id", async () => {
       propagateCtxMock.chainData = new Map();
-      await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(propagate()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
 
-    // FIXME: check merge from staging against this test. no code exists like this in propagate
-    // function
-    it.skip("should skip if propagate is not workable", async () => {
-      const curTimestamp = getNtpTimeSeconds();
-      stub(Mockable, "getContract").returns({
-        lastPropagateAt: stub().resolves(BigNumber.from(curTimestamp)),
-        propagateCooldown: stub().resolves(BigNumber.from(1800)),
-      } as any);
+    // it("should skip if propagate is not workable", async () => {
+    //   const curTimestamp = getNtpTimeSeconds();
+    //   stub(Mockable, "getContract").returns({
+    //     lastPropagateAt: stub().resolves(BigNumber.from(curTimestamp)),
+    //     propagateCooldown: stub().resolves(BigNumber.from(1800)),
+    //   } as any);
 
-      await propagate();
-      expect(sendWithRelayerWithBackupStub).callCount(0);
-    });
+    //   await propagate();
+    //   expect(sendWithRelayerWithBackupStub).callCount(0);
+    // });
 
     it("should send encoded data to relayer succesfully", async () => {
       stub(PropagateFns, "getParamsForDomainFn").value({
@@ -51,7 +49,7 @@ describe("Operations: Propagate", () => {
       expect(sendWithRelayerWithBackupStub).callCount(1);
     });
   });
-  describe("#finalizeAndPropagate", () => {
+  describe("#finalize", () => {
     beforeEach(() => {
       (propagateCtxMock.adapters.database.getCurrentProposedSnapshot as SinonStub).resolves(
         mock.entity.snapshot({ endOfDispute: 1 }),
@@ -66,7 +64,7 @@ describe("Operations: Propagate", () => {
     });
 
     it("Happy case: should send encoded data to relayer succesfully", async () => {
-      await finalizeAndPropagate();
+      await finalize();
       expect(sendWithRelayerWithBackupStub).callCount(1);
     });
 
@@ -75,14 +73,14 @@ describe("Operations: Propagate", () => {
         mock.entity.snapshot({ endOfDispute: 1 }),
       );
 
-      await finalizeAndPropagate();
+      await finalize();
       expect(sendWithRelayerWithBackupStub).callCount(1);
     });
 
     it("should not propagate dispute window still active", async () => {
       (propagateCtxMock.adapters.database.getCurrentProposedSnapshot as SinonStub).resolves(mock.entity.snapshot());
 
-      await finalizeAndPropagate();
+      await finalize();
       expect(sendWithRelayerWithBackupStub).callCount(0);
     });
 
@@ -101,7 +99,7 @@ describe("Operations: Propagate", () => {
 
     it("should throw an error if no hub domain id", async () => {
       propagateCtxMock.chainData = new Map();
-      await expect(finalizeAndPropagate()).to.eventually.be.rejectedWith(NoChainIdForHubDomain);
+      await expect(finalize()).to.eventually.be.rejectedWith(NoChainIdForDomain);
     });
   });
 });

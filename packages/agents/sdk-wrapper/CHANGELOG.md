@@ -2,6 +2,22 @@
 
 ## Next Release
 
+## v2.2.1-alpha.0
+
+- `xcall`: Handles Lockbox adapter flow for xERC20s
+- 
+## v2.2.0-alpha.4
+
+- `getSupported`: Filters out disabled assets/chains from config
+
+## v2.2.0-alpha.3
+
+- `getTransfers`: Fix query syntax
+
+## v2.2.0-alpha.0
+
+- Linea mainnet support
+
 ## v2.1.2
 
 - `options`: Passes providers from config into SDK server call

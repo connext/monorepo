@@ -38,6 +38,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     console.log(`deployed ${facet.name} at ${deployment.address}`);
   }
 };
-func.tags = ["Facets", "prod", "local", "mainnet"];
+func.tags = ["Facets", "prod", "local", "mainnet", "devnet"];
 
 export default func;

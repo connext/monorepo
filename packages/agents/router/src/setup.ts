@@ -3,6 +3,8 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
 import rabbit from "foo-foo-mq";
 
+import { MQConnectionClosed, MQConnectionFailed, MQConnectionUnreachable } from "./errors";
+
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
 export const XCALL_MESSAGE_TYPE = "xcall";
@@ -44,9 +46,23 @@ export const setupMq = async (
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
   });
+
+  await rabbit.on("closed", function () {
+    throw new MQConnectionClosed();
+  });
+
+  await rabbit.on("failed", function () {
+    throw new MQConnectionFailed();
+  });
+
+  await rabbit.on("unreachable", function () {
+    throw new MQConnectionUnreachable();
+  });
+
   logger.info("Message queue setup is done!", requestContext, methodContext, {
     uri,
   });
+
   return rabbit;
 };
 

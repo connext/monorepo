@@ -52,21 +52,12 @@ output "lighthouse-propagate-service-name" {
   value = module.lighthouse_propagate_cron.lambda_cron_service_name
 }
 
-
 output "relayer-service-endpoint" {
   value = module.relayer.service_endpoint
 }
 
 output "relayer-dns" {
   value = module.relayer.dns_name
-}
-
-output "watcher-service-endpoint" {
-  value = module.watcher.service_endpoint
-}
-
-output "watcher-dns" {
-  value = module.watcher.dns_name
 }
 
 output "rmq-management-endpoint" {

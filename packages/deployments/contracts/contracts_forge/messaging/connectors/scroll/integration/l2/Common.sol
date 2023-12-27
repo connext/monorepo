@@ -75,10 +75,6 @@ contract Common is ConnectorHelper {
       _disputeBlocks
     );
     scrollSpokeConnector = new ScrollSpokeConnector(_spokeConstructorParams, _gasCap);
-
     vm.stopPrank();
-    // Set root manager as slow mode so the L2_SCROLL_MESSENGER messages can be received
-    vm.prank(whitelistedWatcher);
-    rootManager.activateSlowMode();
   }
 }

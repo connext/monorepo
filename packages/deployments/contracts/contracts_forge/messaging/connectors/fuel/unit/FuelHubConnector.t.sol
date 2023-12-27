@@ -199,10 +199,7 @@ contract Unit_Connector_FuelHubConnector_VerifySender is Base {
    * @notice Tests that returns true when the origin sender is the mirror connector
    * @param _mirrorConnector The mirror connector address
    */
-  function test_returnTrueIfSenderIsMirror(
-    address _mirrorConnector,
-    address _originSender
-  ) public happyPath(_mirrorConnector, _originSender) {
+  function test_returnTrueIfSenderIsMirror(address _mirrorConnector) public happyPath(_mirrorConnector, stranger) {
     assertEq(fuelHubConnector.forTest_verifySender(_mirrorConnector), true);
   }
 }

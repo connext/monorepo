@@ -45,6 +45,7 @@ import {
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, providers } from "ethers";
+
 import { RoutesOptions } from "../server";
 
 interface SharedRoutesOptions extends RoutesOptions {

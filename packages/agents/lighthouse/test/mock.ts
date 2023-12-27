@@ -1,4 +1,4 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
@@ -59,7 +59,9 @@ export const mockCache = () => {
       storeMessages: stub().resolves(),
       getPending: stub().resolves(),
       getPendingTasks: stub().resolves(),
+      addTaskPending: stub().resolves(),
       getMessage: stub().resolves(),
+      setStatus: stub().resolves(),
       increaseAttempt: stub().resolves(),
       removePending: stub().resolves(),
       getNode: stub().resolves(),
@@ -162,16 +164,19 @@ export const mock = {
         database: mock.adapters.database(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
+        wallet: mock.adapters.wallet(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
     };
   },
   config: (): NxtpLighthouseConfig => ({
+    snapshotDuration: mock.snapshotDuration,
     chains: {
       [mock.domain.A]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
           spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
@@ -180,6 +185,7 @@ export const mock = {
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
           spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
@@ -321,6 +327,14 @@ export const mock = {
         arbitrum: [],
         bnb: [],
       };
+    },
+    wallet: (): SinonStubbedInstance<Wallet> => {
+      const wallet = createStubInstance(Wallet);
+      // need to do this differently bc the function doesnt exist on the interface
+      (wallet as any).address = mock.address.router;
+      wallet.getAddress.resolves(mock.address.router);
+      wallet.signMessage.resolves(mock.signature);
+      return wallet;
     },
   },
   contracts: {

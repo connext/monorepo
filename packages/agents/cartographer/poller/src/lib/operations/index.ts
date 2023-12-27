@@ -12,6 +12,7 @@ export {
   updateReceivedAggregateRoots,
   updateProposedSnapshots,
   updateFinalizedRoots,
+  updateFinalizedSpokeRoots,
   updatePropagatedOptmisticRoots,
   retrieveSavedSnapshotRoot,
 } from "./roots";

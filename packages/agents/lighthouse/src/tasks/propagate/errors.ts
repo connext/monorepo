@@ -1,6 +1,6 @@
 import { MethodContext, NxtpError, RequestContext } from "@connext/nxtp-utils";
 
-export class NoChainIdForHubDomain extends NxtpError {
+export class NoChainIdForDomain extends NxtpError {
   constructor(
     public readonly hubDomain: string,
     public readonly requestContext: RequestContext,

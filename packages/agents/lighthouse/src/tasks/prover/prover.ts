@@ -26,6 +26,7 @@ import { acquireLock, prefetch, releaseLock } from "./operations/publisher";
 const context: ProverContext = {} as any;
 export const getContext = () => context;
 export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainData: Map<string, ChainData>) => {
+  const { requestContext, methodContext } = createLoggingContext(makeProverPublisher.name);
   try {
     await makeProver(config, chainData);
     if (!(await acquireLock())) throw new Error("Could not acquire lock");
@@ -40,7 +41,8 @@ export const makeProverPublisher = async (config: NxtpLighthouseConfig, chainDat
     console.error("Error starting Prover-Publisher. Sad! :(", e);
   } finally {
     await closeDatabase();
-    process.exit();
+
+    context.logger.info("Prover complete!!!", requestContext, methodContext, {});
   }
 };
 
@@ -159,7 +161,7 @@ export const makeProver = async (config: NxtpLighthouseConfig, chainData: Map<st
       context.logger.info("Prover started in Slow Mode", requestContext, methodContext);
       context.mode = ModeType.SlowMode;
     } else {
-      throw new Error(`Unknown mode detected: ${rootManagerMode}`);
+      throw new Error(`Unknown mode detected: ${JSON.stringify(rootManagerMode)}`);
     }
     if (context.config.healthUrls.prover) {
       await sendHeartbeat(context.config.healthUrls.prover, context.logger);

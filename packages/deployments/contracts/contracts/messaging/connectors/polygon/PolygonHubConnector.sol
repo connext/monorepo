@@ -8,6 +8,12 @@ import {FxBaseRootTunnel} from "./tunnel/FxBaseRootTunnel.sol";
 import {HubConnector} from "../HubConnector.sol";
 
 contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
+  /**
+   * @notice This mapping records all message roots that have already been processed in order to prevent
+   * redundant message roots from being aggregated.
+   */
+  mapping(bytes32 => bool) public processedMessageRoots;
+
   // ============ Constructor ============
   constructor(
     uint32 _domain,
@@ -41,6 +47,12 @@ contract PolygonHubConnector is HubConnector, FxBaseRootTunnel {
 
     // get the data (should be the aggregate root)
     require(message.length == 32, "!length");
+
+    // check if the message root has already been processed
+    require(!processedMessageRoots[bytes32(message)], "message root already processed");
+    // mark as processed
+    processedMessageRoots[bytes32(message)] = true;
+
     // update the root on the root manager
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(message));
 

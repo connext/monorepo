@@ -5,6 +5,7 @@ import {
   DestinationTransfer,
   mkAddress,
   mkBytes32,
+  mkHash,
   mock,
   OptimisticRootFinalized,
   OriginMessage,
@@ -15,6 +16,7 @@ import {
   RootMessage,
   RouterBalance,
   RouterDailyTVL,
+  RouterLiquidityEvent,
   SlippageUpdate,
   Snapshot,
   StableSwapExchange,
@@ -219,6 +221,7 @@ mockBlockNumber.set("2000", 1234567);
 mockBlockNumber.set("3000", 1234567);
 mockBlockNumber.set("1337", 1234567);
 mockBlockNumber.set("13337", 1234567);
+mockBlockNumber.set("13338", 1234567);
 mockBlockNumber.set("1338", 1234567);
 mockBlockNumber.set("10", 1234567);
 
@@ -272,6 +275,7 @@ export const mockRouterResponse: RouterBalance[] = [
         key: mkBytes32(),
         localAsset: mkAddress(),
         decimal: "18",
+        adoptedDecimal: "18",
         locked: "0",
         removed: "0",
         supplied: "0",
@@ -286,6 +290,7 @@ export const mockAssetsResponse: Asset[] = [
     id: mkAddress("0x1"),
     key: mkBytes32("0xa"),
     decimal: "18",
+    adoptedDecimal: "18",
     adoptedAsset: mkAddress("0x2"),
     canonicalId: mkBytes32("0xa"),
     canonicalDomain: "1337",
@@ -297,6 +302,7 @@ export const mockAssetsResponse: Asset[] = [
     id: mkAddress("0x1"),
     key: mkBytes32("0xa"),
     decimal: "18",
+    adoptedDecimal: "18",
     adoptedAsset: mkAddress("0x2"),
     canonicalId: mkBytes32("0xa"),
     canonicalDomain: "1337",
@@ -456,6 +462,22 @@ export const mockRouterDailyTVLResponse: RouterDailyTVL[] = [
   },
 ];
 
+export const mockRouterLiquidityEventsResponse: RouterLiquidityEvent[] = [
+  {
+    id: `${mkBytes32("0xa")}-${mkBytes32("0xb")}-0`,
+    event: "Add",
+    asset: mkAddress("0xa"),
+    router: mkAddress("0xb"),
+    domain: "1337",
+    timestamp: 1673421076,
+    balance: 123123,
+    amount: 10,
+    blockNumber: 1234,
+    transactionHash: mkHash("0xa"),
+    nonce: 1123,
+  },
+];
+
 export const mockSubgraph = () =>
   createStubInstance(SubgraphReader, {
     getOriginMessagesByDomain: Promise.resolve(mockOriginMessageSubgraphResponse),
@@ -483,4 +505,5 @@ export const mockSubgraph = () =>
     getRelayerFeesIncreasesByDomainAndTimestamp: Promise.resolve(mockRelayerFeesIncreaseResponse),
     getSlippageUpdatesByDomainAndTimestamp: Promise.resolve(mockSlippageUpdateResponse),
     getRouterDailyTVLByDomainAndTimestamp: Promise.resolve(mockRouterDailyTVLResponse),
+    getRouterLiquidityEventsByDomainAndNonce: Promise.resolve(mockRouterLiquidityEventsResponse),
   });

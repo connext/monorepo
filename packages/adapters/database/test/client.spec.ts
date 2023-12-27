@@ -24,6 +24,7 @@ import {
   Snapshot,
   OptimisticRootPropagated,
   OptimisticRootFinalized,
+  SpokeOptimisticRoot,
   RouterDailyTVL,
 } from "@connext/nxtp-utils";
 import { Pool } from "pg";
@@ -48,6 +49,8 @@ import {
   saveAggregatedRoots,
   saveReceivedAggregateRoot,
   savePropagatedRoots,
+  saveProposedSpokeRoots,
+  saveFinalizedSpokeRoots,
   getHubNode,
   getHubNodes,
   putRoot,
@@ -60,10 +63,12 @@ import {
   getUnProcessedMessages,
   getUnProcessedMessagesByIndex,
   getUnProcessedMessagesByDomains,
-  getAggregateRoot,
+  getSnapshot,
+  getFinalizedSnapshot,
   getBaseAggregateRoot,
   getMessageRootAggregatedFromIndex,
   getMessageRootCount,
+  getOutboundRootTimestamp,
   transaction,
   getCompletedTransfersByMessageHashes,
   increaseBackoff,
@@ -87,16 +92,23 @@ import {
   getMessageByLeaf,
   deleteNonExistTransfers,
   getAggregateRoots,
+  getCurrentProposedOptimisticRoot,
+  getLatestFinalizedOptimisticRoot,
+  getLatestSpokeOptimisticRoot,
+  getSpokeOptimisticRoot,
   saveSnapshotRoots,
   getLatestPendingSnapshotRootByDomain,
+  getLatestPendingSpokeOptimisticRootByDomain,
   saveProposedSnapshots,
   savePropagatedOptimisticRoots,
   getCurrentProposedSnapshot,
+  getCurrentFinalizedSnapshot,
+  getLatestSnapshot,
   saveFinalizedRoots,
   saveStableSwapExchange,
   saveRouterDailyTVL,
   getRootMessage,
-  getPendingAggregateRoot,
+  getAggregateRoot,
   getMessageByRoot,
   deleteCache,
 } from "../src/client";
@@ -107,7 +119,7 @@ describe("Database client", () => {
 
   beforeEach(async () => {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:qwerty@localhost:5435/connext?sslmode=disable",
       idleTimeoutMillis: 3000,
       allowExitOnIdle: true,
     });
@@ -133,6 +145,7 @@ describe("Database client", () => {
     await pool.query("DELETE FROM snapshot_roots CASCADE");
     await pool.query("DELETE FROM snapshots CASCADE");
     await pool.query("DELETE FROM stableswap_exchanges CASCADE");
+    await pool.query("DELETE FROM spoke_optimistic_roots CASCADE");
     await pool.end();
     restore();
     reset();
@@ -496,6 +509,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -512,6 +526,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -528,6 +543,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -544,6 +560,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -565,6 +582,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -581,6 +599,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -597,6 +616,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -613,6 +633,7 @@ describe("Database client", () => {
             canonicalDomain: "1111",
             key: mkBytes32("0xb"),
             decimal: "18",
+            adoptedDecimal: "18",
             localAsset: mkAddress("0xaa"),
             balance: utils.parseEther("100").toString(),
             locked: utils.parseEther("100").toString(),
@@ -792,6 +813,37 @@ describe("Database client", () => {
     expect(firstCount).to.eq(messages[0].origin.index);
     const lastCount = await getMessageRootCount(messages[0].originDomain, messages[batchSize - 1].origin.root, pool);
     expect(lastCount).to.eq(messages[batchSize - 1].origin.index);
+  });
+
+  it("should get xcall timestamp by root and domain", async () => {
+    const messages: XMessage[] = [];
+    const transfers: XTransfer[] = [];
+    for (var _i = 0; _i < batchSize; _i++) {
+      let message = mock.entity.xMessage();
+      message.origin.index = _i;
+      messages.push(message);
+      const _xtransfer = mock.entity.xtransfer({
+        status: XTransferStatus.XCalled,
+        xcall_timestamp: _i,
+        transferId: message.transferId,
+      });
+      transfers.push(_xtransfer);
+    }
+    await saveMessages(messages, pool);
+    await saveTransfers(transfers, pool);
+
+    const rootTimestampFirst = await getOutboundRootTimestamp(messages[0].originDomain, messages[0].origin.root, pool);
+    expect(rootTimestampFirst).to.eq(messages[0].origin.index);
+
+    const rootTimestampLast = await getOutboundRootTimestamp(
+      messages[0].originDomain,
+      messages[batchSize - 1].origin.root,
+      pool,
+    );
+    expect(rootTimestampLast).to.eq(messages[batchSize - 1].origin.index);
+
+    const missingRootTimestamp = await getOutboundRootTimestamp(messages[0].originDomain, "", pool);
+    expect(missingRootTimestamp).to.eq(undefined);
   });
 
   it("should save multiple sent root messages", async () => {
@@ -1007,22 +1059,15 @@ describe("Database client", () => {
       messages.push(rootMessage);
       const m = mock.entity.aggregatedRoot();
       m.index = _i;
+      m.id = _i.toString();
       m.receivedRoot = rootMessage.root;
       roots.push(m);
-      const propRoot = mock.entity.propagatedRoot();
-      propRoot.count = _i + 1;
-      propRoots.push(propRoot);
     }
 
     await saveSentRootMessages(messages, pool);
     await saveAggregatedRoots(roots, pool);
-    await savePropagatedRoots(propRoots, pool);
 
-    const dbRoots = await getLatestMessageRoot(
-      mock.entity.rootMessage().spokeDomain,
-      propRoots[batchSize - 1].aggregate,
-      pool,
-    );
+    const dbRoots = await getLatestMessageRoot(mock.entity.rootMessage().spokeDomain, roots[batchSize - 1].id, pool);
     dbRoots ? (dbRoots.count = batchSize - 1) : undefined;
     expect(dbRoots).to.deep.eq(messages[batchSize - 1]);
   });
@@ -1096,6 +1141,7 @@ describe("Database client", () => {
     expect(await getHubNode(10000000, batchSize, pool)).to.eq(undefined);
     expect(await getSpokeNode("", 10000000, batchSize, pool)).to.eq(undefined);
     expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
+    expect(await getMessageRootCount("", "", pool)).to.eq(undefined);
     expect(await getMessageRootIndex("", "", pool)).to.eq(undefined);
     expect(await getAggregateRootCount("", pool)).to.eq(undefined);
     expect(await getBaseAggregateRootCount("", pool)).to.eq(undefined);
@@ -1120,6 +1166,8 @@ describe("Database client", () => {
       .not.be.rejected;
     await expect(saveAggregatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(savePropagatedRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(saveProposedSpokeRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(saveFinalizedSpokeRoots(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getTransfersByTransferIds(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(
       getUnProcessedMessages(
@@ -1131,14 +1179,22 @@ describe("Database client", () => {
         undefined as any,
       ),
     ).to.eventually.not.be.rejected;
-    await expect(getAggregateRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getFinalizedSnapshot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getCurrentProposedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestFinalizedOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getLatestSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
+    await expect(getSpokeOptimisticRoot(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getBaseAggregateRootCount(undefined as any, undefined as any)).to.eventually.not.be.rejected;
     await expect(getMessageRootIndex(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
-    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually
-      .not.be.rejected;
+    await expect(getMessageRootAggregatedFromIndex(undefined as any, undefined as any, undefined as any)).to.eventually;
+    await expect(getLatestPendingSpokeOptimisticRootByDomain(undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
     await expect(getMessageRootCount(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
+      .rejected;
+    await expect(getOutboundRootTimestamp(undefined as any, undefined as any, undefined as any)).to.eventually.not.be
       .rejected;
     await expect(getSpokeNode(undefined as any, undefined as any, undefined as any, undefined as any)).to.eventually.not
       .be.rejected;
@@ -1341,6 +1397,7 @@ describe("Database client", () => {
         key: asset.key,
         id: asset.id,
         decimal: asset.decimal,
+        adopted_decimal: asset.adoptedDecimal,
         canonical_id: asset.canonicalId,
         canonical_domain: asset.canonicalDomain,
       });
@@ -1362,6 +1419,7 @@ describe("Database client", () => {
       expect(res).to.deep.include({
         ...asset,
         decimal: +asset.decimal,
+        adoptedDecimal: +asset.adoptedDecimal,
         blockNumber: undefined,
       });
     });
@@ -1586,8 +1644,12 @@ describe("Database client", () => {
     }
     await saveSnapshotRoots(roots, pool);
 
-    const dbRootLast = await getLatestPendingSnapshotRootByDomain(+roots[batchSize - 1].spokeDomain, pool);
-    expect(dbRootLast).to.eq(roots[batchSize - 1].root);
+    const dbRootLast = await getLatestPendingSnapshotRootByDomain(
+      +roots[batchSize - 1].spokeDomain,
+      (batchSize - 1).toString(),
+      pool,
+    );
+    expect(dbRootLast?.root).to.eq(roots[batchSize - 1].root);
   });
 
   it("should save and get snapshots", async () => {
@@ -1606,23 +1668,24 @@ describe("Database client", () => {
 
   it("should save and get single snapshot", async () => {
     const snapshots: Snapshot[] = [];
-    const optimisticRootPropagated: OptimisticRootPropagated[] = [];
+    const optimisticRootFinalized: OptimisticRootFinalized[] = [];
     for (let _i = 0; _i < batchSize; _i++) {
       const m = mock.entity.snapshot();
       m.id = `${_i}`;
       snapshots.push(m);
-      const o = mock.entity.optimisticRootPropagated();
+      const o = mock.entity.optimisticRootFinalized();
       o.id = m.id;
       o.aggregateRoot = m.aggregateRoot;
-      optimisticRootPropagated.push(o);
+      optimisticRootFinalized.push(o);
     }
     await saveProposedSnapshots(snapshots, pool);
-    await savePropagatedOptimisticRoots(optimisticRootPropagated, pool);
+    await saveFinalizedRoots(optimisticRootFinalized, pool);
 
-    const dbSnapshot = await getPendingAggregateRoot(snapshots[0].aggregateRoot, pool);
-    expect(dbSnapshot!.id).to.eq(snapshots[0].id);
-    const missingDbSnapshot = await getPendingAggregateRoot("", pool);
-    expect(missingDbSnapshot).to.eq(undefined);
+    const propagagtedSnapshot = await getCurrentFinalizedSnapshot(pool);
+    expect(propagagtedSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
+
+    const latestSnapshot = await getLatestSnapshot(pool);
+    expect(latestSnapshot!.id).to.eq(snapshots[batchSize - 1].id);
   });
 
   it("should save and get Propagated snapshots", async () => {
@@ -1642,6 +1705,10 @@ describe("Database client", () => {
     let queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(0);
     await savePropagatedOptimisticRoots(propagatedRoots, pool);
+    const dbSnapshot = await getSnapshot(snapshots[0].aggregateRoot, pool);
+    expect(dbSnapshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getSnapshot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
     queryRes = await pool.query("SELECT * FROM snapshots where status = 'Propagated'");
     expect(queryRes.rows.length).to.eq(propagatedRoots.length);
   });
@@ -1665,6 +1732,84 @@ describe("Database client", () => {
     await saveFinalizedRoots(finalizedRoots, pool);
     queryRes = await pool.query("SELECT * FROM snapshots where status = 'Finalized'");
     expect(queryRes.rows.length).to.eq(finalizedRoots.length);
+
+    const finalizedSanpshot = await getFinalizedSnapshot(finalizedRoots[0].aggregateRoot, pool);
+    expect(finalizedSanpshot!.id).to.eq(snapshots[0].id);
+    const missingDbSnapshot = await getFinalizedSnapshot("", pool);
+    expect(missingDbSnapshot).to.eq(undefined);
+  });
+
+  it("should save and get spoke optimistic roots", async () => {
+    const spokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.spokeOptimisticRoot();
+      m.id = `${_i}`;
+      m.rootTimestamp = _i;
+      m.proposeTimestamp = _i;
+      m.endOfDispute = _i;
+      spokeOptimisticRoots.push(m);
+    }
+    await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
+
+    const latestProposedSpokeRoot = await getCurrentProposedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestProposedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
+    expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestSpokeRoot = await getLatestSpokeOptimisticRoot(spokeOptimisticRoots[batchSize - 1].domain, pool);
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+  });
+
+  it("should save and get finalized spoke optimistic roots", async () => {
+    const spokeOptimisticRoots: SpokeOptimisticRoot[] = [];
+    const finalizedRoots: OptimisticRootFinalized[] = [];
+    for (let _i = 0; _i < batchSize; _i++) {
+      const m = mock.entity.optimisticRootFinalized();
+      m.id = `${_i}`;
+      m.aggregateRoot = `${_i}`;
+      m.timestamp = _i * 1000;
+      finalizedRoots.push(m);
+
+      const s = mock.entity.spokeOptimisticRoot();
+      s.id = `${_i}`;
+      s.aggregateRoot = `${_i}`;
+      s.rootTimestamp = _i;
+      s.proposeTimestamp = _i + 10;
+      spokeOptimisticRoots.push(s);
+    }
+    await saveProposedSpokeRoots(spokeOptimisticRoots, pool);
+    await saveFinalizedSpokeRoots(mock.domain.A, finalizedRoots, pool);
+
+    const latestSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbLatestSpokeRoot = await getLatestPendingSpokeOptimisticRootByDomain("", pool);
+    expect(missingDbLatestSpokeRoot).to.eq(undefined);
+
+    const spokeRoot = await getSpokeOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].aggregateRoot,
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(spokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+
+    const missingDbSpokeRoot = await getSpokeOptimisticRoot("", "", pool);
+    expect(missingDbSpokeRoot).to.eq(undefined);
+
+    const latestFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot(
+      spokeOptimisticRoots[batchSize - 1].domain,
+      pool,
+    );
+    expect(latestFinalizedSpokeRoot!.id).to.eq(spokeOptimisticRoots[batchSize - 1].id);
+    const missingFinalizedSpokeRoot = await getLatestFinalizedOptimisticRoot("", pool);
+    expect(missingFinalizedSpokeRoot).to.eq(undefined);
   });
 
   it("should save and get RouterDailyTVL", async () => {

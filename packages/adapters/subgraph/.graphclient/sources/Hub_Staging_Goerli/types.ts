@@ -22,11 +22,74 @@ export type Scalars = {
   staginggoerli_Int8: any;
 };
 
+export type staginggoerli_AggregateRootSavedSlow = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['staginggoerli_Bytes'];
+  count: Scalars['BigInt'];
+  aggregatedRoots?: Maybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootTimestamp: Scalars['BigInt'];
+};
+
+export type staginggoerli_AggregateRootSavedSlow_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  aggregatedRoots?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_contains?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_contains_nocase?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not_contains?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregatedRoots_not_contains_nocase?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  rootTimestamp?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  rootTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>>>;
+};
+
+export type staginggoerli_AggregateRootSavedSlow_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'count'
+  | 'aggregatedRoots'
+  | 'rootTimestamp';
+
 export type staginggoerli_AggregatedMessageRoot = {
   id: Scalars['ID'];
   index: Scalars['BigInt'];
   receivedRoot: Scalars['staginggoerli_Bytes'];
   domain?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_AggregatedMessageRoot_filter = {
@@ -64,6 +127,14 @@ export type staginggoerli_AggregatedMessageRoot_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_AggregatedMessageRoot_filter>>>;
@@ -74,7 +145,8 @@ export type staginggoerli_AggregatedMessageRoot_orderBy =
   | 'id'
   | 'index'
   | 'receivedRoot'
-  | 'domain';
+  | 'domain'
+  | 'blockNumber';
 
 export type staginggoerli_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
@@ -320,6 +392,92 @@ export type staginggoerli_GnosisConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
+export type staginggoerli_HubDomain = {
+  id: Scalars['ID'];
+  domain?: Maybe<Scalars['BigInt']>;
+};
+
+export type staginggoerli_HubDomain_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  domain?: InputMaybe<Scalars['BigInt']>;
+  domain_not?: InputMaybe<Scalars['BigInt']>;
+  domain_gt?: InputMaybe<Scalars['BigInt']>;
+  domain_lt?: InputMaybe<Scalars['BigInt']>;
+  domain_gte?: InputMaybe<Scalars['BigInt']>;
+  domain_lte?: InputMaybe<Scalars['BigInt']>;
+  domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_HubDomain_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_HubDomain_filter>>>;
+};
+
+export type staginggoerli_HubDomain_orderBy =
+  | 'id'
+  | 'domain';
+
+export type staginggoerli_HubOptimisticRootFinalized = {
+  id: Scalars['ID'];
+  aggregateRoot: Scalars['staginggoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type staginggoerli_HubOptimisticRootFinalized_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  aggregateRoot?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_HubOptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_HubOptimisticRootFinalized_filter>>>;
+};
+
+export type staginggoerli_HubOptimisticRootFinalized_orderBy =
+  | 'id'
+  | 'aggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
+
 export type staginggoerli_OptimismConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];
@@ -398,55 +556,12 @@ export type staginggoerli_OptimismConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type staginggoerli_OptimisticRootFinalized = {
-  id: Scalars['ID'];
-  aggregateRoot: Scalars['staginggoerli_Bytes'];
-  timestamp: Scalars['BigInt'];
-};
-
-export type staginggoerli_OptimisticRootFinalized_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  aggregateRoot?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  aggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
-  aggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  aggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootFinalized_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootFinalized_filter>>>;
-};
-
-export type staginggoerli_OptimisticRootFinalized_orderBy =
-  | 'id'
-  | 'aggregateRoot'
-  | 'timestamp';
-
 export type staginggoerli_OptimisticRootPropagated = {
   id: Scalars['ID'];
   aggregateRoot: Scalars['staginggoerli_Bytes'];
   domainsHash: Scalars['staginggoerli_Bytes'];
   timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_OptimisticRootPropagated_filter = {
@@ -486,6 +601,14 @@ export type staginggoerli_OptimisticRootPropagated_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootPropagated_filter>>>;
@@ -496,7 +619,8 @@ export type staginggoerli_OptimisticRootPropagated_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'domainsHash'
-  | 'timestamp';
+  | 'timestamp'
+  | 'blockNumber';
 
 export type staginggoerli_OptimisticRootProposed = {
   id: Scalars['ID'];
@@ -505,6 +629,8 @@ export type staginggoerli_OptimisticRootProposed = {
   snapshotsRoots?: Maybe<Array<Scalars['staginggoerli_Bytes']>>;
   domains?: Maybe<Array<Scalars['BigInt']>>;
   baseAggregateRoot: Scalars['staginggoerli_Bytes'];
+  timestamp: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_OptimisticRootProposed_filter = {
@@ -556,6 +682,22 @@ export type staginggoerli_OptimisticRootProposed_filter = {
   baseAggregateRoot_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
   baseAggregateRoot_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   baseAggregateRoot_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_OptimisticRootProposed_filter>>>;
@@ -568,7 +710,9 @@ export type staginggoerli_OptimisticRootProposed_orderBy =
   | 'aggregateRoot'
   | 'snapshotsRoots'
   | 'domains'
-  | 'baseAggregateRoot';
+  | 'baseAggregateRoot'
+  | 'timestamp'
+  | 'blockNumber';
 
 /** Defines the order direction, either ascending or descending */
 export type staginggoerli_OrderDirection =
@@ -666,8 +810,8 @@ export type Query = {
   staginggoerli_rootManagerModes: Array<staginggoerli_RootManagerMode>;
   staginggoerli_optimisticRootProposed?: Maybe<staginggoerli_OptimisticRootProposed>;
   staginggoerli_optimisticRootProposeds: Array<staginggoerli_OptimisticRootProposed>;
-  staginggoerli_optimisticRootFinalized?: Maybe<staginggoerli_OptimisticRootFinalized>;
-  staginggoerli_optimisticRootFinalizeds: Array<staginggoerli_OptimisticRootFinalized>;
+  staginggoerli_hubOptimisticRootFinalized?: Maybe<staginggoerli_HubOptimisticRootFinalized>;
+  staginggoerli_hubOptimisticRootFinalizeds: Array<staginggoerli_HubOptimisticRootFinalized>;
   staginggoerli_optimisticRootPropagated?: Maybe<staginggoerli_OptimisticRootPropagated>;
   staginggoerli_optimisticRootPropagateds: Array<staginggoerli_OptimisticRootPropagated>;
   staginggoerli_polygonConnectorMeta?: Maybe<staginggoerli_PolygonConnectorMeta>;
@@ -684,6 +828,10 @@ export type Query = {
   staginggoerli_zkSyncConnectorMetas: Array<staginggoerli_ZkSyncConnectorMeta>;
   staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
   staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  staginggoerli_aggregateRootSavedSlow?: Maybe<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_aggregateRootSavedSlows: Array<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_hubDomain?: Maybe<staginggoerli_HubDomain>;
+  staginggoerli_hubDomains: Array<staginggoerli_HubDomain>;
   /** Access to subgraph metadata */
   staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
@@ -797,19 +945,19 @@ export type Querystaginggoerli_optimisticRootProposedsArgs = {
 };
 
 
-export type Querystaginggoerli_optimisticRootFinalizedArgs = {
+export type Querystaginggoerli_hubOptimisticRootFinalizedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querystaginggoerli_optimisticRootFinalizedsArgs = {
+export type Querystaginggoerli_hubOptimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OptimisticRootFinalized_orderBy>;
+  orderBy?: InputMaybe<staginggoerli_HubOptimisticRootFinalized_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OptimisticRootFinalized_filter>;
+  where?: InputMaybe<staginggoerli_HubOptimisticRootFinalized_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -954,6 +1102,42 @@ export type Querystaginggoerli_rootMessageProcessedsArgs = {
   orderBy?: InputMaybe<staginggoerli_RootMessageProcessed_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_RootMessageProcessed_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootSavedSlowArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_aggregateRootSavedSlowsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRootSavedSlow_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_hubDomainArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_hubDomainsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_HubDomain_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_HubDomain_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1222,6 +1406,7 @@ export type staginggoerli_RootPropagated = {
   aggregate: Scalars['staginggoerli_Bytes'];
   domainsHash: Scalars['staginggoerli_Bytes'];
   count: Scalars['BigInt'];
+  blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
 export type staginggoerli_RootPropagated_filter = {
@@ -1261,6 +1446,14 @@ export type staginggoerli_RootPropagated_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<staginggoerli_RootPropagated_filter>>>;
@@ -1271,7 +1464,8 @@ export type staginggoerli_RootPropagated_orderBy =
   | 'id'
   | 'aggregate'
   | 'domainsHash'
-  | 'count';
+  | 'count'
+  | 'blockNumber';
 
 export type Subscription = {
   staginggoerli_rootAggregated?: Maybe<staginggoerli_RootAggregated>;
@@ -1286,8 +1480,8 @@ export type Subscription = {
   staginggoerli_rootManagerModes: Array<staginggoerli_RootManagerMode>;
   staginggoerli_optimisticRootProposed?: Maybe<staginggoerli_OptimisticRootProposed>;
   staginggoerli_optimisticRootProposeds: Array<staginggoerli_OptimisticRootProposed>;
-  staginggoerli_optimisticRootFinalized?: Maybe<staginggoerli_OptimisticRootFinalized>;
-  staginggoerli_optimisticRootFinalizeds: Array<staginggoerli_OptimisticRootFinalized>;
+  staginggoerli_hubOptimisticRootFinalized?: Maybe<staginggoerli_HubOptimisticRootFinalized>;
+  staginggoerli_hubOptimisticRootFinalizeds: Array<staginggoerli_HubOptimisticRootFinalized>;
   staginggoerli_optimisticRootPropagated?: Maybe<staginggoerli_OptimisticRootPropagated>;
   staginggoerli_optimisticRootPropagateds: Array<staginggoerli_OptimisticRootPropagated>;
   staginggoerli_polygonConnectorMeta?: Maybe<staginggoerli_PolygonConnectorMeta>;
@@ -1304,6 +1498,10 @@ export type Subscription = {
   staginggoerli_zkSyncConnectorMetas: Array<staginggoerli_ZkSyncConnectorMeta>;
   staginggoerli_rootMessageProcessed?: Maybe<staginggoerli_RootMessageProcessed>;
   staginggoerli_rootMessageProcesseds: Array<staginggoerli_RootMessageProcessed>;
+  staginggoerli_aggregateRootSavedSlow?: Maybe<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_aggregateRootSavedSlows: Array<staginggoerli_AggregateRootSavedSlow>;
+  staginggoerli_hubDomain?: Maybe<staginggoerli_HubDomain>;
+  staginggoerli_hubDomains: Array<staginggoerli_HubDomain>;
   /** Access to subgraph metadata */
   staginggoerli__meta?: Maybe<staginggoerli__Meta_>;
 };
@@ -1417,19 +1615,19 @@ export type Subscriptionstaginggoerli_optimisticRootProposedsArgs = {
 };
 
 
-export type Subscriptionstaginggoerli_optimisticRootFinalizedArgs = {
+export type Subscriptionstaginggoerli_hubOptimisticRootFinalizedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionstaginggoerli_optimisticRootFinalizedsArgs = {
+export type Subscriptionstaginggoerli_hubOptimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<staginggoerli_OptimisticRootFinalized_orderBy>;
+  orderBy?: InputMaybe<staginggoerli_HubOptimisticRootFinalized_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
-  where?: InputMaybe<staginggoerli_OptimisticRootFinalized_filter>;
+  where?: InputMaybe<staginggoerli_HubOptimisticRootFinalized_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1579,6 +1777,42 @@ export type Subscriptionstaginggoerli_rootMessageProcessedsArgs = {
 };
 
 
+export type Subscriptionstaginggoerli_aggregateRootSavedSlowArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_aggregateRootSavedSlowsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_AggregateRootSavedSlow_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_AggregateRootSavedSlow_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_hubDomainArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_hubDomainsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_HubDomain_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_HubDomain_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstaginggoerli__metaArgs = {
   block?: InputMaybe<staginggoerli_Block_height>;
 };
@@ -1718,9 +1952,9 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   staginggoerli_optimisticRootProposeds: InContextSdkMethod<Query['staginggoerli_optimisticRootProposeds'], Querystaginggoerli_optimisticRootProposedsArgs, MeshContext>,
   /** null **/
-  staginggoerli_optimisticRootFinalized: InContextSdkMethod<Query['staginggoerli_optimisticRootFinalized'], Querystaginggoerli_optimisticRootFinalizedArgs, MeshContext>,
+  staginggoerli_hubOptimisticRootFinalized: InContextSdkMethod<Query['staginggoerli_hubOptimisticRootFinalized'], Querystaginggoerli_hubOptimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  staginggoerli_optimisticRootFinalizeds: InContextSdkMethod<Query['staginggoerli_optimisticRootFinalizeds'], Querystaginggoerli_optimisticRootFinalizedsArgs, MeshContext>,
+  staginggoerli_hubOptimisticRootFinalizeds: InContextSdkMethod<Query['staginggoerli_hubOptimisticRootFinalizeds'], Querystaginggoerli_hubOptimisticRootFinalizedsArgs, MeshContext>,
   /** null **/
   staginggoerli_optimisticRootPropagated: InContextSdkMethod<Query['staginggoerli_optimisticRootPropagated'], Querystaginggoerli_optimisticRootPropagatedArgs, MeshContext>,
   /** null **/
@@ -1753,6 +1987,14 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_rootMessageProcessed: InContextSdkMethod<Query['staginggoerli_rootMessageProcessed'], Querystaginggoerli_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   staginggoerli_rootMessageProcesseds: InContextSdkMethod<Query['staginggoerli_rootMessageProcesseds'], Querystaginggoerli_rootMessageProcessedsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlow: InContextSdkMethod<Query['staginggoerli_aggregateRootSavedSlow'], Querystaginggoerli_aggregateRootSavedSlowArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlows: InContextSdkMethod<Query['staginggoerli_aggregateRootSavedSlows'], Querystaginggoerli_aggregateRootSavedSlowsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_hubDomain: InContextSdkMethod<Query['staginggoerli_hubDomain'], Querystaginggoerli_hubDomainArgs, MeshContext>,
+  /** null **/
+  staginggoerli_hubDomains: InContextSdkMethod<Query['staginggoerli_hubDomains'], Querystaginggoerli_hubDomainsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   staginggoerli__meta: InContextSdkMethod<Query['staginggoerli__meta'], Querystaginggoerli__metaArgs, MeshContext>
   };
@@ -1787,9 +2029,9 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   staginggoerli_optimisticRootProposeds: InContextSdkMethod<Subscription['staginggoerli_optimisticRootProposeds'], Subscriptionstaginggoerli_optimisticRootProposedsArgs, MeshContext>,
   /** null **/
-  staginggoerli_optimisticRootFinalized: InContextSdkMethod<Subscription['staginggoerli_optimisticRootFinalized'], Subscriptionstaginggoerli_optimisticRootFinalizedArgs, MeshContext>,
+  staginggoerli_hubOptimisticRootFinalized: InContextSdkMethod<Subscription['staginggoerli_hubOptimisticRootFinalized'], Subscriptionstaginggoerli_hubOptimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  staginggoerli_optimisticRootFinalizeds: InContextSdkMethod<Subscription['staginggoerli_optimisticRootFinalizeds'], Subscriptionstaginggoerli_optimisticRootFinalizedsArgs, MeshContext>,
+  staginggoerli_hubOptimisticRootFinalizeds: InContextSdkMethod<Subscription['staginggoerli_hubOptimisticRootFinalizeds'], Subscriptionstaginggoerli_hubOptimisticRootFinalizedsArgs, MeshContext>,
   /** null **/
   staginggoerli_optimisticRootPropagated: InContextSdkMethod<Subscription['staginggoerli_optimisticRootPropagated'], Subscriptionstaginggoerli_optimisticRootPropagatedArgs, MeshContext>,
   /** null **/
@@ -1822,6 +2064,14 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_rootMessageProcessed: InContextSdkMethod<Subscription['staginggoerli_rootMessageProcessed'], Subscriptionstaginggoerli_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   staginggoerli_rootMessageProcesseds: InContextSdkMethod<Subscription['staginggoerli_rootMessageProcesseds'], Subscriptionstaginggoerli_rootMessageProcessedsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlow: InContextSdkMethod<Subscription['staginggoerli_aggregateRootSavedSlow'], Subscriptionstaginggoerli_aggregateRootSavedSlowArgs, MeshContext>,
+  /** null **/
+  staginggoerli_aggregateRootSavedSlows: InContextSdkMethod<Subscription['staginggoerli_aggregateRootSavedSlows'], Subscriptionstaginggoerli_aggregateRootSavedSlowsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_hubDomain: InContextSdkMethod<Subscription['staginggoerli_hubDomain'], Subscriptionstaginggoerli_hubDomainArgs, MeshContext>,
+  /** null **/
+  staginggoerli_hubDomains: InContextSdkMethod<Subscription['staginggoerli_hubDomains'], Subscriptionstaginggoerli_hubDomainsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   staginggoerli__meta: InContextSdkMethod<Subscription['staginggoerli__meta'], Subscriptionstaginggoerli__metaArgs, MeshContext>
   };

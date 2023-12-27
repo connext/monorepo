@@ -101,7 +101,7 @@ jobs:
 
       ## TODO: Modify it to its previous state before merging to Connext
       - name: Yarn test
-        run: yarn test:connectors
+        run: yarn test:all
 
       - name: Yarn lint
         env:

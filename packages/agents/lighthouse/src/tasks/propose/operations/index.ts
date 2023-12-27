@@ -1,1 +1,2 @@
-export { propose, proposeSnapshot } from "./propose";
+export { proposeHub, proposeSnapshot, getCurrentOutboundRoot } from "./proposeHub";
+export { proposeSpoke } from "./proposeSpoke";

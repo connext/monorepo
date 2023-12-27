@@ -36,6 +36,7 @@ import {
   RouterDailyTVL,
   RelayerFeesIncrease,
   SlippageUpdate,
+  SpokeOptimisticRoot,
 } from "../types";
 import { getNtpTimeSeconds, getRandomAddress } from "../helpers";
 
@@ -184,6 +185,7 @@ export const mock = {
       canonicalDomain: mock.domain.A,
       canonicalId: getRandomBytes32(),
       decimal: "18",
+      adoptedDecimal: "18",
       domain: mock.domain.A,
       id: getRandomAddress(),
       key: getRandomBytes32(),
@@ -222,6 +224,7 @@ export const mock = {
         routers?: string[];
         relayerFee?: string; // deprecated
         relayerFees?: { [asset: string]: string };
+        xcall_timestamp?: number;
       } = {},
     ): XTransfer => {
       const originDomain: string = overrides.originDomain ?? mock.domain.A;
@@ -302,7 +305,7 @@ export const mock = {
                 // Event Data
                 caller: user,
                 transactionHash: getRandomBytes32(),
-                timestamp: Math.floor(Date.now() / 1000 - 60),
+                timestamp: overrides.xcall_timestamp ?? Math.floor(Date.now() / 1000 - 60),
                 gasPrice: utils.parseUnits("5", "gwei").toString(),
                 gasLimit: "80000",
                 blockNumber: 7654321,
@@ -497,6 +500,9 @@ export const mock = {
       roots: [getRandomBytes32(), getRandomBytes32()],
       domains: [mock.domain.A, mock.domain.B],
       endOfDispute: Math.floor(Date.now() / 1000),
+      proposedTimestamp: Math.floor(Date.now() / 1000),
+      finalizedTimestamp: Math.floor(Date.now() / 1000),
+      propagateTimestamp: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
     optimisticRootFinalized: (overrides: Partial<OptimisticRootFinalized> = {}): OptimisticRootFinalized => ({
@@ -510,6 +516,14 @@ export const mock = {
       aggregateRoot: getRandomBytes32(),
       domainsHash: getRandomBytes32(),
       timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    }),
+    spokeOptimisticRoot: (overrides: Partial<SpokeOptimisticRoot> = {}): SpokeOptimisticRoot => ({
+      id: getRandomBytes32(),
+      aggregateRoot: getRandomBytes32(),
+      domain: mock.domain.A,
+      rootTimestamp: Math.floor(Date.now() / 1000),
+      endOfDispute: Math.floor(Date.now() / 1000),
       ...overrides,
     }),
     stableSwapPool: (overrides: Partial<StableSwapPool> = {}): StableSwapPool => ({
@@ -692,4 +706,5 @@ export const mock = {
       },
     },
   },
+  snapshotDuration: 1,
 };

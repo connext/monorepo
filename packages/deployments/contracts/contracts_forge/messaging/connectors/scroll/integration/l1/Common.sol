@@ -108,9 +108,5 @@ contract Common is ConnectorHelper {
     // Update the gas cap to the one we set on the scroll hub connector (`vm.etch` fails and sets it as 0)
     vm.prank(scrollHubConnector.owner());
     scrollHubConnector.setGasCap(_gasCap);
-
-    // Set root manager as slow mode so the L1_SCROLL_MESSENGER messages can be received
-    vm.prank(whitelistedWatcher);
-    rootManager.activateSlowMode();
   }
 }

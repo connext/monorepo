@@ -21,6 +21,10 @@ locals {
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
     { name = "GRAPH_API_KEY", value = var.graph_api_key }
   ]
+  router_publisher_env_vars = concat(
+    local.router_env_vars, [
+      { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
+  ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,
@@ -36,6 +40,13 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
+  lighthouse_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.lighthouse_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_web3signer_env_vars = [
@@ -67,20 +78,6 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
-  watcher_env_vars = [
-    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage }
-  ]
-  watcher_web3signer_env_vars = [
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.watcher_web3_signer_private_key },
-    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
-  ]
 }
 
 locals {
@@ -101,23 +98,26 @@ locals {
         excludeListFromRelayerFee = ["0x5b9315ce1304df3b2a83b2074cbf849d160642ab"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"],
+        providers                 = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/optimism"],
         excludeListFromRelayerFee = ["0x9D9ce29Dc7812ccb63aB14EA987B52d9aF053Eb3"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"],
+        providers                 = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/polygon"],
         excludeListFromRelayerFee = ["0x83e8Cf4A51035665BAF97DdB0cf03b565AC76B44"]
       }
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"],
+        providers                 = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://rpc.ankr.com/arbitrum"],
         excludeListFromRelayerFee = ["0xE6B7aB9EBCfBF1A72E489ff00CdF9C6473ff6224"]
       }
       "6450786" = {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
+        providers                 = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
         excludeListFromRelayerFee = ["0x6D4D82aE73DC9059Ac83B085b2505e00b5eF8511"]
+      }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -194,6 +194,12 @@ locals {
           queueLimit = 1000000
           subscribe  = true
         },
+        {
+          name       = "1818848877"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }
       ]
       bindings = [
         {
@@ -230,6 +236,11 @@ locals {
           exchange = "sequencerX"
           target   = "6778479"
           keys     = ["6778479"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1818848877"
+          keys     = ["1818848877"]
         },
       ]
       executerTimeout = 300000
@@ -276,6 +287,9 @@ locals {
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -294,7 +308,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://eth-mainnet.blastapi.io/${var.blast_key}"]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]
@@ -310,6 +324,9 @@ locals {
       }
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
+      }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -336,6 +353,7 @@ locals {
       prover           = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_prover_heartbeat}"
       processor        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_processor_heartbeat}"
       propagate        = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propagate_heartbeat}"
+      propose          = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propose_heartbeat}"
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
     hubDomain = "6648936"
@@ -345,7 +363,8 @@ locals {
       "1886350457" = 10,
       "1634886255" = 10,
       "6450786"    = 10,
-      "6778479"    = 10
+      "6778479"    = 10,
+      "1818848877" = 10
     }
     messageQueue = {
       connection = {
@@ -360,6 +379,7 @@ locals {
       }
       prefetchSize = 1
     }
+    web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
@@ -390,43 +410,11 @@ locals {
       "6778479" = {
         providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"]
       }
+      "1818848877" = {
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
-  })
-
-  local_watcher_config = jsonencode({
-    server = {
-      adminToken = var.admin_token_watcher
-    }
-    environment = "production"
-    logLevel    = "debug"
-    chains = {
-      "6648936" = {
-        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}", "https://eth.llamarpc.com", "https://rpc.ankr.com/eth", "https://api.zmok.io/mainnet/oaen6dy8ff6hju9k"]
-      },
-      "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io", "https://rpc.ankr.com/optimism"]
-      },
-      "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com", "https://polygon-bor.publicnode.com", "https://rpc.ankr.com/polygon"]
-      }
-      "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc", "https://rpc.ankr.com/arbitrum"]
-      }
-      "6450786" = {
-        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc", "https://bsc-dataseed1.defibit.io"]
-      }
-      "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis", "https://xdai-rpc.gateway.pokt.network", "https://rpc.gnosis.gateway.fm"]
-      }
-    }
-    web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
-    environment                = var.stage
-    discordHookUrl             = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
-    telegramApiKey             = "${var.telegram_api_key}"
-    telegramChatId             = "${var.telegram_chat_id}"
-    betterUptimeApiKey         = "${var.betteruptime_api_key}"
-    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }
