@@ -365,35 +365,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      25: {
-        prefix: "Sygma",
-        networkName: "Cronos",
-        ambs: {
-          // Sepolia Bridge
-          // https://sepolia.etherscan.io/address/0x4CF326d3817558038D1DEF9e76b727202c3E8492
-          hub: "0x4CF326d3817558038D1DEF9e76b727202c3E8492",
-          // Cronos Bridge
-          // https://explorer.cronos.org/testnet/address/0x816bb9e810b6b97840f6818bf21fa25dd7364132
-          spoke: "0x816bb9E810b6b97840F6818bF21Fa25DD7364132",
-        },
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        custom: {
-          hub: {
-            gasCap: BigNumber.from("200000"),
-            // Sepolia PermissionlessGenericHandler
-            // https://sepolia.etherscan.io/address/0x7dCBdb9cBA0Bb1871EECafAB290E5a2e45077479
-            permissionlessGenericHandler: "0x7dCBdb9cBA0Bb1871EECafAB290E5a2e45077479",
-          },
-          spoke: {
-            gasCap: DEFAULT_PROCESS_GAS,
-            // Cronos PermissionlessGenericHandler
-            // https://explorer.cronos.org/testnet/address/0x3CBbC542d10CD037cafb1632B29B5B0F59B08A48
-            permissionlessGenericHandler: "0x3CBbC542d10CD037cafb1632B29B5B0F59B08A48",
-          },
-        },
-      },
       // Fuel Testnet Sepolia-Fuel
       // Fuel doesn't have chain id yet
       44444444: {
@@ -563,36 +534,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
-          },
-        },
-      },
-      // Sygma
-      25: {
-        prefix: "Sygma",
-        networkName: "Cronos",
-        ambs: {
-          // Bridge
-          // https://etherscan.io/address/0x4D878E8Fb90178588Cda4cf1DCcdC9a6d2757089
-          hub: "0x4D878E8Fb90178588Cda4cf1DCcdC9a6d2757089",
-          // Bridge
-          // https://cronoscan.com/address/0x44d1Ae962945c5B168282D5002705dE7A9B84657
-          spoke: "0x44d1Ae962945c5B168282D5002705dE7A9B84657",
-        },
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        custom: {
-          hub: {
-            gasCap: BigNumber.from("200000"),
-            // Ethereum PermissionlessGenericHandler
-            // https://etherscan.io/address/0x31282123E7bcd947e2c1Bc364d564839574fAdCD
-            permissionlessGenericHandler: "0x31282123E7bcd947e2c1Bc364d564839574fAdCD",
-          },
-          spoke: {
-            gasCap: DEFAULT_PROCESS_GAS,
-            // Cronos PermissionlessGenericHandler
-            // https://cronoscan.com/address/0xB86bAe6A570a52cBc38Cf6Ac6557F169422cDf30
-            permissionlessGenericHandler: "0xB86bAe6A570a52cBc38Cf6Ac6557F169422cDf30",
           },
         },
       },
