@@ -486,12 +486,12 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6oJrPk9YJEU9rWU4DAizjZdALSccxe5ZahBsTtFaGksU"
             retry: 2
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
           # - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp"
           #   retry: 5
           #   timeout: 30000 # 30 seconds
