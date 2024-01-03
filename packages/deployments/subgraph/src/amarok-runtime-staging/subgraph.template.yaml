@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Asset
@@ -83,7 +83,7 @@ dataSources:
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AggregateRoot
@@ -123,7 +123,7 @@ dataSources:
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - OriginMessage
