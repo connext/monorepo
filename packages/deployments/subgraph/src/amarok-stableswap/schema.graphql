@@ -1,0 +1,196 @@
+### STABLE SWAP
+type SystemInfo @entity {
+  id: ID!
+
+  exchangeCount: BigInt!
+  swapCount: BigInt!
+}
+
+type PooledToken @entity {
+  id: ID!
+  asset: Bytes!
+}
+
+type StableSwap @entity {
+  id: ID!
+
+  isActive: Boolean
+
+  # StableSwapAdded
+  key: Bytes!
+  canonicalId: Bytes
+  domain: BigInt
+  swapPool: Bytes
+
+  # SwapInitialized
+  lpToken: Bytes
+
+  initialA: BigInt
+  futureA: BigInt
+
+  initialATime: BigInt
+  futureATime: BigInt
+
+  swapFee: BigInt
+  adminFee: BigInt
+  pooledTokens: [Bytes!]!
+  tokenPrecisionMultipliers: [BigInt!]!
+  balances: [BigInt!]!
+  adminFees: [BigInt!]!
+
+  virtualPrice: BigInt!
+  invariant: BigInt!
+  lpTokenSupply: BigInt!
+
+  events: [StableSwapEvent!] @derivedFrom(field: "stableSwap")
+  exchanges: [StableSwapExchange!] @derivedFrom(field: "stableSwap")
+
+  # cumulative hourly trade volume
+  hourlyVolumes: [SwapHourlyVolume!] @derivedFrom(field: "stableSwap")
+
+  # cumulative daily trade volume
+  dailyVolumes: [SwapDailyVolume!] @derivedFrom(field: "stableSwap")
+
+  # cumulative weekly trade volume
+  weeklyVolumes: [SwapWeeklyVolume!] @derivedFrom(field: "stableSwap")
+}
+
+interface StableSwapEvent @entity {
+  id: ID!
+  stableSwap: StableSwap!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}
+
+type StableSwapAddLiquidityEvent implements StableSwapEvent @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  provider: Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]!
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
+  balances: [BigInt!]!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}
+
+type StableSwapRemoveLiquidityEvent implements StableSwapEvent @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  provider: Bytes!
+  tokenAmounts: [BigInt!]!
+  fees: [BigInt!]
+  invariant: BigInt
+  lpTokenSupply: BigInt!
+  lpTokenAmount: BigInt!
+  balances: [BigInt!]!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}
+
+type StableSwapExchange @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  buyer: Bytes!
+  boughtId: BigInt!
+  tokensBought: BigInt!
+  soldId: BigInt!
+  tokensSold: BigInt!
+  balances: [BigInt!]!
+  fee: BigInt!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}
+
+interface SwapTradeVolume @entity {
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapDailyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapHourlyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type SwapWeeklyVolume implements SwapTradeVolume @entity {
+  id: ID!
+  stableSwap: StableSwap!
+  timestamp: BigInt!
+  volume: BigDecimal!
+}
+
+type LpAccount @entity {
+  id: ID!
+  address: Bytes!
+  balances: [LpAccountBalance!]! @derivedFrom(field: "account")
+}
+
+type LpAccountBalance @entity {
+  id: ID!
+  account: LpAccount!
+  token: LpToken!
+  amount: BigDecimal!
+  block: BigInt
+  modified: BigInt
+  transaction: Bytes
+}
+
+type LpToken @entity {
+  id: ID!
+  address: Bytes!
+  stableSwap: StableSwap!
+  decimals: Int!
+  name: String!
+  symbol: String!
+  totalSupply: BigDecimal!
+  events: [LpTokenEvent!]! @derivedFrom(field: "token")
+}
+
+interface LpTokenEvent {
+  id: ID!
+  token: LpToken!
+  amount: BigDecimal!
+
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}
+
+type LpTransferEvent implements LpTokenEvent @entity {
+  id: ID!
+  token: LpToken!
+  amount: BigDecimal!
+  from: Bytes!
+  to: Bytes!
+  fromBalance: BigDecimal!
+  toBalance: BigDecimal!
+  block: BigInt!
+  timestamp: BigInt!
+  transaction: Bytes!
+  nonce: BigInt!
+}

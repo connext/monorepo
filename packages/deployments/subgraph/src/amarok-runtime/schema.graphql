@@ -1,0 +1,321 @@
+type Asset @entity {
+  id: ID! # local asset address
+  key: Bytes
+  decimal: BigInt
+  adoptedDecimal: BigInt
+  canonicalId: Bytes
+  canonicalDomain: BigInt
+  adoptedAsset: Bytes
+  localAsset: Bytes
+  blockNumber: BigInt # needed in case multiple locals are stored under the same canonicalId
+  # status
+  status: AssetStatus
+}
+
+type AssetStatus @entity {
+  id: ID! # key
+  status: Boolean
+}
+
+type AssetBalance @entity {
+  id: ID! # `key-router_address`
+  amount: BigInt!
+  locked: BigInt!
+  supplied: BigInt!
+  removed: BigInt!
+  router: Router!
+  asset: Asset!
+  feesEarned: BigInt!
+}
+
+# Router represents a router and its associated liquidity
+type Router @entity {
+  id: ID!
+  isActive: Boolean!
+  owner: Bytes
+  recipient: Bytes
+  proposedOwner: Bytes
+  proposedTimestamp: BigInt
+  assetBalances: [AssetBalance!]! @derivedFrom(field: "router")
+}
+
+type RouterDailyTVL @entity {
+  id: ID!
+  router: Router!
+  asset: Asset!
+  timestamp: BigInt!
+  balance: BigInt!
+}
+
+enum RouterLiquidityEventType {
+  Add
+  Remove
+}
+
+type RouterLiquidityEvent @entity {
+  id: ID!
+  type: RouterLiquidityEventType
+  router: Router!
+  asset: Asset!
+  amount: BigInt!
+  balance: BigInt!
+
+  caller: Bytes
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+  nonce: BigInt!
+}
+
+type Setting @entity {
+  id: ID!
+  maxRoutersPerTransfer: BigInt!
+  caller: Bytes!
+}
+
+type Relayer @entity {
+  id: ID!
+  isActive: Boolean!
+  relayer: Bytes
+}
+
+type Sequencer @entity {
+  id: ID!
+  isActive: Boolean!
+  sequencer: Bytes
+}
+
+enum TransferStatus {
+  XCalled
+  Executed
+  Reconciled
+  CompletedSlow
+  CompletedFast
+}
+
+type RelayerFee @entity {
+  id: ID!
+  transfer: OriginTransfer!
+  fee: BigInt!
+  asset: Bytes!
+}
+
+type OriginTransfer @entity {
+  id: ID!
+
+  # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+  status: TransferStatus
+  messageHash: Bytes
+
+  # CallParams
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
+  receiveLocal: Boolean
+  callData: Bytes
+  slippage: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
+
+  # Asset
+  asset: Asset
+  transactingAsset: Bytes
+
+  # Message
+  message: OriginMessage
+
+  # Relayer Fee paid by user
+  bumpRelayerFeeCount: BigInt
+  relayerFees: [RelayerFee!]
+  initialRelayerFeeAsset: Bytes
+
+  # XCalled Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+  txOrigin: Bytes
+  txNonce: BigInt
+}
+
+type DestinationTransfer @entity {
+  id: ID!
+
+  # Meta
+  chainId: BigInt
+  transferId: Bytes
+  nonce: BigInt
+  status: TransferStatus
+  routers: [Router!]
+
+  # CallParams
+  originDomain: BigInt
+  destinationDomain: BigInt
+  canonicalDomain: BigInt
+  to: Bytes
+  delegate: Bytes
+  receiveLocal: Boolean
+  callData: Bytes
+  slippage: BigInt
+  bumpSlippageCount: BigInt
+  originSender: Bytes
+  bridgedAmt: BigInt
+  normalizedIn: BigInt
+  canonicalId: Bytes
+
+  # Asset
+  asset: Asset
+  amount: BigInt
+
+  # calculated
+  routersFee: BigInt
+
+  # Executed Transaction
+  executedCaller: Bytes
+  executedTransactionHash: Bytes
+  executedTimestamp: BigInt
+  executedGasPrice: BigInt
+  executedGasLimit: BigInt
+  executedBlockNumber: BigInt
+  executedTxOrigin: Bytes
+  executedTxNonce: BigInt
+
+  # Reconciled Transaction
+  reconciledCaller: Bytes
+  reconciledTransactionHash: Bytes
+  reconciledTimestamp: BigInt
+  reconciledGasPrice: BigInt
+  reconciledGasLimit: BigInt
+  reconciledBlockNumber: BigInt
+  reconciledTxOrigin: Bytes
+  reconciledTxNonce: BigInt
+}
+
+type OriginMessage @entity {
+  id: ID!
+
+  # origin transfer data
+  transferId: Bytes
+  destinationDomain: BigInt
+
+  # Dispatch Transaction
+  leaf: Bytes
+  index: BigInt
+  message: Bytes
+  root: Bytes
+  transactionHash: Bytes
+  blockNumber: BigInt
+
+  # root count RD
+  rootCount: RootCount
+}
+
+type AggregateRoot @entity {
+  id: ID!
+  root: Bytes!
+  blockNumber: BigInt!
+}
+
+type ConnectorMeta @entity {
+  id: ID! # "ConnectorMeta"
+  spokeDomain: BigInt
+  hubDomain: BigInt
+
+  amb: Bytes
+  rootManager: Bytes
+  mirrorConnector: Bytes
+}
+
+type RootCount @entity {
+  id: ID!
+  count: BigInt
+}
+
+type RootMessageSent @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
+  count: BigInt
+
+  # MessageSent Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type RelayerFeesIncrease @entity {
+  id: ID!
+
+  transfer: OriginTransfer!
+  increase: BigInt
+  asset: Bytes
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+type SlippageUpdate @entity {
+  id: ID!
+
+  transfer: DestinationTransfer!
+  slippage: BigInt!
+
+  # _bumpTransfer Transaction
+  caller: Bytes!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  gasPrice: BigInt!
+  gasLimit: BigInt!
+  blockNumber: BigInt!
+}
+
+type SnapshotRoot @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  root: Bytes!
+  count: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type SpokeConnectorMode @entity {
+  id: ID!
+  mode: String!
+}
+
+type AggregateRootProposed @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  rootTimestamp: BigInt!
+  endOfDispute: BigInt!
+  domain: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type OptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
