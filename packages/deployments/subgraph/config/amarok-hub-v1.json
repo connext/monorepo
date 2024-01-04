@@ -1,0 +1,84 @@
+[
+  {
+    "subgraphName": "connext/amarok-hub-v1-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0x523AB7424AD126809b1d7A134eb6E0ee414C9B3A",
+        "startBlock": 18737740
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x7D2596D7E44b0990611d390Fbb0Bd24e64845694",
+        "startBlock": 16232831
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0xE8cF9EbB1cFB137c692a0a4E470E257B9417d116",
+        "startBlock": 18737808
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0x5c2149869146DeA55cDD1CF2DD828e4e1548bb2A",
+        "startBlock": 18737767
+      },
+      {
+        "name": "GnosisHubConnector",
+        "address": "0xF1c78967584D5E0ffF66dA103b8eb06c82EC020d",
+        "startBlock": 18737803
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0x83096c7455f24E593aaC9A7c73f849d36d3EEb82",
+        "startBlock": 18737820
+      },
+      {
+        "name": "BnbHubConnector",
+        "address": "0xae6B9cDE6191b710F5A18D82f751Ba52B78a99DA",
+        "startBlock": 18737801
+      },
+      {
+        "name": "LineaHubConnector",
+        "address": "0x56Ab287e5c33Ee70158c951f34818bd095446255",
+        "startBlock": 18737822
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-hub-v1-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0xA63DF6af82091BdB11402800B56c9440BD97f1bB",
+        "startBlock": 10168630
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x2A2A9a4B612678E081b74a0bBcfD51DE726a9bd7",
+        "startBlock": 8173338
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x5C9d14CCfC6481EC6bDAaA9f0D7663f1e7349eE4",
+        "startBlock": 10168636
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0x4e1A541A3217799C58AEECDE3bbe00D6f2aA7Afb",
+        "startBlock": 10168634
+      },
+      {
+        "name": "LineaHubConnector",
+        "address": "0x7cF93aDe5C9E84b1875987d976805D0A3b87B4eb",
+        "startBlock": 10168635
+      },
+      {
+        "name": "BaseHubConnector",
+        "address": "0x5CF82cB512A3CDCDb117c09D3bFFF34709900647",
+        "startBlock": 10209383
+      }
+    ]
+  }
+]
