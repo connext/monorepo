@@ -201,9 +201,24 @@ sources:
   - name: Connext_X1Testnet
     handler:
       graphql:
-        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-x1-testnet"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://www.okx.com/api/v1/x1-testnet/subgraph/name/connext/amarok-runtime-v1-x1-testnet"
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-x1-testnet
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: x1testnet_
