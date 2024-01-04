@@ -372,9 +372,6 @@ sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-optimism
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-optimism"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: optimism_
@@ -405,9 +402,6 @@ sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-polygon
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6NccoNRo22DgB7oCHaG7U5MxvfYXcCERRN1oVtCWm32x"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygon_
@@ -438,9 +432,6 @@ sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-arbitrum-one
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://gateway.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DNQfRxJou184r5YagTz9HUQST5URsY2WdYkegH9Rrdkf"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: arbitrumone_
@@ -471,9 +462,6 @@ sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
-          #   retry: 2
-          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_
@@ -501,12 +489,9 @@ sources:
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6oJrPk9YJEU9rWU4DAizjZdALSccxe5ZahBsTtFaGksU"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-gnosis"
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://graph-indexer.bwarelabs.com/subgraphs/id/QmU3SWxCwxaUMPkR4baatKMKAxs4mQfqHmXywzVyWxDuBp"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: xdai_
