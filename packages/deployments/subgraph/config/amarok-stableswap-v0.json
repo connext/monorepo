@@ -66,6 +66,17 @@
     ]
   },
   {
+    "subgraphName": "connext/stableswap-v0-base",
+    "network": "base",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB8448C6f7f7887D36DcA487370778e419e9ebE3F",
+        "startBlock": 7866926
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/stableswap-v0-goerli",
     "network": "goerli",
     "source": [
