@@ -1,0 +1,178 @@
+# ROOT MANAGER
+type RootAggregated @entity {
+  id: ID! # "RootAggregated"
+  domain: BigInt!
+  receivedRoot: Bytes!
+  index: BigInt!
+}
+
+type RootPropagated @entity {
+  id: ID! # "RootPropagated"
+  aggregate: Bytes!
+  domainsHash: Bytes!
+  count: BigInt!
+  blockNumber: BigInt
+}
+
+type AggregatedMessageRoot @entity {
+  id: ID! # Same as index.
+  index: BigInt! # Index in the aggregate tree.
+  receivedRoot: Bytes! # The actual leaf hash; the 32-byte message root.
+  domain: BigInt
+  blockNumber: BigInt
+}
+
+type RootManagerMeta @entity {
+  id: ID! # "ROOT_MANAGER_META_ID"
+  domains: [BigInt!]
+  connectors: [Bytes!]
+}
+
+type RootManagerMode @entity {
+  id: ID! # "ROOT_MANAGER_MODE_ID"
+  mode: String!
+}
+
+type OptimisticRootProposed @entity {
+  id: ID!
+  disputeCliff: BigInt!
+  aggregateRoot: Bytes!
+  snapshotsRoots: [Bytes!]
+  domains: [BigInt!]
+  baseAggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type HubOptimisticRootFinalized @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+type OptimisticRootPropagated @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  domainsHash: Bytes!
+  timestamp: BigInt!
+  blockNumber: BigInt
+}
+
+# POLYGON
+type PolygonConnectorMeta @entity {
+  id: ID! # "PolygonConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# OPTIMISM
+type OptimismConnectorMeta @entity {
+  id: ID! # "OptimismConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# BNB
+type BnbConnectorMeta @entity {
+  id: ID! # "BnbConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# ARBITRUM
+type ArbitrumConnectorMeta @entity {
+  id: ID! # "ArbitrumConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# GNOSIS
+type GnosisConnectorMeta @entity {
+  id: ID! # "GnosisConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# ZKSYNC
+type ZkSyncConnectorMeta @entity {
+  id: ID! # "ZkSyncConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# LINEA
+type LineaConnectorMeta @entity {
+  id: ID! # "LineaConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# BASE
+type BaseConnectorMeta @entity {
+  id: ID! # "BaseConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# HUB CONNECTOR
+type RootMessageProcessed @entity {
+  id: ID!
+
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+  root: Bytes
+
+  # MessageProcessed Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
+
+type AggregateRootSavedSlow @entity {
+  id: ID!
+  aggregateRoot: Bytes!
+  count: BigInt!
+  aggregatedRoots: [Bytes!]
+  rootTimestamp: BigInt!
+}
+
+type HubDomain @entity {
+  id: ID! # "HUB_DOMAIN_ID"
+  domain: BigInt
+}
