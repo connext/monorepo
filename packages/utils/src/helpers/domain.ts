@@ -24,6 +24,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1666600000, 0x686d79], // Harmony Mainnet (hmy interpreted as int) 6778479
   [2001, 0x6d696c6b], // Milkomeda Mainnet (milk interpreted as int)
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
+  [5000, 0x6d6e74], // Mantle Mainnet (mnt interpreted as int) 7171700
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
@@ -37,6 +38,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59140, 0x636f6e74], // Consensys Linea goerli (cont interpreted as int) 1668247156
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
+  [5001, 0x6d6e7474], // Mantle Testnet ('mntt' interpreted as int) 1835955316
   // local
   [1337, 133712],
   [1338, 133812],
