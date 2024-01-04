@@ -131,3 +131,18 @@ export class AggregateRootChecksFailed extends NxtpError {
     });
   }
 }
+
+export class WaitTimeNotCompleted extends NxtpError {
+  constructor(
+    public readonly domain: string,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Wait time not completed for ${domain}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}

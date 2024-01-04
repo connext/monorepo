@@ -36,7 +36,7 @@ describe("Operations: Propose", () => {
       );
 
       await proposeHub();
-      expect(getCurrentOutboundRootStub).callCount(2);
+      expect(getCurrentOutboundRootStub).callCount(0);
       expect(proposeSnapshotStub).callCount(1);
     });
   });

@@ -40,11 +40,12 @@ export const log = {
       to: string;
       data: string;
       chain: number | string;
+      from: string | undefined;
       deployment: Deployment;
       call: { method: string; args: (number | string)[] };
     }) => {
-      const { chain, deployment, call, to, data } = args;
-      console.log(log.prefix.value({ chain, deployment, call }) + JSON.stringify({ to, chain, data }));
+      const { chain, deployment, call, to, data, from } = args;
+      console.log(log.prefix.value({ chain, deployment, call }) + JSON.stringify({ to, chain, data, from }));
     },
   },
   error: {

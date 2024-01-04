@@ -183,7 +183,7 @@ export const updateRouterLiquidityEvents = async () => {
         undefined,
         event.id,
       );
-      logger.info("Retrieved router add liquidity event", _requestContext, _methodContext, { event });
+      logger.info("Retrieved router liquidity event", _requestContext, _methodContext, { event });
     });
     const checkpoints = domains
       .map((domain) => {

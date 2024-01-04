@@ -896,7 +896,7 @@ export class SubgraphReader {
    * Gets proposed spoke optimistic roots
    */
   public async getProposedSpokeOptimisticRootsByDomain(
-    params: { domain: string; rootTimestamp: number; limit: number; maxBlockNumber: number }[],
+    params: { domain: string; proposeTimestamp: number; limit: number; maxBlockNumber: number }[],
   ): Promise<SpokeOptimisticRoot[]> {
     const { parser, execute } = getHelpers();
     const proposedSpokeOptimisticRootsByDomainQuery = getProposedSpokeOptimisticRootsByDomainQuery(params);

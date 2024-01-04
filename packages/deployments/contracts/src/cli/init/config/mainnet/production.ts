@@ -1,6 +1,7 @@
 import { utils } from "ethers";
 
 import { InitConfig } from "../../helpers";
+import { PROTOCOL_ADMINS } from "../../../ownership/helpers";
 
 export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
   hub: "6648936", // MAINNET
@@ -595,19 +596,39 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         // BINANCE
       },
     },
+    {
+      name: "xoLIT",
+      canonical: {
+        domain: "11111",
+        address: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
-      "6648936": "0x4d50a469fc788a3c0CdC8Fd67868877dCb246625",
-      "1869640809": "0x6eCeD04DdC5A7709d5877c963cED0288Fb1c7348",
-      "1886350457": "0x0970Adeb473609F91D03e9Bba85F49C445040cD7",
-      "1634886255": "0x5C711DB90dEc0a5B81C626968DEa4187a7f9C1F2",
-      "6450786": "0x9435Ba7C661a0Fd477deED640491de8c100325A7",
-      "6778479": "0x7616Bc6d0dee5E250BA5b3dDa6cbbB71786FB638",
-      "1818848877": "0x50d22a34183e7cD3164184011998a3D50303f75d",
+      "6648936": PROTOCOL_ADMINS.mainnet["6648936"],
+      "1869640809": PROTOCOL_ADMINS.mainnet["1869640809"],
+      "1886350457": PROTOCOL_ADMINS.mainnet["1886350457"],
+      "1634886255": PROTOCOL_ADMINS.mainnet["1634886255"],
+      "6450786": PROTOCOL_ADMINS.mainnet["6450786"],
+      "6778479": PROTOCOL_ADMINS.mainnet["6778479"],
+      "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"],
     },
     watchers: {
-      allowlist: ["0xade09131C6f43fe22C2CbABb759636C43cFc181e", "0x9c77788d761ee0347Ab550883237CeD274a0F248"],
+      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
@@ -640,16 +661,14 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
-        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato 1balance
-        "0x0ae392879A228B2484D9B1F80A5D0B7080FE79C2", // gelato arbitrum
-        "0x43100a190c3feae37cb1f5d880e8fa8d81be5cb9", // gelato arbitrum
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato 1balance
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
-        "0x9B077C59fDe7de5AdCeF8093Bc38B61d43FC7007", // gelato mainnet
-        "0xE2Fc8F14B6cEb1AD8165623E02953eDB100288bE", // gelato polygon
-        "0xe8a5eE73f3c8F1Cd55915f6Eb5Fc7df4206f3C78", // gelato optimism
-        "0x43728A95386D64384C76Afd416Dcc8118869BA6c", // gelato bsc
-        "0x62B1a88CCc6BC5e6FF91FB2FCD29Ab4F819b35C6", // gelato gnosis
+        // "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato 1balance zksync era
+      ],
+    },
+    proposers: {
+      allowlist: [
+        "0x163Ac207A8A9b9675bE139256c4d0dc19BBfb93B", // lighthouse
       ],
     },
   },

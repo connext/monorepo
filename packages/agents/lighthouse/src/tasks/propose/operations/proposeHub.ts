@@ -23,6 +23,7 @@ import {
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
   AggregateRootChecksFailed,
+  WaitTimeNotCompleted,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -69,8 +70,22 @@ export const proposeHub = async () => {
     throw new NoSpokeConnector(config.hubDomain, requestContext, methodContext);
   }
 
-  const latestSnapshotId: number = Math.floor(getNtpTimeSeconds() / config.snapshotDuration);
+  // Use N snapshot ID to ensure that the proposal submitted.
+  const currentTimestamp = getNtpTimeSeconds();
+  const latestSnapshotId: number = Math.floor(currentTimestamp / config.snapshotDuration);
   const latestSnapshotTimestamp = latestSnapshotId * config.snapshotDuration;
+
+  const timeSinceSnapshotStart = currentTimestamp - latestSnapshotTimestamp;
+  const waitTime = Math.floor(config.snapshotDuration / 3);
+  if (timeSinceSnapshotStart < waitTime) {
+    // Exit if earlier than 1/3 of the snapshot duration to help accommodate time boundary conditions
+    logger.info("Skipping ProposeHub. Wait time not completed", requestContext, methodContext, {
+      remainingTime: waitTime - timeSinceSnapshotStart,
+      currentTimestamp,
+      latestSnapshotTimestamp,
+    });
+    throw new WaitTimeNotCompleted(config.hubDomain, requestContext, methodContext);
+  }
 
   logger.info("Using latest snapshot ID", requestContext, methodContext, {
     latestSnapshotId,
@@ -80,18 +95,17 @@ export const proposeHub = async () => {
     const orderedSnapshotRoots: string[] = [];
     const snapshotRoots: Map<string, string> = new Map();
 
-    // Sort the snapshot roots in the order of root manager domains
     await Promise.all(
       rootManagerDomains.map(async (domain) => {
-        let latestSnapshotRoot: string;
-        const snapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain);
-        if (!snapshotRoot) {
-          throw new NoSnapshotRoot(domain, requestContext, methodContext);
-        }
-        const latestDbSnapshotId = +snapshotRoot.id;
-        latestSnapshotRoot = await getCurrentOutboundRoot(domain, requestContext);
+        let domainSnapshotRoot;
+        const snapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain, latestSnapshotId.toString());
+        if (snapshotRoot) {
+          logger.debug("Found snapshot root in db", requestContext, methodContext, { snapshotRoot, domain });
+          domainSnapshotRoot = snapshotRoot.root;
+        } else {
+          const domainOutboundRoot = await getCurrentOutboundRoot(domain, requestContext);
 
-        /* Handle boundary case where snapshot for the outbound root is not yet saved.
+          /* Handle boundary case where snapshot for the outbound root is not yet saved.
           There is a window between the time LH proposes the outbound root and watcher reads the spoke connector contract,
           in which if there is a new xcall the outbound root gets updated. We were exposed to false alarm by watcher.
 
@@ -101,43 +115,63 @@ export const proposeHub = async () => {
               which will be the outboundRroot because LH waited
               and ensured it was the outboundRoot that will be saved as snapshotRoot if and when there is an xcall
           2. Watcher does not find the snapshotId of the proposal, as there was no xcall and hence no save,
-              and instead gets exact same outbound root from the spoke connector contract
+              and instead gets the exact same outbound root from the spoke connector contract
+          3. Ensure that the snapshot root is not older than the latest snapshot timestamp
          */
-        const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, latestSnapshotRoot);
-        if (
-          latestSnapshotId > latestDbSnapshotId &&
-          outboundRootTimestamp &&
-          outboundRootTimestamp < latestSnapshotTimestamp
-        ) {
-          const messageRootCount = await database.getMessageRootCount(domain, latestSnapshotRoot);
-          if (
-            messageRootCount &&
-            snapshotRoot.root.toLowerCase() != latestSnapshotRoot.toLowerCase() &&
-            snapshotRoot.count != messageRootCount
-          ) {
-            logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
-              domain,
-              count: messageRootCount + 1,
-              latestDbSnapshotId,
-              latestSnapshotId,
-            });
-            await database.saveSnapshotRoots([
-              {
-                id: latestSnapshotId.toString(),
-                spokeDomain: +domain,
-                root: latestSnapshotRoot,
+          const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, domainOutboundRoot);
+          if (outboundRootTimestamp && outboundRootTimestamp < latestSnapshotTimestamp) {
+            const messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
+            if (messageRootCount) {
+              logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
+                domain,
                 count: messageRootCount + 1,
-                timestamp: latestSnapshotTimestamp,
+                snapshotId: latestSnapshotId,
+              });
+              await database.saveSnapshotRoots([
+                {
+                  id: latestSnapshotId.toString(),
+                  spokeDomain: +domain,
+                  root: domainOutboundRoot,
+                  count: messageRootCount + 1,
+                  timestamp: latestSnapshotTimestamp,
+                },
+              ]);
+              domainSnapshotRoot = domainOutboundRoot;
+            } else {
+              logger.warn("No message root count found for domain", requestContext, methodContext, {
+                domain,
+                domainOutboundRoot,
+              });
+            }
+          } else {
+            logger.warn(
+              "Likely subgraph or cartographer delay. No qualified outbound root timestamp found for domain.",
+              requestContext,
+              methodContext,
+              {
+                domain,
+                domainOutboundRoot,
+                outboundRootTimestamp,
+                cooledDown: outboundRootTimestamp ? outboundRootTimestamp < latestSnapshotTimestamp : false,
               },
-            ]);
+            );
           }
-        } else {
-          latestSnapshotRoot = snapshotRoot.root;
         }
-        snapshotRoots.set(domain, latestSnapshotRoot);
+        if (domainSnapshotRoot) {
+          snapshotRoots.set(domain, domainSnapshotRoot);
+        } else {
+          logger.warn("No snapshot root found for domain", requestContext, methodContext, {
+            domain,
+          });
+          throw new NoSnapshotRoot(domain, requestContext, methodContext, {
+            latestSnapshotId,
+            latestSnapshotTimestamp,
+          });
+        }
       }),
     );
 
+    // Sort the snapshot roots in the order of root manager domains
     rootManagerDomains.forEach((domain) => {
       orderedSnapshotRoots.push(snapshotRoots.get(domain)!);
     });
@@ -150,6 +184,9 @@ export const proposeHub = async () => {
       methodContext,
       jsonifyError(err as NxtpError),
     );
+
+    // Cannot proceed without successful proposal.
+    throw err as NxtpError;
   }
 };
 
