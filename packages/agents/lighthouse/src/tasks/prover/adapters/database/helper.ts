@@ -76,11 +76,13 @@ export class SpokeDBHelper implements DBHelper {
   public async clearLocalCache(): Promise<void> {
     this.cachedNode;
     try {
-      Object.keys(this.cachedNode).map(async (key) => await this.cache.delNode(this.domain, parseInt(key)));
-      Object.keys(this.cachedNodes).map(
-        async (key) => await this.cache.delNodes(this.domain, parseInt(key.split("-")[0]), parseInt(key.split("-")[1])),
+      await Promise.all(Object.keys(this.cachedNode).map((key) => this.cache.delNode(this.domain, parseInt(key))));
+      await Promise.all(
+        Object.keys(this.cachedNodes).map((key) =>
+          this.cache.delNodes(this.domain, parseInt(key.split("-")[0]), parseInt(key.split("-")[1])),
+        ),
       );
-      Object.keys(this.cachedRoot).map(async (key) => await this.cache.delRoot(this.domain, key));
+      await Promise.all(Object.keys(this.cachedRoot).map((key) => this.cache.delRoot(this.domain, key)));
     } catch (err: unknown) {
       this.cachedNode = {};
       this.cachedNodes = {};
