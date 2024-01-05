@@ -133,7 +133,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
       const [messageStatus] = contracts.merkleTreeManager.decodeFunctionResult("leaves", messageResultData);
       if (messageStatus == 0) {
-        logger.debug("Message still unprocessed onchain", requestContext, methodContext, message.leaf);
+        logger.debug("Message still unprocessed onchain", requestContext, methodContext, { leaf: message.leaf });
       } else if (messageStatus == 2) {
         await cache.messages.removePending(originDomain, destinationDomain, [message.leaf]);
         continue;

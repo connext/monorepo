@@ -106,16 +106,27 @@ export const getUnProcessedMessagesByIndex = async (
   endIndex: number,
 ): Promise<XMessage[]> => {
   const {
+    logger,
     config,
     adapters: { cache },
   } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(prefetch.name);
   const pendingMessages: XMessage[] = [];
+
   const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
   let offset = 0;
   const limit = 1000;
   let end = false;
   while (!end) {
     const leaves = await cache.messages.getPending(originDomain, destinationDomain, offset, limit);
+    logger.debug("Getting pending leaves", requestContext, methodContext, {
+      leaves,
+      offset,
+      limit,
+      originDomain,
+      destinationDomain,
+    });
+
     for (const leaf of leaves) {
       const message = await cache.messages.getMessage(leaf);
       if (
@@ -125,6 +136,15 @@ export const getUnProcessedMessagesByIndex = async (
         message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
+      } else {
+        logger.debug("No push", requestContext, methodContext, {
+          leaf: message?.data.leaf,
+          attempt: message?.attempt,
+          timestamp: message?.timestamp,
+          waitTime,
+          originIndex: message?.data.origin.index,
+          status: message?.status,
+        });
       }
     }
     if (leaves.length == limit) offset += limit;
