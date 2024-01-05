@@ -250,5 +250,26 @@
         "startBlock": 13383551
       }
     ]
+  },
+  {
+    "subgraphName": "connext/amarok-runtime-v0-x1-testnet",
+    "network": "xgon",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x8f26fd87384b0524aAd9bB7d3be9704303bBC65e",
+        "startBlock": 2367585
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x4fA03719D17B5683A7410f723074d3c989326Ac5",
+        "startBlock": 2367408
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xD59F8ab5Cc1cA431f15f236C99e29ab71d37dE24",
+        "startBlock": 2367405
+      }
+    ]
   }
 ]

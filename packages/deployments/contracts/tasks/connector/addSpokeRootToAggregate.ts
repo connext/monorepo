@@ -1,40 +1,70 @@
-import { Contract } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { task } from "hardhat/config";
 
-import { Env, mustGetEnv } from "../../src/utils";
+import {
+  Env,
+  ProtocolNetwork,
+  getConnectorName,
+  getContractAddressAndAbi,
+  getDeploymentName,
+  getMessagingProtocolConfig,
+  getProviderFromHardhatConfig,
+  mustGetEnv,
+} from "../../src/utils";
+import hardhatConfig from "../../hardhat.config";
 
 type TaskArgs = {
-  root: string;
-  deployment: string;
   env?: Env;
 };
 
 export default task("add-spoke-root", "Call `AdminHubConnector.addSpokeRootToAggregate()` to distribute outbound root")
-  .addParam("root", "The spoke root to insert into the root manager")
-  .addParam("deployment", "The deployment name of the AdminHubConnector")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
-  .setAction(async ({ root, deployment: _deployment, env: _env }: TaskArgs, { deployments, ethers }) => {
-    let { deployer } = await ethers.getNamedSigners();
-    if (!deployer) {
-      [deployer] = await ethers.getUnnamedSigners();
-    }
+  .setAction(async ({ env: _env }: TaskArgs, { deployments, ethers }) => {
+    const network = await ethers.provider.getNetwork();
+    const chainId = +network.chainId;
+    const networkConfig = Object.values(hardhatConfig.networks!).find((n) => n?.chainId === chainId)!;
+    const deployer = Wallet.fromMnemonic((networkConfig.accounts as any).mnemonic as unknown as string);
 
     const env = mustGetEnv(_env);
-    const deploymentName = _deployment;
     console.log("env:", env);
-    console.log("deploymentName:", deploymentName);
 
-    const deployment = await deployments.get(deploymentName);
-    const address = deployment.address;
-    console.log(deploymentName, "connector:", address);
+    const protocolConfig = getMessagingProtocolConfig("testnet" as ProtocolNetwork);
+    const hubChainId = protocolConfig.hub.chain;
+    const connectorName = getConnectorName(protocolConfig, chainId);
+    if (!connectorName.includes("AdminSpoke")) {
+      throw new Error("Not Admin Spoke Connector Chain!");
+    }
 
-    const connector = new Contract(address, deployment.abi, deployer);
+    const hubConnectorDeployment = getContractAddressAndAbi(
+      getDeploymentName(
+        getConnectorName(protocolConfig, chainId, hubChainId),
+        "production",
+        protocolConfig.configs[chainId].networkName,
+      ),
+      hubChainId,
+    );
+    if (!hubConnectorDeployment.address) {
+      throw new Error(`Hub Connector not deployed`);
+    }
+
+    const deploymentName = getDeploymentName(connectorName, "production", protocolConfig.configs[chainId].networkName);
+    const spokeConnectorDeployment = await deployments.get(deploymentName);
+    const spokeConnector = new Contract(
+      spokeConnectorDeployment.address,
+      spokeConnectorDeployment.abi,
+      getProviderFromHardhatConfig(chainId),
+    );
+    const outboundRoot = await spokeConnector.outboundRoot();
+    console.log("outbound root of spoke connector", connectorName, outboundRoot);
+
+    const hubProvider = getProviderFromHardhatConfig(hubChainId);
+    const hubConnectorContract = new Contract(hubConnectorDeployment.address, hubConnectorDeployment.abi, hubProvider);
 
     const tx = {
-      to: connector.address,
-      from: await connector.owner(),
-      data: connector.interface.encodeFunctionData("addSpokeRootToAggregate", [root]),
+      to: hubConnectorContract.address,
+      from: await hubConnectorContract.owner(),
+      data: hubConnectorContract.interface.encodeFunctionData("addSpokeRootToAggregate", [outboundRoot]),
       value: "0",
     };
     console.log("addSpokeRootToAggregate data: ", tx);
@@ -43,7 +73,7 @@ export default task("add-spoke-root", "Call `AdminHubConnector.addSpokeRootToAgg
       throw new Error("Deployer address is not owner");
     }
 
-    const submitted = await deployer.sendTransaction(tx);
+    const submitted = await deployer.connect(hubProvider!).sendTransaction(tx);
     console.log("submitted: ", submitted);
     const receipt = await submitted.wait();
     console.log("mined: ", receipt.transactionHash);

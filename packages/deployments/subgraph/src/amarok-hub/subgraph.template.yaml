@@ -233,3 +233,30 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleLineaNewConnector
       file: ./src/amarok-hub/mapping/linea.ts
+  # X1HubConnector.sol events
+  - kind: ethereum/contract
+    name: X1HubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: X1HubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: X1HubConnector
+          file: ./src/amarok-hub/abis/AdminHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleX1MessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleX1NewConnector
+      file: ./src/amarok-hub/mapping/x1.ts
