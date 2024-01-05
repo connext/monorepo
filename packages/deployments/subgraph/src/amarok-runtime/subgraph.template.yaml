@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./src/amarok-runtime-v0/schema.graphql
+  file: ./src/amarok-runtime/schema.graphql
 dataSources:
   # CONNEXT events
   - kind: ethereum/contract
@@ -22,9 +22,9 @@ dataSources:
         - Transfer
       abis:
         - name: Connext
-          file: ./src/amarok-runtime-v0/abis/Connext.json
+          file: ./src/amarok-runtime/abis/Connext.json
         - name: ERC20
-          file: ./src/amarok-runtime-v0/abis/ERC20.json
+          file: ./src/amarok-runtime/abis/ERC20.json
       eventHandlers:
         # AssetAdded: key, canonicalId, domain, adoptedAsset, localAsset, caller
         - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
@@ -71,7 +71,7 @@ dataSources:
           # SlippageUpdated(indexed bytes32,uint256)
         - event: SlippageUpdated(indexed bytes32,uint256)
           handler: handleSlippageUpdated
-      file: ./src/amarok-runtime-v0/mapping/index.ts
+      file: ./src/amarok-runtime/mapping/index.ts
   # SPOKE CONNECTOR events
   - kind: ethereum/contract
     name: SpokeConnector
@@ -93,7 +93,7 @@ dataSources:
         - SnapshotRoot
       abis:
         - name: SpokeConnector
-          file: ./src/amarok-runtime-v0/abis/SpokeConnector.json
+          file: ./src/amarok-runtime/abis/SpokeConnector.json
       eventHandlers:
         - event: AggregateRootReceived(indexed bytes32)
           handler: handleAggregateRootReceived
@@ -111,7 +111,7 @@ dataSources:
           handler: handleAggregateRootProposed
         - event: ProposedRootFinalized(bytes32)
           handler: handleProposedRootFinalized
-      file: ./src/amarok-runtime-v0/mapping/index.ts
+      file: ./src/amarok-runtime/mapping/index.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract
     name: MerkleTreeManager
@@ -130,8 +130,8 @@ dataSources:
         - RootCount
       abis:
         - name: MerkleTreeManager
-          file: ./src/amarok-runtime-v0/abis/MerkleTreeManager.json
+          file: ./src/amarok-runtime/abis/MerkleTreeManager.json
       eventHandlers:
         - event: LeafInserted(bytes32,uint256,bytes32)
           handler: handleLeafInserted
-      file: ./src/amarok-runtime-v0/mapping/index.ts
+      file: ./src/amarok-runtime/mapping/index.ts
