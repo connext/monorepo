@@ -232,7 +232,7 @@ dataSources:
           handler: handleLineaMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleLineaNewConnector
-      file: ./src/amarok-hub-v0/mapping/linea.ts
+      file: ./src/amarok-hub/mapping/linea.ts
   # BaseHubConnector.sol events
   - kind: ethereum/contract
     name: BaseHubConnector
@@ -253,13 +253,13 @@ dataSources:
         - Transfer
       abis:
         - name: BaseHubConnector
-          file: ./src/amarok-hub-v0/abis/OptimismHubConnector.json
+          file: ./src/amarok-hub/abis/OptimismHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleBaseMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleBaseNewConnector
-      file: ./src/amarok-hub-v0/mapping/base.ts
+      file: ./src/amarok-hub/mapping/base.ts
   # X1HubConnector.sol events
   - kind: ethereum/contract
     name: X1HubConnector
@@ -280,10 +280,10 @@ dataSources:
         - Transfer
       abis:
         - name: X1HubConnector
-          file: ./src/amarok-hub-v0/abis/AdminHubConnector.json
+          file: ./src/amarok-hub/abis/AdminHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleX1MessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleX1NewConnector
-      file: ./src/amarok-hub-v0/mapping/x1.ts
+      file: ./src/amarok-hub/mapping/x1.ts
