@@ -17,7 +17,7 @@ type TaskArgs = {
   env?: Env;
 };
 
-export default task("add-spoke-root", "Call `AdminHubConnector.addSpokeRootToAggregate()` to distribute outbound root")
+export default task("receive-hub-root", "Call `AdminSpokeConnector.receiveHubAggregateRoot()` to receive outbound root")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(async ({ env: _env }: TaskArgs, { deployments, ethers }) => {
@@ -36,44 +36,35 @@ export default task("add-spoke-root", "Call `AdminHubConnector.addSpokeRootToAgg
       throw new Error("Not Admin Spoke Connector Chain!");
     }
 
-    const hubConnectorDeployment = getContractAddressAndAbi(
-      getDeploymentName(
-        getConnectorName(protocolConfig, chainId, hubChainId),
-        "production",
-        protocolConfig.configs[chainId].networkName,
-      ),
-      hubChainId,
-    );
-    if (!hubConnectorDeployment.address) {
-      throw new Error(`Hub Connector not deployed`);
+    const rootManagerDeployment = getContractAddressAndAbi(getDeploymentName("RootManager"), hubChainId);
+    if (!rootManagerDeployment.address) {
+      throw new Error(`RootManager (hub) not deployed`);
     }
+    const hubProvider = getProviderFromHardhatConfig(hubChainId);
+    const rootManagerContract = new Contract(rootManagerDeployment.address, rootManagerDeployment.abi, hubProvider);
+    const lastSavedAggregateRootTimestamp = await rootManagerContract.lastSavedAggregateRootTimestamp();
+    const aggregateRoot = await rootManagerContract.validAggregateRoots(lastSavedAggregateRootTimestamp);
 
     const deploymentName = getDeploymentName(connectorName, "production", protocolConfig.configs[chainId].networkName);
-    const spokeConnectorDeployment = await deployments.get(deploymentName);
-    const spokeConnector = new Contract(
-      spokeConnectorDeployment.address,
-      spokeConnectorDeployment.abi,
-      getProviderFromHardhatConfig(chainId),
-    );
-    const outboundRoot = await spokeConnector.outboundRoot();
-    console.log("outbound root of spoke connector", connectorName, outboundRoot);
+    const deployment = await deployments.get(deploymentName);
+    const address = deployment.address;
+    console.log(deploymentName, "connector:", address);
 
-    const hubProvider = getProviderFromHardhatConfig(hubChainId);
-    const hubConnectorContract = new Contract(hubConnectorDeployment.address, hubConnectorDeployment.abi, hubProvider);
+    const connector = new Contract(address, deployment.abi, deployer);
 
     const tx = {
-      to: hubConnectorContract.address,
-      from: await hubConnectorContract.owner(),
-      data: hubConnectorContract.interface.encodeFunctionData("addSpokeRootToAggregate", [outboundRoot]),
+      to: connector.address,
+      from: await connector.owner(),
+      data: connector.interface.encodeFunctionData("receiveHubAggregateRoot", [aggregateRoot]),
       value: "0",
     };
-    console.log("addSpokeRootToAggregate data: ", tx);
+    console.log("receiveHubAggregateRoot data: ", tx);
 
     if (deployer.address.toLowerCase() !== tx.from.toLowerCase()) {
       throw new Error("Deployer address is not owner");
     }
 
-    const submitted = await deployer.connect(hubProvider!).sendTransaction(tx);
+    const submitted = await deployer.sendTransaction(tx);
     console.log("submitted: ", submitted);
     const receipt = await submitted.wait();
     console.log("mined: ", receipt.transactionHash);
