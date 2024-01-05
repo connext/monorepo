@@ -165,7 +165,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       });
     } else {
       // Delete local application caches
-      spokeStore.clearLocalCache();
+      await spokeStore.clearLocalCache();
 
       // Try again
       const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
@@ -229,7 +229,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     });
   } else {
     // Delete db and application caches
-    hubStore.clearCache();
+    await hubStore.clearCache();
     // Try again
     const rootVerification = hubSMT.verify(messageRootIndex, messageRoot, messageRootProof, aggregateRoot);
     if (rootVerification && rootVerification.verified) {
