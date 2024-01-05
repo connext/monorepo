@@ -298,7 +298,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       destinationDomain,
       provenMessages.map((it) => it.leaf),
     );
-    const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
+    const statuses = provenMessages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
     await cache.messages.setStatus(statuses);
   } catch (err: unknown) {
     throw new RelayerSendFailed({
