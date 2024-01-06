@@ -103,10 +103,16 @@ export const pollCache = async () => {
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
-        const gasPrice = await rpcProvider.getGasPrice();
+        let gasPrice = await rpcProvider.getGasPrice();
+        const minGasPrice = config.chains[domain].minGasPrice;
+        if (minGasPrice) {
+          gasPrice = gasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : gasPrice;
+        }
+
         logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
           gasPrice: gasPrice.toString(),
         });
+
         const gasLimit = await txservice.getGasEstimate(+domain, transaction);
         logger.debug(`Got the gasLimit for domain: ${domain}`, requestContext, methodContext, {
           gasLimit: gasLimit.toString(),

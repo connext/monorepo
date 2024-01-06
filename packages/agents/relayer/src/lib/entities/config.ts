@@ -1,9 +1,10 @@
 import { Type, Static } from "@sinclair/typebox";
-import { TAddress } from "@connext/nxtp-utils";
+import { TAddress, TIntegerString } from "@connext/nxtp-utils";
 
 export const TChainConfig = Type.Object({
   providers: Type.Array(Type.String()),
   confirmations: Type.Integer({ minimum: 1 }), // What we consider the "safe confirmations" number for this chain.
+  minGasPrice: Type.Optional(TIntegerString), // minimun gas price in wei
   deployments: Type.Object({
     connext: TAddress,
   }),
