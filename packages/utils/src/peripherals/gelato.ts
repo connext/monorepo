@@ -56,6 +56,7 @@ const EquivalentChainsForTestnetEstimate: Record<number, number> = {
   421613: 421613, // arbitrum-goerli
   80001: 80001,
   10200: 10200,
+  195: 195, // x1 testnet
 };
 
 /// MARK - This is used for testnets and mainnets which aren't being supported by gelato
