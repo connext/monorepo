@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.2.2-alpha.0
+
+- X1 testnet support
+
 ## v2.2.1-alpha.0
 
 - `xcall`: Handles Lockbox adapter flow for xERC20s
