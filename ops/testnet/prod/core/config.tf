@@ -402,7 +402,7 @@ locals {
         providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
       }
       "2016506996" = {
-        providers   = ["https://testrpc.x1.tech", "https://x1testrpc.okx.com/", "https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}"],
+        providers   = ["https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}", "https://testrpc.x1.tech", "https://x1testrpc.okx.com/"],
         minGasPrice = "300000000000"
       }
     }
