@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.2.2-alpha.1
+
+- X1 testnet support with `smart-contracts` deployments
+
 ## v2.2.2-alpha.0
 
 - X1 testnet support
