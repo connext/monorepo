@@ -259,10 +259,10 @@ module "sequencer_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.sequencer_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  avg_cpu_utilization_target = 40
+  avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 60
-  min_capacity               = 1
-  max_capacity               = 40
+  min_capacity               = 2
+  max_capacity               = 100
 }
 
 
