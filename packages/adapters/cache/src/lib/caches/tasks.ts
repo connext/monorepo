@@ -52,9 +52,53 @@ export class TasksCache extends Cache {
     // TODO: Make the Task ID a hash of the calldata to add an additional recovery vector.
     const taskId = getRandomBytes32();
     const key = `${this.prefix}:data`;
+    await this.addPending(taskId);
     await this.data.hset(key, taskId, JSON.stringify(params));
     await this.setStatus(taskId, RelayerTaskStatus.ExecPending);
     return taskId;
+  }
+
+  /**
+   * Add a taskId to the pending list.
+   *
+   * @param taskId - The task's ID
+   */
+  private async addPending(taskId: string): Promise<void> {
+    const dataKey = `${this.prefix}:data`;
+    const taskData = await this.data.hget(dataKey, taskId);
+    if (!taskData) {
+      await this.data.rpush(`${this.prefix}:pending`, taskId);
+    }
+  }
+
+  /**
+   * Removes tasks from the pending list.
+   *
+   * @param taskIds - The list of taskId
+   */
+  public async removePending(taskIds: string[]): Promise<number> {
+    const pendingKey = `${this.prefix}:pending`;
+    const dataKey = `${this.prefix}:data`;
+    let sum = 0;
+    for (const taskId of taskIds) {
+      const res = await this.data.lrem(pendingKey, 0, taskId);
+      await this.data.hdel(dataKey, taskId);
+      sum += res;
+    }
+    return sum;
+  }
+
+  /**
+   * Retrieves pending tasks within a certain range.
+   *
+   * @param offset - The start index
+   * @param limit - The number of tasks
+   * @returns The list of pending taskIDs
+   */
+  public async getPending(offset: number, limit: number): Promise<string[]> {
+    const pendingKey = `${this.prefix}:pending`;
+    const leaves = await this.data.lrange(pendingKey, offset, offset + limit - 1);
+    return leaves;
   }
 
   /// MARK - Task Status
@@ -76,7 +120,11 @@ export class TasksCache extends Cache {
    * @param status - The status to set.
    * @returns 1 if added, 0 if updated.
    */
-  private async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+  public async setStatus(taskId: string, status: RelayerTaskStatus): Promise<number> {
+    const finalStatuses = [RelayerTaskStatus.ExecSuccess, RelayerTaskStatus.ExecReverted, RelayerTaskStatus.Cancelled];
+    if (finalStatuses.includes(status)) {
+      await this.removePending([taskId]);
+    }
     return await this.data.hset(`${this.prefix}:status`, taskId, status.toString());
   }
 
@@ -121,38 +169,8 @@ export class TasksCache extends Cache {
    * @returns Number indicating whether the transaction hash was updated.
    */
   public async setHash(taskId: string, txHash: string): Promise<number> {
+    await this.removePending([taskId]);
     await this.setStatus(taskId, RelayerTaskStatus.ExecSuccess);
     return await this.data.hset(`${this.prefix}:hash`, taskId, txHash);
-  }
-
-  /// MARK - Pending Tasks
-  /**
-   * Retrieve all task IDs that are pending action, based on status marked RelayerTaskStatus.ExecPending.
-   *
-   * @returns An array of task IDs.
-   */
-  public async getPending(): Promise<string[]> {
-    const stream = this.data.hscanStream(`${this.prefix}:status`);
-    const keys: string[] = [];
-    await new Promise((res) => {
-      stream.on("data", (resultKeys: string[] = []) => {
-        // Note that resultKeys will sometimes contain duplicates due to SCAN's implementation in Redis
-        // link : https://redis.io/commands/scan/#scan-guarantees
-        for (const resultKey of resultKeys) {
-          if (!keys.includes(resultKey)) keys.push(resultKey);
-        }
-      });
-      stream.on("end", async () => {
-        res(undefined);
-      });
-    });
-    const filtered: string[] = [];
-    for (const key of keys) {
-      const status = await this.getStatus(key);
-      if (status === RelayerTaskStatus.ExecPending) {
-        filtered.push(key);
-      }
-    }
-    return filtered;
   }
 }
