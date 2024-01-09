@@ -324,6 +324,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ESX",
+      canonical: {
+        domain: "11111",
+        address: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+        decimals: 9,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+          adopted: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+        },
+        /// Goerli
+        "1735353714": {
+          local: "0x5EEee8B304Ad51447736F74A5675c2cB070e52A7",
+          adopted: "0x5EEee8B304Ad51447736F74A5675c2cB070e52A7",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
