@@ -36,7 +36,7 @@ export const pollCache = async () => {
   const { requestContext: _requestContext, methodContext } = createLoggingContext(pollCache.name);
 
   // Retrieve all pending tasks.
-  const pending = await cache.tasks.getPending();
+  const pending = await cache.tasks.getPending(0, 100);
   if (pending.length === 0) {
     return;
   }
