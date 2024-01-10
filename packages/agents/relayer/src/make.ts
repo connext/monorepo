@@ -12,25 +12,20 @@ const context: AppContext = {} as any;
 export const getContext = () => context;
 
 export const makeRelayer = async (_configOverride?: RelayerConfig) => {
-  /// MARK - Context
   try {
     await setupContext(_configOverride);
 
-    await bindRelays();
+    const service = process.env.RELAYER_SERVICE ?? "";
+    switch (service) {
+      case "polling":
+        await bindRelays();
+        break;
+      case "server":
+        await bindServer();
+        break;
+    }
   } catch (err: unknown) {
-    console.error("Error starting relayer polling :(", err);
-    process.exit(1);
-  }
-};
-
-export const makeServer = async (_configOverride?: RelayerConfig) => {
-  /// MARK - Context
-  try {
-    await setupContext(_configOverride);
-
-    await bindServer();
-  } catch (err: unknown) {
-    console.error("Error starting relayer server :(", err);
+    console.error("Error starting relayer :(", err);
     process.exit(1);
   }
 };

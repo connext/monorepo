@@ -5,8 +5,8 @@
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "start": "node dist/relayer.js",
-    "server": "node dist/server.js",
+    "start:polling": "RELAYER_SERVICE=polling node --enable-source-maps dist/run.js",
+    "start:server": "RELAYER_SERVICE=server node --enable-source-maps dist/run.js",
     "docker:redis:up": "docker run -it --rm --name redis -p 6379:6379 redis",
     "lint": "eslint ./src --ext .ts --env node",
     "test": "nyc ts-mocha --check-leaks --exit --timeout 120000 'test/**/*.spec.ts'",

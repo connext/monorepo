@@ -1,5 +1,4 @@
 import { makeRelayer } from "./make";
 
-export { makeRelayer };
-
+// run the relayer outside of lambda
 makeRelayer();

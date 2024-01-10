@@ -102,12 +102,7 @@ export const pollCache = async () => {
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
-        let gasPrice = await rpcProvider.getGasPrice();
-        const minGasPrice = config.chains[domain].minGasPrice;
-        if (minGasPrice) {
-          gasPrice = gasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : gasPrice;
-        }
-
+        const gasPrice = await rpcProvider.getGasPrice();
         logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
           gasPrice: gasPrice.toString(),
         });
@@ -118,8 +113,13 @@ export const pollCache = async () => {
           gasLimit: gasLimit.toString(),
         });
 
-        const bumpedGasPrice = gasPrice.mul(130).div(100);
+        let bumpedGasPrice = gasPrice.mul(130).div(100);
         const bumpedGasLimit = gasLimit.mul(120).div(100);
+
+        const minGasPrice = config.chains[domain].minGasPrice;
+        if (minGasPrice) {
+          bumpedGasPrice = bumpedGasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : bumpedGasPrice;
+        }
 
         // Get Nonce
         const nonce = await wallet.connect(rpcProvider).getTransactionCount();
@@ -142,7 +142,7 @@ export const pollCache = async () => {
           nonce,
           value: 0,
         });
-        const receipt = await response.wait();
+        const receipt = await response.wait(config.chains[domain].confirmations);
 
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
