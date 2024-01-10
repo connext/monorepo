@@ -1,5 +1,4 @@
 import { BigNumber } from "ethers";
-import interval from "interval-promise";
 
 import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
