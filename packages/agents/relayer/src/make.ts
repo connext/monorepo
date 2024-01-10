@@ -76,8 +76,8 @@ export const setupContext = async (_configOverride?: RelayerConfig) => {
         throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
       }
     }
-  } catch (error: any) {
-    context.logger.error("Error setup context Relayer! D: Who could have done this?", error);
+  } catch (error: unknown) {
+    console.error("Error setup context Relayer! D: Who could have done this?", error);
   }
 };
 
