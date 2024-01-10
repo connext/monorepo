@@ -9,7 +9,7 @@ import {
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
 
-import { getContext } from "../../relayer";
+import { getContext } from "../../make";
 
 export const MIN_GAS_LIMIT = BigNumber.from(4_000_000);
 export const DEFAULT_POLL_INTERVAL = 1_000;
