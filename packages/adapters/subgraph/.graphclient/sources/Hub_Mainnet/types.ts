@@ -19,7 +19,6 @@ export type Scalars = {
   mainnet_BigDecimal: any;
   BigInt: any;
   mainnet_Bytes: any;
-  mainnet_Int8: any;
 };
 
 export type mainnet_AggregateRootSavedSlow = {
@@ -41,10 +40,6 @@ export type mainnet_AggregateRootSavedSlow_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -73,8 +68,6 @@ export type mainnet_AggregateRootSavedSlow_filter = {
   rootTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_AggregateRootSavedSlow_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_AggregateRootSavedSlow_filter>>>;
 };
 
 export type mainnet_AggregateRootSavedSlow_orderBy =
@@ -111,10 +104,6 @@ export type mainnet_AggregatedMessageRoot_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   receivedRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   receivedRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   receivedRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   receivedRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   receivedRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -137,8 +126,6 @@ export type mainnet_AggregatedMessageRoot_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_AggregatedMessageRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_AggregatedMessageRoot_filter>>>;
 };
 
 export type mainnet_AggregatedMessageRoot_orderBy =
@@ -184,38 +171,24 @@ export type mainnet_ArbitrumConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_ArbitrumConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_ArbitrumConnectorMeta_filter>>>;
 };
 
 export type mainnet_ArbitrumConnectorMeta_orderBy =
@@ -272,38 +245,24 @@ export type mainnet_BnbConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_BnbConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_BnbConnectorMeta_filter>>>;
 };
 
 export type mainnet_BnbConnectorMeta_orderBy =
@@ -350,38 +309,24 @@ export type mainnet_GnosisConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_GnosisConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_GnosisConnectorMeta_filter>>>;
 };
 
 export type mainnet_GnosisConnectorMeta_orderBy =
@@ -416,8 +361,6 @@ export type mainnet_HubDomain_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_HubDomain_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_HubDomain_filter>>>;
 };
 
 export type mainnet_HubDomain_orderBy =
@@ -442,10 +385,6 @@ export type mainnet_HubOptimisticRootFinalized_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -468,8 +407,6 @@ export type mainnet_HubOptimisticRootFinalized_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_HubOptimisticRootFinalized_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_HubOptimisticRootFinalized_filter>>>;
 };
 
 export type mainnet_HubOptimisticRootFinalized_orderBy =
@@ -514,38 +451,24 @@ export type mainnet_LineaConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_LineaConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_LineaConnectorMeta_filter>>>;
 };
 
 export type mainnet_LineaConnectorMeta_orderBy =
@@ -592,38 +515,24 @@ export type mainnet_OptimismConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_OptimismConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_OptimismConnectorMeta_filter>>>;
 };
 
 export type mainnet_OptimismConnectorMeta_orderBy =
@@ -653,20 +562,12 @@ export type mainnet_OptimisticRootPropagated_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   domainsHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   domainsHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -689,8 +590,6 @@ export type mainnet_OptimisticRootPropagated_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootPropagated_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootPropagated_filter>>>;
 };
 
 export type mainnet_OptimisticRootPropagated_orderBy =
@@ -730,10 +629,6 @@ export type mainnet_OptimisticRootProposed_filter = {
   disputeCliff_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   aggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -752,10 +647,6 @@ export type mainnet_OptimisticRootProposed_filter = {
   domains_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   baseAggregateRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   baseAggregateRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  baseAggregateRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  baseAggregateRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  baseAggregateRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  baseAggregateRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   baseAggregateRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   baseAggregateRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   baseAggregateRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -778,8 +669,6 @@ export type mainnet_OptimisticRootProposed_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootProposed_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_OptimisticRootProposed_filter>>>;
 };
 
 export type mainnet_OptimisticRootProposed_orderBy =
@@ -833,38 +722,24 @@ export type mainnet_PolygonConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_PolygonConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_PolygonConnectorMeta_filter>>>;
 };
 
 export type mainnet_PolygonConnectorMeta_orderBy =
@@ -1271,10 +1146,6 @@ export type mainnet_RootAggregated_filter = {
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   receivedRoot?: InputMaybe<Scalars['mainnet_Bytes']>;
   receivedRoot_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  receivedRoot_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   receivedRoot_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   receivedRoot_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   receivedRoot_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1289,8 +1160,6 @@ export type mainnet_RootAggregated_filter = {
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_RootAggregated_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_RootAggregated_filter>>>;
 };
 
 export type mainnet_RootAggregated_orderBy =
@@ -1328,8 +1197,6 @@ export type mainnet_RootManagerMeta_filter = {
   connectors_not_contains_nocase?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMeta_filter>>>;
 };
 
 export type mainnet_RootManagerMeta_orderBy =
@@ -1373,8 +1240,6 @@ export type mainnet_RootManagerMode_filter = {
   mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMode_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_RootManagerMode_filter>>>;
 };
 
 export type mainnet_RootManagerMode_orderBy =
@@ -1421,30 +1286,18 @@ export type mainnet_RootMessageProcessed_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   root?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  root_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   root_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   root_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   caller_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   caller_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   transactionHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1483,8 +1336,6 @@ export type mainnet_RootMessageProcessed_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_RootMessageProcessed_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_RootMessageProcessed_filter>>>;
 };
 
 export type mainnet_RootMessageProcessed_orderBy =
@@ -1518,20 +1369,12 @@ export type mainnet_RootPropagated_filter = {
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
   aggregate?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregate_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregate_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregate_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregate_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  aggregate_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregate_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregate_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   aggregate_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   aggregate_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  domainsHash_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   domainsHash_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   domainsHash_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   domainsHash_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
@@ -1554,8 +1397,6 @@ export type mainnet_RootPropagated_filter = {
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_RootPropagated_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_RootPropagated_filter>>>;
 };
 
 export type mainnet_RootPropagated_orderBy =
@@ -1971,38 +1812,24 @@ export type mainnet_ZkSyncConnectorMeta_filter = {
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amb?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   amb_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   amb_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   rootManager_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   rootManager_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mainnet_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_not_in?: InputMaybe<Array<Scalars['mainnet_Bytes']>>;
   mirrorConnector_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   mirrorConnector_not_contains?: InputMaybe<Scalars['mainnet_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<mainnet_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mainnet_ZkSyncConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mainnet_ZkSyncConnectorMeta_filter>>>;
 };
 
 export type mainnet_ZkSyncConnectorMeta_orderBy =

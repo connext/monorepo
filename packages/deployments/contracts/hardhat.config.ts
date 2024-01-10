@@ -62,8 +62,10 @@ import "./tasks/unpause";
 import "./tasks/bumpTransfer";
 import "./tasks/rootmanager/enrollAdminConnector";
 import "./tasks/connector/addSpokeRootToAggregate";
+import "./tasks/connector/receiveHubAggregateRoot";
 import "./tasks/connector/wormholeDeliver";
 import "./tasks/connector/claimLinea";
+import "./tasks/connector/setOptimisticMode";
 import { hardhatNetworks } from "./src/config";
 
 tdly.setup({

@@ -28,7 +28,7 @@ export const bindRelays = async (_pollInterval?: number) => {
 
 export const pollCache = async () => {
   const {
-    adapters: { cache, wallet, txservice },
+    adapters: { cache, wallet },
     config,
     logger,
     chainToDomainMap,
@@ -36,7 +36,7 @@ export const pollCache = async () => {
   const { requestContext: _requestContext, methodContext } = createLoggingContext(pollCache.name);
 
   // Retrieve all pending tasks.
-  const pending = await cache.tasks.getPending();
+  const pending = await cache.tasks.getPending(0, 100);
   if (pending.length === 0) {
     return;
   }
@@ -94,7 +94,6 @@ export const pollCache = async () => {
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
         const transaction = {
-          domain,
           to,
           data,
           from: await wallet.getAddress(),
@@ -103,11 +102,18 @@ export const pollCache = async () => {
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
-        const gasPrice = await rpcProvider.getGasPrice();
+        let gasPrice = await rpcProvider.getGasPrice();
+        const minGasPrice = config.chains[domain].minGasPrice;
+        if (minGasPrice) {
+          gasPrice = gasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : gasPrice;
+        }
+
         logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
           gasPrice: gasPrice.toString(),
         });
-        const gasLimit = await txservice.getGasEstimate(+domain, transaction);
+
+        //const gasLimit = await txservice.getGasEstimate(+domain, transaction);
+        const gasLimit = await rpcProvider.estimateGas(transaction);
         logger.debug(`Got the gasLimit for domain: ${domain}`, requestContext, methodContext, {
           gasLimit: gasLimit.toString(),
         });
@@ -115,24 +121,28 @@ export const pollCache = async () => {
         const bumpedGasPrice = gasPrice.mul(130).div(100);
         const bumpedGasLimit = gasLimit.mul(120).div(100);
 
+        // Get Nonce
+        const nonce = await wallet.connect(rpcProvider).getTransactionCount();
+
         // Execute the calldata.
         logger.info("Sending tx", requestContext, methodContext, {
+          from: wallet.address,
           chain,
           taskId,
-          data,
+          //data,
           gasPrice: bumpedGasPrice.toString(),
           gasLimit: bumpedGasLimit.toString(),
+          nonce,
         });
 
-        const receipt = await txservice.sendTx(
-          {
-            ...transaction,
-            gasLimit: bumpedGasLimit,
-            gasPrice: bumpedGasPrice,
-            value: 0,
-          },
-          requestContext,
-        );
+        const response = await wallet.connect(rpcProvider).sendTransaction({
+          ...transaction,
+          gasLimit: bumpedGasLimit,
+          gasPrice: bumpedGasPrice,
+          nonce,
+          value: 0,
+        });
+        const receipt = await response.wait();
 
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {

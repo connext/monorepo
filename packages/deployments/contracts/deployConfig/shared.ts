@@ -35,6 +35,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   80001: 30, // mumbai
   59140: 30, // linea-goerli
   84531: 30, // base-goerli
+  195: 60, // x1-testnet
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -309,6 +310,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             gasCap: DEFAULT_PROCESS_GAS,
           },
         },
+      },
+      195: {
+        prefix: "Admin",
+        networkName: "X1",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
       },
       // // FIXME: wormhole relayer deployment not listed in docs for goerli
       // // address used is core bridge; different from mainnet so this testnet is skipped

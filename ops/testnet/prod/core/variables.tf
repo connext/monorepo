@@ -201,3 +201,7 @@ variable "drpc_key" {
 variable "lighthouse_web3_signer_private_key" {
   type = string
 }
+
+variable "blockpi_key" {
+  type = string
+}

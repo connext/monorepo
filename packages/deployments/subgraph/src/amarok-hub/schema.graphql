@@ -147,6 +147,17 @@ type BaseConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# X1
+type X1ConnectorMeta @entity {
+  id: ID! # "X1ConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!

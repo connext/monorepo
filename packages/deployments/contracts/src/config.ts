@@ -6,7 +6,7 @@ dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
   mainnet: [1, 10, 56, 100, 137, 42161, 8453],
-  testnet: [5, 280, 420, 59140, 80001, 421613, 84531],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -356,6 +356,15 @@ export const hardhatNetworks = {
         apiKey: process.env.BASESCAN_API_KEY!,
         apiUrl: "https://api.basescan.org",
       },
+    },
+  },
+  "x1-testnet": {
+    accounts: { mnemonic },
+    chainId: 195,
+    gasPrice: utils.parseUnits("300", "gwei").toNumber(),
+    url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
+    companionNetworks: {
+      hub: "goerli",
     },
   },
 };

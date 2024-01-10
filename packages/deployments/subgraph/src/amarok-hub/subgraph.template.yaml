@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./src/amarok-hub-v0/schema.graphql
+  file: ./src/amarok-hub/schema.graphql
 dataSources:
   # RootManager.sol events
   - kind: ethereum/contract
@@ -23,7 +23,7 @@ dataSources:
         - RootManagerMode
       abis:
         - name: RootManager
-          file: ./src/amarok-hub-v0/abis/RootManager.json
+          file: ./src/amarok-hub/abis/RootManager.json
       eventHandlers:
         - event: RootReceived(uint32,bytes32,uint256)
           handler: handleRootReceived
@@ -47,7 +47,7 @@ dataSources:
           handler: handleHubDomainSet
         - event: HubDomainCleared()
           handler: handleHubDomainCleared
-      file: ./src/amarok-hub-v0/mapping/rootManager.ts
+      file: ./src/amarok-hub/mapping/rootManager.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract
     name: MerkleTreeManager
@@ -66,11 +66,11 @@ dataSources:
         - RootCount
       abis:
         - name: MerkleTreeManager
-          file: ./src/amarok-hub-v0/abis/MerkleTreeManager.json
+          file: ./src/amarok-hub/abis/MerkleTreeManager.json
       eventHandlers:
         - event: LeavesInserted(bytes32,uint256,bytes32[])
           handler: handleLeavesInserted
-      file: ./src/amarok-hub-v0/mapping/merkleTreeManager.ts
+      file: ./src/amarok-hub/mapping/merkleTreeManager.ts
   # PolygonHubConnector.sol events
   - kind: ethereum/contract
     name: PolygonHubConnector
@@ -91,13 +91,13 @@ dataSources:
         - Transfer
       abis:
         - name: PolygonHubConnector
-          file: ./src/amarok-hub-v0/abis/PolygonHubConnector.json
+          file: ./src/amarok-hub/abis/PolygonHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handlePolygonMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handlePolygonNewConnector
-      file: ./src/amarok-hub-v0/mapping/polygon.ts
+      file: ./src/amarok-hub/mapping/polygon.ts
   # OptimismHubConnector.sol events
   - kind: ethereum/contract
     name: OptimismHubConnector
@@ -118,13 +118,13 @@ dataSources:
         - Transfer
       abis:
         - name: OptimismHubConnector
-          file: ./src/amarok-hub-v0/abis/OptimismHubConnector.json
+          file: ./src/amarok-hub/abis/OptimismHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleOptimismMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleOptimismNewConnector
-      file: ./src/amarok-hub-v0/mapping/optimism.ts
+      file: ./src/amarok-hub/mapping/optimism.ts
   # GnosisHubConnector.sol events
   - kind: ethereum/contract
     name: GnosisHubConnector
@@ -145,13 +145,13 @@ dataSources:
         - Transfer
       abis:
         - name: GnosisHubConnector
-          file: ./src/amarok-hub-v0/abis/GnosisHubConnector.json
+          file: ./src/amarok-hub/abis/GnosisHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleGnosisMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleGnosisNewConnector
-      file: ./src/amarok-hub-v0/mapping/gnosis.ts
+      file: ./src/amarok-hub/mapping/gnosis.ts
   # ArbitrumHubConnector.sol events
   - kind: ethereum/contract
     name: ArbitrumHubConnector
@@ -172,13 +172,13 @@ dataSources:
         - Transfer
       abis:
         - name: ArbitrumHubConnector
-          file: ./src/amarok-hub-v0/abis/ArbitrumHubConnector.json
+          file: ./src/amarok-hub/abis/ArbitrumHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleArbitrumMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleArbitrumNewConnector
-      file: ./src/amarok-hub-v0/mapping/arbitrum.ts
+      file: ./src/amarok-hub/mapping/arbitrum.ts
   # BnbHubConnector.sol events
   - kind: ethereum/contract
     name: BnbHubConnector
@@ -199,13 +199,13 @@ dataSources:
         - Transfer
       abis:
         - name: BnbHubConnector
-          file: ./src/amarok-hub-v0/abis/BnbHubConnector.json
+          file: ./src/amarok-hub/abis/BnbHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleBnbMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleBnbNewConnector
-      file: ./src/amarok-hub-v0/mapping/bnb.ts
+      file: ./src/amarok-hub/mapping/bnb.ts
   # LineaHubConnector.sol events
   - kind: ethereum/contract
     name: LineaHubConnector
@@ -226,10 +226,37 @@ dataSources:
         - Transfer
       abis:
         - name: LineaHubConnector
-          file: ./src/amarok-hub-v0/abis/LineaHubConnector.json
+          file: ./src/amarok-hub/abis/LineaHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleLineaMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleLineaNewConnector
-      file: ./src/amarok-hub-v0/mapping/linea.ts
+      file: ./src/amarok-hub/mapping/linea.ts
+  # X1HubConnector.sol events
+  - kind: ethereum/contract
+    name: X1HubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: X1HubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: X1HubConnector
+          file: ./src/amarok-hub/abis/AdminHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleX1MessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleX1NewConnector
+      file: ./src/amarok-hub/mapping/x1.ts
