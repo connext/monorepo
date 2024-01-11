@@ -6,7 +6,7 @@ import { getContractInterfaces, contractDeployments, TransactionService } from "
 
 import { RelayerConfig, AppContext } from "./lib/entities";
 import { getConfig } from "./config";
-import { bindServer, bindRelays } from "./bindings";
+import { bindServer, bindRelays, bindHealthServer } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -17,7 +17,8 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
 
     const service = process.env.RELAYER_SERVICE ?? "";
     switch (service) {
-      case "polling":
+      case "poller":
+        await bindHealthServer();
         await bindRelays();
         break;
       case "server":
