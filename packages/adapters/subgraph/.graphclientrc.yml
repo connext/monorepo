@@ -874,6 +874,114 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Connext_Staging_Base
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-base"
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_base_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Staging_zkSync
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-zksync"
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_zksync_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Staging_zkEVM
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-polygon-zk"
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_polygon_zkevm_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Staging_Mantle
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-staging-mantle
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_mantle_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
   - name: StableSwap_Staging_Optimism
     handler:
@@ -943,7 +1051,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagin_xdai_swap_
+          value: staging_xdai_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -959,6 +1067,66 @@ sources:
     transforms:
       - prefix:
           value: staging_linea_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_Base
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-base
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_base_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_zkSync
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-zksync
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_zksync_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_Polygon_zkEVM
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-poly-zk
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_polygon_zkevm_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Staging_Mantle
+    handler:
+      graphql:
+        endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-staging-mantle
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: staging_mantle_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
