@@ -18,6 +18,12 @@ export const TServerConfig = Type.Object({
   adminToken: Type.String(),
 });
 
+export const TPollerConfig = Type.Object({
+  port: Type.Integer({ minimum: 1, maximum: 65535 }),
+  host: Type.String({ format: "ipv4" }),
+  interval: Type.Integer({ minimum: 100 }),
+});
+
 export const TRedisConfig = Type.Object({
   port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
   host: Type.Optional(Type.String()),
@@ -48,6 +54,7 @@ export const RelayerConfigSchema = Type.Object({
   web3SignerUrl: Type.Optional(Type.String()),
   redis: TRedisConfig,
   server: TServerConfig,
+  poller: TPollerConfig,
   mode: TModeConfig,
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
 });
