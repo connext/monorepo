@@ -8,15 +8,15 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
 
-import { getContext } from "../../relayer";
+import { getContext } from "../../make";
 
 export const MIN_GAS_LIMIT = BigNumber.from(4_000_000);
-export const DEFAULT_POLL_INTERVAL = 1_000;
 
-export const bindRelays = async (_pollInterval?: number) => {
+export const bindRelays = async () => {
   const { config } = getContext();
-  const pollInterval = _pollInterval ?? DEFAULT_POLL_INTERVAL;
+  const pollInterval = config.poller.interval;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
@@ -28,7 +28,7 @@ export const bindRelays = async (_pollInterval?: number) => {
 
 export const pollCache = async () => {
   const {
-    adapters: { cache, wallet },
+    adapters: { cache, wallet, txservice },
     config,
     logger,
     chainToDomainMap,
@@ -94,6 +94,7 @@ export const pollCache = async () => {
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
         const transaction = {
+          domain,
           to,
           data,
           from: await wallet.getAddress(),
@@ -102,24 +103,23 @@ export const pollCache = async () => {
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
         // We need to read those values from on-chain IFF this is a `proveAndProcess` call.
-        let gasPrice = await rpcProvider.getGasPrice();
-        const minGasPrice = config.chains[domain].minGasPrice;
-        if (minGasPrice) {
-          gasPrice = gasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : gasPrice;
-        }
-
+        const gasPrice = await rpcProvider.getGasPrice();
         logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
           gasPrice: gasPrice.toString(),
         });
 
-        //const gasLimit = await txservice.getGasEstimate(+domain, transaction);
-        const gasLimit = await rpcProvider.estimateGas(transaction);
+        const gasLimit = await txservice.getGasEstimate(+domain, transaction);
         logger.debug(`Got the gasLimit for domain: ${domain}`, requestContext, methodContext, {
           gasLimit: gasLimit.toString(),
         });
 
-        const bumpedGasPrice = gasPrice.mul(130).div(100);
+        let bumpedGasPrice = gasPrice.mul(130).div(100);
         const bumpedGasLimit = gasLimit.mul(120).div(100);
+
+        const minGasPrice = config.chains[domain].minGasPrice;
+        if (minGasPrice) {
+          bumpedGasPrice = bumpedGasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : bumpedGasPrice;
+        }
 
         // Get Nonce
         const nonce = await wallet.connect(rpcProvider).getTransactionCount();
@@ -129,21 +129,21 @@ export const pollCache = async () => {
           from: wallet.address,
           chain,
           taskId,
-          //data,
+          data,
           gasPrice: bumpedGasPrice.toString(),
           gasLimit: bumpedGasLimit.toString(),
           nonce,
         });
 
-        const response = await wallet.connect(rpcProvider).sendTransaction({
-          ...transaction,
-          gasLimit: bumpedGasLimit,
-          gasPrice: bumpedGasPrice,
-          nonce,
-          value: 0,
-        });
-        const receipt = await response.wait();
-
+        const receipt = await txservice.sendTx(
+          {
+            ...transaction,
+            gasLimit: bumpedGasLimit,
+            gasPrice: bumpedGasPrice,
+            value: 0,
+          },
+          requestContext,
+        );
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
@@ -161,4 +161,24 @@ export const pollCache = async () => {
       }
     }
   }
+};
+
+export const bindHealthServer = async (): Promise<FastifyInstance> => {
+  const { config, logger } = getContext();
+
+  const server = fastify();
+
+  server.get("/ping", (_, res) => api.get.ping(res));
+
+  const address = await server.listen({ port: config.poller.port, host: config.poller.host });
+  logger.info(`Server listening at ${address}`);
+  return server;
+};
+
+export const api = {
+  get: {
+    ping: async (res: FastifyReply) => {
+      return res.status(200).send("pong\n");
+    },
+  },
 };
