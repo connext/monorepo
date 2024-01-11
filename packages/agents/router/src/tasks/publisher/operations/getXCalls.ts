@@ -130,8 +130,9 @@ export const getXCalls = async () => {
           for (const transferId of transferIdsToRemove ?? []) {
             allTxById.delete(transferId);
           }
+
+          txIdsByDestinationDomain.delete(destinationDomain);
         }
-        txIdsByDestinationDomain.delete(destinationDomain);
       }
       const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       if (transfers.length === 0) {
