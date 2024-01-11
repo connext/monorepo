@@ -462,7 +462,7 @@ module "relayer" {
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "poller" })
+  container_env_vars       = concat(local.relayer_env_vars, [{ name="RELAYER_SERVICE", value="poller" }])
 }
 
 module "relayer_server" {
@@ -491,7 +491,7 @@ module "relayer_server" {
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "server" })
+  container_env_vars       = concat(local.relayer_env_vars, [{ name="RELAYER_SERVICE", value="server" }])
 }
 
 module "relayer_web3signer" {
