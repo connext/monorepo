@@ -203,6 +203,22 @@ describe("MessagesCache", () => {
     });
   });
 
+  describe("#lastbatch", () => {
+    beforeEach(async () => {
+      await messagesCache.clear();
+    });
+    it("should get default timestamp if none exists", async () => {
+      const lastBatchTime = await messagesCache.getLastBatchTime("1111", "2222");
+      expect(lastBatchTime).to.be.equal(0);
+    });
+
+    it("should get domain's latest nonce according to the cache", async () => {
+      await messagesCache.setLastBatchTime("1111", "2222", 100);
+      const lastBatchTime = await messagesCache.getLastBatchTime("1111", "2222");
+      expect(lastBatchTime).to.be.equal(100);
+    });
+  });
+
   describe("#task", () => {
     beforeEach(async () => {
       await messagesCache.clear();

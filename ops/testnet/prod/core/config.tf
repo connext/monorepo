@@ -356,6 +356,10 @@ locals {
       "1650553703" = 10,
       "2016506996" = 10
     }
+    proverBatchWaitTime = {
+      "1735353714" = 3600,
+      "2016506996" = 3600,
+    }
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"

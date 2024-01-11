@@ -22,9 +22,8 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { axiosPost } from "../mockable";
 
-import { gelatoRelay, url } from ".";
+import { gelatoRelay } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
