@@ -8,6 +8,7 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
 
 import { getContext } from "../../make";
 
@@ -161,4 +162,24 @@ export const pollCache = async () => {
       }
     }
   }
+};
+
+export const bindHealthServer = async (): Promise<FastifyInstance> => {
+  const { config, logger } = getContext();
+
+  const server = fastify();
+
+  server.get("/ping", (_, res) => api.get.ping(res));
+
+  const address = await server.listen({ port: config.server.port, host: config.server.host });
+  logger.info(`Server listening at ${address}`);
+  return server;
+};
+
+export const api = {
+  get: {
+    ping: async (res: FastifyReply) => {
+      return res.status(200).send("pong\n");
+    },
+  },
 };
