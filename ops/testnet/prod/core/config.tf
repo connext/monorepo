@@ -403,7 +403,7 @@ locals {
       }
       "2016506996" = {
         providers   = ["https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}", "https://testrpc.x1.tech", "https://x1testrpc.okx.com/"],
-        minGasPrice = "300000000000"
+        minGasPrice = "200000000000"
       }
     }
     environment   = var.stage

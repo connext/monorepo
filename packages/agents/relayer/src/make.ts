@@ -6,13 +6,33 @@ import { getContractInterfaces, contractDeployments, TransactionService } from "
 
 import { RelayerConfig, AppContext } from "./lib/entities";
 import { getConfig } from "./config";
-import { bindServer, bindRelays } from "./bindings";
+import { bindServer, bindRelays, bindHealthServer } from "./bindings";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
 
 export const makeRelayer = async (_configOverride?: RelayerConfig) => {
-  const { requestContext, methodContext } = createLoggingContext(makeRelayer.name);
+  try {
+    await setupContext(_configOverride);
+
+    const service = process.env.RELAYER_SERVICE ?? "";
+    switch (service) {
+      case "poller":
+        await bindHealthServer();
+        await bindRelays();
+        break;
+      case "server":
+        await bindServer();
+        break;
+    }
+  } catch (err: unknown) {
+    console.error("Error starting relayer :(", err);
+    process.exit(1);
+  }
+};
+
+export const setupContext = async (_configOverride?: RelayerConfig) => {
+  const { requestContext, methodContext } = createLoggingContext(setupContext.name);
   try {
     context.adapters = {} as any;
 
@@ -57,19 +77,8 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
         throw new Error(`ChainData doesn't have a record for domain: ${domain}`);
       }
     }
-
-    /// MARK - Bindings
-    // Create server, set up routes, and start listening.
-    await bindServer();
-    await bindRelays();
-
-    context.logger.info("Relayer has been activated.", requestContext, methodContext, {
-      port: context.config.server.port,
-      chains: [...Object.keys(context.config.chains)],
-    });
-  } catch (error: any) {
-    console.error("Error starting Relayer! D: Who could have done this?", error);
-    process.exit();
+  } catch (error: unknown) {
+    console.error("Error setup context Relayer! D: Who could have done this?", error);
   }
 };
 
