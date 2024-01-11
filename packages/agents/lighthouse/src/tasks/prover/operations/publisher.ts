@@ -159,7 +159,6 @@ export const enqueue = async () => {
   const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
   // Track the number of messages published to the queue in this iteration.
   let publishedCount = 0;
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
@@ -293,10 +292,8 @@ export const enqueue = async () => {
                     `${originDomain}-${destinationDomain}-${offset}-${targetMessageRoot}`,
                   );
                   if (unprocessed.length > 0) {
-                    const lastBatchExecutionTime = await cache.messages.getLastBatchTime(
-                      originDomain,
-                      destinationDomain,
-                    );
+                    let lastBatchExecutionTime = await cache.messages.getLastBatchTime(originDomain, destinationDomain);
+                    lastBatchExecutionTime = lastBatchExecutionTime > 0 ? lastBatchExecutionTime : getNtpTimeSeconds();
                     const fullyBatched = unprocessed.length >= batchSize;
                     const waitTimePassed = getNtpTimeSeconds() - lastBatchExecutionTime > batchWaitTime;
 
