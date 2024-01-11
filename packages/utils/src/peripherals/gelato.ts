@@ -1,5 +1,4 @@
 import { BigNumber } from "ethers";
-import interval from "interval-promise";
 
 import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
@@ -102,36 +101,8 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
     apiEndpoint = apiEndpoint.concat(`?to=${to}`);
   }
 
-  let totalRetries = 5;
-  const retryInterval = 2_000;
-  await new Promise((res) => {
-    interval(async (_, stop) => {
-      if (totalRetries === 0) {
-        stop();
-        res(undefined);
-      }
-
-      try {
-        totalRetries--;
-        const axiosRes = await axiosGet(apiEndpoint);
-        result = axiosRes.data.conversionRate as number;
-        if (result > 0) {
-          stop();
-          res(undefined);
-        }
-      } catch (error: unknown) {
-        if (logger)
-          logger.error(
-            `Error in getConversionRate. Retrying in ${retryInterval} ms`,
-            undefined,
-            undefined,
-            jsonifyError(error as Error),
-          );
-      }
-    }, retryInterval);
-  });
   try {
-    const res = await axiosGet(apiEndpoint);
+    const res = await axiosGet(apiEndpoint, undefined, 5, 2000);
     result = res.data.conversionRate as number;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));
