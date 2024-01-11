@@ -380,6 +380,9 @@ locals {
       prefetchSize = 1
     }
     web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
+    server = {
+      adminToken  = var.admin_token_lighthouse_prover_subscriber
+    }
   })
 
   local_relayer_config = jsonencode({

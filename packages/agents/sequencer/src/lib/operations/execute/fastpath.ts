@@ -237,7 +237,11 @@ export const executeFastPathData = async (
     return { taskId };
   }
 
-  const { canSubmit, needed } = await canSubmitToRelayer(transfer);
+  let { canSubmit, needed } = await canSubmitToRelayer(transfer);
+  if (transfer.xparams.destinationDomain === "2016506996") {
+    canSubmit = true;
+    needed = constants.Zero.toString();
+  }
   if (!canSubmit) {
     logger.error("Relayer fee isn't enough to submit a tx", requestContext, methodContext, undefined, {
       transferId,

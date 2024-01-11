@@ -45,7 +45,7 @@ describe("Operations: Publisher", () => {
         mockXMessage1.leaf,
         mockXMessage2.leaf,
       ]);
-      (proverCtxMock.adapters.cache.messages.getMessage as SinonStub).resolves(mockXMessage1);
+      (proverCtxMock.adapters.cache.messages.getMessage as SinonStub).resolves({ data: mockXMessage1 });
       await getUnProcessedMessagesByIndex(mockXMessage1.originDomain, mockXMessage1.destinationDomain, 100);
     });
   });

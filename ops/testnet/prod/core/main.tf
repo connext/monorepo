@@ -259,10 +259,10 @@ module "sequencer_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.sequencer_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  avg_cpu_utilization_target = 40
+  avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 60
-  min_capacity               = 1
-  max_capacity               = 40
+  min_capacity               = 2
+  max_capacity               = 100
 }
 
 
@@ -429,7 +429,7 @@ module "lighthouse_propose_cron" {
   stage                  = var.stage
   container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
   schedule_expression    = "rate(30 minutes)"
-  memory_size            = 4096 
+  memory_size            = 4096
   timeout                = 900
   lambda_in_vpc          = true
   subnet_ids             = module.network.private_subnets
@@ -453,8 +453,8 @@ module "relayer" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 4096
+  cpu                      = 8192
+  memory                   = 16384
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false
