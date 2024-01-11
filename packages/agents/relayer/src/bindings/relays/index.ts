@@ -13,11 +13,10 @@ import fastify, { FastifyInstance, FastifyReply } from "fastify";
 import { getContext } from "../../make";
 
 export const MIN_GAS_LIMIT = BigNumber.from(4_000_000);
-export const DEFAULT_POLL_INTERVAL = 1_000;
 
-export const bindRelays = async (_pollInterval?: number) => {
+export const bindRelays = async () => {
   const { config } = getContext();
-  const pollInterval = _pollInterval ?? DEFAULT_POLL_INTERVAL;
+  const pollInterval = config.poller.interval;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
@@ -171,7 +170,7 @@ export const bindHealthServer = async (): Promise<FastifyInstance> => {
 
   server.get("/ping", (_, res) => api.get.ping(res));
 
-  const address = await server.listen({ port: config.server.port, host: config.server.host });
+  const address = await server.listen({ port: config.poller.port, host: config.poller.host });
   logger.info(`Server listening at ${address}`);
   return server;
 };
