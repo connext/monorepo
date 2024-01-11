@@ -462,7 +462,7 @@ module "relayer" {
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "polling" })
+  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "poller" })
 }
 
 module "relayer_server" {
