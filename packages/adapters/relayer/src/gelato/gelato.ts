@@ -177,7 +177,8 @@ export const gelatoSDKSend = async (
   }
 };
 
-const GAS_LIMIT_FACTOR = 1.4;
+const GAS_LIMIT_BUFFER = "140";
+const GAS_LIMIT_BPS = "100";
 
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {
   return Promise.resolve(GELATO_RELAYER_ADDRESS);
@@ -212,7 +213,7 @@ export const send = async (
     from: relayerAddress,
   });
 
-  const safeGasLimit = gas.mul(GAS_LIMIT_FACTOR);
+  const safeGasLimit = gas.mul(GAS_LIMIT_BUFFER).div(GAS_LIMIT_BPS);
 
   logger.info("Sending tx to relayer", requestContext, methodContext, {
     relayer: relayerAddress,
