@@ -123,6 +123,17 @@ export const getXCalls = async () => {
     }
 
     if (txIdsByDestinationDomain.size > 0) {
+      // filter transfers by unsupported destination domain
+      for (const destinationDomain of txIdsByDestinationDomain.keys()) {
+        if (!allowedDomains.includes(destinationDomain)) {
+          const transferIdsToRemove = txIdsByDestinationDomain.get(destinationDomain);
+          for (const transferId of transferIdsToRemove ?? []) {
+            allTxById.delete(transferId);
+          }
+
+          txIdsByDestinationDomain.delete(destinationDomain);
+        }
+      }
       const transfers = await subgraph.getDestinationXCalls(txIdsByDestinationDomain, allTxById);
       if (transfers.length === 0) {
         logger.debug("No pending transfers after filtering destination", requestContext, methodContext, {
@@ -188,13 +199,23 @@ export const getMissingXCalls = async () => {
     const txIdsByDestinationDomain: Map<string, string[]> = new Map();
     const allTxById: Map<string, XTransfer> = new Map();
     for (const originTransfer of transfersByNonces) {
-      logger.debug("Processing missing transfer", requestContext, methodContext, {
+      logger.debug("Processing a missing transfer", requestContext, methodContext, {
         transferId: originTransfer.transferId,
       });
+
       if (noncesByDomain[originTransfer.xparams.originDomain]) {
         noncesByDomain[originTransfer.xparams.originDomain].push(originTransfer.xparams.nonce);
       } else {
         noncesByDomain[originTransfer.xparams.originDomain] = [originTransfer.xparams.nonce];
+      }
+
+      if (!allowedDomains.includes(originTransfer.xparams.destinationDomain)) {
+        logger.debug("Skipping to query a destination transfer", requestContext, methodContext, {
+          transferId: originTransfer.transferId,
+          destinationDomain: originTransfer.xparams.destinationDomain,
+          allowedDomains,
+        });
+        continue;
       }
 
       if (txIdsByDestinationDomain.has(originTransfer.xparams.destinationDomain)) {
