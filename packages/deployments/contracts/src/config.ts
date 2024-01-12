@@ -295,6 +295,20 @@ export const hardhatNetworks = {
       },
     },
   },
+  polygonzk: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1101,
+    url: urlOverride || process.env.POLYGONZK_PROVIDER_URL || "https://zkevm-rpc.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-zkevm.polygonscan.com",
+      },
+    },
+  },
   "zksync2-testnet": {
     accounts: { mnemonic },
     chainId: 280,

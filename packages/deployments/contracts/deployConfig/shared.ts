@@ -29,6 +29,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   59144: 30, // linea
   8453: 30, // base
   43114: 20, //avalanche
+  1101: 8, //polygon-zkevm
 
   // testnets
   5: 4, // goerli
@@ -572,6 +573,30 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           spoke: {
             gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
             mirrorChainId: "2", // mainnet wormhole chainid: 2
+          },
+        },
+      },
+      1101: {
+        prefix: "PolygonZk",
+        ambs: {
+          // PolygonZkEVMBridge on mainnet
+          // https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          hub: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+          // PolygonZkEVMBridge on polygon-zkevm
+          // https://zkevm.polygonscan.com/address/0x2a3dd3eb832af982ec71669e178424b10dca2ede
+          spoke: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1101],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1101],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1101] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "1",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
           },
         },
       },
