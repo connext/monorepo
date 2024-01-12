@@ -191,34 +191,6 @@ const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
   }
 };
 
-export const gelatoV0Send = async (
-  chainId: number,
-  dest: string,
-  data: string,
-  relayerFee: string,
-  logger: Logger,
-  _requestContext: RequestContext,
-): Promise<RelayResponse> => {
-  const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
-  let response;
-  const params = {
-    dest,
-    data,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    relayerFee,
-    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
-  };
-  try {
-    logger.info("Sending request to gelato relay", requestContext, methodContext, params);
-    response = await axiosPost(`${url}/relays/${chainId}`, params);
-  } catch (error: unknown) {
-    throw new RelayerSendFailed({
-      error: jsonifyError(error as Error),
-    });
-  }
-  return response.data;
-};
-
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {
   return Promise.resolve(GELATO_RELAYER_ADDRESS);
 };
