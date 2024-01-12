@@ -25,9 +25,10 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   56: 30, // bsc
   100: 30, // gnosis
   137: 30, // polygon
-  42161: 30, // arbitrum one
+  42161: 4, // arbitrum one
   59144: 30, // linea
   8453: 30, // base
+  43114: 20, //avalanche
 
   // testnets
   5: 4, // goerli
@@ -545,6 +546,34 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
+      },
+      // Avalanche C Chain
+      43114: {
+        prefix: "Wormhole",
+        networkName: "Avalanche",
+        ambs: {
+          // Wormhole Relayer address on Mainnet
+          // https://etherscan.io/address/0x27428DD2d3DD32A4D7f7C497eAaa23130d894911
+          hub: "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
+          // Wormhole Relayer on Avalanche Chain
+          // https://43114.snowtrace.io/address/0x27428DD2d3DD32A4D7f7C497eAaa23130d894911
+          spoke: "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
+        },
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[43114],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[43114],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[43114] / 2,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            gasCap: "300000", // gas limit for receiveWormholeMessages on avalanche
+            mirrorChainId: "6", // avalanche wormhole chainId: 6
+          },
+          spoke: {
+            gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
+            mirrorChainId: "2", // mainnet wormhole chainid: 2
+          },
+        },
       },
     },
   },
