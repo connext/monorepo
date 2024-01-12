@@ -32,6 +32,8 @@ contract Common is ConnectorHelper {
   uint32 public constant MIRROR_DOMAIN = 100;
   // The mirror connector is set to the sender address on the message sent from the L2 Scroll Spoke Connector
   address public MIRROR_CONNECTOR = 0x0006e19078A46C296eb6b44d37f05ce926403A82;
+  // The recipient address where the message was sent to
+  address public RECIPIENT = 0xC82EdcE9eE173E12252E797fd860a87EC7DFB073;
 
   // EOAs and external addresses
   address public owner = makeAddr("owner");
@@ -92,10 +94,10 @@ contract Common is ConnectorHelper {
     );
     bytes memory _bytecode = address(scrollHubConnector).code;
 
-    // Set the bytecode on the recipient address
-    vm.etch(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073, _bytecode);
-
-    scrollHubConnector = ScrollHubConnector(payable(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073));
+    // Set the bytecode of the scroll hub connector on the recipient address
+    vm.etch(RECIPIENT, _bytecode);
+    // Update the scroll hub connector instance using the recipient address
+    scrollHubConnector = ScrollHubConnector(payable(RECIPIENT));
 
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(scrollHubConnector));
