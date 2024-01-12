@@ -11,7 +11,6 @@ import {
   NATIVE_TOKEN,
   RelayerRequest,
   GELATO_RELAYER_ADDRESS,
-  axiosPost,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
@@ -23,7 +22,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { gelatoRelay, url } from ".";
+import { gelatoRelay } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
