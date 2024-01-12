@@ -48,7 +48,6 @@ contract Base is ConnectorHelper {
   address public user = makeAddr("user");
   address public owner = makeAddr("owner");
   address public stranger = makeAddr("stranger");
-  address public recipientAddress = makeAddr("recipientAddress");
   FuelHubConnectorForTest public fuelHubConnector;
 
   /**
@@ -90,27 +89,25 @@ contract Unit_Connector_FuelHubConnector_SendMessage is Base {
   /**
    * @notice Tests that calls the `sendMessage` function on the AMB
    * @param _root The root to be sent
-   * @param _recipientAddress Recipient address of the message on L2
    */
-  function test_callSendMessage(bytes32 _root, address _recipientAddress) public {
+  function test_callSendMessage(bytes32 _root) public {
     // Encode the root
     bytes memory _data = abi.encode(_root);
 
     // Parse the encoded refund address into a bytes32
-    bytes32 _bytes32recipientAddress = fuelHubConnector.forTest_addressToBytes32(_recipientAddress);
+    bytes32 _mirrorConnectorBytes = fuelHubConnector.forTest_addressToBytes32(_l2Connector);
     // Get the calldata for the `processMessage` function
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
 
     // Mock `sendMessage` call on Fuel Messenger Portal and expect it to be called with the correct arguments
     _mockAndExpect(
       _amb,
-      abi.encodeWithSelector(IFuelMessagePortal.sendMessage.selector, _bytes32recipientAddress, _calldata),
+      abi.encodeWithSelector(IFuelMessagePortal.sendMessage.selector, _mirrorConnectorBytes, _calldata),
       ""
     );
 
-    // Encode  the refund address
-    bytes memory _encodedData = abi.encode(_recipientAddress);
     vm.prank(user);
+    bytes memory _encodedData = "";
     fuelHubConnector.forTest_sendMessage(_data, _encodedData);
   }
 }

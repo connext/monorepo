@@ -36,8 +36,6 @@ contract Integration_Connector_FuelHubConnector is Common {
   function test_sendMessage() public {
     // Encode the root
     bytes memory _root = abi.encode(bytes32("aggregateRoot"));
-    // Encode the mirror connector, which is the recipient address
-    bytes memory _encodedData = abi.encode(mirrorConnector);
 
     // Expect `MessageSent` event to be emitted with the correct values
     // Parse the sender (fuel hub connector) and recipient (mirror connector) to bytes32
@@ -54,6 +52,7 @@ contract Integration_Connector_FuelHubConnector is Common {
     emit MessageSent(_sender, _recipient, _nonce, _value, _calldata);
 
     vm.prank(address(rootManager));
+    bytes memory _encodedData = "";
     fuelHubConnector.sendMessage(_root, _encodedData);
   }
 
