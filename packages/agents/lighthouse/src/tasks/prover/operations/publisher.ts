@@ -26,7 +26,7 @@ import {
   NoDomainInSnapshot,
 } from "../../../errors";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
+import { DEFAULT_BATCH_WAIT_TIME, DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
@@ -179,7 +179,6 @@ export const enqueue = async () => {
   const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
   // Track the number of messages published to the queue in this iteration.
   let publishedCount = 0;
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
@@ -296,6 +295,7 @@ export const enqueue = async () => {
                   throw new NoMessageRootCount(originDomain, targetMessageRoot);
                 }
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const batchWaitTime = config.proverBatchWaitTime[destinationDomain] ?? DEFAULT_BATCH_WAIT_TIME;
                 const pendingMessages = await getUnProcessedMessagesByIndex(
                   originDomain,
                   destinationDomain,
@@ -312,13 +312,43 @@ export const enqueue = async () => {
                     `${originDomain}-${destinationDomain}-${offset}-${targetMessageRoot}`,
                   );
                   if (unprocessed.length > 0) {
-                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                      unprocessed: unprocessed.map((message) => message.leaf),
-                      originDomain,
-                      destinationDomain,
-                      endIndex: messageRootCount,
-                      offset,
-                    });
+                    let lastBatchExecutionTime = await cache.messages.getLastBatchTime(originDomain, destinationDomain);
+                    lastBatchExecutionTime = lastBatchExecutionTime > 0 ? lastBatchExecutionTime : getNtpTimeSeconds();
+                    const fullyBatched = unprocessed.length >= batchSize;
+                    const waitTimePassed = getNtpTimeSeconds() - lastBatchExecutionTime > batchWaitTime;
+
+                    if (fullyBatched || waitTimePassed) {
+                      logger.info(
+                        "Got unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                    } else {
+                      logger.info(
+                        "Skipping to publish messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                      return;
+                    }
 
                     const brokerMessage = await createBrokerMessage(
                       unprocessed,
@@ -356,6 +386,8 @@ export const enqueue = async () => {
                           brokerMessage,
                         },
                       );
+
+                      await cache.messages.setLastBatchTime(originDomain, destinationDomain, getNtpTimeSeconds());
                     }
 
                     offset += unprocessed.length;
