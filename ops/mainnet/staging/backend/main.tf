@@ -67,129 +67,83 @@ module "cartographer-db-alarms" {
   sns_topic_subscription_emails           = local.db_alarm_emails
 }
 
-module "cartographer_db_replica" {
-  domain              = "cartographer"
-  source              = "../../../modules/db-replica"
-  replicate_source_db = module.cartographer_db.db_instance_identifier
-  depends_on          = [module.cartographer_db]
-  replica_identifier  = "rds-postgres-cartographer-replica-${var.stage}-${var.environment}"
-  instance_class      = "db.t4g.2xlarge"
-  allocated_storage   = 150
+# module "postgrest" {
+#   source                   = "../../../modules/service"
+#   region                   = var.region
+#   dd_api_key               = var.dd_api_key
+#   zone_id                  = data.aws_route53_zone.primary.zone_id
+#   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+#   cluster_id               = module.ecs.ecs_cluster_id
+#   vpc_id                   = module.network.vpc_id
+#   lb_subnets               = module.network.public_subnets
+#   internal_lb              = false
+#   docker_image             = "postgrest/postgrest:v10.0.0.20221011"
+#   container_family         = "postgrest"
+#   container_port           = 3000
+#   loadbalancer_port        = 80
+#   cpu                      = 1024
+#   memory                   = 2048
+#   instance_count           = 2
+#   timeout                  = 180
+#   environment              = var.environment
+#   stage                    = var.stage
+#   ingress_cdir_blocks      = ["0.0.0.0/0"]
+#   ingress_ipv6_cdir_blocks = []
+#   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+#   cert_arn                 = var.certificate_arn
+#   container_env_vars       = local.postgrest_env_vars
+#   domain                   = var.domain
+# }
 
-  name     = module.cartographer_db.db_instance_name
-  username = module.cartographer_db.db_instance_username
-  password = module.cartographer_db.db_instance_password
-  port     = module.cartographer_db.db_instance_port
+# module "sdk-server" {
+#   source                   = "../../../modules/service"
+#   region                   = var.region
+#   dd_api_key               = var.dd_api_key
+#   zone_id                  = data.aws_route53_zone.primary.zone_id
+#   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+#   cluster_id               = module.ecs.ecs_cluster_id
+#   vpc_id                   = module.network.vpc_id
+#   lb_subnets               = module.network.public_subnets
+#   internal_lb              = false
+#   docker_image             = var.full_image_name_sdk_server
+#   container_family         = "sdk-server"
+#   health_check_path        = "/ping"
+#   container_port           = 8080
+#   loadbalancer_port        = 80
+#   cpu                      = 1024
+#   memory                   = 2048
+#   instance_count           = 2
+#   timeout                  = 180
+#   environment              = var.environment
+#   stage                    = var.stage
+#   ingress_cdir_blocks      = ["0.0.0.0/0"]
+#   ingress_ipv6_cdir_blocks = []
+#   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+#   cert_arn                 = var.certificate_arn
+#   container_env_vars       = local.sdk_server_env_vars
+#   domain                   = var.domain
+# }
 
-  engine_version = module.cartographer_db.db_instance_engine_version
+# module "sdk_server_cache" {
+#   source                        = "../../../modules/redis"
+#   stage                         = var.stage
+#   environment                   = var.environment
+#   family                        = "sdk-server"
+#   sg_id                         = module.network.ecs_task_sg
+#   vpc_id                        = module.network.vpc_id
+#   cache_subnet_group_subnet_ids = module.network.public_subnets
+# }
 
-  maintenance_window      = module.cartographer_db.db_maintenance_window
-  backup_retention_period = module.cartographer_db.db_backup_retention_period
-  backup_window           = module.cartographer_db.db_backup_window
-
-  tags = {
-    Environment = var.environment
-    Domain      = var.domain
-  }
-
-  parameter_group_name = "default.postgres14"
-
-  hosted_zone_id        = data.aws_route53_zone.primary.zone_id
-  stage                 = var.stage
-  environment           = var.environment
-  db_security_group_ids = module.cartographer_db.db_instance_vpc_security_group_ids
-  db_subnet_group_name  = module.cartographer_db.db_subnet_group_name
-  publicly_accessible   = module.cartographer_db.db_publicly_accessible
-}
-
-module "cartographer-db-replica-alarms" {
-  source                                  = "../../../modules/db-alarms"
-  db_instance_name                        = module.cartographer_db.db_instance_name
-  db_instance_id                          = module.cartographer_db.db_instance_id
-  is_replica                              = true
-  enable_cpu_utilization_alarm            = true
-  enable_free_storage_space_too_low_alarm = true
-  stage                                   = var.stage
-  environment                             = var.environment
-  sns_topic_subscription_emails           = local.db_alarm_emails
-}
-module "postgrest" {
-  source                   = "../../../modules/service"
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  zone_id                  = data.aws_route53_zone.primary.zone_id
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  lb_subnets               = module.network.public_subnets
-  internal_lb              = false
-  docker_image             = "postgrest/postgrest:v10.0.0.20221011"
-  container_family         = "postgrest"
-  container_port           = 3000
-  loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
-  instance_count           = 2
-  timeout                  = 180
-  environment              = var.environment
-  stage                    = var.stage
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
-  ingress_ipv6_cdir_blocks = []
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn
-  container_env_vars       = local.postgrest_env_vars
-  domain                   = var.domain
-}
-
-module "sdk-server" {
-  source                   = "../../../modules/service"
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  zone_id                  = data.aws_route53_zone.primary.zone_id
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  lb_subnets               = module.network.public_subnets
-  internal_lb              = false
-  docker_image             = var.full_image_name_sdk_server
-  container_family         = "sdk-server"
-  health_check_path        = "/ping"
-  container_port           = 8080
-  loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
-  instance_count           = 2
-  timeout                  = 180
-  environment              = var.environment
-  stage                    = var.stage
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
-  ingress_ipv6_cdir_blocks = []
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn
-  container_env_vars       = local.sdk_server_env_vars
-  domain                   = var.domain
-}
-
-module "sdk_server_cache" {
-  source                        = "../../../modules/redis"
-  stage                         = var.stage
-  environment                   = var.environment
-  family                        = "sdk-server"
-  sg_id                         = module.network.ecs_task_sg
-  vpc_id                        = module.network.vpc_id
-  cache_subnet_group_subnet_ids = module.network.public_subnets
-}
-
-module "sdk_server_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sdk-server.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 2
-  max_capacity     = 10
-}
+# module "sdk_server_auto_scaling" {
+#   source           = "../../../modules/auto-scaling"
+#   stage            = var.stage
+#   environment      = var.environment
+#   domain           = var.domain
+#   ecs_service_name = module.sdk-server.service_name
+#   ecs_cluster_name = module.ecs.ecs_cluster_name
+#   min_capacity     = 2
+#   max_capacity     = 10
+# }
 
 
 module "cartographer-routers-lambda-cron" {

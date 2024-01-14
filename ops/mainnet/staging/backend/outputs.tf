@@ -22,17 +22,17 @@ output "cartographer-prices-service-endpoint" {
   value = module.cartographer-prices-lambda-cron.lambda_cron_service_name
 }
 
-output "postgrest-dns" {
-  value = module.postgrest.dns_name
-}
+# output "postgrest-dns" {
+#   value = module.postgrest.dns_name
+# }
 
-output "postgrest-service-endpoint" {
-  value = module.postgrest.service_endpoint
-}
+# output "postgrest-service-endpoint" {
+#   value = module.postgrest.service_endpoint
+# }
 
-output "sdk-server-service-endpoint" {
-  value = module.sdk-server.service_endpoint
-}
+# output "sdk-server-service-endpoint" {
+#   value = module.sdk-server.service_endpoint
+# }
 
 
 output "db-instance-endpoint" {
