@@ -28,6 +28,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   42161: 30, // arbitrum one
   59144: 30, // linea
   8453: 30, // base
+  1088: 30, // metis
 
   // testnets
   5: 4, // goerli
@@ -545,6 +546,29 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
+      },
+      1088: {
+        prefix: "Metis",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://github.com/MetisProtocol/mvm/blob/develop/packages/contracts/deployments/andromeda/Proxy__OVM_L1CrossDomainMessenger.json
+          hub: "0x081D1101855bD523bA69A9794e0217F0DB6323ff",
+          // L2CrossDomainMessenger
+          // https://github.com/MetisProtocol/mvm/blob/cd9a23984c49d54945a9b9b7bad032d3e53ee105/packages/contracts/src/predeploys.ts#L14
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1088],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1088],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1088] / 2,
+        custom: {
+          hub: {
+            // https://immunefi.com/bounty/metis/
+            // https://etherscan.io/address/0xf209815E595Cdf3ed0aAF9665b1772e608AB9380
+            stateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
+          },
+        },
       },
     },
   },

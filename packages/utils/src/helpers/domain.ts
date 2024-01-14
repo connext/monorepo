@@ -24,6 +24,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1666600000, 0x686d79], // Harmony Mainnet (hmy interpreted as int) 6778479
   [2001, 0x6d696c6b], // Milkomeda Mainnet (milk interpreted as int)
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
+  [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int)
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
