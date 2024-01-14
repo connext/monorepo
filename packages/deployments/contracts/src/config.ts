@@ -5,7 +5,7 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161, 8453],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114],
   testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
@@ -204,6 +204,19 @@ export const hardhatNetworks = {
       },
     },
   },
+  avalanche: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 43114,
+    url: urlOverride || process.env.AVALANCHE_PROVIDER_URL || "https://api.avax.network/ext/bc/C/rpc",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.SNOWTRACESCAN_API_KEY!,
+      },
+    },
+  },
   ftm: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 250,
@@ -279,6 +292,20 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.POLYGONZKSCAN_API_KEY!,
         apiUrl: "https://api-testnet-zkevm.polygonscan.com",
+      },
+    },
+  },
+  polygonzk: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1101,
+    url: urlOverride || process.env.POLYGONZK_PROVIDER_URL || "https://zkevm-rpc.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-zkevm.polygonscan.com",
       },
     },
   },

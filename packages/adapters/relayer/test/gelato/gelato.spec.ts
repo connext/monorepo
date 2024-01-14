@@ -23,7 +23,6 @@ import {
   getTaskStatus,
   getTransactionHash,
   waitForTaskCompletion,
-  gelatoV0Send,
 } from "../../src/gelato/gelato";
 import * as GelatoFns from "../../src/gelato/gelato";
 import {
@@ -240,35 +239,6 @@ describe("Adapters: Gelato", () => {
     it("should work", async () => {
       const relayerAddress = await getRelayerAddress(1234);
       expect(relayerAddress).to.eq(GELATO_RELAYER_ADDRESS);
-    });
-  });
-
-  describe("#gelatoV0Send", async () => {
-    beforeEach(() => {
-      isChainSupportedByGelatoStub = stub(GelatoFns, "isChainSupportedByGelato").resolves(true);
-      axiosPostStub = stub(Mockable, "axiosPost");
-      axiosPostStub.resolves({ status: 200, data: { taskId: mockTaskId } });
-      chainReaderMock = mockChainReader() as any;
-      stub(RelayerIndexFns, "url").value("http://example.com");
-    });
-
-    it("should fail to send if error", async () => {
-      axiosPostStub.throws(new Error("Request failed!"));
-      await expect(
-        gelatoV0Send(+mock.chain.A, mkAddress(), "0xfee", "0", logger, createRequestContext("test")),
-      ).to.be.rejectedWith(RelayerSendFailed);
-    });
-
-    it("should work", async () => {
-      const { taskId } = await gelatoV0Send(
-        +mock.chain.A,
-        mkAddress(),
-        "0xfee",
-        "0",
-        logger,
-        createRequestContext("test"),
-      );
-      expect(taskId).to.be.eq(mockTaskId);
     });
   });
 

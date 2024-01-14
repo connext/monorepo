@@ -25,10 +25,12 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   56: 30, // bsc
   100: 30, // gnosis
   137: 30, // polygon
-  42161: 30, // arbitrum one
+  42161: 4, // arbitrum one
   59144: 30, // linea
   8453: 30, // base
   1088: 30, // metis
+  43114: 20, //avalanche
+  1101: 8, //polygon-zkevm
 
   // testnets
   5: 4, // goerli
@@ -567,6 +569,88 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             // https://immunefi.com/bounty/metis/
             // https://etherscan.io/address/0xf209815E595Cdf3ed0aAF9665b1772e608AB9380
             stateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
+          },
+        },
+      },
+      // Base chain
+      8453: {
+        prefix: "Optimism",
+        networkName: "Base",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://docs.base.org/base-contracts/#ethereum-mainnet
+          hub: "0x866E82a600A1414e583f7F13623F1aC5d58b0Afa",
+          // L2CrossDomainMessenger
+          // https://docs.base.org/base-contracts/#base-mainnet
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: BigNumber.from("2000000"),
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[8453],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[8453],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[8453] / 2,
+        custom: {
+          hub: {
+            // BasePortal
+            // https://docs.base.org/base-contracts/#ethereum-mainnet
+            // https://etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e#code
+            optimismPortal: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Avalanche C Chain
+      43114: {
+        prefix: "Wormhole",
+        networkName: "Avalanche",
+        ambs: {
+          // Wormhole Relayer address on Mainnet
+          // https://etherscan.io/address/0x27428DD2d3DD32A4D7f7C497eAaa23130d894911
+          hub: "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
+          // Wormhole Relayer on Avalanche Chain
+          // https://43114.snowtrace.io/address/0x27428DD2d3DD32A4D7f7C497eAaa23130d894911
+          spoke: "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
+        },
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[43114],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[43114],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[43114] / 2,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        custom: {
+          hub: {
+            gasCap: "300000", // gas limit for receiveWormholeMessages on avalanche
+            mirrorChainId: "6", // avalanche wormhole chainId: 6
+          },
+          spoke: {
+            gasCap: "400000", // gas limit for receiveWormholeMessages on mainnet
+            mirrorChainId: "2", // mainnet wormhole chainid: 2
+          },
+        },
+      },
+      1101: {
+        prefix: "PolygonZk",
+        ambs: {
+          // PolygonZkEVMBridge on mainnet
+          // https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          hub: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+          // PolygonZkEVMBridge on polygon-zkevm
+          // https://zkevm.polygonscan.com/address/0x2a3dd3eb832af982ec71669e178424b10dca2ede
+          spoke: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1101],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1101],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1101] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "1",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
           },
         },
       },
