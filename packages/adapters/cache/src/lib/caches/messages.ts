@@ -34,6 +34,27 @@ export class MessagesCache extends Cache {
   }
 
   /**
+   * Get the timestamp of the last batch for a given domain ID.
+   * @param originDomain - The origin domain ID.
+   * @param destinationDomain - The destination domain ID.
+   */
+  public async getLastBatchTime(originDomain: string, destinationDomain: string): Promise<number> {
+    const pendingKey = `${originDomain}-${destinationDomain}`;
+    const res = await this.data.hget(`${this.prefix}:lastbatch`, pendingKey);
+    return res ? +res : 0;
+  }
+
+  /**
+   * Set the last batch time for a given domain.
+   * @param domain - The domain ID
+   * @param timestamp - The unix timestamp of the last batch execution
+   */
+  public async setLastBatchTime(originDomain: string, destinationDomain: string, timestamp: number): Promise<void> {
+    const pendingKey = `${originDomain}-${destinationDomain}`;
+    await this.data.hset(`${this.prefix}:lastbatch`, pendingKey, timestamp.toString());
+  }
+
+  /**
    * Stores the messages in the cache.
    * @param messages - The messages to store
    */
