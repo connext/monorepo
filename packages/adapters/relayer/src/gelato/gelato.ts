@@ -22,9 +22,7 @@ import {
   UnableToGetTransactionHash,
 } from "../errors";
 import { ChainReader } from "../../../txservice";
-import { axiosPost } from "../mockable";
-
-import { gelatoRelay, url } from ".";
+import { gelatoRelay } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
@@ -190,34 +188,6 @@ const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
       return "6000000";
     }
   }
-};
-
-export const gelatoV0Send = async (
-  chainId: number,
-  dest: string,
-  data: string,
-  relayerFee: string,
-  logger: Logger,
-  _requestContext: RequestContext,
-): Promise<RelayResponse> => {
-  const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
-  let response;
-  const params = {
-    dest,
-    data,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    relayerFee,
-    gasLimit: GAS_LIMIT_FOR_RELAYER(chainId),
-  };
-  try {
-    logger.info("Sending request to gelato relay", requestContext, methodContext, params);
-    response = await axiosPost(`${url}/relays/${chainId}`, params);
-  } catch (error: unknown) {
-    throw new RelayerSendFailed({
-      error: jsonifyError(error as Error),
-    });
-  }
-  return response.data;
 };
 
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {

@@ -69,6 +69,9 @@ describe("Operations: Publisher", () => {
       (proverCtxMock.adapters.database.getMessageRootIndex as SinonStub).resolves(1);
       (proverCtxMock.adapters.database.getAggregateRootCount as SinonStub).resolves(1);
       (proverCtxMock.adapters.cache.messages.setStatus as SinonStub).resolves();
+      (proverCtxMock.adapters.cache.messages.getLastBatchTime as SinonStub).resolves(0);
+      (proverCtxMock.adapters.cache.messages.setLastBatchTime as SinonStub).resolves();
+
       createBrokerMessageStub.resolves(mockBrokerMesage);
       await enqueue();
       expect(createBrokerMessageStub.callCount).to.be.eq(4);
