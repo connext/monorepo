@@ -37,6 +37,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59140, 0x636f6e74], // Consensys Linea goerli (cont interpreted as int) 1668247156
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
+  [195, 0x78317474], // X1 Testnet ('x1tt' interpreted as int) 2016506996
   // local
   [1337, 133712],
   [1338, 133812],

@@ -118,6 +118,10 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
       return await contract[write.method](...write.args, {
         gasPrice: "4500000000",
       });
+    } else if (chain == 195) {
+      return await contract[write.method](...write.args, {
+        gasPrice: "150000000000",
+      });
     } else {
       return await contract[write.method](...write.args, {
         gasLimit: 2500000,

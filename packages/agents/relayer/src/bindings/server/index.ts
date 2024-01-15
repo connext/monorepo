@@ -13,7 +13,7 @@ import {
   ClearCacheRequestSchema,
 } from "@connext/nxtp-utils";
 
-import { getContext } from "../../relayer";
+import { getContext } from "../../make";
 import { getOperations } from "../../lib/operations";
 
 export const bindServer = () =>
