@@ -126,6 +126,13 @@ contract Integration_Connector_ScrollHubConnector is Common {
 
     // Relay the message sent on L2 in L1
     IL1ScrollMessenger.L2MessageProof memory _l2MessageProof = IL1ScrollMessenger.L2MessageProof(_batchIndex, _proof);
-    L1_SCROLL_MESSENGER.relayMessageWithProof(_from, RECIPIENT, _value, _nonce, _message, _l2MessageProof);
+    L1_SCROLL_MESSENGER.relayMessageWithProof(
+      _from,
+      address(scrollHubConnector),
+      _value,
+      _nonce,
+      _message,
+      _l2MessageProof
+    );
   }
 }
