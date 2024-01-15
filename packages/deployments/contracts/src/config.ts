@@ -326,6 +326,22 @@ export const hardhatNetworks = {
       },
     },
   },
+  "zksync-era": {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 324,
+    url: process.env.ZKSYNC2_PROVIDER_URL || "https://mainnet.era.zksync.io",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    zksync: true,
+    ethNetwork: "mainnet",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ZKSYNCSCAN_API_KEY!,
+        apiUrl: "https://api-era.zksync.network",
+      },
+    },
+  },
   "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
