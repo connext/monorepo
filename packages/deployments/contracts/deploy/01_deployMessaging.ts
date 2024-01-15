@@ -238,6 +238,7 @@ const handleDeploySpoke = async (
       !contract.includes("ZkSync") &&
       !contract.includes("Linea") &&
       !contract.includes("Wormhole") &&
+      !contract.includes("Metis") &&
       !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {

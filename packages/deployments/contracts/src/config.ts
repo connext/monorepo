@@ -46,6 +46,11 @@ Object.values(SUPPORTED_CHAINS).forEach((chains) => {
   });
 });
 
+/**
+ * @notice If zksync is true, then deterministic deployments are NOT supported
+ * @dev If this is true, you must modify the `helpers.js` file in the hardhat deploy node_module
+ * directory
+ */
 export const hardhatNetworks = {
   ...hardhatForkNetworks,
   hardhat: {
@@ -392,6 +397,21 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
     companionNetworks: {
       hub: "goerli",
+    },
+  },
+  metis: {
+    accounts: { mnemonic },
+    chainId: 1088,
+    url: urlOverride || process.env.METIS_PROVIDER_URL || "https://metis-pokt.nodies.app",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    zksync: true,
+    verify: {
+      etherscan: {
+        apiKey: process.env.METIS_EXPLORER_API_KEY!,
+        apiUrl: "https://andromeda-explorer.metis.io",
+      },
     },
   },
 };

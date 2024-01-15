@@ -570,6 +570,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             // https://etherscan.io/address/0xf209815E595Cdf3ed0aAF9665b1772e608AB9380
             stateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
           },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
         },
       },
       // Base chain
