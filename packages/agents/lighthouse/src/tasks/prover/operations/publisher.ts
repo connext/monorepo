@@ -312,8 +312,10 @@ export const enqueue = async () => {
                     `${originDomain}-${destinationDomain}-${offset}-${targetMessageRoot}`,
                   );
                   if (unprocessed.length > 0) {
-                    let lastBatchExecutionTime = await cache.messages.getLastBatchTime(originDomain, destinationDomain);
-                    lastBatchExecutionTime = lastBatchExecutionTime > 0 ? lastBatchExecutionTime : getNtpTimeSeconds();
+                    const lastBatchExecutionTime = await cache.messages.getLastBatchTime(
+                      originDomain,
+                      destinationDomain,
+                    );
                     const fullyBatched = unprocessed.length >= batchSize;
                     const waitTimePassed = getNtpTimeSeconds() - lastBatchExecutionTime > batchWaitTime;
 
