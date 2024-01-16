@@ -5,7 +5,7 @@ import {Connector} from "../../../../../contracts/messaging/connectors/Connector
 import {ConnectorHelper} from "../../../../utils/ConnectorHelper.sol";
 import {SpokeConnector} from "../../../../../contracts/messaging/connectors/SpokeConnector.sol";
 import {TaikoSpokeConnector} from "../../../../../contracts/messaging/connectors/taiko/TaikoSpokeConnector.sol";
-import {ISignalService} from "../../../../../contracts/messaging/interfaces/ambs/taiko/ISignalService.sol";
+import {IBridge} from "../../../../../contracts/messaging/interfaces/ambs/taiko/IBridge.sol";
 import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootManager.sol";
 
 /**
@@ -14,9 +14,9 @@ import {IRootManager} from "../../../../../contracts/messaging/interfaces/IRootM
 contract TaikoSpokeConnectorForTest is TaikoSpokeConnector {
   constructor(
     SpokeConnector.ConstructorParams memory _constructorParams,
-    address _taikoSignalService,
-    uint256 _hubChainId
-  ) TaikoSpokeConnector(_constructorParams, _taikoSignalService, _hubChainId) {}
+    uint256 _hubChainId,
+    uint256 _gasCap
+  ) TaikoSpokeConnector(_constructorParams, _hubChainId, _gasCap) {}
 
   function forTest_sendMessage(bytes memory _data, bytes memory _extraData) external {
     _sendMessage(_data, _extraData);
@@ -35,11 +35,9 @@ contract Base is ConnectorHelper {
   // The Ethereum chain id
   uint256 public constant HUB_CHAIN_ID = 1;
 
-  address public user = makeAddr("user");
-  address public offChainAgent = makeAddr("offChainAgent");
   address public owner = makeAddr("owner");
-  address public stranger = makeAddr("stranger");
-  address public taikoSignalService = makeAddr("TaikoSignalService");
+  address public user = makeAddr("user");
+  address public taikoBridge = makeAddr("taikoBridge");
   address public merkleTreeManager = makeAddr("MerkleTreeManager");
   address public watcherManager = makeAddr("WatcherManager");
 
@@ -53,7 +51,7 @@ contract Base is ConnectorHelper {
     SpokeConnector.ConstructorParams memory _params = SpokeConnector.ConstructorParams({
       domain: _l1Domain,
       mirrorDomain: _l2Domain,
-      amb: offChainAgent,
+      amb: taikoBridge,
       rootManager: _rootManager,
       mirrorConnector: _l1Connector,
       processGas: _processGas,
@@ -64,7 +62,7 @@ contract Base is ConnectorHelper {
       minDisputeBlocks: _minDisputeBlocks,
       disputeBlocks: _disputeBlocks
     });
-    taikoSpokeConnector = new TaikoSpokeConnectorForTest(_params, taikoSignalService, HUB_CHAIN_ID);
+    taikoSpokeConnector = new TaikoSpokeConnectorForTest(_params, HUB_CHAIN_ID, _gasCap);
   }
 }
 
@@ -75,7 +73,7 @@ contract Unit_Connector_TaikoSpokeConnector_Constructor is Base {
   function test_checkConstructorArgs() public {
     assertEq(taikoSpokeConnector.DOMAIN(), _l1Domain);
     assertEq(taikoSpokeConnector.MIRROR_DOMAIN(), _l2Domain);
-    assertEq(taikoSpokeConnector.AMB(), offChainAgent);
+    assertEq(taikoSpokeConnector.AMB(), taikoBridge);
     assertEq(taikoSpokeConnector.ROOT_MANAGER(), _rootManager);
     assertEq(taikoSpokeConnector.mirrorConnector(), _l1Connector);
     assertEq(taikoSpokeConnector.PROCESS_GAS(), _processGas);
@@ -85,8 +83,9 @@ contract Unit_Connector_TaikoSpokeConnector_Constructor is Base {
     assertEq(address(taikoSpokeConnector.watcherManager()), watcherManager);
     assertEq(taikoSpokeConnector.minDisputeBlocks(), _minDisputeBlocks);
     assertEq(taikoSpokeConnector.disputeBlocks(), _disputeBlocks);
-    assertEq(address(taikoSpokeConnector.TAIKO_SIGNAL_SERVICE()), taikoSignalService);
-    assertEq(taikoSpokeConnector.HUB_CHAIN_ID(), HUB_CHAIN_ID);
+    assertEq(address(taikoSpokeConnector.BRIDGE()), taikoBridge);
+    assertEq(taikoSpokeConnector.MIRROR_CHAIN_ID(), HUB_CHAIN_ID);
+    assertEq(taikoSpokeConnector.gasCap(), _gasCap);
   }
 }
 
@@ -115,131 +114,154 @@ contract Unit_Connector_TaikoSpokeConnector_SendMessage is Base {
   }
 
   /**
-   * @notice Tests that `sendSignal` function is called correctly
-   * @param _signal The signal (or message) to send
-   * @param _encodedData The encoded data
-   * @param _storageSlotResponse The storage slot response of the `sendSignal` call
+   * @notice Tests that Taiko Bridge's `sendMessage()` is called with the expected message.
+   * It should be called with the zero address since `_encodedData` is empty
+   * @param _root The root to be sent
    */
-  function test_callSendSignal(bytes32 _signal, bytes memory _encodedData, bytes32 _storageSlotResponse) public {
-    // Mock the call over `sendSignal` and expect it to be called
-    _mockAndExpect(
-      address(taikoSpokeConnector.TAIKO_SIGNAL_SERVICE()),
-      abi.encodeWithSelector(ISignalService.sendSignal.selector, _signal),
-      abi.encode(_storageSlotResponse)
-    );
+  function test_callSendMessage(bytes32 _root) public {
+    // Declare the calldata of the `processMessage` function with the root as argument
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(_root));
+    // Declare the expected message
+    IBridge.Message memory _expectedMsg = IBridge.Message({
+      id: 0,
+      from: address(taikoSpokeConnector),
+      srcChainId: block.chainid,
+      destChainId: HUB_CHAIN_ID,
+      user: user,
+      to: _l1Connector,
+      refundTo: _l1Connector,
+      value: 0,
+      fee: 0,
+      gasLimit: _gasCap,
+      data: _calldata,
+      memo: ""
+    });
 
-    // Call `sendSignal` function
+    // Expect `sendMessage` function to be called
+    _mockAndExpect(
+      taikoBridge,
+      abi.encodeWithSelector(IBridge.sendMessage.selector, _expectedMsg),
+      abi.encode(keccak256(abi.encode(_expectedMsg)))
+    );
+    // Call `sendMessage` function
     vm.prank(user);
-    taikoSpokeConnector.forTest_sendMessage(abi.encode(_signal), _encodedData);
+    bytes memory _data = abi.encode(_root);
+    bytes memory _encodedData = "";
+    taikoSpokeConnector.forTest_sendMessage(_data, _encodedData);
   }
 }
 
 contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
-  event AggregateRootReceived(bytes32 indexed _aggregateRoot);
+  /**
+   * @notice Emitted on `processMessage` function call when the aggregate root is received
+   * @param root Delivered root
+   */
+  event AggregateRootReceived(bytes32 indexed root);
 
   /**
-   * @notice Mocks the call over `verifyAndGetSignal` and expect it to be called
-   * @dev It also starts the prank on the offChainAgent
-   * @param _signal The signal (or message) to send
-   * @param _proof The proof of the signal sent
-   * @param _received Whether the signal was received or not
+   * @notice Helper function to mock the call over `context` and expect it to be called
+   * @param _msgHash The message hash
+   * @param _from The message's origin sender address
+   * @param _srcChainId The message's source chain id
    */
-  modifier happyPath(
-    bytes32 _signal,
-    bytes memory _proof,
-    bool _received
-  ) {
-    vm.assume(_signal != bytes32(0));
-    // Mock the call over `verifyAndGetSignal` and expect it to be called
-    _mockAndExpect(
-      taikoSignalService,
-      abi.encodeWithSelector(
-        ISignalService.isSignalReceived.selector,
-        taikoSpokeConnector.HUB_CHAIN_ID(),
-        _l2Connector,
-        _signal,
-        _proof
-      ),
-      abi.encode(_received)
-    );
-    _;
+  function _happyPath(bytes32 _msgHash, address _from, uint256 _srcChainId) internal {
+    // Mock the call over `context` with the return of the message context and expect it to be called
+    IBridge.Context memory _context = IBridge.Context({msgHash: _msgHash, from: _from, srcChainId: _srcChainId});
+    _mockAndExpect(taikoBridge, abi.encodeWithSelector(IBridge.context.selector), abi.encode(_context));
   }
 
   /**
-   * @notice Tests that reverts when the caller is not the allowed `offChainAgent`
+   * @notice Tests that reverts when called with invalid length data
    * @param _data Message data
    */
-  function test_revertIfSenderNotAgent(address _sender, bytes memory _data) public {
-    vm.assume(_sender != offChainAgent);
-    vm.prank(_sender);
-    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SenderNotAllowedAgent.selector);
+  function test_revertIfDataIsNot32Length(bytes memory _data) public {
+    vm.assume(_data.length != ROOT_LENGTH);
+    vm.prank(user);
+    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_LengthIsNot32.selector);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
   /**
-   * @notice Tests that reverts if the signal is not received
-   * @param _signal The signal (or message) sent
-   * @param _proof The proof of the signal sent
-   * @dev It uses the `happyPath` modifier setting `_received` to false
+   * @notice Tests that reverts when the source chain id is not the spoke chain id
+   * @param _msgHash The message hash
+   * @param _from The message's origin sender address
+   * @param _srcChainId The message's source chain id
+   * @param _root The root to be sent
    */
-  function test_revertIfSignalNotReceived(
-    bytes32 _signal,
-    bytes memory _proof
-  ) public happyPath(_signal, _proof, false) {
-    // Expect revert since signal was not received
-    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SignalNotReceived.selector);
+  function test_revertIfInvalidSrcChain(bytes32 _msgHash, address _from, uint256 _srcChainId, bytes32 _root) public {
+    // Assume that src chain id is different from the spoke chain id on the message context
+    vm.assume(_srcChainId != HUB_CHAIN_ID);
+    _happyPath(_msgHash, _from, _srcChainId);
 
-    // Call `processMessage` function
-    bytes memory _data = abi.encode(_signal, _proof);
-    vm.prank(offChainAgent);
+    // Expect `processMessage` to revert with `TaikoSpokeConnector_SourceChainNotSpoke` error
+    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_SourceChainNotHub.selector);
+
+    vm.prank(user);
+    bytes memory _data = abi.encode(_root);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
   /**
-   * @notice Tests that `isSignalReceived` function is called correctly
-   * @param _signal The signal (or message) sent
-   * @param _proof The proof of the signal sent
-   * @dev It uses the `happyPath` modifier setting `_received` to true
+   * @notice Tests that reverts when the origin sender is not the mirror connector
+   * @param _msgHash The message hash
+   * @param _from The message's origin sender address
+   * @param _srcChainId The message's source chain id
+   * @param _root The root to be sent
    */
-  function test_callIsSignalReceived(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
-    // Call `processMessage` function
-    bytes memory _data = abi.encode(_signal, _proof);
-    vm.prank(offChainAgent);
+  function test_revertIfOriginSenderNotMirror(
+    bytes32 _msgHash,
+    address _from,
+    uint256 _srcChainId,
+    bytes32 _root
+  ) public {
+    // Assume `from` is invalid and `srcChainId` is valid
+    vm.assume(_from != _l1Connector);
+    _srcChainId = HUB_CHAIN_ID;
+    _happyPath(_msgHash, _from, _srcChainId);
+
+    // Expect `processMessage` to revert with `TaikoSpokeConnector_SourceChainNotSpoke` error
+    vm.expectRevert(TaikoSpokeConnector.TaikoSpokeConnector_OriginSenderNotMirror.selector);
+
+    vm.prank(user);
+    bytes memory _data = abi.encode(_root);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 
   /**
-   * @notice Tests that `aggregate` function is called correctly and `AggregateRootReceived` is emitted
-   * @param _signal The signal (or message) sent
-   * @param _proof The proof of the signal sent
-   * @dev It uses the `happyPath` modifier setting `_received` to true
+   * @notice Tests that `aggregate` is called with the expected arguments
+   * @param _msgHash The message hash
+   * @param _root The root to be sent
    */
-  function test_callAggregate(bytes32 _signal, bytes memory _proof) public happyPath(_signal, _proof, true) {
-    // Expect AggregateRootReceived to be emitted
-    vm.expectEmit(true, true, true, true);
-    emit AggregateRootReceived(_signal);
+  function test_receiveAggregateRoot(bytes32 _msgHash, bytes32 _root) public {
+    // Set `from` and `srcChainId` to valid values
+    address _from = _l1Connector;
+    uint256 _srcChainId = HUB_CHAIN_ID;
+    _happyPath(_msgHash, _from, _srcChainId);
 
-    // Call `processMessage` function
-    bytes memory _data = abi.encode(_signal, _proof);
-    vm.prank(offChainAgent);
+    // Expect `AggregateRootReceived` event to be emitted with the root as argument
+    vm.expectEmit(true, true, true, true, address(taikoSpokeConnector));
+    emit AggregateRootReceived(_root);
+
+    vm.prank(user);
+    bytes memory _data = abi.encode(_root);
     taikoSpokeConnector.forTest_processMessage(_data);
   }
 }
 
 contract Unit_Connector_TaikoSpokeConnector_VerifySender is Base {
   /**
-   * @notice Tests that returns true if the sender is the expected one
+   * @notice Tests that returns false if the sender is not the expected one
+   * @param _from The message's origin sender address
    */
-  function test_returnTrue() public {
-    vm.prank(offChainAgent);
-    assertEq(taikoSpokeConnector.forTest_verifySender(offChainAgent), true);
+  function test_returnFalse(address _from) public {
+    vm.assume(_from != _l1Connector);
+    assertEq(taikoSpokeConnector.forTest_verifySender(_from), false);
   }
 
   /**
-   * @notice Tests that returns false if the sender is not the expected one
+   * @notice Tests that returns true if the sender is the expected one
    */
-  function test_returnFalse() public {
-    vm.prank(stranger);
-    assertEq(taikoSpokeConnector.forTest_verifySender(_amb), false);
+  function test_returnTrue() public {
+    assertEq(taikoSpokeConnector.forTest_verifySender(_l1Connector), true);
   }
 }

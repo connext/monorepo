@@ -1,42 +1,180 @@
-// SPPX-LicenseIdentifier: MIT
-pragma solidity =0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
 
 import {Common} from "./Common.sol";
-import {ISignalService} from "../../../../../../contracts/messaging/interfaces/ambs/taiko/ISignalService.sol";
+import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
+import {IBridge} from "../../../../../../contracts/messaging/interfaces/ambs/taiko/IBridge.sol";
 
-contract Integration_Connector_TaikoSpokeonnector is Common {
+contract Integration_Connector_TaikoSpokeConnector is Common {
   /**
-   * @notice Tests that the tx for sending the message through the taiko signal service succeeds
+   * @notice The message status enum from Taiko
    */
-  function test_sendMessage() public {
-    // Send message
-    vm.prank(offChainAgent);
-    bytes memory _encodedData = abi.encode("encodedData");
-    taikoSpokeConnector.send(_encodedData);
-
-    // Get the merkle root (the signal that was sent)
-    bytes32 _root = merkleTreeManager.root();
-
-    // Check is signal sent to be true
-    bool _isSignalSent = SIGNAL_SERVICE.isSignalSent(address(taikoSpokeConnector), _root);
-    assertEq(_isSignalSent, true, "signal not sent");
+  enum MessageStatus {
+    NEW,
+    RETRIABLE,
+    DONE,
+    FAILED
   }
 
   /**
-   * @notice Test that the message is received - we're waiting until we have a reliable RPC or explorer data on Taiko network
-   * Tx we use to grab the signal and proof: https://explorer.jolnir.taiko.xyz/tx/0x9603e1800686ee762aba9c78d5e27e072487e4ba76f8ba18b8be91b9b425c7e4
+   * @notice Emitted when a root is received by the Root Manager
+   * @param root The received root
    */
-  //   function test_receiveMessage() public {
-  //  bytes memory _data = abi.encode(SIGNAL, PROOF);
-  //     vm.prank(offChainAgent);
-  //     taikoSpokeConnector.processMessage(_data);
-  //   }
-  //
+  event AggregateRootReceived(bytes32 indexed root);
+
   /**
-   * @notice Test that the signal is received (to assert our contract is not failing) - we're waiting until we have a reliable RPC or explorer data on Taiko network
+   * @notice Emitted on Taiko's Bridge contract when a message is sent through it
+   * @param msgHash The message hash
+   * @param message The message
    */
-  // function test_signalReceived() public {
-  //   bool _received = SIGNAL_SERVICE.isSignalReceived(11155111, TX_FROM_ADDRESS, SIGNAL, PROOF);
-  //   assertTrue(_received);
-  // }
+  event MessageSent(bytes32 indexed msgHash, IBridge.Message message);
+
+  /**
+   * @notice Tests the message is sent correctly through the Taiko's Bridge contract when calling Taiko Spoke Connector `send`.
+   * @dev To validate the message is sent correctly, we check the Bridge contract emits the `MessageSent` event with the correct arguments.
+   */
+  function test_sendMessage() public {
+    bytes32 _root = merkleTreeManager.root();
+    bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(_root));
+
+    // Next id grabbed from the Taiko's Bridge state on the current block number
+    uint256 _id = 206240;
+    // Declare the message that should be emitted
+    IBridge.Message memory _message = IBridge.Message({
+      id: _id,
+      from: address(taikoSpokeConnector),
+      srcChainId: TAIKO_CHAIN_ID,
+      destChainId: SEPOLIA_CHAIN_ID,
+      user: user,
+      to: MIRROR_CONNECTOR,
+      refundTo: MIRROR_CONNECTOR,
+      value: 0,
+      fee: 0,
+      gasLimit: _gasCap,
+      data: _calldata,
+      memo: ""
+    });
+
+    // Expect the `MessageSent` event to be emitted correctly with the message on taiko bridge
+    bytes32 _msgHash = keccak256(abi.encode(_message));
+    vm.expectEmit(true, true, true, true, address(BRIDGE));
+    emit MessageSent(_msgHash, _message);
+
+    // Send message
+    vm.prank(user);
+    bytes memory _encodedData = "";
+    taikoSpokeConnector.send(_encodedData);
+  }
+
+  /**
+   * @notice Tests it reverts when the same root is sent twice
+   */
+  function test_revertIfSameRootIsSentTwice() public {
+    vm.startPrank(user);
+    bytes memory _encodedData = "";
+    taikoSpokeConnector.send(_encodedData);
+
+    vm.expectRevert("root already sent");
+    taikoSpokeConnector.send(_encodedData);
+  }
+
+  /**
+   * @notice Tests it receives the root correctly when relaying the message sent on Taiko L2.
+   * @dev To assert it the `RootReceived` event is expected to be emitted with the correct arguments.
+   */
+  function test_receiveMessage() public {
+    // relay message on taiko
+    IBridge.Message memory _message = IBridge.Message({
+      id: 730745,
+      from: MIRROR_CONNECTOR,
+      srcChainId: SEPOLIA_CHAIN_ID,
+      destChainId: TAIKO_CHAIN_ID,
+      user: MIRROR_CONNECTOR,
+      to: address(taikoSpokeConnector),
+      refundTo: address(taikoSpokeConnector),
+      value: 0,
+      fee: 0,
+      gasLimit: _gasCap,
+      data: abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(bytes32("aggregateRoot"))),
+      memo: ""
+    });
+
+    // Expect the root to be received
+    vm.expectEmit(true, true, true, true, address(taikoSpokeConnector));
+    emit AggregateRootReceived(bytes32("aggregateRoot"));
+
+    bytes
+      memory _proof = hex"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000004cbdd900000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000a2df90a2ab90214f90211a0c6a933fd5dd018ffa7605ec3c914d3c9bc5d84526adf3e278553a06bc77fb7f4a08aff516a6e776f001158949795962fdf1f4fcc57eaa15b1a8dd18f11f0bc9b13a09c313c2f832d651ad64a5e6cce88d32c0d29b22c1cffa687fddac14c2ca04207a0e72ede71cd6806c758eb5ad30798e885e613b4aa8d375c19d6f50380743e22b0a042eb0364849454dc698cd0f3cf2186102bb7313a3c9b844ed7ee03cd43cff51ca04f26b5922d2223cfee338185d34102c9e8b41315fa05f88ce9ec302b75f66c69a0c2479c3efed6054e2f58da470711dfd114e522ecb8b4ab5e23d2eb95ec6ac01ea0def61c997238d143e6616b5f8e70dd2d4bd9d127b4ef72c230333183f1bafb89a0aa5244c90632bb3ce6ea28ad44d5b9984852d476f445096b1a0855c94868dfc9a0d66905ced08bab40200d92a0e795794a6fb3db4e893b7b31c73eefb6cb3c0c8ca0e09ac35117f2d00fc9149af46a9d093a3f5ef352fb3daecf346306c8254e6ac0a0331f46cd5bb986f5c34172d1f2ac9ae86c844196518499b4fed797957cc13992a0c402e900dac7e1d8753f96640a49e9c2a5cb5fd0cead87eb4c0c14a1093bacb3a0bbef68f24ba70abaf077eb543f8057ff4705275af6b69a28fc8ab749575e2d87a0fc99250cd2c2bde119d2676e0551693fac03d8cf9949822c90a5089981f49be5a01ad1e74da422bce5ca0aab1142a42ddcc472111a911a5b03c0a10e0ce221c2e080b90214f90211a099daccdff776a47b2d41ec3805e2dbfd0be025971f1e791ee7fa4480df8cb4aea01d910686be97b99e9dd0cc9d59b31c12b359441a9005152ab0e848e0a7a1f0b9a0e16db63455f3d4a567f4ef27cc8008fa3b2312603d3b3b2282ba9e17e797e136a0c3a5e3408cc4ac477094b1924709f9de47093853d60817254278c396b3b716b2a025f8562b4c1db7221e3107e6364628922c383ad994ab9eedcd88b24edc907f66a0cc158d8327dc0fcaff249fc950e702f5d71278290534e15fcf907fd770d4bb58a040faaf8431c9451ea188acef18ee82fca3eeed39031bc63702e8bde348414105a022491a5194899c3b8aa9ed50d9eff25d5390ece7c0c430926b80c656b7b4e22aa07e21500e0e3c5f1e710ffc418e7596784e0c0a07e812d9aec0e334b41cad6beaa07eb0385740f775007334dd6a3fe656018d6019942843bf1c6f7aaa19577c8229a09b6a79fce75ca14f8a30ba8ddb222ebf3280b4283765f281b44452a9592a6889a0d14f1c3121070c46402d84ba93703498bea106fba48cf507213a3c67d92188f4a0c8e558dcbc4617ca923b8a663a182b2a932ebc17ea37f0765defaad5eed819faa077e7aadadb68a0952ebae82ddfb7283ecb39136d0b904bc9159a45ae47f31e8ca0cddd4bfb8af690be1f7cf4c4a476ae6976ea5a92f59c3ace34729e7622ff0f2aa0e5170c3af641f3b3ac7ddbb32001c0211994f8816f1da5a412a45aa62f50cff380b90214f90211a090ecffe26e20bca10da2e31f2649a849739e3a2381bd89427dcf969bef2bed00a0752dfe1022166732c574fa5d75bf75594102bde933aad35f0b502afc1e52dba0a0432a9ee6d303372c0dfce5f4affa252b3afc651245cbc3554c41ff3e04f67e75a0763d87640ca3f0b06b8b26b3a2ff8b4cd94ca7741d3865101082263bf40c2658a0efb30fd96f9681a57502da674cfb861553343f881437eed95c6217f1cc1c07b7a06278511caaf3a5c6e79dddc4a3356ddff99122ce88b221ce202f19d3b07d10c8a061fe0a4a43380e21aee91ef6a6a35f227ee6fbd54a5c34502d688db5bb719caea045d44dc97790d5012d3556fb65f73ebf08239e753a62e46ea36391f782beef17a0fd9012e4a9f0b129140199d576df33ba23bd95b84e053935ed97e472f6a66250a034a326dfe2ebd19835e5d2965bac0d95f29907b3b7bf9aa42394104ab6145724a03807c0d45bfa4cde1ae7f06f1e0e47812a3bcd60d65c42243f1f3f8d4772c7a2a0023ed421752dc24320ce8deb6413f703563fdaa10ef857445593a126694af23da0546a9f00ad9db0bb74ff3943e7fcee33e1a5282ffe66444f5294604ceda9edc9a016ed5c56504a6366b3cfdad8b35958fd43ad405c0f39d8bbeff15a40f350c3a5a0cb99211593398ede49819619bdba533b748b35ceecb9bc3e13d94ae94db56a97a0e5df2c0d7056d400d58a4df0f8b3394e8ec8667c9f4a0462055f5174dcb01a0a80b90214f90211a01a924d762aad6c37b4c7ad43f8fd0b83799ca890b9c877fe030e48ac640c1b3fa0fe448c8770930906d43e4d6fdce7b0e5ecf2bc43bc1f989785d6227c1349f267a0edf51da71c4e8a3e42259e978c01cd7d0dc9c28db65c0bcddf1119205eaaa9a2a0e8f32ed38a800c52a8b0f109d5687ca925e6fefc339f26189c41ca71c58caebea05dc40c399bf078b7cf598760afe0bbf1a9264b9a1f523914b77bf9e0df3dbc21a0fecdf359fae5e4f6048d5a2c6558b23527f568f282ee1bb99a399c33296bfc9fa01b5cc9ef1e2dbaa0f35837256573b635c9a9ed59d523b1ceafbfdb5938035707a02f17927f12b1fb24a3c046dcdd8093f52796409dac89a5fb4f76b86e0e22a127a0aec413b173569b290d9f430ce4e18ac148b3a9d8a508d60c5eb2ce702d60b888a058b8a6c1d07be48b89aac49727f3bc5ccddb5eb34907a6ebca011ab67b7ef4cba0acc981493a30040502e01adaba253564491f189bd0aa626a93c0aeaf05644706a0fe37b05a8ea0dfeaf5ebdfa12548ef1f4064c6912378ebf32903d5380a2c1dd5a0536aeb72ec4514dd3ab978d01f6b0ee3a2e3f3ecf5c726bc421f6372fe563b8fa0dccb3ffddda3c85480e5e0b4a33a003ca2d37003dd77b1e89856df6698e671c4a0c7ba956a656207fc2c982a89c8758a0ad2eda316dab6a6f6434ce9421bfd264da0fbe9ef849534fc3f8bef485edd8b2869dfef059938eb71a62c7c4ebe78f6a32580b90154f90151a0006be840d1c78f5d428b06c5999d8d0d8f1896c4e2bd88962acf7a2303bd936280a0e620a141ea7b5f364168e0b306a32380a621a3690fe10d5bb07c0c439caf56eda09af6bd710e21c52f450216a76601371975ff093b8aeb4912e69abe81b486b52aa0acd7fccc6a4708cffa09c73ac336150b1274eac32b4ee2e99db7247ce323918680a0d3b16df87d1b53bda6e34246a80eb313566acd843162abd3864d899afcf57da8a0a917fc2bb7381c22213d151b531553a5fb51390f2c92e2c5aadf0dbae35a607680a0a5736402b14736073af8e407d250f728267d7b5ac0721e37d01e6dd783ae28768080a0418abf178e106f9ccdb257cb52358c9a0edb1373ad3e859730cf669f54209cdd80a0c70c8dfd9afcca52b6988711b16ee9836b5950b9e32435ea979ff3e5108e05f0a0e6bc27d15eb161896486fa440e5ac2850f0b779fc6647b1d2afdb3204a58069c80b853f85180808080a0cfd4bb3b43142b14ff113e6fdcac0c46d8b1527dc6b15c3384ed10d1c64515f2808080808080a0f0a95ab8f33e8a5d1b39e9c1c4d4f901bbec7804d6c41b53ce1149d20d64ae388080808080a1e09e200417736296b5349d310276a138440e26af3fdd9de293f739f4afec0d3b0100000000000000000000000000000000000000";
+    // relay another sent message that contains the same root and expect a revert
+    BRIDGE.processMessage(_message, _proof);
+  }
+
+  /**
+   * @notice Tests it receives the first root, and it reverts when the same root is relayed again.
+   * @dev To assert it, after sending the same root twice, the message status is checked to be retriable instead of done
+   * since it should fail and be updated to the mentioned state.
+   * @dev The 2 relayed messages are real messages sent on Sepolia.
+   */
+  function test_revertIfSameRootIsRelayedTwice() public {
+    // relay message on taiko
+    IBridge.Message memory _message = IBridge.Message({
+      id: 730745,
+      from: MIRROR_CONNECTOR,
+      srcChainId: SEPOLIA_CHAIN_ID,
+      destChainId: TAIKO_CHAIN_ID,
+      user: MIRROR_CONNECTOR,
+      to: address(taikoSpokeConnector),
+      refundTo: address(taikoSpokeConnector),
+      value: 0,
+      fee: 0,
+      gasLimit: _gasCap,
+      data: abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(bytes32("aggregateRoot"))),
+      memo: ""
+    });
+
+    // Expect the root to be received
+    vm.expectEmit(true, true, true, true, address(taikoSpokeConnector));
+    emit AggregateRootReceived(bytes32("aggregateRoot"));
+
+    bytes
+      memory _proof = hex"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000004cbdd900000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000a2df90a2ab90214f90211a0c6a933fd5dd018ffa7605ec3c914d3c9bc5d84526adf3e278553a06bc77fb7f4a08aff516a6e776f001158949795962fdf1f4fcc57eaa15b1a8dd18f11f0bc9b13a09c313c2f832d651ad64a5e6cce88d32c0d29b22c1cffa687fddac14c2ca04207a0e72ede71cd6806c758eb5ad30798e885e613b4aa8d375c19d6f50380743e22b0a042eb0364849454dc698cd0f3cf2186102bb7313a3c9b844ed7ee03cd43cff51ca04f26b5922d2223cfee338185d34102c9e8b41315fa05f88ce9ec302b75f66c69a0c2479c3efed6054e2f58da470711dfd114e522ecb8b4ab5e23d2eb95ec6ac01ea0def61c997238d143e6616b5f8e70dd2d4bd9d127b4ef72c230333183f1bafb89a0aa5244c90632bb3ce6ea28ad44d5b9984852d476f445096b1a0855c94868dfc9a0d66905ced08bab40200d92a0e795794a6fb3db4e893b7b31c73eefb6cb3c0c8ca0e09ac35117f2d00fc9149af46a9d093a3f5ef352fb3daecf346306c8254e6ac0a0331f46cd5bb986f5c34172d1f2ac9ae86c844196518499b4fed797957cc13992a0c402e900dac7e1d8753f96640a49e9c2a5cb5fd0cead87eb4c0c14a1093bacb3a0bbef68f24ba70abaf077eb543f8057ff4705275af6b69a28fc8ab749575e2d87a0fc99250cd2c2bde119d2676e0551693fac03d8cf9949822c90a5089981f49be5a01ad1e74da422bce5ca0aab1142a42ddcc472111a911a5b03c0a10e0ce221c2e080b90214f90211a099daccdff776a47b2d41ec3805e2dbfd0be025971f1e791ee7fa4480df8cb4aea01d910686be97b99e9dd0cc9d59b31c12b359441a9005152ab0e848e0a7a1f0b9a0e16db63455f3d4a567f4ef27cc8008fa3b2312603d3b3b2282ba9e17e797e136a0c3a5e3408cc4ac477094b1924709f9de47093853d60817254278c396b3b716b2a025f8562b4c1db7221e3107e6364628922c383ad994ab9eedcd88b24edc907f66a0cc158d8327dc0fcaff249fc950e702f5d71278290534e15fcf907fd770d4bb58a040faaf8431c9451ea188acef18ee82fca3eeed39031bc63702e8bde348414105a022491a5194899c3b8aa9ed50d9eff25d5390ece7c0c430926b80c656b7b4e22aa07e21500e0e3c5f1e710ffc418e7596784e0c0a07e812d9aec0e334b41cad6beaa07eb0385740f775007334dd6a3fe656018d6019942843bf1c6f7aaa19577c8229a09b6a79fce75ca14f8a30ba8ddb222ebf3280b4283765f281b44452a9592a6889a0d14f1c3121070c46402d84ba93703498bea106fba48cf507213a3c67d92188f4a0c8e558dcbc4617ca923b8a663a182b2a932ebc17ea37f0765defaad5eed819faa077e7aadadb68a0952ebae82ddfb7283ecb39136d0b904bc9159a45ae47f31e8ca0cddd4bfb8af690be1f7cf4c4a476ae6976ea5a92f59c3ace34729e7622ff0f2aa0e5170c3af641f3b3ac7ddbb32001c0211994f8816f1da5a412a45aa62f50cff380b90214f90211a090ecffe26e20bca10da2e31f2649a849739e3a2381bd89427dcf969bef2bed00a0752dfe1022166732c574fa5d75bf75594102bde933aad35f0b502afc1e52dba0a0432a9ee6d303372c0dfce5f4affa252b3afc651245cbc3554c41ff3e04f67e75a0763d87640ca3f0b06b8b26b3a2ff8b4cd94ca7741d3865101082263bf40c2658a0efb30fd96f9681a57502da674cfb861553343f881437eed95c6217f1cc1c07b7a06278511caaf3a5c6e79dddc4a3356ddff99122ce88b221ce202f19d3b07d10c8a061fe0a4a43380e21aee91ef6a6a35f227ee6fbd54a5c34502d688db5bb719caea045d44dc97790d5012d3556fb65f73ebf08239e753a62e46ea36391f782beef17a0fd9012e4a9f0b129140199d576df33ba23bd95b84e053935ed97e472f6a66250a034a326dfe2ebd19835e5d2965bac0d95f29907b3b7bf9aa42394104ab6145724a03807c0d45bfa4cde1ae7f06f1e0e47812a3bcd60d65c42243f1f3f8d4772c7a2a0023ed421752dc24320ce8deb6413f703563fdaa10ef857445593a126694af23da0546a9f00ad9db0bb74ff3943e7fcee33e1a5282ffe66444f5294604ceda9edc9a016ed5c56504a6366b3cfdad8b35958fd43ad405c0f39d8bbeff15a40f350c3a5a0cb99211593398ede49819619bdba533b748b35ceecb9bc3e13d94ae94db56a97a0e5df2c0d7056d400d58a4df0f8b3394e8ec8667c9f4a0462055f5174dcb01a0a80b90214f90211a01a924d762aad6c37b4c7ad43f8fd0b83799ca890b9c877fe030e48ac640c1b3fa0fe448c8770930906d43e4d6fdce7b0e5ecf2bc43bc1f989785d6227c1349f267a0edf51da71c4e8a3e42259e978c01cd7d0dc9c28db65c0bcddf1119205eaaa9a2a0e8f32ed38a800c52a8b0f109d5687ca925e6fefc339f26189c41ca71c58caebea05dc40c399bf078b7cf598760afe0bbf1a9264b9a1f523914b77bf9e0df3dbc21a0fecdf359fae5e4f6048d5a2c6558b23527f568f282ee1bb99a399c33296bfc9fa01b5cc9ef1e2dbaa0f35837256573b635c9a9ed59d523b1ceafbfdb5938035707a02f17927f12b1fb24a3c046dcdd8093f52796409dac89a5fb4f76b86e0e22a127a0aec413b173569b290d9f430ce4e18ac148b3a9d8a508d60c5eb2ce702d60b888a058b8a6c1d07be48b89aac49727f3bc5ccddb5eb34907a6ebca011ab67b7ef4cba0acc981493a30040502e01adaba253564491f189bd0aa626a93c0aeaf05644706a0fe37b05a8ea0dfeaf5ebdfa12548ef1f4064c6912378ebf32903d5380a2c1dd5a0536aeb72ec4514dd3ab978d01f6b0ee3a2e3f3ecf5c726bc421f6372fe563b8fa0dccb3ffddda3c85480e5e0b4a33a003ca2d37003dd77b1e89856df6698e671c4a0c7ba956a656207fc2c982a89c8758a0ad2eda316dab6a6f6434ce9421bfd264da0fbe9ef849534fc3f8bef485edd8b2869dfef059938eb71a62c7c4ebe78f6a32580b90154f90151a0006be840d1c78f5d428b06c5999d8d0d8f1896c4e2bd88962acf7a2303bd936280a0e620a141ea7b5f364168e0b306a32380a621a3690fe10d5bb07c0c439caf56eda09af6bd710e21c52f450216a76601371975ff093b8aeb4912e69abe81b486b52aa0acd7fccc6a4708cffa09c73ac336150b1274eac32b4ee2e99db7247ce323918680a0d3b16df87d1b53bda6e34246a80eb313566acd843162abd3864d899afcf57da8a0a917fc2bb7381c22213d151b531553a5fb51390f2c92e2c5aadf0dbae35a607680a0a5736402b14736073af8e407d250f728267d7b5ac0721e37d01e6dd783ae28768080a0418abf178e106f9ccdb257cb52358c9a0edb1373ad3e859730cf669f54209cdd80a0c70c8dfd9afcca52b6988711b16ee9836b5950b9e32435ea979ff3e5108e05f0a0e6bc27d15eb161896486fa440e5ac2850f0b779fc6647b1d2afdb3204a58069c80b853f85180808080a0cfd4bb3b43142b14ff113e6fdcac0c46d8b1527dc6b15c3384ed10d1c64515f2808080808080a0f0a95ab8f33e8a5d1b39e9c1c4d4f901bbec7804d6c41b53ce1149d20d64ae388080808080a1e09e200417736296b5349d310276a138440e26af3fdd9de293f739f4afec0d3b0100000000000000000000000000000000000000";
+    // relay another sent message that contains the same root and expect a revert
+    BRIDGE.processMessage(_message, _proof);
+
+    /**
+     * Update the fork to a newer block number in which the second message is included as received signal on the sync between takio and sepolia.
+     * To do it, is neccessary to create another fork with a newer block number, but the new fork won't have any state of the previous one.
+     * for that reason, it is necessary to make persisten the states of the taiko spoke connector since it already received the root on the first message
+     */
+    vm.makePersistent(address(taikoSpokeConnector));
+    vm.createSelectFork(vm.rpcUrl(vm.envString("TAIKO_RPC")), FORK_BLOCK_TWO);
+
+    // relay second message on taiko
+    IBridge.Message memory _secondMessage = IBridge.Message({
+      id: 730747,
+      from: MIRROR_CONNECTOR,
+      srcChainId: SEPOLIA_CHAIN_ID,
+      destChainId: TAIKO_CHAIN_ID,
+      user: MIRROR_CONNECTOR,
+      to: address(taikoSpokeConnector),
+      refundTo: address(taikoSpokeConnector),
+      value: 0,
+      fee: 0,
+      gasLimit: 200_000,
+      data: abi.encodeWithSelector(Connector.processMessage.selector, abi.encode(bytes32("aggregateRoot"))),
+      memo: ""
+    });
+
+    /*
+     * The call will revert on the spoke connector but not on the first call to the bridge, so `expectRevert` can't be used here.
+     * Instead is checked that the second call failed and the status of the message is updated to retriable instead of done
+     */
+    bytes
+      memory _secondProof = hex"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000004cbddd00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000a2df90a2ab90214f90211a0c6a933fd5dd018ffa7605ec3c914d3c9bc5d84526adf3e278553a06bc77fb7f4a08aff516a6e776f001158949795962fdf1f4fcc57eaa15b1a8dd18f11f0bc9b13a09c313c2f832d651ad64a5e6cce88d32c0d29b22c1cffa687fddac14c2ca04207a0e72ede71cd6806c758eb5ad30798e885e613b4aa8d375c19d6f50380743e22b0a042eb0364849454dc698cd0f3cf2186102bb7313a3c9b844ed7ee03cd43cff51ca04f26b5922d2223cfee338185d34102c9e8b41315fa05f88ce9ec302b75f66c69a0c2479c3efed6054e2f58da470711dfd114e522ecb8b4ab5e23d2eb95ec6ac01ea0def61c997238d143e6616b5f8e70dd2d4bd9d127b4ef72c230333183f1bafb89a0aa5244c90632bb3ce6ea28ad44d5b9984852d476f445096b1a0855c94868dfc9a0d66905ced08bab40200d92a0e795794a6fb3db4e893b7b31c73eefb6cb3c0c8ca0ebc1474d72305b36008708912f862cec90b5b1af87b719f494f91ceb36654a12a0331f46cd5bb986f5c34172d1f2ac9ae86c844196518499b4fed797957cc13992a0c402e900dac7e1d8753f96640a49e9c2a5cb5fd0cead87eb4c0c14a1093bacb3a0bbef68f24ba70abaf077eb543f8057ff4705275af6b69a28fc8ab749575e2d87a03258fd59b022c128aca937f36fcdd4d42ad5c09d7902f1fdb76a245838e1bd4fa01ad1e74da422bce5ca0aab1142a42ddcc472111a911a5b03c0a10e0ce221c2e080b90214f90211a00c81a229ff7758ac7cdfd74b3562c7290c41344bfa4034008eedefc77cbe54fba0029c2cd78a5345e58cec966ac1963f6de390620d9099f296a434d29d5934c887a0955f04e3d25a32ac2a642c899b22030c19b230ddf84944509ab40a5c44889421a06a835054f23c59adad30c7ed515129669dc0ab01d7b6a26e2fdc18c6c06aed29a07d0b4c764f0074bdb5ab5935a67d926801931610f24256addad24139e9e68b45a0bd57dd519d1eb7246c3dedd923b3cb157e0fd85c9cf157896b2f2ef592375ad3a0cc5d92406e8857af5446684787ad1bd6d57c34a6428e61335a137d586bfdb4dda03e449221f25d5b3c99b76eb302827a0d2ac23975896a13b0ac1a762cbf9bd74ba08513a2376ec94e1b4e56be37216f0289527aa9480e3bea922560cdca42a5d89ea01cfc2162960fd1a499ad1cc7cbb2842da469f66267a430cc23d86fa26094b13ba06d3476429092bb03436965192640068367897a2e09694af0fa0c43f4b77c4d9ca0da2b77d8798794d73a7ff43a903ce9d23dedca09bbc3963c1626074988f89ddca07c284f9f22bcc4f4f8aa120bc5b1bfd8b6d434ee1b67ca0de16be0d9c6ee774ba0de51c37541bdc57e5edeb73da82b57c4e97e7f5fd4ca850df29604b963210942a06858727c9855c8d0c1d76613fadad1f255ecb437eaf04b9615f535501d3b7185a0d0e106cd665bb1d51e72753b6430608ed8ba6a25e5653c56748232030485640280b90214f90211a04f1b8149d86ae8a6d4626d5a9e19e2ab48402f27596dc6e4732b76cad1005167a0052a51abdad3bfa55609654d30c2b108218329284a7631b86a33fe9d3d119b60a0e6fb33186512f17a4972ef69509b0f3fd2f1454f0377a212022e81543f65736ca0afddda35ea9f2268b56724022c99486834827220c688bef558b4308ae139b4a8a001a689b1f02eaa6fcfad2a9f0d93aae6db1de5787daea11eb1cd13cc48981258a02363f7f09f2692878cdb400c672492fec7b128692dc439fdb4690e33c817f143a0f0160d29c75e70001abbbfcdf2bcab84c6248636a1ba3acd3fdec3070a1772cfa0c55077872aef176564a57397a3256e05ad04bdde3aee426ae0597aa49b8e83bfa0719302498876da8e9c4a8c4e549bc33aca759d3afa5d0bb53c82de76de631c85a0c22d0f09bbb7d6dbc6f45a34e9deadb1d2596e4df4a36d329bf0f75d083fab95a02370fb17fc88e4c76d4fa83ea5a856243360331e87976bb72d81378bff757025a0fa70cf4674981042113afc0d94cddf294c39364c74024855edf632d01d8b15b5a08d4da2bf034288f2353e7930eb4aeb1c9a4b1f2e48c352a78f80360162d449c4a09eac1171df4db8068c704a3fbe4f28c31f6a815738a7e48e6deaa3ce210134d7a0636a8c99a3bd8cd8bf54aaa16d8f495e666fef242428781255c5c47a9375e7aca04be10159df944b2e666f01005612836f2800476e3c1d83641cce6632486dfbac80b90214f90211a0c690a1a9324e11490129e4944e7ca1091fa57ff08339ee745569df0212c5a3d0a03cba5ccd26b9c0d2c99b0026658669e59c1dbafed4362775f3eca915fd26af37a01021968e35510bfb4599fd6772fc283e4e633b9950f2c4227beb986805341e88a031130aacf22fdde76dc3156a3ae13a8d2b2096d687ab6226b6b1d2436b5ab924a0b5e3b4e946aea886fa0107e80861bb637aa88e8a2ca9daadbeb72f3e3825ab2fa0350e3fa344a8549741282970162aa1f3c5343fceb4a71a367b1bcfbef7819153a05cf3b1d073bb90b4b771440cfda0c343a2a3dd1d8ce47a0e56a8d953cfd839f2a09cd45a39473b570fd31351f59928b2bde896b4bb58acb9f5b75307f15360153ba05d14209b74703d88fcd78841158b9bb8142ecd18964d6a5adb24ddb8edb4f223a0fe3dc4c8d7562eaefa82cab601331c75c880e15d5fec0743b7794d2778573cf7a0a1e95edc2c84e12ca96ac9108edbff10c655ec09662d6ac1888c2170a8fb99e9a05501703ee988c7770174b6aeb0a52fef1d688c225cce1fc8a2cfd6a9a89e9c56a095a2c9ea0b43b36d0a7dd0c20e92a8cad4fe748ea86e5d6db7555ad77e2cdffba058e7201cb4fabf7b48df7f1c9c0ef5ccdb1db608957a2445fa2f5b2020637bd1a0f50d8e4811f54ad3e5d5be3a52d659f0aaefcabd5a69b15c78a0e6ebe8b579b8a061c3c98373db5f943d582e9160947e4599688bddeaf678549f2bbdde5fc7207880b90134f90131a089d74a215389bf5eb346ad7972b10baeff5f97da9d20715172a4477be4d3ff048080a00199a76939645636c88c439d30e7559c7dcced9b17e520a74e3dfcb750f533cca0ab0e9cfe8a5fc0d73b27858cd8e5d9e87fa3adcf4050cc345b4426a532ade569a0bff43c828bcc558c099acbd664871cb10168dfa6e82be3d0cae20d3ca10f08bfa00cee1cfc5c3c08b7a4324dc344cf7c43a1a415e7d720b67537cfe095a96ed996a0ba90561fe80fb3061410b50e8d252bbd1ea4182e1b6da06381190726d699e074a08549590cdd07d8f4124e8946580da4bfb44babd8715509f649caad6ea9f462b080a0ead0a6b5ace38cc65d19a9eff5aa7095c4bb31cdd93347772ae286bf4fc56cfb808080a0d49a63c1cf2c052b9261331bb15a79584da06464762c421c7b00bc36769912458080b873f87180808080a04c61bf85c83c821c88688df82db1264e7ff14d59e514a8bf41021e024cd3a3c78080808080a07f64edc9eab866ec9a6c46586c84087c45a22c5548b2106476d9987f1212964f808080a01bbcb072ba1bc43de83ffdfcc74b0f46ef457580ec014eb1cbe1028b412080868080a1e09e2088e12c08e1aa952f7e7954aff973867b0fd4e1d4a52b2b74cc32daa7460100000000000000000000000000000000000000";
+    BRIDGE.processMessage(_secondMessage, _secondProof);
+
+    // Assert the message is in retriable status since it failed
+    bytes32 _secondMsgHash = keccak256(abi.encode(_secondMessage));
+    assertEq(uint256(BRIDGE.getMessageStatus(_secondMsgHash)), uint256(MessageStatus.RETRIABLE));
+  }
 }
