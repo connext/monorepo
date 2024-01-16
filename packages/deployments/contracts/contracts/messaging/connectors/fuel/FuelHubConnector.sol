@@ -57,15 +57,13 @@ contract FuelHubConnector is HubConnector {
   /**
    * @notice Sends a message to the mirror connector through the Fuel Messenger Portal (AMB)
    * @param _data Message data
-   * @param _encodedData Encoded data, used to get the recipient address
    * @dev The message length must be 32 bytes
-   * @dev No fees needed to pay for the message execution. If you add `msg.value` it will go the recipient address
+   * @dev No fees needed to pay for the message execution on the destination chain
    */
-  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override checkMessageLength(_data) {
-    address _recipient = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
-    bytes32 _bytes32RecipientAddress = _addressToBytes32(_recipient);
+  function _sendMessage(bytes memory _data, bytes memory) internal override checkMessageLength(_data) {
+    bytes32 _mirrorConnectorBytes = _addressToBytes32(mirrorConnector);
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
-    FUEL_MESSAGE_PORTAL.sendMessage{value: msg.value}(_bytes32RecipientAddress, _calldata);
+    FUEL_MESSAGE_PORTAL.sendMessage(_mirrorConnectorBytes, _calldata);
   }
 
   /**
@@ -75,7 +73,7 @@ contract FuelHubConnector is HubConnector {
    * @dev The message length must be 32 bytes
    * @dev The origin sender of the cross domain message must be the mirror connector
    */
-  function _processMessage(bytes memory _data) internal override onlyAMB checkMessageLength(_data) {
+  function _processMessage(bytes memory _data) internal override checkMessageLength(_data) {
     if (!_verifySender(mirrorConnector)) revert FuelHubConnector_OriginSenderIsNotMirror();
     IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));
   }
