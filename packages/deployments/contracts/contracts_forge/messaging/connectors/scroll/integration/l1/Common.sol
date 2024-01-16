@@ -19,6 +19,8 @@ import {IL2OracleGasPrice} from "../../../../../../contracts/messaging/interface
  */
 contract Common is ConnectorHelper {
   uint256 internal constant _FORK_BLOCK = 4_932_652;
+  // The recipient address where the message was sent to
+  address internal constant _RECIPIENT = 0xC82EdcE9eE173E12252E797fd860a87EC7DFB073;
 
   // Scroll L1 Messenger address on Ethereum
   IL1ScrollMessenger public constant L1_SCROLL_MESSENGER =
@@ -31,7 +33,7 @@ contract Common is ConnectorHelper {
   // Scroll domain id for Connext
   uint32 public constant MIRROR_DOMAIN = 100;
   // The mirror connector is set to the sender address on the message sent from the L2 Scroll Spoke Connector
-  address public MIRROR_CONNECTOR = 0x0006e19078A46C296eb6b44d37f05ce926403A82;
+  address public constant MIRROR_CONNECTOR = 0x0006e19078A46C296eb6b44d37f05ce926403A82;
 
   // EOAs and external addresses
   address public owner = makeAddr("owner");
@@ -92,10 +94,10 @@ contract Common is ConnectorHelper {
     );
     bytes memory _bytecode = address(scrollHubConnector).code;
 
-    // Set the bytecode on the recipient address
-    vm.etch(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073, _bytecode);
-
-    scrollHubConnector = ScrollHubConnector(payable(0xC82EdcE9eE173E12252E797fd860a87EC7DFB073));
+    // Set the bytecode of the scroll hub connector on the recipient address
+    vm.etch(_RECIPIENT, _bytecode);
+    // Update the scroll hub connector instance using the recipient address
+    scrollHubConnector = ScrollHubConnector(payable(_RECIPIENT));
 
     // Add connector as a new supported domain
     rootManager.addConnector(MIRROR_DOMAIN, address(scrollHubConnector));

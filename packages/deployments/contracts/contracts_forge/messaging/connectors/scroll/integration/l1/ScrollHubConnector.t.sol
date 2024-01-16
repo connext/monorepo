@@ -6,7 +6,15 @@ import {Connector} from "../../../../../../contracts/messaging/connectors/Connec
 import {IL1ScrollMessenger} from "../../../../../../contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol";
 
 contract Integration_Connector_ScrollHubConnector is Common {
-  // Events
+  /**
+   * @notice Emitted when a message is sent from the L2 Scroll Messenger to the L1 Scroll Messenger
+   * @param sender The sender of the message
+   * @param target The target of the message
+   * @param value The value of the message
+   * @param messageNonce The nonce of the message
+   * @param gasLimit The gas limit of the message
+   * @param message The message
+   */
   event SentMessage(
     address indexed sender,
     address indexed target,
@@ -16,6 +24,12 @@ contract Integration_Connector_ScrollHubConnector is Common {
     bytes message
   );
 
+  /**
+   * @notice Emitted when a root is received on the `RootManager`
+   * @param domain The domain of the root
+   * @param receivedRoot The root received
+   * @param queueIndex The queue index of the root
+   */
   event RootReceived(uint32 domain, bytes32 receivedRoot, uint256 queueIndex);
 
   /**
@@ -93,7 +107,6 @@ contract Integration_Connector_ScrollHubConnector is Common {
 
     // Data obtained from the Scroll API backend using the `_from` address above as a query parameter.
     // Http request (GET): https://sepolia-api-bridge.scroll.io/api/claimable?address=0x0006e19078a46c296eb6b44d37f05ce926403a82
-    address _to = 0xC82EdcE9eE173E12252E797fd860a87EC7DFB073;
     uint256 _value = 0;
     bytes
       memory _message = hex"4ff746f600000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020616767726567617465526f6f7400000000000000000000000000000000000000";
@@ -113,6 +126,13 @@ contract Integration_Connector_ScrollHubConnector is Common {
 
     // Relay the message sent on L2 in L1
     IL1ScrollMessenger.L2MessageProof memory _l2MessageProof = IL1ScrollMessenger.L2MessageProof(_batchIndex, _proof);
-    L1_SCROLL_MESSENGER.relayMessageWithProof(_from, _to, _value, _nonce, _message, _l2MessageProof);
+    L1_SCROLL_MESSENGER.relayMessageWithProof(
+      _from,
+      address(scrollHubConnector),
+      _value,
+      _nonce,
+      _message,
+      _l2MessageProof
+    );
   }
 }

@@ -5,8 +5,21 @@ import {Common} from "./Common.sol";
 import {Connector} from "../../../../../../contracts/messaging/connectors/Connector.sol";
 
 contract Integration_Connector_ScrollSpokeConnector is Common {
-  // Events
+  /**
+   * @notice Emitted when a root is received on the `ScrollSpokeConnector`
+   * @param root The received root
+   */
   event AggregateRootReceived(bytes32 indexed root);
+
+  /**
+   * @notice Emitted when a message is sent from the L2 Scroll Messenger to the L1 Scroll Messenger
+   * @param sender The sender of the message
+   * @param target The target of the message
+   * @param value The value of the message
+   * @param messageNonce The nonce of the message
+   * @param gasLimit The gas limit of the message
+   * @param message The message
+   */
   event SentMessage(
     address indexed sender,
     address indexed target,
