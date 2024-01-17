@@ -366,6 +366,16 @@ locals {
       "6778479"    = 10,
       "1818848877" = 10
     }
+    proverBatchWaitTime = {
+      "6648936" = 43200,
+      "1634886255" = 14400,
+      "1869640809" = 14400,
+      "1886350457" = 14400,
+      "1634886255" = 14400,
+      "6450786"    = 14400,
+      "6778479"    = 14400,
+      "1818848877" = 14400      
+    }
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -380,6 +390,9 @@ locals {
       prefetchSize = 1
     }
     web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
+    server = {
+      adminToken  = var.admin_token_lighthouse_prover_subscriber
+    }
   })
 
   local_relayer_config = jsonencode({

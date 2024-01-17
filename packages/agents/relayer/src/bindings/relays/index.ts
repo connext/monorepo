@@ -8,15 +8,15 @@ import {
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 import { CachedTaskData } from "@connext/nxtp-adapters-cache/dist/lib/caches/tasks";
+import fastify, { FastifyInstance, FastifyReply } from "fastify";
 
-import { getContext } from "../../relayer";
+import { getContext } from "../../make";
 
 export const MIN_GAS_LIMIT = BigNumber.from(4_000_000);
-export const DEFAULT_POLL_INTERVAL = 1_000;
 
-export const bindRelays = async (_pollInterval?: number) => {
+export const bindRelays = async () => {
   const { config } = getContext();
-  const pollInterval = _pollInterval ?? DEFAULT_POLL_INTERVAL;
+  const pollInterval = config.poller.interval;
   interval(async (_, stop) => {
     if (config.mode.cleanup) {
       stop();
@@ -36,7 +36,7 @@ export const pollCache = async () => {
   const { requestContext: _requestContext, methodContext } = createLoggingContext(pollCache.name);
 
   // Retrieve all pending tasks.
-  const pending = await cache.tasks.getPending();
+  const pending = await cache.tasks.getPending(0, 100);
   if (pending.length === 0) {
     return;
   }
@@ -107,21 +107,32 @@ export const pollCache = async () => {
         logger.debug(`Got the gasPrice for domain: ${domain}`, requestContext, methodContext, {
           gasPrice: gasPrice.toString(),
         });
+
         const gasLimit = await txservice.getGasEstimate(+domain, transaction);
         logger.debug(`Got the gasLimit for domain: ${domain}`, requestContext, methodContext, {
           gasLimit: gasLimit.toString(),
         });
 
-        const bumpedGasPrice = gasPrice.mul(130).div(100);
+        let bumpedGasPrice = gasPrice.mul(130).div(100);
         const bumpedGasLimit = gasLimit.mul(120).div(100);
+
+        const minGasPrice = config.chains[domain].minGasPrice;
+        if (minGasPrice) {
+          bumpedGasPrice = bumpedGasPrice.lt(minGasPrice) ? BigNumber.from(minGasPrice) : bumpedGasPrice;
+        }
+
+        // Get Nonce
+        const nonce = await wallet.connect(rpcProvider).getTransactionCount();
 
         // Execute the calldata.
         logger.info("Sending tx", requestContext, methodContext, {
+          from: wallet.address,
           chain,
           taskId,
           data,
           gasPrice: bumpedGasPrice.toString(),
           gasLimit: bumpedGasLimit.toString(),
+          nonce,
         });
 
         const receipt = await txservice.sendTx(
@@ -133,7 +144,6 @@ export const pollCache = async () => {
           },
           requestContext,
         );
-
         await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
@@ -151,4 +161,24 @@ export const pollCache = async () => {
       }
     }
   }
+};
+
+export const bindHealthServer = async (): Promise<FastifyInstance> => {
+  const { config, logger } = getContext();
+
+  const server = fastify();
+
+  server.get("/ping", (_, res) => api.get.ping(res));
+
+  const address = await server.listen({ port: config.poller.port, host: config.poller.host });
+  logger.info(`Server listening at ${address}`);
+  return server;
+};
+
+export const api = {
+  get: {
+    ping: async (res: FastifyReply) => {
+      return res.status(200).send("pong\n");
+    },
+  },
 };

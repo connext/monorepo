@@ -246,3 +246,8 @@ variable "betteruptime_requester_email" {
 variable "lighthouse_web3_signer_private_key" {
   type = string
 }
+
+variable "admin_token_lighthouse_prover_subscriber" {
+  type = string
+  default = "blahblah"
+}
