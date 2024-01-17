@@ -304,7 +304,7 @@ module "lighthouse_prover_cron" {
   })
   schedule_expression    = "rate(10 minutes)"
   timeout                = 300
-  memory_size            = 2048
+  memory_size            = 512
   lambda_in_vpc          = true
   subnet_ids             = module.network.private_subnets
   lambda_security_groups = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
@@ -361,7 +361,7 @@ module "lighthouse_process_from_root_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "process" })
   schedule_expression = "rate(5 minutes)"
-  memory_size         = 2048
+  memory_size         = 1536
 }
 
 

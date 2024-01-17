@@ -17,7 +17,6 @@ on:
 
 jobs:
   build-and-test:
-    if: github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -73,9 +72,6 @@ jobs:
       - name: Yarn install
         run: yarn install
 
-      - name: Update git submodule
-        run: git submodule update --init
-
       - name: Forge install
         run: yarn workspace @connext/smart-contracts forge:install
 
@@ -98,7 +94,6 @@ jobs:
           echo TAIKO_RPC="${{ secrets.TAIKO_RPC }}" >> ./packages/deployments/contracts/.env
           cat ./packages/deployments/contracts/.env
 
-      ## TODO: Modify it to its previous state before merging to Connext
       - name: Yarn test
         run: yarn test:all
 
