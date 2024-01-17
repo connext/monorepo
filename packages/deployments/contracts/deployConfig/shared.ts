@@ -16,7 +16,6 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
-const DEFAULT_DELAY_BLOCKS = 120; // ~30min
 
 // mapping of chainId => rough blocks per minute
 const BLOCKS_PER_MINUTE: Record<number, number> = {
@@ -336,7 +335,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     // Wormhole Relayer on BNB Chapel Chain
       //     spoke: "0x80aC94316391752A193C1c47E27D382b507c93F3",
       //   },
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
+      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       //   custom: {
@@ -400,12 +399,14 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         // https://sepolia.scrollscan.com/address/0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d
         spoke: "0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d",
       },
-      delayBlocks: DEFAULT_DELAY_BLOCKS,
       processGas: DEFAULT_PROCESS_GAS,
       reserveGas: DEFAULT_RESERVE_GAS,
+      delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
       custom: {
         hub: {
-          gasCap: BigNumber.from("200000"), // The test thrown 21_628 as gas needed. So 200_000 is almost 10x to be safe.
+          gasCap: BigNumber.from("200000"),
         },
         spoke: {
           gasCap: DEFAULT_PROCESS_GAS,
@@ -425,10 +426,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         // https://explorer.jolnir.taiko.xyz/address/0x1000777700000000000000000000000000000004
         spoke: "0x1000777700000000000000000000000000000004",
       },
-
-      delayBlocks: DEFAULT_DELAY_BLOCKS,
       processGas: DEFAULT_PROCESS_GAS,
       reserveGas: DEFAULT_RESERVE_GAS,
+      delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167007],
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167007],
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167007],
       custom: {
         hub: {
           gasCap: BigNumber.from("200000"),
@@ -453,10 +455,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         // https://explorer.katla.taiko.xyz/address/0x1670080000000000000000000000000000000001
         spoke: "0x1670080000000000000000000000000000000001",
       },
-
-      delayBlocks: DEFAULT_DELAY_BLOCKS,
       processGas: DEFAULT_PROCESS_GAS,
       reserveGas: DEFAULT_RESERVE_GAS,
+      delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
       custom: {
         hub: {
           gasCap: BigNumber.from("200000"),
@@ -478,9 +481,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         // https://fuellabs.github.io/block-explorer-v2/beta-4/#/address/0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b
         spoke: "0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b",
       },
-      delayBlocks: DEFAULT_DELAY_BLOCKS,
       processGas: DEFAULT_PROCESS_GAS,
       reserveGas: DEFAULT_RESERVE_GAS,
+      delayBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444],
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444],
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444],
       custom: {},
     },
   },
@@ -654,12 +659,14 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
       spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
     },
-    delayBlocks: DEFAULT_DELAY_BLOCKS,
     processGas: DEFAULT_PROCESS_GAS,
     reserveGas: DEFAULT_RESERVE_GAS,
+    delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+    disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+    minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
     custom: {
       hub: {
-        gasCap: BigNumber.from("200000"), // The test thrown 21_628 as gas needed. So 200_000 is almost 10x to be safe.
+        gasCap: BigNumber.from("200000"),
       },
       spoke: {
         gasCap: DEFAULT_PROCESS_GAS,
