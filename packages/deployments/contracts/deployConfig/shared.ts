@@ -331,8 +331,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
       },
-      // // FIXME: wormhole relayer deployment not listed in docs for goerli
-      // // address used is core bridge; different from mainnet so this testnet is skipped
+      // FIXME: wormhole relayer deployment not listed in docs for goerli
+      // address used is core bridge; different from mainnet so this testnet is skipped
       // 97: {
       //   prefix: "Wormhole",
       //   networkName: "Chapel",
