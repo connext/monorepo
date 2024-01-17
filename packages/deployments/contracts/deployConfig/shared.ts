@@ -30,6 +30,33 @@ export type RelayerConfig = {
   };
 };
 
+// mapping of chainId => rough blocks per minute
+const BLOCKS_PER_MINUTE: Record<number, number> = {
+  // mainnets
+  1: 4, // mainnet
+  10: 30, // optimism
+  56: 30, // bsc
+  100: 30, // gnosis
+  137: 30, // polygon
+  42161: 30, // arbitrum one
+  59144: 30, // linea
+  8453: 30, // base
+
+  // testnets
+  5: 4, // goerli
+  420: 30, // optimism-goerli
+  80001: 30, // mumbai
+  59140: 30, // linea-goerli
+  84531: 30, // base-goerli
+  195: 60, // x1-testnet
+};
+
+const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
+  Object.entries(BLOCKS_PER_MINUTE).map(([key, value]) => {
+    return [key, value * 30];
+  }),
+);
+
 export const RELAYER_CONFIGS: {
   local: RelayerConfig;
   testnet: RelayerConfig;
@@ -256,6 +283,19 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: DEFAULT_DELAY_BLOCKS,
       },
+      195: {
+        prefix: "Admin",
+        networkName: "X1",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
+      },
       // // FIXME: wormhole relayer deployment not listed in docs for goerli
       // // address used is core bridge; different from mainnet so this testnet is skipped
       // 97: {
@@ -281,28 +321,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
-      1442: {
-        prefix: "PolygonZk",
-        ambs: {
-          // PolygonZkEVMBridge on goerli
-          // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
-          hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
-          // PolygonZkEVMBridge on polygon-zkevm
-          // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
-          spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: DEFAULT_DELAY_BLOCKS,
-        custom: {
-          hub: {
-            mirrorNetworkId: "1",
-          },
-          spoke: {
-            mirrorNetworkId: "0",
-          },
-        },
-      },
+      // FIXME: not added in op-roots, sepolia?
+      // 1442: {
+      //   prefix: "PolygonZk",
+      //   ambs: {
+      //     // PolygonZkEVMBridge on goerli
+      //     // https://goerli.etherscan.io/address/0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7
+      //     hub: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+      //     // PolygonZkEVMBridge on polygon-zkevm
+      //     // https://testnet-zkevm.polygonscan.com/address/0xf6beeebb578e214ca9e23b0e9683454ff88ed2a7
+      //     spoke: "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7",
+      //   },
+      //   processGas: DEFAULT_PROCESS_GAS,
+      //   reserveGas: DEFAULT_RESERVE_GAS,
+      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
+      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442],
+      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[1442] / 2,
+      //   custom: {
+      //     hub: {
+      //       mirrorNetworkId: "1",
+      //     },
+      //     spoke: {
+      //       mirrorNetworkId: "0",
+      //     },
+      //   },
+      // },
       5: {
         prefix: "Mainnet",
         ambs: {

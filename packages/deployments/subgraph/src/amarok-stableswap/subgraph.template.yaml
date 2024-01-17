@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./src/amarok-stableswap-v0/schema.graphql
+  file: ./src/amarok-stableswap/schema.graphql
 dataSources:
   # CONNEXT events
   - kind: ethereum/contract
@@ -27,7 +27,7 @@ dataSources:
         - SwapWeeklyVolume
       abis:
         - name: Connext
-          file: ./src/amarok-stableswap-v0/abis/Connext.json
+          file: ./src/amarok-stableswap/abis/Connext.json
       eventHandlers:
         # StableSwapFacet
         - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
@@ -56,7 +56,7 @@ dataSources:
           handler: handleInternalRemoveLiquidityOne
         - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
           handler: handleInternalTokenSwap
-      file: ./src/amarok-stableswap-v0/mapping/index.ts
+      file: ./src/amarok-stableswap/mapping/index.ts
 templates:
   # STABLE SWAP events
   - kind: ethereum/contract
@@ -80,7 +80,7 @@ templates:
         - SwapWeeklyVolume
       abis:
         - name: StableSwap
-          file: ./src/amarok-stableswap-v0/abis/StableSwap.json
+          file: ./src/amarok-stableswap/abis/StableSwap.json
       eventHandlers:
         - event: SwapInitialized((uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
           handler: handleSwapInitialized
@@ -104,7 +104,7 @@ templates:
           handler: handleRemoveLiquidityImbalance
         - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
           handler: handleTokenSwap
-      file: ./src/amarok-stableswap-v0/mapping/index.ts
+      file: ./src/amarok-stableswap/mapping/index.ts
   - name: LpToken
     kind: ethereum/contract
     network: "{{network}}"

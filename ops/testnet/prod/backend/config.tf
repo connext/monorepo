@@ -43,6 +43,9 @@ locals {
       "1650553703" = {
         providers = ["https://goerli.base.org"]
       }
+      "2016506996" = {
+        providers = ["https://testrpc.x1.tech", "https://x1testrpc.okx.com/"]
+      }
     }
 
     # The following are defined in variables.tf and don't map to the
@@ -71,6 +74,7 @@ locals {
       "1735353714" = { confirmations = 10 }
       "9991"       = { confirmations = 200 }
       "1650553703" = { confirmations = 10 }
+      "2016506996" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {

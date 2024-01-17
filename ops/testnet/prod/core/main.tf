@@ -259,10 +259,10 @@ module "sequencer_subscriber_auto_scaling" {
   domain                     = var.domain
   ecs_service_name           = module.sequencer_subscriber.service_name
   ecs_cluster_name           = module.ecs.ecs_cluster_name
-  avg_cpu_utilization_target = 40
+  avg_cpu_utilization_target = 10
   avg_mem_utilization_target = 60
-  min_capacity               = 1
-  max_capacity               = 40
+  min_capacity               = 2
+  max_capacity               = 100
 }
 
 
@@ -429,7 +429,7 @@ module "lighthouse_propose_cron" {
   stage                  = var.stage
   container_env_vars     = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propose" })
   schedule_expression    = "rate(30 minutes)"
-  memory_size            = 4096 
+  memory_size            = 4096
   timeout                = 900
   lambda_in_vpc          = true
   subnet_ids             = module.network.private_subnets
@@ -453,6 +453,35 @@ module "relayer" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
+  cpu                      = 8192
+  memory                   = 16384
+  instance_count           = 1
+  timeout                  = 180
+  internal_lb              = false
+  ingress_cdir_blocks      = [module.network.vpc_cdir_block]
+  ingress_ipv6_cdir_blocks = []
+  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+  cert_arn                 = var.certificate_arn_testnet
+  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "poller" })
+}
+
+module "relayer_server" {
+  source                   = "../../../modules/service"
+  stage                    = var.stage
+  environment              = var.environment
+  domain                   = var.domain
+  region                   = var.region
+  dd_api_key               = var.dd_api_key
+  zone_id                  = data.aws_route53_zone.primary.zone_id
+  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+  cluster_id               = module.ecs.ecs_cluster_id
+  vpc_id                   = module.network.vpc_id
+  lb_subnets               = module.network.public_subnets
+  docker_image             = var.full_image_name_relayer
+  container_family         = "relayer-server"
+  health_check_path        = "/ping"
+  container_port           = 8080
+  loadbalancer_port        = 80
   cpu                      = 1024
   memory                   = 4096
   instance_count           = 1
@@ -462,7 +491,7 @@ module "relayer" {
   ingress_ipv6_cdir_blocks = []
   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
   cert_arn                 = var.certificate_arn_testnet
-  container_env_vars       = local.relayer_env_vars
+  container_env_vars       = merge(local.relayer_env_vars, { RELAYER_SERVICE = "server" })
 }
 
 module "relayer_web3signer" {
