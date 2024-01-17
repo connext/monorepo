@@ -394,6 +394,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5] / 2,
       },
     },
+  },
+  testnetSepolia: {
     hub: {
       chain: 11155111,
       disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111], // for root manager
@@ -473,37 +475,41 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {},
       },
     },
+  },
+  testnetHolesky: {
     hub: {
       chain: 17000,
       disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[17000], // for root manager
       minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[17000] / 2, // for root manager
     }, // Holesky hub
-    // Taiko testnet Holesky-Taiko Katla
-    // They have recently deployed on Holesky and Katla, but they didn't verify the contracts.
-    // Due to this, we recommend using the addresses from the previous deployment on Sepolia-TaikoJoinr until they're verified.
-    167008: {
-      prefix: "Taiko",
-      networkName: "Katla",
-      // The AMB argument must be the allowed off chain agent address.
-      ambs: {
-        // Holesky Bridge
-        // https://holesky.etherscan.io/address/0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1
-        hub: "0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1",
-        // Katla Bridge
-        // https://explorer.katla.taiko.xyz/address/0x1670080000000000000000000000000000000001
-        spoke: "0x1670080000000000000000000000000000000001",
-      },
-      processGas: DEFAULT_PROCESS_GAS,
-      reserveGas: DEFAULT_RESERVE_GAS,
-      delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
-      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
-      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008] / 2,
-      custom: {
-        hub: {
-          gasCap: BigNumber.from("200000"),
+    configs: {
+      // Taiko testnet Holesky-Taiko Katla
+      // They have recently deployed on Holesky and Katla, but they didn't verify the contracts.
+      // Due to this, we recommend using the addresses from the previous deployment on Sepolia-TaikoJoinr until they're verified.
+      167008: {
+        prefix: "Taiko",
+        networkName: "Katla",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          // Holesky Bridge
+          // https://holesky.etherscan.io/address/0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1
+          hub: "0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1",
+          // Katla Bridge
+          // https://explorer.katla.taiko.xyz/address/0x1670080000000000000000000000000000000001
+          spoke: "0x1670080000000000000000000000000000000001",
         },
-        spoke: {
-          gasCap: DEFAULT_PROCESS_GAS,
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008] / 2,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
         },
       },
     },
@@ -664,31 +670,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
       },
-    },
-  },
-  // Scroll
-  534352: {
-    prefix: "Scroll",
-    networkName: "Scroll",
-    ambs: {
-      // Ethreum L1ScrollMessenger
-      // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
-      hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
-      // Scroll L2ScrollMessenger
-      // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
-      spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
-    },
-    processGas: DEFAULT_PROCESS_GAS,
-    reserveGas: DEFAULT_RESERVE_GAS,
-    delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
-    disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
-    minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
-    custom: {
-      hub: {
-        gasCap: BigNumber.from("200000"),
-      },
-      spoke: {
-        gasCap: DEFAULT_PROCESS_GAS,
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // Scroll L2ScrollMessenger
+          // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
     },
   },
