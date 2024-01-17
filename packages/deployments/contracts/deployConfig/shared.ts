@@ -38,7 +38,6 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   195: 60, // x1-testnet
 };
 
-<<<<<<< Updated upstream
 // mapping of chainId => rough blocks per minute
 const BLOCKS_PER_MINUTE: Record<number, number> = {
   // mainnets
@@ -60,14 +59,11 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   195: 60, // x1-testnet
 };
 
-=======
->>>>>>> Stashed changes
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
   Object.entries(BLOCKS_PER_MINUTE).map(([key, value]) => {
     return [key, value * 30];
   }),
 );
-<<<<<<< Updated upstream
 
 export const RELAYER_CONFIGS: {
   local: RelayerConfig;
@@ -93,8 +89,6 @@ export const RELAYER_CONFIGS: {
     },
   },
 };
-=======
->>>>>>> Stashed changes
 
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
