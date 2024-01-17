@@ -9,6 +9,7 @@ export * as mainnet from "./mainnet";
 export * as metis from "./metis";
 export * as multichain from "./multichain";
 export * as optimism from "./optimism";
+export * as optimismV0 from "./optimism-v0";
 export * as polygon from "./polygon";
 export * as polygonzk from "./polygonzk";
 export * as wormhole from "./wormhole";

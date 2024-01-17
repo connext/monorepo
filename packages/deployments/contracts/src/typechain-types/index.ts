@@ -204,6 +204,12 @@ export type { MultichainHubConnector } from "./contracts/messaging/connectors/mu
 export { MultichainHubConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainHubConnector__factory";
 export type { MultichainSpokeConnector } from "./contracts/messaging/connectors/multichain/MultichainSpokeConnector";
 export { MultichainSpokeConnector__factory } from "./factories/contracts/messaging/connectors/multichain/MultichainSpokeConnector__factory";
+export type { BaseOptimismV0 } from "./contracts/messaging/connectors/optimism-v0/BaseOptimismV0";
+export { BaseOptimismV0__factory } from "./factories/contracts/messaging/connectors/optimism-v0/BaseOptimismV0__factory";
+export type { OptimismV0HubConnector } from "./contracts/messaging/connectors/optimism-v0/OptimismV0HubConnector";
+export { OptimismV0HubConnector__factory } from "./factories/contracts/messaging/connectors/optimism-v0/OptimismV0HubConnector__factory";
+export type { OptimismV0SpokeConnector } from "./contracts/messaging/connectors/optimism-v0/OptimismV0SpokeConnector";
+export { OptimismV0SpokeConnector__factory } from "./factories/contracts/messaging/connectors/optimism-v0/OptimismV0SpokeConnector__factory";
 export type { BaseOptimism } from "./contracts/messaging/connectors/optimism/BaseOptimism";
 export { BaseOptimism__factory } from "./factories/contracts/messaging/connectors/optimism/BaseOptimism__factory";
 export type { OptimismHubConnector } from "./contracts/messaging/connectors/optimism/OptimismHubConnector";
