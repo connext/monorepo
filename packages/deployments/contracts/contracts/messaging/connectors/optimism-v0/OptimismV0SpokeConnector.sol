@@ -6,19 +6,19 @@ import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 import {SpokeConnector, ProposedOwnable} from "../SpokeConnector.sol";
 import {Connector} from "../Connector.sol";
 
-import {BaseMetis} from "./BaseMetis.sol";
+import {BaseOptimismV0} from "./BaseOptimismV0.sol";
 
 /**
- * @title MetisSpokeConnector
- * @notice This is the spoke connector that should be deployed on L2 for Metis network.
- * @dev Metis uses a pre-bedrock version of the optimism contracts.
+ * @title OptimismV0SpokeConnector
+ * @notice This is the spoke connector that should be deployed on L2 for OptimismV0 network.
+ * @dev OptimismV0 uses a pre-bedrock version of the optimism contracts.
  */
-contract MetisSpokeConnector is SpokeConnector, BaseMetis {
+contract OptimismV0SpokeConnector is SpokeConnector, BaseOptimismV0 {
   // ============ Constructor ============
   constructor(
     ConstructorParams memory _baseSpokeParams,
     uint256 _gasCap // gasLimit of message call on L1
-  ) SpokeConnector(_baseSpokeParams) BaseMetis(_gasCap) {}
+  ) SpokeConnector(_baseSpokeParams) BaseOptimismV0(_gasCap) {}
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {

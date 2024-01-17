@@ -14,14 +14,14 @@ import {PredeployAddresses} from "./lib/PredeployAddresses.sol";
 import {OVMCodec} from "./lib/OVMCodec.sol";
 import {SecureMerkleTrie} from "./lib/SecureMerkleTrie.sol";
 
-import {BaseMetis} from "./BaseMetis.sol";
+import {BaseOptimismV0} from "./BaseOptimismV0.sol";
 
 /**
- * @title MetisHubConnector
- * @notice This is the hub connector that should be deployed on L1 for Metis network.
- * @dev Metis uses a pre-bedrock version of the optimism contracts.
+ * @title OptimismV0HubConnector
+ * @notice This is the hub connector that should be deployed on L1 for optimism forked network.
+ * @dev OptimismV0 uses a pre-bedrock version of the optimism contracts.
  */
-contract MetisHubConnector is HubConnector, BaseMetis {
+contract OptimismV0HubConnector is HubConnector, BaseOptimismV0 {
   // ============ Libraries ============
   using TypedMemView for bytes;
   using TypedMemView for bytes29;
@@ -45,7 +45,7 @@ contract MetisHubConnector is HubConnector, BaseMetis {
     address _mirrorConnector,
     address _stateCommitmentChain,
     uint256 _gasCap
-  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseMetis(_gasCap) {
+  ) HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) BaseOptimismV0(_gasCap) {
     stateCommitmentChain = IStateCommitmentChain(_stateCommitmentChain);
   }
 

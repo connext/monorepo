@@ -5,7 +5,7 @@ import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
 
 import {GasCap} from "../GasCap.sol";
 
-abstract contract BaseMetis is GasCap {
+abstract contract BaseOptimismV0 is GasCap {
   // ============ Constructor ============
   constructor(uint256 _gasCap) GasCap(_gasCap) {}
 
