@@ -45,31 +45,6 @@ const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
   }),
 );
 
-export const RELAYER_CONFIGS: {
-  local: RelayerConfig;
-  testnet: RelayerConfig;
-  mainnet: RelayerConfig;
-} = {
-  local: {
-    1337: {
-      relayerFeeVault: constants.AddressZero,
-    },
-    1338: {
-      relayerFeeVault: constants.AddressZero,
-    },
-  },
-  testnet: {
-    5: {
-      relayerFeeVault: "",
-    },
-  },
-  mainnet: {
-    1: {
-      relayerFeeVault: "",
-    },
-  },
-};
-
 export type MessagingProtocolConfig = {
   // The chain ID of the hub. For production environment, should be Ethereum Mainnet (1).
   hub: {
@@ -336,19 +311,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             gasCap: DEFAULT_PROCESS_GAS,
           },
         },
-      },
-      195: {
-        prefix: "Admin",
-        networkName: "X1",
-        ambs: {
-          hub: constants.AddressZero,
-          spoke: constants.AddressZero,
-        },
-        processGas: DEFAULT_PROCESS_GAS,
-        reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
       },
       195: {
         prefix: "Admin",
