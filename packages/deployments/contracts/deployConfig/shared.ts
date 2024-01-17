@@ -16,6 +16,7 @@ export const SPOKE_PREFIX = "Spoke";
 
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
+const DEFAULT_DELAY_BLOCKS = 120; // ~30min
 
 // mapping of chainId => rough blocks per minute
 const BLOCKS_PER_MINUTE: Record<number, number> = {
@@ -374,8 +375,6 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     spoke: "0x80aC94316391752A193C1c47E27D382b507c93F3",
       //   },
       //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
-      // minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       //   custom: {
