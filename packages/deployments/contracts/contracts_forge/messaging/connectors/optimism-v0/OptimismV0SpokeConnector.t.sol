@@ -4,14 +4,14 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 
-import {MetisSpokeConnector} from "../../../../contracts/messaging/connectors/metis/MetisSpokeConnector.sol";
+import {OptimismV0SpokeConnector} from "../../../../contracts/messaging/connectors/optimism-v0/OptimismV0SpokeConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
 import {MerkleTreeManager} from "../../../../contracts/messaging/MerkleTreeManager.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
-contract MetisSpokeConnectorTest is ConnectorHelper {
+contract OptimismV0SpokeConnectorTest is ConnectorHelper {
   // ============ Events ============
   event DefaultGasPriceUpdated(uint256 previous, uint256 current);
 
@@ -39,7 +39,7 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     });
 
     // deploy
-    _l2Connector = payable(address(new MetisSpokeConnector(_baseParams, _gasCap)));
+    _l2Connector = payable(address(new OptimismV0SpokeConnector(_baseParams, _gasCap)));
   }
 
   // ============ Utils ============
@@ -48,34 +48,34 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.xDomainMessageSender.selector), abi.encode(_sender));
   }
 
-  // ============ MetisSpokeConnector.verifySender ============
-  function test_MetisSpokeConnector__verifySender_shouldWorkIfSenderExpected() public {
+  // ============ OptimismV0SpokeConnector.verifySender ============
+  function test_OptimismV0SpokeConnector__verifySender_shouldWorkIfSenderExpected() public {
     address expected = address(234);
     utils_setSpokeConnectorVerifyMocks(expected);
 
     vm.prank(_amb);
-    assertTrue(MetisSpokeConnector(_l2Connector).verifySender(expected));
+    assertTrue(OptimismV0SpokeConnector(_l2Connector).verifySender(expected));
   }
 
-  function test_MetisSpokeConnector__verifySender_shouldWorkIfSenderNotExpected() public {
+  function test_OptimismV0SpokeConnector__verifySender_shouldWorkIfSenderNotExpected() public {
     address expected = address(234);
     address notExpected = address(123);
     utils_setSpokeConnectorVerifyMocks(notExpected);
 
     vm.prank(_amb);
-    assertEq(MetisSpokeConnector(_l2Connector).verifySender(expected), false);
+    assertEq(OptimismV0SpokeConnector(_l2Connector).verifySender(expected), false);
   }
 
-  function test_MetisSpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {
+  function test_OptimismV0SpokeConnector__verifySender_shouldFailIfCallerNotAmb() public {
     address expected = address(234);
 
     vm.expectRevert(bytes("!bridge"));
-    assertEq(MetisSpokeConnector(_l2Connector).verifySender(expected), false);
+    assertEq(OptimismV0SpokeConnector(_l2Connector).verifySender(expected), false);
   }
 
-  // ============ MetisSpokeConnector.sendMessage ============
-  function test_MetisSpokeConnector__sendMessage_works() public {
-    bytes memory _data = abi.encode(MetisSpokeConnector(_l2Connector).outboundRoot());
+  // ============ OptimismV0SpokeConnector.sendMessage ============
+  function test_OptimismV0SpokeConnector__sendMessage_works() public {
+    bytes memory _data = abi.encode(OptimismV0SpokeConnector(_l2Connector).outboundRoot());
 
     vm.mockCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector), abi.encode());
 
@@ -89,11 +89,11 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     vm.expectCall(_amb, abi.encodeWithSelector(OptimismAmb.sendMessage.selector, _l1Connector, _data, _gasCap));
 
     vm.prank(_rootManager);
-    MetisSpokeConnector(_l2Connector).send(_encodedData);
+    OptimismV0SpokeConnector(_l2Connector).send(_encodedData);
   }
 
-  // ============ MetisSpokeConnector.processMessage ============
-  function test_MetisSpokeConnector__processMessage_works(bytes32 data) public {
+  // ============ OptimismV0SpokeConnector.processMessage ============
+  function test_OptimismV0SpokeConnector__processMessage_works(bytes32 data) public {
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
     bytes memory _data = abi.encode(data);
@@ -102,13 +102,13 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     emit MessageProcessed(_data, _amb);
 
     vm.prank(_amb);
-    MetisSpokeConnector(_l2Connector).processMessage(_data);
+    OptimismV0SpokeConnector(_l2Connector).processMessage(_data);
 
     // Check: root is marked as pending
-    assertEq(MetisSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
+    assertEq(OptimismV0SpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 
-  function test_MetisSpokeConnector__processMessage_failsIfNotMirrorConnector(bytes32 data) public {
+  function test_OptimismV0SpokeConnector__processMessage_failsIfNotMirrorConnector(bytes32 data) public {
     utils_setSpokeConnectorVerifyMocks(address(123));
 
     bytes memory _data = abi.encode(data);
@@ -116,10 +116,10 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!mirrorConnector"));
 
     vm.prank(_amb);
-    MetisSpokeConnector(_l2Connector).processMessage(_data);
+    OptimismV0SpokeConnector(_l2Connector).processMessage(_data);
   }
 
-  function test_MetisSpokeConnector__processMessage_failsIfNot32Bytes() public {
+  function test_OptimismV0SpokeConnector__processMessage_failsIfNot32Bytes() public {
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
     bytes memory _data = abi.encode(bytes32("test"), 123123123);
@@ -127,11 +127,11 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     vm.expectRevert(bytes("!length"));
 
     vm.prank(_amb);
-    MetisSpokeConnector(_l2Connector).processMessage(_data);
+    OptimismV0SpokeConnector(_l2Connector).processMessage(_data);
   }
 
   // ============ Fuzz Tests ============
-  function test_MetisSpokeConnector__processMessage_works_fuzz(bytes32 data) public {
+  function test_OptimismV0SpokeConnector__processMessage_works_fuzz(bytes32 data) public {
     vm.assume(data != bytes32(""));
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
@@ -141,9 +141,9 @@ contract MetisSpokeConnectorTest is ConnectorHelper {
     emit MessageProcessed(_data, _amb);
 
     vm.prank(_amb);
-    MetisSpokeConnector(_l2Connector).processMessage(_data);
+    OptimismV0SpokeConnector(_l2Connector).processMessage(_data);
 
     // Check: root is marked as pending
-    assertEq(MetisSpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
+    assertEq(OptimismV0SpokeConnector(_l2Connector).pendingAggregateRoots(bytes32(_data)), block.number);
   }
 }

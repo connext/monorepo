@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
-import {MetisHubConnector} from "../../../../contracts/messaging/connectors/metis/MetisHubConnector.sol";
+import {OptimismV0HubConnector} from "../../../../contracts/messaging/connectors/optimism-v0/OptimismV0HubConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
 import {IStateCommitmentChain, ChainBatchHeader, ChainInclusionProof, L2MessageInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/metis/IStateCommitmentChain.sol";
 
@@ -11,7 +11,7 @@ import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";
 
 // prebedrock hub connector: 0x4a0126Ee88018393b1AD2455060Bc350eAd9908A
-contract MetisHubConnectorTest is ConnectorHelper {
+contract OptimismV0HubConnectorTest is ConnectorHelper {
   // ============ Events ============
   event DefaultGasPriceUpdated(uint256 previous, uint256 current);
 
@@ -29,7 +29,15 @@ contract MetisHubConnectorTest is ConnectorHelper {
     // deploy
     _l1Connector = payable(
       address(
-        new MetisHubConnector(_l1Domain, _l2Domain, _amb, _rootManager, _l2Connector, _stateCommitmentChain, _gasCap)
+        new OptimismV0HubConnector(
+          _l1Domain,
+          _l2Domain,
+          _amb,
+          _rootManager,
+          _l2Connector,
+          _stateCommitmentChain,
+          _gasCap
+        )
       )
     );
   }
@@ -49,33 +57,33 @@ contract MetisHubConnectorTest is ConnectorHelper {
     );
   }
 
-  // ============ MetisHubConnector.verifySender ============
-  function test_MetisHubConnector__verifySender_shouldWorkIfSenderExpected() public {
+  // ============ OptimismV0HubConnector.verifySender ============
+  function test_OptimismV0HubConnector__verifySender_shouldWorkIfSenderExpected() public {
     address expected = address(234);
     utils_setHubConnectorVerifyMocks(expected);
 
     vm.prank(_amb);
-    assertTrue(MetisHubConnector(_l1Connector).verifySender(expected));
+    assertTrue(OptimismV0HubConnector(_l1Connector).verifySender(expected));
   }
 
-  function test_MetisHubConnector__verifySender_shouldWorkIfSenderNotExpected() public {
+  function test_OptimismV0HubConnector__verifySender_shouldWorkIfSenderNotExpected() public {
     address expected = address(234);
     address notExpected = address(123);
     utils_setHubConnectorVerifyMocks(notExpected);
 
     vm.prank(_amb);
-    assertEq(MetisHubConnector(_l1Connector).verifySender(expected), false);
+    assertEq(OptimismV0HubConnector(_l1Connector).verifySender(expected), false);
   }
 
-  function test_MetisHubConnector__verifySender_shouldFailIfCallerNotAmb() public {
+  function test_OptimismV0HubConnector__verifySender_shouldFailIfCallerNotAmb() public {
     address expected = address(234);
 
     vm.expectRevert(bytes("!bridge"));
-    assertEq(MetisHubConnector(_l1Connector).verifySender(expected), false);
+    assertEq(OptimismV0HubConnector(_l1Connector).verifySender(expected), false);
   }
 
-  // ============ MetisHubConnector.sendMessage ============
-  function test_MetisHubConnector__sendMessage_works_fuzz(bytes32 data) public {
+  // ============ OptimismV0HubConnector.sendMessage ============
+  function test_OptimismV0HubConnector__sendMessage_works_fuzz(bytes32 data) public {
     bytes memory _data = abi.encodePacked(data);
 
     // encoded data
@@ -97,22 +105,22 @@ contract MetisHubConnectorTest is ConnectorHelper {
     );
 
     vm.prank(_rootManager);
-    MetisHubConnector(_l1Connector).sendMessage(_data, _encodedData);
+    OptimismV0HubConnector(_l1Connector).sendMessage(_data, _encodedData);
   }
 
-  // ============ MetisHubConnector.processMessage ============
-  function test_MetisHubConnector__processMessage_shouldRevert(bytes32 data) public {
+  // ============ OptimismV0HubConnector.processMessage ============
+  function test_OptimismV0HubConnector__processMessage_shouldRevert(bytes32 data) public {
     utils_setHubConnectorProcessMocks(_l2Connector);
     bytes memory _data = abi.encode(data);
 
     vm.prank(_amb);
 
     vm.expectRevert(Connector.Connector__processMessage_notUsed.selector);
-    MetisHubConnector(_l1Connector).processMessage(_data);
+    OptimismV0HubConnector(_l1Connector).processMessage(_data);
   }
 
-  //   // ============ MetisHubConnector.processMessageFromRoot ============
-  //   function test_MetisHubConnector_processMessageFromRoot_works() public {
+  //   // ============ OptimismV0HubConnector.processMessageFromRoot ============
+  //   function test_OptimismV0HubConnector_processMessageFromRoot_works() public {
   //     // TODO: requires proof from metis sdk
   //   }
 }
