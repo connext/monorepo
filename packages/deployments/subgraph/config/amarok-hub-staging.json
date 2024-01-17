@@ -29,5 +29,56 @@
         "startBlock": 9895144
       }
     ]
+  },
+  {
+    "subgraphName": "connext/nxtp-amarok-hub-staging-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0x0031d290B8526e2Eb6ac22111E5fF96EcA760258",
+        "startBlock": 18982727
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x021C2b7E89BdE462C97dE3c514C77e1C50563FD7",
+        "startBlock": 18982726
+      },
+      {
+        "name": "PolygonHubConnector",
+        "address": "0x62C3f15Eee9A932B90c64B07c02EE9962b8DbB5A",
+        "startBlock": 18982735
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0x4d9F990E96d7B9180c7cAFe003456AdD60aA9860",
+        "startBlock": 18982732
+      },
+      {
+        "name": "GnosisHubConnector",
+        "address": "0xa98f36ca759271928d18AE9b8BC6e214C279fDeD",
+        "startBlock": 18982734
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0x7D8d16c500b89E4A1fdE991F284d84d57E949aE3",
+        "startBlock": 18982736
+      },
+      {
+        "name": "BnbHubConnector",
+        "address": "0x1b891D279a763426394c9E2100205005C0DCAf43",
+        "startBlock": 18982733
+      },
+      {
+        "name": "LineaHubConnector",
+        "address": "0x89285703326a9b3192841f67121DD714E4968689",
+        "startBlock": 18982737
+      },
+      {
+        "name": "MetisHubConnector",
+        "address": "0xAf60b2A87F791AA9De81c32f964403DA614a3Bc5",
+        "startBlock": 19013722
+      }
+    ]
   }
 ]
