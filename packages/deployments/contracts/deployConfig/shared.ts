@@ -38,27 +38,6 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   195: 60, // x1-testnet
 };
 
-// mapping of chainId => rough blocks per minute
-const BLOCKS_PER_MINUTE: Record<number, number> = {
-  // mainnets
-  1: 4, // mainnet
-  10: 30, // optimism
-  56: 30, // bsc
-  100: 30, // gnosis
-  137: 30, // polygon
-  42161: 30, // arbitrum one
-  59144: 30, // linea
-  8453: 30, // base
-
-  // testnets
-  5: 4, // goerli
-  420: 30, // optimism-goerli
-  80001: 30, // mumbai
-  59140: 30, // linea-goerli
-  84531: 30, // base-goerli
-  195: 60, // x1-testnet
-};
-
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
   Object.entries(BLOCKS_PER_MINUTE).map(([key, value]) => {
     return [key, value * 30];
