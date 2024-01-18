@@ -233,6 +233,7 @@ contract Unit_Connector_TaikoSpokeConnector_ProcessMessage is Base {
    * @param _root The root to be sent
    */
   function test_receiveAggregateRoot(bytes32 _msgHash, bytes32 _root) public {
+    vm.assume(_root != bytes32(""));
     // Set `from` and `srcChainId` to valid values
     address _from = _l1Connector;
     uint256 _srcChainId = HUB_CHAIN_ID;
