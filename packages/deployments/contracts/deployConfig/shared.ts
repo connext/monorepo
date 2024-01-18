@@ -572,6 +572,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             // https://immunefi.com/bounty/metis/
             // https://etherscan.io/address/0xf209815E595Cdf3ed0aAF9665b1772e608AB9380
             stateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
+            gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
@@ -598,6 +599,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://github.com/mantlenetworkio/mantle/blob/main/packages/contracts/deployments/mainnet/StateCommitmentChain.json
             stateCommitmentChain: "0x89E9D387555AF0cDE22cb98833Bae40d640AD7fa",
+            gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
