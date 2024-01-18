@@ -32,6 +32,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   43114: 20, //avalanche
   1101: 8, //polygon-zkevm
   324: 10, // zksync-era
+  5000: 200, // mantle network
 
   // testnets
   5: 4, // goerli
@@ -571,6 +572,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             // https://immunefi.com/bounty/metis/
             // https://etherscan.io/address/0xf209815E595Cdf3ed0aAF9665b1772e608AB9380
             stateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      5000: {
+        prefix: "OptimismV0",
+        networkName: "Mantle",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://github.com/mantlenetworkio/mantle/blob/main/packages/contracts/deployments/mainnet/Proxy__BVM_L1CrossDomainMessenger.json
+          hub: "0x676A795fe6E43C17c668de16730c3F690FEB7120",
+          // L2CrossDomainMessenger
+          // https://github.com/mantlenetworkio/mantle/blob/5cda5f811f73d9f331e6168617f87d3e19e6db6b/packages/contracts/src/predeploys.ts#L12
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[5000],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5000],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5000] / 2,
+        custom: {
+          hub: {
+            // https://github.com/mantlenetworkio/mantle/blob/main/packages/contracts/deployments/mainnet/StateCommitmentChain.json
+            stateCommitmentChain: "0x89E9D387555AF0cDE22cb98833Bae40d640AD7fa",
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
