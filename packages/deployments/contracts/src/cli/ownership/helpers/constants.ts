@@ -7,6 +7,7 @@ export const SUPPORTED_DOMAINS = {
     1886350457, // polygon
     1634886255, // arbitrum one
     1818848877, // linea mainnet
+    1835365481, // metis mainnet
   ],
   testnet: [
     1735353714, // goerli
@@ -29,6 +30,7 @@ export const PROTOCOL_ADMINS: AddressBook = {
     1886350457: "0x95e687bA2d2A791B0246d66bC4fbdD0457dCab19", // polygon
     1634886255: "0xC1167F7209A7434252e427Ad96693ccf6FB2755F", // arbitrum one
     1818848877: "0x50d22a34183e7cD3164184011998a3D50303f75d", // linea
+    1835365481: "0xC6E8d50c86BbBD974228B38d02EBBDdF109e047d", // metis
   },
   testnet: {
     1735353714: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // goerli
@@ -48,6 +50,7 @@ export const DAO_CONTRACTS: AddressBook = {
     1886350457: "0x0970Adeb473609F91D03e9Bba85F49C445040cD7", // polygon
     1634886255: "0x5C711DB90dEc0a5B81C626968DEa4187a7f9C1F2", // arbitrum one
     1818848877: "0x8167289250c0cD874cAf63d5C06B08c132d2505d", // linea
+    1835365481: "0x39d568724e3ad6bf518140c98024e3511da605e0", // metis
   },
   testnet: {
     1735353714: "0xC4E604b3F1Ab77bc8bF62989ccC0670bc575C124", // goerli
