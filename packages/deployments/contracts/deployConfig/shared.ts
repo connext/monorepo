@@ -550,7 +550,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
       },
       1088: {
-        prefix: "Metis",
+        prefix: "OptimismV0",
+        networkName: "Metis",
         ambs: {
           // L1CrossDomainMessenger
           // https://github.com/MetisProtocol/mvm/blob/develop/packages/contracts/deployments/andromeda/Proxy__OVM_L1CrossDomainMessenger.json

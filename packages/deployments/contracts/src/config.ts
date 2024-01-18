@@ -5,7 +5,7 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114, 1088],
   testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
@@ -400,7 +400,7 @@ export const hardhatNetworks = {
     },
   },
   metis: {
-    accounts: { mnemonic },
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 1088,
     url: urlOverride || process.env.METIS_PROVIDER_URL || "https://metis-pokt.nodies.app",
     companionNetworks: {
