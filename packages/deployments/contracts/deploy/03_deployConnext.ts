@@ -158,7 +158,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: isDiamondUpgrade
         ? undefined
         : {
-            contract: "DiamondInit",
             methodName: "init",
             args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
           },

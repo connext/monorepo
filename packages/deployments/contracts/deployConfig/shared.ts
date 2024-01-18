@@ -31,6 +31,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   1088: 30, // metis
   43114: 20, //avalanche
   1101: 8, //polygon-zkevm
+  324: 10, // zksync-era
 
   // testnets
   5: 4, // goerli
@@ -655,6 +656,28 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
           spoke: {
             mirrorNetworkId: "0",
+          },
+        },
+      },
+      324: {
+        prefix: "ZkSync",
+        ambs: {
+          // zkSync Diamond on mainnet
+          // https://etherscan.io/address/0x32400084c286cf3e17e7b677ea9583e60a000324
+          hub: "0x32400084c286cf3e17e7b677ea9583e60a000324",
+          // zkSync on era mainnet
+          // https://era.zksync.network/address/0x0000000000000000000000000000000000008008
+          // https://github.com/matter-labs/era-system-contracts/blob/5a6c728576de5db68ad577a09f34e7b85c374192/contracts/Constants.sol#L40
+          spoke: "0x0000000000000000000000000000000000008008",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[324],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[324],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[324] / 2,
+        custom: {
+          hub: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },
