@@ -78,6 +78,31 @@
         "name": "MetisHubConnector",
         "address": "0xAf60b2A87F791AA9De81c32f964403DA614a3Bc5",
         "startBlock": 19013722
+      },
+      {
+        "name": "MantleHubConnector",
+        "address": "0x908692AC56727A3C0C62869CAdbCDe53e06136f9",
+        "startBlock": 19035335
+      },
+      {
+        "name": "AvalancheHubConnector",
+        "address": "0xd5aE7b90Dba594899977072e363bBf164E7B1D15",
+        "startBlock": 19035337
+      },
+      {
+        "name": "BaseHubConnector",
+        "address": "0xAf00e0b7B5cE2D3a0B5d02DEc936254550228b61",
+        "startBlock": 19035336
+      },
+      {
+        "name": "PolygonZkHubConnector",
+        "address": "0xD2a6cDd411d8d7357a0E87b8fDBa6ae53B4A231d",
+        "startBlock": 19035334
+      },
+      {
+        "name": "ZkSyncHubConnector",
+        "address": "0x18a7a4e4C70fcec6Eb4844eb84bc98523F58b898",
+        "startBlock": 19035303
       }
     ]
   }
