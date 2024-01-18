@@ -4,7 +4,6 @@
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/fork/**.sol'",
-    "test:connectors": "yarn forge test --mc Unit_Connector && forge test --mc Integration_Connector",
     "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
     "test:fork": "yarn forge test --match-path '*/fork/**.sol'",
     "forge": "forge",
