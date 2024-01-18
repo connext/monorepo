@@ -430,4 +430,18 @@ export const hardhatNetworks = {
       },
     },
   },
+  mantle: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 5000,
+    url: urlOverride || process.env.MANTLE_PROVIDER_URL || "https://rpc.mantle.xyz",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.MANTLE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mantle.xyz/api",
+      },
+    },
+  },
 };
