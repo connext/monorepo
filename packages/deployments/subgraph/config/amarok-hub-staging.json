@@ -31,7 +31,7 @@
     ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-hub-staging-mainnet",
+    "subgraphName": "connext/hub-v1-staging-mainnet",
     "network": "mainnet",
     "source": [
       {
@@ -55,19 +55,19 @@
         "startBlock": 18982732
       },
       {
-        "name": "GnosisHubConnector",
-        "address": "0xa98f36ca759271928d18AE9b8BC6e214C279fDeD",
-        "startBlock": 18982734
-      },
-      {
         "name": "ArbitrumHubConnector",
         "address": "0x7D8d16c500b89E4A1fdE991F284d84d57E949aE3",
         "startBlock": 18982736
       },
       {
         "name": "BnbHubConnector",
-        "address": "0x1b891D279a763426394c9E2100205005C0DCAf43",
+        "address": "0x1b891d279a763426394c9e2100205005c0dcaf43",
         "startBlock": 18982733
+      },
+      {
+        "name": "GnosisHubConnector",
+        "address": "0xa98f36ca759271928d18AE9b8BC6e214C279fDeD",
+        "startBlock": 18982734
       },
       {
         "name": "LineaHubConnector",

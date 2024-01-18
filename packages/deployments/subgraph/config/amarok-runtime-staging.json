@@ -84,6 +84,216 @@
     ]
   },
   {
+    "subgraphName": "connext/runtime-v1-staging-mainnet",
+    "network": "mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x5e1ba88978B1f9b61448C5e6881e21A7d771D139",
+        "startBlock": 18982753
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x1dB5Ee7B6235e6C31EFb4b3eE45190Ca14E1a214",
+        "startBlock": 18982731
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xdb649f880194e9C2269Af1A503126c79ddF8053C",
+        "startBlock": 18982730
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-polygon",
+    "network": "matic",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xa87AD0fe47E09e3b9C1ca815c1Ce21Ed68edf6F1",
+        "startBlock": 52193483
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x209EF834761b4A272ef60e82FfE1f494B7Ef76F7",
+        "startBlock": 52193424
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xb557aACf8bA7198114a099F2ae77A076EcA1E253",
+        "startBlock": 52193420
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-optimism",
+    "network": "optimism",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x7076Ca03Eb4Cc28Fe207c1bcebE98caF06993b46",
+        "startBlock": 114683994
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xDd40Cf25BBEb8Ff807acEBD2c6Eb0e415549056C",
+        "startBlock": 114683887
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x80fC71A17D92bbEC3BE603fF9BA6bFBAc591424d",
+        "startBlock": 114683880
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-arbitrum-one",
+    "network": "arbitrum-one",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x26fb2965c96d7A3ef1A81Abc8ACAC144F6229a89",
+        "startBlock": 169329770
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x2056c11B071AE4cdD55007136C2493f3d4C1b678",
+        "startBlock": 169329419
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x1836147Fe1f5191d3146d79Cb0DBF515a9614a5E",
+        "startBlock": 169329399
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-bnb",
+    "network": "bsc",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x9a303BC11cA73Da1F15e798c78674fc946bD149D",
+        "startBlock": 35147526
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xa55C23558B052e74A05Ba3127987407dF99Ad704",
+        "startBlock": 35147482
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x52c0C825a8901e9C6997bBcA1A150cE27DC24566",
+        "startBlock": 35147480
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-gnosis",
+    "network": "gnosis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x40D6229356d0b5d25CBc156130e39127CBB9df88",
+        "startBlock": 31891579
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xd781F4072Ea9dA2087f7759e65B17384B72F7c89",
+        "startBlock": 31891554
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x3b9098d80C20aeF0276EE9E44F088f5AD6c2D76C",
+        "startBlock": 31891552
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-linea",
+    "network": "linea-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xCb0840E861456DA0483166aD4B0F3DC251586B4A",
+        "startBlock": 1609716
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x4c1Bf5bDA6f7Aa11b5B4c6915df96620e710E879",
+        "startBlock": 1609708
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x1b493d7A5D3A7278c4C8445572Af98cc07bd0363",
+        "startBlock": 1609629
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-base",
+    "network": "base",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x31413751bB962c5c07a033803424eE9e3854C93b",
+        "startBlock": 9130078
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x0eD42fFE155B35893d6eF7510e5893183BB7Dbda",
+        "startBlock": 9130047
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x9D3aCE4233Afe0F46F83e1Ac168C90F5c0Bb4DD5",
+        "startBlock": 9130043
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-zksync",
+    "network": "zksync-era",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x3DAB782BA36D229C1DB2288f3Da4Db5DF069f98a",
+        "startBlock": 24079553
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x6FD8847465973e13CD432573746c88C387E815E2",
+        "startBlock": 23854032
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xF877Cd92641551e6aC266D28Eb600C0f104314e2",
+        "startBlock": 23854025
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-polygon-zk",
+    "network": "polygonzk",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB20c7f8aDe683C1ad7F5b76435D9345059b1ed3F",
+        "startBlock": 9179656
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 9179586
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
+        "startBlock": 9179584
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/runtime-staging-metis",
     "network": "metis",
     "source": [
