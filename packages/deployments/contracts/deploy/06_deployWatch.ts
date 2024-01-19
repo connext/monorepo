@@ -4,6 +4,7 @@ import { Contract, utils, Wallet } from "ethers";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
+import { getDeploymentName } from "../src";
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -27,7 +28,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   console.log("Deploying watch token on non-mainnet chain...");
-  const DEPLOYMENT_NAME = "BigBroERC20";
+  const DEPLOYMENT_NAME = getDeploymentName("BigBroERC20");
   const deployment = await hre.deployments.deploy(DEPLOYMENT_NAME, {
     contract: "TestERC20",
     from: deployer.address,
@@ -54,10 +55,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   }
 
   // Try to whitelist immediately after deployment
-  const canonical =
-    chainId === 5
-      ? deployment.address
-      : (await hre.companionNetworks["hub"].deployments.getOrNull(DEPLOYMENT_NAME))?.address;
+  const deploymentIsCanonical = chainId === 5 || chainId === 1;
+  const canonical = deploymentIsCanonical
+    ? deployment.address
+    : (await hre.companionNetworks["hub"].deployments.getOrNull(DEPLOYMENT_NAME))?.address;
   if (!canonical) {
     throw new Error(`Failed to find canonical address for token`);
   }

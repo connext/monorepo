@@ -15,6 +15,8 @@ import type * as multichain from "./multichain";
 export type { multichain };
 import type * as optimism from "./optimism";
 export type { optimism };
+import type * as optimismV0 from "./optimism-v0";
+export type { optimismV0 };
 import type * as polygon from "./polygon";
 export type { polygon };
 import type * as polygonzk from "./polygonzk";

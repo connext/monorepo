@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as arbitrum from "./arbitrum";
+export * as metis from "./metis";
 export * as optimism from "./optimism";
 export * as polygonzk from "./polygonzk";
 export * as wormhole from "./wormhole";

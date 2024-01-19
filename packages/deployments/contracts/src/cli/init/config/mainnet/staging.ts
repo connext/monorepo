@@ -13,6 +13,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "6450786", // BNB
     "6778479", // GNOSIS
     "1818848877", // LINEA
+    "1835365481", // METIS
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -50,6 +51,10 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x7FD0bC1d931fABCB18c78f2257f614498CEA1d30",
           adopted: "0x7FD0bC1d931fABCB18c78f2257f614498CEA1d30",
         },
+        "1835365481": {
+          local: "0xb30ca61fD2B395EF1b58Eb0d1d6D40e439361e92",
+          adopted: "0xb30ca61fD2B395EF1b58Eb0d1d6D40e439361e92",
+        },
       },
     },
   ],
@@ -62,6 +67,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       "6450786": PROTOCOL_ADMINS.mainnet["6450786"],
       "6778479": PROTOCOL_ADMINS.mainnet["6778479"],
       "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"],
+      "1835365481": PROTOCOL_ADMINS.mainnet["1835365481"],
     },
     watchers: {
       allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],

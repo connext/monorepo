@@ -31,7 +31,6 @@ contract ConnectorHelper is ForgeHelper {
   uint256 _gasCap = 100_000;
   uint256 _processGas = 850_000;
   uint256 _reserveGas = 15_000;
-  address _stateCommitmentChain = address(bytes20(keccak256("_stateCommitmentChain")));
 
   address payable _l1Connector;
   address payable _l2Connector;

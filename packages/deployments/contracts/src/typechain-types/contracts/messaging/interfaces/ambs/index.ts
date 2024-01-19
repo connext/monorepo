@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
+import type * as metis from "./metis";
+export type { metis };
 import type * as optimism from "./optimism";
 export type { optimism };
 import type * as polygonzk from "./polygonzk";
