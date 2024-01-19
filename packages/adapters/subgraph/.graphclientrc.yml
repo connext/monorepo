@@ -781,7 +781,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-arbitrum-one
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-staging-arb1
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:

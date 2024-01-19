@@ -147,7 +147,7 @@
     ]
   },
   {
-    "subgraphName": "connext/runtime-v1-staging-arbitrum-one",
+    "subgraphName": "connext/amarok-runtime-v1-staging-arb1",
     "network": "arbitrum-one",
     "source": [
       {
