@@ -76,13 +76,13 @@
       },
       {
         "name": "MetisHubConnector",
-        "address": "0xAf60b2A87F791AA9De81c32f964403DA614a3Bc5",
-        "startBlock": 19013722
+        "address": "0x5FA89ea322708b30882D3aa3a9fC3DA4775274c0",
+        "startBlock": 19063536
       },
       {
         "name": "MantleHubConnector",
-        "address": "0x908692AC56727A3C0C62869CAdbCDe53e06136f9",
-        "startBlock": 19035335
+        "address": "0xFD911b58FB5a94FF08f2784F6D36b1eB97AE29C1",
+        "startBlock": 19063537
       },
       {
         "name": "AvalancheHubConnector",
