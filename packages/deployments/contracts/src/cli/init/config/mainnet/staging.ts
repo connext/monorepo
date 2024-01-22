@@ -17,7 +17,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "2053862243", // ZkSync-Era
     "1887071085", // PolygonZk
     "1650553709", // Base
-    "1634886247", // Avalanche
+    "1635148152", // Avalanche
     "1835101812", // Mantle
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
@@ -29,6 +29,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0x29240a275cddde26BbD6d80fA8ad315C35F91604",
+        cap: utils.parseUnits("10000000", 6).toString(),
         decimals: 18,
       },
       representations: {
@@ -72,7 +73,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
           adopted: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
         },
-        "1634886247": {
+        "1635148152": {
           local: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
           adopted: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
         },
@@ -93,6 +94,11 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       "6778479": PROTOCOL_ADMINS.mainnet["6778479"],
       "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"],
       "1835365481": PROTOCOL_ADMINS.mainnet["1835365481"],
+      "2053862243": "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // ZkSync-Era
+      "1887071085": "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // PolygonZk
+      "1650553709": "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // Base
+      "1635148152": "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // Avalanche
+      "1835101812": "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // Mantle
     },
     watchers: {
       allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
