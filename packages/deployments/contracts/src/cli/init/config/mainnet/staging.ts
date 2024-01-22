@@ -14,6 +14,11 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "6778479", // GNOSIS
     "1818848877", // LINEA
     "1835365481", // METIS
+    "2053862243", // ZkSync-Era
+    "1887071085", // PolygonZk
+    "1650553709", // Base
+    "1634886247", // Avalanche
+    "1835101812", // Mantle
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -54,6 +59,26 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
         "1835365481": {
           local: "0xb30ca61fD2B395EF1b58Eb0d1d6D40e439361e92",
           adopted: "0xb30ca61fD2B395EF1b58Eb0d1d6D40e439361e92",
+        },
+        "2053862243": {
+          local: "0x1f4df37E553cEC57D8751e45664B70b9e1FF1d33",
+          adopted: "0x1f4df37E553cEC57D8751e45664B70b9e1FF1d33",
+        },
+        "1887071085": {
+          local: "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
+          adopted: "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
+        },
+        "1650553709": {
+          local: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+          adopted: "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+        },
+        "1634886247": {
+          local: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+          adopted: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+        },
+        "1835101812": {
+          local: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
+          adopted: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
         },
       },
     },
