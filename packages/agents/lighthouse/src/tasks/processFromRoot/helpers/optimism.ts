@@ -2,7 +2,7 @@ import { createLoggingContext } from "@connext/nxtp-utils";
 import { CrossChainMessageProof, MessageStatus } from "@eth-optimism/sdk";
 import { BigNumber, providers } from "ethers";
 
-import { CrossChainMessenger } from "../../../mockable";
+import { OptimismCrossChainMessenger } from "../../../mockable";
 import { NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 
@@ -38,7 +38,7 @@ export const getProcessFromOptimismRootArgs = async ({
   //   L2MessageInclusionProof memory _proof -> taken from sdk
 
   // create the messenger
-  const messenger = new CrossChainMessenger({
+  const messenger = new OptimismCrossChainMessenger({
     l2ChainId: spokeChainId,
     l2SignerOrProvider: new providers.JsonRpcProvider(spokeProvider),
     l1ChainId: hubChainId,

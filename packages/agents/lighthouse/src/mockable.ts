@@ -2,7 +2,8 @@ import * as fs from "fs";
 
 import { generateExitPayload as _generateExitPayload, getBestProvider as _getBestProvider } from "@connext/nxtp-utils";
 import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
-import { CrossChainMessenger as _CrossChainMessenger } from "@eth-optimism/sdk";
+import { CrossChainMessenger as _OptimismCrossChainMessenger } from "@eth-optimism/sdk";
+import { CrossChainMessenger as _MantleCrossChainMessenger } from "@mantleio/sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
 import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
 import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
@@ -21,7 +22,8 @@ export const existsSync = fs.existsSync;
 
 export const readFileSync = fs.readFileSync;
 
-export const CrossChainMessenger = _CrossChainMessenger;
+export const OptimismCrossChainMessenger = _OptimismCrossChainMessenger;
+export const MantleCrossChainMessenger = _MantleCrossChainMessenger;
 
 export const generateExitPayload = _generateExitPayload;
 

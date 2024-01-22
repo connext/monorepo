@@ -2421,6 +2421,7 @@ __metadata:
     "@consensys/linea-sdk": 0.1.6
     "@eth-optimism/sdk": 2.1.0
     "@graphql-codegen/cli": 3.0.0
+    "@mantleio/sdk": 1.0.0
     "@sinclair/typebox": 0.25.21
     "@types/amqplib": 0.10.1
     "@types/aws-lambda": 8.10.110
@@ -6252,6 +6253,71 @@ __metadata:
   dependencies:
     call-bind: ^1.0.2
   checksum: 10502726028b8a4e0b270a2213e546821c04ed8d7fe411009a8e47497e4ae99c57eeb9ff3d13620ebdefd7c856b16fc873f27c433cad60465dc132fb4b997233
+  languageName: node
+  linkType: hard
+
+"@mantleio/contracts-bedrock@npm:0.1.0":
+  version: 0.1.0
+  resolution: "@mantleio/contracts-bedrock@npm:0.1.0"
+  dependencies:
+    "@mantleio/core-utils": 0.2.0
+    "@openzeppelin/contracts": 4.7.3
+    "@openzeppelin/contracts-upgradeable": 4.7.3
+    ethers: ^5.7.0
+  checksum: ff380de6ffb96423a49c746fdd557af1bd43c3c9b6f0033b7b10c290408be3b1e84f9b0a4bad234094a9766564f6d00c1ffb64e1fb9c838696e4e9fca6b93829
+  languageName: node
+  linkType: hard
+
+"@mantleio/contracts@npm:0.3.0":
+  version: 0.3.0
+  resolution: "@mantleio/contracts@npm:0.3.0"
+  dependencies:
+    "@ethersproject/abstract-provider": ^5.7.0
+    "@ethersproject/abstract-signer": ^5.7.0
+    "@mantleio/core-utils": 0.2.0
+  peerDependencies:
+    ethers: ^5
+  checksum: 5dd0bdf5a51cb68393da2d623ad73a23736c23df21ef94b44e986e50e57173ff453f1846294f7bb24d9872a44a27d649d05615649ec3fa0a389d6b89f3a01df9
+  languageName: node
+  linkType: hard
+
+"@mantleio/core-utils@npm:0.2.0":
+  version: 0.2.0
+  resolution: "@mantleio/core-utils@npm:0.2.0"
+  dependencies:
+    "@ethersproject/abi": ^5.7.0
+    "@ethersproject/abstract-provider": ^5.7.0
+    "@ethersproject/address": ^5.7.0
+    "@ethersproject/bignumber": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/constants": ^5.7.0
+    "@ethersproject/contracts": ^5.7.0
+    "@ethersproject/hash": ^5.7.0
+    "@ethersproject/keccak256": ^5.7.0
+    "@ethersproject/properties": ^5.7.0
+    "@ethersproject/providers": ^5.7.0
+    "@ethersproject/rlp": ^5.7.0
+    "@ethersproject/transactions": ^5.7.0
+    "@ethersproject/web": ^5.7.0
+    bufio: ^1.0.7
+    chai: ^4.3.4
+  checksum: afc4355430926d0f5fdf69fc6a7d75da4205e1fb3cb0927d1aef9e96423400190f8f24f88de8d1cfbead41cafab5dcdb60f7b0a9781cffb8046bca2537622057
+  languageName: node
+  linkType: hard
+
+"@mantleio/sdk@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@mantleio/sdk@npm:1.0.0"
+  dependencies:
+    "@mantleio/contracts": 0.3.0
+    "@mantleio/contracts-bedrock": 0.1.0
+    "@mantleio/core-utils": 0.2.0
+    lodash: ^4.17.21
+    merkletreejs: ^0.2.27
+    rlp: ^2.2.7
+  peerDependencies:
+    ethers: ^5
+  checksum: d71203467a7b94cd3878745a5cb59746a97a64141d998703ccacb835957c38cbf6be0d8b23c19864093303e4ea2f3db562d328d5e3f04e52bbd1c33993bf2756
   languageName: node
   linkType: hard
 
