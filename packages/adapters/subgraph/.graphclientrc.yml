@@ -678,7 +678,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_mainnet_
+          value: stagingmainnet_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -705,7 +705,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_mainnet_
+          value: stagingmainnet_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -732,7 +732,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_optimism_
+          value: stagingoptimism_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -759,7 +759,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_polygon_
+          value: stagingpolygon_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -786,7 +786,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_arbitrumone_
+          value: stagingarbitrumone_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -840,7 +840,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_xdai_
+          value: stagingxdai_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -894,7 +894,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_base_
+          value: stagingbase_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -921,7 +921,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_zksync_
+          value: stagingzksync_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -948,7 +948,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_polygon_zkevm_
+          value: stagingpolygon_zkevm_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -975,7 +975,34 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_mantle_
+          value: stagingmantle_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Staging_Avalanche
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-staging-avalanche
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingavalanche_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

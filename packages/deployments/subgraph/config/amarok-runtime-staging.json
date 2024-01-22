@@ -274,7 +274,7 @@
   },
   {
     "subgraphName": "connext/runtime-v1-staging-polygon-zk",
-    "network": "polygonzk",
+    "network": "polygon-zkevm",
     "source": [
       {
         "name": "Connext",
@@ -332,6 +332,48 @@
         "name": "MerkleTreeManager",
         "address": "0xF5E02C39A9d5028bb0ed0E37765136Ad9be3C195",
         "startBlock": 48606571
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-mantle",
+    "network": "mantle",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
+        "startBlock": 48606875
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x69Dd4385EdC7BDBe221159278981dD81ff792247",
+        "startBlock": 48606584
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xF5E02C39A9d5028bb0ed0E37765136Ad9be3C195",
+        "startBlock": 48606571
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-staging-avalanche",
+    "network": "avalanche",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB20c7f8aDe683C1ad7F5b76435D9345059b1ed3F",
+        "startBlock": 40248156
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 40248086
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
+        "startBlock": 40248082
       }
     ]
   }
