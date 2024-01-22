@@ -15,7 +15,7 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59144, 0x6c696e6d], // Consensys Linea Mainnet ('linm' interpreted as int) 1818848877
   [8453, 0x6261736d], // Base Mainnet ('basm' interpreted as int) 1650553709
   [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
-  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1634886247
+  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1635148152
   [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 2053862243
   [25, 0x63726f], // Cronos Mainnet (cro interpreted as int) 6573045
   [9001, 0x65766d6f], // Evmos Mainnet (evmo interpreted as int) 6648936
