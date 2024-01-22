@@ -8,6 +8,11 @@ export const SUPPORTED_DOMAINS = {
     1634886255, // arbitrum one
     1818848877, // linea mainnet
     1835365481, // metis mainnet
+    2053862243, // ZkSync-Era
+    1887071085, // PolygonZk
+    1650553709, // Base
+    1635148152, // Avalanche
+    1835101812, // Mantle
   ],
   testnet: [
     1735353714, // goerli
@@ -31,6 +36,11 @@ export const PROTOCOL_ADMINS: AddressBook = {
     1634886255: "0xC1167F7209A7434252e427Ad96693ccf6FB2755F", // arbitrum one
     1818848877: "0x50d22a34183e7cD3164184011998a3D50303f75d", // linea
     1835365481: "0xC6E8d50c86BbBD974228B38d02EBBDdF109e047d", // metis
+    1835101812: "0xeE26cb410E2afF7D8e342AA84746F3459eCd643f", // mantle
+    1887071085: "0x3FdcFaD98F37A7Cd713b03e9D01E2193Ea91234C", // polygonzk
+    1635148152: "0x63aFBf69628F09a2f7a44c0546b03e933ED86C01", // avalanche
+    1650553709: "0x5470aBdf216E557948aCaE671b29D3BCdE0D6F3c", // base
+    2053862243: "0xc0e2a1249c12f3d1B33bb3D319eBa0197dFB0641", // zksync-era
   },
   testnet: {
     1735353714: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // goerli

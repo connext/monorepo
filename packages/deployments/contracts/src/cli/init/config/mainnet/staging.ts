@@ -105,11 +105,11 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     routers: {
       allowlist: [
-        "0xF26c772C0fF3a6036bDdAbDAbA22cf65ECa9F97c", // Connext
+        "0xa78d6f3eadc4Aac9963C76F681B5db05336B1e7a", // Connext
       ],
     },
     sequencers: {
-      allowlist: ["0x4fFA5968857a6C8242E4A6Ded2418155D33e82E7"],
+      allowlist: ["0x977cC013d95ab06e28700116137d91DA1051c816"],
     },
     relayers: {
       allowlist: [
@@ -120,7 +120,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     proposers: {
       allowlist: [
-        "0x163Ac207A8A9b9675bE139256c4d0dc19BBfb93B", // lighthouse
+        "0xDD4DFE3F840c774f57DE6d8Ad066FFd972F93933", // lighthouse
       ],
     },
   },
