@@ -22,6 +22,7 @@ import {
   getProcessFromZkSyncRootArgs,
   getProcessFromLineaRootArgs,
   getProcessFromBaseRootArgs,
+  getProcessFromMantleRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -90,6 +91,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
   "1650553703": {
     getArgs: getProcessFromBaseRootArgs,
     hubConnectorPrefix: "Base",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1835101812": {
+    getArgs: getProcessFromMantleRootArgs,
+    hubConnectorPrefix: "Mantle",
     processorFunctionName: "processMessageFromRoot",
   },
 };

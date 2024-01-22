@@ -91,18 +91,16 @@ contract OptimismV0HubConnector is HubConnector, BaseOptimismV0 {
     require(_verifyXDomainMessage(xDomainData, _proof), "!proof");
 
     // get the data
-    // _message = abi.encodePacked(bytes32(root))
     require(_message.length == 32, "!length");
     bytes32 root = bytes32(_message);
 
-    if (!processed[root]) {
-      // set root to processed
-      processed[root] = true;
-      // update the root on the root manager
-      IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+    require(!processed[root], "processed");
+    // set root to processed
+    processed[root] = true;
 
-      emit MessageProcessed(abi.encode(root), msg.sender);
-    } // otherwise root was already sent to root manager
+    // update the root on the root manager
+    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, root);
+    emit MessageProcessed(_message, msg.sender);
   }
 
   /**
