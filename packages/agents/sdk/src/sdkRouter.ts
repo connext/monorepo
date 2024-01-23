@@ -86,11 +86,6 @@ export class SdkRouter extends SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     const connextContract = await this.getConnext(domainId, options);
     const txRequest = await connextContract.populateTransaction.addRouterLiquidityFor(amount, tokenAddress, router);
 
@@ -134,11 +129,6 @@ export class SdkRouter extends SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, tokenAddress),
@@ -176,11 +166,6 @@ export class SdkRouter extends SdkShared {
     const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
     if (!isProviderValid) {
       throw new ProviderMissing(domainId);
-    }
-
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
     }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([

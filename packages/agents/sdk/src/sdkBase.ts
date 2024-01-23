@@ -183,12 +183,6 @@ export class SdkBase extends SdkShared {
       throw new ProviderMissing(origin);
     }
 
-    // Ensure signer is provided.
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     let { to, callData } = params;
 
     // Set default values if not provided
@@ -353,7 +347,6 @@ export class SdkBase extends SdkShared {
         to: multisendContractAddress,
         value: amountBN.add(relayerFeeInNativeAsset), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
-        from: _signerAddress,
         chainId,
       };
     } else {
@@ -366,14 +359,12 @@ export class SdkBase extends SdkShared {
           to: connextContractAddress,
           value,
           data: xcallData,
-          from: _signerAddress,
           chainId,
         };
       } else {
         txRequest = {
           to: connextContractAddress,
           data: xcallData,
-          from: _signerAddress,
           chainId,
         };
       }
@@ -544,11 +535,6 @@ export class SdkBase extends SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     // Input validation
     if (parseInt(relayerFee) <= 0) {
       throw new ParamsInvalid({ paramsError: "Must increase relayerFee by > 0", relayerFee: relayerFee });
@@ -584,13 +570,11 @@ export class SdkBase extends SdkShared {
             to: ConnextContractAddress,
             value,
             data,
-            from: _signerAddress,
             chainId,
           }
         : {
             to: ConnextContractAddress,
             data,
-            from: _signerAddress,
             chainId,
           };
 

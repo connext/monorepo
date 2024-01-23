@@ -1036,11 +1036,6 @@ export class SdkPool extends SdkShared {
 
     const _tokenAddress = utils.getAddress(tokenAddress);
 
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
       this.getCanonicalTokenId(domainId, _tokenAddress),
@@ -1083,11 +1078,6 @@ export class SdkPool extends SdkShared {
 
     const _tokenAddress = utils.getAddress(tokenAddress);
     const index = await this.getPoolTokenIndex(domainId, _tokenAddress, withdrawTokenAddress);
-
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
@@ -1134,11 +1124,6 @@ export class SdkPool extends SdkShared {
     }
 
     const _tokenAddress = utils.getAddress(tokenAddress);
-
-    const signerAddress = this.config.signerAddress;
-    if (!signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const [connextContract, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getConnext(domainId, options),
@@ -1253,11 +1238,6 @@ export class SdkPool extends SdkShared {
     }
 
     const _tokenAddress = utils.getAddress(tokenAddress);
-
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
 
     const [connextContract, [canonicalDomain, canonicalId], tokenIndexFrom, tokenIndexTo] = await Promise.all([
       this.getConnext(domainId, options),
