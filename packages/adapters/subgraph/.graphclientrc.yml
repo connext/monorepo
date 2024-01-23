@@ -813,7 +813,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_bnb_
+          value: stagingbnb_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -867,7 +867,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_linea_
+          value: staginglinea_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -889,7 +889,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-base"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/C6v86fi3KkJoNgeETLyB2rbXVpfiMjs8GgKL2iQfRR2T"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -916,7 +916,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-zksync"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FyYv48LNGAH2Th2ti4Qvg8RzjZFENWUkETRPKsRQXpWP"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -943,7 +943,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-polygon-zk"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FyYv48LNGAH2Th2ti4Qvg8RzjZFENWUkETRPKsRQXpWP"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -997,7 +997,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-staging-avalanche
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-avalanche
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1018,7 +1018,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_optimism_swap_
+          value: stagingoptimism_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1033,7 +1033,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_polygon_swap_
+          value: stagingpolygon_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1048,7 +1048,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_arbitrumone_swap_
+          value: stagingarbitrumone_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1063,7 +1063,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_bnb_swap_
+          value: stagingbnb_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1078,7 +1078,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_xdai_swap_
+          value: stagingxdai_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1093,7 +1093,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_linea_swap_
+          value: staginglinea_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1108,7 +1108,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_base_swap_
+          value: stagingbase_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1123,7 +1123,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_zksync_swap_
+          value: stagingzksync_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1138,7 +1138,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_polygon_zkevm_swap_
+          value: stagingpolygon_zkevm_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1153,7 +1153,7 @@ sources:
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: staging_mantle_swap_
+          value: stagingmantle_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
