@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/crosschain/errors.sol";
 import {IRootManager} from "../../../../contracts/messaging/interfaces/IRootManager.sol";
 import {OptimismV0HubConnector} from "../../../../contracts/messaging/connectors/optimism-v0/OptimismV0HubConnector.sol";
 import {OptimismAmb} from "../../../../contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, ChainBatchHeader, ChainInclusionProof, L2MessageInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/metis/IStateCommitmentChain.sol";
+import {IStateCommitmentChain, ChainBatchHeader, ChainInclusionProof, L2MessageInclusionProof} from "../../../../contracts/messaging/interfaces/ambs/optimism-v0/IStateCommitmentChain.sol";
 
 import "../../../utils/ConnectorHelper.sol";
 import "../../../utils/Mock.sol";

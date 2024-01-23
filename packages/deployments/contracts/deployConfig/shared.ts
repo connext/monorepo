@@ -580,8 +580,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
       },
       5000: {
-        prefix: "OptimismV0",
-        networkName: "Mantle",
+        prefix: "Mantle",
         ambs: {
           // L1CrossDomainMessenger
           // https://github.com/mantlenetworkio/mantle/blob/main/packages/contracts/deployments/mainnet/Proxy__BVM_L1CrossDomainMessenger.json

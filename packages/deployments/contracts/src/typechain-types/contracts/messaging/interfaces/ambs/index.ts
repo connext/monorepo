@@ -3,10 +3,12 @@
 /* eslint-disable */
 import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
-import type * as metis from "./metis";
-export type { metis };
+import type * as mantle from "./mantle";
+export type { mantle };
 import type * as optimism from "./optimism";
 export type { optimism };
+import type * as optimismV0 from "./optimism-v0";
+export type { optimismV0 };
 import type * as polygonzk from "./polygonzk";
 export type { polygonzk };
 import type * as wormhole from "./wormhole";

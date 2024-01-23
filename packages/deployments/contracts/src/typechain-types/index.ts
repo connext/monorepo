@@ -192,6 +192,10 @@ export type { LineaSpokeConnector } from "./contracts/messaging/connectors/linea
 export { LineaSpokeConnector__factory } from "./factories/contracts/messaging/connectors/linea/LineaSpokeConnector__factory";
 export type { MainnetSpokeConnector } from "./contracts/messaging/connectors/mainnet/MainnetSpokeConnector";
 export { MainnetSpokeConnector__factory } from "./factories/contracts/messaging/connectors/mainnet/MainnetSpokeConnector__factory";
+export type { MantleHubConnector } from "./contracts/messaging/connectors/mantle/MantleHubConnector";
+export { MantleHubConnector__factory } from "./factories/contracts/messaging/connectors/mantle/MantleHubConnector__factory";
+export type { MantleSpokeConnector } from "./contracts/messaging/connectors/mantle/MantleSpokeConnector";
+export { MantleSpokeConnector__factory } from "./factories/contracts/messaging/connectors/mantle/MantleSpokeConnector__factory";
 export type { BaseMultichain } from "./contracts/messaging/connectors/multichain/BaseMultichain";
 export { BaseMultichain__factory } from "./factories/contracts/messaging/connectors/multichain/BaseMultichain__factory";
 export type { MultichainHubConnector } from "./contracts/messaging/connectors/multichain/MultichainHubConnector";
@@ -254,8 +258,8 @@ export type { GnosisAmb } from "./contracts/messaging/interfaces/ambs/GnosisAmb"
 export { GnosisAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/GnosisAmb__factory";
 export type { LineaAmb } from "./contracts/messaging/interfaces/ambs/LineaAmb";
 export { LineaAmb__factory } from "./factories/contracts/messaging/interfaces/ambs/LineaAmb__factory";
-export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/ambs/metis/IStateCommitmentChain";
-export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/metis/IStateCommitmentChain__factory";
+export type { IStateCommitmentChain } from "./contracts/messaging/interfaces/ambs/mantle/IStateCommitmentChain";
+export { IStateCommitmentChain__factory } from "./factories/contracts/messaging/interfaces/ambs/mantle/IStateCommitmentChain__factory";
 export type { Multichain } from "./contracts/messaging/interfaces/ambs/Multichain";
 export { Multichain__factory } from "./factories/contracts/messaging/interfaces/ambs/Multichain__factory";
 export type { IOptimismPortal } from "./contracts/messaging/interfaces/ambs/optimism/IOptimismPortal";

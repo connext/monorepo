@@ -81,8 +81,8 @@
       },
       {
         "name": "MantleHubConnector",
-        "address": "0xFD911b58FB5a94FF08f2784F6D36b1eB97AE29C1",
-        "startBlock": 19063537
+        "address": "0x5b447756e2E55CEB8d0e46217ea666CF3e037cdd",
+        "startBlock": 19065805
       },
       {
         "name": "AvalancheHubConnector",

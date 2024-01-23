@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import {IRootManager} from "../../interfaces/IRootManager.sol";
 import {OptimismAmb} from "../../interfaces/ambs/optimism/OptimismAmb.sol";
-import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/metis/IStateCommitmentChain.sol";
+import {IStateCommitmentChain, L2MessageInclusionProof} from "../../interfaces/ambs/optimism-v0/IStateCommitmentChain.sol";
 
 import {TypedMemView} from "../../../shared/libraries/TypedMemView.sol";
 
