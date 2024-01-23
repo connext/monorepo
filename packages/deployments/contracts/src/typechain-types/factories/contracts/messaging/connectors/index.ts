@@ -6,6 +6,7 @@ export * as arbitrum from "./arbitrum";
 export * as gnosis from "./gnosis";
 export * as linea from "./linea";
 export * as mainnet from "./mainnet";
+export * as mantle from "./mantle";
 export * as multichain from "./multichain";
 export * as optimism from "./optimism";
 export * as optimismV0 from "./optimism-v0";

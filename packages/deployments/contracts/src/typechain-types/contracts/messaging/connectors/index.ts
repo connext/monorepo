@@ -11,6 +11,8 @@ import type * as linea from "./linea";
 export type { linea };
 import type * as mainnet from "./mainnet";
 export type { mainnet };
+import type * as mantle from "./mantle";
+export type { mantle };
 import type * as multichain from "./multichain";
 export type { multichain };
 import type * as optimism from "./optimism";
