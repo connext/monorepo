@@ -289,8 +289,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
             method: "enrollRemoteRouter",
             args: [remoteNetwork.domain, utils.hexlify(canonizeId(desiredConnextion))],
           },
-          // protocol admin submits. owner can as well, but assume admin.
-          auth: { method: "queryRole", args: [targetNetwork.signerAddress], eval: (ret) => ret === 3 },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === targetNetwork.signerAddress },
+            { method: "queryRole", args: [targetNetwork.signerAddress], eval: (ret: number) => ret === 3 },
+          ],
           chainData,
         });
       }
@@ -310,8 +312,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         desired: relayerFeeVault,
         read: { method: "relayerFeeVault" },
         write: { method: "setRelayerFeeVault", args: [relayerFeeVault] },
-        // protocol admin submits. owner can as well, but assume admin.
-        auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+        auth: [
+          { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+        ],
         chainData,
       });
     }
@@ -470,8 +474,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 apply,
                 deployment: network.deployments.Connext,
                 desired: 2,
-                // protocol admin submits. owner can as well, but assume admin.
-                auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
                 read: { method: "queryRole", args: [watcher] },
                 write: { method: "assignRoleWatcher", args: [watcher] },
                 chainData,
@@ -548,8 +554,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
               desired: true,
               read: { method: "approvedRelayers", args: [relayerProxyAddress] },
               write: { method: "addRelayer", args: [relayerProxyAddress] },
-              // protocol admin submits
-              auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+              auth: [
+                { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+              ],
               chainData,
             });
 
@@ -595,8 +603,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 desired: true,
                 read: { method: "approvedRelayers", args: [relayer] },
                 write: { method: "addRelayer", args: [relayer] },
-                // protocol admin submits
-                auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
                 chainData,
               });
             }
@@ -619,8 +629,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 desired: true,
                 read: { method: "approvedSequencers", args: [sequencer] },
                 write: { method: "addSequencer", args: [sequencer] },
-                // protocol admin submits
-                auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
                 chainData,
               });
             }
@@ -641,7 +653,10 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 deployment: network.deployments.Connext,
                 desired: true,
                 // router admin submits (can be owner, assume router admin)
-                auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
+                ],
                 read: { method: "getRouterApproval", args: [router] },
                 // TODO: Should we enable configuring owner and recipient for this script, too?
                 write: { method: "approveRouter", args: [router] },

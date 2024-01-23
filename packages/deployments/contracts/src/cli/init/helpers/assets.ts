@@ -65,8 +65,10 @@ export const setupAsset = async (args: {
     deployment: home.deployments.Connext,
     desired: asset.canonical.address,
     read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-    // protocol admin submits. owner can as well, but assume admin.
-    auth: { method: "queryRole", args: [home.signerAddress], eval: (ret) => ret === 3 },
+    auth: [
+      { method: "owner", eval: (ret: string) => ret.toLowerCase() === home.signerAddress },
+      { method: "queryRole", args: [home.signerAddress], eval: (ret) => ret === 3 },
+    ],
     write: {
       method: "setupAsset",
       args: [
@@ -112,8 +114,10 @@ export const setupAsset = async (args: {
           apply,
           deployment: network.deployments.Connext,
           desired: false,
-          // protocol admin submits. owner can as well, but assume admin.
-          auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+            { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          ],
           read: { method: "approvedAssets(bytes32)", args: [key] },
           write: {
             method: "removeAssetId((uint32,bytes32),address,address)",
@@ -135,8 +139,10 @@ export const setupAsset = async (args: {
         deployment: network.deployments.Connext,
         desired: desiredAdopted,
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-        // protocol admin submits. owner can as well, but assume admin.
-        auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+        auth: [
+          { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+        ],
         write: {
           method: "setupAssetWithDeployedRepresentation",
           args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
@@ -149,8 +155,10 @@ export const setupAsset = async (args: {
           deployment: network.deployments.Connext,
           desired: desiredAdopted,
           read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-          // protocol admin submits. owner can as well, but assume admin.
-          auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+            { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          ],
           write: {
             method: "setupAsset",
             args: [
@@ -207,8 +215,10 @@ export const setupAsset = async (args: {
       deployment: network.deployments.Connext,
       desired: BigNumber.from(a),
       read: { method: "getSwapA(bytes32)", args: [key] },
-      // protocol admin submits. owner can as well, but assume admin.
-      auth: { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+      auth: [
+        { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+        { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+      ],
       write: {
         method: "initializeSwap",
         args: [
