@@ -2975,7 +2975,7 @@ __metadata:
     ts-node: 10.9.1
     typechain: 8.1.1
     typescript: 4.9.5
-    zksync-web3: 0.15.5
+    zksync-ethers: 5.0.0
   languageName: unknown
   linkType: soft
 
@@ -15338,7 +15338,7 @@ __metadata:
     es6-iterator: ^2.0.3
     es6-symbol: ^3.1.3
     next-tick: ^1.1.0
-  checksum: 25f42f6068cfc6e393cf670bc5bba249132c5f5ec2dd0ed6e200e6274aca2fed8e9aec8a31c76031744c78ca283c57f0b41c7e737804c6328c7b8d3fbcba7983
+  checksum: 721bcd16406872c934c54dcfc870a18544ff88d0633a271aab15235d06148d6c0eff8b5230a8e21556692c555ac7d64fb94439fcdbd99690eaaec84c80a19ad0
   languageName: node
   linkType: hard
 
@@ -33329,23 +33329,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zksync-ethers@npm:5.0.0":
+  version: 5.0.0
+  resolution: "zksync-ethers@npm:5.0.0"
+  dependencies:
+    ethers: ~5.7.0
+  peerDependencies:
+    ethers: ~5.7.0
+  checksum: 085c613148dfc1979ca984b41c1a382b7b819942425b0409b06229415c1cff952e0e898b1ccb0432aa51ed1b6fd4c9a40a1195a1804f6ce9a5d32f4228324a15
+  languageName: node
+  linkType: hard
+
 "zksync-web3@npm:0.14.3":
   version: 0.14.3
   resolution: "zksync-web3@npm:0.14.3"
   peerDependencies:
     ethers: ^5.7.0
   checksum: e89760c13e01ec43433e1e38a473138948c6a8d3a825c0f0aa6328eb7d28c63037a5ee4c922c1fd7d9580d2bf2cbbf2c7911f5e4d872f856dc591850a7e6f260
-  languageName: node
-  linkType: hard
-
-"zksync-web3@npm:0.15.5":
-  version: 0.15.5
-  resolution: "zksync-web3@npm:0.15.5"
-  dependencies:
-    ethers: ~5.7.0
-  peerDependencies:
-    ethers: ~5.7.0
-  checksum: 7eed1d70b4e897371806e5add59989e3ce9c9de53d4217aace43ecc923ed737569694462b88ecce146b589a6b011e75d4e59a1bda5366acde1673b6f9c654816
   languageName: node
   linkType: hard
 

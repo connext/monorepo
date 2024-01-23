@@ -1,7 +1,7 @@
 import * as fs from "fs";
 
 import { providers, Wallet, utils, constants } from "ethers";
-import * as zk from "zksync-web3";
+import * as zk from "zksync-ethers";
 import commandLineArgs from "command-line-args";
 import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";

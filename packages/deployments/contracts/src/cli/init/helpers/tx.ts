@@ -1,4 +1,5 @@
 import { Contract, providers } from "ethers";
+import * as zk from "zksync-ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { Deployment } from "../../types";
@@ -10,7 +11,7 @@ const DEFAULT_CONFIRMATIONS = 1;
 
 type WaitForTxArguments = {
   deployment: Deployment;
-  tx: providers.TransactionResponse;
+  tx: providers.TransactionResponse | zk.types.TransactionResponse;
   name: string;
   checkResult?: {
     method: () => Promise<any>;
@@ -92,7 +93,9 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
     return await contract.callStatic[method](...args);
   };
 
-  const writeCall = async (chain: number): Promise<providers.TransactionResponse | undefined> => {
+  const writeCall = async (
+    chain: number,
+  ): Promise<providers.TransactionResponse | zk.types.TransactionResponse | undefined> => {
     const authed = auth ? auth.eval(await readCall(auth.method, auth.args)) : true;
     const tx = {
       to: contract.address,
@@ -152,6 +155,7 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
     if (!tx) {
       return;
     }
+
     const waitForTxParam: WaitForTxArguments = {
       deployment,
       tx,
