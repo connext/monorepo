@@ -40,9 +40,6 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     });
 
     // SDK configuration
-    const signer = ethers.Wallet.createRandom();
-    const signerAddress = await signer.getAddress();
-
     const configuredProviders: Record<string, providers.JsonRpcProvider> = {};
     const chains = context.config.chains;
     for (const key in chains) {
@@ -55,7 +52,6 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     const nxtpConfig: SdkConfig = {
       chains: chains,
       logLevel: context.config.logLevel,
-      signerAddress: signerAddress,
       network: context.config.network,
       environment: context.config.environment,
     };
@@ -83,18 +79,6 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
 
     server.get("/ping", async (_, reply) => {
       return reply.status(200).send("pong\n");
-    });
-
-    server.post<{
-      Params: { domainId: string };
-      Body: providers.TransactionRequest;
-    }>("/sendTransaction/:domainId", async (request, reply) => {
-      const feeData = await configuredProviders[request.params.domainId].getFeeData();
-      // request.body.gasLimit = ethers.BigNumber.from("20000");
-      request.body.gasPrice = feeData.gasPrice!;
-      const txRes = await signer.connect(configuredProviders[request.params.domainId]).sendTransaction(request.body);
-      const txRec = await txRes.wait();
-      reply.status(200).send(txRec);
     });
 
     server.register(baseRoutes, {
