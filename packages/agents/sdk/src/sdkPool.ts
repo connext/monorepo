@@ -212,6 +212,7 @@ export class SdkPool extends SdkShared {
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
    * @param checkFastLiquidity - (optional) Check for fast liquidity availability. False will assume fast liquidity is available.
+   * @param signerAddress - (optional) The signer address requesting this estimate.
    * @returns
    *    - amountReceived: Estimated amount received in the decimal precision of the final destination token.
    *    - originSlippage: Slippage for the origin swap (0 if no swap) in BPS. Negative values indicate positive slippage.
@@ -226,6 +227,7 @@ export class SdkPool extends SdkShared {
     amount: BigNumberish,
     receiveLocal = false,
     checkFastLiquidity = false,
+    signerAddress = this.config.signerAddress,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -240,6 +242,7 @@ export class SdkPool extends SdkShared {
       destinationDomain,
       _originTokenAddress,
       amount,
+      signerAddress,
     });
     const [originPool, [canonicalDomain, canonicalId]] = await Promise.all([
       this.getPool(originDomain, _originTokenAddress),
@@ -308,6 +311,7 @@ export class SdkPool extends SdkShared {
     let isFastPath = true;
     if (checkFastLiquidity) {
       const activeLiquidity = await this.getActiveLiquidity(destinationDomain, destinationAssetData.local);
+      this.logger.info("Active router liquidity", requestContext, methodContext, { signerAddress, activeLiquidity });
       if (activeLiquidity?.length > 0) {
         const total_balance: string = activeLiquidity[0].total_balance.toString();
         isFastPath = BigNumber.from(this.scientificToBigInt(total_balance)).mul(70).div(100).gt(originAmountReceived);
