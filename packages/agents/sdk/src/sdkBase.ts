@@ -680,6 +680,7 @@ export class SdkBase extends SdkShared {
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
    * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
+   * @param signerAddress - (optional) The signer address requesting this estimate.
    * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
@@ -689,6 +690,7 @@ export class SdkBase extends SdkShared {
     amount: BigNumberish,
     receiveLocal = false,
     checkFastLiquidity = false,
+    signerAddress = this.config.signerAddress,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -704,6 +706,7 @@ export class SdkBase extends SdkShared {
       amount,
       receiveLocal,
       checkFastLiquidity,
+      signerAddress,
     );
   }
 }
