@@ -594,6 +594,7 @@ export class SdkBase extends SdkShared {
    * @param params.originNativeTokenPrice - (optional) The USD price of the origin native token.
    * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
    * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
+   * @param params.signerAddress - (optional) The signer address requesting this estimate.
    * @returns The relayer fee in either native asset of the origin domain or USD (18 decimal fidelity).
    *
    * @example
