@@ -259,6 +259,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         // },
       },
     },
+    {
+      name: "sDAI",
+      canonical: {
+        domain: "11111",
+        address: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+        decimals: 18,
+      },
+      representations: {
+        /// Goerli
+        "1735353714": {
+          local: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+          adopted: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+        },
+        /// Mumbai
+        "9991": {
+          local: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+          adopted: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {

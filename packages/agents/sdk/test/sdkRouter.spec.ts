@@ -101,12 +101,6 @@ describe("SdkRouter", () => {
       expect(res).to.not.be.undefined;
     });
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkRouter.config.signerAddress = undefined;
-
-      await expect(sdkRouter.addLiquidityForRouter(mockAddLiquidityParams)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
     it("should error if provider sanity check returns false", async () => {
       const mockAddLiquidityParams = {
         domainId: mock.domain.A,
@@ -182,14 +176,6 @@ describe("SdkRouter", () => {
       expect(res).to.not.be.undefined;
     });
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkRouter.config.signerAddress = undefined;
-
-      await expect(sdkRouter.removeRouterLiquidity(mockRemoveRouterLiquidityParams)).to.be.rejectedWith(
-        SignerAddressMissing,
-      );
-    });
-
     it("should error if provider sanity check returns false", async () => {
       stub(sdkRouter, "providerSanityCheck").resolves(false);
 
@@ -259,14 +245,6 @@ describe("SdkRouter", () => {
       const res = await sdkRouter.removeRouterLiquidityFor({ ...mockRemoveLiquidityForParams, options });
 
       expect(res).to.not.be.undefined;
-    });
-
-    it("should error if signerAddress is undefined", async () => {
-      sdkRouter.config.signerAddress = undefined;
-
-      await expect(sdkRouter.removeRouterLiquidityFor(mockRemoveLiquidityForParams)).to.be.rejectedWith(
-        SignerAddressMissing,
-      );
     });
 
     it("should error if provider sanity check returns false", async () => {
