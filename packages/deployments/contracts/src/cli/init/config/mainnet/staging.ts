@@ -29,7 +29,6 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0x29240a275cddde26BbD6d80fA8ad315C35F91604",
-        cap: utils.parseUnits("10000000", 6).toString(),
         decimals: 18,
       },
       representations: {
