@@ -442,6 +442,7 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         asset,
         networks: protocol.networks,
         chainData,
+        useStaging,
       });
     }
   }

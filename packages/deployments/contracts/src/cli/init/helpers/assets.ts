@@ -12,8 +12,9 @@ export const setupAsset = async (args: {
   asset: AssetStack;
   networks: NetworkStack[];
   chainData: Map<string, ChainData>;
+  useStaging: boolean;
 }) => {
-  const { asset, networks, chainData, apply } = args;
+  const { asset, networks, chainData, apply, useStaging } = args;
 
   // Derive the global asset key using the (canonized) canonical address and the canonical domain.
   const canonical = {
@@ -52,7 +53,7 @@ export const setupAsset = async (args: {
   const tokenName = asset.name.startsWith(`next`) ? asset.name : `next${asset.name.toUpperCase()}`;
   const tokenSymbol = tokenName;
 
-  if (+home.chain === 1 && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
+  if (+home.chain === 1 && !useStaging && BigNumber.from(asset.canonical.cap ?? "0").isZero()) {
     throw new Error(`Must have nonzero cap on prod canonical domains`);
   }
 
