@@ -19,6 +19,7 @@ import "./tasks/addWatcher";
 import "./tasks/approveRouter";
 import "./tasks/addAdmin";
 import "./tasks/setupAsset";
+import "./tasks/setLiquidityCap";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";
 import "./tasks/setupTestRouter";
