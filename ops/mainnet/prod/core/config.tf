@@ -426,6 +426,24 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://mainnet.era.zksync.io"]
+      }
+      "1887071085" = {
+        providers = ["https://zkevm-rpc.com"]
+      }
+      "1650553709" = {
+        providers = ["https://base.publicnode.com"]
+      }
+      "1635148152" = {
+        providers = ["https://avalanche.public-rpc.com"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.public.blastapi.io]
+      }
+      "1835101812" = {
+        providers = ["https://rpc.mantle.xyz"]
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
