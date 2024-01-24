@@ -40,7 +40,7 @@
     "packages/examples/bridge-reference"
   ],
   "scripts": {
-    "lint:all": "yarn workspaces foreach --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration --exclude @connext/smart-contracts run lint",
+    "lint:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference --exclude @connext/nxtp-integration --exclude @connext/smart-contracts run lint",
     "test:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-relayer --exclude @connext/nxtp-subgraph --exclude @connext/nxtp-integration --exclude @connext/sdk run test",
     "clean:all": "yarn workspaces foreach --parallel --exclude @connext/nxtp-integration --exclude @connext/nxtp-subgraph run clean",
     "build:all": "yarn workspaces foreach --parallel -p --topological-dev --exclude @connext/nxtp-subgraph --exclude @connext/bridge-reference run build",
