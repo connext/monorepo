@@ -439,7 +439,7 @@ locals {
         providers = ["https://avalanche.public-rpc.com"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.public.blastapi.io]
+        providers = ["https://metis-mainnet.public.blastapi.io"]
       }
       "1835101812" = {
         providers = ["https://rpc.mantle.xyz"]
