@@ -5,6 +5,8 @@ import type * as arbitrum from "./arbitrum";
 export type { arbitrum };
 import type * as mantle from "./mantle";
 export type { mantle };
+import type * as metis from "./metis";
+export type { metis };
 import type * as optimism from "./optimism";
 export type { optimism };
 import type * as optimismV0 from "./optimism-v0";
