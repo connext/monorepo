@@ -245,7 +245,7 @@ export const sanitizeAndInit = async () => {
     );
   }
 
-  await initProtocol(sanitized, apply, name);
+  await initProtocol(sanitized, apply, name, useStaging);
 };
 
 /**
@@ -256,7 +256,7 @@ export const sanitizeAndInit = async () => {
  * requires configuration and/or setup has been done so properly.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stages: Stage[]) => {
+export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stages: Stage[], useStaging: boolean) => {
   /// ********************** SETUP **********************
   /// MARK - ChainData
   // Retrieve chain data for it to be saved locally; this will avoid those pesky logs and frontload the http request.
