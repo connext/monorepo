@@ -181,14 +181,16 @@ module "sdk_server_cache" {
 }
 
 module "sdk_server_auto_scaling" {
-  source           = "../../../modules/auto-scaling"
-  stage            = var.stage
-  environment      = var.environment
-  domain           = var.domain
-  ecs_service_name = module.sdk-server.service_name
-  ecs_cluster_name = module.ecs.ecs_cluster_name
-  min_capacity     = 2
-  max_capacity     = 10
+  source                     = "../../../modules/auto-scaling"
+  stage                      = var.stage
+  environment                = var.environment
+  domain                     = var.domain
+  ecs_service_name           = module.sdk-server.service_name
+  ecs_cluster_name           = module.ecs.ecs_cluster_name
+  avg_cpu_utilization_target = 40
+  avg_mem_utilization_target = 60
+  min_capacity               = 2
+  max_capacity               = 30
 }
 
 
