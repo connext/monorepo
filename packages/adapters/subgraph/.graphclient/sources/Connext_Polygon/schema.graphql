@@ -966,12 +966,6 @@ enum polygon_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
-"""
-8 bytes signed integer
-
-"""
-scalar polygon_Int8
-
 type polygon_OptimisticRootFinalized {
   id: ID!
   aggregateRoot: polygon_Bytes!

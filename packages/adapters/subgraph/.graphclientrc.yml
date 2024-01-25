@@ -1039,156 +1039,156 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
-  - name: StableSwap_Staging_Optimism
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-optimism
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingoptimism_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Polygon
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-polygon
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingpolygon_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_ArbitrumOne
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-arbitrum-one
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingarbitrumone_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Bnb
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-bnb
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingbnb_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Xdai
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-gnosis
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingxdai_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Linea
-    handler:
-      graphql:
-        endpoint: https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-staging-linea
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: staginglinea_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Base
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-base
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingbase_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_zkSync
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-zksync
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingzksync_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Polygon_zkEVM
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-poly-zk
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingpolygon_zkevm_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: StableSwap_Staging_Mantle
-    handler:
-      graphql:
-        endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-staging-mantle
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmantle_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: StableSwap_Staging_Optimism
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-optimism
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingoptimism_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Polygon
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-polygon
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingpolygon_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_ArbitrumOne
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-arbitrum-one
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingarbitrumone_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Bnb
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-bnb
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingbnb_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Xdai
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-gnosis
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingxdai_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Linea
+  #   handler:
+  #     graphql:
+  #       endpoint: https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-staging-linea
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: staginglinea_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Base
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-base
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingbase_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_zkSync
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-zksync
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingzksync_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Polygon_zkEVM
+  #   handler:
+  #     graphql:
+  #       endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-staging-poly-zk
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingpolygon_zkevm_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: StableSwap_Staging_Mantle
+  #   handler:
+  #     graphql:
+  #       endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-staging-mantle
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmantle_swap_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
   #####################################################
   # LOCAL

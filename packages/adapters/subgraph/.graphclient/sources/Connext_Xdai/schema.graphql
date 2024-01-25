@@ -966,6 +966,12 @@ enum xdai_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar xdai_Int8
+
 type xdai_OptimisticRootFinalized {
   id: ID!
   aggregateRoot: xdai_Bytes!
