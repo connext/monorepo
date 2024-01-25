@@ -19,7 +19,6 @@ export type Scalars = {
   mainnet_BigDecimal: any;
   BigInt: any;
   mainnet_Bytes: any;
-  mainnet_Int8: any;
 };
 
 export type mainnet_AggregateRootSavedSlow = {

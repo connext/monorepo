@@ -481,12 +481,6 @@ enum mainnet_HubOptimisticRootFinalized_orderBy {
   blockNumber
 }
 
-"""
-8 bytes signed integer
-
-"""
-scalar mainnet_Int8
-
 type mainnet_LineaConnectorMeta {
   id: ID!
   spokeDomain: BigInt!
