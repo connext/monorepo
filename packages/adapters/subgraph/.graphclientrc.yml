@@ -213,7 +213,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://www.okx.com/api/v1/x1-testnet/subgraph/name/connext/amarok-runtime-v1-x1-testnet"
+          - endpoint: "https://www.okx.com/api/v1/x1-testnet/index/subgraphs/name/connext/amarok-runtime-v3-x1-testnet/graphql"
             retry: 2
             timeout: 30000 # 30 seconds
           - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-x1-testnet
