@@ -31,6 +31,10 @@ input mainnet_AggregateRootSavedSlow_filter {
   id_not_in: [ID!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
@@ -59,6 +63,8 @@ input mainnet_AggregateRootSavedSlow_filter {
   rootTimestamp_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AggregateRootSavedSlow_filter]
+  or: [mainnet_AggregateRootSavedSlow_filter]
 }
 
 enum mainnet_AggregateRootSavedSlow_orderBy {
@@ -96,6 +102,10 @@ input mainnet_AggregatedMessageRoot_filter {
   index_not_in: [BigInt!]
   receivedRoot: mainnet_Bytes
   receivedRoot_not: mainnet_Bytes
+  receivedRoot_gt: mainnet_Bytes
+  receivedRoot_lt: mainnet_Bytes
+  receivedRoot_gte: mainnet_Bytes
+  receivedRoot_lte: mainnet_Bytes
   receivedRoot_in: [mainnet_Bytes!]
   receivedRoot_not_in: [mainnet_Bytes!]
   receivedRoot_contains: mainnet_Bytes
@@ -118,6 +128,8 @@ input mainnet_AggregatedMessageRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AggregatedMessageRoot_filter]
+  or: [mainnet_AggregatedMessageRoot_filter]
 }
 
 enum mainnet_AggregatedMessageRoot_orderBy {
@@ -164,24 +176,38 @@ input mainnet_ArbitrumConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_ArbitrumConnectorMeta_filter]
+  or: [mainnet_ArbitrumConnectorMeta_filter]
 }
 
 enum mainnet_ArbitrumConnectorMeta_orderBy {
@@ -243,24 +269,38 @@ input mainnet_BnbConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_BnbConnectorMeta_filter]
+  or: [mainnet_BnbConnectorMeta_filter]
 }
 
 enum mainnet_BnbConnectorMeta_orderBy {
@@ -310,24 +350,38 @@ input mainnet_GnosisConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_GnosisConnectorMeta_filter]
+  or: [mainnet_GnosisConnectorMeta_filter]
 }
 
 enum mainnet_GnosisConnectorMeta_orderBy {
@@ -363,6 +417,8 @@ input mainnet_HubDomain_filter {
   domain_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_HubDomain_filter]
+  or: [mainnet_HubDomain_filter]
 }
 
 enum mainnet_HubDomain_orderBy {
@@ -388,6 +444,10 @@ input mainnet_HubOptimisticRootFinalized_filter {
   id_not_in: [ID!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
@@ -410,6 +470,8 @@ input mainnet_HubOptimisticRootFinalized_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_HubOptimisticRootFinalized_filter]
+  or: [mainnet_HubOptimisticRootFinalized_filter]
 }
 
 enum mainnet_HubOptimisticRootFinalized_orderBy {
@@ -455,24 +517,38 @@ input mainnet_LineaConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_LineaConnectorMeta_filter]
+  or: [mainnet_LineaConnectorMeta_filter]
 }
 
 enum mainnet_LineaConnectorMeta_orderBy {
@@ -520,24 +596,38 @@ input mainnet_OptimismConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OptimismConnectorMeta_filter]
+  or: [mainnet_OptimismConnectorMeta_filter]
 }
 
 enum mainnet_OptimismConnectorMeta_orderBy {
@@ -568,12 +658,20 @@ input mainnet_OptimisticRootPropagated_filter {
   id_not_in: [ID!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
   aggregateRoot_not_contains: mainnet_Bytes
   domainsHash: mainnet_Bytes
   domainsHash_not: mainnet_Bytes
+  domainsHash_gt: mainnet_Bytes
+  domainsHash_lt: mainnet_Bytes
+  domainsHash_gte: mainnet_Bytes
+  domainsHash_lte: mainnet_Bytes
   domainsHash_in: [mainnet_Bytes!]
   domainsHash_not_in: [mainnet_Bytes!]
   domainsHash_contains: mainnet_Bytes
@@ -596,6 +694,8 @@ input mainnet_OptimisticRootPropagated_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OptimisticRootPropagated_filter]
+  or: [mainnet_OptimisticRootPropagated_filter]
 }
 
 enum mainnet_OptimisticRootPropagated_orderBy {
@@ -636,6 +736,10 @@ input mainnet_OptimisticRootProposed_filter {
   disputeCliff_not_in: [BigInt!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
@@ -654,6 +758,10 @@ input mainnet_OptimisticRootProposed_filter {
   domains_not_contains_nocase: [BigInt!]
   baseAggregateRoot: mainnet_Bytes
   baseAggregateRoot_not: mainnet_Bytes
+  baseAggregateRoot_gt: mainnet_Bytes
+  baseAggregateRoot_lt: mainnet_Bytes
+  baseAggregateRoot_gte: mainnet_Bytes
+  baseAggregateRoot_lte: mainnet_Bytes
   baseAggregateRoot_in: [mainnet_Bytes!]
   baseAggregateRoot_not_in: [mainnet_Bytes!]
   baseAggregateRoot_contains: mainnet_Bytes
@@ -676,6 +784,8 @@ input mainnet_OptimisticRootProposed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OptimisticRootProposed_filter]
+  or: [mainnet_OptimisticRootProposed_filter]
 }
 
 enum mainnet_OptimisticRootProposed_orderBy {
@@ -731,24 +841,38 @@ input mainnet_PolygonConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_PolygonConnectorMeta_filter]
+  or: [mainnet_PolygonConnectorMeta_filter]
 }
 
 enum mainnet_PolygonConnectorMeta_orderBy {
@@ -1259,6 +1383,10 @@ input mainnet_RootAggregated_filter {
   domain_not_in: [BigInt!]
   receivedRoot: mainnet_Bytes
   receivedRoot_not: mainnet_Bytes
+  receivedRoot_gt: mainnet_Bytes
+  receivedRoot_lt: mainnet_Bytes
+  receivedRoot_gte: mainnet_Bytes
+  receivedRoot_lte: mainnet_Bytes
   receivedRoot_in: [mainnet_Bytes!]
   receivedRoot_not_in: [mainnet_Bytes!]
   receivedRoot_contains: mainnet_Bytes
@@ -1273,6 +1401,8 @@ input mainnet_RootAggregated_filter {
   index_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootAggregated_filter]
+  or: [mainnet_RootAggregated_filter]
 }
 
 enum mainnet_RootAggregated_orderBy {
@@ -1311,6 +1441,8 @@ input mainnet_RootManagerMeta_filter {
   connectors_not_contains_nocase: [mainnet_Bytes!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootManagerMeta_filter]
+  or: [mainnet_RootManagerMeta_filter]
 }
 
 enum mainnet_RootManagerMeta_orderBy {
@@ -1355,6 +1487,8 @@ input mainnet_RootManagerMode_filter {
   mode_not_ends_with_nocase: String
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootManagerMode_filter]
+  or: [mainnet_RootManagerMode_filter]
 }
 
 enum mainnet_RootManagerMode_orderBy {
@@ -1402,18 +1536,30 @@ input mainnet_RootMessageProcessed_filter {
   hubDomain_not_in: [BigInt!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
+  root_gt: mainnet_Bytes
+  root_lt: mainnet_Bytes
+  root_gte: mainnet_Bytes
+  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
   root_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -1452,6 +1598,8 @@ input mainnet_RootMessageProcessed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootMessageProcessed_filter]
+  or: [mainnet_RootMessageProcessed_filter]
 }
 
 enum mainnet_RootMessageProcessed_orderBy {
@@ -1486,12 +1634,20 @@ input mainnet_RootPropagated_filter {
   id_not_in: [ID!]
   aggregate: mainnet_Bytes
   aggregate_not: mainnet_Bytes
+  aggregate_gt: mainnet_Bytes
+  aggregate_lt: mainnet_Bytes
+  aggregate_gte: mainnet_Bytes
+  aggregate_lte: mainnet_Bytes
   aggregate_in: [mainnet_Bytes!]
   aggregate_not_in: [mainnet_Bytes!]
   aggregate_contains: mainnet_Bytes
   aggregate_not_contains: mainnet_Bytes
   domainsHash: mainnet_Bytes
   domainsHash_not: mainnet_Bytes
+  domainsHash_gt: mainnet_Bytes
+  domainsHash_lt: mainnet_Bytes
+  domainsHash_gte: mainnet_Bytes
+  domainsHash_lte: mainnet_Bytes
   domainsHash_in: [mainnet_Bytes!]
   domainsHash_not_in: [mainnet_Bytes!]
   domainsHash_contains: mainnet_Bytes
@@ -1514,6 +1670,8 @@ input mainnet_RootPropagated_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootPropagated_filter]
+  or: [mainnet_RootPropagated_filter]
 }
 
 enum mainnet_RootPropagated_orderBy {
@@ -2033,24 +2191,38 @@ input mainnet_ZkSyncConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_ZkSyncConnectorMeta_filter]
+  or: [mainnet_ZkSyncConnectorMeta_filter]
 }
 
 enum mainnet_ZkSyncConnectorMeta_orderBy {
