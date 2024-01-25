@@ -916,7 +916,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FyYv48LNGAH2Th2ti4Qvg8RzjZFENWUkETRPKsRQXpWP"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/2xYBBuGeEkALo5GUvyZzV6jR2MQQbTcgDVBxpLjVjEDG"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
