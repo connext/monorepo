@@ -279,6 +279,31 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "GovernTest",
+      canonical: {
+        domain: "11111",
+        address: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        decimals: 18,
+      },
+      representations: {
+        /// Goerli
+        "1735353714": {
+          local: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+          adopted: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        },
+        /// Mumbai
+        "9991": {
+          local: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+          adopted: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        },
+        /// Linea
+        "1668247156": {
+          local: "0xB91471be67c8F2Ada2Cd36cA5EB439B017B80a37",
+          adopted: "0xB91471be67c8F2Ada2Cd36cA5EB439B017B80a37",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
