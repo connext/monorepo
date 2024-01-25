@@ -147,6 +147,11 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "6450786": "Bnb",
   "1818848877": "Linea",
   "1650553709": "Base",
+  "1887071085": "PolygonZk",
+  "2053862243": "ZkSync",
+  "1635148152": "Avalanche",
+  "1835101812": "Mantle",
+  "1835365481": "Metis",
 };
 
 /**
