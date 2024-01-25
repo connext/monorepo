@@ -19,7 +19,6 @@ export type Scalars = {
   arbitrumone_BigDecimal: any;
   BigInt: any;
   arbitrumone_Bytes: any;
-  arbitrumone_Int8: any;
 };
 
 export type arbitrumone_AggregateRoot = {
