@@ -966,6 +966,12 @@ enum arbitrumone_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar arbitrumone_Int8
+
 type arbitrumone_OptimisticRootFinalized {
   id: ID!
   aggregateRoot: arbitrumone_Bytes!

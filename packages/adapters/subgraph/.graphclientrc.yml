@@ -928,7 +928,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Staging_zkEVM
+  - name: Connext_Staging_Polygon_zkEVM
     handler:
       graphql:
         strategy: highestValue
