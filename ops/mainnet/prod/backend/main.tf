@@ -190,7 +190,7 @@ module "sdk_server_auto_scaling" {
   avg_cpu_utilization_target = 40
   avg_mem_utilization_target = 60
   min_capacity               = 2
-  max_capacity               = 30
+  max_capacity               = 50
 }
 
 
