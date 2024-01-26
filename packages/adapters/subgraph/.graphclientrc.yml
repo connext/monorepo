@@ -928,7 +928,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Staging_Polygon_zkEVM
+  - name: Connext_Staging_PolygonZkEVM
     handler:
       graphql:
         strategy: highestValue
@@ -948,7 +948,7 @@ sources:
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: stagingpolygon_zkevm_
+          value: stagingpolygonzkevm_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
