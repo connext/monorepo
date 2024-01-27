@@ -1,5 +1,6 @@
 import {
   CrossChainMessage,
+  CrossChainMessenger,
   CrossChainMessageProof,
   MessageDirection,
   MessageLike,
@@ -18,10 +19,9 @@ import { TransactionReceipt } from "@ethersproject/abstract-provider";
 import * as rlp from "rlp";
 
 import { L1CrossDomainMessengerAbi, L2CrossDomainMessengerAbi, StateCommitmentChainAbi } from "./abi";
-import { OptimismCrossChainMessenger } from "../../../../../agents/lighthouse/src/mockable";
 
 export const getMessagesByTransaction = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transaction: TransactionLike,
   opts: {
     direction?: MessageDirection;
@@ -106,7 +106,7 @@ export const getMessagesByTransaction = async (
 };
 
 export const getMessageStateRoot = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<StateRoot | null> => {
   const resolved = await toCrossChainMessage(crossChainMessenger, message);
@@ -159,7 +159,7 @@ export const getMessageStateRoot = async (
  * @returns Proof that can be used to finalize the message.
  */
 export const getMessageProof = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<CrossChainMessageProof> => {
   const resolved = await toCrossChainMessage(crossChainMessenger, message);
@@ -213,7 +213,7 @@ export const getMessageProof = async (
  * @returns State root batch for the given transaction index, or null if none exists yet.
  */
 export const getStateRootBatchByTransactionIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transactionIndex: number,
 ): Promise<StateRootBatch | null> => {
   const stateBatchAppendedEvent = await getStateBatchAppendedEventByTransactionIndex(
@@ -254,7 +254,7 @@ export const getStateRootBatchByTransactionIndex = async (
  * @returns StateBatchAppended event for the batch that includes the given transaction by index.
  */
 export const getStateBatchAppendedEventByTransactionIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transactionIndex: number,
 ): Promise<ethers.Event | null> => {
   const isEventHi = (event: ethers.Event, index: number) => {
@@ -327,7 +327,7 @@ export const getStateBatchAppendedEventByTransactionIndex = async (
  * @returns StateBatchAppended event for the batch, or null if no such batch exists.
  */
 export const getStateBatchAppendedEventByBatchIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   batchIndex: number,
 ): Promise<ethers.Event | null> => {
   const stateCommitment = new Contract(
@@ -348,7 +348,7 @@ export const getStateBatchAppendedEventByBatchIndex = async (
 };
 
 export const toCrossChainMessage = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<CrossChainMessage> => {
   if (!message) {
