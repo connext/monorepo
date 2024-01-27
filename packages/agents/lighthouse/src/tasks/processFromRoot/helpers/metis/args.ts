@@ -5,8 +5,8 @@ import { BigNumber, providers } from "ethers";
 import { OptimismCrossChainMessenger } from "../../../../mockable";
 import { NoRootAvailable } from "../../errors";
 import { getContext } from "../../processFromRoot";
-
 import { GetProcessArgsParams } from "..";
+
 import { getMessageProof, getMessageStateRoot, getMessagesByTransaction } from "./utils";
 
 /**

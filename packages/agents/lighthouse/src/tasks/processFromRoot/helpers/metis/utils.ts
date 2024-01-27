@@ -14,10 +14,10 @@ import {
 import { remove0x, toHexString, encodeCrossDomainMessageV0 } from "@eth-optimism/core-utils";
 import { Contract, ethers } from "ethers";
 import { TransactionReceipt } from "@ethersproject/abstract-provider";
-
 import * as rlp from "rlp";
 
 import { OptimismCrossChainMessenger } from "../../../../mockable";
+
 import { L1CrossDomainMessengerAbi, L2CrossDomainMessengerAbi, StateCommitmentChainAbi } from "./abis";
 
 export const getMessagesByTransaction = async (
