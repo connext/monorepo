@@ -221,15 +221,16 @@ export const getStateRootBatchByTransactionIndex = async (
   }
 
   const stateBatchTransaction = await stateBatchAppendedEvent.getTransaction();
-  const [stateRoots] = new Contract(
+  const method = stateBatchTransaction.data.startsWith("0xd710083f") ? "appendStateBatchByChainId" : "appendStateBatch";
+  const decoded = new Contract(
     crossChainMessenger.contracts.l1.StateCommitmentChain.address,
     StateCommitmentChainAbi,
     crossChainMessenger.l1Provider,
-  ).interface.decodeFunctionData("appendStateBatch", stateBatchTransaction.data);
+  ).interface.decodeFunctionData(method, stateBatchTransaction.data);
 
   return {
     blockNumber: stateBatchAppendedEvent.blockNumber,
-    stateRoots,
+    stateRoots: decoded[method === "appendStateBatchByChainId" ? 1 : 0],
     header: {
       batchIndex: stateBatchAppendedEvent.args!._batchIndex,
       batchRoot: stateBatchAppendedEvent.args!._batchRoot,
