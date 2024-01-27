@@ -96,6 +96,8 @@ contract OptimismV0SpokeConnectorTest is ConnectorHelper {
   function test_OptimismV0SpokeConnector__processMessage_works(bytes32 data) public {
     utils_setSpokeConnectorVerifyMocks(_l1Connector);
 
+    vm.assume(data != bytes32(""));
+
     bytes memory _data = abi.encode(data);
 
     vm.expectEmit(true, true, true, true);

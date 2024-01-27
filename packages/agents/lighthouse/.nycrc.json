@@ -21,6 +21,8 @@
     "src/tasks/prover/prover.ts",
     "src/tasks/processFromRoot/helpers/index.ts",
     "src/tasks/processFromRoot/helpers/gnosis/args.ts",
+    "src/tasks/processFromRoot/helpers/metis/utils.ts",
+    "src/tasks/processFromRoot/helpers/metis/args.ts",
     "src/tasks/processFromRoot/operations/index.ts",
     "src/tasks/processFromRoot/context.ts",
     "src/tasks/processFromRoot/index.ts",
