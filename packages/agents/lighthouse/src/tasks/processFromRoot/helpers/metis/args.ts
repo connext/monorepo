@@ -51,6 +51,7 @@ export const getProcessFromMetisRootArgs = async ({
       },
       l2: DEFAULT_L2_CONTRACT_ADDRESSES,
     },
+    bedrock: false,
   });
 
   // check to make sure you can prove
@@ -58,7 +59,6 @@ export const getProcessFromMetisRootArgs = async ({
   if (!root) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext);
   }
-  console.log(root);
 
   // get the message to get the message nonce
   const [message] = await getMessagesByTransaction(messenger, sendHash);
