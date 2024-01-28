@@ -1,6 +1,7 @@
 import {
   CrossChainMessage,
   CrossChainMessageProof,
+  CrossChainMessenger,
   MessageDirection,
   MessageLike,
   StateRoot,
@@ -11,17 +12,15 @@ import {
   makeStateTrieProof,
   toTransactionHash,
 } from "@eth-optimism/sdk";
+import { TransactionReceipt } from "@ethersproject/abstract-provider";
 import { remove0x, toHexString, encodeCrossDomainMessageV0 } from "@eth-optimism/core-utils";
 import { Contract, ethers } from "ethers";
-import { TransactionReceipt } from "@ethersproject/abstract-provider";
-
 import * as rlp from "rlp";
 
 import { L1CrossDomainMessengerAbi, L2CrossDomainMessengerAbi, StateCommitmentChainAbi } from "./abi";
-import { OptimismCrossChainMessenger } from "../../../../../agents/lighthouse/src/mockable";
 
 export const getMessagesByTransaction = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transaction: TransactionLike,
   opts: {
     direction?: MessageDirection;
@@ -106,7 +105,7 @@ export const getMessagesByTransaction = async (
 };
 
 export const getMessageStateRoot = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<StateRoot | null> => {
   const resolved = await toCrossChainMessage(crossChainMessenger, message);
@@ -159,7 +158,7 @@ export const getMessageStateRoot = async (
  * @returns Proof that can be used to finalize the message.
  */
 export const getMessageProof = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<CrossChainMessageProof> => {
   const resolved = await toCrossChainMessage(crossChainMessenger, message);
@@ -213,7 +212,7 @@ export const getMessageProof = async (
  * @returns State root batch for the given transaction index, or null if none exists yet.
  */
 export const getStateRootBatchByTransactionIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transactionIndex: number,
 ): Promise<StateRootBatch | null> => {
   const stateBatchAppendedEvent = await getStateBatchAppendedEventByTransactionIndex(
@@ -225,7 +224,7 @@ export const getStateRootBatchByTransactionIndex = async (
   }
 
   const stateBatchTransaction = await stateBatchAppendedEvent.getTransaction();
-  // console.log("found state batch appended transaction, decoding:", stateBatchTransaction.hash);
+  console.log("found state batch appended transaction, decoding:", stateBatchTransaction.hash);
   const method = stateBatchTransaction.data.startsWith("0xd710083f") ? "appendStateBatchByChainId" : "appendStateBatch";
   const decoded = new Contract(
     crossChainMessenger.contracts.l1.StateCommitmentChain.address,
@@ -254,7 +253,7 @@ export const getStateRootBatchByTransactionIndex = async (
  * @returns StateBatchAppended event for the batch that includes the given transaction by index.
  */
 export const getStateBatchAppendedEventByTransactionIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   transactionIndex: number,
 ): Promise<ethers.Event | null> => {
   const isEventHi = (event: ethers.Event, index: number) => {
@@ -278,7 +277,7 @@ export const getStateBatchAppendedEventByTransactionIndex = async (
 
   let lowerBound = 0;
   let upperBound = totalBatches.toNumber() - 1;
-  // console.log("searching for batch event in range", lowerBound, "-", upperBound);
+  console.log("searching for batch event in range", lowerBound, "-", upperBound);
   let batchEvent: ethers.Event | null = await getStateBatchAppendedEventByBatchIndex(crossChainMessenger, upperBound);
 
   // Only happens when no batches have been submitted yet.
@@ -286,10 +285,11 @@ export const getStateBatchAppendedEventByTransactionIndex = async (
     // console.log("No batches have been submitted yet");
     return null;
   }
-  // console.log("found initial batch event:", batchEvent?.transactionHash);
-  // console.log("- batch size", batchEvent?.args?._batchSize.toNumber() ?? 0);
-  // console.log("- prev total elements", batchEvent?.args?._prevTotalElements.toNumber() ?? 0);
-  // console.log("- batch index", batchEvent?.args?._batchIndex.toNumber() ?? 0);
+  console.log("found initial batch event:", batchEvent?.transactionHash);
+  console.log("- batch size", batchEvent?.args?._batchSize.toNumber() ?? 0);
+  console.log("- prev total elements", batchEvent?.args?._prevTotalElements.toNumber() ?? 0);
+  console.log("- batch index", batchEvent?.args?._batchIndex.toNumber() ?? 0);
+  console.log("- transaction index", transactionIndex);
 
   if (isEventLo(batchEvent, transactionIndex)) {
     // Upper bound is too low, means this transaction doesn't have a corresponding state batch yet.
@@ -327,7 +327,7 @@ export const getStateBatchAppendedEventByTransactionIndex = async (
  * @returns StateBatchAppended event for the batch, or null if no such batch exists.
  */
 export const getStateBatchAppendedEventByBatchIndex = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   batchIndex: number,
 ): Promise<ethers.Event | null> => {
   const stateCommitment = new Contract(
@@ -348,7 +348,7 @@ export const getStateBatchAppendedEventByBatchIndex = async (
 };
 
 export const toCrossChainMessage = async (
-  crossChainMessenger: InstanceType<typeof OptimismCrossChainMessenger>,
+  crossChainMessenger: InstanceType<typeof CrossChainMessenger>,
   message: MessageLike,
 ): Promise<CrossChainMessage> => {
   if (!message) {
