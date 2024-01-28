@@ -26,6 +26,7 @@
   "dependencies": {
     "@connext/nxtp-txservice": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
+    "@connext/smart-contracts": "workspace:*",
     "@pagerduty/pdjs": "2.2.4",
     "ethers": "5.7.2",
     "interval-promise": "1.4.0",
