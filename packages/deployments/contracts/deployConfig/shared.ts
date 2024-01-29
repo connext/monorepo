@@ -17,6 +17,8 @@ export const SPOKE_PREFIX = "Spoke";
 const DEFAULT_PROCESS_GAS = BigNumber.from("850000");
 const DEFAULT_RESERVE_GAS = BigNumber.from("15000");
 
+const ZKSYNC_DEFAULT_PROCESS_GAS = BigNumber.from("20000000000000000");
+
 // mapping of chainId => rough blocks per minute
 const BLOCKS_PER_MINUTE: Record<number, number> = {
   // mainnets
@@ -705,7 +707,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[324] / 2,
         custom: {
           hub: {
-            gasCap: DEFAULT_PROCESS_GAS,
+            gasCap: ZKSYNC_DEFAULT_PROCESS_GAS,
           },
         },
       },

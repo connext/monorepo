@@ -83,7 +83,8 @@ export const getPropagateParams = async (
   const l1Provider = getJsonRpcProvider(l1RpcUrl);
   const l2Provider = getZkSyncWeb3Provider(l2RpcUrl);
 
-  const gasPrice = await l1Provider.getGasPrice();
+  const _gasPrice = await l1Provider.getGasPrice();
+  const gasPrice = _gasPrice.mul(14).div(10);
   const gasLimit = BigNumber.from(5000000);
   const gasPerPubdataByte = BigNumber.from(800);
 
