@@ -14,8 +14,9 @@ import {
   Outbox__factory as _Outbox__factory,
 } from "@connext/smart-contracts";
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
-import { getProcessFromMetisRootArgs as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/args";
 import * as zk from "zksync-web3";
+
+import { getProcessFromMetisRootArgs as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/args";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
