@@ -324,7 +324,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(
     async ({ env: _env, tx: sendHash, spoke: _spoke, networkType: _networkType }: TaskArgs, { deployments }) => {
-      const deployer = Wallet.fromMnemonic(process.env.MNEMONIC!);
+      const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC!);
 
       const env = mustGetEnv(_env);
       const spoke = +_spoke;
