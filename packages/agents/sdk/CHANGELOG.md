@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## v2.2.2-alpha.7
+
+- Added ability to extend utils domainId to chainId mapping using chainData
+
+## v2.2.2-alpha.6
+
+- Added testnet adapters and registries for Goerli, Op-Goerli, and Mumbai
+
 ## v2.2.2-alpha.1
 
 - X1 testnet support with `smart-contracts` deployments
