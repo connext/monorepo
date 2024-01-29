@@ -88,7 +88,7 @@ export default task("claim-polygonzk", "Claim messages on both of L1 and L2")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(async ({ spoke: _spoke, networkType: _networkType, env: _env }: TaskArgs) => {
-    const deployer = Wallet.fromMnemonic(process.env.MNEMONIC ?? process.env.MAINNET_MNEMONIC);
+    const deployer = Wallet.fromMnemonic(process.env.MNEMONIC ?? process.env.MAINNET_MNEMONIC!);
 
     const env = mustGetEnv(_env);
     const spoke = +_spoke;
