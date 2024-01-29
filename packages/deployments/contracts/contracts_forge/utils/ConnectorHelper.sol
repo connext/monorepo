@@ -22,6 +22,10 @@ contract ConnectorHelper is ForgeHelper {
 
   // ============ Storage ============
 
+  // The root length in bytes for a message
+  uint256 public constant ROOT_LENGTH = 32;
+  uint256 public constant DELAY_BLOCKS = 0;
+
   uint32 _l1Domain = 1000;
   uint32 _l2Domain = 2000;
 
@@ -39,4 +43,16 @@ contract ConnectorHelper is ForgeHelper {
 
   uint256 _minDisputeBlocks = 125;
   uint256 _disputeBlocks = 150;
+
+  /**
+   * @notice Combines mockCall and expectCall into one function
+   *
+   * @param _receiver   The receiver of the calls
+   * @param _calldata   The encoded selector and the parameters of the call
+   * @param _returned   The encoded data that the call should return
+   */
+  function _mockAndExpect(address _receiver, bytes memory _calldata, bytes memory _returned) internal {
+    vm.mockCall(_receiver, _calldata, _returned);
+    vm.expectCall(_receiver, _calldata);
+  }
 }

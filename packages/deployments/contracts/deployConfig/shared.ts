@@ -28,6 +28,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   42161: 30, // arbitrum one
   59144: 30, // linea
   8453: 30, // base
+  534352: 15, // scroll
 
   // testnets
   5: 4, // goerli
@@ -36,6 +37,12 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   59140: 30, // linea-goerli
   84531: 30, // base-goerli
   195: 60, // x1-testnet
+  11155111: 4, // sepolia
+  17000: 5, // holesky
+  534351: 14, // scroll sepolia l2
+  167007: 18, // taiko joinr l2
+  167008: 2, // taiko katla l2
+  44444444: 0, // Fuel L2 (no data yet)
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -324,8 +331,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
       },
-      // // FIXME: wormhole relayer deployment not listed in docs for goerli
-      // // address used is core bridge; different from mainnet so this testnet is skipped
+      // FIXME: wormhole relayer deployment not listed in docs for goerli
+      // address used is core bridge; different from mainnet so this testnet is skipped
       // 97: {
       //   prefix: "Wormhole",
       //   networkName: "Chapel",
@@ -335,9 +342,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     // Wormhole Relayer on BNB Chapel Chain
       //     spoke: "0x80aC94316391752A193C1c47E27D382b507c93F3",
       //   },
-      //   delayBlocks: DEFAULT_DELAY_BLOCKS,
-      // disputeBlocks: DEFAULT_DISPUTE_BLOCKS,
-      // minDisputeBlocks: DEFAULT_DISPUTE_BLOCKS / 2,
+      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
       //   processGas: DEFAULT_PROCESS_GAS,
       //   reserveGas: DEFAULT_RESERVE_GAS,
       //   custom: {
@@ -387,6 +392,125 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[5],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5] / 2,
+      },
+    },
+  },
+  testnetSepolia: {
+    hub: {
+      chain: 11155111,
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111], // for root manager
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111] / 2, // for root manager
+    }, // Sepolia hub.
+    configs: {
+      // Scroll testnet Ethereum-sepolia (they don't supports 2 testnets, only sepolia with ethereum)
+      534351: {
+        prefix: "Scroll",
+        networkName: "Sepolia",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://sepolia.etherscan.io/address/0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A
+          hub: "0x50c7d3e7f7c656493D1D76aaa1a836CedfCBB16A",
+          // L2ScrollMessenger
+          // https://sepolia.scrollscan.com/address/0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d
+          spoke: "0xBa50f5340FB9F3Bd074bD638c9BE13eCB36E603d",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534351],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534351],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534351] / 2,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Taiko testnet Sepolia-Taiko Joinr L2
+      167007: {
+        prefix: "Taiko",
+        networkName: "Joinr",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          // Sepolia Bridge
+          // https://sepolia.etherscan.io/address/0x5293Bb897db0B64FFd11E0194984E8c5F1f06178
+          hub: "0x5293Bb897db0B64FFd11E0194984E8c5F1f06178",
+          // Taiko Joinr Bridge
+          // https://explorer.jolnir.taiko.xyz/address/0x1000777700000000000000000000000000000004
+          spoke: "0x1000777700000000000000000000000000000004",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167007],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167007],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167007] / 2,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Fuel Testnet Sepolia-Fuel
+      // Fuel doesn't have chain id yet
+      44444444: {
+        prefix: "Fuel",
+        networkName: "Fuel",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          // https://sepolia.etherscan.io/address/0x03f2901Db5723639978deBed3aBA66d4EA03aF73
+          hub: "0x03f2901Db5723639978deBed3aBA66d4EA03aF73",
+          // https://fuellabs.github.io/block-explorer-v2/beta-4/#/address/0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b
+          spoke: "0x7369bdd627a10119d394d7bfd15d0c974609b5c269d4a5cb0fe8f19c5ed3140b",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[44444444] / 2,
+        custom: {},
+      },
+    },
+  },
+  testnetHolesky: {
+    hub: {
+      chain: 17000,
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[17000], // for root manager
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[17000] / 2, // for root manager
+    }, // Holesky hub
+    configs: {
+      // Taiko testnet Holesky-Taiko Katla
+      // They have recently deployed on Holesky and Katla, but they didn't verify the contracts.
+      // Due to this, we recommend using the addresses from the previous deployment on Sepolia-TaikoJoinr until they're verified.
+      167008: {
+        prefix: "Taiko",
+        networkName: "Katla",
+        // The AMB argument must be the allowed off chain agent address.
+        ambs: {
+          // Holesky Bridge
+          // https://holesky.etherscan.io/address/0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1
+          hub: "0xf458747c6d6db57970dE80Da6474C0A3dfE94BF1",
+          // Katla Bridge
+          // https://explorer.katla.taiko.xyz/address/0x1670080000000000000000000000000000000001
+          spoke: "0x1670080000000000000000000000000000000001",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[167008] / 2,
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
     },
   },
@@ -545,6 +669,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59144] / 2,
+      },
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // Scroll L2ScrollMessenger
+          // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
       },
     },
   },
