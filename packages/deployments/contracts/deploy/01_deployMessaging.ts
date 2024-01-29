@@ -242,6 +242,7 @@ const handleDeploySpoke = async (
       !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
+    console.error("Unsupported connector name!");
     return;
   }
 
