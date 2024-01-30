@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.3.0-alpha.0
+
+- Mainnet support for: Avalanche, Base, Mantle, Metis, Polygon zkEVM, X1, zkSync
+
 ## v2.2.2-alpha.1
 
 - X1 testnet support with `smart-contracts` deployments
