@@ -193,7 +193,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
         args: ["Test Wrapped Ether", "TWETH"],
       });
 
-      console.log("TestERC20: ", deployment.address);
+      console.log("TestWETH: ", deployment.address);
     }
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
