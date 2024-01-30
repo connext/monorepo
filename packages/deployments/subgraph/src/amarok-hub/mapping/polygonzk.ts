@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
-import { NewConnector, MessageProcessed } from "../../../generated/BaseHubConnector/BaseHubConnector";
-import { BaseConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
+import { NewConnector, MessageProcessed } from "../../../generated/PolygonZkHubConnector/PolygonZkHubConnector";
+import { PolygonZkConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
 
-const DEFAULT_BASE_HUB_CONNECTOR_META_ID = "BASE_HUB_CONNECTOR_META_ID";
+const DEFAULT_POLYGONZK_HUB_CONNECTOR_META_ID = "POLYGONZK_HUB_CONNECTOR_META_ID";
 
 /// MARK - BNB
-export function handleBaseNewConnector(event: NewConnector): void {
-  let meta = BaseConnectorMeta.load(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+export function handlePolygonZkNewConnector(event: NewConnector): void {
+  let meta = PolygonZkConnectorMeta.load(DEFAULT_POLYGONZK_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new BaseConnectorMeta(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+    meta = new PolygonZkConnectorMeta(DEFAULT_POLYGONZK_HUB_CONNECTOR_META_ID);
   }
 
   meta.spokeDomain = event.params.mirrorDomain;
@@ -21,10 +21,10 @@ export function handleBaseNewConnector(event: NewConnector): void {
   meta.save();
 }
 
-export function handleBaseMessageProcessed(event: MessageProcessed): void {
-  let meta = BaseConnectorMeta.load(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+export function handlePolygonZkMessageProcessed(event: MessageProcessed): void {
+  let meta = PolygonZkConnectorMeta.load(DEFAULT_POLYGONZK_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new BaseConnectorMeta(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+    meta = new PolygonZkConnectorMeta(DEFAULT_POLYGONZK_HUB_CONNECTOR_META_ID);
   }
   let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   if (message == null) {

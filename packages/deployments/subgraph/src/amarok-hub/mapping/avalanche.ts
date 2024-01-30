@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
-import { NewConnector, MessageProcessed } from "../../../generated/BaseHubConnector/BaseHubConnector";
-import { BaseConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
+import { NewConnector, MessageProcessed } from "../../../generated/AvalancheHubConnector/AvalancheHubConnector";
+import { AvalancheConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
 
-const DEFAULT_BASE_HUB_CONNECTOR_META_ID = "BASE_HUB_CONNECTOR_META_ID";
+const DEFAULT_AVALANCHE_HUB_CONNECTOR_META_ID = "AVALANCHE_HUB_CONNECTOR_META_ID";
 
 /// MARK - BNB
-export function handleBaseNewConnector(event: NewConnector): void {
-  let meta = BaseConnectorMeta.load(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+export function handleAvalancheNewConnector(event: NewConnector): void {
+  let meta = AvalancheConnectorMeta.load(DEFAULT_AVALANCHE_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new BaseConnectorMeta(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+    meta = new AvalancheConnectorMeta(DEFAULT_AVALANCHE_HUB_CONNECTOR_META_ID);
   }
 
   meta.spokeDomain = event.params.mirrorDomain;
@@ -21,10 +21,10 @@ export function handleBaseNewConnector(event: NewConnector): void {
   meta.save();
 }
 
-export function handleBaseMessageProcessed(event: MessageProcessed): void {
-  let meta = BaseConnectorMeta.load(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+export function handleAvalancheMessageProcessed(event: MessageProcessed): void {
+  let meta = AvalancheConnectorMeta.load(DEFAULT_AVALANCHE_HUB_CONNECTOR_META_ID);
   if (meta == null) {
-    meta = new BaseConnectorMeta(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
+    meta = new AvalancheConnectorMeta(DEFAULT_AVALANCHE_HUB_CONNECTOR_META_ID);
   }
   let message = RootMessageProcessed.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   if (message == null) {
