@@ -4,7 +4,7 @@
 
 ## v2.3.0-alpha.0
 
-- Mainnet support for: Avalanche, Base, Mantle, Metis, Polygon zkEVM, X1, zkSync
+- Mainnet support for: Avalanche, Base, Mantle, Metis, Polygon zkEVM, zkSync
 
 ## v2.2.2-alpha.1
 
