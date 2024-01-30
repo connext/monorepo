@@ -1,4 +1,5 @@
 import { Contract, providers } from "ethers";
+import * as zk from "zksync-ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
 import { Deployment } from "../../types";
@@ -10,7 +11,7 @@ const DEFAULT_CONFIRMATIONS = 1;
 
 type WaitForTxArguments = {
   deployment: Deployment;
-  tx: providers.TransactionResponse;
+  tx: providers.TransactionResponse | zk.types.TransactionResponse;
   name: string;
   checkResult?: {
     method: () => Promise<any>;
@@ -44,7 +45,7 @@ export const waitForTx = async (
   return { receipt, result: value };
 };
 
-export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<void> => {
+export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> => {
   const { deployment, read: _read, write: _write, desired, chainData, apply, auth: _auth } = schema;
   let { contract } = deployment;
 
@@ -66,12 +67,7 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
           args: _read.args ?? [],
         };
 
-  const auth = _auth
-    ? {
-        ..._auth,
-        args: _auth.args ?? [],
-      }
-    : undefined;
+  const auth = _auth ? (!Array.isArray(_auth) ? [_auth] : _auth) : undefined;
 
   // Sanity check: contract has methods.
   const callable = Object.keys(contract.functions).concat(Object.keys(contract.callStatic));
@@ -92,8 +88,18 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
     return await contract.callStatic[method](...args);
   };
 
-  const writeCall = async (chain: number): Promise<providers.TransactionResponse | undefined> => {
-    const authed = auth ? auth.eval(await readCall(auth.method, auth.args)) : true;
+  const writeCall = async (
+    chain: number,
+  ): Promise<providers.TransactionResponse | zk.types.TransactionResponse | undefined> => {
+    let authed = undefined;
+    if (auth) {
+      for (const cond of auth) {
+        const res = cond.eval(await readCall(cond.method, cond.args ?? []));
+        authed = authed === undefined ? res : authed || res;
+      }
+    } else {
+      authed = true;
+    }
     const tx = {
       to: contract.address,
       data: contract.interface.encodeFunctionData(write.method, write.args),
@@ -152,6 +158,7 @@ export const updateIfNeeded = async <T, P>(schema: CallSchema<T, P>): Promise<vo
     if (!tx) {
       return;
     }
+
     const waitForTxParam: WaitForTxArguments = {
       deployment,
       tx,

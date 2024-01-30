@@ -15,8 +15,8 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59144, 0x6c696e6d], // Consensys Linea Mainnet ('linm' interpreted as int) 1818848877
   [8453, 0x6261736d], // Base Mainnet ('basm' interpreted as int) 1650553709
   [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
-  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1634886247
-  [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 2053862243
+  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1635148152
+  [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 1651466849
   [25, 0x63726f], // Cronos Mainnet (cro interpreted as int) 6573045
   [9001, 0x65766d6f], // Evmos Mainnet (evmo interpreted as int) 6648936
   [122, 0x66757365], // Fuse Mainnet (fuse interpreted as int) 1802465399
@@ -24,6 +24,8 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1666600000, 0x686d79], // Harmony Mainnet (hmy interpreted as int) 6778479
   [2001, 0x6d696c6b], // Milkomeda Mainnet (milk interpreted as int)
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
+  [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
+  [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714

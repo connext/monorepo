@@ -14,6 +14,7 @@ export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 export const DEFAULT_PROVER_PUB_MAX = 5000;
 export const DEFAULT_LH_SNAPSHOT_DURATION = 1800; // 30 minutes
+export const DEFAULT_BATCH_WAIT_TIME = 1800; // 30 minutes
 
 dotenvConfig();
 
@@ -107,6 +108,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
     }),
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
+  proverBatchWaitTime: Type.Record(Type.String(), Type.Integer({ minimum: 0, maximum: 86400 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
@@ -145,6 +147,11 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "6450786": "Bnb",
   "1818848877": "Linea",
   "1650553709": "Base",
+  "1887071085": "PolygonZk",
+  "2053862243": "ZkSync",
+  "1635148152": "Avalanche",
+  "1835101812": "Mantle",
+  "1835365481": "Metis",
 };
 
 /**
@@ -223,6 +230,7 @@ export const getEnvConfig = (
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
     service: process.env.LIGHTHOUSE_SERVICE || configJson.service || configFile.service,
     proverBatchSize: configJson.proverBatchSize || configFile.proverBatchSize || {},
+    proverBatchWaitTime: configJson.proverBatchWaitTime || configFile.proverBatchWaitTime || {},
     relayerWaitTime:
       process.env.NXTP_RELAYER_WAIT_TIME ||
       configJson.relayerWaitTime ||

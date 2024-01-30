@@ -357,6 +357,10 @@ locals {
       "1650553703" = 10,
       "2016506996" = 10
     }
+    proverBatchWaitTime = {
+      "1735353714" = 3600,
+      "2016506996" = 3600,
+    }
     messageQueue = {
       connection = {
         uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
@@ -403,7 +407,7 @@ locals {
       }
       "2016506996" = {
         providers   = ["https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}", "https://testrpc.x1.tech", "https://x1testrpc.okx.com/"],
-        minGasPrice = "300000000000"
+        minGasPrice = "200000000000"
       }
     }
     environment   = var.stage

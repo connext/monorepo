@@ -56,6 +56,8 @@ export const mockCache = () => {
     messages: {
       getNonce: stub().resolves(1),
       setNonce: stub().resolves(),
+      getLastBatchTime: stub().resolves(0),
+      setLastBatchTime: stub().resolves(),
       storeMessages: stub().resolves(),
       getPending: stub().resolves(),
       getPendingTasks: stub().resolves(),
@@ -77,7 +79,6 @@ export const mockCache = () => {
       getCurrentLock: stub().resolves(),
       acquireLock: stub().resolves(),
       releaseLock: stub().resolves(),
-      setStatus: stub().resolves(),
     },
   };
 };
@@ -215,6 +216,10 @@ export const mock = {
       },
     ],
     proverBatchSize: {
+      "1111": 10,
+      "2222": 10,
+    },
+    proverBatchWaitTime: {
       "1111": 10,
       "2222": 10,
     },

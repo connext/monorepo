@@ -51,17 +51,18 @@ export const connextRelayerSend = async (
     from: relayerAddress,
   });
 
-  // const gas = await chainReader.getGasEstimateWithRevertCode({
-  //   domain: +domain,
-  //   to: destinationAddress,
-  //   data: encodedData,
-  //   from: relayerAddress,
-  // });
+  const gas = await chainReader.getGasEstimateWithRevertCode({
+    domain: +domain,
+    to: destinationAddress,
+    data: encodedData,
+    from: relayerAddress,
+  });
 
   logger.info("Sending tx to Connext relayer", requestContext, methodContext, {
     relayer: relayerAddress,
     connext: destinationAddress,
     domain,
+    gas: gas.toString(),
   });
 
   try {

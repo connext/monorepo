@@ -90,6 +90,12 @@ export const getEnvConfig = (
         configJson.server?.adminToken ||
         configFile.server?.adminToken,
     },
+    poller: {
+      port: process.env.RELAYER_POLLER_PORT || configJson.poller?.port || configFile.poller?.port || 8081,
+      host: process.env.RELAYER_POLLER_HOST || configJson.poller?.host || configFile.poller?.host || "0.0.0.0",
+      interval:
+        process.env.RELAYER_POLLER_INTERVAL || configJson.poller?.interval || configFile.poller?.interval || 1000,
+    },
     mode: {
       cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
