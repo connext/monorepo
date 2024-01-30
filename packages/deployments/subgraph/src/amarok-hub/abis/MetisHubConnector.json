@@ -27,6 +27,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_stateCommitmentChain",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_gasCap",
         "type": "uint256"
@@ -372,19 +377,14 @@
   {
     "inputs": [
       {
-        "internalType": "uint32",
-        "name": "_l2BlockNumber",
-        "type": "uint32"
+        "internalType": "address",
+        "name": "_target",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_l2MessageIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_l2TxNumberInBlock",
-        "type": "uint16"
+        "internalType": "address",
+        "name": "_sender",
+        "type": "address"
       },
       {
         "internalType": "bytes",
@@ -392,9 +392,80 @@
         "type": "bytes"
       },
       {
-        "internalType": "bytes32[]",
+        "internalType": "uint256",
+        "name": "_messageNonce",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "stateRoot",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "batchIndex",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "batchRoot",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "batchSize",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "prevTotalElements",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes",
+                "name": "extraData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct ChainBatchHeader",
+            "name": "stateRootBatchHeader",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "siblings",
+                "type": "bytes32[]"
+              }
+            ],
+            "internalType": "struct ChainInclusionProof",
+            "name": "stateRootProof",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "stateTrieWitness",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "storageTrieWitness",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct L2MessageInclusionProof",
         "name": "_proof",
-        "type": "bytes32[]"
+        "type": "tuple"
       }
     ],
     "name": "processMessageFromRoot",
@@ -522,6 +593,19 @@
     "name": "setMirrorConnector",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stateCommitmentChain",
+    "outputs": [
+      {
+        "internalType": "contract IStateCommitmentChain",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

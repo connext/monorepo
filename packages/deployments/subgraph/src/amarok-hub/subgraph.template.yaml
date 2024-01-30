@@ -260,3 +260,171 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleX1NewConnector
       file: ./src/amarok-hub/mapping/x1.ts
+
+  # MetisHubConnector.sol events
+  - kind: ethereum/contract
+    name: MetisHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MetisHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: MetisHubConnector
+          file: ./src/amarok-hub/abis/MetisHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleMetisMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleMetisNewConnector
+      file: ./src/amarok-hub/mapping/metis.ts
+
+  # MantleHubConnector.sol events
+  - kind: ethereum/contract
+    name: MantleHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MantleHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: MantleHubConnector
+          file: ./src/amarok-hub/abis/MantleHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleMantleMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleMantleNewConnector
+      file: ./src/amarok-hub/mapping/mantle.ts
+
+  # AvalancheHubConnector.sol events
+  - kind: ethereum/contract
+    name: AvalancheHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: AvalancheHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: AvalancheHubConnector
+          file: ./src/amarok-hub/abis/AvalancheHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleAvalancheMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleAvalancheNewConnector
+      file: ./src/amarok-hub/mapping/avalanche.ts
+
+  # BaseHubConnector.sol events
+  - kind: ethereum/contract
+    name: BaseHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: BaseHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: BaseHubConnector
+          file: ./src/amarok-hub/abis/BaseHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleBaseMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleBaseNewConnector
+      file: ./src/amarok-hub/mapping/base.ts
+
+  # PolygonZkHubConnector.sol events
+  - kind: ethereum/contract
+    name: PolygonZkHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: PolygonZkHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: PolygonZkHubConnector
+          file: ./src/amarok-hub/abis/PolygonZkHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handlePolygonZkMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handlePolygonZkNewConnector
+      file: ./src/amarok-hub/mapping/polygonzk.ts
+
+  # ZkSyncHubConnector.sol events
+  - kind: ethereum/contract
+    name: ZkSyncHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: ZkSyncHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: ZkSyncHubConnector
+          file: ./src/amarok-hub/abis/ZkSyncHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleZkSyncMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleZkSyncNewConnector
+      file: ./src/amarok-hub/mapping/zksync.ts
