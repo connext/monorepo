@@ -8,20 +8,20 @@ import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId } from "../../domain";
 import { hardhatNetworks } from "../../config";
+import { updateIfNeeded } from "../helpers";
 
 import {
   ProtocolStack,
   getDeployments,
-  updateIfNeeded,
   NetworkStack,
   HubMessagingDeployments,
   InitConfig,
   InitConfigSchema,
   AssetStack,
   SpokeMessagingDeployments,
+  setupAsset,
+  setupMessaging,
 } from "./helpers";
-import { setupAsset } from "./helpers/assets";
-import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
 
 // defines which stages of the init script should be executed

@@ -1,6 +1,6 @@
 import { providers } from "ethers";
 
-import { Deployment } from "../../types";
+import { Deployment } from "../../helpers";
 
 export type NetworkStack = {
   chain: string;

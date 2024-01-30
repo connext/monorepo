@@ -25,6 +25,7 @@
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
+    "switch": "ts-node ./src/cli/op-mode/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",
     "devnet:deploy": "ts-node ./src/devnet/devnetDeploy.ts",
