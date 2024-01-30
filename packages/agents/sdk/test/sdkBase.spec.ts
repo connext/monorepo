@@ -154,14 +154,12 @@ describe("SdkBase", () => {
     const mockXCallRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
       data: standardXCallData,
-      from: mock.config().signerAddress,
       value: relayerFee,
       chainId,
     };
     const mockXCallIntoLocalRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
       data: standardXCallIntoLocalData,
-      from: mock.config().signerAddress,
       value: relayerFee,
       chainId,
     };
@@ -250,7 +248,6 @@ describe("SdkBase", () => {
       const xcallRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data: xcallData,
-        from: mock.config().signerAddress,
         value: relayerFee,
         chainId,
       };
@@ -275,7 +272,6 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(asset!, amount)),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
@@ -297,7 +293,6 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(txs),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
@@ -331,7 +326,6 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data: xcallData,
-        from: mock.config().signerAddress,
         value: relayerFee,
         chainId,
       };
@@ -368,7 +362,6 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(txs),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
@@ -446,17 +439,6 @@ describe("SdkBase", () => {
       expect(res).to.not.be.undefined;
     });
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkBase.config.signerAddress = undefined;
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-      };
-      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
-      await expect(sdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
     it("throws CannotUnwrapOnDestination if receiveLocal && unwrapNativeOnDestination", async () => {
       stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(
@@ -494,19 +476,12 @@ describe("SdkBase", () => {
       relayerFee: "1",
     };
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkBase.config.signerAddress = undefined;
-
-      await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
     it("happy-1: should work with native asset", async () => {
       const bumpParams = { ...mockBumpTransferParams, asset: constants.AddressZero };
       const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [bumpParams.transferId]);
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
-        from: mock.config().signerAddress,
         value: BigNumber.from(bumpParams.relayerFee),
         chainId,
       };
@@ -526,7 +501,6 @@ describe("SdkBase", () => {
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
-        from: mock.config().signerAddress,
         chainId,
       };
 

@@ -1,3 +1,7 @@
+import { BigNumber } from "ethers";
+
+import { getChainData } from "..";
+
 // Hex domains calculated using `getHexDomainFromString`
 // alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
 export const chainIdToDomainMapping: Map<number, number> = new Map([
@@ -49,6 +53,24 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [31338, 31338],
   [31339, 31339],
 ]);
+
+/**
+ * Extends chainIdToDomainMapping with data from live chain data.
+ *
+ */
+export async function updateChainIdToDomainMapping(): Promise<void> {
+  // Get chain data
+  const chainData = await getChainData();
+  if (!chainData) throw new Error(`Cannot retrieve chain data`);
+
+  // Update chainIdToDomainMapping if not already present
+  for (const [domainId, domainData] of chainData) {
+    const _domain = chainIdToDomainMapping.get(domainData.chainId);
+    if (!_domain) {
+      chainIdToDomainMapping.set(domainData.chainId, BigNumber.from(domainId).toNumber());
+    }
+  }
+}
 
 /**
  * Converts a chain id (listed at at chainlist.org) to a domain.

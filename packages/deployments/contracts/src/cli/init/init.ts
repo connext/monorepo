@@ -403,24 +403,28 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
     const locals: Record<string, string[]> = {};
     protocol.assets.forEach((asset) => {
       Object.entries(asset.representations).forEach(([key, value]) => {
+        if (!value) {
+          return;
+        }
+        // create the adopted and local mappings (domain => [tokenAddrs])
         if (!adopteds[key]) {
           adopteds[key] = [];
-        }
-        if (!value) return;
-        value.adopted === constants.AddressZero ? "" : adopteds[key].push(value.adopted);
-        if (!value.local) {
-          return;
         }
         if (!locals[key]) {
           locals[key] = [];
         }
-        value.local === constants.AddressZero ? "" : locals[key].push(value.local);
+        if (value.adopted && value.adopted !== constants.AddressZero) {
+          adopteds[key].push(value.adopted);
+        }
+        if (value.local && value.local !== constants.AddressZero) {
+          locals[key].push(value.local);
+        }
       });
     });
     Object.keys(locals).forEach((l) => {
       if (new Set(locals[l]).size !== locals[l].length) {
         throw new Error(
-          `Duplicate local asset detected! (unique: ${new Set(locals[l]).size}; total: ${
+          `Duplicate local asset detected! (unique: ${new Set(locals[l].values())}; total: ${
             locals[l].length
           }, domain: ${l})`,
         );

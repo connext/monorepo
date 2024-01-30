@@ -1,5 +1,3 @@
-import { utils } from "ethers";
-
 import { InitConfig } from "../../helpers";
 import { PROTOCOL_ADMINS } from "../../../ownership/helpers";
 

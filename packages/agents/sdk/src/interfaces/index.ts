@@ -400,6 +400,7 @@ export const SdkEstimateRelayerFeeParamsSchema = Type.Object({
   originNativeTokenPrice: Type.Optional(Type.Number()),
   destinationNativeTokenPrice: Type.Optional(Type.Number()),
   destinationGasPrice: Type.Optional(Type.String()),
+  signerAddress: Type.Optional(Type.String()),
 });
 export type SdkEstimateRelayerFeeParams = Static<typeof SdkEstimateRelayerFeeParamsSchema>;
 
@@ -420,6 +421,7 @@ export const SdkCalculateAmountReceivedParamsSchema = Type.Object({
   amount: Type.String(),
   receiveLocal: Type.Optional(Type.Boolean()),
   checkFastLiquidity: Type.Optional(Type.Boolean()),
+  signerAddress: Type.Optional(Type.String()),
 });
 export type SdkCalculateAmountReceivedParams = Static<typeof SdkCalculateAmountReceivedParamsSchema>;
 

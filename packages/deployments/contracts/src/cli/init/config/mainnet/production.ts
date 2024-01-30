@@ -13,6 +13,12 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "6450786", // BNB
     "6778479", // GNOSIS
     "1818848877", // LINEA
+    "1835365481", // METIS
+    "2053862243", // ZkSync-Era
+    "1887071085", // PolygonZk
+    "1650553709", // Base
+    "1635148152", // Avalanche
+    "1835101812", // Mantle
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -51,6 +57,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xbd7eaed30936670c931b718f5d9014aff82fc767",
           adopted: "0xA219439258ca9da29E9Cc4cE5596924745e12B93",
         },
+        "1835365481": {
+          // metis
+          local: "0xa6A8d22D5da43C9f6E5cF7b4e50941784e70F688",
+          adopted: "0xbB06DCA3AE6887fAbF931640f67cab3e3a16F4dC",
+        },
       },
     },
     {
@@ -85,6 +96,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1818848877": {
           local: "0x7360a597290612787833ee924c449c61cc0689e4",
           adopted: "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5",
+        },
+        "1650553709": {
+          // base
+          local: "0xC90a82e926d3a87899b3717aba0262BF66Ef53E8",
+          adopted: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
         },
       },
     },
@@ -121,6 +137,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x331152ca43b50b39f3a9f203685b98dbb9b42342",
           adopted: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff",
         },
+        "1835365481": {
+          // metis
+          local: "0x9ac9aD5A82Ccd0Ab7584a037A7A2334Dc3715Be2",
+          adopted: "0xEA32A96608495e54156Ae48931A7c20f0dcc1a21",
+        },
+        "1650553709": {
+          // base
+          local: "0x1ede59e0d39B14c038698B1036BDE9a4819C86D4",
+          adopted: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        },
       },
     },
     {
@@ -155,6 +181,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1818848877": {
           local: "0x0573ad07ca4f74757e5b2417bf225bebebcf66d9",
           adopted: "0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f",
+        },
+        "1835365481": {
+          // metis
+          local: "0x3883B5Bdd61BA1b687de69eE50c9738D5ec501E9",
+          adopted: "0x420000000000000000000000000000000000000a",
+        },
+        "1650553709": {
+          // base
+          local: "0xE08D4907b2C7aa5458aC86596b6D17B1feA03F7E",
+          adopted: "0x4200000000000000000000000000000000000006",
         },
       },
     },
@@ -625,7 +661,13 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1634886255": PROTOCOL_ADMINS.mainnet["1634886255"],
       "6450786": PROTOCOL_ADMINS.mainnet["6450786"],
       "6778479": PROTOCOL_ADMINS.mainnet["6778479"],
-      "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"],
+      "1818848877": PROTOCOL_ADMINS.mainnet["1818848877"], // linea
+      "1835365481": PROTOCOL_ADMINS.mainnet["1835365481"], // metis
+      "2053862243": PROTOCOL_ADMINS.mainnet["2053862243"], // ZkSync-Era
+      "1887071085": PROTOCOL_ADMINS.mainnet["1887071085"], // PolygonZk
+      "1650553709": PROTOCOL_ADMINS.mainnet["1650553709"], // Base
+      "1635148152": PROTOCOL_ADMINS.mainnet["1635148152"], // Avalanche
+      "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
     },
     watchers: {
       allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
