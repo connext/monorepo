@@ -98,7 +98,8 @@ export const getConnectorName = (
     throw new Error(`Could not find ${connectorChainId} in config`);
   }
   // Only spoke connectors deployed for mainnet contracts
-  return `${naming.networkName ?? naming.prefix}${
+  // return Artifacts name for spoke connectors
+  return `${naming.prefix}${
     config.hub.chain === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
       ? HUB_PREFIX
       : SPOKE_PREFIX

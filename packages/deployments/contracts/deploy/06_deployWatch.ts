@@ -78,7 +78,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   await hre.run("setup-asset", taskArgs);
 };
 export default func;
-func.tags = ["WatcherTest", "prod"];
+func.tags = ["WatcherTest"];
 func.skip = async (hre: HardhatRuntimeEnvironment) => {
   const chainId = +(await hre.getChainId());
   return SKIP_SETUP.includes(chainId);

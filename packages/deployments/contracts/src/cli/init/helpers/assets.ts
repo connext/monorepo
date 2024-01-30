@@ -192,8 +192,19 @@ export const setupAsset = async (args: {
         })
       : [representation.local ?? constants.AddressZero, representation.adopted];
 
-    if (local.toLowerCase() === adopted.toLowerCase()) {
-      // No pools are needed
+    if (local.toLowerCase() === adopted.toLowerCase() || local.toLowerCase() === constants.AddressZero) {
+      // No pools are needed / configured
+      continue;
+    }
+
+    // Verify pools must be initialized
+    const poolInitd = await getValue<BigNumber>({
+      read: { method: "getSwapA(bytes32)", args: [key] },
+      deployment: network.deployments.Connext,
+    });
+
+    if (poolInitd.gt(0)) {
+      // Pool init-d, continue
       continue;
     }
 

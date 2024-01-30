@@ -4,7 +4,7 @@ import { BaseConnectorMeta, RootMessageProcessed } from "../../../generated/sche
 
 const DEFAULT_BASE_HUB_CONNECTOR_META_ID = "BASE_HUB_CONNECTOR_META_ID";
 
-/// MARK - BASE
+/// MARK - BNB
 export function handleBaseNewConnector(event: NewConnector): void {
   let meta = BaseConnectorMeta.load(DEFAULT_BASE_HUB_CONNECTOR_META_ID);
   if (meta == null) {

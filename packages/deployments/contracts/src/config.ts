@@ -418,11 +418,10 @@ export const hardhatNetworks = {
   metis: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 1088,
-    url: urlOverride || process.env.METIS_PROVIDER_URL || "https://metis-pokt.nodies.app",
+    url: urlOverride || process.env.METIS_PROVIDER_URL || "https://andromeda.metis.io/?owner=1088",
     companionNetworks: {
       hub: "mainnet",
     },
-    zksync: true,
     verify: {
       etherscan: {
         apiKey: process.env.METIS_EXPLORER_API_KEY!,
