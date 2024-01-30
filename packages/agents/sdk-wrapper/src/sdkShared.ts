@@ -1,16 +1,30 @@
 import {
   Logger,
+  createLoggingContext,
   ChainData,
   formatUrl,
   chainIdToDomain as _chainIdToDomain,
   domainToChainId as _domainToChainId,
 } from "@connext/nxtp-utils";
-import { providers } from "ethers";
+import { providers, BigNumber, ethers, constants } from "ethers";
 
-import { Connext, IERC20 } from "./typechain-types";
-import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options } from "./sdk-types";
-import { domainsToChainNames } from "./config";
+import { Connext, IERC20, IERC20__factory, Connext__factory } from "./typechain-types";
+import type { SdkConfig, AssetData, ConnextSupport, ChainDeployments, Options, ProviderSanityCheck } from "./sdk-types";
+import { domainsToChainNames, XERC20REGISTRY_DOMAIN_ADDRESS, LOCKBOX_ADAPTER_DOMAIN_ADDRESS } from "./config";
 import { axiosPost, axiosGet } from "./mockable";
+import { SignerAddressMissing, ProviderMissing } from "./lib/errors";
+import XERC20RegistryAbi from "./lib/abi/XERC20/XERC20Registry.sol/XERC20Registry.json";
+
+declare global {
+  interface Window {
+    ethereum?: providers.ExternalProvider;
+    web3?: {
+      currentProvider: providers.ExternalProvider;
+    };
+  }
+}
+
+declare const window: Window;
 
 export class SdkShared {
   readonly config: SdkConfig;
@@ -39,8 +53,40 @@ export class SdkShared {
   }
 
   async getProvider(domainId: string): Promise<providers.StaticJsonRpcProvider> {
-    const response = await axiosGet(`${this.baseUri}/getProvider/${domainId}`);
-    return response.data;
+    if (typeof window !== "undefined" && window.ethereum) {
+      const browserProvider = new providers.Web3Provider(window.ethereum);
+      const browserChainId = (await browserProvider.getNetwork()).chainId;
+      const desiredChainId = await this.getChainId(domainId);
+
+      if (browserChainId === desiredChainId) {
+        this.logger.info(`Using browser provider for domain: ${domainId}`);
+        return browserProvider;
+      }
+    }
+
+    this.logger.info(`Using static provider for domain: ${domainId}`);
+    return new providers.StaticJsonRpcProvider(this.config?.chains[domainId]?.providers?.[0]);
+  }
+
+  async providerSanityCheck(params: ProviderSanityCheck): Promise<boolean> {
+    const { domains, options } = params;
+    let { chains } = this.config;
+
+    if (options && options.chains) {
+      chains = options.chains;
+    }
+
+    for (const domainId of domains) {
+      if (!(domainId in chains)) {
+        return false;
+      }
+      const chain = chains[domainId];
+      if ((chain.providers?.length ?? 0) <= 0) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   async getDeploymentAddress(domainId: string, deploymentName: keyof ChainDeployments): Promise<string> {
@@ -49,32 +95,107 @@ export class SdkShared {
   }
 
   async getConnext(domainId: string, options?: Options): Promise<Connext> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
-    const params = {
-      domainId,
-      options: _options,
-    };
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
-    const response = await axiosPost(`${this.baseUri}/getConnext`, params);
-    return response.data;
+    const connextAddress = await this.getDeploymentAddress(domainId, "connext");
+
+    let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+    if (!providerURL && options?.chains) {
+      Object.keys(options.chains).forEach((domain) => {
+        if (domain !== domainId) {
+          return;
+        }
+        providerURL = options.chains?.[domain].providers?.[0];
+      });
+    }
+
+    const provider = providerURL
+      ? new providers.StaticJsonRpcProvider(providerURL)
+      : await this.getProvider(domainId);
+
+    return Connext__factory.connect(connextAddress, provider);
   }
 
   async getERC20(domainId: string, tokenAddress: string, options?: Options): Promise<IERC20> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
-    const params = {
-      domainId,
-      tokenAddress,
-      options: _options,
-    };
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
 
-    const response = await axiosPost(`${this.baseUri}/getERC20`, params);
-    return response.data;
+    let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+    if (!providerURL && options?.chains) {
+      Object.keys(options.chains).forEach((domain) => {
+        if (domain !== domainId) {
+          return;
+        }
+        providerURL = options.chains?.[domain].providers?.[0];
+      });
+    }
+
+    const provider = providerURL ? new providers.StaticJsonRpcProvider(providerURL) : await this.getProvider(domainId);
+
+    return IERC20__factory.connect(tokenAddress, provider);
+  }
+
+  async getXERC20Registry(domainId: string, options?: Options): Promise<ethers.Contract> {
+    try {
+      const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+      if (!isProviderValid) {
+        throw new ProviderMissing(domainId);
+      }
+
+      let providerURL = options?.originProviderUrl ?? options?.originProviderUrl;
+
+      if (!providerURL && options?.chains) {
+        Object.keys(options.chains).forEach((domain) => {
+          if (domain !== domainId) {
+            return;
+          }
+          providerURL = options.chains?.[domain].providers?.[0];
+        });
+      }
+
+      const provider = providerURL
+        ? new providers.StaticJsonRpcProvider(providerURL)
+        : await this.getProvider(domainId);
+
+      const XERC20REGISTRY_ADDRESS = XERC20REGISTRY_DOMAIN_ADDRESS[domainId];
+
+      if (!XERC20REGISTRY_ADDRESS) {
+        throw new Error("Registry not deployed on given domain");
+      }
+      return new ethers.Contract(XERC20REGISTRY_ADDRESS, XERC20RegistryAbi, provider);
+    } catch (err: any) {
+      throw new Error("Failed to get XERC20 registry Contract");
+    }
+  }
+
+  async isXERC20WithLockbox(domainId: string, tokenAddress: string, options?: Options): Promise<boolean> {
+    try {
+      let isLockboxAsset = false;
+      // Checking if given asset is erc20 and have a xERC20 representation
+      const xerc20Registry = await this.getXERC20Registry(domainId, options);
+      const [isXERC20] = await xerc20Registry.isXERC20(tokenAddress);
+
+      if (!isXERC20) {
+        try {
+          const [xerc20] = await xerc20Registry.getXERC20(tokenAddress);
+          if (xerc20) {
+            isLockboxAsset = true;
+          }
+        } catch (err: any) {
+          this.logger.info("Asset not registered");
+        }
+      }
+      return isLockboxAsset;
+    } catch (err: any) {
+      return false;
+    }
   }
 
   async getChainId(domainId: string): Promise<number> {
@@ -110,21 +231,62 @@ export class SdkShared {
     infiniteApprove?: boolean,
     options?: Options,
   ): Promise<providers.TransactionRequest | undefined> {
-    const _options = options ?? {
-      chains: this.config.chains,
-      signerAddress: this.config.signerAddress,
-    };
+    const { requestContext, methodContext } = createLoggingContext(this.approveIfNeeded.name);
 
-    const params = {
+    const isProviderValid = await this.providerSanityCheck({ domains: [domainId], options });
+    if (!isProviderValid) {
+      throw new ProviderMissing(domainId);
+    }
+
+    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
+    this.logger.info("Method start", requestContext, methodContext, {
       domainId,
       assetId,
       amount,
-      infiniteApprove: infiniteApprove ?? true,
-      options: _options,
-    };
+      _signerAddress,
+    });
 
-    const response = await axiosPost(`${this.baseUri}/approveIfNeeded`, params);
-    return response.data;
+    if (!_signerAddress) {
+      throw new SignerAddressMissing();
+    }
+
+    this.logger.info("isXERC20WithLockbox", requestContext, methodContext, {
+      domainId,
+      assetId,
+      amount,
+      _signerAddress,
+    });
+    const isValidAsset = await this.isXERC20WithLockbox(domainId, assetId, options);
+    const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[domainId];
+
+    if (isValidAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+      throw new Error("Lockbox adapter not deployed on given domain");
+    }
+
+    const connextContractAddress = isValidAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(domainId, options)).address;
+
+    const erc20Contract = await this.getERC20(domainId, assetId, options);
+
+    if (assetId !== constants.AddressZero) {
+      const approved = await erc20Contract.allowance(_signerAddress, connextContractAddress);
+
+      if (BigNumber.from(approved).lt(amount)) {
+        const approveData = erc20Contract.populateTransaction.approve(
+          connextContractAddress,
+          infiniteApprove ?? true ? constants.MaxUint256 : amount,
+        );
+        return approveData;
+      } else {
+        this.logger.info("Allowance sufficient", requestContext, methodContext, {
+          approved: approved.toString(),
+          amount,
+        });
+        return undefined;
+      }
+    }
+    return undefined;
   }
 
   async getAssetsData(): Promise<AssetData[]> {
