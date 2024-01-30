@@ -19,10 +19,11 @@ class MockZkWeb3Provider {
 
 describe("Helpers: ZkSync", () => {
   beforeEach(() => {
+    const l1BatchNumber = 100000;
     stub(MockableFns, "ZkSyncWeb3Provider").value(MockZkWeb3Provider);
     getTransactionReceiptStub = stub().resolves({
       l2ToL1Logs: [{ transactionHash: mkHash("0xdeadbeef"), logIndex: 0, key: utils.zeroPad(mkAddress("0xaabb"), 32) }],
-      l1BatchNumber: 100000,
+      l1BatchNumber,
       l1BatchTxIndex: 1,
     });
     getLogProofStub = stub().resolves({
@@ -34,6 +35,7 @@ describe("Helpers: ZkSync", () => {
 
     getContractStub = stub(MockableFns, "getContract").returns({
       proveL2MessageInclusion: stub().resolves(true),
+      getTotalBatchesExecuted: stub().resolves(l1BatchNumber),
     } as any);
   });
 

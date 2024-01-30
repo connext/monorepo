@@ -1,0 +1,948 @@
+{
+  "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_mirrorDomain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "address",
+          "name": "_amb",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_rootManager",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_mirrorConnector",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_gasCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "_mirrorWormholeChainId",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "Connector__processMessage_notUsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__ownershipDelayElapsed_delayNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__proposeNewOwner_noOwnershipChange",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_invalidProposal",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ProposedOwnable__renounceOwnership_noProposal",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "FundsWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_previous",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_updated",
+          "type": "uint256"
+        }
+      ],
+      "name": "GasCapUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "MessageProcessed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "encodedData",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "MessageSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "current",
+          "type": "address"
+        }
+      ],
+      "name": "MirrorConnectorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "mirrorDomain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "amb",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "rootManager",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "mirrorConnector",
+          "type": "address"
+        }
+      ],
+      "name": "NewConnector",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "proposedOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previous",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "updated",
+          "type": "address"
+        }
+      ],
+      "name": "RefundAddressUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "AMB",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DOMAIN",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIRROR_DOMAIN",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIRROR_WORMHOLE_ID",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ROOT_MANAGER",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "acceptProposedOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "delay",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "gasCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mirrorConnector",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "processMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "processedWhMessages",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newlyProposed",
+          "type": "address"
+        }
+      ],
+      "name": "proposeNewOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "proposedTimestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_gasLimit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_amb",
+          "type": "address"
+        }
+      ],
+      "name": "quoteEVMDeliveryPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_cost",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_payload",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_sourceAddress",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint16",
+          "name": "_sourceChain",
+          "type": "uint16"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_deliveryHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "receiveWormholeMessages",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "refundAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounced",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_encodedData",
+          "type": "bytes"
+        }
+      ],
+      "name": "sendMessage",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_gasCap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setGasCap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_mirrorConnector",
+          "type": "address"
+        }
+      ],
+      "name": "setMirrorConnector",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_updated",
+          "type": "address"
+        }
+      ],
+      "name": "setRefundAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_expected",
+          "type": "address"
+        }
+      ],
+      "name": "verifySender",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawFunds",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+  "receipt": {
+    "to": null,
+    "from": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    "contractAddress": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+    "transactionIndex": 54,
+    "gasUsed": "1444357",
+    "logsBloom": "0x00800000000000000000000000000000000000000008401000800000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000100000000000000040001000040000000000000000040000000000000020000000000000000000800000000000011008000000000000000400000000000000000000000000000000000000000000040000000000000000000000000000000080000000000000000000000000000000000000040000000000000000000000000000000000000010000000000020000000000000000001020000000000000200000000000040000000000000000000002000000000000000000",
+    "blockHash": "0x321cfd991a93edf1a8bb54e559d6a84151bd2aea28cf1f7be9e18427129b181c",
+    "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+    "logs": [
+      {
+        "transactionIndex": 54,
+        "blockNumber": 19113188,
+        "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+        "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000ade09131c6f43fe22c2cbabb759636c43cfc181e"
+        ],
+        "data": "0x",
+        "logIndex": 126,
+        "blockHash": "0x321cfd991a93edf1a8bb54e559d6a84151bd2aea28cf1f7be9e18427129b181c"
+      },
+      {
+        "transactionIndex": 54,
+        "blockNumber": 19113188,
+        "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+        "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+        "topics": [
+          "0x4f9c27c2fe3f84576ea469d367d044da53c45e951617e8389f2b5ed8db9d25f0",
+          "0x0000000000000000000000000000000000000000000000000000000000657468",
+          "0x0000000000000000000000000000000000000000000000000000000061766178"
+        ],
+        "data": "0x00000000000000000000000027428dd2d3dd32a4d7f7c497eaaa23130d894911000000000000000000000000523ab7424ad126809b1d7a134eb6e0ee414c9b3a0000000000000000000000000000000000000000000000000000000000000000",
+        "logIndex": 127,
+        "blockHash": "0x321cfd991a93edf1a8bb54e559d6a84151bd2aea28cf1f7be9e18427129b181c"
+      },
+      {
+        "transactionIndex": 54,
+        "blockNumber": 19113188,
+        "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+        "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+        "topics": [
+          "0x877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000493e0",
+        "logIndex": 128,
+        "blockHash": "0x321cfd991a93edf1a8bb54e559d6a84151bd2aea28cf1f7be9e18427129b181c"
+      },
+      {
+        "transactionIndex": 54,
+        "blockNumber": 19113188,
+        "transactionHash": "0x1852fbc4cb3381f40bc08fa943af62afdbf95cb3369ba18a90c4e539bc0002dd",
+        "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+        "topics": [
+          "0x57b5839c3435f5b2eb2d2e286fb44ca7303d01d9b25a5d9c05c4895234742859",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000ade09131c6f43fe22c2cbabb759636c43cfc181e"
+        ],
+        "data": "0x",
+        "logIndex": 129,
+        "blockHash": "0x321cfd991a93edf1a8bb54e559d6a84151bd2aea28cf1f7be9e18427129b181c"
+      }
+    ],
+    "blockNumber": 19113188,
+    "cumulativeGasUsed": "6841586",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "6648936",
+    "1635148152",
+    "0x27428DD2d3DD32A4D7f7C497eAaa23130d894911",
+    "0x523AB7424AD126809b1d7A134eb6E0ee414C9B3A",
+    "0x0000000000000000000000000000000000000000",
+    "300000",
+    "6"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "f27fc0c5a728e8290f4e343b9381d1ad",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"_domain\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"_mirrorDomain\",\"type\":\"uint32\"},{\"internalType\":\"address\",\"name\":\"_amb\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_rootManager\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_mirrorConnector\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_gasCap\",\"type\":\"uint256\"},{\"internalType\":\"uint16\",\"name\":\"_mirrorWormholeChainId\",\"type\":\"uint16\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"Connector__processMessage_notUsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyOwner_notOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__onlyProposed_notProposedOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__ownershipDelayElapsed_delayNotElapsed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__proposeNewOwner_noOwnershipChange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_invalidProposal\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ProposedOwnable__renounceOwnership_noProposal\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FundsWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_previous\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"_updated\",\"type\":\"uint256\"}],\"name\":\"GasCapUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MessageProcessed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"encodedData\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MessageSent\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"previous\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"current\",\"type\":\"address\"}],\"name\":\"MirrorConnectorUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint32\",\"name\":\"domain\",\"type\":\"uint32\"},{\"indexed\":true,\"internalType\":\"uint32\",\"name\":\"mirrorDomain\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"amb\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"rootManager\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"mirrorConnector\",\"type\":\"address\"}],\"name\":\"NewConnector\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposedOwner\",\"type\":\"address\"}],\"name\":\"OwnershipProposed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previous\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"updated\",\"type\":\"address\"}],\"name\":\"RefundAddressUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"AMB\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DOMAIN\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIRROR_DOMAIN\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MIRROR_WORMHOLE_ID\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ROOT_MANAGER\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"acceptProposedOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"delay\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"gasCap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mirrorConnector\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"processMessage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"processedWhMessages\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newlyProposed\",\"type\":\"address\"}],\"name\":\"proposeNewOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposed\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"proposedTimestamp\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_gasLimit\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_amb\",\"type\":\"address\"}],\"name\":\"quoteEVMDeliveryPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"_cost\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_payload\",\"type\":\"bytes\"},{\"internalType\":\"bytes[]\",\"name\":\"\",\"type\":\"bytes[]\"},{\"internalType\":\"bytes32\",\"name\":\"_sourceAddress\",\"type\":\"bytes32\"},{\"internalType\":\"uint16\",\"name\":\"_sourceChain\",\"type\":\"uint16\"},{\"internalType\":\"bytes32\",\"name\":\"_deliveryHash\",\"type\":\"bytes32\"}],\"name\":\"receiveWormholeMessages\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"refundAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounced\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"_encodedData\",\"type\":\"bytes\"}],\"name\":\"sendMessage\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_gasCap\",\"type\":\"uint256\"}],\"name\":\"setGasCap\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_mirrorConnector\",\"type\":\"address\"}],\"name\":\"setMirrorConnector\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_updated\",\"type\":\"address\"}],\"name\":\"setRefundAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_expected\",\"type\":\"address\"}],\"name\":\"verifySender\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"withdrawFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"processMessage(bytes)\":{\"details\":\"This is called by AMBs to process messages originating from mirror connector\"},\"quoteEVMDeliveryPrice(uint256,address)\":{\"details\":\"calculcate gas to call `receiveWormholeMessages` on target chain https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol\"},\"receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)\":{\"details\":\"This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice.\"},\"sendMessage(bytes,bytes)\":{\"details\":\"This is called by the root manager *only* on mainnet to propagate the aggregate root\"},\"setRefundAddress(address)\":{\"params\":{\"_updated\":\"The updated refund address\"}},\"withdrawFunds(address)\":{\"details\":\"Withdraws the entire balance of the contract.\",\"params\":{\"_to\":\"The recipient of the funds withdrawn\"}}},\"version\":1},\"userdoc\":{\"events\":{\"FundsWithdrawn(address,uint256)\":{\"notice\":\"Emitted when funds are withdrawn by the admin\"},\"GasCapUpdated(uint256,uint256)\":{\"notice\":\"Emitted when admin updates the gas cap\"},\"MessageProcessed(bytes,address)\":{\"notice\":\"Emitted whenever a message is successfully received over an AMB\"},\"MessageSent(bytes,bytes,address)\":{\"notice\":\"Emitted whenever a message is successfully sent over an AMB\"}},\"kind\":\"user\",\"methods\":{\"AMB()\":{\"notice\":\"Address of the AMB on this domain.\"},\"DOMAIN()\":{\"notice\":\"The domain of this Messaging (i.e. Connector) contract.\"},\"MIRROR_DOMAIN()\":{\"notice\":\"The domain of the corresponding messaging (i.e. Connector) contract.\"},\"MIRROR_WORMHOLE_ID()\":{\"notice\":\"The wormhole id for the mirror network\"},\"ROOT_MANAGER()\":{\"notice\":\"RootManager contract address.\"},\"acceptProposedOwner()\":{\"notice\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"delay()\":{\"notice\":\"Returns the delay period before a new owner can be accepted.\"},\"gasCap()\":{\"notice\":\"The gnosis amb requires destination gas to be specified on the origin. The gas used will be passed in by the relayer to allow for real-time estimates, but will be capped at the admin-set cap.\"},\"mirrorConnector()\":{\"notice\":\"Connector on L2 for L1 connectors, and vice versa.\"},\"owner()\":{\"notice\":\"Returns the address of the current owner.\"},\"processMessage(bytes)\":{\"notice\":\"Processes a message received by an AMB\"},\"processedWhMessages(bytes32)\":{\"notice\":\"Mapping of processed messages from wormhole.\"},\"proposeNewOwner(address)\":{\"notice\":\"Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process\"},\"proposed()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"proposedTimestamp()\":{\"notice\":\"Returns the address of the proposed owner.\"},\"receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)\":{\"notice\":\"This function is called to receive messages through the wormhole relayer module https://book.wormhole.com/technical/evm/relayer.html\"},\"refundAddress()\":{\"notice\":\"The address on this chain any refunds from wormhole fees will be sent to\"},\"renounceOwnership()\":{\"notice\":\"Renounces ownership of the contract after a delay\"},\"renounced()\":{\"notice\":\"Indicates if the ownership has been renounced() by checking if current owner is address(0)\"},\"sendMessage(bytes,bytes)\":{\"notice\":\"Sends a message over the amb\"},\"setMirrorConnector(address)\":{\"notice\":\"Sets the address of the l2Connector for this domain\"},\"setRefundAddress(address)\":{\"notice\":\"Allows the owner to set a new address to collect excess wormhole fees.\"},\"verifySender(address)\":{\"notice\":\"Checks the cross domain sender for a given address\"},\"withdrawFunds(address)\":{\"notice\":\"This function should be callable by owner, and send funds trapped on a connector to the provided recipient.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/messaging/connectors/wormhole/WormholeHubConnector.sol\":\"WormholeHubConnector\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Address.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)\\n\\npragma solidity ^0.8.1;\\n\\n/**\\n * @dev Collection of functions related to the address type\\n */\\nlibrary Address {\\n    /**\\n     * @dev Returns true if `account` is a contract.\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * It is unsafe to assume that an address for which this function returns\\n     * false is an externally-owned account (EOA) and not a contract.\\n     *\\n     * Among others, `isContract` will return false for the following\\n     * types of addresses:\\n     *\\n     *  - an externally-owned account\\n     *  - a contract in construction\\n     *  - an address where a contract will be created\\n     *  - an address where a contract lived, but was destroyed\\n     * ====\\n     *\\n     * [IMPORTANT]\\n     * ====\\n     * You shouldn't rely on `isContract` to protect against flash loan attacks!\\n     *\\n     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets\\n     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract\\n     * constructor.\\n     * ====\\n     */\\n    function isContract(address account) internal view returns (bool) {\\n        // This method relies on extcodesize/address.code.length, which returns 0\\n        // for contracts in construction, since the code is only stored at the end\\n        // of the constructor execution.\\n\\n        return account.code.length > 0;\\n    }\\n\\n    /**\\n     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to\\n     * `recipient`, forwarding all available gas and reverting on errors.\\n     *\\n     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost\\n     * of certain opcodes, possibly making contracts go over the 2300 gas limit\\n     * imposed by `transfer`, making them unable to receive funds via\\n     * `transfer`. {sendValue} removes this limitation.\\n     *\\n     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].\\n     *\\n     * IMPORTANT: because control is transferred to `recipient`, care must be\\n     * taken to not create reentrancy vulnerabilities. Consider using\\n     * {ReentrancyGuard} or the\\n     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].\\n     */\\n    function sendValue(address payable recipient, uint256 amount) internal {\\n        require(address(this).balance >= amount, \\\"Address: insufficient balance\\\");\\n\\n        (bool success, ) = recipient.call{value: amount}(\\\"\\\");\\n        require(success, \\\"Address: unable to send value, recipient may have reverted\\\");\\n    }\\n\\n    /**\\n     * @dev Performs a Solidity function call using a low level `call`. A\\n     * plain `call` is an unsafe replacement for a function call: use this\\n     * function instead.\\n     *\\n     * If `target` reverts with a revert reason, it is bubbled up by this\\n     * function (like regular Solidity function calls).\\n     *\\n     * Returns the raw returned data. To convert to the expected return value,\\n     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].\\n     *\\n     * Requirements:\\n     *\\n     * - `target` must be a contract.\\n     * - calling `target` with `data` must not revert.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(address target, bytes memory data) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, \\\"Address: low-level call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with\\n     * `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, 0, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but also transferring `value` wei to `target`.\\n     *\\n     * Requirements:\\n     *\\n     * - the calling contract must have an ETH balance of at least `value`.\\n     * - the called Solidity function must be `payable`.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value\\n    ) internal returns (bytes memory) {\\n        return functionCallWithValue(target, data, value, \\\"Address: low-level call with value failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but\\n     * with `errorMessage` as a fallback revert reason when `target` reverts.\\n     *\\n     * _Available since v3.1._\\n     */\\n    function functionCallWithValue(\\n        address target,\\n        bytes memory data,\\n        uint256 value,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        require(address(this).balance >= value, \\\"Address: insufficient balance for call\\\");\\n        (bool success, bytes memory returndata) = target.call{value: value}(data);\\n        return verifyCallResultFromTarget(target, success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {\\n        return functionStaticCall(target, data, \\\"Address: low-level static call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a static call.\\n     *\\n     * _Available since v3.3._\\n     */\\n    function functionStaticCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        (bool success, bytes memory returndata) = target.staticcall(data);\\n        return verifyCallResultFromTarget(target, success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],\\n     * but performing a delegate call.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {\\n        return functionDelegateCall(target, data, \\\"Address: low-level delegate call failed\\\");\\n    }\\n\\n    /**\\n     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],\\n     * but performing a delegate call.\\n     *\\n     * _Available since v3.4._\\n     */\\n    function functionDelegateCall(\\n        address target,\\n        bytes memory data,\\n        string memory errorMessage\\n    ) internal returns (bytes memory) {\\n        (bool success, bytes memory returndata) = target.delegatecall(data);\\n        return verifyCallResultFromTarget(target, success, returndata, errorMessage);\\n    }\\n\\n    /**\\n     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling\\n     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.\\n     *\\n     * _Available since v4.8._\\n     */\\n    function verifyCallResultFromTarget(\\n        address target,\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal view returns (bytes memory) {\\n        if (success) {\\n            if (returndata.length == 0) {\\n                // only check isContract if the call was successful and the return data is empty\\n                // otherwise we already know that it was a contract\\n                require(isContract(target), \\\"Address: call to non-contract\\\");\\n            }\\n            return returndata;\\n        } else {\\n            _revert(returndata, errorMessage);\\n        }\\n    }\\n\\n    /**\\n     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the\\n     * revert reason or using the provided one.\\n     *\\n     * _Available since v4.3._\\n     */\\n    function verifyCallResult(\\n        bool success,\\n        bytes memory returndata,\\n        string memory errorMessage\\n    ) internal pure returns (bytes memory) {\\n        if (success) {\\n            return returndata;\\n        } else {\\n            _revert(returndata, errorMessage);\\n        }\\n    }\\n\\n    function _revert(bytes memory returndata, string memory errorMessage) private pure {\\n        // Look for revert reason and bubble it up if present\\n        if (returndata.length > 0) {\\n            // The easiest way to bubble the revert reason is using memory via assembly\\n            /// @solidity memory-safe-assembly\\n            assembly {\\n                let returndata_size := mload(returndata)\\n                revert(add(32, returndata), returndata_size)\\n            }\\n        } else {\\n            revert(errorMessage);\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xf96f969e24029d43d0df89e59d365f277021dac62b48e1c1e3ebe0acdd7f1ca1\",\"license\":\"MIT\"},\"contracts/messaging/connectors/Connector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {Address} from \\\"@openzeppelin/contracts/utils/Address.sol\\\";\\n\\nimport {ProposedOwnable} from \\\"../../shared/ProposedOwnable.sol\\\";\\nimport {IConnector} from \\\"../interfaces/IConnector.sol\\\";\\n\\n/**\\n * @title Connector\\n * @author Connext Labs, Inc.\\n * @notice This contract has the messaging interface functions used by all connectors.\\n *\\n * @dev This contract stores information about mirror connectors, but can be used as a\\n * base for contracts that do not have a mirror (i.e. the connector handling messaging on\\n * mainnet). In this case, the `mirrorConnector` and `MIRROR_DOMAIN`\\n * will be empty\\n *\\n * @dev If ownership is renounced, this contract will be unable to update its `mirrorConnector`\\n * or `mirrorGas`\\n */\\nabstract contract Connector is ProposedOwnable, IConnector {\\n  // ========== Custom Errors ===========\\n\\n  error Connector__processMessage_notUsed();\\n\\n  // ============ Events ============\\n\\n  event NewConnector(\\n    uint32 indexed domain,\\n    uint32 indexed mirrorDomain,\\n    address amb,\\n    address rootManager,\\n    address mirrorConnector\\n  );\\n\\n  event MirrorConnectorUpdated(address previous, address current);\\n\\n  /**\\n   * @notice Emitted when funds are withdrawn by the admin\\n   * @dev See comments in `withdrawFunds`\\n   * @param to The recipient of the funds\\n   * @param amount The amount withdrawn\\n   */\\n  event FundsWithdrawn(address indexed to, uint256 amount);\\n\\n  // ============ Public Storage ============\\n\\n  /**\\n   * @notice The domain of this Messaging (i.e. Connector) contract.\\n   */\\n  uint32 public immutable DOMAIN;\\n\\n  /**\\n   * @notice Address of the AMB on this domain.\\n   */\\n  address public immutable AMB;\\n\\n  /**\\n   * @notice RootManager contract address.\\n   */\\n  address public immutable ROOT_MANAGER;\\n\\n  /**\\n   * @notice The domain of the corresponding messaging (i.e. Connector) contract.\\n   */\\n  uint32 public immutable MIRROR_DOMAIN;\\n\\n  /**\\n   * @notice Connector on L2 for L1 connectors, and vice versa.\\n   */\\n  address public mirrorConnector;\\n\\n  // ============ Modifiers ============\\n\\n  /**\\n   * @notice Errors if the msg.sender is not the registered AMB\\n   */\\n  modifier onlyAMB() {\\n    require(msg.sender == AMB, \\\"!AMB\\\");\\n    _;\\n  }\\n\\n  /**\\n   * @notice Errors if the msg.sender is not the registered ROOT_MANAGER\\n   */\\n  modifier onlyRootManager() {\\n    // NOTE: RootManager will be zero address for spoke connectors.\\n    // Only root manager can dispatch a message to spokes/L2s via the hub connector.\\n    require(msg.sender == ROOT_MANAGER, \\\"!rootManager\\\");\\n    _;\\n  }\\n\\n  // ============ Constructor ============\\n\\n  /**\\n   * @notice Creates a new HubConnector instance\\n   * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.\\n   * for optimism, there is one connector on optimism and one connector on mainnet)\\n   * @param _domain The domain this connector lives on\\n   * @param _mirrorDomain The spoke domain\\n   * @param _amb The address of the amb on the domain this connector lives on\\n   * @param _rootManager The address of the RootManager on mainnet\\n   * @param _mirrorConnector The address of the spoke connector\\n   */\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address _amb,\\n    address _rootManager,\\n    address _mirrorConnector\\n  ) ProposedOwnable() {\\n    // set the owner\\n    _setOwner(msg.sender);\\n\\n    // sanity checks on values\\n    require(_domain != 0, \\\"empty domain\\\");\\n    require(_rootManager != address(0), \\\"empty rootManager\\\");\\n    // see note at top of contract on why the mirror values are not sanity checked\\n\\n    // set immutables\\n    DOMAIN = _domain;\\n    AMB = _amb;\\n    ROOT_MANAGER = _rootManager;\\n    MIRROR_DOMAIN = _mirrorDomain;\\n    // set mutables if defined\\n    if (_mirrorConnector != address(0)) {\\n      _setMirrorConnector(_mirrorConnector);\\n    }\\n\\n    emit NewConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector);\\n  }\\n\\n  // ============ Receivable ============\\n  /**\\n   * @notice Connectors may need to receive native asset to handle fees when sending a\\n   * message\\n   */\\n  receive() external payable {}\\n\\n  // ============ Admin Functions ============\\n\\n  /**\\n   * @notice Sets the address of the l2Connector for this domain\\n   */\\n  function setMirrorConnector(address _mirrorConnector) public onlyOwner {\\n    _setMirrorConnector(_mirrorConnector);\\n  }\\n\\n  /**\\n   * @notice This function should be callable by owner, and send funds trapped on\\n   * a connector to the provided recipient.\\n   * @dev Withdraws the entire balance of the contract.\\n   *\\n   * @param _to The recipient of the funds withdrawn\\n   */\\n  function withdrawFunds(address _to) public onlyOwner {\\n    uint256 amount = address(this).balance;\\n    Address.sendValue(payable(_to), amount);\\n    emit FundsWithdrawn(_to, amount);\\n  }\\n\\n  // ============ Public Functions ============\\n\\n  /**\\n   * @notice Processes a message received by an AMB\\n   * @dev This is called by AMBs to process messages originating from mirror connector\\n   */\\n  function processMessage(bytes memory _data) external virtual onlyAMB {\\n    _processMessage(_data);\\n    emit MessageProcessed(_data, msg.sender);\\n  }\\n\\n  /**\\n   * @notice Checks the cross domain sender for a given address\\n   */\\n  function verifySender(address _expected) external returns (bool) {\\n    return _verifySender(_expected);\\n  }\\n\\n  // ============ Virtual Functions ============\\n\\n  /**\\n   * @notice This function is used by the Connext contract on the l2 domain to send a message to the\\n   * l1 domain (i.e. called by Connext on optimism to send a message to mainnet with roots)\\n   * @param _data The contents of the message\\n   * @param _encodedData Data used to send the message; specific to connector\\n   */\\n  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal virtual;\\n\\n  /**\\n   * @notice This function is used by the AMBs to handle incoming messages. Should store the latest\\n   * root generated on the l2 domain.\\n   */\\n  function _processMessage(\\n    bytes memory /* _data */\\n  ) internal virtual {\\n    // By default, reverts. This is to ensure the call path is not used unless this function is\\n    // overridden by the inheriting class\\n    revert Connector__processMessage_notUsed();\\n  }\\n\\n  /**\\n   * @notice Verify that the msg.sender is the correct AMB contract, and that the message's origin sender\\n   * is the expected address.\\n   * @dev Should be overridden by the implementing Connector contract.\\n   */\\n  function _verifySender(address _expected) internal virtual returns (bool);\\n\\n  // ============ Private Functions ============\\n\\n  function _setMirrorConnector(address _mirrorConnector) internal virtual {\\n    emit MirrorConnectorUpdated(mirrorConnector, _mirrorConnector);\\n    mirrorConnector = _mirrorConnector;\\n  }\\n}\\n\",\"keccak256\":\"0x11b9785b7c3ce1296c4bea0b30f3ab28d9834121c63ab1b364cb54992f8fd90c\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/GasCap.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {Address} from \\\"@openzeppelin/contracts/utils/Address.sol\\\";\\nimport {ProposedOwnable} from \\\"../../shared/ProposedOwnable.sol\\\";\\n\\n/**\\n * @notice This contract is used to enforce upper bounds on the amount of fees\\n * forwarded along. This caps the amount relayers could charge for the service\\n */\\nabstract contract GasCap is ProposedOwnable {\\n  // ============ Storage ============\\n  /**\\n   * @notice The gnosis amb requires destination gas to be specified on the origin.\\n   * The gas used will be passed in by the relayer to allow for real-time estimates,\\n   * but will be capped at the admin-set cap.\\n   */\\n  uint256 public gasCap;\\n\\n  // ============ Events ============\\n\\n  /**\\n   * @notice Emitted when admin updates the gas cap\\n   * @param _previous The starting value\\n   * @param _updated The final value\\n   */\\n  event GasCapUpdated(uint256 _previous, uint256 _updated);\\n\\n  // ============ Constructor ============\\n  constructor(uint256 _gasCap) {\\n    _setGasCap(_gasCap);\\n  }\\n\\n  // ============ Admin Fns ============\\n  function setGasCap(uint256 _gasCap) public onlyOwner {\\n    _setGasCap(_gasCap);\\n  }\\n\\n  // ============ Internal Fns ============\\n\\n  /**\\n   * @notice Used (by admin) to update the gas cap\\n   * @param _gasCap The new value\\n   */\\n  function _setGasCap(uint256 _gasCap) internal {\\n    emit GasCapUpdated(gasCap, _gasCap);\\n    gasCap = _gasCap;\\n  }\\n\\n  /**\\n   * @notice Used to get the gas to use. Will be the original value IFF it\\n   * is less than the cap\\n   * @param _gas The proposed gas value\\n   */\\n  function _getGas(uint256 _gas) internal view returns (uint256) {\\n    if (_gas > gasCap) {\\n      _gas = gasCap;\\n    }\\n    return _gas;\\n  }\\n}\\n\",\"keccak256\":\"0x9a7c2dc4fd866a67cb6759cd18f04857e268649245c074edd4b8c1be37e69fff\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/HubConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {Connector} from \\\"./Connector.sol\\\";\\n\\n/**\\n * @title HubConnector\\n * @author Connext Labs, Inc.\\n * @notice This contract implements the messaging functions needed on the hub-side of a given AMB.\\n * The HubConnector has a limited set of functionality compared to the SpokeConnector, namely that\\n * it contains no logic to store or prove messages.\\n *\\n * @dev This contract should be deployed on the hub-side of an AMB (i.e. on L1), and contracts\\n * which extend this should implement the virtual functions defined in the BaseConnector class\\n */\\nabstract contract HubConnector is Connector {\\n  /**\\n   * @notice Creates a new HubConnector instance\\n   * @dev The connectors are deployed such that there is one on each side of an AMB (i.e.\\n   * for optimism, there is one connector on optimism and one connector on mainnet)\\n   * @param _domain The domain this connector lives on\\n   * @param _mirrorDomain The spoke domain\\n   * @param _amb The address of the amb on the domain this connector lives on\\n   * @param _rootManager The address of the RootManager on mainnet\\n   * @param _mirrorConnector The address of the spoke connector\\n   */\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address _amb,\\n    address _rootManager,\\n    address _mirrorConnector\\n  ) Connector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector) {}\\n\\n  // ============ Public fns ============\\n  /**\\n   * @notice Sends a message over the amb\\n   * @dev This is called by the root manager *only* on mainnet to propagate the aggregate root\\n   */\\n  function sendMessage(bytes memory _data, bytes memory _encodedData) external payable onlyRootManager {\\n    _sendMessage(_data, _encodedData);\\n    emit MessageSent(_data, _encodedData, msg.sender);\\n  }\\n}\\n\",\"keccak256\":\"0xc35621419ca872ed0550b0943a577b39942f3d2c9b54de008fee382d5ad290e4\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/wormhole/BaseWormhole.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {IWormholeRelayer} from \\\"../../interfaces/ambs/wormhole/IWormholeRelayer.sol\\\";\\n\\nimport {GasCap} from \\\"../GasCap.sol\\\";\\n\\nabstract contract BaseWormhole is GasCap {\\n  // ============ Events ============\\n\\n  event RefundAddressUpdated(address indexed previous, address indexed updated);\\n\\n  // ============ Storage ============\\n  /**\\n   * @notice The wormhole id for the mirror network\\n   */\\n  uint16 public immutable MIRROR_WORMHOLE_ID;\\n\\n  /**\\n   * @notice The address on this chain any refunds from wormhole fees will be\\n   * sent to\\n   */\\n  address public refundAddress;\\n\\n  /**\\n   * @notice Mapping of processed messages from wormhole.\\n   * @dev Used for replay protection.\\n   */\\n  mapping(bytes32 => bool) public processedWhMessages;\\n\\n  // ============ Constructor ============\\n  constructor(uint256 _gasCap, uint16 _mirrorWormholeChainId) GasCap(_gasCap) {\\n    MIRROR_WORMHOLE_ID = _mirrorWormholeChainId;\\n    _setRefundAddress(msg.sender);\\n  }\\n\\n  // ============ Admin fns ============\\n  /**\\n   * @notice Allows the owner to set a new address to collect excess wormhole fees.\\n   * @param _updated The updated refund address\\n   */\\n  function setRefundAddress(address _updated) public onlyOwner {\\n    _setRefundAddress(_updated);\\n  }\\n\\n  // ============ Public fns ============\\n\\n  /**\\n   * @dev calculcate gas to call `receiveWormholeMessages` on target chain\\n   * https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol\\n   */\\n  function quoteEVMDeliveryPrice(uint256 _gasLimit, address _amb) public view returns (uint256 _cost) {\\n    // First Get the gas, if it is more than the cap use the cap\\n    // And calculcate delievery price with gasCap\\n    (_cost, ) = IWormholeRelayer(_amb).quoteEVMDeliveryPrice(MIRROR_WORMHOLE_ID, 0, _getGas(_gasLimit));\\n  }\\n\\n  // ============ Private fns ============\\n\\n  function _setRefundAddress(address _updated) internal {\\n    require(_updated != refundAddress, \\\"!changed\\\");\\n    emit RefundAddressUpdated(refundAddress, _updated);\\n    refundAddress = _updated;\\n  }\\n\\n  /**\\n   * @dev Asserts the sender of a cross domain message\\n   */\\n  function _verifySender(address _mirrorConnector, address _expected) internal pure returns (bool) {\\n    return _mirrorConnector == _expected;\\n  }\\n\\n  // DO NOT override _processMessage, should revert from `Connector` class. All messages must use the _processMessageFrom function\\n  /**\\n   * @notice This function is called to handle incoming messages. Should store the latest\\n   * root generated on the l2 domain.\\n   */\\n  function _processMessageFrom(address _sender, bytes memory _data) internal virtual;\\n\\n  /**\\n   * @notice Performs sanity checks specific to receiving wormhole messages.\\n   * @dev Checks the sender is the AMB, the chain is the mirror, and replay.\\n   */\\n  function _wormholeSanityChecks(uint16 _sourceChain, address _amb, bytes32 _deliveryHash) internal {\\n    require(_sourceChain == MIRROR_WORMHOLE_ID, \\\"!source chain\\\");\\n    require(msg.sender == _amb, \\\"!relayer\\\");\\n\\n    // Check that the VAA hasn't already been processed (replay protection)\\n    require(!processedWhMessages[_deliveryHash], \\\"already processed\\\");\\n\\n    // Add the VAA to processed messages so it can't be replayed\\n    // you can alternatively rely on the replay protection\\n    // of something like transferWithPayload from the Token Bridge module\\n    processedWhMessages[_deliveryHash] = true;\\n  }\\n\\n  /**\\n   * @dev send message via wormhole.\\n   * https://book.wormhole.com/technical/evm/relayer.html#sending-messages\\n   */\\n  function _sendMessage(\\n    address _amb,\\n    address _mirrorConnector,\\n    bytes memory _data,\\n    bytes memory _encodedData\\n  ) internal {\\n    // Should always be sending a merkle root\\n    require(_data.length == 32, \\\"!data length\\\");\\n\\n    // Should include gas limit info in specialized calldata\\n    require(_encodedData.length == 32, \\\"!encoded data length\\\");\\n\\n    //calculate cost to deliver message\\n    uint256 gasLimit = abi.decode(_encodedData, (uint256));\\n    uint256 deliveryCost = quoteEVMDeliveryPrice(gasLimit, _amb);\\n    require(deliveryCost == msg.value, \\\"!msg.value\\\");\\n\\n    // publish delivery request\\n    IWormholeRelayer(_amb).sendPayloadToEvm{value: deliveryCost}(\\n      MIRROR_WORMHOLE_ID,\\n      _mirrorConnector,\\n      _data,\\n      0,\\n      gasLimit,\\n      MIRROR_WORMHOLE_ID, // refundChain\\n      refundAddress // refundAddress\\n    );\\n  }\\n\\n  /**\\n   * @notice Converts from wormhole 32 byte identifier format to evm address\\n   */\\n  function _fromWormholeFormat(bytes32 _whFormatAddress) internal pure returns (address) {\\n    require(uint256(_whFormatAddress) >> 160 == 0, \\\"!evm address\\\");\\n    return address(uint160(uint256(_whFormatAddress)));\\n  }\\n}\\n\",\"keccak256\":\"0x4499e417c5c476aff8fdfd68e01bd92077c9fdd0e7b4bb941a2f348cc3c4cdd4\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/connectors/wormhole/WormholeHubConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {IRootManager} from \\\"../../interfaces/IRootManager.sol\\\";\\nimport {IWormholeReceiver} from \\\"../../interfaces/ambs/wormhole/IWormholeReceiver.sol\\\";\\n\\nimport {HubConnector, Connector} from \\\"../HubConnector.sol\\\";\\n\\nimport {BaseWormhole} from \\\"./BaseWormhole.sol\\\";\\n\\ncontract WormholeHubConnector is HubConnector, BaseWormhole, IWormholeReceiver {\\n  // ============ Constructor ============\\n  constructor(\\n    uint32 _domain,\\n    uint32 _mirrorDomain,\\n    address _amb,\\n    address _rootManager,\\n    address _mirrorConnector,\\n    uint256 _gasCap,\\n    uint16 _mirrorWormholeChainId\\n  )\\n    HubConnector(_domain, _mirrorDomain, _amb, _rootManager, _mirrorConnector)\\n    BaseWormhole(_gasCap, _mirrorWormholeChainId)\\n  {}\\n\\n  // ============ Override Fns ============\\n  function _verifySender(address _expected) internal view override returns (bool) {\\n    return _verifySender(mirrorConnector, _expected);\\n  }\\n\\n  // ============ Public fns ============\\n  /**\\n   * @notice This function is called to receive messages through the wormhole relayer module\\n   * https://book.wormhole.com/technical/evm/relayer.html\\n   * @dev This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice.\\n   */\\n  function receiveWormholeMessages(\\n    bytes memory _payload,\\n    bytes[] memory, // additionalVaas,\\n    bytes32 _sourceAddress,\\n    uint16 _sourceChain,\\n    bytes32 _deliveryHash\\n  ) public payable override {\\n    _wormholeSanityChecks(_sourceChain, AMB, _deliveryHash);\\n\\n    _processMessageFrom(_fromWormholeFormat(_sourceAddress), _payload);\\n  }\\n\\n  // ============ Private fns ============\\n  /**\\n   * @dev Handles an incoming `outboundRoot`\\n   */\\n  function _processMessageFrom(address _sender, bytes memory _data) internal override(BaseWormhole) {\\n    // enforce this came from connector on l2\\n    require(_verifySender(_sender), \\\"!l2Connector\\\");\\n\\n    // get the data (should be the outbound root)\\n    require(_data.length == 32, \\\"!length\\\");\\n\\n    // set the outbound root for BSC domain\\n    IRootManager(ROOT_MANAGER).aggregate(MIRROR_DOMAIN, bytes32(_data));\\n\\n    emit MessageProcessed(_data, msg.sender);\\n  }\\n\\n  function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override {\\n    _sendMessage(AMB, mirrorConnector, _data, _encodedData);\\n  }\\n}\\n\",\"keccak256\":\"0xaece8ff814a098399414a5a3a752c8d491a19bf18b365a7c1babca271510fdbb\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/interfaces/IConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"../../shared/interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @notice This interface is what the Connext contract will send and receive messages through.\\n * The messaging layer should conform to this interface, and should be interchangeable (i.e.\\n * could be Nomad or a generic AMB under the hood).\\n *\\n * @dev This uses the nomad format to ensure nomad can be added in as it comes back online.\\n *\\n * Flow from transfer from polygon to optimism:\\n * 1. User calls `xcall` with destination specified\\n * 2. This will swap in to the bridge assets\\n * 3. The swapped assets will get burned\\n * 4. The Connext contract will call `dispatch` on the messaging contract to add the transfer\\n *    to the root\\n * 5. [At some time interval] Relayers call `send` to send the current root from polygon to\\n *    mainnet. This is done on all \\\"spoke\\\" domains.\\n * 6. [At some time interval] Relayers call `propagate` [better name] on mainnet, this generates a new merkle\\n *    root from all of the AMBs\\n *    - This function must be able to read root data from all AMBs and aggregate them into a single merkle\\n *      tree root\\n *    - Will send the mixed root from all chains back through the respective AMBs to all other chains\\n * 7. AMB will call `update` to update the latest root on the messaging contract on spoke domains\\n * 8. [At any point] Relayers can call `proveAndProcess` to prove inclusion of dispatched message, and call\\n *    process on the `Connext` contract\\n * 9. Takes minted bridge tokens and credits the LP\\n *\\n * AMB requirements:\\n * - Access `msg.sender` both from mainnet -> spoke and vice versa\\n * - Ability to read *our root* from the AMB\\n *\\n * AMBs:\\n * - PoS bridge from polygon\\n * - arbitrum bridge\\n * - optimism bridge\\n * - gnosis chain\\n * - bsc (use multichain for messaging)\\n */\\ninterface IConnector is IProposedOwnable {\\n  // ============ Events ============\\n  /**\\n   * @notice Emitted whenever a message is successfully sent over an AMB\\n   * @param data The contents of the message\\n   * @param encodedData Data used to send the message; specific to connector\\n   * @param caller Who called the function (sent the message)\\n   */\\n  event MessageSent(bytes data, bytes encodedData, address caller);\\n\\n  /**\\n   * @notice Emitted whenever a message is successfully received over an AMB\\n   * @param data The contents of the message\\n   * @param caller Who called the function\\n   */\\n  event MessageProcessed(bytes data, address caller);\\n\\n  // ============ Public fns ============\\n\\n  function processMessage(bytes memory _data) external;\\n\\n  function verifySender(address _expected) external returns (bool);\\n}\\n\",\"keccak256\":\"0xfba166354b442fa72b05be07aed38400b47f68498e8dfdd94fc43df00c401ed1\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/interfaces/IRootManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT OR Apache-2.0\\npragma solidity 0.8.17;\\n\\ninterface IRootManager {\\n  /**\\n   * @notice This is called by relayers to generate + send the mixed root from mainnet via AMB to\\n   * spoke domains.\\n   * @dev This must read information for the root from the registered AMBs.\\n   */\\n  function propagate(\\n    address[] calldata _connectors,\\n    uint256[] calldata _fees,\\n    bytes[] memory _encodedData\\n  ) external payable;\\n\\n  /**\\n   * @notice Called by the connectors for various domains on the hub to aggregate their latest\\n   * inbound root.\\n   * @dev This must read information for the root from the registered AMBs\\n   */\\n  function aggregate(uint32 _domain, bytes32 _outbound) external;\\n}\\n\",\"keccak256\":\"0xa895dfaa4baad37a636e7e7e7da72a0a4badfd2d3d8256f975e5101cd5a98236\",\"license\":\"MIT OR Apache-2.0\"},\"contracts/messaging/interfaces/ambs/wormhole/IWormholeReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: Apache 2\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @notice Interface for a contract which can receive Wormhole messages.\\n */\\ninterface IWormholeReceiver {\\n  /**\\n   * @notice When a `send` is performed with this contract as the target, this function will be\\n   *     invoked by the WormholeRelayer contract\\n   *\\n   * NOTE: This function should be restricted such that only the Wormhole Relayer contract can call it.\\n   *\\n   * We also recommend that this function:\\n   *   - Stores all received `deliveryHash`s in a mapping `(bytes32 => bool)`, and\\n   *       on every call, checks that deliveryHash has not already been stored in the\\n   *       map (This is to prevent other users maliciously trying to relay the same message)\\n   *   - Checks that `sourceChain` and `sourceAddress` are indeed who\\n   *       you expect to have requested the calling of `send` or `forward` on the source chain\\n   *\\n   * The invocation of this function corresponding to the `send` request will have msg.value equal\\n   *   to the receiverValue specified in the send request.\\n   *\\n   * If the invocation of this function reverts or exceeds the gas limit\\n   *   specified by the send requester, this delivery will result in a `ReceiverFailure`.\\n   *\\n   * @param payload - an arbitrary message which was included in the delivery by the\\n   *     requester.\\n   * @param additionalVaas - Additional VAAs which were requested to be included in this delivery.\\n   *   They are guaranteed to all be included and in the same order as was specified in the\\n   *     delivery request.\\n   * @param sourceAddress - the (wormhole format) address on the sending chain which requested\\n   *     this delivery.\\n   * @param sourceChain - the wormhole chain ID where this delivery was requested.\\n   * @param deliveryHash - the VAA hash of the deliveryVAA.\\n   *\\n   * NOTE: These signedVaas are NOT verified by the Wormhole core contract prior to being provided\\n   *     to this call. Always make sure `parseAndVerify()` is called on the Wormhole core contract\\n   *     before trusting the content of a raw VAA, otherwise the VAA may be invalid or malicious.\\n   */\\n  function receiveWormholeMessages(\\n    bytes memory payload,\\n    bytes[] memory additionalVaas,\\n    bytes32 sourceAddress,\\n    uint16 sourceChain,\\n    bytes32 deliveryHash\\n  ) external payable;\\n}\\n\",\"keccak256\":\"0xc34fa3395bbbfceb401bc4f2070ad42f7b80e6404a0944ca575397194816c2fb\",\"license\":\"Apache 2\"},\"contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol\":{\"content\":\"// SPDX-License-Identifier: Apache 2\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @title WormholeRelayer\\n * @author\\n * @notice This project allows developers to build cross-chain applications powered by Wormhole without needing to\\n * write and run their own relaying infrastructure\\n *\\n * We implement the IWormholeRelayer interface that allows users to request a delivery provider to relay a payload (and/or additional VAAs)\\n * to a chain and address of their choice.\\n */\\n\\n/**\\n * @notice VaaKey identifies a wormhole message\\n *\\n * @custom:member chainId Wormhole chain ID of the chain where this VAA was emitted from\\n * @custom:member emitterAddress Address of the emitter of the VAA, in Wormhole bytes32 format\\n * @custom:member sequence Sequence number of the VAA\\n */\\nstruct VaaKey {\\n  uint16 chainId;\\n  bytes32 emitterAddress;\\n  uint64 sequence;\\n}\\n\\ninterface IWormholeRelayerBase {\\n  event SendEvent(uint64 indexed sequence, uint256 deliveryQuote, uint256 paymentForExtraReceiverValue);\\n\\n  function getRegisteredWormholeRelayerContract(uint16 chainId) external view returns (bytes32);\\n}\\n\\n/**\\n * @title IWormholeRelayerSend\\n * @notice The interface to request deliveries\\n */\\ninterface IWormholeRelayerSend is IWormholeRelayerBase {\\n  /**\\n   * @notice Publishes an instruction for the default delivery provider\\n   * to relay a payload to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and `msg.value` equal to `receiverValue`\\n   *\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to `quoteEVMDeliveryPrice(targetChain, receiverValue, gasLimit)`\\n   *\\n   * Any refunds (from leftover gas) will be paid to the delivery provider. In order to receive the refunds, use the `sendPayloadToEvm` function\\n   * with `refundChain` and `refundAddress` as parameters\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver)\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function sendPayloadToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Publishes an instruction for the default delivery provider\\n   * to relay a payload to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and `msg.value` equal to `receiverValue`\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to `quoteEVMDeliveryPrice(targetChain, receiverValue, gasLimit)`\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver)\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`. Any units of gas unused will be refunded according to the\\n   *        `targetChainRefundPerGasUnused` rate quoted by the delivery provider\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function sendPayloadToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit,\\n    uint16 refundChain,\\n    address refundAddress\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Publishes an instruction for the default delivery provider\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and `msg.value` equal to `receiverValue`\\n   *\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to `quoteEVMDeliveryPrice(targetChain, receiverValue, gasLimit)`\\n   *\\n   * Any refunds (from leftover gas) will be paid to the delivery provider. In order to receive the refunds, use the `sendVaasToEvm` function\\n   * with `refundChain` and `refundAddress` as parameters\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver)\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function sendVaasToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit,\\n    VaaKey[] memory vaaKeys\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Publishes an instruction for the default delivery provider\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and `msg.value` equal to `receiverValue`\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to `quoteEVMDeliveryPrice(targetChain, receiverValue, gasLimit)`\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver)\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`. Any units of gas unused will be refunded according to the\\n   *        `targetChainRefundPerGasUnused` rate quoted by the delivery provider\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function sendVaasToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit,\\n    VaaKey[] memory vaaKeys,\\n    uint16 refundChain,\\n    address refundAddress\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Publishes an instruction for the delivery provider at `deliveryProviderAddress`\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and `msg.value` equal to\\n   * receiverValue + (arbitrary amount that is paid for by paymentForExtraReceiverValue of this chain's wei) in targetChain wei.\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to\\n   * quoteEVMDeliveryPrice(targetChain, receiverValue, gasLimit, deliveryProviderAddress) + paymentForExtraReceiverValue\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver)\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param paymentForExtraReceiverValue amount (in current chain currency units) to spend on extra receiverValue\\n   *        (in addition to the `receiverValue` specified)\\n   * @param gasLimit gas limit with which to call `targetAddress`. Any units of gas unused will be refunded according to the\\n   *        `targetChainRefundPerGasUnused` rate quoted by the delivery provider\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @param consistencyLevel Consistency level with which to publish the delivery instructions - see\\n   *        https://book.wormhole.com/wormhole/3_coreLayerContracts.html?highlight=consistency#consistency-levels\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function sendToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 paymentForExtraReceiverValue,\\n    uint256 gasLimit,\\n    uint16 refundChain,\\n    address refundAddress,\\n    address deliveryProviderAddress,\\n    VaaKey[] memory vaaKeys,\\n    uint8 consistencyLevel\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Publishes an instruction for the delivery provider at `deliveryProviderAddress`\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with `msg.value` equal to\\n   * receiverValue + (arbitrary amount that is paid for by paymentForExtraReceiverValue of this chain's wei) in targetChain wei.\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * This function must be called with `msg.value` equal to\\n   * quoteDeliveryPrice(targetChain, receiverValue, encodedExecutionParameters, deliveryProviderAddress) + paymentForExtraReceiverValue\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver), in Wormhole bytes32 format\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param paymentForExtraReceiverValue amount (in current chain currency units) to spend on extra receiverValue\\n   *        (in addition to the `receiverValue` specified)\\n   * @param encodedExecutionParameters encoded information on how to execute delivery that may impact pricing\\n   *        e.g. for version EVM_V1, this is a struct that encodes the `gasLimit` with which to call `targetAddress`\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to, in Wormhole bytes32 format\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @param consistencyLevel Consistency level with which to publish the delivery instructions - see\\n   *        https://book.wormhole.com/wormhole/3_coreLayerContracts.html?highlight=consistency#consistency-levels\\n   * @return sequence sequence number of published VAA containing delivery instructions\\n   */\\n  function send(\\n    uint16 targetChain,\\n    bytes32 targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 paymentForExtraReceiverValue,\\n    bytes memory encodedExecutionParameters,\\n    uint16 refundChain,\\n    bytes32 refundAddress,\\n    address deliveryProviderAddress,\\n    VaaKey[] memory vaaKeys,\\n    uint8 consistencyLevel\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Performs the same function as a `send`, except:\\n   * 1)  Can only be used during a delivery (i.e. in execution of `receiveWormholeMessages`)\\n   * 2)  Is paid for (along with any other calls to forward) by (any msg.value passed in) + (refund leftover from current delivery)\\n   * 3)  Only executes after `receiveWormholeMessages` is completed (and thus does not return a sequence number)\\n   *\\n   * The refund from the delivery currently in progress will not be sent to the user; it will instead\\n   * be paid to the delivery provider to perform the instruction specified here\\n   *\\n   * Publishes an instruction for the same delivery provider (or default, if the same one doesn't support the new target chain)\\n   * to relay a payload to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and with `msg.value` equal to `receiverValue`\\n   *\\n   * The following equation must be satisfied (sum_f indicates summing over all forwards requested in `receiveWormholeMessages`):\\n   * (refund amount from current execution of receiveWormholeMessages) + sum_f [msg.value_f]\\n   * >= sum_f [quoteEVMDeliveryPrice(targetChain_f, receiverValue_f, gasLimit_f)]\\n   *\\n   * The difference between the two sides of the above inequality will be added to `paymentForExtraReceiverValue` of the first forward requested\\n   *\\n   * Any refunds (from leftover gas) from this forward will be paid to the same refundChain and refundAddress specified for the current delivery.\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver), in Wormhole bytes32 format\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   */\\n  function forwardPayloadToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit\\n  ) external payable;\\n\\n  /**\\n   * @notice Performs the same function as a `send`, except:\\n   * 1)  Can only be used during a delivery (i.e. in execution of `receiveWormholeMessages`)\\n   * 2)  Is paid for (along with any other calls to forward) by (any msg.value passed in) + (refund leftover from current delivery)\\n   * 3)  Only executes after `receiveWormholeMessages` is completed (and thus does not return a sequence number)\\n   *\\n   * The refund from the delivery currently in progress will not be sent to the user; it will instead\\n   * be paid to the delivery provider to perform the instruction specified here\\n   *\\n   * Publishes an instruction for the same delivery provider (or default, if the same one doesn't support the new target chain)\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and with `msg.value` equal to `receiverValue`\\n   *\\n   * The following equation must be satisfied (sum_f indicates summing over all forwards requested in `receiveWormholeMessages`):\\n   * (refund amount from current execution of receiveWormholeMessages) + sum_f [msg.value_f]\\n   * >= sum_f [quoteEVMDeliveryPrice(targetChain_f, receiverValue_f, gasLimit_f)]\\n   *\\n   * The difference between the two sides of the above inequality will be added to `paymentForExtraReceiverValue` of the first forward requested\\n   *\\n   * Any refunds (from leftover gas) from this forward will be paid to the same refundChain and refundAddress specified for the current delivery.\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver), in Wormhole bytes32 format\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   */\\n  function forwardVaasToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 gasLimit,\\n    VaaKey[] memory vaaKeys\\n  ) external payable;\\n\\n  /**\\n   * @notice Performs the same function as a `send`, except:\\n   * 1)  Can only be used during a delivery (i.e. in execution of `receiveWormholeMessages`)\\n   * 2)  Is paid for (along with any other calls to forward) by (any msg.value passed in) + (refund leftover from current delivery)\\n   * 3)  Only executes after `receiveWormholeMessages` is completed (and thus does not return a sequence number)\\n   *\\n   * The refund from the delivery currently in progress will not be sent to the user; it will instead\\n   * be paid to the delivery provider to perform the instruction specified here\\n   *\\n   * Publishes an instruction for the delivery provider at `deliveryProviderAddress`\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with gas limit `gasLimit` and with `msg.value` equal to\\n   * receiverValue + (arbitrary amount that is paid for by paymentForExtraReceiverValue of this chain's wei) in targetChain wei.\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * The following equation must be satisfied (sum_f indicates summing over all forwards requested in `receiveWormholeMessages`):\\n   * (refund amount from current execution of receiveWormholeMessages) + sum_f [msg.value_f]\\n   * >= sum_f [quoteEVMDeliveryPrice(targetChain_f, receiverValue_f, gasLimit_f, deliveryProviderAddress_f) + paymentForExtraReceiverValue_f]\\n   *\\n   * The difference between the two sides of the above inequality will be added to `paymentForExtraReceiverValue` of the first forward requested\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver), in Wormhole bytes32 format\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param paymentForExtraReceiverValue amount (in current chain currency units) to spend on extra receiverValue\\n   *        (in addition to the `receiverValue` specified)\\n   * @param gasLimit gas limit with which to call `targetAddress`. Any units of gas unused will be refunded according to the\\n   *        `targetChainRefundPerGasUnused` rate quoted by the delivery provider\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to, in Wormhole bytes32 format\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @param consistencyLevel Consistency level with which to publish the delivery instructions - see\\n   *        https://book.wormhole.com/wormhole/3_coreLayerContracts.html?highlight=consistency#consistency-levels\\n   */\\n  function forwardToEvm(\\n    uint16 targetChain,\\n    address targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 paymentForExtraReceiverValue,\\n    uint256 gasLimit,\\n    uint16 refundChain,\\n    address refundAddress,\\n    address deliveryProviderAddress,\\n    VaaKey[] memory vaaKeys,\\n    uint8 consistencyLevel\\n  ) external payable;\\n\\n  /**\\n   * @notice Performs the same function as a `send`, except:\\n   * 1)  Can only be used during a delivery (i.e. in execution of `receiveWormholeMessages`)\\n   * 2)  Is paid for (along with any other calls to forward) by (any msg.value passed in) + (refund leftover from current delivery)\\n   * 3)  Only executes after `receiveWormholeMessages` is completed (and thus does not return a sequence number)\\n   *\\n   * The refund from the delivery currently in progress will not be sent to the user; it will instead\\n   * be paid to the delivery provider to perform the instruction specified here\\n   *\\n   * Publishes an instruction for the delivery provider at `deliveryProviderAddress`\\n   * to relay a payload and VAAs specified by `vaaKeys` to the address `targetAddress` on chain `targetChain`\\n   * with `msg.value` equal to\\n   * receiverValue + (arbitrary amount that is paid for by paymentForExtraReceiverValue of this chain's wei) in targetChain wei.\\n   *\\n   * Any refunds (from leftover gas) will be sent to `refundAddress` on chain `refundChain`\\n   * `targetAddress` must implement the IWormholeReceiver interface\\n   *\\n   * The following equation must be satisfied (sum_f indicates summing over all forwards requested in `receiveWormholeMessages`):\\n   * (refund amount from current execution of receiveWormholeMessages) + sum_f [msg.value_f]\\n   * >= sum_f [quoteDeliveryPrice(targetChain_f, receiverValue_f, encodedExecutionParameters_f, deliveryProviderAddress_f) + paymentForExtraReceiverValue_f]\\n   *\\n   * The difference between the two sides of the above inequality will be added to `paymentForExtraReceiverValue` of the first forward requested\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param targetAddress address to call on targetChain (that implements IWormholeReceiver), in Wormhole bytes32 format\\n   * @param payload arbitrary bytes to pass in as parameter in call to `targetAddress`\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param paymentForExtraReceiverValue amount (in current chain currency units) to spend on extra receiverValue\\n   *        (in addition to the `receiverValue` specified)\\n   * @param encodedExecutionParameters encoded information on how to execute delivery that may impact pricing\\n   *        e.g. for version EVM_V1, this is a struct that encodes the `gasLimit` with which to call `targetAddress`\\n   * @param refundChain The chain to deliver any refund to, in Wormhole Chain ID format\\n   * @param refundAddress The address on `refundChain` to deliver any refund to, in Wormhole bytes32 format\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @param vaaKeys Additional VAAs to pass in as parameter in call to `targetAddress`\\n   * @param consistencyLevel Consistency level with which to publish the delivery instructions - see\\n   *        https://book.wormhole.com/wormhole/3_coreLayerContracts.html?highlight=consistency#consistency-levels\\n   */\\n  function forward(\\n    uint16 targetChain,\\n    bytes32 targetAddress,\\n    bytes memory payload,\\n    uint256 receiverValue,\\n    uint256 paymentForExtraReceiverValue,\\n    bytes memory encodedExecutionParameters,\\n    uint16 refundChain,\\n    bytes32 refundAddress,\\n    address deliveryProviderAddress,\\n    VaaKey[] memory vaaKeys,\\n    uint8 consistencyLevel\\n  ) external payable;\\n\\n  /**\\n   * @notice Requests a previously published delivery instruction to be redelivered\\n   * (e.g. with a different delivery provider)\\n   *\\n   * This function must be called with `msg.value` equal to\\n   * quoteEVMDeliveryPrice(targetChain, newReceiverValue, newGasLimit, newDeliveryProviderAddress)\\n   *\\n   * @param deliveryVaaKey VaaKey identifying the wormhole message containing the\\n   *        previously published delivery instructions\\n   * @param targetChain The target chain that the original delivery targeted. Must match targetChain from original delivery instructions\\n   * @param newReceiverValue new msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param newGasLimit gas limit with which to call `targetAddress`. Any units of gas unused will be refunded according to the\\n   *        `targetChainRefundPerGasUnused` rate quoted by the delivery provider, to the refund chain and address specified in the original request\\n   * @param newDeliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @return sequence sequence number of published VAA containing redelivery instructions\\n   */\\n  function resendToEvm(\\n    VaaKey memory deliveryVaaKey,\\n    uint16 targetChain,\\n    uint256 newReceiverValue,\\n    uint256 newGasLimit,\\n    address newDeliveryProviderAddress\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Requests a previously published delivery instruction to be redelivered\\n   *\\n   *\\n   * This function must be called with `msg.value` equal to\\n   * quoteDeliveryPrice(targetChain, newReceiverValue, newEncodedExecutionParameters, newDeliveryProviderAddress)\\n   *\\n   * @param deliveryVaaKey VaaKey identifying the wormhole message containing the\\n   *        previously published delivery instructions\\n   * @param targetChain The target chain that the original delivery targeted. Must match targetChain from original delivery instructions\\n   * @param newReceiverValue new msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param newEncodedExecutionParameters new encoded information on how to execute delivery that may impact pricing\\n   *        e.g. for version EVM_V1, this is a struct that encodes the `gasLimit` with which to call `targetAddress`\\n   * @param newDeliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @return sequence sequence number of published VAA containing redelivery instructions\\n   */\\n  function resend(\\n    VaaKey memory deliveryVaaKey,\\n    uint16 targetChain,\\n    uint256 newReceiverValue,\\n    bytes memory newEncodedExecutionParameters,\\n    address newDeliveryProviderAddress\\n  ) external payable returns (uint64 sequence);\\n\\n  /**\\n   * @notice Returns the price to request a relay to chain `targetChain`, using the default delivery provider\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   * @return nativePriceQuote Price, in units of current chain currency, that the delivery provider charges to perform the relay\\n   * @return targetChainRefundPerGasUnused amount of target chain currency that will be refunded per unit of gas unused,\\n   *         if a refundAddress is specified\\n   */\\n  function quoteEVMDeliveryPrice(\\n    uint16 targetChain,\\n    uint256 receiverValue,\\n    uint256 gasLimit\\n  ) external view returns (uint256 nativePriceQuote, uint256 targetChainRefundPerGasUnused);\\n\\n  /**\\n   * @notice Returns the price to request a relay to chain `targetChain`, using delivery provider `deliveryProviderAddress`\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param gasLimit gas limit with which to call `targetAddress`.\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @return nativePriceQuote Price, in units of current chain currency, that the delivery provider charges to perform the relay\\n   * @return targetChainRefundPerGasUnused amount of target chain currency that will be refunded per unit of gas unused,\\n   *         if a refundAddress is specified\\n   */\\n  function quoteEVMDeliveryPrice(\\n    uint16 targetChain,\\n    uint256 receiverValue,\\n    uint256 gasLimit,\\n    address deliveryProviderAddress\\n  ) external view returns (uint256 nativePriceQuote, uint256 targetChainRefundPerGasUnused);\\n\\n  /**\\n   * @notice Returns the price to request a relay to chain `targetChain`, using delivery provider `deliveryProviderAddress`\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param receiverValue msg.value that delivery provider should pass in for call to `targetAddress` (in targetChain currency units)\\n   * @param encodedExecutionParameters encoded information on how to execute delivery that may impact pricing\\n   *        e.g. for version EVM_V1, this is a struct that encodes the `gasLimit` with which to call `targetAddress`\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @return nativePriceQuote Price, in units of current chain currency, that the delivery provider charges to perform the relay\\n   * @return encodedExecutionInfo encoded information on how the delivery will be executed\\n   *        e.g. for version EVM_V1, this is a struct that encodes the `gasLimit` and `targetChainRefundPerGasUnused`\\n   *             (which is the amount of target chain currency that will be refunded per unit of gas unused,\\n   *              if a refundAddress is specified)\\n   */\\n  function quoteDeliveryPrice(\\n    uint16 targetChain,\\n    uint256 receiverValue,\\n    bytes memory encodedExecutionParameters,\\n    address deliveryProviderAddress\\n  ) external view returns (uint256 nativePriceQuote, bytes memory encodedExecutionInfo);\\n\\n  /**\\n   * @notice Returns the (extra) amount of target chain currency that `targetAddress`\\n   * will be called with, if the `paymentForExtraReceiverValue` field is set to `currentChainAmount`\\n   *\\n   * @param targetChain in Wormhole Chain ID format\\n   * @param currentChainAmount The value that `paymentForExtraReceiverValue` will be set to\\n   * @param deliveryProviderAddress The address of the desired delivery provider's implementation of IDeliveryProvider\\n   * @return targetChainAmount The amount such that if `targetAddress` will be called with `msg.value` equal to\\n   *         receiverValue + targetChainAmount\\n   */\\n  function quoteNativeForChain(\\n    uint16 targetChain,\\n    uint256 currentChainAmount,\\n    address deliveryProviderAddress\\n  ) external view returns (uint256 targetChainAmount);\\n\\n  /**\\n   * @notice Returns the address of the current default delivery provider\\n   * @return deliveryProvider The address of (the default delivery provider)'s contract on this source\\n   *   chain. This must be a contract that implements IDeliveryProvider.\\n   */\\n  function getDefaultDeliveryProvider() external view returns (address deliveryProvider);\\n}\\n\\n/**\\n * @title IWormholeRelayerDelivery\\n * @notice The interface to execute deliveries. Only relevant for Delivery Providers\\n */\\ninterface IWormholeRelayerDelivery is IWormholeRelayerBase {\\n  enum DeliveryStatus {\\n    SUCCESS,\\n    RECEIVER_FAILURE,\\n    FORWARD_REQUEST_FAILURE,\\n    FORWARD_REQUEST_SUCCESS\\n  }\\n\\n  enum RefundStatus {\\n    REFUND_SENT,\\n    REFUND_FAIL,\\n    CROSS_CHAIN_REFUND_SENT,\\n    CROSS_CHAIN_REFUND_FAIL_PROVIDER_NOT_SUPPORTED,\\n    CROSS_CHAIN_REFUND_FAIL_NOT_ENOUGH\\n  }\\n\\n  /**\\n   * @custom:member recipientContract - The target contract address\\n   * @custom:member sourceChain - The chain which this delivery was requested from (in wormhole\\n   *     ChainID format)\\n   * @custom:member sequence - The wormhole sequence number of the delivery VAA on the source chain\\n   *     corresponding to this delivery request\\n   * @custom:member deliveryVaaHash - The hash of the delivery VAA corresponding to this delivery\\n   *     request\\n   * @custom:member gasUsed - The amount of gas that was used to call your target contract\\n   * @custom:member status:\\n   *   - RECEIVER_FAILURE, if the target contract reverts\\n   *   - SUCCESS, if the target contract doesn't revert and no forwards were requested\\n   *   - FORWARD_REQUEST_FAILURE, if the target contract doesn't revert, forwards were requested,\\n   *       but provided/leftover funds were not sufficient to cover them all\\n   *   - FORWARD_REQUEST_SUCCESS, if the target contract doesn't revert and all forwards are covered\\n   * @custom:member additionalStatusInfo:\\n   *   - If status is SUCCESS or FORWARD_REQUEST_SUCCESS, then this is empty.\\n   *   - If status is RECEIVER_FAILURE, this is `RETURNDATA_TRUNCATION_THRESHOLD` bytes of the\\n   *       return data (i.e. potentially truncated revert reason information).\\n   *   - If status is FORWARD_REQUEST_FAILURE, this is also the revert data - the reason the forward failed.\\n   *     This will be either an encoded Cancelled, DeliveryProviderReverted, or DeliveryProviderPaymentFailed error\\n   * @custom:member refundStatus - Result of the refund. REFUND_SUCCESS or REFUND_FAIL are for\\n   *     refunds where targetChain=refundChain; the others are for targetChain!=refundChain,\\n   *     where a cross chain refund is necessary\\n   * @custom:member overridesInfo:\\n   *   - If not an override: empty bytes array\\n   *   - Otherwise: An encoded `DeliveryOverride`\\n   */\\n  event Delivery(\\n    address indexed recipientContract,\\n    uint16 indexed sourceChain,\\n    uint64 indexed sequence,\\n    bytes32 deliveryVaaHash,\\n    DeliveryStatus status,\\n    uint256 gasUsed,\\n    RefundStatus refundStatus,\\n    bytes additionalStatusInfo,\\n    bytes overridesInfo\\n  );\\n\\n  /**\\n   * @notice The delivery provider calls `deliver` to relay messages as described by one delivery instruction\\n   *\\n   * The delivery provider must pass in the specified (by VaaKeys[]) signed wormhole messages (VAAs) from the source chain\\n   * as well as the signed wormhole message with the delivery instructions (the delivery VAA)\\n   *\\n   * The messages will be relayed to the target address (with the specified gas limit and receiver value) iff the following checks are met:\\n   * - the delivery VAA has a valid signature\\n   * - the delivery VAA's emitter is one of these WormholeRelayer contracts\\n   * - the delivery provider passed in at least enough of this chain's currency as msg.value (enough meaning the maximum possible refund)\\n   * - the instruction's target chain is this chain\\n   * - the relayed signed VAAs match the descriptions in container.messages (the VAA hashes match, or the emitter address, sequence number pair matches, depending on the description given)\\n   *\\n   * @param encodedVMs - An array of signed wormhole messages (all from the same source chain\\n   *     transaction)\\n   * @param encodedDeliveryVAA - Signed wormhole message from the source chain's WormholeRelayer\\n   *     contract with payload being the encoded delivery instruction container\\n   * @param relayerRefundAddress - The address to which any refunds to the delivery provider\\n   *     should be sent\\n   * @param deliveryOverrides - Optional overrides field which must be either an empty bytes array or\\n   *     an encoded DeliveryOverride struct\\n   */\\n  function deliver(\\n    bytes[] memory encodedVMs,\\n    bytes memory encodedDeliveryVAA,\\n    address payable relayerRefundAddress,\\n    bytes memory deliveryOverrides\\n  ) external payable;\\n}\\n\\ninterface IWormholeRelayer is IWormholeRelayerDelivery, IWormholeRelayerSend {}\\n\\n/*\\n *  Errors thrown by IWormholeRelayer contract\\n */\\n\\n// Bound chosen by the following formula: `memoryWord * 4 + selectorSize`.\\n// This means that an error identifier plus four fixed size arguments should be available to developers.\\n// In the case of a `require` revert with error message, this should provide 2 memory word's worth of data.\\nuint256 constant RETURNDATA_TRUNCATION_THRESHOLD = 132;\\n\\n//When msg.value was not equal to `delivery provider's quoted delivery price` + `paymentForExtraReceiverValue`\\nerror InvalidMsgValue(uint256 msgValue, uint256 totalFee);\\n\\nerror RequestedGasLimitTooLow();\\n\\nerror DeliveryProviderDoesNotSupportTargetChain(address relayer, uint16 chainId);\\nerror DeliveryProviderCannotReceivePayment();\\n\\n//When calling `forward()` on the WormholeRelayer if no delivery is in progress\\nerror NoDeliveryInProgress();\\n//When calling `delivery()` a second time even though a delivery is already in progress\\nerror ReentrantDelivery(address msgSender, address lockedBy);\\n//When any other contract but the delivery target calls `forward()` on the WormholeRelayer while a\\n//  delivery is in progress\\nerror ForwardRequestFromWrongAddress(address msgSender, address deliveryTarget);\\n\\nerror InvalidPayloadId(uint8 parsed, uint8 expected);\\nerror InvalidPayloadLength(uint256 received, uint256 expected);\\nerror InvalidVaaKeyType(uint8 parsed);\\n\\nerror InvalidDeliveryVaa(string reason);\\n//When the delivery VAA (signed wormhole message with delivery instructions) was not emitted by the\\n//  registered WormholeRelayer contract\\nerror InvalidEmitter(bytes32 emitter, bytes32 registered, uint16 chainId);\\nerror VaaKeysLengthDoesNotMatchVaasLength(uint256 keys, uint256 vaas);\\nerror VaaKeysDoNotMatchVaas(uint8 index);\\n//When someone tries to call an external function of the WormholeRelayer that is only intended to be\\n//  called by the WormholeRelayer itself (to allow retroactive reverts for atomicity)\\nerror RequesterNotWormholeRelayer();\\n\\n//When trying to relay a `DeliveryInstruction` to any other chain but the one it was specified for\\nerror TargetChainIsNotThisChain(uint16 targetChain);\\nerror ForwardNotSufficientlyFunded(uint256 amountOfFunds, uint256 amountOfFundsNeeded);\\n//When a `DeliveryOverride` contains a gas limit that's less than the original\\nerror InvalidOverrideGasLimit();\\n//When a `DeliveryOverride` contains a receiver value that's less than the original\\nerror InvalidOverrideReceiverValue();\\n//When a `DeliveryOverride` contains a 'refund per unit of gas unused' that's less than the original\\nerror InvalidOverrideRefundPerGasUnused();\\n\\n//When the delivery provider doesn't pass in sufficient funds (i.e. msg.value does not cover the\\n// maximum possible refund to the user)\\nerror InsufficientRelayerFunds(uint256 msgValue, uint256 minimum);\\n\\n//When a bytes32 field can't be converted into a 20 byte EVM address, because the 12 padding bytes\\n//  are non-zero (duplicated from Utils.sol)\\nerror NotAnEvmAddress(bytes32);\\n\",\"keccak256\":\"0x93361f2586d3ae96bf07c4e5843ad779347f4178c23b66f240431f3a0f9b3faf\",\"license\":\"Apache 2\"},\"contracts/shared/ProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\npragma solidity 0.8.17;\\n\\nimport {IProposedOwnable} from \\\"./interfaces/IProposedOwnable.sol\\\";\\n\\n/**\\n * @title ProposedOwnable\\n * @notice Contract module which provides a basic access control mechanism,\\n * where there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed via a two step process:\\n * 1. Call `proposeOwner`\\n * 2. Wait out the delay period\\n * 3. Call `acceptOwner`\\n *\\n * @dev This module is used through inheritance. It will make available the\\n * modifier `onlyOwner`, which can be applied to your functions to restrict\\n * their use to the owner.\\n *\\n * @dev The majority of this code was taken from the openzeppelin Ownable\\n * contract\\n *\\n */\\nabstract contract ProposedOwnable is IProposedOwnable {\\n  // ========== Custom Errors ===========\\n\\n  error ProposedOwnable__onlyOwner_notOwner();\\n  error ProposedOwnable__onlyProposed_notProposedOwner();\\n  error ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n  error ProposedOwnable__proposeNewOwner_invalidProposal();\\n  error ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n  error ProposedOwnable__renounceOwnership_noProposal();\\n  error ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n  // ============ Properties ============\\n\\n  address private _owner;\\n\\n  address private _proposed;\\n  uint256 private _proposedOwnershipTimestamp;\\n\\n  uint256 private constant _delay = 7 days;\\n\\n  // ======== Getters =========\\n\\n  /**\\n   * @notice Returns the address of the current owner.\\n   */\\n  function owner() public view virtual returns (address) {\\n    return _owner;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposed() public view virtual returns (address) {\\n    return _proposed;\\n  }\\n\\n  /**\\n   * @notice Returns the address of the proposed owner.\\n   */\\n  function proposedTimestamp() public view virtual returns (uint256) {\\n    return _proposedOwnershipTimestamp;\\n  }\\n\\n  /**\\n   * @notice Returns the delay period before a new owner can be accepted.\\n   */\\n  function delay() public view virtual returns (uint256) {\\n    return _delay;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the owner.\\n   */\\n  modifier onlyOwner() {\\n    if (_owner != msg.sender) revert ProposedOwnable__onlyOwner_notOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if called by any account other than the proposed owner.\\n   */\\n  modifier onlyProposed() {\\n    if (_proposed != msg.sender) revert ProposedOwnable__onlyProposed_notProposedOwner();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Throws if the ownership delay has not elapsed\\n   */\\n  modifier ownershipDelayElapsed() {\\n    // Ensure delay has elapsed\\n    if ((block.timestamp - _proposedOwnershipTimestamp) <= _delay)\\n      revert ProposedOwnable__ownershipDelayElapsed_delayNotElapsed();\\n    _;\\n  }\\n\\n  /**\\n   * @notice Indicates if the ownership has been renounced() by\\n   * checking if current owner is address(0)\\n   */\\n  function renounced() public view returns (bool) {\\n    return _owner == address(0);\\n  }\\n\\n  // ======== External =========\\n\\n  /**\\n   * @notice Sets the timestamp for an owner to be proposed, and sets the\\n   * newly proposed owner as step 1 in a 2-step process\\n   */\\n  function proposeNewOwner(address newlyProposed) public virtual onlyOwner {\\n    // Contract as source of truth\\n    if (_proposed == newlyProposed && _proposedOwnershipTimestamp != 0)\\n      revert ProposedOwnable__proposeNewOwner_invalidProposal();\\n\\n    // Sanity check: reasonable proposal\\n    if (_owner == newlyProposed) revert ProposedOwnable__proposeNewOwner_noOwnershipChange();\\n\\n    _setProposed(newlyProposed);\\n  }\\n\\n  /**\\n   * @notice Renounces ownership of the contract after a delay\\n   */\\n  function renounceOwnership() public virtual onlyOwner ownershipDelayElapsed {\\n    // Ensure there has been a proposal cycle started\\n    if (_proposedOwnershipTimestamp == 0) revert ProposedOwnable__renounceOwnership_noProposal();\\n\\n    // Require proposed is set to 0\\n    if (_proposed != address(0)) revert ProposedOwnable__renounceOwnership_invalidProposal();\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(address(0));\\n  }\\n\\n  /**\\n   * @notice Transfers ownership of the contract to a new account (`newOwner`).\\n   * Can only be called by the current owner.\\n   */\\n  function acceptProposedOwner() public virtual onlyProposed ownershipDelayElapsed {\\n    // NOTE: no need to check if _owner == _proposed, because the _proposed\\n    // is 0-d out and this check is implicitly enforced by modifier\\n\\n    // NOTE: no need to check if _proposedOwnershipTimestamp > 0 because\\n    // the only time this would happen is if the _proposed was never\\n    // set (will fail from modifier) or if the owner == _proposed (checked\\n    // above)\\n\\n    // Emit event, set new owner, reset timestamp\\n    _setOwner(_proposed);\\n  }\\n\\n  // ======== Internal =========\\n\\n  function _setOwner(address newOwner) internal {\\n    emit OwnershipTransferred(_owner, newOwner);\\n    _owner = newOwner;\\n    delete _proposedOwnershipTimestamp;\\n    delete _proposed;\\n  }\\n\\n  function _setProposed(address newlyProposed) private {\\n    _proposedOwnershipTimestamp = block.timestamp;\\n    _proposed = newlyProposed;\\n    emit OwnershipProposed(newlyProposed);\\n  }\\n}\\n\",\"keccak256\":\"0xa96eff4fdff55ffa29cda5c18285a9af04c3cbaf55f83696085cdd2251a8d6c0\",\"license\":\"UNLICENSED\"},\"contracts/shared/interfaces/IProposedOwnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/**\\n * @title IProposedOwnable\\n * @notice Defines a minimal interface for ownership with a two step proposal and acceptance\\n * process\\n */\\ninterface IProposedOwnable {\\n  /**\\n   * @dev This emits when change in ownership of a contract is proposed.\\n   */\\n  event OwnershipProposed(address indexed proposedOwner);\\n\\n  /**\\n   * @dev This emits when ownership of a contract changes.\\n   */\\n  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n  /**\\n   * @notice Get the address of the owner\\n   * @return owner_ The address of the owner.\\n   */\\n  function owner() external view returns (address owner_);\\n\\n  /**\\n   * @notice Get the address of the proposed owner\\n   * @return proposed_ The address of the proposed.\\n   */\\n  function proposed() external view returns (address proposed_);\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   * @param newlyProposed The proposed new owner of the contract\\n   */\\n  function proposeNewOwner(address newlyProposed) external;\\n\\n  /**\\n   * @notice Set the address of the proposed owner of the contract\\n   */\\n  function acceptProposedOwner() external;\\n}\\n\",\"keccak256\":\"0x4ec1aa589d37d0c1eac9966e26d2d3540d1661b81763e678f14d2c6fa0682323\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101206040523480156200001257600080fd5b5060405162001c2b38038062001c2b83398101604081905262000035916200039b565b818181898989898984848484846200004d33620001b3565b8463ffffffff16600003620000985760405162461bcd60e51b815260206004820152600c60248201526b32b6b83a3c903237b6b0b4b760a11b60448201526064015b60405180910390fd5b6001600160a01b038216620000e45760405162461bcd60e51b815260206004820152601160248201527032b6b83a3c903937b7ba26b0b730b3b2b960791b60448201526064016200008f565b63ffffffff8086166080526001600160a01b0380851660a05283811660c05290851660e0528116156200011c576200011c8162000218565b604080516001600160a01b0385811682528481166020830152831681830152905163ffffffff86811692908816917f4f9c27c2fe3f84576ea469d367d044da53c45e951617e8389f2b5ed8db9d25f09181900360600190a3505050505050505050506200018f816200028160201b60201c565b5061ffff811661010052620001a433620002c2565b50505050505050505062000431565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b60045460408051918252602082018390527f877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5910160405180910390a1600455565b6005546001600160a01b03908116908216036200030d5760405162461bcd60e51b81526020600482015260086024820152670858da185b99d95960c21b60448201526064016200008f565b6005546040516001600160a01b038084169216907f57b5839c3435f5b2eb2d2e286fb44ca7303d01d9b25a5d9c05c489523474285990600090a3600580546001600160a01b0319166001600160a01b0392909216919091179055565b805163ffffffff811681146200037e57600080fd5b919050565b80516001600160a01b03811681146200037e57600080fd5b600080600080600080600060e0888a031215620003b757600080fd5b620003c28862000369565b9650620003d26020890162000369565b9550620003e26040890162000383565b9450620003f26060890162000383565b9350620004026080890162000383565b925060a0880151915060c088015161ffff811681146200042157600080fd5b8091505092959891949750929550565b60805160a05160c05160e05161010051611776620004b5600039600081816102af0152818161065501528181610bab01526112130152600081816102040152610db60152600081816103c5015281816105980152610d8f01526000818161051401528181610701015281816107a20152610b460152600061037101526117766000f3fe6080604052600436106101855760003560e01c80635f61e3ec116100d1578063b1f8100d1161008a578063d1851c9211610064578063d1851c92146104c5578063d232c220146104e3578063d69f9d6114610502578063db1b76591461053657600080fd5b8063b1f8100d14610470578063c5b350df14610490578063cc394283146104a557600080fd5b80635f61e3ec146103b357806368742da6146103e75780636a42b8f814610407578063715018a61461041d5780637850b020146104325780638da5cb5b1461045257600080fd5b80633cf52ffb1161013e5780634ff746f6116101185780634ff746f61461032c578063529dca321461034c57806352a9674b1461035f5780635bd11efc1461039357600080fd5b80633cf52ffb146102e457806348e6fa23146102f95780634d93538b1461030c57600080fd5b8063047dbeb8146101915780630cb61f6c146101ba57806314168416146101f257806315b75bea1461023b57806318c817091461025d578063194ea9961461029d57600080fd5b3661018c57005b600080fd5b34801561019d57600080fd5b506101a760045481565b6040519081526020015b60405180910390f35b3480156101c657600080fd5b506005546101da906001600160a01b031681565b6040516001600160a01b0390911681526020016101b1565b3480156101fe57600080fd5b506102267f000000000000000000000000000000000000000000000000000000000000000081565b60405163ffffffff90911681526020016101b1565b34801561024757600080fd5b5061025b6102563660046112b0565b610556565b005b34801561026957600080fd5b5061028d6102783660046112d2565b60066020526000908152604090205460ff1681565b60405190151581526020016101b1565b3480156102a957600080fd5b506102d17f000000000000000000000000000000000000000000000000000000000000000081565b60405161ffff90911681526020016101b1565b3480156102f057600080fd5b506002546101a7565b61025b6103073660046113a2565b61058d565b34801561031857600080fd5b506101a7610327366004611406565b610642565b34801561033857600080fd5b5061025b610347366004611432565b6106f6565b61025b61035a366004611481565b61079c565b34801561036b57600080fd5b506102267f000000000000000000000000000000000000000000000000000000000000000081565b34801561039f57600080fd5b5061025b6103ae3660046112b0565b6107e0565b3480156103bf57600080fd5b506101da7f000000000000000000000000000000000000000000000000000000000000000081565b3480156103f357600080fd5b5061025b6104023660046112b0565b610814565b34801561041357600080fd5b5062093a806101a7565b34801561042957600080fd5b5061025b610891565b34801561043e57600080fd5b5061025b61044d3660046112d2565b610945565b34801561045e57600080fd5b506000546001600160a01b03166101da565b34801561047c57600080fd5b5061025b61048b3660046112b0565b610979565b34801561049c57600080fd5b5061025b610a17565b3480156104b157600080fd5b506003546101da906001600160a01b031681565b3480156104d157600080fd5b506001546001600160a01b03166101da565b3480156104ef57600080fd5b506000546001600160a01b03161561028d565b34801561050e57600080fd5b506101da7f000000000000000000000000000000000000000000000000000000000000000081565b34801561054257600080fd5b5061028d6105513660046112b0565b610a87565b6000546001600160a01b03163314610581576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81610a98565b50565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146105f95760405162461bcd60e51b815260206004820152600c60248201526b10b937b7ba26b0b730b3b2b960a11b60448201526064015b60405180910390fd5b6106038282610b3d565b7fdcaa37a042a0087de79018c629bbd29cee82ca80bd9be394e1696bf9e9355077828233604051610636939291906115d0565b60405180910390a15050565b6000816001600160a01b031663c23ee3c37f0000000000000000000000000000000000000000000000000000000000000000600061067f87610b7a565b6040516001600160e01b031960e086901b16815261ffff9093166004840152602483019190915260448201526064016040805180830381865afa1580156106ca573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106ee919061160e565b509392505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146107575760405162461bcd60e51b81526004016105f09060208082526004908201526310a0a6a160e11b604082015260600190565b61076081610b90565b7fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8133604051610791929190611632565b60405180910390a150565b6107c7827f000000000000000000000000000000000000000000000000000000000000000083610ba9565b6107d96107d384610cc3565b86610d06565b5050505050565b6000546001600160a01b0316331461080b576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81610e6b565b6000546001600160a01b0316331461083f576040516311a8a1bb60e31b815260040160405180910390fd5b4761084a8282610ed4565b816001600160a01b03167feaff4b37086828766ad3268786972c0cd24259d4c87a80f9d3963a3c3d999b0d8260405161088591815260200190565b60405180910390a25050565b6000546001600160a01b031633146108bc576040516311a8a1bb60e31b815260040160405180910390fd5b62093a80600254426108ce919061165c565b116108ec576040516324e0285f60e21b815260040160405180910390fd5b60025460000361090f57604051630e4b303f60e21b815260040160405180910390fd5b6001546001600160a01b031615610939576040516323295ef960e01b815260040160405180910390fd5b6109436000610ff2565b565b6000546001600160a01b03163314610970576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81611057565b6000546001600160a01b031633146109a4576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156109c2575060025415155b156109e0576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b03808316911603610a0e57604051634a2fb73f60e11b815260040160405180910390fd5b61058a81611098565b6001546001600160a01b03163314610a42576040516311a7f27160e11b815260040160405180910390fd5b62093a8060025442610a54919061165c565b11610a72576040516324e0285f60e21b815260040160405180910390fd5b600154610943906001600160a01b0316610ff2565b6000610a92826110e6565b92915050565b6005546001600160a01b0390811690821603610ae15760405162461bcd60e51b81526020600482015260086024820152670858da185b99d95960c21b60448201526064016105f0565b6005546040516001600160a01b038084169216907f57b5839c3435f5b2eb2d2e286fb44ca7303d01d9b25a5d9c05c489523474285990600090a3600580546001600160a01b0319166001600160a01b0392909216919091179055565b600354610b76907f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b031684846110ff565b5050565b6000600454821115610b8c5760045491505b5090565b6040516316c2fdb560e21b815260040160405180910390fd5b7f000000000000000000000000000000000000000000000000000000000000000061ffff168361ffff1614610c105760405162461bcd60e51b815260206004820152600d60248201526c10b9b7bab931b29031b430b4b760991b60448201526064016105f0565b336001600160a01b03831614610c535760405162461bcd60e51b815260206004820152600860248201526710b932b630bcb2b960c11b60448201526064016105f0565b60008181526006602052604090205460ff1615610ca65760405162461bcd60e51b8152602060048201526011602482015270185b1c9958591e481c1c9bd8d95cdcd959607a1b60448201526064016105f0565b6000908152600660205260409020805460ff191660011790555050565b600060a082901c15610b8c5760405162461bcd60e51b815260206004820152600c60248201526b2165766d206164647265737360a01b60448201526064016105f0565b610d0f826110e6565b610d4a5760405162461bcd60e51b815260206004820152600c60248201526b10b61921b7b73732b1ba37b960a11b60448201526064016105f0565b8051602014610d855760405162461bcd60e51b8152602060048201526007602482015266042d8cadccee8d60cb1b60448201526064016105f0565b6001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016638e7d93fa7f0000000000000000000000000000000000000000000000000000000000000000610dde8461167d565b6040516001600160e01b031960e085901b16815263ffffffff9290921660048301526024820152604401600060405180830381600087803b158015610e2257600080fd5b505af1158015610e36573d6000803e3d6000fd5b505050507fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8133604051610636929190611632565b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b80471015610f245760405162461bcd60e51b815260206004820152601d60248201527f416464726573733a20696e73756666696369656e742062616c616e636500000060448201526064016105f0565b6000826001600160a01b03168260405160006040518083038185875af1925050503d8060008114610f71576040519150601f19603f3d011682016040523d82523d6000602084013e610f76565b606091505b5050905080610fed5760405162461bcd60e51b815260206004820152603a60248201527f416464726573733a20756e61626c6520746f2073656e642076616c75652c207260448201527f6563697069656e74206d6179206861766520726576657274656400000000000060648201526084016105f0565b505050565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b60045460408051918252602082018390527f877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5910160405180910390a1600455565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b6003546000906001600160a01b03838116911614610a92565b815160201461113f5760405162461bcd60e51b815260206004820152600c60248201526b042c8c2e8c240d8cadccee8d60a31b60448201526064016105f0565b80516020146111875760405162461bcd60e51b8152602060048201526014602482015273042cadcc6dec8cac840c8c2e8c240d8cadccee8d60631b60448201526064016105f0565b60008180602001905181019061119d91906116a4565b905060006111ab8287610642565b90503481146111e95760405162461bcd60e51b815260206004820152600a602482015269216d73672e76616c756560b01b60448201526064016105f0565b6005546040516312d729bd60e21b81526001600160a01b0380891692634b5ca6f4928592611248927f0000000000000000000000000000000000000000000000000000000000000000928c928c926000928c92879216906004016116bd565b60206040518083038185885af1158015611266573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061128b9190611716565b50505050505050565b80356001600160a01b03811681146112ab57600080fd5b919050565b6000602082840312156112c257600080fd5b6112cb82611294565b9392505050565b6000602082840312156112e457600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561132a5761132a6112eb565b604052919050565b600082601f83011261134357600080fd5b813567ffffffffffffffff81111561135d5761135d6112eb565b611370601f8201601f1916602001611301565b81815284602083860101111561138557600080fd5b816020850160208301376000918101602001919091529392505050565b600080604083850312156113b557600080fd5b823567ffffffffffffffff808211156113cd57600080fd5b6113d986838701611332565b935060208501359150808211156113ef57600080fd5b506113fc85828601611332565b9150509250929050565b6000806040838503121561141957600080fd5b8235915061142960208401611294565b90509250929050565b60006020828403121561144457600080fd5b813567ffffffffffffffff81111561145b57600080fd5b61146784828501611332565b949350505050565b803561ffff811681146112ab57600080fd5b600080600080600060a0868803121561149957600080fd5b853567ffffffffffffffff808211156114b157600080fd5b6114bd89838a01611332565b96506020915081880135818111156114d457600080fd5b8801601f81018a136114e557600080fd5b8035828111156114f7576114f76112eb565b8060051b611506858201611301565b918252828101850191858101908d84111561152057600080fd5b86850192505b8383101561155c5782358681111561153e5760008081fd5b61154c8f8983890101611332565b8352509186019190860190611526565b809a5050505050505050604086013592506115796060870161146f565b949793965091946080013592915050565b6000815180845260005b818110156115b057602081850181015186830182015201611594565b506000602082860101526020601f19601f83011685010191505092915050565b6060815260006115e3606083018661158a565b82810360208401526115f5818661158a565b91505060018060a01b0383166040830152949350505050565b6000806040838503121561162157600080fd5b505080516020909101519092909150565b604081526000611645604083018561158a565b905060018060a01b03831660208301529392505050565b81810381811115610a9257634e487b7160e01b600052601160045260246000fd5b8051602080830151919081101561169e576000198160200360031b1b821691505b50919050565b6000602082840312156116b657600080fd5b5051919050565b600061ffff808a16835260018060a01b03808a16602085015260e060408501526116ea60e085018a61158a565b925087606085015286608085015281861660a085015280851660c0850152505098975050505050505050565b60006020828403121561172857600080fd5b815167ffffffffffffffff811681146112cb57600080fdfea264697066735822122077ef5ddd4f84658dcd6f5d78758dafb44d91461cf057c309b77b296faf446eec64736f6c63430008110033",
+  "deployedBytecode": "0x6080604052600436106101855760003560e01c80635f61e3ec116100d1578063b1f8100d1161008a578063d1851c9211610064578063d1851c92146104c5578063d232c220146104e3578063d69f9d6114610502578063db1b76591461053657600080fd5b8063b1f8100d14610470578063c5b350df14610490578063cc394283146104a557600080fd5b80635f61e3ec146103b357806368742da6146103e75780636a42b8f814610407578063715018a61461041d5780637850b020146104325780638da5cb5b1461045257600080fd5b80633cf52ffb1161013e5780634ff746f6116101185780634ff746f61461032c578063529dca321461034c57806352a9674b1461035f5780635bd11efc1461039357600080fd5b80633cf52ffb146102e457806348e6fa23146102f95780634d93538b1461030c57600080fd5b8063047dbeb8146101915780630cb61f6c146101ba57806314168416146101f257806315b75bea1461023b57806318c817091461025d578063194ea9961461029d57600080fd5b3661018c57005b600080fd5b34801561019d57600080fd5b506101a760045481565b6040519081526020015b60405180910390f35b3480156101c657600080fd5b506005546101da906001600160a01b031681565b6040516001600160a01b0390911681526020016101b1565b3480156101fe57600080fd5b506102267f000000000000000000000000000000000000000000000000000000000000000081565b60405163ffffffff90911681526020016101b1565b34801561024757600080fd5b5061025b6102563660046112b0565b610556565b005b34801561026957600080fd5b5061028d6102783660046112d2565b60066020526000908152604090205460ff1681565b60405190151581526020016101b1565b3480156102a957600080fd5b506102d17f000000000000000000000000000000000000000000000000000000000000000081565b60405161ffff90911681526020016101b1565b3480156102f057600080fd5b506002546101a7565b61025b6103073660046113a2565b61058d565b34801561031857600080fd5b506101a7610327366004611406565b610642565b34801561033857600080fd5b5061025b610347366004611432565b6106f6565b61025b61035a366004611481565b61079c565b34801561036b57600080fd5b506102267f000000000000000000000000000000000000000000000000000000000000000081565b34801561039f57600080fd5b5061025b6103ae3660046112b0565b6107e0565b3480156103bf57600080fd5b506101da7f000000000000000000000000000000000000000000000000000000000000000081565b3480156103f357600080fd5b5061025b6104023660046112b0565b610814565b34801561041357600080fd5b5062093a806101a7565b34801561042957600080fd5b5061025b610891565b34801561043e57600080fd5b5061025b61044d3660046112d2565b610945565b34801561045e57600080fd5b506000546001600160a01b03166101da565b34801561047c57600080fd5b5061025b61048b3660046112b0565b610979565b34801561049c57600080fd5b5061025b610a17565b3480156104b157600080fd5b506003546101da906001600160a01b031681565b3480156104d157600080fd5b506001546001600160a01b03166101da565b3480156104ef57600080fd5b506000546001600160a01b03161561028d565b34801561050e57600080fd5b506101da7f000000000000000000000000000000000000000000000000000000000000000081565b34801561054257600080fd5b5061028d6105513660046112b0565b610a87565b6000546001600160a01b03163314610581576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81610a98565b50565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146105f95760405162461bcd60e51b815260206004820152600c60248201526b10b937b7ba26b0b730b3b2b960a11b60448201526064015b60405180910390fd5b6106038282610b3d565b7fdcaa37a042a0087de79018c629bbd29cee82ca80bd9be394e1696bf9e9355077828233604051610636939291906115d0565b60405180910390a15050565b6000816001600160a01b031663c23ee3c37f0000000000000000000000000000000000000000000000000000000000000000600061067f87610b7a565b6040516001600160e01b031960e086901b16815261ffff9093166004840152602483019190915260448201526064016040805180830381865afa1580156106ca573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106ee919061160e565b509392505050565b336001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016146107575760405162461bcd60e51b81526004016105f09060208082526004908201526310a0a6a160e11b604082015260600190565b61076081610b90565b7fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8133604051610791929190611632565b60405180910390a150565b6107c7827f000000000000000000000000000000000000000000000000000000000000000083610ba9565b6107d96107d384610cc3565b86610d06565b5050505050565b6000546001600160a01b0316331461080b576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81610e6b565b6000546001600160a01b0316331461083f576040516311a8a1bb60e31b815260040160405180910390fd5b4761084a8282610ed4565b816001600160a01b03167feaff4b37086828766ad3268786972c0cd24259d4c87a80f9d3963a3c3d999b0d8260405161088591815260200190565b60405180910390a25050565b6000546001600160a01b031633146108bc576040516311a8a1bb60e31b815260040160405180910390fd5b62093a80600254426108ce919061165c565b116108ec576040516324e0285f60e21b815260040160405180910390fd5b60025460000361090f57604051630e4b303f60e21b815260040160405180910390fd5b6001546001600160a01b031615610939576040516323295ef960e01b815260040160405180910390fd5b6109436000610ff2565b565b6000546001600160a01b03163314610970576040516311a8a1bb60e31b815260040160405180910390fd5b61058a81611057565b6000546001600160a01b031633146109a4576040516311a8a1bb60e31b815260040160405180910390fd5b6001546001600160a01b0382811691161480156109c2575060025415155b156109e0576040516311bc066560e11b815260040160405180910390fd5b6000546001600160a01b03808316911603610a0e57604051634a2fb73f60e11b815260040160405180910390fd5b61058a81611098565b6001546001600160a01b03163314610a42576040516311a7f27160e11b815260040160405180910390fd5b62093a8060025442610a54919061165c565b11610a72576040516324e0285f60e21b815260040160405180910390fd5b600154610943906001600160a01b0316610ff2565b6000610a92826110e6565b92915050565b6005546001600160a01b0390811690821603610ae15760405162461bcd60e51b81526020600482015260086024820152670858da185b99d95960c21b60448201526064016105f0565b6005546040516001600160a01b038084169216907f57b5839c3435f5b2eb2d2e286fb44ca7303d01d9b25a5d9c05c489523474285990600090a3600580546001600160a01b0319166001600160a01b0392909216919091179055565b600354610b76907f0000000000000000000000000000000000000000000000000000000000000000906001600160a01b031684846110ff565b5050565b6000600454821115610b8c5760045491505b5090565b6040516316c2fdb560e21b815260040160405180910390fd5b7f000000000000000000000000000000000000000000000000000000000000000061ffff168361ffff1614610c105760405162461bcd60e51b815260206004820152600d60248201526c10b9b7bab931b29031b430b4b760991b60448201526064016105f0565b336001600160a01b03831614610c535760405162461bcd60e51b815260206004820152600860248201526710b932b630bcb2b960c11b60448201526064016105f0565b60008181526006602052604090205460ff1615610ca65760405162461bcd60e51b8152602060048201526011602482015270185b1c9958591e481c1c9bd8d95cdcd959607a1b60448201526064016105f0565b6000908152600660205260409020805460ff191660011790555050565b600060a082901c15610b8c5760405162461bcd60e51b815260206004820152600c60248201526b2165766d206164647265737360a01b60448201526064016105f0565b610d0f826110e6565b610d4a5760405162461bcd60e51b815260206004820152600c60248201526b10b61921b7b73732b1ba37b960a11b60448201526064016105f0565b8051602014610d855760405162461bcd60e51b8152602060048201526007602482015266042d8cadccee8d60cb1b60448201526064016105f0565b6001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016638e7d93fa7f0000000000000000000000000000000000000000000000000000000000000000610dde8461167d565b6040516001600160e01b031960e085901b16815263ffffffff9290921660048301526024820152604401600060405180830381600087803b158015610e2257600080fd5b505af1158015610e36573d6000803e3d6000fd5b505050507fb3abc57bfeebd2cac918901db582f71972a8e628bccf19f5ae3e3482b98a5ced8133604051610636929190611632565b600354604080516001600160a01b03928316815291831660208301527fc77bec288fc88f168427f2f7da682eadb26cac89d8d591af6e443da98dff2bbc910160405180910390a1600380546001600160a01b0319166001600160a01b0392909216919091179055565b80471015610f245760405162461bcd60e51b815260206004820152601d60248201527f416464726573733a20696e73756666696369656e742062616c616e636500000060448201526064016105f0565b6000826001600160a01b03168260405160006040518083038185875af1925050503d8060008114610f71576040519150601f19603f3d011682016040523d82523d6000602084013e610f76565b606091505b5050905080610fed5760405162461bcd60e51b815260206004820152603a60248201527f416464726573733a20756e61626c6520746f2073656e642076616c75652c207260448201527f6563697069656e74206d6179206861766520726576657274656400000000000060648201526084016105f0565b505050565b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b039092166001600160a01b0319928316178155600255600180549091169055565b60045460408051918252602082018390527f877a02cb809da0364d23adca3cd50c451b53f279d3df632e1fc11eb66335bce5910160405180910390a1600455565b42600255600180546001600160a01b0319166001600160a01b0383169081179091556040517f6ab4d119f23076e8ad491bc65ce85f017fb0591dce08755ba8591059cc51737a90600090a250565b6003546000906001600160a01b03838116911614610a92565b815160201461113f5760405162461bcd60e51b815260206004820152600c60248201526b042c8c2e8c240d8cadccee8d60a31b60448201526064016105f0565b80516020146111875760405162461bcd60e51b8152602060048201526014602482015273042cadcc6dec8cac840c8c2e8c240d8cadccee8d60631b60448201526064016105f0565b60008180602001905181019061119d91906116a4565b905060006111ab8287610642565b90503481146111e95760405162461bcd60e51b815260206004820152600a602482015269216d73672e76616c756560b01b60448201526064016105f0565b6005546040516312d729bd60e21b81526001600160a01b0380891692634b5ca6f4928592611248927f0000000000000000000000000000000000000000000000000000000000000000928c928c926000928c92879216906004016116bd565b60206040518083038185885af1158015611266573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061128b9190611716565b50505050505050565b80356001600160a01b03811681146112ab57600080fd5b919050565b6000602082840312156112c257600080fd5b6112cb82611294565b9392505050565b6000602082840312156112e457600080fd5b5035919050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561132a5761132a6112eb565b604052919050565b600082601f83011261134357600080fd5b813567ffffffffffffffff81111561135d5761135d6112eb565b611370601f8201601f1916602001611301565b81815284602083860101111561138557600080fd5b816020850160208301376000918101602001919091529392505050565b600080604083850312156113b557600080fd5b823567ffffffffffffffff808211156113cd57600080fd5b6113d986838701611332565b935060208501359150808211156113ef57600080fd5b506113fc85828601611332565b9150509250929050565b6000806040838503121561141957600080fd5b8235915061142960208401611294565b90509250929050565b60006020828403121561144457600080fd5b813567ffffffffffffffff81111561145b57600080fd5b61146784828501611332565b949350505050565b803561ffff811681146112ab57600080fd5b600080600080600060a0868803121561149957600080fd5b853567ffffffffffffffff808211156114b157600080fd5b6114bd89838a01611332565b96506020915081880135818111156114d457600080fd5b8801601f81018a136114e557600080fd5b8035828111156114f7576114f76112eb565b8060051b611506858201611301565b918252828101850191858101908d84111561152057600080fd5b86850192505b8383101561155c5782358681111561153e5760008081fd5b61154c8f8983890101611332565b8352509186019190860190611526565b809a5050505050505050604086013592506115796060870161146f565b949793965091946080013592915050565b6000815180845260005b818110156115b057602081850181015186830182015201611594565b506000602082860101526020601f19601f83011685010191505092915050565b6060815260006115e3606083018661158a565b82810360208401526115f5818661158a565b91505060018060a01b0383166040830152949350505050565b6000806040838503121561162157600080fd5b505080516020909101519092909150565b604081526000611645604083018561158a565b905060018060a01b03831660208301529392505050565b81810381811115610a9257634e487b7160e01b600052601160045260246000fd5b8051602080830151919081101561169e576000198160200360031b1b821691505b50919050565b6000602082840312156116b657600080fd5b5051919050565b600061ffff808a16835260018060a01b03808a16602085015260e060408501526116ea60e085018a61158a565b925087606085015286608085015281861660a085015280851660c0850152505098975050505050505050565b60006020828403121561172857600080fd5b815167ffffffffffffffff811681146112cb57600080fdfea264697066735822122077ef5ddd4f84658dcd6f5d78758dafb44d91461cf057c309b77b296faf446eec64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "processMessage(bytes)": {
+        "details": "This is called by AMBs to process messages originating from mirror connector"
+      },
+      "quoteEVMDeliveryPrice(uint256,address)": {
+        "details": "calculcate gas to call `receiveWormholeMessages` on target chain https://github.com/wormhole-foundation/wormhole/blob/main/ethereum/contracts/relayer/deliveryProvider/DeliveryProvider.sol"
+      },
+      "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": {
+        "details": "This is defined here instead of the `BaseWormhole` to avoid storing AMB values twice."
+      },
+      "sendMessage(bytes,bytes)": {
+        "details": "This is called by the root manager *only* on mainnet to propagate the aggregate root"
+      },
+      "setRefundAddress(address)": {
+        "params": {
+          "_updated": "The updated refund address"
+        }
+      },
+      "withdrawFunds(address)": {
+        "details": "Withdraws the entire balance of the contract.",
+        "params": {
+          "_to": "The recipient of the funds withdrawn"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "FundsWithdrawn(address,uint256)": {
+        "notice": "Emitted when funds are withdrawn by the admin"
+      },
+      "GasCapUpdated(uint256,uint256)": {
+        "notice": "Emitted when admin updates the gas cap"
+      },
+      "MessageProcessed(bytes,address)": {
+        "notice": "Emitted whenever a message is successfully received over an AMB"
+      },
+      "MessageSent(bytes,bytes,address)": {
+        "notice": "Emitted whenever a message is successfully sent over an AMB"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "AMB()": {
+        "notice": "Address of the AMB on this domain."
+      },
+      "DOMAIN()": {
+        "notice": "The domain of this Messaging (i.e. Connector) contract."
+      },
+      "MIRROR_DOMAIN()": {
+        "notice": "The domain of the corresponding messaging (i.e. Connector) contract."
+      },
+      "MIRROR_WORMHOLE_ID()": {
+        "notice": "The wormhole id for the mirror network"
+      },
+      "ROOT_MANAGER()": {
+        "notice": "RootManager contract address."
+      },
+      "acceptProposedOwner()": {
+        "notice": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "delay()": {
+        "notice": "Returns the delay period before a new owner can be accepted."
+      },
+      "gasCap()": {
+        "notice": "The gnosis amb requires destination gas to be specified on the origin. The gas used will be passed in by the relayer to allow for real-time estimates, but will be capped at the admin-set cap."
+      },
+      "mirrorConnector()": {
+        "notice": "Connector on L2 for L1 connectors, and vice versa."
+      },
+      "owner()": {
+        "notice": "Returns the address of the current owner."
+      },
+      "processMessage(bytes)": {
+        "notice": "Processes a message received by an AMB"
+      },
+      "processedWhMessages(bytes32)": {
+        "notice": "Mapping of processed messages from wormhole."
+      },
+      "proposeNewOwner(address)": {
+        "notice": "Sets the timestamp for an owner to be proposed, and sets the newly proposed owner as step 1 in a 2-step process"
+      },
+      "proposed()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "proposedTimestamp()": {
+        "notice": "Returns the address of the proposed owner."
+      },
+      "receiveWormholeMessages(bytes,bytes[],bytes32,uint16,bytes32)": {
+        "notice": "This function is called to receive messages through the wormhole relayer module https://book.wormhole.com/technical/evm/relayer.html"
+      },
+      "refundAddress()": {
+        "notice": "The address on this chain any refunds from wormhole fees will be sent to"
+      },
+      "renounceOwnership()": {
+        "notice": "Renounces ownership of the contract after a delay"
+      },
+      "renounced()": {
+        "notice": "Indicates if the ownership has been renounced() by checking if current owner is address(0)"
+      },
+      "sendMessage(bytes,bytes)": {
+        "notice": "Sends a message over the amb"
+      },
+      "setMirrorConnector(address)": {
+        "notice": "Sets the address of the l2Connector for this domain"
+      },
+      "setRefundAddress(address)": {
+        "notice": "Allows the owner to set a new address to collect excess wormhole fees."
+      },
+      "verifySender(address)": {
+        "notice": "Checks the cross domain sender for a given address"
+      },
+      "withdrawFunds(address)": {
+        "notice": "This function should be callable by owner, and send funds trapped on a connector to the provided recipient."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 49365,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 49367,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "_proposed",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 49369,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "_proposedOwnershipTimestamp",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 34491,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "mirrorConnector",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      },
+      {
+        "astId": 34776,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "gasCap",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 45303,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "refundAddress",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_address"
+      },
+      {
+        "astId": 45308,
+        "contract": "contracts/messaging/connectors/wormhole/WormholeHubConnector.sol:WormholeHubConnector",
+        "label": "processedWhMessages",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_bytes32,t_bool)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

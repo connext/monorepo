@@ -138,14 +138,16 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
         /// MARK - xAppManager
         // setXAppConnectionManager to Connext with SpokeConnector
         console.log("\tVerifying xappConnectionManager of Connext are set correctly.", spoke.chain);
-        await updateIfNeeded<string, number>({
+        await updateIfNeeded({
           apply,
           deployment: spoke.deployments.Connext,
           desired: SpokeConnector.address,
           read: { method: "xAppConnectionManager", args: [] },
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
-          // protocol admin submits. owner can as well, but assume admin.
-          auth: { method: "queryRole", args: [spoke.signerAddress], eval: (ret) => ret === 3 },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
+            { method: "queryRole", args: [spoke.signerAddress], eval: (ret) => ret === 3 },
+          ],
         });
       }
     }
@@ -250,7 +252,9 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
-    // protocol admin submits. owner can as well, but assume admin.
-    auth: { method: "queryRole", args: [hub.signerAddress], eval: (ret) => ret === 3 },
+    auth: [
+      { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
+      { method: "queryRole", args: [hub.signerAddress], eval: (ret) => ret === 3 },
+    ],
   });
 };

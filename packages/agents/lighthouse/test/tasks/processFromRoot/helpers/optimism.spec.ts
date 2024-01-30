@@ -47,7 +47,7 @@ const mockCrossChainMessageProof: BedrockCrossChainMessageProof = {
 
 describe("Helpers: Optimism", () => {
   beforeEach(() => {
-    stub(MockableFns, "CrossChainMessenger").value(MockCrossChainMessenger);
+    stub(MockableFns, "OptimismCrossChainMessenger").value(MockCrossChainMessenger);
     getMessageStatusStub = stub().resolves(MessageStatus.READY_TO_PROVE);
     toCrosschainMessageStub = stub().resolves(mockCrossChainMessage);
     toLowLevelMessageStub = stub().resolves(mockCrossChainMessage);
