@@ -27,9 +27,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_gasCap",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "_mirrorNetworkId",
+        "type": "uint32"
       }
     ],
     "stateMutability": "nonpayable",
@@ -92,25 +92,6 @@
       }
     ],
     "name": "FundsWithdrawn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_previous",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_updated",
-        "type": "uint256"
-      }
-    ],
-    "name": "GasCapUpdated",
     "type": "event"
   },
   {
@@ -319,19 +300,6 @@
   },
   {
     "inputs": [],
-    "name": "gasCap",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "mirrorConnector",
     "outputs": [
       {
@@ -341,6 +309,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "originAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "originNetwork",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "onMessageReceived",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -367,58 +358,6 @@
     "name": "processMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "_l2BlockNumber",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_l2MessageIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_l2TxNumberInBlock",
-        "type": "uint16"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_message",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_proof",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "processMessageFromRoot",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "processed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -496,19 +435,6 @@
     "name": "sendMessage",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_gasCap",
-        "type": "uint256"
-      }
-    ],
-    "name": "setGasCap",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

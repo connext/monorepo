@@ -169,7 +169,7 @@
   },
   {
     "subgraphName": "connext/amarok-runtime-v0-zksync",
-    "network": "zksync",
+    "network": "zksync-era",
     "source": [
       {
         "name": "Connext",
@@ -232,7 +232,7 @@
   },
   {
     "subgraphName": "connext/amarok-runtime-v0-polygon-zk",
-    "network": "polygon-zk",
+    "network": "polygon-zkevm",
     "source": [
       {
         "name": "Connext",

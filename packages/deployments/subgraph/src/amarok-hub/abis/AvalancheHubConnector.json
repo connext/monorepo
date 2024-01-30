@@ -30,6 +30,11 @@
         "internalType": "uint256",
         "name": "_gasCap",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_mirrorWormholeChainId",
+        "type": "uint16"
       }
     ],
     "stateMutability": "nonpayable",
@@ -246,6 +251,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previous",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "updated",
+        "type": "address"
+      }
+    ],
+    "name": "RefundAddressUpdated",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "AMB",
     "outputs": [
@@ -279,6 +303,19 @@
         "internalType": "uint32",
         "name": "",
         "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIRROR_WORMHOLE_ID",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",
@@ -372,45 +409,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint32",
-        "name": "_l2BlockNumber",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_l2MessageIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_l2TxNumberInBlock",
-        "type": "uint16"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_message",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_proof",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "processMessageFromRoot",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
     ],
-    "name": "processed",
+    "name": "processedWhMessages",
     "outputs": [
       {
         "internalType": "bool",
@@ -455,6 +459,76 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_gasLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_amb",
+        "type": "address"
+      }
+    ],
+    "name": "quoteEVMDeliveryPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_cost",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "_payload",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "",
+        "type": "bytes[]"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_sourceAddress",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_sourceChain",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_deliveryHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "receiveWormholeMessages",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "refundAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -520,6 +594,19 @@
       }
     ],
     "name": "setMirrorConnector",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_updated",
+        "type": "address"
+      }
+    ],
+    "name": "setRefundAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
