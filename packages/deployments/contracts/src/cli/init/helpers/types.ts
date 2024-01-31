@@ -125,7 +125,7 @@ export type ReadSchema<T> = {
     | string;
   caseSensitive?: boolean;
 };
-export type CallSchema<T, P = string> = ReadSchema<T> & {
+export type CallSchema<T> = ReadSchema<T> & {
   apply: boolean;
   // Write method to call to update value on contract.
   write: {
@@ -133,11 +133,17 @@ export type CallSchema<T, P = string> = ReadSchema<T> & {
     args?: any[];
   };
   // Optional auth (enforces sender by call)
-  auth?: {
-    method: string;
-    args?: any[];
-    eval: (ret: P) => boolean; // address or role id for permission check
-  };
+  auth?:
+    | {
+        method: string;
+        args?: any[];
+        eval: (ret: any) => boolean; // address or role id for permission check
+      }
+    | {
+        method: string;
+        args?: any[];
+        eval: (ret: any) => boolean; // address or role id for permission check
+      }[];
 
   chainData?: any;
 };

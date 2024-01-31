@@ -55,11 +55,13 @@ describe("Helpers: ZkSync", () => {
     });
 
     it("should return necessary data successfully", async () => {
+      const l2Connector = mkAddress("0x12312312");
+      (propagateCtxMock.adapters.deployments.spokeConnector as SinonStub).returns({ address: l2Connector });
       const data = await getPropagateParams(mock.domain.B, +mock.chain.B, +mock.chain.A, requestContext);
       expect(data).to.deep.eq({
         _connector: "",
         _fee: "0",
-        _encodedData: utils.defaultAbiCoder.encode(["uint256"], ["5000000"]),
+        _encodedData: utils.defaultAbiCoder.encode(["uint256", "uint256", "address"], ["5000000", "800", l2Connector]),
       });
     });
   });
