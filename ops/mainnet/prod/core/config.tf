@@ -119,6 +119,24 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        "providers" = ["https://mainnet.era.zksync.io"]
+      }
+      "1887071085" = {
+        "providers" = ["https://zkevm-rpc.com"]
+      }
+      "1650553709" = {
+        "providers" = ["https://base.publicnode.com"]
+      }
+      "1635148152" = {
+        "providers" = ["https://avalanche.public-rpc.com"]
+      }
+      "1835365481" = {
+        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+      }
+      "1835101812" = {
+        "providers" = ["https://rpc.mantle.xyz"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -199,7 +217,43 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }
+        },
+        {
+          name       = "2053862243"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1887071085"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1650553709"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1635148152"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1835365481"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1835101812"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }                                                
       ]
       bindings = [
         {
@@ -242,6 +296,36 @@ locals {
           target   = "1818848877"
           keys     = ["1818848877"]
         },
+        {
+          exchange = "sequencerX"
+          target   = "2053862243"
+          keys     = ["2053862243"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1887071085"
+          keys     = ["1887071085"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1650553709"
+          keys     = ["1650553709"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1635148152"
+          keys     = ["1635148152"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1835365481"
+          keys     = ["1835365481"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1835101812"
+          keys     = ["1835101812"]
+        }                                                
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -290,6 +374,24 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        "providers" = ["https://mainnet.era.zksync.io"]
+      }
+      "1887071085" = {
+        "providers" = ["https://zkevm-rpc.com"]
+      }
+      "1650553709" = {
+        "providers" = ["https://base.publicnode.com"]
+      }
+      "1635148152" = {
+        "providers" = ["https://avalanche.public-rpc.com"]
+      }
+      "1835365481" = {
+        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+      }
+      "1835101812" = {
+        "providers" = ["https://rpc.mantle.xyz"]
+      }  
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -328,6 +430,24 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        "providers" = ["https://mainnet.era.zksync.io"]
+      }
+      "1887071085" = {
+        "providers" = ["https://zkevm-rpc.com"]
+      }
+      "1650553709" = {
+        "providers" = ["https://base.publicnode.com"]
+      }
+      "1635148152" = {
+        "providers" = ["https://avalanche.public-rpc.com"]
+      }
+      "1835365481" = {
+        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+      }
+      "1835101812" = {
+        "providers" = ["https://rpc.mantle.xyz"]
+      }      
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -364,7 +484,13 @@ locals {
       "1634886255" = 10,
       "6450786"    = 10,
       "6778479"    = 10,
-      "1818848877" = 10
+      "1818848877" = 10,
+      "2053862243" = 10,
+      "1887071085" = 10,
+      "1650553709" = 10,
+      "1635148152" = 10,
+      "1835365481" = 10,
+      "1835101812" = 10
     }
     proverBatchWaitTime = {
       "6648936" = 43200,
@@ -374,7 +500,13 @@ locals {
       "1634886255" = 14400,
       "6450786"    = 14400,
       "6778479"    = 14400,
-      "1818848877" = 14400      
+      "1818848877" = 14400,
+      "2053862243" = 14400,
+      "1887071085" = 14400,
+      "1650553709" = 14400,
+      "1635148152" = 14400,
+      "1835365481" = 14400,
+      "1835101812" = 14400         
     }
     messageQueue = {
       connection = {
@@ -426,6 +558,24 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        "providers" = ["https://mainnet.era.zksync.io"]
+      }
+      "1887071085" = {
+        "providers" = ["https://zkevm-rpc.com"]
+      }
+      "1650553709" = {
+        "providers" = ["https://base.publicnode.com"]
+      }
+      "1635148152" = {
+        "providers" = ["https://avalanche.public-rpc.com"]
+      }
+      "1835365481" = {
+        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+      }
+      "1835101812" = {
+        "providers" = ["https://rpc.mantle.xyz"]
+      }      
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
