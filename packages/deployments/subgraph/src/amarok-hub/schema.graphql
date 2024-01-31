@@ -114,9 +114,9 @@ type GnosisConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-# ZKSYNC
-type ZkSyncConnectorMeta @entity {
-  id: ID! # "ZkSyncConnectorMeta"
+# LINEA
+type LineaConnectorMeta @entity {
+  id: ID! # "LineaConnectorMeta"
   spokeDomain: BigInt!
   hubDomain: BigInt!
 
@@ -125,9 +125,31 @@ type ZkSyncConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-# LINEA
-type LineaConnectorMeta @entity {
-  id: ID! # "LineaConnectorMeta"
+# METIS
+type MetisConnectorMeta @entity {
+  id: ID! # "MetisConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# MANTLE
+type MantleConnectorMeta @entity {
+  id: ID! # "MantleConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# AVALANCHE
+type AvalancheConnectorMeta @entity {
+  id: ID! # "AvalancheConnectorMeta"
   spokeDomain: BigInt!
   hubDomain: BigInt!
 
@@ -147,9 +169,20 @@ type BaseConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
-# X1
-type X1ConnectorMeta @entity {
-  id: ID! # "X1ConnectorMeta"
+# POLYGONZK
+type PolygonZkConnectorMeta @entity {
+  id: ID! # "PolygonZkConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
+# ZKSYNC
+type ZkSyncConnectorMeta @entity {
+  id: ID! # "ZkSyncConnectorMeta"
   spokeDomain: BigInt!
   hubDomain: BigInt!
 
