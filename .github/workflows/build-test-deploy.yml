@@ -292,7 +292,7 @@ jobs:
           done
 
       - name: Extract version, determine tag, and publish nxtp-adapters-subgraph
-        if: ${{ startsWith(github.ref, 'refs/tags/utils-v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/subgraph-v') }}
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
