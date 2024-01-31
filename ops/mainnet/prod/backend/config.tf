@@ -56,22 +56,22 @@ locals {
         disabledAssets = ["0xA219439258ca9da29E9Cc4cE5596924745e12B93", "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5"]
       }
       "2053862243" = {
-        providers = ["https://mainnet.era.zksync.io"]
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1887071085" = {
-        providers = ["https://zkevm-rpc.com"]
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1650553709" = {
-        providers = ["https://base.publicnode.com"]
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1635148152" = {
-        providers = ["https://avalanche.public-rpc.com"]
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1835101812" = {
-        providers = ["https://rpc.mantle.xyz"]
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }      
     }
 
