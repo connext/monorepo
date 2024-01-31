@@ -566,6 +566,90 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
+  - name: Connext_Base
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
+            retry: 2
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: base_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_PolygonZkEVM
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/HoMRKh7XucTwnXEXKptrsdbesEHwnVNMkdYWqEp5V9GR"
+            retry: 2
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: polygonzkevm_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_ZkSync
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9cfvpKf98sFNxHKqJnSbGiPqFS9LB9uyeykUKy4Q9B23"
+            retry: 2
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: zksync_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   - name: StableSwap_Optimism
     handler:
       graphql:
@@ -650,6 +734,51 @@ sources:
     transforms:
       - prefix:
           value: linea_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Base
+    handler:
+      graphql:
+        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: base_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_PolygonZkEvm
+    handler:
+      graphql:
+        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/Xz7Xan1tEb7mzeD4G38LjyhpD9iuvipP53YKXR8LBzt"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: polygonzkevm_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_ZkSyncEra
+    handler:
+      graphql:
+        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9MukGP8oU2zTbGKUwZAJEYSJJ8eWkUdYGNo3AM7cuUZN"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: zksync_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
