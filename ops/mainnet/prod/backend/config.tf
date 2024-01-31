@@ -109,7 +109,7 @@ locals {
       "1887071085" = { confirmations = 10 }
       "1650553709" = { confirmations = 10 }
       "1635148152" = { confirmations = 10 }
-      "1835365481" = { confirmations = 10 }
+      "1835365481" = { confirmations = 1 }
       "1835101812" = { confirmations = 10 }
     }
     environment = var.stage
