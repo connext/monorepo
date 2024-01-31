@@ -39,6 +39,10 @@ input mainnet_AggregateRootProposed_filter {
   id_not_in: [ID!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
@@ -85,6 +89,8 @@ input mainnet_AggregateRootProposed_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AggregateRootProposed_filter]
+  or: [mainnet_AggregateRootProposed_filter]
 }
 
 enum mainnet_AggregateRootProposed_orderBy {
@@ -108,6 +114,10 @@ input mainnet_AggregateRoot_filter {
   id_not_in: [ID!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
+  root_gt: mainnet_Bytes
+  root_lt: mainnet_Bytes
+  root_gte: mainnet_Bytes
+  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
@@ -122,6 +132,8 @@ input mainnet_AggregateRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AggregateRoot_filter]
+  or: [mainnet_AggregateRoot_filter]
 }
 
 enum mainnet_AggregateRoot_orderBy {
@@ -247,6 +259,8 @@ input mainnet_AssetBalance_filter {
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AssetBalance_filter]
+  or: [mainnet_AssetBalance_filter]
 }
 
 enum mainnet_AssetBalance_orderBy {
@@ -256,7 +270,22 @@ enum mainnet_AssetBalance_orderBy {
   supplied
   removed
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   feesEarned
 }
 
@@ -280,6 +309,8 @@ input mainnet_AssetStatus_filter {
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_AssetStatus_filter]
+  or: [mainnet_AssetStatus_filter]
 }
 
 enum mainnet_AssetStatus_orderBy {
@@ -298,6 +329,10 @@ input mainnet_Asset_filter {
   id_not_in: [ID!]
   key: mainnet_Bytes
   key_not: mainnet_Bytes
+  key_gt: mainnet_Bytes
+  key_lt: mainnet_Bytes
+  key_gte: mainnet_Bytes
+  key_lte: mainnet_Bytes
   key_in: [mainnet_Bytes!]
   key_not_in: [mainnet_Bytes!]
   key_contains: mainnet_Bytes
@@ -320,6 +355,10 @@ input mainnet_Asset_filter {
   adoptedDecimal_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
+  canonicalId_gt: mainnet_Bytes
+  canonicalId_lt: mainnet_Bytes
+  canonicalId_gte: mainnet_Bytes
+  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -334,12 +373,20 @@ input mainnet_Asset_filter {
   canonicalDomain_not_in: [BigInt!]
   adoptedAsset: mainnet_Bytes
   adoptedAsset_not: mainnet_Bytes
+  adoptedAsset_gt: mainnet_Bytes
+  adoptedAsset_lt: mainnet_Bytes
+  adoptedAsset_gte: mainnet_Bytes
+  adoptedAsset_lte: mainnet_Bytes
   adoptedAsset_in: [mainnet_Bytes!]
   adoptedAsset_not_in: [mainnet_Bytes!]
   adoptedAsset_contains: mainnet_Bytes
   adoptedAsset_not_contains: mainnet_Bytes
   localAsset: mainnet_Bytes
   localAsset_not: mainnet_Bytes
+  localAsset_gt: mainnet_Bytes
+  localAsset_lt: mainnet_Bytes
+  localAsset_gte: mainnet_Bytes
+  localAsset_lte: mainnet_Bytes
   localAsset_in: [mainnet_Bytes!]
   localAsset_not_in: [mainnet_Bytes!]
   localAsset_contains: mainnet_Bytes
@@ -375,6 +422,8 @@ input mainnet_Asset_filter {
   status_: mainnet_AssetStatus_filter
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_Asset_filter]
+  or: [mainnet_Asset_filter]
 }
 
 enum mainnet_Asset_orderBy {
@@ -388,6 +437,8 @@ enum mainnet_Asset_orderBy {
   localAsset
   blockNumber
   status
+  status__id
+  status__status
 }
 
 scalar mainnet_BigDecimal
@@ -442,24 +493,38 @@ input mainnet_ConnectorMeta_filter {
   hubDomain_not_in: [BigInt!]
   amb: mainnet_Bytes
   amb_not: mainnet_Bytes
+  amb_gt: mainnet_Bytes
+  amb_lt: mainnet_Bytes
+  amb_gte: mainnet_Bytes
+  amb_lte: mainnet_Bytes
   amb_in: [mainnet_Bytes!]
   amb_not_in: [mainnet_Bytes!]
   amb_contains: mainnet_Bytes
   amb_not_contains: mainnet_Bytes
   rootManager: mainnet_Bytes
   rootManager_not: mainnet_Bytes
+  rootManager_gt: mainnet_Bytes
+  rootManager_lt: mainnet_Bytes
+  rootManager_gte: mainnet_Bytes
+  rootManager_lte: mainnet_Bytes
   rootManager_in: [mainnet_Bytes!]
   rootManager_not_in: [mainnet_Bytes!]
   rootManager_contains: mainnet_Bytes
   rootManager_not_contains: mainnet_Bytes
   mirrorConnector: mainnet_Bytes
   mirrorConnector_not: mainnet_Bytes
+  mirrorConnector_gt: mainnet_Bytes
+  mirrorConnector_lt: mainnet_Bytes
+  mirrorConnector_gte: mainnet_Bytes
+  mirrorConnector_lte: mainnet_Bytes
   mirrorConnector_in: [mainnet_Bytes!]
   mirrorConnector_not_in: [mainnet_Bytes!]
   mirrorConnector_contains: mainnet_Bytes
   mirrorConnector_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_ConnectorMeta_filter]
+  or: [mainnet_ConnectorMeta_filter]
 }
 
 enum mainnet_ConnectorMeta_orderBy {
@@ -531,6 +596,10 @@ input mainnet_DestinationTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
+  transferId_gt: mainnet_Bytes
+  transferId_lt: mainnet_Bytes
+  transferId_gte: mainnet_Bytes
+  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -580,12 +649,20 @@ input mainnet_DestinationTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mainnet_Bytes
   to_not: mainnet_Bytes
+  to_gt: mainnet_Bytes
+  to_lt: mainnet_Bytes
+  to_gte: mainnet_Bytes
+  to_lte: mainnet_Bytes
   to_in: [mainnet_Bytes!]
   to_not_in: [mainnet_Bytes!]
   to_contains: mainnet_Bytes
   to_not_contains: mainnet_Bytes
   delegate: mainnet_Bytes
   delegate_not: mainnet_Bytes
+  delegate_gt: mainnet_Bytes
+  delegate_lt: mainnet_Bytes
+  delegate_gte: mainnet_Bytes
+  delegate_lte: mainnet_Bytes
   delegate_in: [mainnet_Bytes!]
   delegate_not_in: [mainnet_Bytes!]
   delegate_contains: mainnet_Bytes
@@ -596,6 +673,10 @@ input mainnet_DestinationTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mainnet_Bytes
   callData_not: mainnet_Bytes
+  callData_gt: mainnet_Bytes
+  callData_lt: mainnet_Bytes
+  callData_gte: mainnet_Bytes
+  callData_lte: mainnet_Bytes
   callData_in: [mainnet_Bytes!]
   callData_not_in: [mainnet_Bytes!]
   callData_contains: mainnet_Bytes
@@ -618,6 +699,10 @@ input mainnet_DestinationTransfer_filter {
   bumpSlippageCount_not_in: [BigInt!]
   originSender: mainnet_Bytes
   originSender_not: mainnet_Bytes
+  originSender_gt: mainnet_Bytes
+  originSender_lt: mainnet_Bytes
+  originSender_gte: mainnet_Bytes
+  originSender_lte: mainnet_Bytes
   originSender_in: [mainnet_Bytes!]
   originSender_not_in: [mainnet_Bytes!]
   originSender_contains: mainnet_Bytes
@@ -640,6 +725,10 @@ input mainnet_DestinationTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
+  canonicalId_gt: mainnet_Bytes
+  canonicalId_lt: mainnet_Bytes
+  canonicalId_gte: mainnet_Bytes
+  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -683,12 +772,20 @@ input mainnet_DestinationTransfer_filter {
   routersFee_not_in: [BigInt!]
   executedCaller: mainnet_Bytes
   executedCaller_not: mainnet_Bytes
+  executedCaller_gt: mainnet_Bytes
+  executedCaller_lt: mainnet_Bytes
+  executedCaller_gte: mainnet_Bytes
+  executedCaller_lte: mainnet_Bytes
   executedCaller_in: [mainnet_Bytes!]
   executedCaller_not_in: [mainnet_Bytes!]
   executedCaller_contains: mainnet_Bytes
   executedCaller_not_contains: mainnet_Bytes
   executedTransactionHash: mainnet_Bytes
   executedTransactionHash_not: mainnet_Bytes
+  executedTransactionHash_gt: mainnet_Bytes
+  executedTransactionHash_lt: mainnet_Bytes
+  executedTransactionHash_gte: mainnet_Bytes
+  executedTransactionHash_lte: mainnet_Bytes
   executedTransactionHash_in: [mainnet_Bytes!]
   executedTransactionHash_not_in: [mainnet_Bytes!]
   executedTransactionHash_contains: mainnet_Bytes
@@ -727,6 +824,10 @@ input mainnet_DestinationTransfer_filter {
   executedBlockNumber_not_in: [BigInt!]
   executedTxOrigin: mainnet_Bytes
   executedTxOrigin_not: mainnet_Bytes
+  executedTxOrigin_gt: mainnet_Bytes
+  executedTxOrigin_lt: mainnet_Bytes
+  executedTxOrigin_gte: mainnet_Bytes
+  executedTxOrigin_lte: mainnet_Bytes
   executedTxOrigin_in: [mainnet_Bytes!]
   executedTxOrigin_not_in: [mainnet_Bytes!]
   executedTxOrigin_contains: mainnet_Bytes
@@ -741,12 +842,20 @@ input mainnet_DestinationTransfer_filter {
   executedTxNonce_not_in: [BigInt!]
   reconciledCaller: mainnet_Bytes
   reconciledCaller_not: mainnet_Bytes
+  reconciledCaller_gt: mainnet_Bytes
+  reconciledCaller_lt: mainnet_Bytes
+  reconciledCaller_gte: mainnet_Bytes
+  reconciledCaller_lte: mainnet_Bytes
   reconciledCaller_in: [mainnet_Bytes!]
   reconciledCaller_not_in: [mainnet_Bytes!]
   reconciledCaller_contains: mainnet_Bytes
   reconciledCaller_not_contains: mainnet_Bytes
   reconciledTransactionHash: mainnet_Bytes
   reconciledTransactionHash_not: mainnet_Bytes
+  reconciledTransactionHash_gt: mainnet_Bytes
+  reconciledTransactionHash_lt: mainnet_Bytes
+  reconciledTransactionHash_gte: mainnet_Bytes
+  reconciledTransactionHash_lte: mainnet_Bytes
   reconciledTransactionHash_in: [mainnet_Bytes!]
   reconciledTransactionHash_not_in: [mainnet_Bytes!]
   reconciledTransactionHash_contains: mainnet_Bytes
@@ -785,6 +894,10 @@ input mainnet_DestinationTransfer_filter {
   reconciledBlockNumber_not_in: [BigInt!]
   reconciledTxOrigin: mainnet_Bytes
   reconciledTxOrigin_not: mainnet_Bytes
+  reconciledTxOrigin_gt: mainnet_Bytes
+  reconciledTxOrigin_lt: mainnet_Bytes
+  reconciledTxOrigin_gte: mainnet_Bytes
+  reconciledTxOrigin_lte: mainnet_Bytes
   reconciledTxOrigin_in: [mainnet_Bytes!]
   reconciledTxOrigin_not_in: [mainnet_Bytes!]
   reconciledTxOrigin_contains: mainnet_Bytes
@@ -799,6 +912,8 @@ input mainnet_DestinationTransfer_filter {
   reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_DestinationTransfer_filter]
+  or: [mainnet_DestinationTransfer_filter]
 }
 
 enum mainnet_DestinationTransfer_orderBy {
@@ -822,6 +937,15 @@ enum mainnet_DestinationTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   routersFee
   executedCaller
@@ -842,6 +966,12 @@ enum mainnet_DestinationTransfer_orderBy {
   reconciledTxNonce
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar mainnet_Int8
+
 type mainnet_OptimisticRootFinalized {
   id: ID!
   aggregateRoot: mainnet_Bytes!
@@ -860,6 +990,10 @@ input mainnet_OptimisticRootFinalized_filter {
   id_not_in: [ID!]
   aggregateRoot: mainnet_Bytes
   aggregateRoot_not: mainnet_Bytes
+  aggregateRoot_gt: mainnet_Bytes
+  aggregateRoot_lt: mainnet_Bytes
+  aggregateRoot_gte: mainnet_Bytes
+  aggregateRoot_lte: mainnet_Bytes
   aggregateRoot_in: [mainnet_Bytes!]
   aggregateRoot_not_in: [mainnet_Bytes!]
   aggregateRoot_contains: mainnet_Bytes
@@ -882,6 +1016,8 @@ input mainnet_OptimisticRootFinalized_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OptimisticRootFinalized_filter]
+  or: [mainnet_OptimisticRootFinalized_filter]
 }
 
 enum mainnet_OptimisticRootFinalized_orderBy {
@@ -921,6 +1057,10 @@ input mainnet_OriginMessage_filter {
   id_not_in: [ID!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
+  transferId_gt: mainnet_Bytes
+  transferId_lt: mainnet_Bytes
+  transferId_gte: mainnet_Bytes
+  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -935,6 +1075,10 @@ input mainnet_OriginMessage_filter {
   destinationDomain_not_in: [BigInt!]
   leaf: mainnet_Bytes
   leaf_not: mainnet_Bytes
+  leaf_gt: mainnet_Bytes
+  leaf_lt: mainnet_Bytes
+  leaf_gte: mainnet_Bytes
+  leaf_lte: mainnet_Bytes
   leaf_in: [mainnet_Bytes!]
   leaf_not_in: [mainnet_Bytes!]
   leaf_contains: mainnet_Bytes
@@ -949,18 +1093,30 @@ input mainnet_OriginMessage_filter {
   index_not_in: [BigInt!]
   message: mainnet_Bytes
   message_not: mainnet_Bytes
+  message_gt: mainnet_Bytes
+  message_lt: mainnet_Bytes
+  message_gte: mainnet_Bytes
+  message_lte: mainnet_Bytes
   message_in: [mainnet_Bytes!]
   message_not_in: [mainnet_Bytes!]
   message_contains: mainnet_Bytes
   message_not_contains: mainnet_Bytes
   root: mainnet_Bytes
   root_not: mainnet_Bytes
+  root_gt: mainnet_Bytes
+  root_lt: mainnet_Bytes
+  root_gte: mainnet_Bytes
+  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
   root_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -996,6 +1152,8 @@ input mainnet_OriginMessage_filter {
   rootCount_: mainnet_RootCount_filter
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OriginMessage_filter]
+  or: [mainnet_OriginMessage_filter]
 }
 
 enum mainnet_OriginMessage_orderBy {
@@ -1009,6 +1167,8 @@ enum mainnet_OriginMessage_orderBy {
   transactionHash
   blockNumber
   rootCount
+  rootCount__id
+  rootCount__count
 }
 
 type mainnet_OriginTransfer {
@@ -1065,6 +1225,10 @@ input mainnet_OriginTransfer_filter {
   chainId_not_in: [BigInt!]
   transferId: mainnet_Bytes
   transferId_not: mainnet_Bytes
+  transferId_gt: mainnet_Bytes
+  transferId_lt: mainnet_Bytes
+  transferId_gte: mainnet_Bytes
+  transferId_lte: mainnet_Bytes
   transferId_in: [mainnet_Bytes!]
   transferId_not_in: [mainnet_Bytes!]
   transferId_contains: mainnet_Bytes
@@ -1083,6 +1247,10 @@ input mainnet_OriginTransfer_filter {
   status_not_in: [mainnet_TransferStatus!]
   messageHash: mainnet_Bytes
   messageHash_not: mainnet_Bytes
+  messageHash_gt: mainnet_Bytes
+  messageHash_lt: mainnet_Bytes
+  messageHash_gte: mainnet_Bytes
+  messageHash_lte: mainnet_Bytes
   messageHash_in: [mainnet_Bytes!]
   messageHash_not_in: [mainnet_Bytes!]
   messageHash_contains: mainnet_Bytes
@@ -1113,12 +1281,20 @@ input mainnet_OriginTransfer_filter {
   canonicalDomain_not_in: [BigInt!]
   to: mainnet_Bytes
   to_not: mainnet_Bytes
+  to_gt: mainnet_Bytes
+  to_lt: mainnet_Bytes
+  to_gte: mainnet_Bytes
+  to_lte: mainnet_Bytes
   to_in: [mainnet_Bytes!]
   to_not_in: [mainnet_Bytes!]
   to_contains: mainnet_Bytes
   to_not_contains: mainnet_Bytes
   delegate: mainnet_Bytes
   delegate_not: mainnet_Bytes
+  delegate_gt: mainnet_Bytes
+  delegate_lt: mainnet_Bytes
+  delegate_gte: mainnet_Bytes
+  delegate_lte: mainnet_Bytes
   delegate_in: [mainnet_Bytes!]
   delegate_not_in: [mainnet_Bytes!]
   delegate_contains: mainnet_Bytes
@@ -1129,6 +1305,10 @@ input mainnet_OriginTransfer_filter {
   receiveLocal_not_in: [Boolean!]
   callData: mainnet_Bytes
   callData_not: mainnet_Bytes
+  callData_gt: mainnet_Bytes
+  callData_lt: mainnet_Bytes
+  callData_gte: mainnet_Bytes
+  callData_lte: mainnet_Bytes
   callData_in: [mainnet_Bytes!]
   callData_not_in: [mainnet_Bytes!]
   callData_contains: mainnet_Bytes
@@ -1143,6 +1323,10 @@ input mainnet_OriginTransfer_filter {
   slippage_not_in: [BigInt!]
   originSender: mainnet_Bytes
   originSender_not: mainnet_Bytes
+  originSender_gt: mainnet_Bytes
+  originSender_lt: mainnet_Bytes
+  originSender_gte: mainnet_Bytes
+  originSender_lte: mainnet_Bytes
   originSender_in: [mainnet_Bytes!]
   originSender_not_in: [mainnet_Bytes!]
   originSender_contains: mainnet_Bytes
@@ -1165,6 +1349,10 @@ input mainnet_OriginTransfer_filter {
   normalizedIn_not_in: [BigInt!]
   canonicalId: mainnet_Bytes
   canonicalId_not: mainnet_Bytes
+  canonicalId_gt: mainnet_Bytes
+  canonicalId_lt: mainnet_Bytes
+  canonicalId_gte: mainnet_Bytes
+  canonicalId_lte: mainnet_Bytes
   canonicalId_in: [mainnet_Bytes!]
   canonicalId_not_in: [mainnet_Bytes!]
   canonicalId_contains: mainnet_Bytes
@@ -1192,6 +1380,10 @@ input mainnet_OriginTransfer_filter {
   asset_: mainnet_Asset_filter
   transactingAsset: mainnet_Bytes
   transactingAsset_not: mainnet_Bytes
+  transactingAsset_gt: mainnet_Bytes
+  transactingAsset_lt: mainnet_Bytes
+  transactingAsset_gte: mainnet_Bytes
+  transactingAsset_lte: mainnet_Bytes
   transactingAsset_in: [mainnet_Bytes!]
   transactingAsset_not_in: [mainnet_Bytes!]
   transactingAsset_contains: mainnet_Bytes
@@ -1234,18 +1426,30 @@ input mainnet_OriginTransfer_filter {
   relayerFees_: mainnet_RelayerFee_filter
   initialRelayerFeeAsset: mainnet_Bytes
   initialRelayerFeeAsset_not: mainnet_Bytes
+  initialRelayerFeeAsset_gt: mainnet_Bytes
+  initialRelayerFeeAsset_lt: mainnet_Bytes
+  initialRelayerFeeAsset_gte: mainnet_Bytes
+  initialRelayerFeeAsset_lte: mainnet_Bytes
   initialRelayerFeeAsset_in: [mainnet_Bytes!]
   initialRelayerFeeAsset_not_in: [mainnet_Bytes!]
   initialRelayerFeeAsset_contains: mainnet_Bytes
   initialRelayerFeeAsset_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -1284,6 +1488,10 @@ input mainnet_OriginTransfer_filter {
   blockNumber_not_in: [BigInt!]
   txOrigin: mainnet_Bytes
   txOrigin_not: mainnet_Bytes
+  txOrigin_gt: mainnet_Bytes
+  txOrigin_lt: mainnet_Bytes
+  txOrigin_gte: mainnet_Bytes
+  txOrigin_lte: mainnet_Bytes
   txOrigin_in: [mainnet_Bytes!]
   txOrigin_not_in: [mainnet_Bytes!]
   txOrigin_contains: mainnet_Bytes
@@ -1298,6 +1506,8 @@ input mainnet_OriginTransfer_filter {
   txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_OriginTransfer_filter]
+  or: [mainnet_OriginTransfer_filter]
 }
 
 enum mainnet_OriginTransfer_orderBy {
@@ -1320,8 +1530,26 @@ enum mainnet_OriginTransfer_orderBy {
   normalizedIn
   canonicalId
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   transactingAsset
   message
+  message__id
+  message__transferId
+  message__destinationDomain
+  message__leaf
+  message__index
+  message__message
+  message__root
+  message__transactionHash
+  message__blockNumber
   bumpRelayerFeeCount
   relayerFees
   initialRelayerFeeAsset
@@ -1991,17 +2219,52 @@ input mainnet_RelayerFee_filter {
   fee_not_in: [BigInt!]
   asset: mainnet_Bytes
   asset_not: mainnet_Bytes
+  asset_gt: mainnet_Bytes
+  asset_lt: mainnet_Bytes
+  asset_gte: mainnet_Bytes
+  asset_lte: mainnet_Bytes
   asset_in: [mainnet_Bytes!]
   asset_not_in: [mainnet_Bytes!]
   asset_contains: mainnet_Bytes
   asset_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RelayerFee_filter]
+  or: [mainnet_RelayerFee_filter]
 }
 
 enum mainnet_RelayerFee_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   fee
   asset
 }
@@ -2059,18 +2322,30 @@ input mainnet_RelayerFeesIncrease_filter {
   increase_not_in: [BigInt!]
   asset: mainnet_Bytes
   asset_not: mainnet_Bytes
+  asset_gt: mainnet_Bytes
+  asset_lt: mainnet_Bytes
+  asset_gte: mainnet_Bytes
+  asset_lte: mainnet_Bytes
   asset_in: [mainnet_Bytes!]
   asset_not_in: [mainnet_Bytes!]
   asset_contains: mainnet_Bytes
   asset_not_contains: mainnet_Bytes
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -2109,11 +2384,42 @@ input mainnet_RelayerFeesIncrease_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RelayerFeesIncrease_filter]
+  or: [mainnet_RelayerFeesIncrease_filter]
 }
 
 enum mainnet_RelayerFeesIncrease_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__messageHash
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__transactingAsset
+  transfer__bumpRelayerFeeCount
+  transfer__initialRelayerFeeAsset
+  transfer__caller
+  transfer__transactionHash
+  transfer__timestamp
+  transfer__gasPrice
+  transfer__gasLimit
+  transfer__blockNumber
+  transfer__txOrigin
+  transfer__txNonce
   increase
   asset
   caller
@@ -2139,12 +2445,18 @@ input mainnet_Relayer_filter {
   isActive_not_in: [Boolean!]
   relayer: mainnet_Bytes
   relayer_not: mainnet_Bytes
+  relayer_gt: mainnet_Bytes
+  relayer_lt: mainnet_Bytes
+  relayer_gte: mainnet_Bytes
+  relayer_lte: mainnet_Bytes
   relayer_in: [mainnet_Bytes!]
   relayer_not_in: [mainnet_Bytes!]
   relayer_contains: mainnet_Bytes
   relayer_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_Relayer_filter]
+  or: [mainnet_Relayer_filter]
 }
 
 enum mainnet_Relayer_orderBy {
@@ -2177,6 +2489,8 @@ input mainnet_RootCount_filter {
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootCount_filter]
+  or: [mainnet_RootCount_filter]
 }
 
 enum mainnet_RootCount_orderBy {
@@ -2225,6 +2539,10 @@ input mainnet_RootMessageSent_filter {
   hubDomain_not_in: [BigInt!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
+  root_gt: mainnet_Bytes
+  root_lt: mainnet_Bytes
+  root_gte: mainnet_Bytes
+  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
@@ -2239,12 +2557,20 @@ input mainnet_RootMessageSent_filter {
   count_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -2283,6 +2609,8 @@ input mainnet_RootMessageSent_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RootMessageSent_filter]
+  or: [mainnet_RootMessageSent_filter]
 }
 
 enum mainnet_RootMessageSent_orderBy {
@@ -2386,12 +2714,29 @@ input mainnet_RouterDailyTVL_filter {
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RouterDailyTVL_filter]
+  or: [mainnet_RouterDailyTVL_filter]
 }
 
 enum mainnet_RouterDailyTVL_orderBy {
   id
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   timestamp
   balance
 }
@@ -2488,6 +2833,10 @@ input mainnet_RouterLiquidityEvent_filter {
   balance_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
@@ -2510,6 +2859,10 @@ input mainnet_RouterLiquidityEvent_filter {
   timestamp_not_in: [BigInt!]
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -2524,13 +2877,30 @@ input mainnet_RouterLiquidityEvent_filter {
   nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_RouterLiquidityEvent_filter]
+  or: [mainnet_RouterLiquidityEvent_filter]
 }
 
 enum mainnet_RouterLiquidityEvent_orderBy {
   id
   type
   router
+  router__id
+  router__isActive
+  router__owner
+  router__recipient
+  router__proposedOwner
+  router__proposedTimestamp
   asset
+  asset__id
+  asset__key
+  asset__decimal
+  asset__adoptedDecimal
+  asset__canonicalId
+  asset__canonicalDomain
+  asset__adoptedAsset
+  asset__localAsset
+  asset__blockNumber
   amount
   balance
   caller
@@ -2555,18 +2925,30 @@ input mainnet_Router_filter {
   isActive_not_in: [Boolean!]
   owner: mainnet_Bytes
   owner_not: mainnet_Bytes
+  owner_gt: mainnet_Bytes
+  owner_lt: mainnet_Bytes
+  owner_gte: mainnet_Bytes
+  owner_lte: mainnet_Bytes
   owner_in: [mainnet_Bytes!]
   owner_not_in: [mainnet_Bytes!]
   owner_contains: mainnet_Bytes
   owner_not_contains: mainnet_Bytes
   recipient: mainnet_Bytes
   recipient_not: mainnet_Bytes
+  recipient_gt: mainnet_Bytes
+  recipient_lt: mainnet_Bytes
+  recipient_gte: mainnet_Bytes
+  recipient_lte: mainnet_Bytes
   recipient_in: [mainnet_Bytes!]
   recipient_not_in: [mainnet_Bytes!]
   recipient_contains: mainnet_Bytes
   recipient_not_contains: mainnet_Bytes
   proposedOwner: mainnet_Bytes
   proposedOwner_not: mainnet_Bytes
+  proposedOwner_gt: mainnet_Bytes
+  proposedOwner_lt: mainnet_Bytes
+  proposedOwner_gte: mainnet_Bytes
+  proposedOwner_lte: mainnet_Bytes
   proposedOwner_in: [mainnet_Bytes!]
   proposedOwner_not_in: [mainnet_Bytes!]
   proposedOwner_contains: mainnet_Bytes
@@ -2582,6 +2964,8 @@ input mainnet_Router_filter {
   assetBalances_: mainnet_AssetBalance_filter
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_Router_filter]
+  or: [mainnet_Router_filter]
 }
 
 enum mainnet_Router_orderBy {
@@ -2615,12 +2999,18 @@ input mainnet_Sequencer_filter {
   isActive_not_in: [Boolean!]
   sequencer: mainnet_Bytes
   sequencer_not: mainnet_Bytes
+  sequencer_gt: mainnet_Bytes
+  sequencer_lt: mainnet_Bytes
+  sequencer_gte: mainnet_Bytes
+  sequencer_lte: mainnet_Bytes
   sequencer_in: [mainnet_Bytes!]
   sequencer_not_in: [mainnet_Bytes!]
   sequencer_contains: mainnet_Bytes
   sequencer_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_Sequencer_filter]
+  or: [mainnet_Sequencer_filter]
 }
 
 enum mainnet_Sequencer_orderBy {
@@ -2654,12 +3044,18 @@ input mainnet_Setting_filter {
   maxRoutersPerTransfer_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_Setting_filter]
+  or: [mainnet_Setting_filter]
 }
 
 enum mainnet_Setting_orderBy {
@@ -2720,12 +3116,20 @@ input mainnet_SlippageUpdate_filter {
   slippage_not_in: [BigInt!]
   caller: mainnet_Bytes
   caller_not: mainnet_Bytes
+  caller_gt: mainnet_Bytes
+  caller_lt: mainnet_Bytes
+  caller_gte: mainnet_Bytes
+  caller_lte: mainnet_Bytes
   caller_in: [mainnet_Bytes!]
   caller_not_in: [mainnet_Bytes!]
   caller_contains: mainnet_Bytes
   caller_not_contains: mainnet_Bytes
   transactionHash: mainnet_Bytes
   transactionHash_not: mainnet_Bytes
+  transactionHash_gt: mainnet_Bytes
+  transactionHash_lt: mainnet_Bytes
+  transactionHash_gte: mainnet_Bytes
+  transactionHash_lte: mainnet_Bytes
   transactionHash_in: [mainnet_Bytes!]
   transactionHash_not_in: [mainnet_Bytes!]
   transactionHash_contains: mainnet_Bytes
@@ -2764,11 +3168,49 @@ input mainnet_SlippageUpdate_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_SlippageUpdate_filter]
+  or: [mainnet_SlippageUpdate_filter]
 }
 
 enum mainnet_SlippageUpdate_orderBy {
   id
   transfer
+  transfer__id
+  transfer__chainId
+  transfer__transferId
+  transfer__nonce
+  transfer__status
+  transfer__originDomain
+  transfer__destinationDomain
+  transfer__canonicalDomain
+  transfer__to
+  transfer__delegate
+  transfer__receiveLocal
+  transfer__callData
+  transfer__slippage
+  transfer__bumpSlippageCount
+  transfer__originSender
+  transfer__bridgedAmt
+  transfer__normalizedIn
+  transfer__canonicalId
+  transfer__amount
+  transfer__routersFee
+  transfer__executedCaller
+  transfer__executedTransactionHash
+  transfer__executedTimestamp
+  transfer__executedGasPrice
+  transfer__executedGasLimit
+  transfer__executedBlockNumber
+  transfer__executedTxOrigin
+  transfer__executedTxNonce
+  transfer__reconciledCaller
+  transfer__reconciledTransactionHash
+  transfer__reconciledTimestamp
+  transfer__reconciledGasPrice
+  transfer__reconciledGasLimit
+  transfer__reconciledBlockNumber
+  transfer__reconciledTxOrigin
+  transfer__reconciledTxNonce
   slippage
   caller
   transactionHash
@@ -2806,6 +3248,10 @@ input mainnet_SnapshotRoot_filter {
   spokeDomain_not_in: [BigInt!]
   root: mainnet_Bytes
   root_not: mainnet_Bytes
+  root_gt: mainnet_Bytes
+  root_lt: mainnet_Bytes
+  root_gte: mainnet_Bytes
+  root_lte: mainnet_Bytes
   root_in: [mainnet_Bytes!]
   root_not_in: [mainnet_Bytes!]
   root_contains: mainnet_Bytes
@@ -2836,6 +3282,8 @@ input mainnet_SnapshotRoot_filter {
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_SnapshotRoot_filter]
+  or: [mainnet_SnapshotRoot_filter]
 }
 
 enum mainnet_SnapshotRoot_orderBy {
@@ -2883,6 +3331,8 @@ input mainnet_SpokeConnectorMode_filter {
   mode_not_ends_with_nocase: String
   """Filter for the block changed event."""
   _change_block: mainnet_BlockChangedFilter
+  and: [mainnet_SpokeConnectorMode_filter]
+  or: [mainnet_SpokeConnectorMode_filter]
 }
 
 enum mainnet_SpokeConnectorMode_orderBy {

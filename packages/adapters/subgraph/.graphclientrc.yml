@@ -704,6 +704,34 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
+  - name: Connext_Avalanche
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-avalanche
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: avalanche_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
   - name: StableSwap_Optimism
     handler:
       graphql:
@@ -863,6 +891,21 @@ sources:
     transforms:
       - prefix:
           value: metis_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Avalanche
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-avalanche
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: avalanche_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
