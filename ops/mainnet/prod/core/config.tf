@@ -120,22 +120,22 @@ locals {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
       "2053862243" = {
-        "providers" = ["https://mainnet.era.zksync.io"]
+        providers = ["https://mainnet.era.zksync.io"]
       }
       "1887071085" = {
-        "providers" = ["https://zkevm-rpc.com"]
+        providers = ["https://zkevm-rpc.com"]
       }
       "1650553709" = {
-        "providers" = ["https://base.publicnode.com"]
+        providers = ["https://base.publicnode.com"]
       }
       "1635148152" = {
-        "providers" = ["https://avalanche.public-rpc.com"]
+        providers = ["https://avalanche.public-rpc.com"]
       }
       "1835365481" = {
-        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+        providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
       }
       "1835101812" = {
-        "providers" = ["https://rpc.mantle.xyz"]
+        providers = ["https://rpc.mantle.xyz"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -375,22 +375,22 @@ locals {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
       "2053862243" = {
-        "providers" = ["https://mainnet.era.zksync.io"]
+        providers = ["https://mainnet.era.zksync.io"]
       }
       "1887071085" = {
-        "providers" = ["https://zkevm-rpc.com"]
+        providers = ["https://zkevm-rpc.com"]
       }
       "1650553709" = {
-        "providers" = ["https://base.publicnode.com"]
+        providers = ["https://base.publicnode.com"]
       }
       "1635148152" = {
-        "providers" = ["https://avalanche.public-rpc.com"]
+        providers = ["https://avalanche.public-rpc.com"]
       }
       "1835365481" = {
-        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+        providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
       }
       "1835101812" = {
-        "providers" = ["https://rpc.mantle.xyz"]
+        providers = ["https://rpc.mantle.xyz"]
       }  
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
@@ -431,22 +431,22 @@ locals {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
       "2053862243" = {
-        "providers" = ["https://mainnet.era.zksync.io"]
+        providers = ["https://mainnet.era.zksync.io"]
       }
       "1887071085" = {
-        "providers" = ["https://zkevm-rpc.com"]
+        providers = ["https://zkevm-rpc.com"]
       }
       "1650553709" = {
-        "providers" = ["https://base.publicnode.com"]
+        providers = ["https://base.publicnode.com"]
       }
       "1635148152" = {
-        "providers" = ["https://avalanche.public-rpc.com"]
+        providers = ["https://avalanche.public-rpc.com"]
       }
       "1835365481" = {
-        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+        providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
       }
       "1835101812" = {
-        "providers" = ["https://rpc.mantle.xyz"]
+        providers = ["https://rpc.mantle.xyz"]
       }      
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -559,22 +559,22 @@ locals {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
       "2053862243" = {
-        "providers" = ["https://mainnet.era.zksync.io"]
+        providers = ["https://mainnet.era.zksync.io"]
       }
       "1887071085" = {
-        "providers" = ["https://zkevm-rpc.com"]
+        providers = ["https://zkevm-rpc.com"]
       }
       "1650553709" = {
-        "providers" = ["https://base.publicnode.com"]
+        providers = ["https://base.publicnode.com"]
       }
       "1635148152" = {
-        "providers" = ["https://avalanche.public-rpc.com"]
+        providers = ["https://avalanche.public-rpc.com"]
       }
       "1835365481" = {
-        "providers" = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
+        providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
       }
       "1835101812" = {
-        "providers" = ["https://rpc.mantle.xyz"]
+        providers = ["https://rpc.mantle.xyz"]
       }      
     }
     environment   = var.stage
