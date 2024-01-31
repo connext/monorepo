@@ -57,19 +57,19 @@ locals {
       }
       "2053862243" = {
         providers = ["https://mainnet.era.zksync.io"]
-      },
+      }
       "1887071085" = {
         providers = ["https://zkevm-rpc.com"]
-      },
+      }
       "1650553709" = {
         providers = ["https://base.publicnode.com"]
-      },
+      }
       "1635148152" = {
         providers = ["https://avalanche.public-rpc.com"]
-      },
+      }
       "1835365481" = {
         providers = ["https://andromeda.metis.io/?owner=1088","https://metis-pokt.nodies.app"]
-      },
+      }
       "1835101812" = {
         providers = ["https://rpc.mantle.xyz"]
       }      
