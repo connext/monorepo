@@ -1,0 +1,1701 @@
+{
+  "address": "0xEcA9B4edBdF51CEf668247F6e299a7f0fDFF0102",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AssetLogic__getConfig_notRegistered",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__getAdoptedAsset_assetNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__getApprovedCanonicalId_notAllowlisted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__nonReentrant_reentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__nonXCallReentrant_reentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyOwnerOrAdmin_notOwnerOrAdmin",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyOwnerOrRouter_notOwnerOrRouter",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyOwnerOrWatcher_notOwnerOrWatcher",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyOwner_notOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__onlyProposed_notProposedOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BaseConnextFacet__whenNotPaused_paused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__addAssetId_alreadyAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__addAssetId_badBurn",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__addAssetId_badMint",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__enrollAdoptedAndLocalAssets_emptyCanonical",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__removeAssetId_invalidParams",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__removeAssetId_notAdded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__removeAssetId_remainsCustodied",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__setLiquidityCap_notCanonicalDomain",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__setupAssetWithDeployedRepresentation_invalidRepresentation",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__setupAssetWithDeployedRepresentation_onCanonicalDomain",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__setupAsset_invalidCanonicalConfiguration",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__setupAsset_representationListed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__updateDetails_localNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__updateDetails_notApproved",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenFacet__updateDetails_onlyRemote",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "adoptedAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "localAsset",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AssetAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "AssetRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cap",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "LiquidityCapUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "key",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "canonicalId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "swapPool",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "StableSwapAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "domain",
+          "type": "uint32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "id",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "representation",
+          "type": "address"
+        }
+      ],
+      "name": "TokenDeployed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_stableSwapPool",
+          "type": "address"
+        }
+      ],
+      "name": "addStableSwapPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_adopted",
+          "type": "address"
+        }
+      ],
+      "name": "adoptedToCanonical",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "adoptedToLocalExternalPools",
+      "outputs": [
+        {
+          "internalType": "contract IStableSwap",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "adoptedToLocalExternalPools",
+      "outputs": [
+        {
+          "internalType": "contract IStableSwap",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "approvedAssets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "approvedAssets",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "canonicalToAdopted",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "canonicalToAdopted",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "canonicalToRepresentation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        }
+      ],
+      "name": "canonicalToRepresentation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getCustodiedAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_id",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "_domain",
+          "type": "uint32"
+        }
+      ],
+      "name": "getLocalAndAdoptedToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_candidate",
+          "type": "address"
+        }
+      ],
+      "name": "getTokenId",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_representation",
+          "type": "address"
+        }
+      ],
+      "name": "removeAssetId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "_key",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_representation",
+          "type": "address"
+        }
+      ],
+      "name": "removeAssetId",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_representation",
+          "type": "address"
+        }
+      ],
+      "name": "representationToCanonical",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint8",
+          "name": "_canonicalDecimals",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_representationName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_representationSymbol",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_stableSwapPool",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setupAsset",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "_local",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_representation",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_adoptedAssetId",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_stableSwapPool",
+          "type": "address"
+        }
+      ],
+      "name": "setupAssetWithDeployedRepresentation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_symbol",
+          "type": "string"
+        }
+      ],
+      "name": "updateDetails",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "domain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct TokenId",
+          "name": "_canonical",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_updated",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateLiquidityCap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x0dfd7929fcf2a77751bf87467de54d83d9c28c5a1cc42fd5e704ac55136eff09",
+  "receipt": {
+    "to": "0x0000000000000000000000000000000000008006",
+    "from": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    "contractAddress": "0xEcA9B4edBdF51CEf668247F6e299a7f0fDFF0102",
+    "transactionIndex": 11,
+    "gasUsed": "487342",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xf47b325892fc55c4873214e2b2dcdd72720485b899d0888d1436c194171e0463",
+    "transactionHash": "0x0dfd7929fcf2a77751bf87467de54d83d9c28c5a1cc42fd5e704ac55136eff09",
+    "logs": [
+      {
+        "transactionIndex": 11,
+        "blockNumber": 25275791,
+        "transactionHash": "0x0dfd7929fcf2a77751bf87467de54d83d9c28c5a1cc42fd5e704ac55136eff09",
+        "address": "0x000000000000000000000000000000000000800A",
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x000000000000000000000000ade09131c6f43fe22c2cbabb759636c43cfc181e",
+          "0x0000000000000000000000000000000000000000000000000000000000008001"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000005aa0a46eec00",
+        "logIndex": 89,
+        "blockHash": "0xf47b325892fc55c4873214e2b2dcdd72720485b899d0888d1436c194171e0463"
+      },
+      {
+        "transactionIndex": 11,
+        "blockNumber": 25275791,
+        "transactionHash": "0x0dfd7929fcf2a77751bf87467de54d83d9c28c5a1cc42fd5e704ac55136eff09",
+        "address": "0x0000000000000000000000000000000000008006",
+        "topics": [
+          "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+          "0x000000000000000000000000ade09131c6f43fe22c2cbabb759636c43cfc181e",
+          "0x0100038fbd34097a958a9e734a9faef836232c96ed1a1922e7bf1a7e845a114b",
+          "0x000000000000000000000000eca9b4edbdf51cef668247f6e299a7f0fdff0102"
+        ],
+        "data": "0x",
+        "logIndex": 90,
+        "blockHash": "0xf47b325892fc55c4873214e2b2dcdd72720485b899d0888d1436c194171e0463"
+      },
+      {
+        "transactionIndex": 11,
+        "blockNumber": 25275791,
+        "transactionHash": "0x0dfd7929fcf2a77751bf87467de54d83d9c28c5a1cc42fd5e704ac55136eff09",
+        "address": "0x000000000000000000000000000000000000800A",
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x0000000000000000000000000000000000000000000000000000000000008001",
+          "0x000000000000000000000000ade09131c6f43fe22c2cbabb759636c43cfc181e"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000002e4dd3c0fe00",
+        "logIndex": 91,
+        "blockHash": "0xf47b325892fc55c4873214e2b2dcdd72720485b899d0888d1436c194171e0463"
+      }
+    ],
+    "blockNumber": 25275791,
+    "cumulativeGasUsed": "0",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "9fd3a75631a353c58da0d36ea7194368",
+  "bytecode": "0x000400000000000200000000030100190000006003300270000003420430019700030000004103550002000000010355000003420030019d000100000000001f00000001012001900000000b0000c13d0d0300ed0000040f0000008001000039000000400010043f0000000001000416000000000110004c000000170000c13d0000002001000039000001000010044300000120000004430000010001000039000000400200003900000343030000410d0300da0000040f000000000100001900000000020000190d0300e40000040f0002000000000002000200000006001d000100000005001d0000034205000041000003420630009c00000000030580190000004003300210000003420640009c00000000040580190000006004400210000000000334019f000003420410009c0000000001058019000000c001100210000000000113019f0d030cf90000040f00000001090000290000000003010019000000600330027000000342033001970000000205000029000000000453004b00000000050340190000001f0450018f00000005055002720000003d0000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b000000350000413d000000010220018f000000000640004c0000004d0000613d0000000505500210000000000651034f00000000055900190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000100000003001f00030000000103550000000001020019000000000001042d0002000000000002000200000006001d000100000005001d0000034205000041000003420630009c00000000030580190000004003300210000003420640009c00000000040580190000006004400210000000000334019f000003420410009c0000000001058019000000c001100210000000000113019f0d030cfe0000040f00000001090000290000000003010019000000600330027000000342033001970000000205000029000000000453004b00000000050340190000001f0450018f0000000505500272000000740000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b0000006c0000413d000000010220018f000000000640004c000000840000613d0000000505500210000000000651034f00000000055900190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000100000003001f00030000000103550000000001020019000000000001042d0000034203000041000003420410009c00000000010380190000004001100210000003420420009c00000000020380190000006002200210000000000112019f0000000002000414000003420420009c0000000002038019000000c002200210000000000112019f00000344011001c700008010020000390d030cfe0000040f00000001022001900000009c0000613d000000000101043b000000000001042d000000000100001900000000020000190d0300e40000040f00000342010000410000000002000414000003420320009c0000000001024019000000c00110021000000345011001c700008002020000390d030cfe0000040f0000000102200190000000ab0000613d000000000101043b000000000001042d000000000100001900000000020000190d0300e40000040f0000000006010019000000840130008a00000064042000390000000005000414000000000014043500000044012000390000006004000039000000000041043500000346010000410000000000120435000000040120003900000000000104350000034201000041000003420420009c00000000020180190000004002200210000003420430009c00000000030180190000006003300210000000000223019f000003420350009c0000000001054019000000c001100210000000000121019f00000344011001c7000000000260004c000000cf0000613d00008009020000390000800604000039000000010500003900000000030600190d030cf90000040f000000d10000013d00008006020000390d030cf90000040f0000000102200190000000d50000613d000000000101043b000000d90000013d00030000000103550000006001100270000103420010019d0000000001000019000000000001042d0000034204000041000003420510009c000000000104801900000040011002100000000001310019000003420320009c00000000020480190000006002200210000000000121001900000d040001042e0000034203000041000003420420009c0000000002038019000003420410009c000000000103801900000040011002100000006002200210000000000112019f00000d050001043000120000000000020000008001000039000000400010043f0000000001000031000000040110008c000006480000413d001200000000001d0000000201000367000000000101043b000000e001100270000003470210009c0000014c0000613d000003480210009c000001840000613d000003490210009c0000000006000411000001b20000613d0000034a0210009c000002160000613d0000034b0210009c000002320000613d0000034c0210009c0000024d0000613d0000034d0210009c0000026a0000613d0000034e0210009c000002ab0000613d0000034f0210009c000002e80000613d000003500210009c000003080000613d000003510210009c000003290000613d000003520210009c000003440000613d000003530210009c0000038f0000613d000003540210009c000003b00000613d000003550210009c000003d20000613d000003560210009c000004300000613d000003570210009c000004500000613d000003580210009c000004970000613d000003590210009c000004c50000613d0000035a0110009c000006480000c13d0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000f00000001001d000000400100043d000e00000001001d0d03089d0000040f0000000e02000029000000200120003900000000000104350000000000020435000000400100043d000e00000001001d0d03089d0000040f0000000e020000290000002001200039000000000001043500000000000204350000000f010000290d030c770000040f0000000002010019000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000000c002000039000000400020043f000000800000043f000000a00000043f0000035d0110019700000000001004350000000601000039000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000000101041a000f00000001001d00000000010000190000000e020000290d0300880000040f0000000101100039000000000101041a000e00000001001d000000400100043d000d00000001001d0d03089d0000040f0000000d0200002900000020012000390000000e0300002900000000003104350000000f0100002900000342011001970000000000120435000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000002402100370000000000202043b0000000003020019000003420220009c000006480000213d0000000401100370000000000101043b000f00000001001d0000000002030019000d00000002001d0d030ce20000040f000e00000001001d0000000f020000290000000d030000290d030cd90000040f000f00000001001d0000000e010000290d0309050000040f0000035d02100197000000400100043d000000200310003900000000002304350000000f020000290000035d022001970000000000210435000000400200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000262004b000001dd0000613d000f00000006001d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c0000000f06000029000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d01000029000f00000006001d0d030ce20000040f000c00000001001d00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000f030000290000000201100039000000000201041a00000371022001970000000e04000029000000000242019f000000000021041b00000004010000390000000201100367000000000701043b000003420170009c000006480000213d0000035d01300197000000400200043d000000200320003900000000001304350000000e01000029000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000360011001c70000800d0200003900000004030000390000037e040000410000000c050000290000000d060000290d030cf90000040f0000000101200190000006480000613d0000000001000019000000000200001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d030c670000040f000000000101041a0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309050000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309190000040f000000000110004c0000000002000019000000010200c039000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000800310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000006402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000262004b000002980000613d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d010000290d030ce20000040f000000400400043d0000037b0240009c000005460000413d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000f00000001001d000000400100043d000e00000001001d0d03089d0000040f0000000e020000290000002001200039000000000001043500000000000204350000000f010000290000035d0110019700000000001004350000000501000039000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000000101041a000f00000001001d00000000010000190000000e020000290d0300880000040f0000000101100039000000000101041a000e00000001001d000000400100043d000d00000001001d0d03089d0000040f0000000d0200002900000020012000390000000e0300002900000000003104350000000f0100002900000342011001970000000000120435000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309240000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000401100039000000000201041a000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309240000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000002402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000004401100370000000000101043b000e00000001001d0000035d0110009c000006480000213d0000035c01000041000000000101041a0000035d01100197000000000161004b000003710000613d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d0000000f0100002900000000001004350000000501000039000000200010043f000000400200003900000000010000190d0300880000040f000d00000001001d000000400100043d000c00000001001d0d03089d0000040f0000000d02000029000000000102041a00000342011001970000000c0400002900000000001404350000000101200039000000000101041a0000002002400039000000000012043500000004010000390000000201100367000000000101043b0000000f020000290000000e030000290d030b680000040f0000000001000019000000000200001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d030c670000040f000000000101041a0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309190000040f000000000110004c0000000002000019000000010200c039000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d0000000002000031000000040120008a0000035b03000041000001000410008c000000000400001900000000040340190000035b01100197000000000510004c000000000300a0190000035b0110009c00000000010400190000000001036019000000000110004c000006480000c13d00000002010003670000004403100370000000000303043b000e00000003001d000000ff0330008c000006480000213d0000006401100370000000000101043b0000035f0310009c000006480000213d0000000401100039000f00000006001d0d0308b40000040f000d00000001001d00000084010000390000000201100367000000000101043b0000035f0210009c000006480000213d000000000200003100000004011000390d0308b40000040f0000000f03000029000b00000001001d0000000201000367000000a402100370000000000202043b0000035d04200197000c00000004001d000a00000002001d0000035d0220009c000006480000213d000000c402100370000000000202043b0000035d04200197000900000004001d000800000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000232004b000005c90000c13d0000000402100370000000000202043b000003420320009c000006480000213d0000002401100370000000000101043b0d030ce20000040f000600000001001d00000002010003670000000402100370000000000202043b000700000002001d000003420220009c000006480000213d0000000402000039000500000002001d000000000202041a0000000703000029000000000232013f00000342022001980000064b0000c13d0000002401100370000000000101043b0000035d02100197000d00000002001d0000000c02000029000000000220004c000006cd0000c13d0000000002000415000000110220008a00000020022000c9001100000000001d000006d80000013d0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309050000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d0000000002000031000000040120008a0000035b03000041000000800410008c000000000400001900000000040340190000035b01100197000000000510004c000000000300a0190000035b0110009c00000000010400190000000001036019000000000110004c000006480000c13d00000044010000390000000201100367000000000101043b0000035f0310009c000006480000213d0000000401100039000f00000006001d0d0308b40000040f000e00000001001d00000064010000390000000201100367000000000101043b0000035f0210009c000006480000213d000000000200003100000004011000390d0308b40000040f0000000f02000029000d00000001001d0000035c01000041000000000101041a0000035d01100197000000000121004b000004850000613d00000000002004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000000402100370000000000202043b000003420320009c000006480000213d0000002401100370000000000101043b0d030ce20000040f000f00000001001d0d030c670000040f000000000101041a0000035d01100198000005580000c13d000000400100043d0000036a02000041000000000021043500000004020000390d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000a00310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000006402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000008401100370000000000101043b000d00000001001d0000035d0110009c000006480000213d0000035c01000041000000000101041a0000035d01100197000000000161004b000005350000c13d0000000f01000029000000000110004c000005670000c13d000000400100043d0000036402000041000000000021043500000004020000390d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000e00000002001d0000035c02000041000000000202041a0000035d02200197000000000262004b000004f50000613d000f00000006001d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004f10000a13d0000037c0100004100000000001004350000002101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000030110008c0000000f06000029000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d01000029000f00000006001d0d030ce20000040f000b00000001001d00000004010000390000000202100367000000000202043b0000034203200197000c00000003001d000003420220009c000006480000213d000000000101041a00000342011001970000000c02000029000000000121004b000008860000c13d0000000b0100002900000000001004350000000701000039000a00000001001d000000200010043f000000400200003900000000010000190d0300880000040f00000003011000390000000e04000029000000000041041b000000000140004c000005760000c13d000000400100043d00000020021000390000000f030000290000000000320435000000000041043500000342020000410000000003000414000003420430009c0000000003028019000003420410009c00000000010280190000004001100210000000c002300210000000000112019f00000360011001c70000800d02000039000000040300003900000361040000410000000b050000290000000d060000290000000c070000290d030cf90000040f0000000101200190000006480000613d0000001201000029000000000201001900000000030000190d0300da0000040f00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000004bd0000613d000000400100043d0000037d02000041000000000021043500000004020000390d0300e40000040f0000004002400039000000400020043f00000004020000390000000202200367000000000202043b000003420320009c000006480000213d00000020034000390000000d05000029000000000053043500000000002404350000000f020000290000000e030000290d030b680000040f0000000001000019000000000200001900000000030000190d0300da0000040f000c00000001001d00000004010000390000000202100367000000000202043b000003420320009c000006480000213d000000000101041a000000000121013f0000034201100198000005d70000c13d000000400100043d0000036902000041000000000021043500000004020000390d0300e40000040f00000002010003670000000402100370000000000202043b000003420320009c000006480000213d0000000403000039000000000303041a000000000323013f0000034203300198000005e80000c13d000000400100043d0000036302000041000000000021043500000004020000390d0300e40000040f000000400300043d0000035e01000041000000000013043500000004013000390000000002000410000000000021043500000000010004140000000d020000290000035d02200197000000040420008c000005a90000613d00000024040000390000002006000039000900000003001d00000009050000290d0300510000040f0000000903000029000000000110004c000005a90000c13d0000000302000367000000400100043d00000001040000310000001f0340018f0000000504400272000005980000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b000005900000413d000000000530004c000005a70000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600420018f00000000050300190000000002340019000000000342004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000001050433000900000001001d0000000b0100002900000000001004350000000a01000029000000200010043f000000400200003900000000010000190d0300880000040f00000004011000390000000902000029000000000021041b0000000e04000029000005190000013d00000000003004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000040f0000013d0000000f0100002900000000001004350000000701000039000000200010043f00000040020000390000000001000019000f00000002001d0d0300880000040f0000000201100039000000000101041a0000036501100198000006410000c13d000000400100043d0000036802000041000000000021043500000004020000390d0300e40000040f0000002401100370000000000101043b0d030ce20000040f0000036202000041000000400300043d000c00000003001d0000000000230435000b00000001001d00000000010004140000000f02000029000000040220008c000006200000613d000000040400003900000020060000390000000f020000290000000c0300002900000000050300190d0300510000040f000000000110004c000006200000c13d000000120300002900000001040000310000000001340019000000000141004b000006480000213d000000400100043d0000001f0240018f000000030330036700000005044002720000060f0000613d000000000500001900000005065002100000000007610019000000000663034f000000000606043b00000000006704350000000105500039000000000645004b000006070000413d000000000520004c0000061e0000613d0000000504400210000000000343034f00000000044100190000000302200210000000000504043300000000052501cf000000000525022f000000000303043b0000010002200089000000000323022f00000000022301cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600320018f0000000c0200002900000000050200190000000002230019000000000332004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000001050433000000ff0210008c000006480000213d0000000e020000290000000f030000290000000d040000290000000b050000290d0309410000040f000000400100043d0000000f020000290000000000210435000000200200003900000000030000190d0300da0000040f000003660100004100000000001004390000000c0100002900000004001004430d03009f0000040f000000000110004c000006a20000c13d000000000100001900000000020000190d0300e40000040f000000060100002900000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a0000035d01100198000006c80000c13d000000400200003900000000010000190d0300880000040f000000000101041a0000036501100198000006c80000c13d00000005010000290000000201100367000000000101043b000f00000001001d000003420110009c000006480000213d000000400100043d00000000020100190000036c0110009c000002a40000213d0000000003020019000c00000003001d000000a4013000390000006002000039000000000021043500000024013000390000036d0200004100000000002104350000008402300039000900000002001d0000000e010000290000000000120435000000e4023000390000000d010000290d03092e0000040f0000000002010019000000090100002900000000011200490000000c03000029000000c40330003900000000001304350000000b010000290d03092e0000040f0000000c02000029000000000321004900000000010000190d0300ae0000040f000000000210004c000007fe0000c13d0000000302000367000000400100043d00000001040000310000001f0340018f0000000504400272000006910000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b000006890000413d000000000530004c000006a00000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f000000400300043d000b00000003001d0000036701000041000000000013043500000004013000390000000f02000029000000000021043500000044023000390000000e010000290d03092e0000040f00000000020100190000000b030000290000000001320049000000040110008a000000240330003900000000001304350000000001000414000e00000001001d0000001201000029000f00000001001d0000000d010000290d03092e0000040f0000000c02000029000000040220008c000007ee0000613d0000000b0200002900000000042100490000000f01000029000000000110004c0000078b0000c13d0000000e010000290000000c020000290000000b03000029000000000503001900000000060000190d03001a0000040f0000000002010019000007c70000013d000000400100043d0000036b02000041000000000021043500000004020000390d0300e40000040f0000000d030000290000000c04000029000000000234004b0000000002000019000000010200c039001000000002001d0000000002000415000000100220008a00000020022000c9000000000334004b000006df0000c13d0000000903000029000000000330004c0000000003000019000000010300c039000000200220011a000000000203001f000006e40000613d000000400100043d0000037a02000041000000000021043500000004020000390d0300e40000040f0000000702000029000000000220004c000007f40000613d000000000110004c000007f40000613d000000060100002900000000001004350000000701000039000c00000001001d000000200010043f000000400200003900000000010000190d0300880000040f000000400200043d0000000201100039000000000101041a0000036501100198000007f90000c13d000003700120009c000002a40000213d0000000003020019000100000003001d0000010001300039000000400010043f000000a002300039000900000002001d000000010100003900000000001204350000006002300039000800000002001d0000000e0100002900000000001204350000002002300039000200000002001d00000000001204350000004002300039000300000002001d0000000d010000290000000000120435000000e001300039000b00000001001d0000000000010435000000c001300039000a00000001001d00000000000104350000008001300039000400000001001d00000000000104350000000000030435000000060100002900000000001004350000000c01000029000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000010200002900000000020204330000035d02200197000000000301041a0000037103300197000000000223019f000000000021041b000000000201041a000003720220019700000002030000290000000003030433000000a0033002100000036503300197000000000232019f000000000021041b0000000102100039000000000302041a0000037103300197000000030400002900000000040404330000035d04400197000000000334019f000000000032041b000000000302041a000003720330019700000008040000290000000004040433000000a0044002100000036504400197000000000343019f000000000032041b000000090200002900000000020204330000037303000041000000000220004c00000000020300190000000002006019000000040300002900000000030304330000035d033001970000000204100039000000000504041a0000037405500197000000000335019f000000000223019f000000000024041b0000000a0200002900000000020204330000000303100039000000000023041b00000004011000390000000b020000290000000002020433000000000021041b0000000d0100002900000000001004350000000501000039000000200010043f00000000010000190000000e020000290d0300880000040f000000000201041a00000375022001970000000703000029000000000223019f000000000021041b00000000010000190000000e020000290d0300880000040f0000002402000039000e00000002001d0000000202200367000000000202043b0000000101100039000000000021041b0000000201000367000000e402100370000000000202043b000000000220004c0000000f030000290000081d0000c13d000000400100043d0000004002100039000000000032043500000020021000390000000d03000029000000000032043500000000003104350000000e020000290000000202200367000000000602043b00000342020000410000000003000414000003420430009c0000000003028019000003420410009c00000000010280190000004001100210000000c002300210000000000112019f00000377011001c70000800d0200003900000004030000390000037804000041000000060500002900000007070000290d030cf90000040f0000000101200190000008170000c13d000006480000013d00000342010000410000000b03000029000003420230009c000000000201001900000000020340190000004002200210000003420340009c000000000301001900000000030440190000006003300210000000000223019f0000000e04000029000003420340009c0000000001044019000000c001100210000000000112019f00000344011001c700008009020000390000000f030000290000000c0400002900000000050000190d030cf90000040f0000000b090000290000000003010019000000600330027000000342033001970000000f05000029000000000453004b00000000050340190000001f0450018f0000000505500272000007b40000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b000007ac0000413d000000000640004c000007c40000613d0000000505500210000000000651034f0000000b0700002900000000055700190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000000010220018f000100000003001f0003000000010355000000000120004c000007ee0000c13d00000001040000310000000f010000290000000001140019000000000141004b000006480000213d000000400100043d0000001f0240018f0000000f0300002900000003033003670000000504400272000007dd0000613d000000000500001900000005065002100000000007610019000000000663034f000000000606043b00000000006704350000000105500039000000000645004b000007d50000413d000000000520004c000007ec0000613d0000000504400210000000000343034f00000000044100190000000302200210000000000504043300000000052501cf000000000525022f000000000303043b0000010002200089000000000323022f00000000022301cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000b010000290d0308a90000040f0000000f01000029000000000201001900000000030000190d0300da0000040f000000400100043d0000037902000041000000000021043500000004020000390d0300e40000040f0000036f030000410000000001020019000000000031043500000004020000390d0300e40000040f00000024020000390000000202200367000000000602043b00000342020000410000000003000414000003420430009c0000000002034019000000c00220021000000344052001c70000035d071001970000800d0200003900000004030000390000036e0400004100000000010500190000000f05000029000d00000007001d0d030cf90000040f0000000101200190000006480000613d0000000e010000290000000a020000290000000d03000029000000080400002900000006050000290d0309410000040f000000400100043d0000000d020000290000000000210435000000200200003900000000030000190d0300da0000040f0000000401100370000000000101043b000003420210009c000006480000213d0000000502000029000000000202041a000000000112013f0000034201100198000008860000c13d000000060100002900000000001004350000000c01000029000000200010043f000000400200003900000000010000190d0300880000040f000000e4020000390000000202200367000000000202043b0000000301100039000000000021041b0000035e01000041000000400200043d00000000001204350000000001000410000b00000002001d0000000402200039000000000012043500000000010004140000000d02000029000000040220008c000008450000613d000000240400003900000020060000390000000d020000290000000b0300002900000000050300190d0300510000040f000000000110004c000006820000613d0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600320018f0000000b020000290000000002230019000000000332004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000b010000290000000001010433000b00000001001d000000060100002900000000001004350000000c01000029000000200010043f000000400200003900000000010000190d0300880000040f0000000f0400002900000004011000390000000b02000029000000000021041b00000002010003670000000402100370000000000702043b000003420270009c000006480000213d000000e401100370000000000101043b000000400200043d0000002003200039000000000043043500000000001204350000000e010000290000000201100367000000000601043b00000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000360011001c70000800d020000390000000403000039000003610400004100000006050000290d030cf90000040f0000000f0300002900000001012001900000076e0000c13d000006480000013d000000400100043d0000037602000041000000000021043500000004020000390d0300e40000040f00000004010000390000000201100367000000000101043b000003730210009c000008910000813d000000000001042d000000000100001900000000020000190d0300e40000040f00000000030204330000034203300197000000000031043500000020022000390000000002020433000000200310003900000000002304350000004001100039000000000001042d0000037b0210009c000008a20000813d0000004001100039000000400010043f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000037f0210009c000008ad0000813d000000400010043f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f00000000030100190000001f013000390000035b04000041000000000521004b000000000500001900000000050440190000035b062001970000035b01100197000000000761004b000000000400a019000000000161013f0000035b0110009c00000000010500190000000001046019000000000110004c000009020000613d0000000201300367000000000401043b0000037f0140009c000008fb0000813d0000003f01400039000000200500008a000000000551016f000000400100043d0000000005510019000000000615004b000000000600001900000001060040390000035f0750009c000008fb0000213d0000000106600190000008fb0000c13d000000400050043f000000000041043500000020033000390000000005430019000000000225004b000009020000213d0000001f0240018f000000020530036700000020031000390000000506400272000008e80000613d000000000700001900000005087002100000000009830019000000000885034f000000000808043b00000000008904350000000107700039000000000867004b000008e00000413d000000000720004c000008f70000613d0000000506600210000000000565034f00000000036300190000000302200210000000000603043300000000062601cf000000000626022f000000000505043b0000010002200089000000000525022f00000000022501cf000000000262019f0000000000230435000000000214001900000020022000390000000000020435000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000000100001900000000020000190d0300e40000040f0d030c670000040f0000000101100039000000000101041a0000035d011001980000090b0000613d000000000001042d000000400100043d0000038002000041000000000021043500000004020000390d0300e40000040f00000004010000390000000201100367000000000101043b000003810210009c000009160000813d000000000001042d000000000100001900000000020000190d0300e40000040f00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000201100039000000000101041a000000a001100270000000ff0110018f000000000001042d00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000201100039000000000101041a0000035d01100197000000000001042d0000000003010433000000000032043500000020022000390000000004000019000000000534004b0000093a0000813d00000000054200190000002004400039000000000614001900000000060604330000000000650435000009320000013d000000000132001900000000000104350000001f01300039000000200300008a000000000131016f0000000001120019000000000001042d000f000000000002000e00000005001d000800000004001d000d00000003001d000c00000001001d00000002010003670000000403100370000000000403043b0000034203400197000f00000003001d000003810340009c00000af20000813d000b00000002001d0000000f02000029000000000220004c00000afc0000613d0000002401100370000000000101043b000000000110004c00000afc0000613d0000000401000039000000000101041a000a00000001001d0000000e0100002900000000001004350000000701000039000700000001001d000000200010043f000000400200003900000000010000190d0300880000040f0000000b030000290000035d043001980000000d02000029000000000203c019000b00000002001d0000000201100039000000000101041a000003650110019800000b210000c13d0000000a0100002900000342011001970000000f02000029000000000121004b00000a1f0000613d000300000004001d000000400300043d0000035e01000041000000000013043500000004013000390000000002000410000900000002001d000000000021043500000000010004140000000d020000290000035d02200197000000040420008c000a00000002001d000009850000613d000000240400003900000020060000390000000005030019000600000003001d0d0300510000040f00000006030000290000000a02000029000000000110004c00000b010000613d0000000101000031000000200410008c000000200400003900000000040140190000001f04400039000000600440018f0000000005340019000000000445004b000000000600001900000001060040390000035f0450009c00000af50000213d000000010460019000000af50000c13d000000400050043f000000200110008c00000af20000413d0000000001030433000500000001001d0000036601000041000000000010043900000004002004430d03009f0000040f0000000a02000029000000000110004c00000af20000613d000000400300043d00000024013000390000000104000039000400000004001d0000000000410435000003820100004100000000001304350000000405300039000000090100002900000000001504350000000001000414000000040420008c000600000003001d000009b70000613d0000004404000039000200000005001d000000060500002900000000060000190d03001a0000040f000000020500002900000006030000290000000a02000029000000000110004c00000b010000613d0000035f0130009c00000af50000213d000000400030043f0000035e010000410000000000130435000000090100002900000000001504350000000001000414000000040420008c000009c90000613d0000002404000039000000200600003900000006050000290d0300510000040f00000006030000290000000a02000029000000000110004c00000b010000613d0000000104000031000000200140008c000000200100003900000000010440190000001f01100039000000600110018f00000000013100190000035f0510009c00000af50000213d000000400010043f000000200440008c00000af20000413d000000010500008a0000000504000029000000000554004b00000b260000613d00000001044000390000000003030433000000000343004b00000b2d0000c13d0000036601000041000000000010043900000004002004430d03009f0000040f0000000a02000029000000000110004c00000af20000613d000000400500043d000000240150003900000004030000290000000000310435000003840100004100000000001504350000000404500039000000090100002900000000001404350000000001000414000000040320008c000600000005001d000009fc0000613d000400000004001d00000044040000390000000003050019000000060500002900000000060000190d03001a0000040f000000040400002900000006050000290000000a02000029000000000110004c00000b010000613d0000035f0150009c00000af50000213d000000400050043f0000035e010000410000000000150435000000090100002900000000001404350000000001000414000000040320008c00000a0e0000613d00000024040000390000002006000039000000000305001900000006050000290d0300510000040f0000000605000029000000000110004c00000b010000613d0000000102000031000000200120008c000000200100003900000000010240190000001f01100039000000600110018f00000000015100190000035f0310009c00000af50000213d000000400010043f000000200220008c00000af20000413d00000000020504330000000503000029000000000232004b000000030400002900000b310000c13d000000400300043d000000000140004c0000000c0100002900000a470000613d0000036201000041000000000013043500000000010004140000000b020000290000035d02200197000000040420008c00000a320000613d00000004040000390000002006000039000900000003001d00000009050000290d0300510000040f0000000903000029000000000110004c00000b010000613d0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600420018f0000000002340019000000000442004b000000000500001900000001050040390000035f0420009c00000af50000213d000000010450019000000af50000c13d000000400020043f000000200110008c00000af20000413d0000000001030433000000ff0310008c000000000302001900000af20000213d000003700230009c00000af50000213d0000010002300039000000400020043f000000a004300039000600000004001d00000001020000390000000000240435000000ff0110018f0000006002300039000400000002001d00000000001204350000000c01000029000000ff0110018f0000002002300039000100000002001d00000000001204350000000d010000290000035d02100197000a00000002001d0000000b010000290000035d01100197000b00000001001d0000004004300039000200000004001d00000000001404350000000000230435000000e001300039000c00000001001d0000000000010435000000c001300039000500000001001d00000000000104350000008001300039000300000001001d00000000000104350000000e0100002900000000001004350000000701000029000000200010043f0000004002000039000d00000002001d0000000001000019000900000003001d0d0300880000040f000000090200002900000000020204330000035d02200197000000000301041a0000037103300197000000000223019f000000000021041b000000000201041a000003720220019700000001030000290000000003030433000000a0033002100000036503300197000000000232019f000000000021041b0000000102100039000000000302041a0000037103300197000000020400002900000000040404330000035d04400197000000000334019f000000000032041b000000000302041a000003720330019700000004040000290000000004040433000000a0044002100000036504400197000000000343019f000000000032041b000000060200002900000000020204330000037303000041000000000220004c00000000020300190000000002006019000000030300002900000000030304330000035d033001970000000204100039000000000504041a0000037405500197000000000335019f000000000223019f000000000024041b000000050200002900000000020204330000000303100039000000000023041b00000004011000390000000c020000290000000002020433000000000021041b0000000b0100002900000000001004350000000501000039000000200010043f00000000010000190000000d020000290d0300880000040f000000000201041a00000375022001970000000f03000029000000000232019f000000000021041b00000024010000390000000201100367000000000101043b000c00000001001d00000000010000190000000d020000290d0300880000040f00000001011000390000000c02000029000000000021041b0000000a0100002900000000001004350000000601000039000000200010043f00000000010000190000000d020000290d0300880000040f000000000201041a00000375022001970000000f03000029000000000232019f000000000021041b00000000010000190000000d020000290d0300880000040f00000001011000390000000c02000029000000000021041b00000008010000290000000e020000290d030b350000040f0000000001000411000000400200043d0000004003200039000000000013043500000020012000390000000a0300002900000000003104350000000b01000029000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000377011001c70000800d02000039000000040300003900000378040000410000000e050000290000000c060000290000000f070000290d030cf90000040f000000010120019000000af20000613d000000000001042d000000000100001900000000020000190d0300e40000040f0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000400100043d0000037902000041000000000021043500000004020000390d0300e40000040f0000000302000367000000400100043d00000001040000310000001f0340018f000000050440027200000b100000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b00000b080000413d000000000530004c00000b1f0000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f000000400100043d0000036f02000041000000000021043500000004020000390d0300e40000040f0000037c0100004100000000001004350000001101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000038302000041000000000021043500000004020000390d0300e40000040f0000038502000041000000000021043500000004020000390d0300e40000040f0002000000000002000200000001001d000100000002001d00000000002004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f00000002020000290000035d022001970000000201100039000000000301041a0000037103300197000000000323019f000000000031041b00000004010000390000000201100367000000000701043b000003810170009c00000b650000813d00000000010004110000035d01100197000000400300043d00000020043000390000000000140435000000000023043500000024010000390000000201100367000000000601043b00000342010000410000000002000414000003420420009c0000000002018019000003420430009c00000000010340190000004001100210000000c002200210000000000112019f00000360011001c70000800d0200003900000004030000390000037e0400004100000001050000290d030cf90000040f000000010120019000000b650000613d000000000001042d000000000100001900000000020000190d0300e40000040f0006000000000002000300000004001d000600000003001d000400000002001d000500000001001d00000000001004350000000701000039000200000001001d000000200010043f000000400200003900000000010000190d0300880000040f0000000202100039000000000202041a000003650220019800000c370000613d00000004020000290000035d032001970000000102100039000000000202041a0000035d02200197000000000232004b000000060500002900000c2f0000c13d000000000101041a000000000151013f0000035d0110019800000c2f0000c13d000100000003001d0000000401000039000000000101041a00000003030000290000000002030433000000000112013f000003420110019800000bb50000613d000000400300043d0000038701000041000000000013043500000000010004140000035d02500197000000040420008c000400000002001d00000b9d0000613d000000040400003900000020060000390000000005030019000600000003001d0d0300510000040f00000006030000290000000402000029000000000110004c00000c430000613d0000000105000031000000200150008c000000200100003900000000010540190000001f01100039000000600410018f0000000001340019000000000441004b000000000600001900000001060040390000035f0410009c00000c3c0000213d000000010460019000000c3c0000c13d000000400010043f000000200450008c00000c340000413d0000000003030433000000000330004c00000be00000613d0000038802000041000000000021043500000004020000390d0300e40000040f00000020013000390000000002010433000000400300043d0000035e01000041000000000013043500000004013000390000000004000410000000000041043500000000010004140000035d02200197000000040420008c00000bca0000613d000000240400003900000020060000390000000005030019000400000003001d0d0300510000040f00000004030000290000000605000029000000000110004c00000c430000613d0000000102000031000000200120008c000000200100003900000000010240190000001f01100039000000600410018f0000000001340019000000000441004b000000000600001900000001060040390000035f0410009c00000c3c0000213d000000010460019000000c3c0000c13d000000400010043f000000200220008c00000c340000413d0000000002030433000000000220004c00000c630000c13d0000035d01500197000400000001001d000000050100002900000000001004350000000201000029000000200010043f0000004002000039000600000002001d00000000010000190d0300880000040f0000000101100039000000000201041a0000037102200197000000000021041b000000000100001900000006020000290d0300880000040f0000000101100039000000000201041a0000037202200197000000000021041b000000000100001900000006020000290d0300880000040f0000000201100039000000000201041a0000037102200197000000000021041b000000000100001900000006020000290d0300880000040f0000000201100039000000000201041a0000037202200197000000000021041b000000000100001900000006020000290d0300880000040f0000000301100039000000000001041b000000040100002900000000001004350000000601000039000000200010043f000000000100001900000006020000290d0300880000040f000000000001041b0000000101100039000000000001041b000000010100002900000000001004350000000501000039000000200010043f000000000100001900000006020000290d0300880000040f000000000001041b0000000101100039000000000001041b0000000001000411000000400200043d000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000389011001c70000800d0200003900000002030000390000038a0400004100000005050000290d030cf90000040f000000010120019000000c340000613d000000000001042d000000400100043d0000038602000041000000000021043500000004020000390d0300e40000040f000000000100001900000000020000190d0300e40000040f000000400100043d0000038b02000041000000000021043500000004020000390d0300e40000040f0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000302000367000000400100043d00000001040000310000001f0340018f000000050440027200000c520000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b00000c4a0000413d000000000530004c00000c610000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f0000038802000041000000000021043500000004020000390d0300e40000040f00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000102100039000000000202041a000003650220019800000c720000613d000000000001042d000000400100043d0000038c02000041000000000021043500000004020000390d0300e40000040f00050000000000020000000004010019000000400100043d0000037b0210009c00000cd20000813d0000004002100039000000400020043f000000200210003900000000000204350000000000010435000000400300043d0000038d0130009c00000cd20000213d0000004001300039000000400010043f0000002001300039000000000001043500000000000304350000035d0140019800000cd00000613d000500000001001d00000000001004350000000501000039000000200010043f00000040020000390000000001000019000400000004001d0d0300880000040f000000400300043d0000038d0230009c00000cd20000213d0000004002300039000000400020043f000000000201041a0000034202200198000000000023043500000020023000390000000101100039000000000101041a0000000000120435000000050100002900000cd00000c13d000100000002001d000200000003001d00000000001004350000000602000039000300000002001d000000200020043f000000400200003900000000010000190d0300880000040f000000000101041a000003420110019800000cc10000613d000000050100002900000000001004350000000301000029000000200010043f000000400200003900000000010000190d0300880000040f000000400300043d0000038d0230009c00000cd20000213d0000004002300039000000400020043f000000000201041a0000034202200197000000000023043500000020023000390000000101100039000000000101041a000000000012043500000cd00000013d00000366010000410000000000100439000000040100002900000004001004430d03009f0000040f000000000110004c00000cad0000613d0000000401000039000000000101041a0000034201100197000000020300002900000000001304350000000101000029000000050200002900000000002104350000000001030019000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000404000039000000000404041a000000000334013f000003420330019800000ce00000613d0d030c670000040f000000000201041a0000035d01200197000000000001042d00000000030100190000034201200197000000400200043d0000004004200039000000000014043500000040010000390000000000120435000000200120003900000000003104350000038e0320009c00000cf20000813d0000006003200039000000400030043f00000000020204330d0300880000040f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f00000cfc002104210000000102000039000000000001042d000000000200001900000cfb0000013d00000d01002104230000000102000039000000000001042d000000000200001900000d000000013d00000d030000043200000d040001042e00000d05000104300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffff0000000200000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000002000000000000000000000000000000240000000000000000000000009c4d535bdea7cd8a978f128b93471df48c7dbab89d703809115bdc118c235bfd0000000000000000000000000000000000000000000000000000000003e418c20000000000000000000000000000000000000000000000000000000007a38d7b000000000000000000000000000000000000000000000000000000001506e463000000000000000000000000000000000000000000000000000000001ecf6f9f000000000000000000000000000000000000000000000000000000002c1999d00000000000000000000000000000000000000000000000000000000057bd0a32000000000000000000000000000000000000000000000000000000005a2164e500000000000000000000000000000000000000000000000000000000600620910000000000000000000000000000000000000000000000000000000080dc224800000000000000000000000000000000000000000000000000000000949de969000000000000000000000000000000000000000000000000000000009b59851900000000000000000000000000000000000000000000000000000000a1b1930100000000000000000000000000000000000000000000000000000000ad4c777100000000000000000000000000000000000000000000000000000000ae8bc0de00000000000000000000000000000000000000000000000000000000b64a5e0700000000000000000000000000000000000000000000000000000000bd8671a700000000000000000000000000000000000000000000000000000000c405842900000000000000000000000000000000000000000000000000000000e1cb395800000000000000000000000000000000000000000000000000000000e9d7bcec00000000000000000000000000000000000000000000000000000000f15376868000000000000000000000000000000000000000000000000000000000000000c8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c1320000000000000000000000000ffffffffffffffffffffffffffffffffffffffff70a0823100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff02000000000000000000000000000000000000400000000000000000000000008976b61819dcee01042166c2c5612babc4f820a30843a7f8b23c0ddc343f6ef4313ce56700000000000000000000000000000000000000000000000000000000ccf799f4000000000000000000000000000000000000000000000000000000004d8d600c000000000000000000000000000000000000000000000000000000000000000000000000000000ff00000000000000000000000000000000000000001806aa1896bbf26568e884a7374b41e002500962caba6a15023a8d90e8508b83b7b090ee000000000000000000000000000000000000000000000000000000004d665d9900000000000000000000000000000000000000000000000000000000396a1f2c000000000000000000000000000000000000000000000000000000009db40a2500000000000000000000000000000000000000000000000000000000ae154e0300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff7b010002cd65bc64fcdaa00d42e853c8c19ac29ecbf8d4c08289d9da894a76610284d5e3618bf276f3d29a931646fdd996b398a3efa3cf6bceefc1fe7f0304059fbfa2bf9b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffffffffffffeffffffffffffffffffffffffff0000000000000000000000000000000000000000ffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff0000000000000000000000010000000000000000000000000000000000000000ffffffffffffffffffffff000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000a56029bd0000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000600000000000000000000000000c58c78506e2d526f5ccdba28119c9ca3b5ce48e1462e0e19bc39232db11c632eb741af200000000000000000000000000000000000000000000000000000000022d833500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffc04e487b71000000000000000000000000000000000000000000000000000000007b32c26b0000000000000000000000000000000000000000000000000000000016285b1cf634d546d51fefe55f6e63e5edf970d2a3d2bd50b55a8cfad25e8b5600000000000000000000000000000000000000000000000100000000000000002ac5283800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000040c10f1900000000000000000000000000000000000000000000000000000000b6ec7680000000000000000000000000000000000000000000000000000000009dc29fac00000000000000000000000000000000000000000000000000000000ad6f16e300000000000000000000000000000000000000000000000000000000c383fe480000000000000000000000000000000000000000000000000000000018160ddd000000000000000000000000000000000000000000000000000000008a8e65e20000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000200000000000000000000000009d181adb70e733f5235f839c1eed929407ea8526e41d01f49b9fef703e78dddf39333cfa00000000000000000000000000000000000000000000000000000000c319947e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffbf000000000000000000000000000000000000000000000000ffffffffffffffa0",
+  "deployedBytecode": "0x000400000000000200000000030100190000006003300270000003420430019700030000004103550002000000010355000003420030019d000100000000001f00000001012001900000000b0000c13d0d0300ed0000040f0000008001000039000000400010043f0000000001000416000000000110004c000000170000c13d0000002001000039000001000010044300000120000004430000010001000039000000400200003900000343030000410d0300da0000040f000000000100001900000000020000190d0300e40000040f0002000000000002000200000006001d000100000005001d0000034205000041000003420630009c00000000030580190000004003300210000003420640009c00000000040580190000006004400210000000000334019f000003420410009c0000000001058019000000c001100210000000000113019f0d030cf90000040f00000001090000290000000003010019000000600330027000000342033001970000000205000029000000000453004b00000000050340190000001f0450018f00000005055002720000003d0000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b000000350000413d000000010220018f000000000640004c0000004d0000613d0000000505500210000000000651034f00000000055900190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000100000003001f00030000000103550000000001020019000000000001042d0002000000000002000200000006001d000100000005001d0000034205000041000003420630009c00000000030580190000004003300210000003420640009c00000000040580190000006004400210000000000334019f000003420410009c0000000001058019000000c001100210000000000113019f0d030cfe0000040f00000001090000290000000003010019000000600330027000000342033001970000000205000029000000000453004b00000000050340190000001f0450018f0000000505500272000000740000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b0000006c0000413d000000010220018f000000000640004c000000840000613d0000000505500210000000000651034f00000000055900190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000100000003001f00030000000103550000000001020019000000000001042d0000034203000041000003420410009c00000000010380190000004001100210000003420420009c00000000020380190000006002200210000000000112019f0000000002000414000003420420009c0000000002038019000000c002200210000000000112019f00000344011001c700008010020000390d030cfe0000040f00000001022001900000009c0000613d000000000101043b000000000001042d000000000100001900000000020000190d0300e40000040f00000342010000410000000002000414000003420320009c0000000001024019000000c00110021000000345011001c700008002020000390d030cfe0000040f0000000102200190000000ab0000613d000000000101043b000000000001042d000000000100001900000000020000190d0300e40000040f0000000006010019000000840130008a00000064042000390000000005000414000000000014043500000044012000390000006004000039000000000041043500000346010000410000000000120435000000040120003900000000000104350000034201000041000003420420009c00000000020180190000004002200210000003420430009c00000000030180190000006003300210000000000223019f000003420350009c0000000001054019000000c001100210000000000121019f00000344011001c7000000000260004c000000cf0000613d00008009020000390000800604000039000000010500003900000000030600190d030cf90000040f000000d10000013d00008006020000390d030cf90000040f0000000102200190000000d50000613d000000000101043b000000d90000013d00030000000103550000006001100270000103420010019d0000000001000019000000000001042d0000034204000041000003420510009c000000000104801900000040011002100000000001310019000003420320009c00000000020480190000006002200210000000000121001900000d040001042e0000034203000041000003420420009c0000000002038019000003420410009c000000000103801900000040011002100000006002200210000000000112019f00000d050001043000120000000000020000008001000039000000400010043f0000000001000031000000040110008c000006480000413d001200000000001d0000000201000367000000000101043b000000e001100270000003470210009c0000014c0000613d000003480210009c000001840000613d000003490210009c0000000006000411000001b20000613d0000034a0210009c000002160000613d0000034b0210009c000002320000613d0000034c0210009c0000024d0000613d0000034d0210009c0000026a0000613d0000034e0210009c000002ab0000613d0000034f0210009c000002e80000613d000003500210009c000003080000613d000003510210009c000003290000613d000003520210009c000003440000613d000003530210009c0000038f0000613d000003540210009c000003b00000613d000003550210009c000003d20000613d000003560210009c000004300000613d000003570210009c000004500000613d000003580210009c000004970000613d000003590210009c000004c50000613d0000035a0110009c000006480000c13d0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000f00000001001d000000400100043d000e00000001001d0d03089d0000040f0000000e02000029000000200120003900000000000104350000000000020435000000400100043d000e00000001001d0d03089d0000040f0000000e020000290000002001200039000000000001043500000000000204350000000f010000290d030c770000040f0000000002010019000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000000c002000039000000400020043f000000800000043f000000a00000043f0000035d0110019700000000001004350000000601000039000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000000101041a000f00000001001d00000000010000190000000e020000290d0300880000040f0000000101100039000000000101041a000e00000001001d000000400100043d000d00000001001d0d03089d0000040f0000000d0200002900000020012000390000000e0300002900000000003104350000000f0100002900000342011001970000000000120435000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000002402100370000000000202043b0000000003020019000003420220009c000006480000213d0000000401100370000000000101043b000f00000001001d0000000002030019000d00000002001d0d030ce20000040f000e00000001001d0000000f020000290000000d030000290d030cd90000040f000f00000001001d0000000e010000290d0309050000040f0000035d02100197000000400100043d000000200310003900000000002304350000000f020000290000035d022001970000000000210435000000400200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000262004b000001dd0000613d000f00000006001d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c0000000f06000029000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d01000029000f00000006001d0d030ce20000040f000c00000001001d00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000f030000290000000201100039000000000201041a00000371022001970000000e04000029000000000242019f000000000021041b00000004010000390000000201100367000000000701043b000003420170009c000006480000213d0000035d01300197000000400200043d000000200320003900000000001304350000000e01000029000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000360011001c70000800d0200003900000004030000390000037e040000410000000c050000290000000d060000290d030cf90000040f0000000101200190000006480000613d0000000001000019000000000200001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d030c670000040f000000000101041a0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309050000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309190000040f000000000110004c0000000002000019000000010200c039000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000800310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000006402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000262004b000002980000613d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d010000290d030ce20000040f000000400400043d0000037b0240009c000005460000413d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d0d03088b0000040f000f00000001001d000000400100043d000e00000001001d0d03089d0000040f0000000e020000290000002001200039000000000001043500000000000204350000000f010000290000035d0110019700000000001004350000000501000039000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000000101041a000f00000001001d00000000010000190000000e020000290d0300880000040f0000000101100039000000000101041a000e00000001001d000000400100043d000d00000001001d0d03089d0000040f0000000d0200002900000020012000390000000e0300002900000000003104350000000f0100002900000342011001970000000000120435000000400100043d000f00000001001d0d0308940000040f0000000f030000290000000002310049000000000103001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309240000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000401100039000000000201041a000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000200310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000004010000390000000201100367000000000101043b0d0309240000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000002402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000004401100370000000000101043b000e00000001001d0000035d0110009c000006480000213d0000035c01000041000000000101041a0000035d01100197000000000161004b000003710000613d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d0000000f0100002900000000001004350000000501000039000000200010043f000000400200003900000000010000190d0300880000040f000d00000001001d000000400100043d000c00000001001d0d03089d0000040f0000000d02000029000000000102041a00000342011001970000000c0400002900000000001404350000000101200039000000000101041a0000002002400039000000000012043500000004010000390000000201100367000000000101043b0000000f020000290000000e030000290d030b680000040f0000000001000019000000000200001900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d030c670000040f000000000101041a0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309190000040f000000000110004c0000000002000019000000010200c039000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d0000000002000031000000040120008a0000035b03000041000001000410008c000000000400001900000000040340190000035b01100197000000000510004c000000000300a0190000035b0110009c00000000010400190000000001036019000000000110004c000006480000c13d00000002010003670000004403100370000000000303043b000e00000003001d000000ff0330008c000006480000213d0000006401100370000000000101043b0000035f0310009c000006480000213d0000000401100039000f00000006001d0d0308b40000040f000d00000001001d00000084010000390000000201100367000000000101043b0000035f0210009c000006480000213d000000000200003100000004011000390d0308b40000040f0000000f03000029000b00000001001d0000000201000367000000a402100370000000000202043b0000035d04200197000c00000004001d000a00000002001d0000035d0220009c000006480000213d000000c402100370000000000202043b0000035d04200197000900000004001d000800000002001d0000035d0220009c000006480000213d0000035c02000041000000000202041a0000035d02200197000000000232004b000005c90000c13d0000000402100370000000000202043b000003420320009c000006480000213d0000002401100370000000000101043b0d030ce20000040f000600000001001d00000002010003670000000402100370000000000202043b000700000002001d000003420220009c000006480000213d0000000402000039000500000002001d000000000202041a0000000703000029000000000232013f00000342022001980000064b0000c13d0000002401100370000000000101043b0000035d02100197000d00000002001d0000000c02000029000000000220004c000006cd0000c13d0000000002000415000000110220008a00000020022000c9001100000000001d000006d80000013d0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000400310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000024010000390000000201100367000000000101043b000f00000001001d0d0309100000040f00000000020100190000000f010000290d030ce20000040f0d0309050000040f0000035d02100197000000400100043d0000000000210435000000200200003900000000030000190d0300da0000040f0000000001000416000000000110004c000006480000c13d0000000002000031000000040120008a0000035b03000041000000800410008c000000000400001900000000040340190000035b01100197000000000510004c000000000300a0190000035b0110009c00000000010400190000000001036019000000000110004c000006480000c13d00000044010000390000000201100367000000000101043b0000035f0310009c000006480000213d0000000401100039000f00000006001d0d0308b40000040f000e00000001001d00000064010000390000000201100367000000000101043b0000035f0210009c000006480000213d000000000200003100000004011000390d0308b40000040f0000000f02000029000d00000001001d0000035c01000041000000000101041a0000035d01100197000000000121004b000004850000613d00000000002004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000000402100370000000000202043b000003420320009c000006480000213d0000002401100370000000000101043b0d030ce20000040f000f00000001001d0d030c670000040f000000000101041a0000035d01100198000005580000c13d000000400100043d0000036a02000041000000000021043500000004020000390d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000a00310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000f00000002001d0000035d0220009c000006480000213d0000006402100370000000000202043b000e00000002001d0000035d0220009c000006480000213d0000008401100370000000000101043b000d00000001001d0000035d0110009c000006480000213d0000035c01000041000000000101041a0000035d01100197000000000161004b000005350000c13d0000000f01000029000000000110004c000005670000c13d000000400100043d0000036402000041000000000021043500000004020000390d0300e40000040f0000000001000416000000000110004c000006480000c13d000000040100008a00000000011000310000035b02000041000000600310008c000000000300001900000000030240190000035b01100197000000000410004c000000000200a0190000035b0110009c00000000010300190000000001026019000000000110004c000006480000c13d00000002010003670000004402100370000000000202043b000e00000002001d0000035c02000041000000000202041a0000035d02200197000000000262004b000004f50000613d000f00000006001d00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004f10000a13d0000037c0100004100000000001004350000002101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000030110008c0000000f06000029000005410000c13d00000002010003670000002402100370000000000202043b000d00000002001d0000000401100370000000000201043b000003420120009c000006480000213d0000000d01000029000f00000006001d0d030ce20000040f000b00000001001d00000004010000390000000202100367000000000202043b0000034203200197000c00000003001d000003420220009c000006480000213d000000000101041a00000342011001970000000c02000029000000000121004b000008860000c13d0000000b0100002900000000001004350000000701000039000a00000001001d000000200010043f000000400200003900000000010000190d0300880000040f00000003011000390000000e04000029000000000041041b000000000140004c000005760000c13d000000400100043d00000020021000390000000f030000290000000000320435000000000041043500000342020000410000000003000414000003420430009c0000000003028019000003420410009c00000000010280190000004001100210000000c002300210000000000112019f00000360011001c70000800d02000039000000040300003900000361040000410000000b050000290000000d060000290000000c070000290d030cf90000040f0000000101200190000006480000613d0000001201000029000000000201001900000000030000190d0300da0000040f00000000006004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000004bd0000613d000000400100043d0000037d02000041000000000021043500000004020000390d0300e40000040f0000004002400039000000400020043f00000004020000390000000202200367000000000202043b000003420320009c000006480000213d00000020034000390000000d05000029000000000053043500000000002404350000000f020000290000000e030000290d030b680000040f0000000001000019000000000200001900000000030000190d0300da0000040f000c00000001001d00000004010000390000000202100367000000000202043b000003420320009c000006480000213d000000000101041a000000000121013f0000034201100198000005d70000c13d000000400100043d0000036902000041000000000021043500000004020000390d0300e40000040f00000002010003670000000402100370000000000202043b000003420320009c000006480000213d0000000403000039000000000303041a000000000323013f0000034203300198000005e80000c13d000000400100043d0000036302000041000000000021043500000004020000390d0300e40000040f000000400300043d0000035e01000041000000000013043500000004013000390000000002000410000000000021043500000000010004140000000d020000290000035d02200197000000040420008c000005a90000613d00000024040000390000002006000039000900000003001d00000009050000290d0300510000040f0000000903000029000000000110004c000005a90000c13d0000000302000367000000400100043d00000001040000310000001f0340018f0000000504400272000005980000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b000005900000413d000000000530004c000005a70000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600420018f00000000050300190000000002340019000000000342004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000001050433000900000001001d0000000b0100002900000000001004350000000a01000029000000200010043f000000400200003900000000010000190d0300880000040f00000004011000390000000902000029000000000021041b0000000e04000029000005190000013d00000000003004350000001401000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a000000ff0110018f000000030210008c000004ea0000213d000000030110008c000005410000c13d00000002010003670000040f0000013d0000000f0100002900000000001004350000000701000039000000200010043f00000040020000390000000001000019000f00000002001d0d0300880000040f0000000201100039000000000101041a0000036501100198000006410000c13d000000400100043d0000036802000041000000000021043500000004020000390d0300e40000040f0000002401100370000000000101043b0d030ce20000040f0000036202000041000000400300043d000c00000003001d0000000000230435000b00000001001d00000000010004140000000f02000029000000040220008c000006200000613d000000040400003900000020060000390000000f020000290000000c0300002900000000050300190d0300510000040f000000000110004c000006200000c13d000000120300002900000001040000310000000001340019000000000141004b000006480000213d000000400100043d0000001f0240018f000000030330036700000005044002720000060f0000613d000000000500001900000005065002100000000007610019000000000663034f000000000606043b00000000006704350000000105500039000000000645004b000006070000413d000000000520004c0000061e0000613d0000000504400210000000000343034f00000000044100190000000302200210000000000504043300000000052501cf000000000525022f000000000303043b0000010002200089000000000323022f00000000022301cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600320018f0000000c0200002900000000050200190000000002230019000000000332004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000001050433000000ff0210008c000006480000213d0000000e020000290000000f030000290000000d040000290000000b050000290d0309410000040f000000400100043d0000000f020000290000000000210435000000200200003900000000030000190d0300da0000040f000003660100004100000000001004390000000c0100002900000004001004430d03009f0000040f000000000110004c000006a20000c13d000000000100001900000000020000190d0300e40000040f000000060100002900000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f000000000101041a0000035d01100198000006c80000c13d000000400200003900000000010000190d0300880000040f000000000101041a0000036501100198000006c80000c13d00000005010000290000000201100367000000000101043b000f00000001001d000003420110009c000006480000213d000000400100043d00000000020100190000036c0110009c000002a40000213d0000000003020019000c00000003001d000000a4013000390000006002000039000000000021043500000024013000390000036d0200004100000000002104350000008402300039000900000002001d0000000e010000290000000000120435000000e4023000390000000d010000290d03092e0000040f0000000002010019000000090100002900000000011200490000000c03000029000000c40330003900000000001304350000000b010000290d03092e0000040f0000000c02000029000000000321004900000000010000190d0300ae0000040f000000000210004c000007fe0000c13d0000000302000367000000400100043d00000001040000310000001f0340018f0000000504400272000006910000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b000006890000413d000000000530004c000006a00000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f000000400300043d000b00000003001d0000036701000041000000000013043500000004013000390000000f02000029000000000021043500000044023000390000000e010000290d03092e0000040f00000000020100190000000b030000290000000001320049000000040110008a000000240330003900000000001304350000000001000414000e00000001001d0000001201000029000f00000001001d0000000d010000290d03092e0000040f0000000c02000029000000040220008c000007ee0000613d0000000b0200002900000000042100490000000f01000029000000000110004c0000078b0000c13d0000000e010000290000000c020000290000000b03000029000000000503001900000000060000190d03001a0000040f0000000002010019000007c70000013d000000400100043d0000036b02000041000000000021043500000004020000390d0300e40000040f0000000d030000290000000c04000029000000000234004b0000000002000019000000010200c039001000000002001d0000000002000415000000100220008a00000020022000c9000000000334004b000006df0000c13d0000000903000029000000000330004c0000000003000019000000010300c039000000200220011a000000000203001f000006e40000613d000000400100043d0000037a02000041000000000021043500000004020000390d0300e40000040f0000000702000029000000000220004c000007f40000613d000000000110004c000007f40000613d000000060100002900000000001004350000000701000039000c00000001001d000000200010043f000000400200003900000000010000190d0300880000040f000000400200043d0000000201100039000000000101041a0000036501100198000007f90000c13d000003700120009c000002a40000213d0000000003020019000100000003001d0000010001300039000000400010043f000000a002300039000900000002001d000000010100003900000000001204350000006002300039000800000002001d0000000e0100002900000000001204350000002002300039000200000002001d00000000001204350000004002300039000300000002001d0000000d010000290000000000120435000000e001300039000b00000001001d0000000000010435000000c001300039000a00000001001d00000000000104350000008001300039000400000001001d00000000000104350000000000030435000000060100002900000000001004350000000c01000029000000200010043f0000004002000039000e00000002001d00000000010000190d0300880000040f000000010200002900000000020204330000035d02200197000000000301041a0000037103300197000000000223019f000000000021041b000000000201041a000003720220019700000002030000290000000003030433000000a0033002100000036503300197000000000232019f000000000021041b0000000102100039000000000302041a0000037103300197000000030400002900000000040404330000035d04400197000000000334019f000000000032041b000000000302041a000003720330019700000008040000290000000004040433000000a0044002100000036504400197000000000343019f000000000032041b000000090200002900000000020204330000037303000041000000000220004c00000000020300190000000002006019000000040300002900000000030304330000035d033001970000000204100039000000000504041a0000037405500197000000000335019f000000000223019f000000000024041b0000000a0200002900000000020204330000000303100039000000000023041b00000004011000390000000b020000290000000002020433000000000021041b0000000d0100002900000000001004350000000501000039000000200010043f00000000010000190000000e020000290d0300880000040f000000000201041a00000375022001970000000703000029000000000223019f000000000021041b00000000010000190000000e020000290d0300880000040f0000002402000039000e00000002001d0000000202200367000000000202043b0000000101100039000000000021041b0000000201000367000000e402100370000000000202043b000000000220004c0000000f030000290000081d0000c13d000000400100043d0000004002100039000000000032043500000020021000390000000d03000029000000000032043500000000003104350000000e020000290000000202200367000000000602043b00000342020000410000000003000414000003420430009c0000000003028019000003420410009c00000000010280190000004001100210000000c002300210000000000112019f00000377011001c70000800d0200003900000004030000390000037804000041000000060500002900000007070000290d030cf90000040f0000000101200190000008170000c13d000006480000013d00000342010000410000000b03000029000003420230009c000000000201001900000000020340190000004002200210000003420340009c000000000301001900000000030440190000006003300210000000000223019f0000000e04000029000003420340009c0000000001044019000000c001100210000000000112019f00000344011001c700008009020000390000000f030000290000000c0400002900000000050000190d030cf90000040f0000000b090000290000000003010019000000600330027000000342033001970000000f05000029000000000453004b00000000050340190000001f0450018f0000000505500272000007b40000613d000000000600001900000005076002100000000008790019000000000771034f000000000707043b00000000007804350000000106600039000000000756004b000007ac0000413d000000000640004c000007c40000613d0000000505500210000000000651034f0000000b0700002900000000055700190000000304400210000000000705043300000000074701cf000000000747022f000000000606043b0000010004400089000000000646022f00000000044601cf000000000474019f0000000000450435000000010220018f000100000003001f0003000000010355000000000120004c000007ee0000c13d00000001040000310000000f010000290000000001140019000000000141004b000006480000213d000000400100043d0000001f0240018f0000000f0300002900000003033003670000000504400272000007dd0000613d000000000500001900000005065002100000000007610019000000000663034f000000000606043b00000000006704350000000105500039000000000645004b000007d50000413d000000000520004c000007ec0000613d0000000504400210000000000343034f00000000044100190000000302200210000000000504043300000000052501cf000000000525022f000000000303043b0000010002200089000000000323022f00000000022301cf000000000252019f000000000024043500000001020000310d0300e40000040f0000000b010000290d0308a90000040f0000000f01000029000000000201001900000000030000190d0300da0000040f000000400100043d0000037902000041000000000021043500000004020000390d0300e40000040f0000036f030000410000000001020019000000000031043500000004020000390d0300e40000040f00000024020000390000000202200367000000000602043b00000342020000410000000003000414000003420430009c0000000002034019000000c00220021000000344052001c70000035d071001970000800d0200003900000004030000390000036e0400004100000000010500190000000f05000029000d00000007001d0d030cf90000040f0000000101200190000006480000613d0000000e010000290000000a020000290000000d03000029000000080400002900000006050000290d0309410000040f000000400100043d0000000d020000290000000000210435000000200200003900000000030000190d0300da0000040f0000000401100370000000000101043b000003420210009c000006480000213d0000000502000029000000000202041a000000000112013f0000034201100198000008860000c13d000000060100002900000000001004350000000c01000029000000200010043f000000400200003900000000010000190d0300880000040f000000e4020000390000000202200367000000000202043b0000000301100039000000000021041b0000035e01000041000000400200043d00000000001204350000000001000410000b00000002001d0000000402200039000000000012043500000000010004140000000d02000029000000040220008c000008450000613d000000240400003900000020060000390000000d020000290000000b0300002900000000050300190d0300510000040f000000000110004c000006820000613d0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600320018f0000000b020000290000000002230019000000000332004b000000000300001900000001030040390000035f0420009c000002a40000213d0000000103300190000002a40000c13d000000400020043f000000200110008c000006480000413d0000000b010000290000000001010433000b00000001001d000000060100002900000000001004350000000c01000029000000200010043f000000400200003900000000010000190d0300880000040f0000000f0400002900000004011000390000000b02000029000000000021041b00000002010003670000000402100370000000000702043b000003420270009c000006480000213d000000e401100370000000000101043b000000400200043d0000002003200039000000000043043500000000001204350000000e010000290000000201100367000000000601043b00000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000360011001c70000800d020000390000000403000039000003610400004100000006050000290d030cf90000040f0000000f0300002900000001012001900000076e0000c13d000006480000013d000000400100043d0000037602000041000000000021043500000004020000390d0300e40000040f00000004010000390000000201100367000000000101043b000003730210009c000008910000813d000000000001042d000000000100001900000000020000190d0300e40000040f00000000030204330000034203300197000000000031043500000020022000390000000002020433000000200310003900000000002304350000004001100039000000000001042d0000037b0210009c000008a20000813d0000004001100039000000400010043f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000037f0210009c000008ad0000813d000000400010043f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f00000000030100190000001f013000390000035b04000041000000000521004b000000000500001900000000050440190000035b062001970000035b01100197000000000761004b000000000400a019000000000161013f0000035b0110009c00000000010500190000000001046019000000000110004c000009020000613d0000000201300367000000000401043b0000037f0140009c000008fb0000813d0000003f01400039000000200500008a000000000551016f000000400100043d0000000005510019000000000615004b000000000600001900000001060040390000035f0750009c000008fb0000213d0000000106600190000008fb0000c13d000000400050043f000000000041043500000020033000390000000005430019000000000225004b000009020000213d0000001f0240018f000000020530036700000020031000390000000506400272000008e80000613d000000000700001900000005087002100000000009830019000000000885034f000000000808043b00000000008904350000000107700039000000000867004b000008e00000413d000000000720004c000008f70000613d0000000506600210000000000565034f00000000036300190000000302200210000000000603043300000000062601cf000000000626022f000000000505043b0000010002200089000000000525022f00000000022501cf000000000262019f0000000000230435000000000214001900000020022000390000000000020435000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000000100001900000000020000190d0300e40000040f0d030c670000040f0000000101100039000000000101041a0000035d011001980000090b0000613d000000000001042d000000400100043d0000038002000041000000000021043500000004020000390d0300e40000040f00000004010000390000000201100367000000000101043b000003810210009c000009160000813d000000000001042d000000000100001900000000020000190d0300e40000040f00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000201100039000000000101041a000000a001100270000000ff0110018f000000000001042d00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000201100039000000000101041a0000035d01100197000000000001042d0000000003010433000000000032043500000020022000390000000004000019000000000534004b0000093a0000813d00000000054200190000002004400039000000000614001900000000060604330000000000650435000009320000013d000000000132001900000000000104350000001f01300039000000200300008a000000000131016f0000000001120019000000000001042d000f000000000002000e00000005001d000800000004001d000d00000003001d000c00000001001d00000002010003670000000403100370000000000403043b0000034203400197000f00000003001d000003810340009c00000af20000813d000b00000002001d0000000f02000029000000000220004c00000afc0000613d0000002401100370000000000101043b000000000110004c00000afc0000613d0000000401000039000000000101041a000a00000001001d0000000e0100002900000000001004350000000701000039000700000001001d000000200010043f000000400200003900000000010000190d0300880000040f0000000b030000290000035d043001980000000d02000029000000000203c019000b00000002001d0000000201100039000000000101041a000003650110019800000b210000c13d0000000a0100002900000342011001970000000f02000029000000000121004b00000a1f0000613d000300000004001d000000400300043d0000035e01000041000000000013043500000004013000390000000002000410000900000002001d000000000021043500000000010004140000000d020000290000035d02200197000000040420008c000a00000002001d000009850000613d000000240400003900000020060000390000000005030019000600000003001d0d0300510000040f00000006030000290000000a02000029000000000110004c00000b010000613d0000000101000031000000200410008c000000200400003900000000040140190000001f04400039000000600440018f0000000005340019000000000445004b000000000600001900000001060040390000035f0450009c00000af50000213d000000010460019000000af50000c13d000000400050043f000000200110008c00000af20000413d0000000001030433000500000001001d0000036601000041000000000010043900000004002004430d03009f0000040f0000000a02000029000000000110004c00000af20000613d000000400300043d00000024013000390000000104000039000400000004001d0000000000410435000003820100004100000000001304350000000405300039000000090100002900000000001504350000000001000414000000040420008c000600000003001d000009b70000613d0000004404000039000200000005001d000000060500002900000000060000190d03001a0000040f000000020500002900000006030000290000000a02000029000000000110004c00000b010000613d0000035f0130009c00000af50000213d000000400030043f0000035e010000410000000000130435000000090100002900000000001504350000000001000414000000040420008c000009c90000613d0000002404000039000000200600003900000006050000290d0300510000040f00000006030000290000000a02000029000000000110004c00000b010000613d0000000104000031000000200140008c000000200100003900000000010440190000001f01100039000000600110018f00000000013100190000035f0510009c00000af50000213d000000400010043f000000200440008c00000af20000413d000000010500008a0000000504000029000000000554004b00000b260000613d00000001044000390000000003030433000000000343004b00000b2d0000c13d0000036601000041000000000010043900000004002004430d03009f0000040f0000000a02000029000000000110004c00000af20000613d000000400500043d000000240150003900000004030000290000000000310435000003840100004100000000001504350000000404500039000000090100002900000000001404350000000001000414000000040320008c000600000005001d000009fc0000613d000400000004001d00000044040000390000000003050019000000060500002900000000060000190d03001a0000040f000000040400002900000006050000290000000a02000029000000000110004c00000b010000613d0000035f0150009c00000af50000213d000000400050043f0000035e010000410000000000150435000000090100002900000000001404350000000001000414000000040320008c00000a0e0000613d00000024040000390000002006000039000000000305001900000006050000290d0300510000040f0000000605000029000000000110004c00000b010000613d0000000102000031000000200120008c000000200100003900000000010240190000001f01100039000000600110018f00000000015100190000035f0310009c00000af50000213d000000400010043f000000200220008c00000af20000413d00000000020504330000000503000029000000000232004b000000030400002900000b310000c13d000000400300043d000000000140004c0000000c0100002900000a470000613d0000036201000041000000000013043500000000010004140000000b020000290000035d02200197000000040420008c00000a320000613d00000004040000390000002006000039000900000003001d00000009050000290d0300510000040f0000000903000029000000000110004c00000b010000613d0000000101000031000000200210008c000000200200003900000000020140190000001f02200039000000600420018f0000000002340019000000000442004b000000000500001900000001050040390000035f0420009c00000af50000213d000000010450019000000af50000c13d000000400020043f000000200110008c00000af20000413d0000000001030433000000ff0310008c000000000302001900000af20000213d000003700230009c00000af50000213d0000010002300039000000400020043f000000a004300039000600000004001d00000001020000390000000000240435000000ff0110018f0000006002300039000400000002001d00000000001204350000000c01000029000000ff0110018f0000002002300039000100000002001d00000000001204350000000d010000290000035d02100197000a00000002001d0000000b010000290000035d01100197000b00000001001d0000004004300039000200000004001d00000000001404350000000000230435000000e001300039000c00000001001d0000000000010435000000c001300039000500000001001d00000000000104350000008001300039000300000001001d00000000000104350000000e0100002900000000001004350000000701000029000000200010043f0000004002000039000d00000002001d0000000001000019000900000003001d0d0300880000040f000000090200002900000000020204330000035d02200197000000000301041a0000037103300197000000000223019f000000000021041b000000000201041a000003720220019700000001030000290000000003030433000000a0033002100000036503300197000000000232019f000000000021041b0000000102100039000000000302041a0000037103300197000000020400002900000000040404330000035d04400197000000000334019f000000000032041b000000000302041a000003720330019700000004040000290000000004040433000000a0044002100000036504400197000000000343019f000000000032041b000000060200002900000000020204330000037303000041000000000220004c00000000020300190000000002006019000000030300002900000000030304330000035d033001970000000204100039000000000504041a0000037405500197000000000335019f000000000223019f000000000024041b000000050200002900000000020204330000000303100039000000000023041b00000004011000390000000c020000290000000002020433000000000021041b0000000b0100002900000000001004350000000501000039000000200010043f00000000010000190000000d020000290d0300880000040f000000000201041a00000375022001970000000f03000029000000000232019f000000000021041b00000024010000390000000201100367000000000101043b000c00000001001d00000000010000190000000d020000290d0300880000040f00000001011000390000000c02000029000000000021041b0000000a0100002900000000001004350000000601000039000000200010043f00000000010000190000000d020000290d0300880000040f000000000201041a00000375022001970000000f03000029000000000232019f000000000021041b00000000010000190000000d020000290d0300880000040f00000001011000390000000c02000029000000000021041b00000008010000290000000e020000290d030b350000040f0000000001000411000000400200043d0000004003200039000000000013043500000020012000390000000a0300002900000000003104350000000b01000029000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000377011001c70000800d02000039000000040300003900000378040000410000000e050000290000000c060000290000000f070000290d030cf90000040f000000010120019000000af20000613d000000000001042d000000000100001900000000020000190d0300e40000040f0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f000000400100043d0000037902000041000000000021043500000004020000390d0300e40000040f0000000302000367000000400100043d00000001040000310000001f0340018f000000050440027200000b100000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b00000b080000413d000000000530004c00000b1f0000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f000000400100043d0000036f02000041000000000021043500000004020000390d0300e40000040f0000037c0100004100000000001004350000001101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000038302000041000000000021043500000004020000390d0300e40000040f0000038502000041000000000021043500000004020000390d0300e40000040f0002000000000002000200000001001d000100000002001d00000000002004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f00000002020000290000035d022001970000000201100039000000000301041a0000037103300197000000000323019f000000000031041b00000004010000390000000201100367000000000701043b000003810170009c00000b650000813d00000000010004110000035d01100197000000400300043d00000020043000390000000000140435000000000023043500000024010000390000000201100367000000000601043b00000342010000410000000002000414000003420420009c0000000002018019000003420430009c00000000010340190000004001100210000000c002200210000000000112019f00000360011001c70000800d0200003900000004030000390000037e0400004100000001050000290d030cf90000040f000000010120019000000b650000613d000000000001042d000000000100001900000000020000190d0300e40000040f0006000000000002000300000004001d000600000003001d000400000002001d000500000001001d00000000001004350000000701000039000200000001001d000000200010043f000000400200003900000000010000190d0300880000040f0000000202100039000000000202041a000003650220019800000c370000613d00000004020000290000035d032001970000000102100039000000000202041a0000035d02200197000000000232004b000000060500002900000c2f0000c13d000000000101041a000000000151013f0000035d0110019800000c2f0000c13d000100000003001d0000000401000039000000000101041a00000003030000290000000002030433000000000112013f000003420110019800000bb50000613d000000400300043d0000038701000041000000000013043500000000010004140000035d02500197000000040420008c000400000002001d00000b9d0000613d000000040400003900000020060000390000000005030019000600000003001d0d0300510000040f00000006030000290000000402000029000000000110004c00000c430000613d0000000105000031000000200150008c000000200100003900000000010540190000001f01100039000000600410018f0000000001340019000000000441004b000000000600001900000001060040390000035f0410009c00000c3c0000213d000000010460019000000c3c0000c13d000000400010043f000000200450008c00000c340000413d0000000003030433000000000330004c00000be00000613d0000038802000041000000000021043500000004020000390d0300e40000040f00000020013000390000000002010433000000400300043d0000035e01000041000000000013043500000004013000390000000004000410000000000041043500000000010004140000035d02200197000000040420008c00000bca0000613d000000240400003900000020060000390000000005030019000400000003001d0d0300510000040f00000004030000290000000605000029000000000110004c00000c430000613d0000000102000031000000200120008c000000200100003900000000010240190000001f01100039000000600410018f0000000001340019000000000441004b000000000600001900000001060040390000035f0410009c00000c3c0000213d000000010460019000000c3c0000c13d000000400010043f000000200220008c00000c340000413d0000000002030433000000000220004c00000c630000c13d0000035d01500197000400000001001d000000050100002900000000001004350000000201000029000000200010043f0000004002000039000600000002001d00000000010000190d0300880000040f0000000101100039000000000201041a0000037102200197000000000021041b000000000100001900000006020000290d0300880000040f0000000101100039000000000201041a0000037202200197000000000021041b000000000100001900000006020000290d0300880000040f0000000201100039000000000201041a0000037102200197000000000021041b000000000100001900000006020000290d0300880000040f0000000201100039000000000201041a0000037202200197000000000021041b000000000100001900000006020000290d0300880000040f0000000301100039000000000001041b000000040100002900000000001004350000000601000039000000200010043f000000000100001900000006020000290d0300880000040f000000000001041b0000000101100039000000000001041b000000010100002900000000001004350000000501000039000000200010043f000000000100001900000006020000290d0300880000040f000000000001041b0000000101100039000000000001041b0000000001000411000000400200043d000000000012043500000342010000410000000003000414000003420430009c0000000003018019000003420420009c00000000010240190000004001100210000000c002300210000000000112019f00000389011001c70000800d0200003900000002030000390000038a0400004100000005050000290d030cf90000040f000000010120019000000c340000613d000000000001042d000000400100043d0000038602000041000000000021043500000004020000390d0300e40000040f000000000100001900000000020000190d0300e40000040f000000400100043d0000038b02000041000000000021043500000004020000390d0300e40000040f0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000302000367000000400100043d00000001040000310000001f0340018f000000050440027200000c520000613d000000000500001900000005065002100000000007610019000000000662034f000000000606043b00000000006704350000000105500039000000000645004b00000c4a0000413d000000000530004c00000c610000613d0000000504400210000000000242034f00000000044100190000000303300210000000000504043300000000053501cf000000000535022f000000000202043b0000010003300089000000000232022f00000000023201cf000000000252019f000000000024043500000001020000310d0300e40000040f0000038802000041000000000021043500000004020000390d0300e40000040f00000000001004350000000701000039000000200010043f000000400200003900000000010000190d0300880000040f0000000102100039000000000202041a000003650220019800000c720000613d000000000001042d000000400100043d0000038c02000041000000000021043500000004020000390d0300e40000040f00050000000000020000000004010019000000400100043d0000037b0210009c00000cd20000813d0000004002100039000000400020043f000000200210003900000000000204350000000000010435000000400300043d0000038d0130009c00000cd20000213d0000004001300039000000400010043f0000002001300039000000000001043500000000000304350000035d0140019800000cd00000613d000500000001001d00000000001004350000000501000039000000200010043f00000040020000390000000001000019000400000004001d0d0300880000040f000000400300043d0000038d0230009c00000cd20000213d0000004002300039000000400020043f000000000201041a0000034202200198000000000023043500000020023000390000000101100039000000000101041a0000000000120435000000050100002900000cd00000c13d000100000002001d000200000003001d00000000001004350000000602000039000300000002001d000000200020043f000000400200003900000000010000190d0300880000040f000000000101041a000003420110019800000cc10000613d000000050100002900000000001004350000000301000029000000200010043f000000400200003900000000010000190d0300880000040f000000400300043d0000038d0230009c00000cd20000213d0000004002300039000000400020043f000000000201041a0000034202200197000000000023043500000020023000390000000101100039000000000101041a000000000012043500000cd00000013d00000366010000410000000000100439000000040100002900000004001004430d03009f0000040f000000000110004c00000cad0000613d0000000401000039000000000101041a0000034201100197000000020300002900000000001304350000000101000029000000050200002900000000002104350000000001030019000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f0000000404000039000000000404041a000000000334013f000003420330019800000ce00000613d0d030c670000040f000000000201041a0000035d01200197000000000001042d00000000030100190000034201200197000000400200043d0000004004200039000000000014043500000040010000390000000000120435000000200120003900000000003104350000038e0320009c00000cf20000813d0000006003200039000000400030043f00000000020204330d0300880000040f000000000001042d0000037c0100004100000000001004350000004101000039000000040010043f000000240200003900000000010000190d0300e40000040f00000cfc002104210000000102000039000000000001042d000000000200001900000cfb0000013d00000d01002104230000000102000039000000000001042d000000000200001900000d000000013d00000d030000043200000d040001042e00000d05000104300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffff0000000200000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000002000000000000000000000000000000240000000000000000000000009c4d535bdea7cd8a978f128b93471df48c7dbab89d703809115bdc118c235bfd0000000000000000000000000000000000000000000000000000000003e418c20000000000000000000000000000000000000000000000000000000007a38d7b000000000000000000000000000000000000000000000000000000001506e463000000000000000000000000000000000000000000000000000000001ecf6f9f000000000000000000000000000000000000000000000000000000002c1999d00000000000000000000000000000000000000000000000000000000057bd0a32000000000000000000000000000000000000000000000000000000005a2164e500000000000000000000000000000000000000000000000000000000600620910000000000000000000000000000000000000000000000000000000080dc224800000000000000000000000000000000000000000000000000000000949de969000000000000000000000000000000000000000000000000000000009b59851900000000000000000000000000000000000000000000000000000000a1b1930100000000000000000000000000000000000000000000000000000000ad4c777100000000000000000000000000000000000000000000000000000000ae8bc0de00000000000000000000000000000000000000000000000000000000b64a5e0700000000000000000000000000000000000000000000000000000000bd8671a700000000000000000000000000000000000000000000000000000000c405842900000000000000000000000000000000000000000000000000000000e1cb395800000000000000000000000000000000000000000000000000000000e9d7bcec00000000000000000000000000000000000000000000000000000000f15376868000000000000000000000000000000000000000000000000000000000000000c8fcad8db84d3cc18b4c41d551ea0ee66dd599cde068d998e57d5e09332c1320000000000000000000000000ffffffffffffffffffffffffffffffffffffffff70a0823100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffff02000000000000000000000000000000000000400000000000000000000000008976b61819dcee01042166c2c5612babc4f820a30843a7f8b23c0ddc343f6ef4313ce56700000000000000000000000000000000000000000000000000000000ccf799f4000000000000000000000000000000000000000000000000000000004d8d600c000000000000000000000000000000000000000000000000000000000000000000000000000000ff00000000000000000000000000000000000000001806aa1896bbf26568e884a7374b41e002500962caba6a15023a8d90e8508b83b7b090ee000000000000000000000000000000000000000000000000000000004d665d9900000000000000000000000000000000000000000000000000000000396a1f2c000000000000000000000000000000000000000000000000000000009db40a2500000000000000000000000000000000000000000000000000000000ae154e0300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffff7b010002cd65bc64fcdaa00d42e853c8c19ac29ecbf8d4c08289d9da894a76610284d5e3618bf276f3d29a931646fdd996b398a3efa3cf6bceefc1fe7f0304059fbfa2bf9b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffffffffffffeffffffffffffffffffffffffff0000000000000000000000000000000000000000ffffffffffffffffffffff00ffffffffffffffffffffffffffffffffffffffff0000000000000000000000010000000000000000000000000000000000000000ffffffffffffffffffffff000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000a56029bd0000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000600000000000000000000000000c58c78506e2d526f5ccdba28119c9ca3b5ce48e1462e0e19bc39232db11c632eb741af200000000000000000000000000000000000000000000000000000000022d833500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffc04e487b71000000000000000000000000000000000000000000000000000000007b32c26b0000000000000000000000000000000000000000000000000000000016285b1cf634d546d51fefe55f6e63e5edf970d2a3d2bd50b55a8cfad25e8b5600000000000000000000000000000000000000000000000100000000000000002ac5283800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000040c10f1900000000000000000000000000000000000000000000000000000000b6ec7680000000000000000000000000000000000000000000000000000000009dc29fac00000000000000000000000000000000000000000000000000000000ad6f16e300000000000000000000000000000000000000000000000000000000c383fe480000000000000000000000000000000000000000000000000000000018160ddd000000000000000000000000000000000000000000000000000000008a8e65e20000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000200000000000000000000000009d181adb70e733f5235f839c1eed929407ea8526e41d01f49b9fef703e78dddf39333cfa00000000000000000000000000000000000000000000000000000000c319947e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffbf000000000000000000000000000000000000000000000000ffffffffffffffa0",
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 5874,
+        "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+        "label": "s",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_struct(AppStorage)23688_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_contract(IERC20)2960)dyn_storage": {
+        "base": "t_contract(IERC20)2960",
+        "encoding": "dynamic_array",
+        "label": "contract IERC20[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IConnectorManager)46295": {
+        "encoding": "inplace",
+        "label": "contract IConnectorManager",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IERC20)2960": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_contract(LPToken)15569": {
+        "encoding": "inplace",
+        "label": "contract LPToken",
+        "numberOfBytes": "20"
+      },
+      "t_enum(DestinationTransferStatus)23476": {
+        "encoding": "inplace",
+        "label": "enum DestinationTransferStatus",
+        "numberOfBytes": "1"
+      },
+      "t_enum(Role)23471": {
+        "encoding": "inplace",
+        "label": "enum Role",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_enum(Role)23471)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => enum Role)",
+        "numberOfBytes": "32",
+        "value": "t_enum(Role)23471"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint256)"
+      },
+      "t_mapping(t_address,t_struct(RouterConfig)23530_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct RouterConfig)",
+        "numberOfBytes": "32",
+        "value": "t_struct(RouterConfig)23530_storage"
+      },
+      "t_mapping(t_address,t_struct(TokenId)31880_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct TokenId)",
+        "numberOfBytes": "32",
+        "value": "t_struct(TokenId)31880_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_address,t_uint8)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint8)",
+        "numberOfBytes": "32",
+        "value": "t_uint8"
+      },
+      "t_mapping(t_bytes32,t_array(t_address)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => address[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_address)dyn_storage"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_enum(DestinationTransferStatus)23476)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => enum DestinationTransferStatus)",
+        "numberOfBytes": "32",
+        "value": "t_enum(DestinationTransferStatus)23476"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_uint8))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => uint8))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint8)"
+      },
+      "t_mapping(t_bytes32,t_struct(Swap)24938_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct SwapUtils.Swap)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Swap)24938_storage"
+      },
+      "t_mapping(t_bytes32,t_struct(TokenConfig)23547_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct TokenConfig)",
+        "numberOfBytes": "32",
+        "value": "t_struct(TokenConfig)23547_storage"
+      },
+      "t_mapping(t_bytes32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint32,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_uint32",
+        "label": "mapping(uint32 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_struct(AppStorage)23688_storage": {
+        "encoding": "inplace",
+        "label": "struct AppStorage",
+        "members": [
+          {
+            "astId": 23549,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23551,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "LIQUIDITY_FEE_NUMERATOR",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23554,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "relayerFeeVault",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address"
+          },
+          {
+            "astId": 23557,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "nonce",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23560,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "domain",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 23566,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adoptedToCanonical",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_mapping(t_address,t_struct(TokenId)31880_storage)"
+          },
+          {
+            "astId": 23572,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "representationToCanonical",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_mapping(t_address,t_struct(TokenId)31880_storage)"
+          },
+          {
+            "astId": 23578,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "tokenConfigs",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_bytes32,t_struct(TokenConfig)23547_storage)"
+          },
+          {
+            "astId": 23584,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "transferStatus",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_bytes32,t_enum(DestinationTransferStatus)23476)"
+          },
+          {
+            "astId": 23590,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "routedTransfers",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_mapping(t_bytes32,t_array(t_address)dyn_storage)"
+          },
+          {
+            "astId": 23597,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "routerBalances",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+          },
+          {
+            "astId": 23602,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "approvedRelayers",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_mapping(t_address,t_bool)"
+          },
+          {
+            "astId": 23605,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "maxRoutersPerTransfer",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23610,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "slippage",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          },
+          {
+            "astId": 23615,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "receiveLocalOverride",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_mapping(t_bytes32,t_bool)"
+          },
+          {
+            "astId": 23620,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "remotes",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_mapping(t_uint32,t_bytes32)"
+          },
+          {
+            "astId": 23622,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_proposed",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_address"
+          },
+          {
+            "astId": 23624,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_proposedOwnershipTimestamp",
+            "offset": 0,
+            "slot": "17",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23626,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_routerAllowlistRemoved",
+            "offset": 0,
+            "slot": "18",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23628,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_routerAllowlistTimestamp",
+            "offset": 0,
+            "slot": "19",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23634,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "roles",
+            "offset": 0,
+            "slot": "20",
+            "type": "t_mapping(t_address,t_enum(Role)23471)"
+          },
+          {
+            "astId": 23639,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "routerConfigs",
+            "offset": 0,
+            "slot": "21",
+            "type": "t_mapping(t_address,t_struct(RouterConfig)23530_storage)"
+          },
+          {
+            "astId": 23641,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_status",
+            "offset": 0,
+            "slot": "22",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23643,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_xcallStatus",
+            "offset": 0,
+            "slot": "23",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23649,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "swapStorages",
+            "offset": 0,
+            "slot": "24",
+            "type": "t_mapping(t_bytes32,t_struct(Swap)24938_storage)"
+          },
+          {
+            "astId": 23656,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "tokenIndexes",
+            "offset": 0,
+            "slot": "25",
+            "type": "t_mapping(t_bytes32,t_mapping(t_address,t_uint8))"
+          },
+          {
+            "astId": 23659,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "lpTokenTargetAddress",
+            "offset": 0,
+            "slot": "26",
+            "type": "t_address"
+          },
+          {
+            "astId": 23662,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "_paused",
+            "offset": 20,
+            "slot": "26",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23665,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "aavePool",
+            "offset": 0,
+            "slot": "27",
+            "type": "t_address"
+          },
+          {
+            "astId": 23668,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "aavePortalFeeNumerator",
+            "offset": 0,
+            "slot": "28",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23673,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "portalDebt",
+            "offset": 0,
+            "slot": "29",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          },
+          {
+            "astId": 23678,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "portalFeeDebt",
+            "offset": 0,
+            "slot": "30",
+            "type": "t_mapping(t_bytes32,t_uint256)"
+          },
+          {
+            "astId": 23683,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "approvedSequencers",
+            "offset": 0,
+            "slot": "31",
+            "type": "t_mapping(t_address,t_bool)"
+          },
+          {
+            "astId": 23687,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "xAppConnectionManager",
+            "offset": 0,
+            "slot": "32",
+            "type": "t_contract(IConnectorManager)46295"
+          }
+        ],
+        "numberOfBytes": "1056"
+      },
+      "t_struct(RouterConfig)23530_storage": {
+        "encoding": "inplace",
+        "label": "struct RouterConfig",
+        "members": [
+          {
+            "astId": 23519,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "approved",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23521,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "portalApproved",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23523,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "owner",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 23525,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "recipient",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 23527,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "proposed",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address"
+          },
+          {
+            "astId": 23529,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "proposedTimestamp",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(Swap)24938_storage": {
+        "encoding": "inplace",
+        "label": "struct SwapUtils.Swap",
+        "members": [
+          {
+            "astId": 24905,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "key",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 24907,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "initialA",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24909,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "futureA",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24911,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "initialATime",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24913,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "futureATime",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24915,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "swapFee",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24917,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adminFee",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 24920,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "lpToken",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_contract(LPToken)15569"
+          },
+          {
+            "astId": 24924,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "pooledTokens",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_array(t_contract(IERC20)2960)dyn_storage"
+          },
+          {
+            "astId": 24927,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "tokenPrecisionMultipliers",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 24930,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "balances",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 24933,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adminFees",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_array(t_uint256)dyn_storage"
+          },
+          {
+            "astId": 24935,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "disabled",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_bool"
+          },
+          {
+            "astId": 24937,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "removeTime",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "448"
+      },
+      "t_struct(TokenConfig)23547_storage": {
+        "encoding": "inplace",
+        "label": "struct TokenConfig",
+        "members": [
+          {
+            "astId": 23532,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "representation",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 23534,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "representationDecimals",
+            "offset": 20,
+            "slot": "0",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 23536,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adopted",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 23538,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adoptedDecimals",
+            "offset": 20,
+            "slot": "1",
+            "type": "t_uint8"
+          },
+          {
+            "astId": 23540,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "adoptedToLocalExternalPools",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address"
+          },
+          {
+            "astId": 23542,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "approval",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_bool"
+          },
+          {
+            "astId": 23544,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "cap",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 23546,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "custodied",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "160"
+      },
+      "t_struct(TokenId)31880_storage": {
+        "encoding": "inplace",
+        "label": "struct TokenId",
+        "members": [
+          {
+            "astId": 31877,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "domain",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 31879,
+            "contract": "contracts/core/connext/facets/TokenFacet.sol:TokenFacet",
+            "label": "id",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          }
+        ],
+        "numberOfBytes": "64"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      },
+      "t_uint8": {
+        "encoding": "inplace",
+        "label": "uint8",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

@@ -19,6 +19,7 @@ import "./tasks/addWatcher";
 import "./tasks/approveRouter";
 import "./tasks/addAdmin";
 import "./tasks/setupAsset";
+import "./tasks/setLiquidityCap";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";
 import "./tasks/setupTestRouter";
@@ -128,6 +129,7 @@ const config: HardhatUserConfig = {
       "arbitrum-one": process.env.ARBISCAN_API_KEY!,
       xdai: process.env.GNOSISSCAN_API_KEY!,
       linea: process.env.LINEASCAN_API_KEY!,
+      snowtrace: "snowtrace", // apiKey is not required, just set a placeholder
     },
     customChains: [
       {
@@ -152,6 +154,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "hhttps://zksync2-testnet.zkscan.io/api",
           browserURL: "https://zksync2-testnet.zkscan.io",
+        },
+      },
+      {
+        network: "snowtrace",
+        chainId: 43114,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan",
+          browserURL: "https://avalanche.routescan.io",
         },
       },
     ],
