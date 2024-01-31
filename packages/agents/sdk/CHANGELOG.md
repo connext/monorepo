@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.3.0-alpha.0
+
+- Mainnet support for: Avalanche, Base, Mantle, Metis, Polygon zkEVM, zkSync
+
 ## v2.2.2-alpha.7
 
 - Added ability to extend utils domainId to chainId mapping using chainData

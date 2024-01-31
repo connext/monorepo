@@ -5,7 +5,7 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161, 8453],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114, 1088],
   testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
@@ -46,6 +46,11 @@ Object.values(SUPPORTED_CHAINS).forEach((chains) => {
   });
 });
 
+/**
+ * @notice If zksync is true, then deterministic deployments are NOT supported
+ * @dev If this is true, you must modify the `helpers.js` file in the hardhat deploy node_module
+ * directory
+ */
 export const hardhatNetworks = {
   ...hardhatForkNetworks,
   hardhat: {
@@ -204,6 +209,19 @@ export const hardhatNetworks = {
       },
     },
   },
+  avalanche: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 43114,
+    url: urlOverride || process.env.AVALANCHE_PROVIDER_URL || "https://api.avax.network/ext/bc/C/rpc",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.SNOWTRACESCAN_API_KEY!,
+      },
+    },
+  },
   ftm: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 250,
@@ -282,6 +300,20 @@ export const hardhatNetworks = {
       },
     },
   },
+  polygonzk: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1101,
+    url: urlOverride || process.env.POLYGONZK_PROVIDER_URL || "https://zkevm-rpc.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-zkevm.polygonscan.com",
+      },
+    },
+  },
   "zksync2-testnet": {
     accounts: { mnemonic },
     chainId: 280,
@@ -296,6 +328,22 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY!,
         apiUrl: "https://zksync2-testnet.zkscan.io",
+      },
+    },
+  },
+  "zksync-era": {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 324,
+    url: process.env.ZKSYNC2_PROVIDER_URL || "https://mainnet.era.zksync.io",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    zksync: true,
+    ethNetwork: "mainnet",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ZKSYNCSCAN_API_KEY!,
+        apiUrl: "https://api-era.zksync.network",
       },
     },
   },
@@ -365,6 +413,34 @@ export const hardhatNetworks = {
     url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
     companionNetworks: {
       hub: "goerli",
+    },
+  },
+  metis: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1088,
+    url: urlOverride || process.env.METIS_PROVIDER_URL || "https://andromeda.metis.io/?owner=1088",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.METIS_EXPLORER_API_KEY!,
+        apiUrl: "https://andromeda-explorer.metis.io",
+      },
+    },
+  },
+  mantle: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 5000,
+    url: urlOverride || process.env.MANTLE_PROVIDER_URL || "https://rpc.mantle.xyz",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.MANTLE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mantle.xyz/api",
+      },
     },
   },
 };

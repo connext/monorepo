@@ -35,14 +35,30 @@ export default task("add-relayer", "Add Relayer to allowlist")
       throw new Error("Invalid Relayer address");
     }
 
-    const approvedRelayer = await connext.approvedRelayers(relayer);
+    let approvedRelayer = await connext.approvedRelayers(relayer);
     console.log("approvedRelayer: ", approvedRelayer);
+    if (approvedRelayer) {
+      console.log("Already approved relayer");
+    } else {
+      let tx = await connext.addRelayer(relayer);
+      console.log("addRelayer tx: ", tx);
+      let receipt = await tx.wait();
+      console.log("addRelayer tx mined: ", receipt.transactionHash);
+    }
+
+    // add to relayer proxy
+    const relayerDeployment = await deployments.get(getDeploymentName("RelayerProxy", env));
+    const relayerProxyAddress = relayerDeployment.address;
+    const relayerProxy = new Contract(relayerProxyAddress, relayerDeployment.abi, deployer);
+
+    approvedRelayer = await relayerProxy.allowedRelayer(relayer);
+    console.log("allowedRelayer: ", approvedRelayer);
     if (approvedRelayer) {
       throw new Error("Already approved relayer");
     }
 
-    const tx = await connext.addRelayer(relayer);
+    let tx = await relayerProxy.addRelayer(relayer);
     console.log("addRelayer tx: ", tx);
-    const receipt = await tx.wait();
+    let receipt = await tx.wait();
     console.log("addRelayer tx mined: ", receipt.transactionHash);
   });
