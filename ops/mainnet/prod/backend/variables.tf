@@ -73,3 +73,7 @@ variable "carto_transfers_heartbeat" {
 variable "graph_api_key" {
   type = string
 }
+
+variable "blast_key" {
+  type = string
+}
