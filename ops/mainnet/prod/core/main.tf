@@ -375,7 +375,7 @@ module "lighthouse_propagate_cron" {
   stage               = var.stage
   container_env_vars  = merge(local.lighthouse_env_vars, { LIGHTHOUSE_SERVICE = "propagate" })
   memory_size         = 2048
-  schedule_expression = "rate(120 minutes)" // This will affect slow mode costs
+  schedule_expression = "rate(10 minutes)" // This will affect slow mode costs
 }
 
 module "lighthouse_sendoutboundroot_cron" {
