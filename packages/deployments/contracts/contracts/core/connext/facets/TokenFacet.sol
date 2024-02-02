@@ -17,6 +17,7 @@ import {BridgeToken} from "../helpers/BridgeToken.sol";
 import {BaseConnextFacet} from "./BaseConnextFacet.sol";
 
 contract TokenFacet is BaseConnextFacet {
+  // TODO: remove test comment
   // ========== Custom Errors ===========
   error TokenFacet__addAssetId_alreadyAdded();
   error TokenFacet__addAssetId_badMint();
