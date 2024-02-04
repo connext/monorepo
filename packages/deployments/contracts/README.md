@@ -357,3 +357,11 @@ yarn workspace @connext/smart-contracts run hardhat deploy --network <network> -
 ```bash
 yarn workspace @connext/smart-contracts run export
 ```
+
+## Setting up assets 
+
+For assets that need a stableswap pool, make sure the new asset has been configured correctly in the `InitConfig` in either the `packages/deployments/contracts/src/cli/init/config/mainnet/production.ts` file for prod mainnet or `packages/deployments/contracts/src/cli/init/config/testnet/production.ts` file for prod testnet.
+
+The asset that needs a stableswap pool should initially have an empty string set for `"local": ""`. Running the init script via `yarn workspace @connext/smart-contracts initialize --name "assets" --network "mainnet" --env "production" --apply "false"` will yield the transaction data for a call to `setupAsset()` which deploys the local (representation) asset. 
+
+Once that transaction is submitted, use the newly deployed local asset for `local` in the configuration. Run the init script again to get the transaction data for a call to `initializeSwap()` which will actually initialize the stableswap pool. On mainnet, pool initialization requires depositing a small, equal amount of both assets to start it up safely. 
