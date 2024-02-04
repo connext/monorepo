@@ -338,28 +338,28 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
-    {
-      // TODO: This is the old config, to be removed in execution layer upgrade
-      name: "ALCX",
-      canonical: {
-        domain: "6648936",
-        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-        },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-        },
-      },
-    },
+    // {
+    //   // TODO: This is the old config, to be removed in execution layer upgrade
+    //   name: "ALCX",
+    //   canonical: {
+    //     domain: "6648936",
+    //     address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+    //     decimals: 18,
+    //     cap: utils.parseUnits("10000000", 18).toString(),
+    //   },
+    //   representations: {
+    //     /// ARBITRUM
+    //     "1634886255": {
+    //       local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+    //       adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+    //     },
+    //     /// OPTIMISM
+    //     "1869640809": {
+    //       local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+    //       adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+    //     },
+    //   },
+    // },
     {
       name: "ALCX",
       canonical: {
@@ -649,6 +649,21 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1634886255": {
           local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
           adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+      },
+    },
+    {
+      name: "METIS",
+      canonical: {
+        domain: "6648936",
+        address: "0x9E32b13ce7f2E80A01932B42553652E053D6ed8e",
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
+      },
+      representations: {
+        "1835365481": {
+          local: "0x1a1162304654A79B4b6A3aF0D564CA1E3cC7cc1B",
+          adopted: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000",
         },
       },
     },
