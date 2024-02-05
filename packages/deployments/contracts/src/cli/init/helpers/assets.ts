@@ -209,17 +209,69 @@ export const setupAsset = async (args: {
     }
 
     // Get decimals from tokens
-    const tokens = [new Contract(local, ERC20Abi, network.rpc), new Contract(adopted, ERC20Abi, network.rpc)];
+    const tokens = [
+      new Contract(local, ERC20Abi, network.deployments.Connext.contract.signer),
+      new Contract(adopted, ERC20Abi, network.deployments.Connext.contract.signer),
+    ];
     const decimals = await Promise.all(tokens.map((t) => t.decimals()));
 
     // Generate inputs for pool
     const INITIAL_A = 200;
     const SWAP_FEE = 4e6; // 4bps FEE_DENOMINATOR = 10 ** 10
     const ADMIN_FEE = 0;
-    const lpTokenName = `Connext ${asset.name.toUpperCase()} ${asset.name.toUpperCase()} StableSwap LP`;
+    const lpTokenName = `Connext ${asset.name.toUpperCase()} next${asset.name.toUpperCase()} StableSwap LP`;
     const lpTokenSymbol = `C${asset.name.toUpperCase()}LP`;
 
     const a = representation.pool?.a ?? INITIAL_A;
+
+    // Deposit into pool in equal amounts
+    const liquidity = decimals.map((decimal) =>
+      parseUnits(representation.pool?.initialLiquidity ?? "15", decimal as number),
+    );
+
+    // Verify there is sufficient amounts
+    const balances = await Promise.all(tokens.map((t) => t.balanceOf(network.signerAddress)));
+    const funded = liquidity.every((l, i) => l.lte(balances[i] as BigNumberish));
+    if (!funded && apply) {
+      // Cannot fund pool
+      console.warn(`Insufficient balance to provide initial pool funding.`);
+      tokens.forEach((t, idx) => {
+        console.warn(`\t- ${t.address}: Has ${balances[idx].toString()}, needs ${liquidity[idx].toString()}.`);
+      });
+      continue;
+    }
+    // Check to see that you have sufficient allowance for initial liquidity
+    const allowances = await Promise.all(
+      tokens.map(async (t) => {
+        const ret = await t.allowance(network.signerAddress, network.deployments.Connext.address);
+        return { allowance: ret, token: t };
+      }),
+    );
+    let idx = 0;
+    for (const { allowance, token } of allowances) {
+      if (allowance.lt(liquidity[idx])) {
+        await updateIfNeeded({
+          apply,
+          desired: liquidity[idx],
+          read: {
+            method: "allowance(address,address)",
+            args: [network.signerAddress, network.deployments.Connext.address],
+          },
+          deployment: {
+            contract: token,
+            address: token.address,
+            abi: ERC20Abi,
+            name: "ERC20",
+          },
+          write: { method: "approve", args: [network.deployments.Connext.address, liquidity[idx]] },
+        });
+      }
+      idx++;
+    }
+
+    // This is the buffer to submit the add liquidity. should be sufficient to ensure the
+    // tx is fully completed. Less sensitive to front-running due to small amounts added.
+    const deadlineBuffer = 2 * 24 * 60 * 60; // 2 days
 
     // Initialize pool
     await updateIfNeeded({
@@ -245,25 +297,6 @@ export const setupAsset = async (args: {
         ],
       },
     });
-
-    // Deposit into pool in equal amounts
-    const liquidity = decimals.map((decimal) =>
-      parseUnits(representation.pool?.initialLiquidity ?? "15", decimal as number),
-    );
-
-    // Verify there is sufficient amounts
-    const addr = await network.deployments.Connext.contract.signer.getAddress();
-    const balances = await Promise.all(tokens.map((t) => t.balanceOf(addr)));
-    const funded = liquidity.every((l, i) => l.gte(balances[i] as BigNumberish));
-    if (!funded && apply) {
-      // Cannot fund pool
-      console.warn(`Insufficient balance to provide initial pool funding. Skipping.`);
-      continue;
-    }
-
-    // This is the buffer to submit the add liquidity. should be sufficient to ensure the
-    // tx is fully completed. Less sensitive to front-running due to small amounts added.
-    const deadlineBuffer = 2 * 24 * 60 * 60; // 2 days
 
     // Add liquidity
     await updateIfNeeded({
