@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { providers, Wallet, utils, constants } from "ethers";
 import * as zk from "zksync-ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, getGelatoRelayerAddress, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId } from "../../domain";
@@ -454,141 +454,171 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
   /// ********************* AGENTS **********************
   if (shouldExecute("agents")) {
     if (protocol.agents) {
-      /// MARK - Watchers
-      if (protocol.agents.watchers) {
-        if (protocol.agents.watchers.allowlist) {
-          console.log("\n\nWHITELIST WATCHERS");
+      // /// MARK - Watchers
+      // if (protocol.agents.watchers) {
+      //   if (protocol.agents.watchers.allowlist) {
+      //     console.log("\n\nWHITELIST WATCHERS");
 
-          // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-          // Allowlist watchers in WatcherManager + Connext.
-          for (const watcher of protocol.agents.watchers.allowlist) {
-            for (const network of protocol.networks) {
-              // Messaging layer watchers
-              await updateIfNeeded({
-                apply,
-                deployment: network.deployments.messaging.WatcherManager,
-                desired: true,
-                auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-                read: { method: "isWatcher", args: [watcher] },
-                write: { method: "addWatcher", args: [watcher] },
-                chainData,
-              });
+      //     // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+      //     // Allowlist watchers in WatcherManager + Connext.
+      //     for (const watcher of protocol.agents.watchers.allowlist) {
+      //       for (const network of protocol.networks) {
+      //         // Messaging layer watchers
+      //         await updateIfNeeded({
+      //           apply,
+      //           deployment: network.deployments.messaging.WatcherManager,
+      //           desired: true,
+      //           auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //           read: { method: "isWatcher", args: [watcher] },
+      //           write: { method: "addWatcher", args: [watcher] },
+      //           chainData,
+      //         });
 
-              // Execution layer watchers
-              await updateIfNeeded({
-                apply,
-                deployment: network.deployments.Connext,
-                desired: 2,
-                auth: [
-                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
-                ],
-                read: { method: "queryRole", args: [watcher] },
-                write: { method: "assignRoleWatcher", args: [watcher] },
-                chainData,
-              });
-            }
-          }
-        }
-        // TODO: Blacklist/remove watchers.
-      }
+      //         // Execution layer watchers
+      //         await updateIfNeeded({
+      //           apply,
+      //           deployment: network.deployments.Connext,
+      //           desired: 2,
+      //           auth: [
+      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+      //           ],
+      //           read: { method: "queryRole", args: [watcher] },
+      //           write: { method: "assignRoleWatcher", args: [watcher] },
+      //           chainData,
+      //         });
+      //       }
+      //     }
+      //   }
+      //   // TODO: Blacklist/remove watchers.
+      // }
 
-      /// MARK - Proposers
-      console.log("\n\nWHITELIST PROPOSERS");
+      // /// MARK - Proposers
+      // console.log("\n\nWHITELIST PROPOSERS");
 
-      // Define helper function
-      const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
-        const isHub = network.domain === protocol.hub;
-        // Whitelist on spoke connector
-        await updateIfNeeded({
-          apply,
-          deployment: isHub
-            ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
-            : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
-          desired: true,
-          read: { method: "allowlistedProposers", args: [proposer] },
-          write: { method: "addProposer", args: [proposer] },
-          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-          chainData,
-        });
+      // // Define helper function
+      // const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
+      //   const isHub = network.domain === protocol.hub;
+      //   // Whitelist on spoke connector
+      //   await updateIfNeeded({
+      //     apply,
+      //     deployment: isHub
+      //       ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
+      //       : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+      //     desired: true,
+      //     read: { method: "allowlistedProposers", args: [proposer] },
+      //     write: { method: "addProposer", args: [proposer] },
+      //     auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //     chainData,
+      //   });
 
-        if (!isHub) {
-          return;
-        }
+      //   if (!isHub) {
+      //     return;
+      //   }
 
-        // Whitelist on root manager
-        await updateIfNeeded({
-          apply,
-          deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
-          desired: true,
-          read: { method: "allowlistedProposers", args: [proposer] },
-          write: { method: "addProposer", args: [proposer] },
-          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-          chainData,
-        });
-      };
+      //   // Whitelist on root manager
+      //   await updateIfNeeded({
+      //     apply,
+      //     deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
+      //     desired: true,
+      //     read: { method: "allowlistedProposers", args: [proposer] },
+      //     write: { method: "addProposer", args: [proposer] },
+      //     auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //     chainData,
+      //   });
+      // };
 
-      // Allowlist proxy address as proposer
-      console.log("\tVerifying RelayerProxies are set as proposers.");
-      for (const network of protocol.networks) {
-        await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
-      }
+      // // Allowlist proxy address as proposer
+      // console.log("\tVerifying RelayerProxies are set as proposers.");
+      // for (const network of protocol.networks) {
+      //   await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+      // }
 
-      // Allowlist named proposers.
-      if (protocol.agents.proposers?.allowlist) {
-        for (const proposer of protocol.agents.proposers.allowlist) {
-          console.log("\tVerifying agents are set as proposers.");
-          for (const network of protocol.networks) {
-            await whitelistProposerOnRootAndSpoke(proposer, network);
-          }
+      // // Allowlist named proposers.
+      // if (protocol.agents.proposers?.allowlist) {
+      //   for (const proposer of protocol.agents.proposers.allowlist) {
+      //     console.log("\tVerifying agents are set as proposers.");
+      //     for (const network of protocol.networks) {
+      //       await whitelistProposerOnRootAndSpoke(proposer, network);
+      //     }
 
-          // TODO: Blacklist/remove proposers.
-        }
-      }
+      //     // TODO: Blacklist/remove proposers.
+      //   }
+      // }
 
       /// MARK - Relayers
       if (protocol.agents.relayers) {
+        console.log("\n\nWHITELIST RELAYERS");
+
+        console.log("\tVerifying RelayerProxy setup.");
+        for (const network of protocol.networks) {
+          // whitelist relayer proxy as relayer on connext
+          const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.Connext,
+            desired: true,
+            read: { method: "approvedRelayers", args: [relayerProxyAddress] },
+            write: { method: "addRelayer", args: [relayerProxyAddress] },
+            auth: [
+              { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+            ],
+            chainData,
+          });
+
+          // set gelato relayer address on relayer proxy
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: getGelatoRelayerAddress(network.domain),
+            read: { method: "gelatoRelayer" },
+            write: { method: "setGelatoRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // set fee collector on relayer proxy
+          const feeCollector = network.relayerFeeVault;
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: feeCollector,
+            read: { method: "feeCollector" },
+            write: { method: "setFeeCollector", args: [feeCollector] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // Whitelist gelato relayer on the Relayer Proxy + Connext
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: true,
+            read: { method: "allowedRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            write: { method: "addRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // also add gelato to the base connext contract
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.Connext,
+            desired: true,
+            read: { method: "approvedRelayers", args: [getGelatoRelayerAddress(network.domain)] },
+            write: { method: "addRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            auth: [
+              { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+            ],
+            chainData,
+          });
+        }
+
         if (protocol.agents.relayers.allowlist) {
-          console.log("\n\nWHITELIST RELAYERS");
-
-          for (const network of protocol.networks) {
-            const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "approvedRelayers", args: [relayerProxyAddress] },
-              write: { method: "addRelayer", args: [relayerProxyAddress] },
-              auth: [
-                { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-                { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
-              ],
-              chainData,
-            });
-
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.messaging.RelayerProxy,
-              desired: GELATO_RELAYER_ADDRESS,
-              read: { method: "gelatoRelayer" },
-              write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
-              chainData,
-              auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-            });
-
-            const feeCollector = network.relayerFeeVault;
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.messaging.RelayerProxy,
-              desired: feeCollector,
-              read: { method: "feeCollector" },
-              write: { method: "setFeeCollector", args: [feeCollector] },
-              chainData,
-              auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-            });
-          }
-
           // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
+          console.log("\tWhitelisting named relayers on RelayerProxy + Connext");
           for (const relayer of protocol.agents.relayers.allowlist) {
             for (const network of protocol.networks) {
               await updateIfNeeded({
@@ -616,24 +646,30 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
               });
             }
           }
-          // Additionally, approve relayers as callers for connectors and root manager.
         }
-        // TODO: Blacklist/remove relayers.
-      }
 
-      /// MARK - Sequencers
-      if (protocol.agents.sequencers) {
-        if (protocol.agents.sequencers.allowlist) {
-          console.log("\n\nWHITELIST SEQUENCERS");
-          // Allowlist named sequencers.
-          for (const sequencer of protocol.agents.sequencers.allowlist) {
+        if (protocol.agents.relayers.blacklist) {
+          // Blacklist named relayers for the relayer proxy / connext
+          console.log("\tBlacklisting named relayers on RelayerProxy + Connext");
+          for (const relayer of protocol.agents.relayers.blacklist) {
             for (const network of protocol.networks) {
               await updateIfNeeded({
                 apply,
+                deployment: network.deployments.messaging.RelayerProxy,
+                desired: false,
+                read: { method: "allowedRelayer", args: [relayer] },
+                write: { method: "removeRelayer", args: [relayer] },
+                chainData,
+                auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              });
+
+              // also add relayers to the base connext contract
+              await updateIfNeeded({
+                apply,
                 deployment: network.deployments.Connext,
-                desired: true,
-                read: { method: "approvedSequencers", args: [sequencer] },
-                write: { method: "addSequencer", args: [sequencer] },
+                desired: false,
+                read: { method: "approvedRelayers", args: [relayer] },
+                write: { method: "removeRelayer", args: [relayer] },
                 auth: [
                   { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
                   { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
@@ -643,35 +679,59 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
             }
           }
         }
-        // TODO: Blacklist/remove sequencers.
       }
 
-      /// MARK - Routers
-      if (protocol.agents.routers) {
-        if (protocol.agents.routers.allowlist) {
-          console.log("\n\nWHITELIST ROUTERS");
-          // Allowlist connext routers.
-          for (const router of protocol.agents.routers.allowlist) {
-            for (const network of protocol.networks) {
-              await updateIfNeeded({
-                apply,
-                deployment: network.deployments.Connext,
-                desired: true,
-                // router admin submits (can be owner, assume router admin)
-                auth: [
-                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
-                ],
-                read: { method: "getRouterApproval", args: [router] },
-                // TODO: Should we enable configuring owner and recipient for this script, too?
-                write: { method: "approveRouter", args: [router] },
-                chainData,
-              });
-            }
-          }
-        }
-        // TODO: Blacklist/remove routers.
-      }
+      // /// MARK - Sequencers
+      // if (protocol.agents.sequencers) {
+      //   if (protocol.agents.sequencers.allowlist) {
+      //     console.log("\n\nWHITELIST SEQUENCERS");
+      //     // Allowlist named sequencers.
+      //     for (const sequencer of protocol.agents.sequencers.allowlist) {
+      //       for (const network of protocol.networks) {
+      //         await updateIfNeeded({
+      //           apply,
+      //           deployment: network.deployments.Connext,
+      //           desired: true,
+      //           read: { method: "approvedSequencers", args: [sequencer] },
+      //           write: { method: "addSequencer", args: [sequencer] },
+      //           auth: [
+      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+      //           ],
+      //           chainData,
+      //         });
+      //       }
+      //     }
+      //   }
+      //   // TODO: Blacklist/remove sequencers.
+      // }
+
+      // /// MARK - Routers
+      // if (protocol.agents.routers) {
+      //   if (protocol.agents.routers.allowlist) {
+      //     console.log("\n\nWHITELIST ROUTERS");
+      //     // Allowlist connext routers.
+      //     for (const router of protocol.agents.routers.allowlist) {
+      //       for (const network of protocol.networks) {
+      //         await updateIfNeeded({
+      //           apply,
+      //           deployment: network.deployments.Connext,
+      //           desired: true,
+      //           // router admin submits (can be owner, assume router admin)
+      //           auth: [
+      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
+      //           ],
+      //           read: { method: "getRouterApproval", args: [router] },
+      //           // TODO: Should we enable configuring owner and recipient for this script, too?
+      //           write: { method: "approveRouter", args: [router] },
+      //           chainData,
+      //         });
+      //       }
+      //     }
+      //   }
+      //   // TODO: Blacklist/remove routers.
+      // }
     }
   }
 };

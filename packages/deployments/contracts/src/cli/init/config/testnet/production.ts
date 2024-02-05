@@ -309,10 +309,13 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync)
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
+        // NOTE: gelato whitelisted in `init` script
         "0x7198C77022566F8F1f8A9A41C7B9C084bD18F934", // connext relayer
         "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006",
+      ],
+      blacklist: [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync - old)
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (old)
       ],
     },
     proposers: {
