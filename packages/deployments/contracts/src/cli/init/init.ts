@@ -454,97 +454,97 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
   /// ********************* AGENTS **********************
   if (shouldExecute("agents")) {
     if (protocol.agents) {
-      // /// MARK - Watchers
-      // if (protocol.agents.watchers) {
-      //   if (protocol.agents.watchers.allowlist) {
-      //     console.log("\n\nWHITELIST WATCHERS");
+      /// MARK - Watchers
+      if (protocol.agents.watchers) {
+        if (protocol.agents.watchers.allowlist) {
+          console.log("\n\nWHITELIST WATCHERS");
 
-      //     // Watchers are a permissioned role with the ability to disconnect malicious connectors.
-      //     // Allowlist watchers in WatcherManager + Connext.
-      //     for (const watcher of protocol.agents.watchers.allowlist) {
-      //       for (const network of protocol.networks) {
-      //         // Messaging layer watchers
-      //         await updateIfNeeded({
-      //           apply,
-      //           deployment: network.deployments.messaging.WatcherManager,
-      //           desired: true,
-      //           auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //           read: { method: "isWatcher", args: [watcher] },
-      //           write: { method: "addWatcher", args: [watcher] },
-      //           chainData,
-      //         });
+          // Watchers are a permissioned role with the ability to disconnect malicious connectors.
+          // Allowlist watchers in WatcherManager + Connext.
+          for (const watcher of protocol.agents.watchers.allowlist) {
+            for (const network of protocol.networks) {
+              // Messaging layer watchers
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.messaging.WatcherManager,
+                desired: true,
+                auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                read: { method: "isWatcher", args: [watcher] },
+                write: { method: "addWatcher", args: [watcher] },
+                chainData,
+              });
 
-      //         // Execution layer watchers
-      //         await updateIfNeeded({
-      //           apply,
-      //           deployment: network.deployments.Connext,
-      //           desired: 2,
-      //           auth: [
-      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
-      //           ],
-      //           read: { method: "queryRole", args: [watcher] },
-      //           write: { method: "assignRoleWatcher", args: [watcher] },
-      //           chainData,
-      //         });
-      //       }
-      //     }
-      //   }
-      //   // TODO: Blacklist/remove watchers.
-      // }
+              // Execution layer watchers
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: 2,
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
+                read: { method: "queryRole", args: [watcher] },
+                write: { method: "assignRoleWatcher", args: [watcher] },
+                chainData,
+              });
+            }
+          }
+        }
+        // TODO: Blacklist/remove watchers.
+      }
 
-      // /// MARK - Proposers
-      // console.log("\n\nWHITELIST PROPOSERS");
+      /// MARK - Proposers
+      console.log("\n\nWHITELIST PROPOSERS");
 
-      // // Define helper function
-      // const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
-      //   const isHub = network.domain === protocol.hub;
-      //   // Whitelist on spoke connector
-      //   await updateIfNeeded({
-      //     apply,
-      //     deployment: isHub
-      //       ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
-      //       : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
-      //     desired: true,
-      //     read: { method: "allowlistedProposers", args: [proposer] },
-      //     write: { method: "addProposer", args: [proposer] },
-      //     auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //     chainData,
-      //   });
+      // Define helper function
+      const whitelistProposerOnRootAndSpoke = async (proposer: string, network: NetworkStack) => {
+        const isHub = network.domain === protocol.hub;
+        // Whitelist on spoke connector
+        await updateIfNeeded({
+          apply,
+          deployment: isHub
+            ? (network.deployments.messaging as HubMessagingDeployments).MainnetConnector
+            : (network.deployments.messaging as SpokeMessagingDeployments).SpokeConnector,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          chainData,
+        });
 
-      //   if (!isHub) {
-      //     return;
-      //   }
+        if (!isHub) {
+          return;
+        }
 
-      //   // Whitelist on root manager
-      //   await updateIfNeeded({
-      //     apply,
-      //     deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
-      //     desired: true,
-      //     read: { method: "allowlistedProposers", args: [proposer] },
-      //     write: { method: "addProposer", args: [proposer] },
-      //     auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //     chainData,
-      //   });
-      // };
+        // Whitelist on root manager
+        await updateIfNeeded({
+          apply,
+          deployment: (network.deployments.messaging as HubMessagingDeployments).RootManager,
+          desired: true,
+          read: { method: "allowlistedProposers", args: [proposer] },
+          write: { method: "addProposer", args: [proposer] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          chainData,
+        });
+      };
 
-      // // Allowlist proxy address as proposer
-      // console.log("\tVerifying RelayerProxies are set as proposers.");
-      // for (const network of protocol.networks) {
-      //   await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
-      // }
+      // Allowlist proxy address as proposer
+      console.log("\tVerifying RelayerProxies are set as proposers.");
+      for (const network of protocol.networks) {
+        await whitelistProposerOnRootAndSpoke(network.deployments.messaging.RelayerProxy.address, network);
+      }
 
-      // // Allowlist named proposers.
-      // if (protocol.agents.proposers?.allowlist) {
-      //   for (const proposer of protocol.agents.proposers.allowlist) {
-      //     console.log("\tVerifying agents are set as proposers.");
-      //     for (const network of protocol.networks) {
-      //       await whitelistProposerOnRootAndSpoke(proposer, network);
-      //     }
+      // Allowlist named proposers.
+      if (protocol.agents.proposers?.allowlist) {
+        for (const proposer of protocol.agents.proposers.allowlist) {
+          console.log("\tVerifying agents are set as proposers.");
+          for (const network of protocol.networks) {
+            await whitelistProposerOnRootAndSpoke(proposer, network);
+          }
 
-      //     // TODO: Blacklist/remove proposers.
-      //   }
-      // }
+          // TODO: Blacklist/remove proposers.
+        }
+      }
 
       /// MARK - Relayers
       if (protocol.agents.relayers) {
@@ -681,57 +681,57 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
         }
       }
 
-      // /// MARK - Sequencers
-      // if (protocol.agents.sequencers) {
-      //   if (protocol.agents.sequencers.allowlist) {
-      //     console.log("\n\nWHITELIST SEQUENCERS");
-      //     // Allowlist named sequencers.
-      //     for (const sequencer of protocol.agents.sequencers.allowlist) {
-      //       for (const network of protocol.networks) {
-      //         await updateIfNeeded({
-      //           apply,
-      //           deployment: network.deployments.Connext,
-      //           desired: true,
-      //           read: { method: "approvedSequencers", args: [sequencer] },
-      //           write: { method: "addSequencer", args: [sequencer] },
-      //           auth: [
-      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
-      //           ],
-      //           chainData,
-      //         });
-      //       }
-      //     }
-      //   }
-      //   // TODO: Blacklist/remove sequencers.
-      // }
+      /// MARK - Sequencers
+      if (protocol.agents.sequencers) {
+        if (protocol.agents.sequencers.allowlist) {
+          console.log("\n\nWHITELIST SEQUENCERS");
+          // Allowlist named sequencers.
+          for (const sequencer of protocol.agents.sequencers.allowlist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: true,
+                read: { method: "approvedSequencers", args: [sequencer] },
+                write: { method: "addSequencer", args: [sequencer] },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
+                chainData,
+              });
+            }
+          }
+        }
+        // TODO: Blacklist/remove sequencers.
+      }
 
-      // /// MARK - Routers
-      // if (protocol.agents.routers) {
-      //   if (protocol.agents.routers.allowlist) {
-      //     console.log("\n\nWHITELIST ROUTERS");
-      //     // Allowlist connext routers.
-      //     for (const router of protocol.agents.routers.allowlist) {
-      //       for (const network of protocol.networks) {
-      //         await updateIfNeeded({
-      //           apply,
-      //           deployment: network.deployments.Connext,
-      //           desired: true,
-      //           // router admin submits (can be owner, assume router admin)
-      //           auth: [
-      //             { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-      //             { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
-      //           ],
-      //           read: { method: "getRouterApproval", args: [router] },
-      //           // TODO: Should we enable configuring owner and recipient for this script, too?
-      //           write: { method: "approveRouter", args: [router] },
-      //           chainData,
-      //         });
-      //       }
-      //     }
-      //   }
-      //   // TODO: Blacklist/remove routers.
-      // }
+      /// MARK - Routers
+      if (protocol.agents.routers) {
+        if (protocol.agents.routers.allowlist) {
+          console.log("\n\nWHITELIST ROUTERS");
+          // Allowlist connext routers.
+          for (const router of protocol.agents.routers.allowlist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: true,
+                // router admin submits (can be owner, assume router admin)
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
+                ],
+                read: { method: "getRouterApproval", args: [router] },
+                // TODO: Should we enable configuring owner and recipient for this script, too?
+                write: { method: "approveRouter", args: [router] },
+                chainData,
+              });
+            }
+          }
+        }
+        // TODO: Blacklist/remove routers.
+      }
     }
   }
 };
