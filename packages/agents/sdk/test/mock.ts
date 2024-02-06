@@ -17,7 +17,6 @@ export const mock = {
     environment: "production",
     chains: {
       [mock.domain.A]: {
-        assets: [mock.asset.A],
         confirmations: 1,
         chainId: Number(mock.chain.A),
         providers: ["http://example.com"],
@@ -30,7 +29,6 @@ export const mock = {
         gasStations: [],
       },
       [mock.domain.B]: {
-        assets: [mock.asset.A],
         confirmations: 1,
         chainId: Number(mock.chain.B),
         providers: ["http://example.com"],
@@ -104,6 +102,7 @@ export const mock = {
         rootManager: rootManager as unknown as ConnextContractInterfaces["rootManager"],
         unwrapper: unwrapper as unknown as ConnextContractInterfaces["unwrapper"],
         multisend: unwrapper as unknown as ConnextContractInterfaces["multisend"],
+        merkleTreeManager: {} as unknown as ConnextContractInterfaces["merkleTreeManager"],
       };
     },
     deployments: (): ConnextContractDeployments => {
@@ -119,6 +118,9 @@ export const mock = {
         relayerProxy: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         multisend: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
         unwrapper: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        spokeMerkleTreeManager: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        rootMerkleTreeManager: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
+        rootManager: (_: number) => ({ address: mkAddress("0xbbbdcc"), abi: {} }),
       };
     },
   },

@@ -16,7 +16,7 @@ const mockDeployments = mock.contracts.deployments();
 const mockAssetId = mock.asset.A.address;
 const mockAssetKey = utils.formatBytes32String("13337");
 
-const mockAssetData = {
+const mockDomainAAssetData = {
   local: mock.asset.A.address,
   adopted: mock.asset.B.address,
   canonical_id: utils.formatBytes32String("0"),
@@ -26,7 +26,17 @@ const mockAssetData = {
   id: mock.asset.A.address,
 };
 
-const mockOtherAssetData = {
+const mockDomainAOtherAssetData = {
+  local: mock.asset.B.address,
+  adopted: mock.asset.A.address,
+  canonical_id: utils.formatBytes32String("0"),
+  canonical_domain: mock.domain.A,
+  domain: mock.domain.A,
+  key: mockAssetKey,
+  id: mock.asset.B.address,
+};
+
+const mockDomainBAssetData = {
   local: mock.asset.B.address,
   adopted: mock.asset.A.address,
   canonical_id: utils.formatBytes32String("1"),
@@ -367,21 +377,21 @@ describe("SdkShared", () => {
     it("happy: should work", async () => {
       sdkShared.config.cartographerUrl = config.cartographerUrl;
       restore();
-      stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
+      stub(SharedFns, "axiosGetRequest").resolves([mockDomainAAssetData]);
       const res = await sdkShared.getAssetsData();
-      expect(res).to.be.deep.equal([mockAssetData]);
+      expect(res).to.be.deep.equal([mockDomainAAssetData]);
     });
   });
 
   describe("#getAssetsDataByDomainAndAddress", () => {
     it("happy: should work", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
       const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.A, mock.asset.A.address);
-      expect(res).to.be.deep.equal(mockAssetData);
+      expect(res).to.be.deep.equal(mockDomainAAssetData);
     });
 
     it("should undefined for not exist assets", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
       const res = await sdkShared.getAssetsDataByDomainAndAddress(mock.domain.B, mock.asset.A.address);
       expect(res).to.be.undefined;
     });
@@ -389,13 +399,13 @@ describe("SdkShared", () => {
 
   describe("#getAssetsDataByDomainAndKey", () => {
     it("happy: should work", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
       const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.A, mockAssetKey);
-      expect(res).to.be.deep.equal(mockAssetData);
+      expect(res).to.be.deep.equal(mockDomainAAssetData);
     });
 
     it("should undefined for not exist assets", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
       const res = await sdkShared.getAssetsDataByDomainAndKey(mock.domain.B, mockAssetKey);
       expect(res).to.be.undefined;
     });
@@ -403,13 +413,13 @@ describe("SdkShared", () => {
 
   describe("#getAssetsWithSameCanonical", () => {
     it("happy: should work", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData, mockDomainBAssetData]);
       const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.A, mock.asset.A.address);
-      expect(res).to.be.deep.equal([mockAssetData]);
+      expect(res).to.be.deep.equal([mockDomainAAssetData]);
     });
 
     it("should undefined for not exist assets", async () => {
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData, mockOtherAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData, mockDomainBAssetData]);
       const res = await sdkShared.getAssetsWithSameCanonical(mock.domain.B, mkAddress("0xaa"));
       expect(res).to.be.deep.equal([]);
     });
@@ -417,9 +427,9 @@ describe("SdkShared", () => {
 
   describe("#getCanonicalTokenId", () => {
     it("happy: should work", async () => {
-      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(mockAssetData);
+      stub(sdkShared, "getAssetsDataByDomainAndAddress").resolves(mockDomainAAssetData);
       const res = await sdkShared.getCanonicalTokenId(mock.domain.A, mock.asset.A.address);
-      expect(res).to.be.deep.equal([mockAssetData.canonical_domain, mockAssetData.canonical_id]);
+      expect(res).to.be.deep.equal([mockDomainAAssetData.canonical_domain, mockDomainAAssetData.canonical_id]);
     });
 
     it("should undefined for not exist assets", async () => {
@@ -473,7 +483,7 @@ describe("SdkShared", () => {
     it("happy: should work", async () => {
       sdkShared.config.cartographerUrl = config.cartographerUrl;
       restore();
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
 
       const supported = await sdkShared.getSupported();
       expect(supported.length).to.be.eq(1);
@@ -482,8 +492,18 @@ describe("SdkShared", () => {
     it("happy: should filter out assets disabled in config", async () => {
       sdkShared.config.cartographerUrl = config.cartographerUrl;
       restore();
-      stub(sdkShared, "getAssetsData").resolves([mockAssetData]);
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData]);
       sdkShared.config.chains[mock.domain.A].disabledAssets = [mock.asset.B.address];
+
+      const supported = await sdkShared.getSupported();
+      expect(supported.length).to.be.eq(0);
+    });
+
+    it("happy: should filter out multiple assets disabled in config", async () => {
+      sdkShared.config.cartographerUrl = config.cartographerUrl;
+      restore();
+      stub(sdkShared, "getAssetsData").resolves([mockDomainAAssetData, mockDomainAOtherAssetData]);
+      sdkShared.config.chains[mock.domain.A].disabledAssets = [mock.asset.B.address, mock.asset.A.address];
 
       const supported = await sdkShared.getSupported();
       expect(supported.length).to.be.eq(0);
