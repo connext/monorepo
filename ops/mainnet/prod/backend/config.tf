@@ -48,8 +48,7 @@ locals {
         providers = ["https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers      = ["https://rpc.ankr.com/gnosis"]
-        disabledAssets = ["0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"]
+        providers = ["https://rpc.ankr.com/gnosis"]
       }
       "1818848877" = {
         providers      = ["https://rpc.linea.build"]
@@ -72,7 +71,7 @@ locals {
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
-      }      
+      }
     }
 
     # The following are defined in variables.tf and don't map to the
