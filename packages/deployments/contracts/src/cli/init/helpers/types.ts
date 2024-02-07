@@ -2,7 +2,7 @@ import { TAddress } from "@connext/nxtp-utils";
 import { Type, Static } from "@sinclair/typebox";
 import { providers } from "ethers";
 
-import { Deployment } from "../../types";
+import { Deployment } from "../../helpers";
 
 // NOTE: Agents will currently be allowlisted/blacklisted respectively on ALL domains.
 export const AgentStackSchema = Type.Object({
@@ -111,41 +111,6 @@ export type ProtocolStack = {
   // Agents that need to be allowlisted (across all domains).
   // Leave undefined if no agents should be allowlisted in this setup.
   agents?: Agents;
-};
-
-export type ReadSchema<T> = {
-  deployment: Deployment;
-  desired?: T; // Desired value.
-  // Read method to call on contract.
-  read:
-    | {
-        method: string;
-        args?: (number | string)[];
-      }
-    | string;
-  caseSensitive?: boolean;
-};
-export type CallSchema<T> = ReadSchema<T> & {
-  apply: boolean;
-  // Write method to call to update value on contract.
-  write: {
-    method: string;
-    args?: any[];
-  };
-  // Optional auth (enforces sender by call)
-  auth?:
-    | {
-        method: string;
-        args?: any[];
-        eval: (ret: any) => boolean; // address or role id for permission check
-      }
-    | {
-        method: string;
-        args?: any[];
-        eval: (ret: any) => boolean; // address or role id for permission check
-      }[];
-
-  chainData?: any;
 };
 
 // NOTE: Used to do a sanity check when loading default config from json files

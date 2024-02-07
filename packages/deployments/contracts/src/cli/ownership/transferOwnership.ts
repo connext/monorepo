@@ -5,16 +5,14 @@ import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { Env, getProviderFromHardhatConfig } from "../../utils";
 import { hardhatNetworks } from "../../config";
-import { Deployment } from "../types";
+import { HUBS, SUPPORTED_DOMAINS, Deployment } from "../helpers";
 
 import {
   DAO_CONTRACTS,
   getOwnableDeployments,
   HubMessagingOwnableDeployments,
-  HUBS,
   OwnableDeployment,
   PROTOCOL_ADMINS,
-  SUPPORTED_DOMAINS,
   TO_LOCAL_ADMINS,
 } from "./helpers";
 

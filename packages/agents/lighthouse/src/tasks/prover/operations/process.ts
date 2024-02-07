@@ -3,7 +3,7 @@ import {
   jsonifyError,
   NxtpError,
   SparseMerkleTree,
-  GELATO_RELAYER_ADDRESS,
+  getGelatoRelayerAddress,
   RequestContext,
   XMessage,
   ExecStatus,
@@ -272,7 +272,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
     /// Temp: Using relayer proxy
     const domain = +destinationDomain;
-    const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
+    const relayerAddress = getGelatoRelayerAddress(destinationDomain); // hardcoded gelato address will always be whitelisted
 
     logger.info("Sending tx to relayer", requestContext, methodContext, {
       relayer: relayerAddress,

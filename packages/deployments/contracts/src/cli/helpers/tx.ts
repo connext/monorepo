@@ -2,10 +2,9 @@ import { Contract, providers } from "ethers";
 import * as zk from "zksync-ethers";
 import { getChainData } from "@connext/nxtp-utils";
 
-import { Deployment } from "../../types";
+import { Deployment, CallSchema, ReadSchema } from "./types";
 
 import { log } from "./log";
-import { CallSchema, ReadSchema } from "./types";
 
 const DEFAULT_CONFIRMATIONS = 1;
 

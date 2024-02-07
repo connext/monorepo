@@ -5,7 +5,7 @@ import { parseUnits } from "ethers/lib/utils";
 import { canonizeId } from "../../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
-import { getValue, updateIfNeeded } from "./tx";
+import { getValue, updateIfNeeded } from "../../helpers";
 
 export const setupAsset = async (args: {
   apply: boolean;

@@ -79,15 +79,17 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (new)
-        "0xf6d4f65325b258b2d70797CA7576CF8CD03Ed7b8",
-        "0xaBcC9b596420A9E9172FD5938620E265a0f9Df92", // gelato
+        // NOTE: gelato whitelisted in `init` script
         "0xED6fbBB952F5dA88bE9B507A9b2289B1ec07d494",
         "0x24d677f8a59a486bfc6d87e9453c4f1fefcb0958",
         "0xaB0A8DCb1590C4565C35cC785dc25A0590398054",
         "0xCDdE9992Fb66038Dd8419b56149a75CC79Df133C",
         "0xf6d4f65325b258b2d70797CA7576CF8CD03Ed7b8",
         "0x8cFAcF1d7f052faA1aED6e793f0C451b5dEA8c1E",
+      ],
+      blacklist: [
+        "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato (zksync - old)
+        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato (old)
       ],
     },
     proposers: {
