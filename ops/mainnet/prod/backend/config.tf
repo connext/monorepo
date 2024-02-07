@@ -55,9 +55,6 @@ locals {
         providers      = ["https://rpc.linea.build"]
         disabledAssets = ["0xA219439258ca9da29E9Cc4cE5596924745e12B93", "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5"]
       }
-      "2053862243" = {
-        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
-      }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
@@ -105,7 +102,6 @@ locals {
       "6450786"    = { confirmations = 50 }
       "6778479"    = { confirmations = 100 }
       "1818848877" = { confirmations = 10 }
-      "2053862243" = { confirmations = 10 }
       "1887071085" = { confirmations = 10 }
       "1650553709" = { confirmations = 1 }
       "1635148152" = { confirmations = 10 }
