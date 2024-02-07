@@ -2,7 +2,7 @@ import {
   RequestContext,
   ExecutorData,
   createLoggingContext,
-  GELATO_RELAYER_ADDRESS,
+  getGelatoRelayerAddress,
   domainToChainId,
 } from "@connext/nxtp-utils";
 
@@ -33,7 +33,7 @@ export const sendExecuteSlowToRelayer = async (
   const destinationConnextAddress = config.chains[transfer.xparams.destinationDomain].deployments.connext;
 
   // Simulation data for Execute transfer
-  const relayerFrom = GELATO_RELAYER_ADDRESS;
+  const relayerFrom = getGelatoRelayerAddress(transfer.xparams.destinationDomain);
 
   try {
     await database.updateExecuteSimulationData(

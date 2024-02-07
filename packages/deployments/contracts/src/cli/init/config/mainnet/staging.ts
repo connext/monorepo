@@ -110,9 +110,8 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato 1balance
+        // NOTE: gelato whitelisted in `init` script
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
-        //"0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato 1balance zksync era
       ],
     },
     proposers: {
