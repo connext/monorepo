@@ -52,6 +52,13 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
+  // Update the last bid time for a given router.
+  await cache.routers.setLastBidTime(bid.router, {
+    originDomain: transfer.xparams.originDomain,
+    destinationDomain: transfer.xparams.destinationDomain,
+    asset: transfer.origin.assets.transacting.asset,
+  });
+
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {

@@ -109,11 +109,31 @@ export class RoutersCache extends Cache {
   public async getLastBidTime(router: string): Promise<Record<string, string> | undefined> {
     const key = `${this.prefix}:bid`;
     const res = await this.data.hget(key, router);
-    if (res) {
-      const bidInfo = JSON.parse(res);
-      return bidInfo;
-    }
+    return res ? JSON.parse(res) : undefined;
+  }
 
-    return undefined;
+  /**
+   * Add a router to the list.
+   * @param router - Router address.
+   */
+  public async addRouter(router: string): Promise<void> {
+    const activeKey = `${this.prefix}:active`;
+    const addressKey = `${this.prefix}:address`;
+    const res = await this.data.hget(activeKey, router);
+    if (!res) {
+      await this.data.rpush(addressKey, router);
+    }
+  }
+
+  /**
+   * Get the recorded router addresses.
+   * @param offset - The start index.
+   * @param limit - The number of items to fetch.
+   * @returns The list of router address.
+   */
+  public async getRouters(offset = 0, limit = 100): Promise<string[]> {
+    const addressKey = `${this.prefix}:address`;
+    const routers = await this.data.lrange(addressKey, offset, offset + limit - 1);
+    return routers;
   }
 }

@@ -23,7 +23,11 @@ import {
   ExecStatusRequest,
   ExecStatusResponse,
   ExecStatusResponseSchema,
+  RouterPingRequest,
+  RouterPingRequestSchema,
+  RouterPingMessage,
 } from "@connext/nxtp-utils";
+import { verifyMessage } from "ethers/lib/utils";
 
 import { getContext } from "../../sequencer";
 import { MessageType, HTTPMessage } from "../../lib/entities";
@@ -37,6 +41,8 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
   const server = fastify();
 
   server.get("/ping", (_, res) => api.get.ping(res));
+
+  server.get("/router-status", (_, res) => api.get.ping(res));
 
   server.get("/supportedBidVersion", (_, res) => api.get.supportedBidVersion(res));
 
@@ -186,6 +192,21 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
     "/clear-cache",
     { schema: { body: ClearCacheRequestSchema } },
     async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
+  );
+
+  server.post<{ Body: RouterPingRequest }>(
+    "/router-ping",
+    { schema: { body: RouterPingRequestSchema } },
+    async (req, res) => {
+      const { router, timestamp, signed } = req.body;
+      const signerAddress = verifyMessage(`${RouterPingMessage}-${timestamp}`, signed);
+      if (router.toLowerCase() == signerAddress.toLowerCase()) {
+        await cache.routers.setLastActive(router);
+        return res.status(200).send({ message: "OK" });
+      } else {
+        return res.code(500).send({ message: "Invalid signature" });
+      }
+    },
   );
 
   const address = await server.listen({ port: config.server.http.port, host: config.server.http.host });
