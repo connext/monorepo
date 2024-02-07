@@ -1,12 +1,12 @@
 import * as zk from "zksync-ethers";
 import { Contract, providers, Wallet } from "ethers";
 
-import _Deployments from "../../deployments.json";
-import _DevnetDeployments from "../../devnet.deployments.json";
-import _LocalDeployments from "../../local.deployments.json";
+import _Deployments from "../../../deployments.json";
+import _DevnetDeployments from "../../../devnet.deployments.json";
+import _LocalDeployments from "../../../local.deployments.json";
 
 import { Deployment } from "./types";
-import { ProtocolNetwork } from "..";
+import { ProtocolNetwork } from "../..";
 
 const Deployments = _Deployments as any;
 const DevnetDeployments = _DevnetDeployments as any;

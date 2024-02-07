@@ -1,7 +1,7 @@
 import { constants } from "ethers";
 
 import { HubMessagingDeployments, NetworkStack, ProtocolStack, SpokeMessagingDeployments } from "./types";
-import { assertValue, getValue, updateIfNeeded } from "./tx";
+import { assertValue, getValue, updateIfNeeded } from "../../helpers";
 
 export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) => {
   /// MARK - Peripherals
