@@ -166,9 +166,10 @@ export const getDeployedMultisendContract = (
 
 export const getDeployedUnwrapperContract = (
   chainId: number,
+  postfix: ContractPostfix = "",
   network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const contract = _getDeployedContract(chainId, `Unwrapper`, network);
+  const contract = _getDeployedContract(chainId, `Unwrapper${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -267,8 +268,10 @@ export type MultisendContractDeploymentGetter = (
   chainId: number,
   network?: Network,
 ) => { address: string; abi: any } | undefined;
+
 export type UnwrapperContractDeploymentGetter = (
   chainId: number,
+  postfix?: ContractPostfix,
   network?: Network,
 ) => { address: string; abi: any } | undefined;
 
