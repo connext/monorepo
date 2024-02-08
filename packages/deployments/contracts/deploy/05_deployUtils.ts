@@ -14,11 +14,10 @@ const deployContract = async (params: {
   args: any[];
 }): Promise<DeployResult | undefined> => {
   const { hre, deployer, contractName, args, name } = params;
-  const deployment = await hre.deployments.getOrNull(contractName);
+  const deployment = await hre.deployments.getOrNull(name);
   if (!deployment) {
     console.log(`Deploying ${contractName} contract...`);
-    const deployResult = await hre.deployments.deploy(contractName, {
-      name,
+    const deployResult = await hre.deployments.deploy(name, {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
