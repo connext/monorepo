@@ -1,8 +1,7 @@
 import { providers, Wallet } from "ethers";
 
 import { Env } from "../../../utils";
-import { getContract, getHubConnectors, getSpokeConnector } from "../../helpers";
-import { Deployment } from "../../types";
+import { Deployment, getContract, getHubConnectors, getSpokeConnector } from "../../helpers";
 
 import { OwnableDeployment, SpokeMessagingOwnableDeployments } from "./types";
 

@@ -53,7 +53,7 @@ output "lighthouse-propagate-service-name" {
 }
 
 output "relayer-service-endpoint" {
-  value = module.relayer.service_endpoint
+  value = module.relayer_server.service_endpoint
 }
 
 output "relayer-dns" {

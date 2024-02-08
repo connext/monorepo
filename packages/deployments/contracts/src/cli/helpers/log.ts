@@ -1,4 +1,4 @@
-import { Deployment } from "../../types";
+import { Deployment } from "./types";
 
 export const log = {
   prefix: {

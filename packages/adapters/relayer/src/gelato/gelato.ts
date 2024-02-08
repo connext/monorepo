@@ -10,7 +10,8 @@ import {
   RelayRequestOptions,
   NATIVE_TOKEN,
   RelayerRequest,
-  GELATO_RELAYER_ADDRESS,
+  getGelatoRelayerAddress,
+  chainIdToDomain,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
@@ -192,7 +193,7 @@ const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
 };
 
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {
-  return Promise.resolve(GELATO_RELAYER_ADDRESS);
+  return Promise.resolve(getGelatoRelayerAddress(chainIdToDomain(_chainId).toString()));
 };
 
 export const send = async (
