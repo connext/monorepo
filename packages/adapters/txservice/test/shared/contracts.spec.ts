@@ -7,6 +7,7 @@ describe("contracts", () => {
   let testChainId1 = 1336;
   let testChainId2 = 1337;
   let testAddress = mkAddress("0x123");
+  let testAddressStaging = mkAddress("0x234");
   let contractDeployment: any;
   let contractDeploymentStub: SinonStub;
 
@@ -25,12 +26,24 @@ describe("contracts", () => {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
+            StableSwapStaging: {
+              address: testAddressStaging,
+              abi: ["fakeAbi()"],
+            },
             Connext: {
               address: testAddress,
               abi: ["fakeAbi()"],
             },
+            ConnextStaging: {
+              address: testAddressStaging,
+              abi: ["fakeAbi()"],
+            },
             Unwrapper: {
               address: testAddress,
+              abi: ["fakeAbi()"],
+            },
+            UnwrapperStaging: {
+              address: testAddressStaging,
               abi: ["fakeAbi()"],
             },
           },
@@ -91,10 +104,18 @@ describe("contracts", () => {
       expect(ContractFns.getDeployedConnextContract(testChainId2)).to.be.undefined;
     });
 
-    it("happy case: should return the connext contract", () => {
+    it("happy case: should return the prod connext contract", () => {
       contractDeploymentStub.returns(contractDeployment);
       expect(ContractFns.getDeployedConnextContract(testChainId1)).to.be.deep.equal({
         address: testAddress,
+        abi: ["fakeAbi()"],
+      });
+    });
+
+    it("happy case: should return the staging connext contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
+      expect(ContractFns.getDeployedConnextContract(testChainId1, "Staging")).to.be.deep.equal({
+        address: testAddressStaging,
         abi: ["fakeAbi()"],
       });
     });
@@ -141,10 +162,18 @@ describe("contracts", () => {
       expect(ContractFns.getDeployedUnwrapperContract(testChainId2)).to.be.undefined;
     });
 
-    it("happy case: should return the unwrapper contract", () => {
+    it("happy case: should return the prod unwrapper contract", () => {
       contractDeploymentStub.returns(contractDeployment);
       expect(ContractFns.getDeployedUnwrapperContract(testChainId1)).to.be.deep.equal({
         address: testAddress,
+        abi: ["fakeAbi()"],
+      });
+    });
+
+    it("happy case: should return the staging unwrapper contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
+      expect(ContractFns.getDeployedUnwrapperContract(testChainId1, "Staging")).to.be.deep.equal({
+        address: testAddressStaging,
         abi: ["fakeAbi()"],
       });
     });
@@ -179,6 +208,22 @@ describe("contracts", () => {
       let oracleContract = ContractFns.getDeployedStableSwapContract(testChainId1);
       expect(oracleContract!.address).to.be.equal(testAddress);
       expect(oracleContract!.abi[0]).to.be.equal("fakeAbi()");
+    });
+
+    it("happy case: should return the prod stableswap contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
+      expect(ContractFns.getDeployedStableSwapContract(testChainId1)).to.be.deep.equal({
+        address: testAddress,
+        abi: ["fakeAbi()"],
+      });
+    });
+
+    it("happy case: should return the staging stableswap contract", () => {
+      contractDeploymentStub.returns(contractDeployment);
+      expect(ContractFns.getDeployedStableSwapContract(testChainId1, "Staging")).to.be.deep.equal({
+        address: testAddressStaging,
+        abi: ["fakeAbi()"],
+      });
     });
   });
 

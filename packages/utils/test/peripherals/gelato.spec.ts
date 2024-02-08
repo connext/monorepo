@@ -8,6 +8,7 @@ import {
   isOracleActive,
   getGelatoOracles,
   getConversionRate,
+  getGelatoRelayerAddress,
 } from "../../src";
 import * as AxiosFns from "../../src/helpers/axios";
 
@@ -144,6 +145,15 @@ describe("Peripherals:Gelato", () => {
     it("should throw if the request fails", async () => {
       axiosGetStub.throws(new Error("Request failed!"));
       await expect(getConversionRate(1337)).to.be.rejectedWith(GelatoConversionRateRequestError);
+    });
+  });
+
+  describe("#getGelatoRelayerAddress", () => {
+    it("happy", () => {
+      expect(getGelatoRelayerAddress("2053862260")).to.be.eq("0x92387e183aE9Af24a71Db558c99FeE3e724e8Ea6");
+      expect(getGelatoRelayerAddress("2053862243")).to.be.eq("0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d");
+      expect(getGelatoRelayerAddress("6648936")).to.be.eq("0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99");
+      expect(getGelatoRelayerAddress("1735353714")).to.be.eq("0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0");
     });
   });
 });

@@ -7,16 +7,17 @@ import { getDeploymentName } from "../src";
 
 // Helper for deploying a utility contract below and handling proper logs, etc.
 const deployContract = async (params: {
+  name: string;
   hre: HardhatRuntimeEnvironment;
   deployer: Wallet;
   contractName: string;
   args: any[];
 }): Promise<DeployResult | undefined> => {
-  const { hre, deployer, contractName, args } = params;
-  const deployment = await hre.deployments.getOrNull(contractName);
+  const { hre, deployer, contractName, args, name } = params;
+  const deployment = await hre.deployments.getOrNull(name);
   if (!deployment) {
     console.log(`Deploying ${contractName} contract...`);
-    const deployResult = await hre.deployments.deploy(contractName, {
+    const deployResult = await hre.deployments.deploy(name, {
       from: deployer.address,
       log: true,
       skipIfAlreadyDeployed: true,
@@ -57,7 +58,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   // deploy 1 for each.
   // Multisend utility contract is used by the SDK to conveniently wrap ETH => WETH before
   // making xcalls transferring WETH tokens.
-  await deployContract({ hre, deployer, contractName: "MultiSend", args: [] });
+  await deployContract({ hre, deployer, contractName: "MultiSend", args: [], name: "MultiSend" });
 
   /// MARK - Unwrapper
   // NOTE: Unwrapper can be shared between staging and production environments; we do not
@@ -75,6 +76,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       hre,
       deployer,
       contractName: "Unwrapper",
+      name: getDeploymentName("Unwrapper"),
       args: [connext.address, wrappedETH],
     });
   }
