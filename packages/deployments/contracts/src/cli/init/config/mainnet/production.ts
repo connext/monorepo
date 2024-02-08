@@ -147,6 +147,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x1ede59e0d39B14c038698B1036BDE9a4819C86D4",
           adopted: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
         },
+        "2053862243": {
+          // zk-sync
+          local: "0xAe685737680A2D27d0eA9766952240442b869181",
+          adopted: "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4",
+        },
       },
     },
     {
@@ -191,6 +196,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           // base
           local: "0xE08D4907b2C7aa5458aC86596b6D17B1feA03F7E",
           adopted: "0x4200000000000000000000000000000000000006",
+        },
+        "2053862243": {
+          // zk-sync
+          local: "0x5033FA4d70582A8A88965A705bE5ac6348e587f3",
+          adopted: "0xf00DAD97284D0c6F06dc4Db3c32454D4292c6813",
         },
       },
     },
