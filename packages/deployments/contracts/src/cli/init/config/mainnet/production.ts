@@ -200,7 +200,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "2053862243": {
           // zk-sync
           local: "0x5033FA4d70582A8A88965A705bE5ac6348e587f3",
-          adopted: "0xf00DAD97284D0c6F06dc4Db3c32454D4292c6813",
+          adopted: "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
         },
       },
     },
