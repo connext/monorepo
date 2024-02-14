@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 
-import { axiosGet, isMainnetDomain } from "../helpers";
+import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
 import { jsonifyError } from "../types";
 
@@ -10,17 +10,14 @@ export const GELATO_SERVER = "https://api.gelato.digital";
 
 // Testnet addresses (2/5)
 // - On all networks except zkSync: 0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0
-// - On zkSync: 0x92387e183aE9Af24a71Db558c99FeE3e724e8Ea6
+// - On zkSync: 0x0c1B63765Be752F07147ACb80a7817A8b74d9831
 // So, for testnets you can already update the whitelist to these new addresses.
 
 export const getGelatoRelayerAddress = (domain: string): string =>
-  domain === "2053862260" // zksync testnet
-    ? "0x92387e183aE9Af24a71Db558c99FeE3e724e8Ea6"
-    : domain === "2053862243" // zksync mainnet
-    ? "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d"
-    : isMainnetDomain(+domain)
-    ? "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99" // all mainnets
-    : "0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0"; // all testnets
+  domain === "2053862260" || // zksync testnet
+  domain === "2053862243" // zksync mainnet
+    ? "0x0c1B63765Be752F07147ACb80a7817A8b74d9831"
+    : "0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0"; // all other networks
 
 /**
  * Get the fee estimate
