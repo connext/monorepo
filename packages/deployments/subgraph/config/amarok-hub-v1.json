@@ -74,5 +74,31 @@
         "startBlock": 19113185
       }
     ]
+  },
+  {
+    "subgraphName": "connext/hub-v1-sepolia",
+    "network": "sepolia",
+    "source": [
+      {
+        "name": "RootManager",
+        "address": "0x37B118dFc50981738B59b7E640135F41813a50A9",
+        "startBlock": 5287633
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x273F5BCDb84a26922Dc0163Fc8E9a99F70D462FF",
+        "startBlock": 5287632
+      },
+      {
+        "name": "ArbitrumHubConnector",
+        "address": "0x0c80D9C14c6E6e443389312d647cF48FbA38bBE2",
+        "startBlock": 5287640
+      },
+      {
+        "name": "OptimismHubConnector",
+        "address": "0x743811821472f1C897bEAdFED280aa993a9594cb",
+        "startBlock": 5287641
+      }
+    ]
   }
 ]

@@ -147,107 +147,65 @@
     ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-v1-goerli",
-    "network": "goerli",
+    "subgraphName": "connext/runtime-v1-sepolia",
+    "network": "sepolia",
     "source": [
       {
         "name": "Connext",
-        "address": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649",
-        "startBlock": 8173349
+        "address": "0x445fbf9cCbaf7d557fd771d56937E94397f43965",
+        "startBlock": 5287648
       },
       {
         "name": "SpokeConnector",
-        "address": "0xEf2D3E622dB0b790b6513681e925b4ABFeD5F38B",
-        "startBlock": 10168633
+        "address": "0x7534200C22e1731316c8DE5C9384945b686e749c",
+        "startBlock": 5287639
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0x7839D0b5486d8d7fDD0dc4195426681f08a7b3fe",
-        "startBlock": 8173342
+        "address": "0xf18794fE08eAEc26845E707d32a3be6c7f521d32",
+        "startBlock": 5287637
       }
     ]
   },
   {
-    "subgraphName": "connext/amarok-runtime-v1-opt-goerli",
-    "network": "optimism-goerli",
+    "subgraphName": "connext/runtime-v1-opt-sepolia",
+    "network": "optimism-sepolia",
     "source": [
       {
         "name": "Connext",
-        "address": "0x5Ea1bb242326044699C3d81341c5f535d5Af1504",
-        "startBlock": 3613102
+        "address": "0x8247ed6d0a344eeae4edBC7e44572F1B70ECA82A",
+        "startBlock": 8060506
       },
       {
         "name": "SpokeConnector",
-        "address": "0x844d6790a41e967Acb0810808f07AA28d5870b92",
-        "startBlock": 18226883
+        "address": "0xa21BfBB1a9EAce1c4D057051dd3b4dEA25678D1F",
+        "startBlock": 8060403
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xF0E8d77FB11FE01CF6576B9E0F780AfF20c5176e",
-        "startBlock": 3613078
+        "address": "0x8fE8820fB481b232f8DAeFEf71d17707d5c5d083",
+        "startBlock": 8060398
       }
     ]
   },
   {
-    "subgraphName": "connext/nxtp-amarok-runtime-v1-mumbai",
-    "network": "mumbai",
+    "subgraphName": "connext/runtime-v1-arb-sepolia",
+    "network": "arb-sepolia",
     "source": [
       {
         "name": "Connext",
-        "address": "0x2334937846Ab2A3FCE747b32587e1A1A2f6EEC5a",
-        "startBlock": 29956478
+        "address": "0x1780Ac087Cbe84CA8feb75C0Fb61878971175eb8",
+        "startBlock": 14231360
       },
       {
         "name": "SpokeConnector",
-        "address": "0x15941A9DBBAE0A4eb53321A43a1b4DF4E76fB6a6",
-        "startBlock": 43258261
+        "address": "0x4C832BFa61d7ee2A7ad467F59b405eCcE5df7725",
+        "startBlock": 14231169
       },
       {
         "name": "MerkleTreeManager",
-        "address": "0xEf8317C06643aDDeC80441ce5ae184aa207a94fD",
-        "startBlock": 29956465
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/amarok-runtime-v1-linea-goerli",
-    "network": "linea-goerli",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0xfdb6B853C1945Dbffe78A3091BeBB9A928234fA3",
-        "startBlock": 88565
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0xc4C19CEa6bDbFA21Ac5FF37D825b2F6fc53CdAC6",
-        "startBlock": 2490352
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x32f797366D01F374CA2382130c3A32D31fe6b870",
-        "startBlock": 88563
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/amarok-runtime-v1-base-goerli",
-    "network": "base-testnet",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0x544e3f759a35cD534c6411d0c106884488c0ADD4",
-        "startBlock": 13383760
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0x4efC4F82C2ef4CD0c24877103c24DabdDb0d37dd",
-        "startBlock": 13384262
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x4fA03719D17B5683A7410f723074d3c989326Ac5",
-        "startBlock": 13383551
+        "address": "0x595A76e8BF689C8f02Fa3d729a27f934d1014306",
+        "startBlock": 14231146
       }
     ]
   }
