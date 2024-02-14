@@ -174,6 +174,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "sepolia",
     },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
     verify: {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
