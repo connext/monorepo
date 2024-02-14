@@ -123,6 +123,15 @@ export const hardhatNetworks = {
       "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
+  sepolia: {
+    accounts: { mnemonic },
+    chainId: 11155111,
+    url:
+      urlOverride ||
+      process.env.SEPOLIA_ETH_PROVIDER_URL ||
+      "https://sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
+  },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
@@ -152,6 +161,23 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-goerli-optimistic.etherscan.io/",
+      },
+    },
+  },
+  "optimism-sepolia": {
+    accounts: { mnemonic },
+    chainId: 11155420,
+    url:
+      urlOverride ||
+      process.env.OPTI_SEPOLIA_ETH_PROVIDER_URL ||
+      "https://optimism-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "sepolia",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
+        apiUrl: "https://api-sepolia-optimistic.etherscan.io/",
       },
     },
   },
@@ -209,6 +235,22 @@ export const hardhatNetworks = {
       },
     },
   },
+  mumbai: {
+    accounts: { mnemonic },
+    chainId: 80001,
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
+    },
+  },
   avalanche: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 43114,
@@ -239,22 +281,6 @@ export const hardhatNetworks = {
       apiUrl: "https://api.arbiscan.io/",
     },
   },
-  mumbai: {
-    accounts: { mnemonic },
-    chainId: 80001,
-    url:
-      urlOverride ||
-      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
-      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    companionNetworks: {
-      hub: "goerli",
-    },
-    verify: {
-      etherscan: {
-        apiKey: process.env.POLYGONSCAN_API_KEY!,
-      },
-    },
-  },
   "arbitrum-goerli": {
     accounts: { mnemonic },
     chainId: 421613,
@@ -269,6 +295,23 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.ARBISCAN_API_KEY!,
         apiUrl: "https://api-goerli.arbiscan.io/",
+      },
+    },
+  },
+  "arbitrum-sepolia": {
+    accounts: { mnemonic },
+    chainId: 421614,
+    url:
+      urlOverride ||
+      process.env.ARBITRUM_SEPOLIA_ETH_PROVIDER_URL ||
+      "https://arbitrum-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "sepolia",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.ARBISCAN_API_KEY!,
+        apiUrl: "https://api-sepolia.arbiscan.io/",
       },
     },
   },
