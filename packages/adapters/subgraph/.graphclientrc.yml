@@ -79,7 +79,7 @@ sources:
   - name: Connext_OptimismSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-opt-sepolia
+        endpoint: https://api.studio.thegraph.com/query/60851/optimism-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -185,7 +185,7 @@ sources:
   - name: StableSwap_OptimismSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-opt-sepolia
+        endpoint: https://api.studio.thegraph.com/query/60851/stableswap-optimism-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
