@@ -1,15 +1,15 @@
 sources:
   #####################################################
   # TESTNETS
-  - name: Connext_Goerli
+  - name: Connext_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-goerli
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-sepolia
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: goerli_
+          value: sepolia_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -46,15 +46,15 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Hub_Goerli
+  - name: Hub_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-hub-v0-goerli
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-sepolia
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: goerli_
+          value: sepolia_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -76,15 +76,15 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_OptimismGoerli
+  - name: Connext_OptimismSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-opt-goerli
+        endpoint: https://api.studio.thegraph.com/query/60851/optimism-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: optimismgoerli_
+          value: optimismsepolia_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -121,21 +121,6 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_Mumbai
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/nxtp-amarok-runtime-v0-mumbai
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: mumbai_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
   - name: Connext_Staging_Mumbai
     handler:
       graphql:
@@ -151,46 +136,15 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: Connext_LineaGoerli
+  - name: Connext_ArbitrumSepolia
     handler:
       graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://graph-query.goerli.linea.build/subgraphs/name/connext/amarok-runtime-v0-linea-goerli"
-            retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-linea-goerli
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: lineagoerli_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-
-  - name: Connext_BaseGoerli
-    handler:
-      graphql:
-        endpoint: "https://api.studio.thegraph.com/query/51161/connext-rumtime-v0-base-goerli/version/latest"
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-arb-sepolia
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: basegoerli_
+          value: arbitrumsepolia_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -198,46 +152,15 @@ sources:
           validateSchema: true
           limitOfRecords: 250
 
-  - name: Connext_X1Testnet
+  - name: StableSwap_Sepolia
     handler:
       graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://www.okx.com/api/v1/x1-testnet/subgraph/name/connext/amarok-runtime-v1-x1-testnet"
-            retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-x1-testnet
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: x1testnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-
-  - name: StableSwap_Goerli
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-goerli
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-sepolia
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: goerli_swap_
+          value: sepolia_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -259,15 +182,15 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: StableSwap_OptimismGoerli
+  - name: StableSwap_OptimismSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-opt-goerli
+        endpoint: https://api.studio.thegraph.com/query/60851/stableswap-optimism-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
       - prefix:
-          value: optimismgoerli_swap_
+          value: optimismsepolia_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -289,21 +212,6 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  - name: StableSwap_Mumbai
-    handler:
-      graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-mumbai
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: mumbai_swap_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
   - name: StableSwap_Staging_Mumbai
     handler:
       graphql:
@@ -313,6 +221,21 @@ sources:
     transforms:
       - prefix:
           value: stagingmumbai_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_ArbitrumSepolia
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-arb-sepolia
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: arbitrumsepolia_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
