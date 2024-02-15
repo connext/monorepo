@@ -190,7 +190,7 @@
   },
   {
     "subgraphName": "connext/runtime-v1-arb-sepolia",
-    "network": "arb-sepolia",
+    "network": "arbitrum-sepolia",
     "source": [
       {
         "name": "Connext",
