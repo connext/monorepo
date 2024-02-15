@@ -139,15 +139,15 @@ locals {
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
       {
+        type   = "Connext",
+        apiKey = "${var.admin_token_relayer}",
+        url    = "https://${module.relayer_server.service_endpoint}"
+      },
+      {
         type   = "Gelato",
         apiKey = "${var.gelato_api_key}",
         url    = "https://relay.gelato.digital"
       },
-      {
-        type   = "Connext",
-        apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer_server.service_endpoint}"
-      }
     ]
     relayerFeeTolerance = 60
     environment         = var.stage
@@ -440,14 +440,14 @@ locals {
     }
     relayers = [
       {
-        type   = "Gelato",
-        apiKey = "${var.gelato_api_key}",
-        url    = "https://relay.gelato.digital"
-      },
-      {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
         url    = "https://${module.relayer_server.service_endpoint}"
+      },
+      {
+        type   = "Gelato",
+        apiKey = "${var.gelato_api_key}",
+        url    = "https://relay.gelato.digital"
       }
     ]
     healthUrls = {
