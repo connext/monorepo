@@ -313,7 +313,7 @@ export const executeFastPathData = async (
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
             if (!routerLiquidity.eq(constants.Zero)) {
               await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
-            } else {
+            } else if (routerLiquidity.lt(assignedAmount)) {
               // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
               // have added liquidity for the asset on the corresponding domain.
               logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
