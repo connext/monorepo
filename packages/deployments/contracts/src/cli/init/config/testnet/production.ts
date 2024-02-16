@@ -282,8 +282,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "InrETH",
       canonical: {
-        domain: "1735353714",
-        address: "0x928c4b8E677E55C2829D0B4e3BdD3aC80226527D",
+        domain: "11111",
+        address: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
         decimals: 18,
       },
       representations: {
