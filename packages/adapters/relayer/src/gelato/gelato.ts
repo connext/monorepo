@@ -28,6 +28,16 @@ import { gelatoRelay } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
+const GAS_LIMIT_FOR_RELAYER = (chainId: number): string | undefined => {
+  switch (chainId) {
+    case 8453: {
+      return "3000000";
+    }
+    default: {
+      return undefined;
+    }
+  }
+};
 
 export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
   try {
@@ -229,7 +239,13 @@ export const send = async (
   logger.info("Sending to Gelato network", requestContext, methodContext, request);
 
   // Future intented way to call
-  const response = await gelatoSDKSend(request, gelatoApiKey);
+  let response;
+  const gasLimitForChain = GAS_LIMIT_FOR_RELAYER(chainId);
+  if (gasLimitForChain) {
+    response = await gelatoSDKSend(request, gelatoApiKey, { gasLimit: gasLimitForChain });
+  } else {
+    response = await gelatoSDKSend(request, gelatoApiKey);
+  }
 
   if (!response) {
     throw new RelayerSendFailed({ response: response });
