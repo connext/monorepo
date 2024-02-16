@@ -31,7 +31,7 @@ import { gelatoRelay } from ".";
 const GAS_LIMIT_FOR_RELAYER = (chainId: number): string | undefined => {
   switch (chainId) {
     case 8453: {
-      return "3000000";
+      return "6000000";
     }
     default: {
       return undefined;
