@@ -63,6 +63,24 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "WETH",
+      canonical: {
+        domain: "1735353714",
+        address: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+        decimals: 18
+      },
+      representations: {
+        "1735356532": {
+          local: "0x39B061B7e41DE8B721f9aEcEB6b3f17ECB7ba63E",
+          adopted: "0x74c6FD7D2Bc6a8F0Ebd7D78321A95471b8C2B806",
+        },
+        "9991": {
+          local: "0x1E5341E4b7ed5D0680d9066aac0396F0b1bD1E69",
+          adopted: "0xFD2AB41e083c75085807c4A65C0A14FDD93d55A9",
+        },
+      },
+    },
+    {
       name: "WMATIC",
       canonical: {
         domain: "9991",
