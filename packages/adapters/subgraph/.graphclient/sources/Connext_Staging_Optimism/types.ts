@@ -150,6 +150,10 @@ export type stagingoptimism_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingoptimism_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingoptimism_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingoptimism_Bytes']>;

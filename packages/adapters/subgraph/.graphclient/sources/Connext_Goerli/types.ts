@@ -150,6 +150,10 @@ export type goerli_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type goerli_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type goerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['goerli_Bytes']>;

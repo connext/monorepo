@@ -150,6 +150,10 @@ export type optimismgoerli_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type optimismgoerli_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type optimismgoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['optimismgoerli_Bytes']>;

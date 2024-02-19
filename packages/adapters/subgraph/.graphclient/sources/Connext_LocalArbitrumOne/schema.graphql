@@ -142,6 +142,11 @@ enum localarbitrumone_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum localarbitrumone_Aggregation_interval {
+  hour
+  day
+}
+
 type localarbitrumone_Asset {
   id: ID!
   key: localarbitrumone_Bytes

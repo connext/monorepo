@@ -150,6 +150,10 @@ export type stagingzksync_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingzksync_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingzksync_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingzksync_Bytes']>;

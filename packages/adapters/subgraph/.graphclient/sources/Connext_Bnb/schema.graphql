@@ -142,6 +142,11 @@ enum bnb_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum bnb_Aggregation_interval {
+  hour
+  day
+}
+
 type bnb_Asset {
   id: ID!
   key: bnb_Bytes

@@ -142,6 +142,11 @@ enum avalanche_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum avalanche_Aggregation_interval {
+  hour
+  day
+}
+
 type avalanche_Asset {
   id: ID!
   key: avalanche_Bytes

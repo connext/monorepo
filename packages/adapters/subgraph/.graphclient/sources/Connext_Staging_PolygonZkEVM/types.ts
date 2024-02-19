@@ -150,6 +150,10 @@ export type stagingpolygonzkevm_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingpolygonzkevm_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingpolygonzkevm_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingpolygonzkevm_Bytes']>;
