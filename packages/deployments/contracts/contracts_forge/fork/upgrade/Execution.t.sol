@@ -18,7 +18,7 @@ contract ExecutionUpgradeTest is ExecutionFlowUtilities, ExecutionForkHelper {
   mapping(uint256 => address[2]) deployedAssets; // [local, adopted]
   uint32 public immutable MAINNET_HUB_DOMAIN = 6648936;
   uint32 public immutable MAINNET_HUB_CHAIN = 1;
-  uint32 public immutable TESTNET_HUB_DOMAIN = 1735353714;
+  uint32 public immutable TESTNET_HUB_DOMAIN = 1936027759;
   uint32 public immutable TESTNET_HUB_CHAIN = 5;
 
   uint32 public HUB_DOMAIN;
