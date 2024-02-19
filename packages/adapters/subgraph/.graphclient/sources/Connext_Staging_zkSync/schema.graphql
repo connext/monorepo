@@ -142,6 +142,11 @@ enum stagingzksync_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingzksync_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingzksync_Asset {
   id: ID!
   key: stagingzksync_Bytes

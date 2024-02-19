@@ -142,6 +142,11 @@ enum stagingarbitrumone_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingarbitrumone_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingarbitrumone_Asset {
   id: ID!
   key: stagingarbitrumone_Bytes

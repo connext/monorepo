@@ -142,6 +142,11 @@ enum arbitrumone_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum arbitrumone_Aggregation_interval {
+  hour
+  day
+}
+
 type arbitrumone_Asset {
   id: ID!
   key: arbitrumone_Bytes

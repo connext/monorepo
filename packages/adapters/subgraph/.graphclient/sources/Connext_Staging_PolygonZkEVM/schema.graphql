@@ -142,6 +142,11 @@ enum stagingpolygonzkevm_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingpolygonzkevm_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingpolygonzkevm_Asset {
   id: ID!
   key: stagingpolygonzkevm_Bytes

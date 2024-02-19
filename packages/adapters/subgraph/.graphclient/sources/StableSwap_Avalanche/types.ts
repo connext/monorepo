@@ -22,6 +22,10 @@ export type Scalars = {
   avalanche_swap_Int8: any;
 };
 
+export type avalanche_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type avalanche_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

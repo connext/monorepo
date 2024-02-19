@@ -150,10 +150,15 @@ export type staginggoerli_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type staginggoerli_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type staginggoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['staginggoerli_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
+  adoptedDecimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['staginggoerli_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['staginggoerli_Bytes']>;
@@ -287,6 +292,7 @@ export type staginggoerli_AssetBalance_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -349,6 +355,14 @@ export type staginggoerli_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_not?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
@@ -426,6 +440,7 @@ export type staginggoerli_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
+  | 'adoptedDecimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -936,6 +951,7 @@ export type staginggoerli_DestinationTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1527,6 +1543,7 @@ export type staginggoerli_OriginTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1566,6 +1583,8 @@ export type Query = {
   staginggoerli_routers: Array<staginggoerli_Router>;
   staginggoerli_routerDailyTVL?: Maybe<staginggoerli_RouterDailyTVL>;
   staginggoerli_routerDailyTVLs: Array<staginggoerli_RouterDailyTVL>;
+  staginggoerli_routerLiquidityEvent?: Maybe<staginggoerli_RouterLiquidityEvent>;
+  staginggoerli_routerLiquidityEvents: Array<staginggoerli_RouterLiquidityEvent>;
   staginggoerli_setting?: Maybe<staginggoerli_Setting>;
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
@@ -1690,6 +1709,24 @@ export type Querystaginggoerli_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<staginggoerli_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_RouterDailyTVL_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystaginggoerli_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RouterLiquidityEvent_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2574,6 +2611,7 @@ export type staginggoerli_RouterDailyTVL_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -2581,6 +2619,173 @@ export type staginggoerli_RouterDailyTVL_orderBy =
   | 'asset__blockNumber'
   | 'timestamp'
   | 'balance';
+
+export type staginggoerli_RouterLiquidityEvent = {
+  id: Scalars['ID'];
+  type?: Maybe<staginggoerli_RouterLiquidityEventType>;
+  router: staginggoerli_Router;
+  asset: staginggoerli_Asset;
+  amount: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+  caller?: Maybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transactionHash: Scalars['staginggoerli_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type staginggoerli_RouterLiquidityEventType =
+  | 'Add'
+  | 'Remove';
+
+export type staginggoerli_RouterLiquidityEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  type?: InputMaybe<staginggoerli_RouterLiquidityEventType>;
+  type_not?: InputMaybe<staginggoerli_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<staginggoerli_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<staginggoerli_RouterLiquidityEventType>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<staginggoerli_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<staginggoerli_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactionHash?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['staginggoerli_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['staginggoerli_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<staginggoerli_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<staginggoerli_RouterLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<staginggoerli_RouterLiquidityEvent_filter>>>;
+};
+
+export type staginggoerli_RouterLiquidityEvent_orderBy =
+  | 'id'
+  | 'type'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__adoptedDecimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'amount'
+  | 'balance'
+  | 'caller'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'nonce';
 
 export type staginggoerli_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -3017,6 +3222,8 @@ export type Subscription = {
   staginggoerli_routers: Array<staginggoerli_Router>;
   staginggoerli_routerDailyTVL?: Maybe<staginggoerli_RouterDailyTVL>;
   staginggoerli_routerDailyTVLs: Array<staginggoerli_RouterDailyTVL>;
+  staginggoerli_routerLiquidityEvent?: Maybe<staginggoerli_RouterLiquidityEvent>;
+  staginggoerli_routerLiquidityEvents: Array<staginggoerli_RouterLiquidityEvent>;
   staginggoerli_setting?: Maybe<staginggoerli_Setting>;
   staginggoerli_settings: Array<staginggoerli_Setting>;
   staginggoerli_relayer?: Maybe<staginggoerli_Relayer>;
@@ -3141,6 +3348,24 @@ export type Subscriptionstaginggoerli_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<staginggoerli_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
   where?: InputMaybe<staginggoerli_RouterDailyTVL_filter>;
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<staginggoerli_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstaginggoerli_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<staginggoerli_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<staginggoerli_OrderDirection>;
+  where?: InputMaybe<staginggoerli_RouterLiquidityEvent_filter>;
   block?: InputMaybe<staginggoerli_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3516,6 +3741,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   staginggoerli_routerDailyTVLs: InContextSdkMethod<Query['staginggoerli_routerDailyTVLs'], Querystaginggoerli_routerDailyTVLsArgs, MeshContext>,
   /** null **/
+  staginggoerli_routerLiquidityEvent: InContextSdkMethod<Query['staginggoerli_routerLiquidityEvent'], Querystaginggoerli_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerLiquidityEvents: InContextSdkMethod<Query['staginggoerli_routerLiquidityEvents'], Querystaginggoerli_routerLiquidityEventsArgs, MeshContext>,
+  /** null **/
   staginggoerli_setting: InContextSdkMethod<Query['staginggoerli_setting'], Querystaginggoerli_settingArgs, MeshContext>,
   /** null **/
   staginggoerli_settings: InContextSdkMethod<Query['staginggoerli_settings'], Querystaginggoerli_settingsArgs, MeshContext>,
@@ -3612,6 +3841,10 @@ export type _SubgraphErrorPolicy_ =
   staginggoerli_routerDailyTVL: InContextSdkMethod<Subscription['staginggoerli_routerDailyTVL'], Subscriptionstaginggoerli_routerDailyTVLArgs, MeshContext>,
   /** null **/
   staginggoerli_routerDailyTVLs: InContextSdkMethod<Subscription['staginggoerli_routerDailyTVLs'], Subscriptionstaginggoerli_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerLiquidityEvent: InContextSdkMethod<Subscription['staginggoerli_routerLiquidityEvent'], Subscriptionstaginggoerli_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  staginggoerli_routerLiquidityEvents: InContextSdkMethod<Subscription['staginggoerli_routerLiquidityEvents'], Subscriptionstaginggoerli_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
   staginggoerli_setting: InContextSdkMethod<Subscription['staginggoerli_setting'], Subscriptionstaginggoerli_settingArgs, MeshContext>,
   /** null **/

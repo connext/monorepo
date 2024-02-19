@@ -150,6 +150,10 @@ export type avalanche_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type avalanche_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type avalanche_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['avalanche_Bytes']>;
