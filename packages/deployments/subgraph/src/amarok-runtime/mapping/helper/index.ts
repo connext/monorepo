@@ -78,6 +78,12 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(5000);
   } else if (network == "metis") {
     chainId = BigInt.fromI32(1088);
+  } else if (network == "sepolia") {
+    chainId = BigInt.fromI32(11155111);
+  } else if (network == "optimism-sepolia") {
+    chainId = BigInt.fromI32(11155420);
+  } else if (network == "arbitrum-sepolia") {
+    chainId = BigInt.fromI32(421614);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }
