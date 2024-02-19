@@ -131,7 +131,7 @@ export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   // TESTNET
   "1735356532": "Optimism",
-  "1735353714": "Mainnet",
+  "1936027759": "Mainnet",
   "9991": "Polygon",
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
@@ -185,7 +185,7 @@ export const getEnvConfig = (
   }
 
   const nxtpConfig: NxtpLighthouseConfig = {
-    hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1735353714",
+    hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1936027759",
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains

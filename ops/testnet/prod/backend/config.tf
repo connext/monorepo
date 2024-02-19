@@ -34,8 +34,8 @@ locals {
       "1735356532" = {
         providers = ["https://goerli.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"]
+      "1936027759" = {
+        providers = ["https://endpoints.omniatech.io/v1/eth/sepolia/public"]
       }
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai"]
@@ -71,7 +71,7 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = { confirmations = 1 }
-      "1735353714" = { confirmations = 10 }
+      "1936027759" = { confirmations = 10 }
       "9991"       = { confirmations = 200 }
       "1650553703" = { confirmations = 10 }
       "2016506996" = { confirmations = 10 }
