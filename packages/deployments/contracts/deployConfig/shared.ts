@@ -723,7 +723,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           // L2CrossDomainMessenger
           spoke: "0x4200000000000000000000000000000000000007",
         },
-        processGas: BigNumber.from("2000000"),
+        processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
         delayBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
