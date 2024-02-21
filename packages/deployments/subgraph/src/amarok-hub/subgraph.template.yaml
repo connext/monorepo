@@ -434,7 +434,7 @@ dataSources:
     network: "{{network}}"
     source:
       address: "{{address}}"
-      abi: OptimismHubConnector
+      abi: ModeHubConnector
       # prettier-ignore
       startBlock: {{startBlock}}
     mapping:
@@ -447,7 +447,7 @@ dataSources:
         - Router
         - Transfer
       abis:
-        - name: OptimismHubConnector
+        - name: ModeHubConnector
           file: ./src/amarok-hub/abis/OptimismHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
