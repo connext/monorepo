@@ -138,6 +138,8 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1668247156": "Linea",
   "1650553703": "Base",
   "2016506996": "X1",
+  "1869640549": "Optimism",
+  "1633842021": "Arbitrum",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
