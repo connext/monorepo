@@ -41,7 +41,7 @@ export const setupMq = async (
   const replyQueue = false;
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
   await rabbit.configure({
-    connection: { uri, replyQueue },
+    connection: { uri, replyQueue, heartbeat: 10, failAfter: 10, retryLimit: 20 },
     queues: [{ name: XCALL_QUEUE, limit }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
@@ -55,8 +55,12 @@ export const setupMq = async (
     throw new MQConnectionFailed();
   });
 
-  await rabbit.on("unreachable", function () {
-    throw new MQConnectionUnreachable();
+  await rabbit.on("unreachable", async function () {
+    // throw new MQConnectionUnreachable();
+    logger.warn("MQ is unreachable, retrying connection", requestContext, methodContext, {
+      uri,
+    });
+    await rabbit.retry();
   });
 
   logger.info("Message queue setup is done!", requestContext, methodContext, {
