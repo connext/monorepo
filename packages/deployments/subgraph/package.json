@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "license": "UNLICENSED",
   "scripts": {
+    "goldsky": "goldsky",
     "graph": "graph",
     "codegen": "graph codegen",
     "graph:build": "yarn run codegen && graph build",

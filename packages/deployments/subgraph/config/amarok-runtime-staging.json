@@ -358,7 +358,7 @@
   },
   {
     "subgraphName": "connext/runtime-staging-mode",
-    "network": "mode",
+    "network": "mode-mainnet",
     "source": [
       {
         "name": "Connext",
