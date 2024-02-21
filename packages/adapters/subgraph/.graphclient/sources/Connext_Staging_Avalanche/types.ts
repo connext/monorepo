@@ -150,6 +150,10 @@ export type stagingavalanche_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingavalanche_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingavalanche_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingavalanche_Bytes']>;

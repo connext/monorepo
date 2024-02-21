@@ -22,6 +22,10 @@ export type Scalars = {
   testgoerli_Int8: any;
 };
 
+export type testgoerli_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type testgoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['testgoerli_Bytes']>;

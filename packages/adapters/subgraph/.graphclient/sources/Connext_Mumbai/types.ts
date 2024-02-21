@@ -150,6 +150,10 @@ export type mumbai_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type mumbai_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type mumbai_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['mumbai_Bytes']>;

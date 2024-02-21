@@ -142,6 +142,11 @@ enum stagingoptimism_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingoptimism_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingoptimism_Asset {
   id: ID!
   key: stagingoptimism_Bytes

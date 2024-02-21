@@ -22,6 +22,10 @@ export type Scalars = {
   polygonzkevm_swap_Int8: any;
 };
 
+export type polygonzkevm_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type polygonzkevm_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

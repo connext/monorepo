@@ -150,6 +150,10 @@ export type bnb_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type bnb_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type bnb_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['bnb_Bytes']>;

@@ -140,6 +140,11 @@ enum stagingmainnet_AggregatedMessageRoot_orderBy {
   blockNumber
 }
 
+enum stagingmainnet_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingmainnet_ArbitrumConnectorMeta {
   id: ID!
   spokeDomain: BigInt!

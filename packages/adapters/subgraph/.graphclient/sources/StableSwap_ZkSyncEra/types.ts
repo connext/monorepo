@@ -22,6 +22,10 @@ export type Scalars = {
   zksync_swap_Int8: any;
 };
 
+export type zksync_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type zksync_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
