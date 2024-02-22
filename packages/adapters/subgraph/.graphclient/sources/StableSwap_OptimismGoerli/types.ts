@@ -22,6 +22,10 @@ export type Scalars = {
   optimismgoerli_swap_Int8: any;
 };
 
+export type optimismgoerli_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type optimismgoerli_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

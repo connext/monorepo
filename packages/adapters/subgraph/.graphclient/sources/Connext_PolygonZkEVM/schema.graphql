@@ -142,6 +142,11 @@ enum polygonzkevm_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum polygonzkevm_Aggregation_interval {
+  hour
+  day
+}
+
 type polygonzkevm_Asset {
   id: ID!
   key: polygonzkevm_Bytes

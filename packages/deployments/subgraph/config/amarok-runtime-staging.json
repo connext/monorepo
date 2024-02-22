@@ -336,27 +336,6 @@
     ]
   },
   {
-    "subgraphName": "connext/runtime-staging-mantle",
-    "network": "mantle",
-    "source": [
-      {
-        "name": "Connext",
-        "address": "0x955D1693C64e5a0746130FF6F6653E2171cC6708",
-        "startBlock": 48606875
-      },
-      {
-        "name": "SpokeConnector",
-        "address": "0x69Dd4385EdC7BDBe221159278981dD81ff792247",
-        "startBlock": 48606584
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0xF5E02C39A9d5028bb0ed0E37765136Ad9be3C195",
-        "startBlock": 48606571
-      }
-    ]
-  },
-  {
     "subgraphName": "connext/runtime-v1-staging-avalanche",
     "network": "avalanche",
     "source": [
@@ -374,6 +353,27 @@
         "name": "MerkleTreeManager",
         "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
         "startBlock": 40248082
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-mode",
+    "network": "mode-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+        "startBlock": 3909597
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x223e62d3a2C528FFbDE81430A45c0bD30990cF0F",
+        "startBlock": 3909521
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
+        "startBlock": 3909389
       }
     ]
   }

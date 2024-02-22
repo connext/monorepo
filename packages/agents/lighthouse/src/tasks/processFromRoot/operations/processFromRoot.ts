@@ -24,6 +24,7 @@ import {
   getProcessFromBaseRootArgs,
   getProcessFromMantleRootArgs,
   getProcessFromMetisRootArgs,
+  getProcessFromModeRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -107,6 +108,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
   "1835365481": {
     getArgs: getProcessFromMetisRootArgs,
     hubConnectorPrefix: "Metis",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1836016741": {
+    getArgs: getProcessFromModeRootArgs,
+    hubConnectorPrefix: "Mode",
     processorFunctionName: "processMessageFromRoot",
   },
 };

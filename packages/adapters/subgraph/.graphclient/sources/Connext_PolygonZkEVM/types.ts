@@ -150,6 +150,10 @@ export type polygonzkevm_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type polygonzkevm_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type polygonzkevm_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['polygonzkevm_Bytes']>;

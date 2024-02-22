@@ -119,6 +119,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "1836016741" = {
+        providers = ["https://mainnet.mode.network/", "https://1rpc.io/mode"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -199,6 +202,12 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
+        },
+        {
+          name       = "1836016741"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
         }
       ]
       bindings = [
@@ -241,6 +250,11 @@ locals {
           exchange = "sequencerX"
           target   = "1818848877"
           keys     = ["1818848877"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1836016741"
+          keys     = ["1836016741"]
         },
       ]
       executerTimeout = 300000
@@ -290,6 +304,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "1836016741" = {
+        providers = ["https://mainnet.mode.network/", "https://1rpc.io/mode"]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -328,6 +345,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "1836016741" = {
+        providers = ["https://mainnet.mode.network/", "https://1rpc.io/mode"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -364,7 +384,8 @@ locals {
       "1634886255" = 10,
       "6450786"    = 10,
       "6778479"    = 10,
-      "1818848877" = 10
+      "1818848877" = 10,
+      "1836016741" = 10
     }
     messageQueue = {
       connection = {
@@ -412,6 +433,9 @@ locals {
       }
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
+      "1836016741" = {
+        providers = ["https://mainnet.mode.network/", "https://1rpc.io/mode"]
       }
     }
     environment   = var.stage

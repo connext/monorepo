@@ -142,6 +142,11 @@ enum optimismgoerli_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum optimismgoerli_Aggregation_interval {
+  hour
+  day
+}
+
 type optimismgoerli_Asset {
   id: ID!
   key: optimismgoerli_Bytes

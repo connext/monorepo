@@ -22,6 +22,10 @@ export type Scalars = {
   bnb_swap_Int8: any;
 };
 
+export type bnb_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type bnb_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

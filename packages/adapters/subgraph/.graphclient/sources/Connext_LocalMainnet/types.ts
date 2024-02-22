@@ -150,10 +150,15 @@ export type localmainnet_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type localmainnet_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type localmainnet_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['localmainnet_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
+  adoptedDecimal?: Maybe<Scalars['BigInt']>;
   canonicalId?: Maybe<Scalars['localmainnet_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
   adoptedAsset?: Maybe<Scalars['localmainnet_Bytes']>;
@@ -287,6 +292,7 @@ export type localmainnet_AssetBalance_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -349,6 +355,14 @@ export type localmainnet_Asset_filter = {
   decimal_lte?: InputMaybe<Scalars['BigInt']>;
   decimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_not?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lt?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_gte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
+  adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalId?: InputMaybe<Scalars['localmainnet_Bytes']>;
   canonicalId_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
   canonicalId_gt?: InputMaybe<Scalars['localmainnet_Bytes']>;
@@ -426,6 +440,7 @@ export type localmainnet_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
+  | 'adoptedDecimal'
   | 'canonicalId'
   | 'canonicalDomain'
   | 'adoptedAsset'
@@ -936,6 +951,7 @@ export type localmainnet_DestinationTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1527,6 +1543,7 @@ export type localmainnet_OriginTransfer_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -1566,6 +1583,8 @@ export type Query = {
   localmainnet_routers: Array<localmainnet_Router>;
   localmainnet_routerDailyTVL?: Maybe<localmainnet_RouterDailyTVL>;
   localmainnet_routerDailyTVLs: Array<localmainnet_RouterDailyTVL>;
+  localmainnet_routerLiquidityEvent?: Maybe<localmainnet_RouterLiquidityEvent>;
+  localmainnet_routerLiquidityEvents: Array<localmainnet_RouterLiquidityEvent>;
   localmainnet_setting?: Maybe<localmainnet_Setting>;
   localmainnet_settings: Array<localmainnet_Setting>;
   localmainnet_relayer?: Maybe<localmainnet_Relayer>;
@@ -1690,6 +1709,24 @@ export type Querylocalmainnet_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<localmainnet_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<localmainnet_OrderDirection>;
   where?: InputMaybe<localmainnet_RouterDailyTVL_filter>;
+  block?: InputMaybe<localmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalmainnet_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querylocalmainnet_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localmainnet_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
+  where?: InputMaybe<localmainnet_RouterLiquidityEvent_filter>;
   block?: InputMaybe<localmainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2574,6 +2611,7 @@ export type localmainnet_RouterDailyTVL_orderBy =
   | 'asset__id'
   | 'asset__key'
   | 'asset__decimal'
+  | 'asset__adoptedDecimal'
   | 'asset__canonicalId'
   | 'asset__canonicalDomain'
   | 'asset__adoptedAsset'
@@ -2581,6 +2619,173 @@ export type localmainnet_RouterDailyTVL_orderBy =
   | 'asset__blockNumber'
   | 'timestamp'
   | 'balance';
+
+export type localmainnet_RouterLiquidityEvent = {
+  id: Scalars['ID'];
+  type?: Maybe<localmainnet_RouterLiquidityEventType>;
+  router: localmainnet_Router;
+  asset: localmainnet_Asset;
+  amount: Scalars['BigInt'];
+  balance: Scalars['BigInt'];
+  caller?: Maybe<Scalars['localmainnet_Bytes']>;
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['BigInt'];
+  transactionHash: Scalars['localmainnet_Bytes'];
+  nonce: Scalars['BigInt'];
+};
+
+export type localmainnet_RouterLiquidityEventType =
+  | 'Add'
+  | 'Remove';
+
+export type localmainnet_RouterLiquidityEvent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  type?: InputMaybe<localmainnet_RouterLiquidityEventType>;
+  type_not?: InputMaybe<localmainnet_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<localmainnet_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<localmainnet_RouterLiquidityEventType>>;
+  router?: InputMaybe<Scalars['String']>;
+  router_not?: InputMaybe<Scalars['String']>;
+  router_gt?: InputMaybe<Scalars['String']>;
+  router_lt?: InputMaybe<Scalars['String']>;
+  router_gte?: InputMaybe<Scalars['String']>;
+  router_lte?: InputMaybe<Scalars['String']>;
+  router_in?: InputMaybe<Array<Scalars['String']>>;
+  router_not_in?: InputMaybe<Array<Scalars['String']>>;
+  router_contains?: InputMaybe<Scalars['String']>;
+  router_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_not_contains?: InputMaybe<Scalars['String']>;
+  router_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  router_starts_with?: InputMaybe<Scalars['String']>;
+  router_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_starts_with?: InputMaybe<Scalars['String']>;
+  router_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  router_ends_with?: InputMaybe<Scalars['String']>;
+  router_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_not_ends_with?: InputMaybe<Scalars['String']>;
+  router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  router_?: InputMaybe<localmainnet_Router_filter>;
+  asset?: InputMaybe<Scalars['String']>;
+  asset_not?: InputMaybe<Scalars['String']>;
+  asset_gt?: InputMaybe<Scalars['String']>;
+  asset_lt?: InputMaybe<Scalars['String']>;
+  asset_gte?: InputMaybe<Scalars['String']>;
+  asset_lte?: InputMaybe<Scalars['String']>;
+  asset_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  asset_contains?: InputMaybe<Scalars['String']>;
+  asset_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_contains?: InputMaybe<Scalars['String']>;
+  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  asset_starts_with?: InputMaybe<Scalars['String']>;
+  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with?: InputMaybe<Scalars['String']>;
+  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_ends_with?: InputMaybe<Scalars['String']>;
+  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with?: InputMaybe<Scalars['String']>;
+  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  asset_?: InputMaybe<localmainnet_Asset_filter>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance?: InputMaybe<Scalars['BigInt']>;
+  balance_not?: InputMaybe<Scalars['BigInt']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']>;
+  balance_lt?: InputMaybe<Scalars['BigInt']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']>;
+  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  transactionHash?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['localmainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['localmainnet_Bytes']>;
+  nonce?: InputMaybe<Scalars['BigInt']>;
+  nonce_not?: InputMaybe<Scalars['BigInt']>;
+  nonce_gt?: InputMaybe<Scalars['BigInt']>;
+  nonce_lt?: InputMaybe<Scalars['BigInt']>;
+  nonce_gte?: InputMaybe<Scalars['BigInt']>;
+  nonce_lte?: InputMaybe<Scalars['BigInt']>;
+  nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<localmainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<localmainnet_RouterLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<localmainnet_RouterLiquidityEvent_filter>>>;
+};
+
+export type localmainnet_RouterLiquidityEvent_orderBy =
+  | 'id'
+  | 'type'
+  | 'router'
+  | 'router__id'
+  | 'router__isActive'
+  | 'router__owner'
+  | 'router__recipient'
+  | 'router__proposedOwner'
+  | 'router__proposedTimestamp'
+  | 'asset'
+  | 'asset__id'
+  | 'asset__key'
+  | 'asset__decimal'
+  | 'asset__adoptedDecimal'
+  | 'asset__canonicalId'
+  | 'asset__canonicalDomain'
+  | 'asset__adoptedAsset'
+  | 'asset__localAsset'
+  | 'asset__blockNumber'
+  | 'amount'
+  | 'balance'
+  | 'caller'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'nonce';
 
 export type localmainnet_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -3017,6 +3222,8 @@ export type Subscription = {
   localmainnet_routers: Array<localmainnet_Router>;
   localmainnet_routerDailyTVL?: Maybe<localmainnet_RouterDailyTVL>;
   localmainnet_routerDailyTVLs: Array<localmainnet_RouterDailyTVL>;
+  localmainnet_routerLiquidityEvent?: Maybe<localmainnet_RouterLiquidityEvent>;
+  localmainnet_routerLiquidityEvents: Array<localmainnet_RouterLiquidityEvent>;
   localmainnet_setting?: Maybe<localmainnet_Setting>;
   localmainnet_settings: Array<localmainnet_Setting>;
   localmainnet_relayer?: Maybe<localmainnet_Relayer>;
@@ -3141,6 +3348,24 @@ export type Subscriptionlocalmainnet_routerDailyTVLsArgs = {
   orderBy?: InputMaybe<localmainnet_RouterDailyTVL_orderBy>;
   orderDirection?: InputMaybe<localmainnet_OrderDirection>;
   where?: InputMaybe<localmainnet_RouterDailyTVL_filter>;
+  block?: InputMaybe<localmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalmainnet_routerLiquidityEventArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<localmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionlocalmainnet_routerLiquidityEventsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<localmainnet_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<localmainnet_OrderDirection>;
+  where?: InputMaybe<localmainnet_RouterLiquidityEvent_filter>;
   block?: InputMaybe<localmainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3516,6 +3741,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   localmainnet_routerDailyTVLs: InContextSdkMethod<Query['localmainnet_routerDailyTVLs'], Querylocalmainnet_routerDailyTVLsArgs, MeshContext>,
   /** null **/
+  localmainnet_routerLiquidityEvent: InContextSdkMethod<Query['localmainnet_routerLiquidityEvent'], Querylocalmainnet_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  localmainnet_routerLiquidityEvents: InContextSdkMethod<Query['localmainnet_routerLiquidityEvents'], Querylocalmainnet_routerLiquidityEventsArgs, MeshContext>,
+  /** null **/
   localmainnet_setting: InContextSdkMethod<Query['localmainnet_setting'], Querylocalmainnet_settingArgs, MeshContext>,
   /** null **/
   localmainnet_settings: InContextSdkMethod<Query['localmainnet_settings'], Querylocalmainnet_settingsArgs, MeshContext>,
@@ -3612,6 +3841,10 @@ export type _SubgraphErrorPolicy_ =
   localmainnet_routerDailyTVL: InContextSdkMethod<Subscription['localmainnet_routerDailyTVL'], Subscriptionlocalmainnet_routerDailyTVLArgs, MeshContext>,
   /** null **/
   localmainnet_routerDailyTVLs: InContextSdkMethod<Subscription['localmainnet_routerDailyTVLs'], Subscriptionlocalmainnet_routerDailyTVLsArgs, MeshContext>,
+  /** null **/
+  localmainnet_routerLiquidityEvent: InContextSdkMethod<Subscription['localmainnet_routerLiquidityEvent'], Subscriptionlocalmainnet_routerLiquidityEventArgs, MeshContext>,
+  /** null **/
+  localmainnet_routerLiquidityEvents: InContextSdkMethod<Subscription['localmainnet_routerLiquidityEvents'], Subscriptionlocalmainnet_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
   localmainnet_setting: InContextSdkMethod<Subscription['localmainnet_setting'], Subscriptionlocalmainnet_settingArgs, MeshContext>,
   /** null **/

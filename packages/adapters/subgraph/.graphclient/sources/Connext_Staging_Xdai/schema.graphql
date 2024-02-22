@@ -142,6 +142,11 @@ enum stagingxdai_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingxdai_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingxdai_Asset {
   id: ID!
   key: stagingxdai_Bytes

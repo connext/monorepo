@@ -88,6 +88,7 @@ locals {
       "6450786"    = { confirmations = 50 }
       "6778479"    = { confirmations = 100 }
       "1818848877" = { confirmations = 10 }
+      "1836016741" = { confirmations = 10 }
     }
     environment = var.stage
     # healthUrls = {
