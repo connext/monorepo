@@ -279,6 +279,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xezETH",
+      canonical: {
+        domain: "11111",
+        address: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        decimals: 18,
+      },
+      representations: {
+        /// Goerli
+        "1735353714": {
+          local: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+          adopted: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        },
+        /// Optimism-Goerli
+        "1735356532": {
+          local: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+          adopted: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
