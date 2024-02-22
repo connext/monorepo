@@ -171,6 +171,8 @@ export const makePropose = async (config: NxtpLighthouseConfig, chainData: Map<s
     console.error("Error starting Propose task. Sad! :(", e);
     await closeDatabase();
   } finally {
-    process.exit();
+    context.logger.info("Propose task complete!!!", requestContext, methodContext, {
+      chains: [...Object.keys(context.config.chains)],
+    });
   }
 };

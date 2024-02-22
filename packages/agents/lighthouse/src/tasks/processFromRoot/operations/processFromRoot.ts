@@ -22,6 +22,8 @@ import {
   getProcessFromZkSyncRootArgs,
   getProcessFromLineaRootArgs,
   getProcessFromBaseRootArgs,
+  getProcessFromMantleRootArgs,
+  getProcessFromMetisRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -37,12 +39,22 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Optimism",
     processorFunctionName: "processMessageFromRoot",
   },
+  "1869640549": {
+    getArgs: getProcessFromOptimismRootArgs,
+    hubConnectorPrefix: "Optimism",
+    processorFunctionName: "processMessageFromRoot",
+  },
   "9991": {
     getArgs: getProcessFromPolygonRootArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
   "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1633842021": {
     getArgs: getProcessFromArbitrumRootArgs,
     hubConnectorPrefix: "Arbitrum",
     processorFunctionName: "processMessageFromRoot",
@@ -72,6 +84,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "ZkSync",
     processorFunctionName: "processMessageFromRoot",
   },
+  "2053862243": {
+    getArgs: getProcessFromZkSyncRootArgs,
+    hubConnectorPrefix: "ZkSync",
+    processorFunctionName: "processMessageFromRoot",
+  },
   "1818848877": {
     getArgs: getProcessFromLineaRootArgs,
     hubConnectorPrefix: "Linea",
@@ -90,6 +107,16 @@ export const processorConfigs: Record<string, ProcessConfig> = {
   "1650553703": {
     getArgs: getProcessFromBaseRootArgs,
     hubConnectorPrefix: "Base",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1835101812": {
+    getArgs: getProcessFromMantleRootArgs,
+    hubConnectorPrefix: "Mantle",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1835365481": {
+    getArgs: getProcessFromMetisRootArgs,
+    hubConnectorPrefix: "Metis",
     processorFunctionName: "processMessageFromRoot",
   },
 };

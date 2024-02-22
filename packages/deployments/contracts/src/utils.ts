@@ -45,6 +45,10 @@ export const ProtocolNetworks: Record<string, string> = {
   "280": ProtocolNetwork.TESTNET,
   "59140": ProtocolNetwork.TESTNET,
   "84531": ProtocolNetwork.TESTNET,
+  "195": ProtocolNetwork.TESTNET,
+  "11155111": ProtocolNetwork.TESTNET,
+  "11155420": ProtocolNetwork.TESTNET,
+  "421614": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -55,6 +59,11 @@ export const ProtocolNetworks: Record<string, string> = {
   "100": ProtocolNetwork.MAINNET,
   "59144": ProtocolNetwork.MAINNET,
   "8453": ProtocolNetwork.MAINNET,
+  "1088": ProtocolNetwork.MAINNET,
+  "43114": ProtocolNetwork.MAINNET,
+  "1101": ProtocolNetwork.MAINNET,
+  "324": ProtocolNetwork.MAINNET,
+  "5000": ProtocolNetwork.MAINNET,
 };
 
 export const isDevnetName = (_name: string): boolean => {
@@ -92,6 +101,7 @@ export const getConnectorName = (
     throw new Error(`Could not find ${connectorChainId} in config`);
   }
   // Only spoke connectors deployed for mainnet contracts
+  // return Artifacts name for spoke connectors
   return `${naming.prefix}${
     config.hub.chain === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
       ? HUB_PREFIX
@@ -118,6 +128,8 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
     contractName = contractName.replace(/Admin/g, networkName!);
   } else if (/^(?=.*Optimism)(?=.*Connector)/.test(contractName) && _networkName == "Base") {
     contractName = contractName.replace(/Optimism/g, networkName!);
+  } else if (/^(?=.*OptimismV0)(?=.*Connector)/.test(contractName) && ["Metis", "Mantle"].includes(_networkName!)) {
+    contractName = contractName.replace(/OptimismV0/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
@@ -168,6 +180,18 @@ export type ConnectorDeployment = {
   name: string;
 };
 
+export const getContractAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
+  const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
+  if (!record) {
+    throw new Error(`Deployment records not found for ${chain}`);
+  }
+  const { address, abi } = record.contracts[name] ?? {};
+  if (!address || !abi) {
+    throw new Error(`Deployment values not found for ${name} on ${chain}`);
+  }
+  return { address, abi };
+};
+
 export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwork): ConnectorDeployment[] => {
   const protocol = getMessagingProtocolConfig(protocolNetwork);
 
@@ -209,23 +233,12 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
     });
   });
 
-  const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
-    const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
-    if (!record) {
-      throw new Error(`Deployment records not found for ${chain}`);
-    }
-    const { address, abi } = record.contracts[name] ?? {};
-    if (!address || !abi) {
-      throw new Error(`Deployment values not found for ${name} on ${chain}`);
-    }
-    return { address, abi };
-  };
-
   // get deployments for connectors
   const deployments = connectors.map(({ name, chain, mirrorName, mirrorChain }) => {
     // Get deployment records
-    const { address, abi } = getAddressAndAbi(name, chain);
-    const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain).address : undefined;
+    const { address, abi } = getContractAddressAndAbi(name, chain);
+    const mirrorConnector =
+      mirrorName && mirrorChain ? getContractAddressAndAbi(mirrorName, mirrorChain).address : undefined;
     return { address, abi, mirrorConnector, chain, mirrorChain, name };
   });
 

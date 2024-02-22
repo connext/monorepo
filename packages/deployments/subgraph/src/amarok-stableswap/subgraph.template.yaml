@@ -1,0 +1,125 @@
+specVersion: 0.0.4
+schema:
+  file: ./src/amarok-stableswap/schema.graphql
+dataSources:
+  # CONNEXT events
+  - kind: ethereum/contract
+    name: Connext
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: Connext
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - SystemInfo
+        - StableSwap
+        - PooledToken
+        - StableSwapAddLiquidityEvent
+        - StableSwapRemoveLiquidityEvent
+        - StableSwapExchange
+        - SwapDailyVolume
+        - SwapHourlyVolume
+        - SwapWeeklyVolume
+      abis:
+        - name: Connext
+          file: ./src/amarok-stableswap/abis/Connext.json
+      eventHandlers:
+        # StableSwapFacet
+        - event: StableSwapAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address)
+          handler: handleStableSwapAdded
+        - event: SwapInitialized(indexed bytes32,(bytes32,uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[],bool,uint256),address)
+          handler: handleInternalSwapInitialized
+        - event: SwapRemoved(indexed bytes32,address)
+          handler: handleInternalSwapRemoved
+        - event: SwapDisabled(indexed bytes32,address)
+          handler: handleInternalSwapDisabled
+        - event: AdminFeesSet(indexed bytes32,uint256,address)
+          handler: handleAdminFeeSet
+        - event: SwapFeesSet(indexed bytes32,uint256,address)
+          handler: handleSwapFeeSet
+        - event: RampAStarted(indexed bytes32,uint256,uint256,address)
+          handler: handleInternalRampA
+        - event: RampAStopped(indexed bytes32,address)
+          handler: handleStopInternalRampA
+        - event: AddLiquidity(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleInternalAddLiquidity
+        - event: RemoveLiquidity(indexed bytes32,indexed address,uint256[],uint256)
+          handler: handleInternalRemoveLiquidity
+        - event: RemoveLiquidityImbalance(indexed bytes32,indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleInternalRemoveLiquidityImbalance
+        - event: RemoveLiquidityOne(indexed bytes32,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleInternalRemoveLiquidityOne
+        - event: TokenSwap(indexed bytes32,indexed address,uint256,uint256,uint128,uint128)
+          handler: handleInternalTokenSwap
+      file: ./src/amarok-stableswap/mapping/index.ts
+templates:
+  # STABLE SWAP events
+  - kind: ethereum/contract
+    name: StableSwap
+    network: "{{network}}"
+    source:
+      abi: StableSwap
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - SystemInfo
+        - StableSwap
+        - PooledToken
+        - StableSwapAddLiquidityEvent
+        - StableSwapRemoveLiquidityEvent
+        - StableSwapExchange
+        - SwapDailyVolume
+        - SwapHourlyVolume
+        - SwapWeeklyVolume
+      abis:
+        - name: StableSwap
+          file: ./src/amarok-stableswap/abis/StableSwap.json
+      eventHandlers:
+        - event: SwapInitialized((uint256,uint256,uint256,uint256,uint256,uint256,address,address[],uint256[],uint256[],uint256[]),address)
+          handler: handleSwapInitialized
+        - event: NewAdminFee(uint256)
+          handler: handleNewAdminFee
+        - event: NewSwapFee(uint256)
+          handler: handleNewSwapFee
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+        - event: RampA(uint256,uint256,uint256,uint256)
+          handler: handleRampA
+        - event: StopRampA(uint256,uint256)
+          handler: handleStopRampA
+        - event: AddLiquidity(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleAddLiquidity
+        - event: RemoveLiquidity(indexed address,uint256[],uint256)
+          handler: handleRemoveLiquidity
+        - event: RemoveLiquidityImbalance(indexed address,uint256[],uint256[],uint256,uint256)
+          handler: handleRemoveLiquidityImbalance
+        - event: TokenSwap(indexed address,uint256,uint256,uint128,uint128)
+          handler: handleTokenSwap
+      file: ./src/amarok-stableswap/mapping/index.ts
+  - name: LpToken
+    kind: ethereum/contract
+    network: "{{network}}"
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - LpTransferEvent
+      abis:
+        - name: ERC20
+          file: ./src/amarok-stableswap-staging/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleLpTransfer
+      file: ./src/amarok-stableswap-staging/mapping/index.ts

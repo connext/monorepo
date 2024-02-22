@@ -4,9 +4,8 @@ import { readFileSync } from "fs";
 import { Contract, ContractInterface } from "ethers";
 
 import { Env } from "../../../utils";
-import { getContract } from "../../helpers";
+import { getContract, Deployment } from "../../helpers";
 import { getNetworkForkName } from "../../../config";
-import { Deployment } from "../../types";
 
 import { ExecutionUpgradeDeployments, FACET_CONTRACTS } from "./types";
 

@@ -1,6 +1,8 @@
-// Hex domains calculated using `getHexDomainFromString`
-// alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
-export const chainIdToDomainMapping: Map<number, number> = new Map([
+import { BigNumber } from "ethers";
+
+import { getChainData } from "..";
+
+const mainnetChainIdToDomainMapping: Map<number, number> = new Map([
   // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
   [10, 0x6f707469], // Optimism (opti interpreted as int) 1869640809
@@ -15,8 +17,8 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59144, 0x6c696e6d], // Consensys Linea Mainnet ('linm' interpreted as int) 1818848877
   [8453, 0x6261736d], // Base Mainnet ('basm' interpreted as int) 1650553709
   [250, 0x66746d], // Fantom Opera (ftm interpreted as int) 6573045
-  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1634886247
-  [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 2053862243
+  [43114, 0x61766178], // Avalanche C-Chain (avax interpreted as int) 1635148152
+  [288, 0x626f6261], // Boba Mainnet (boba interpreted as int) 1651466849
   [25, 0x63726f], // Cronos Mainnet (cro interpreted as int) 6573045
   [9001, 0x65766d6f], // Evmos Mainnet (evmo interpreted as int) 6648936
   [122, 0x66757365], // Fuse Mainnet (fuse interpreted as int) 1802465399
@@ -24,6 +26,11 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1666600000, 0x686d79], // Harmony Mainnet (hmy interpreted as int) 6778479
   [2001, 0x6d696c6b], // Milkomeda Mainnet (milk interpreted as int)
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
+  [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
+  [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
+]);
+
+const testnetChainIdToDomainMapping: Map<number, number> = new Map([
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
@@ -37,6 +44,13 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [59140, 0x636f6e74], // Consensys Linea goerli (cont interpreted as int) 1668247156
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
+  [195, 0x78317474], // X1 Testnet ('x1tt' interpreted as int) 2016506996
+  [11155111, 0x7365706f], // Sepolia ('sepo' interpreted as int) 1936027759
+  [11155420, 0x6f707365], // Optimism sepolia ('opse' interpreted as int) 1869640549
+  [421614, 0x61627365], // Arbitrum sepolia ('abse' interpreted as int) 1633842021
+]);
+
+const devnetChainIdToDomainMapping: Map<number, number> = new Map([
   // local
   [1337, 133712],
   [1338, 133812],
@@ -46,6 +60,32 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [31338, 31338],
   [31339, 31339],
 ]);
+
+// Hex domains calculated using `getHexDomainFromString`
+// alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
+export const chainIdToDomainMapping: Map<number, number> = new Map([
+  ...mainnetChainIdToDomainMapping.entries(),
+  ...testnetChainIdToDomainMapping.entries(),
+  ...devnetChainIdToDomainMapping.entries(),
+]);
+
+/**
+ * Extends chainIdToDomainMapping with data from live chain data.
+ *
+ */
+export async function updateChainIdToDomainMapping(): Promise<void> {
+  // Get chain data
+  const chainData = await getChainData();
+  if (!chainData) throw new Error(`Cannot retrieve chain data`);
+
+  // Update chainIdToDomainMapping if not already present
+  for (const [domainId, domainData] of chainData) {
+    const _domain = chainIdToDomainMapping.get(domainData.chainId);
+    if (!_domain) {
+      chainIdToDomainMapping.set(domainData.chainId, BigNumber.from(domainId).toNumber());
+    }
+  }
+}
 
 /**
  * Converts a chain id (listed at at chainlist.org) to a domain.
@@ -78,4 +118,12 @@ export function domainToChainId(domainId: number): number {
   }
 
   return chainId;
+}
+
+export function isMainnetDomain(domainId: number): boolean {
+  return mainnetChainIdToDomainMapping.has(domainToChainId(domainId));
+}
+
+export function isTestnetDomain(domainId: number): boolean {
+  return testnetChainIdToDomainMapping.has(domainToChainId(domainId));
 }

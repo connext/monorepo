@@ -7,7 +7,7 @@
     "1735356532": {
       "providers": ["https://goerli.optimism.io"]
     },
-    "1735353714": {
+    "1936027759": {
       "providers": ["https://rpc.ankr.com/eth_goerli"]
     },
     "9991": {
@@ -42,7 +42,7 @@
         "subscribe": true
       },
       {
-        "name": "1735353714",
+        "name": "1936027759",
         "limit": 1,
         "queueLimit": 100000,
         "subscribe": true
@@ -67,8 +67,8 @@
       },
       {
         "exchange": "sequencerX",
-        "target": "1735353714",
-        "keys": ["1735353714"]
+        "target": "1936027759",
+        "keys": ["1936027759"]
       },
       {
         "exchange": "sequencerX",

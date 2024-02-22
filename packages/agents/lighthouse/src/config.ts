@@ -14,6 +14,7 @@ export const DEFAULT_PROVER_BATCH_SIZE = 1;
 export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 export const DEFAULT_PROVER_PUB_MAX = 5000;
 export const DEFAULT_LH_SNAPSHOT_DURATION = 1800; // 30 minutes
+export const DEFAULT_BATCH_WAIT_TIME = 1800; // 30 minutes
 
 dotenvConfig();
 
@@ -107,6 +108,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
     }),
   ),
   proverBatchSize: Type.Record(Type.String(), Type.Integer({ minimum: 1, maximum: 100 })),
+  proverBatchWaitTime: Type.Record(Type.String(), Type.Integer({ minimum: 0, maximum: 86400 })),
   relayerWaitTime: Type.Integer({ minimum: 0 }),
   proverPubMax: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
   service: Type.Union([
@@ -129,12 +131,15 @@ export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
 export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   // TESTNET
   "1735356532": "Optimism",
-  "1735353714": "Mainnet",
+  "1936027759": "Mainnet",
   "9991": "Polygon",
   "1734439522": "Arbitrum",
   "2053862260": "ZkSync",
   "1668247156": "Linea",
   "1650553703": "Base",
+  "2016506996": "X1",
+  "1869640549": "Optimism",
+  "1633842021": "Arbitrum",
   // MAINNET
   "1869640809": "Optimism",
   "6648936": "Mainnet",
@@ -144,6 +149,11 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "6450786": "Bnb",
   "1818848877": "Linea",
   "1650553709": "Base",
+  "1887071085": "PolygonZk",
+  "2053862243": "ZkSync",
+  "1635148152": "Avalanche",
+  "1835101812": "Mantle",
+  "1835365481": "Metis",
 };
 
 /**
@@ -177,7 +187,7 @@ export const getEnvConfig = (
   }
 
   const nxtpConfig: NxtpLighthouseConfig = {
-    hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1735353714",
+    hubDomain: process.env.HUB_DOMAIN || configJson.hubDomain || configFile.hubDomain || "1936027759",
     chains: process.env.NXTP_CHAIN_CONFIG
       ? JSON.parse(process.env.NXTP_CHAIN_CONFIG)
       : configJson.chains
@@ -222,6 +232,7 @@ export const getEnvConfig = (
     healthUrls: process.env.NXTP_HEALTH_URLS || configJson.healthUrls || configFile.healthUrls || {},
     service: process.env.LIGHTHOUSE_SERVICE || configJson.service || configFile.service,
     proverBatchSize: configJson.proverBatchSize || configFile.proverBatchSize || {},
+    proverBatchWaitTime: configJson.proverBatchWaitTime || configFile.proverBatchWaitTime || {},
     relayerWaitTime:
       process.env.NXTP_RELAYER_WAIT_TIME ||
       configJson.relayerWaitTime ||

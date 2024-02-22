@@ -948,6 +948,79 @@ CREATE VIEW public.transfer_count AS
 
 
 --
+-- Name: transfers_with_numeric_id; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfers_with_numeric_id AS
+ SELECT tf.transfer_id,
+    tf.nonce,
+    tf."to",
+    tf.call_data,
+    tf.origin_domain,
+    tf.destination_domain,
+    tf.receive_local,
+    tf.origin_chain,
+    tf.origin_transacting_asset,
+    tf.origin_transacting_amount,
+    tf.origin_bridged_asset,
+    tf.origin_bridged_amount,
+    tf.xcall_caller,
+    tf.xcall_transaction_hash,
+    tf.xcall_timestamp,
+    tf.xcall_gas_price,
+    tf.xcall_gas_limit,
+    tf.xcall_block_number,
+    tf.destination_chain,
+    tf.status,
+    tf.routers,
+    tf.destination_transacting_asset,
+    tf.destination_transacting_amount,
+    tf.destination_local_asset,
+    tf.destination_local_amount,
+    tf.execute_caller,
+    tf.execute_transaction_hash,
+    tf.execute_timestamp,
+    tf.execute_gas_price,
+    tf.execute_gas_limit,
+    tf.execute_block_number,
+    tf.execute_origin_sender,
+    tf.reconcile_caller,
+    tf.reconcile_transaction_hash,
+    tf.reconcile_timestamp,
+    tf.reconcile_gas_price,
+    tf.reconcile_gas_limit,
+    tf.reconcile_block_number,
+    tf.update_time,
+    tf.delegate,
+    tf.message_hash,
+    tf.canonical_domain,
+    tf.slippage,
+    tf.origin_sender,
+    tf.bridged_amt,
+    tf.normalized_in,
+    tf.canonical_id,
+    tf.router_fee,
+    tf.xcall_tx_origin,
+    tf.execute_tx_origin,
+    tf.reconcile_tx_origin,
+    tf.error_status,
+    tf.backoff,
+    tf.next_execution_timestamp,
+    tf.updated_slippage,
+    tf.execute_simulation_input,
+    tf.execute_simulation_from,
+    tf.execute_simulation_to,
+    tf.execute_simulation_network,
+    tf.error_message,
+    tf.message_status,
+    tf.relayer_fees,
+    (tf.execute_timestamp - tf.xcall_timestamp) AS ttv,
+    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttr,
+    ((('x'::text || lpad("substring"((tf.transfer_id)::text, 3, 64), 64, '0'::text)))::bit(64))::bigint AS numeric_id
+   FROM public.transfers tf;
+
+
+--
 -- Name: transfers_with_ttr_ttv; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -1640,4 +1713,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20231130084431'),
     ('20231219013906'),
     ('20231219072355'),
-    ('20231219231640');
+    ('20231219231640'),
+    ('20240212031628');

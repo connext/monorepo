@@ -1,0 +1,137 @@
+specVersion: 0.0.4
+schema:
+  file: ./src/amarok-runtime/schema.graphql
+dataSources:
+  # CONNEXT events
+  - kind: ethereum/contract
+    name: Connext
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: Connext
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: Connext
+          file: ./src/amarok-runtime/abis/Connext.json
+        - name: ERC20
+          file: ./src/amarok-runtime/abis/ERC20.json
+      eventHandlers:
+        # AssetAdded: key, canonicalId, domain, adoptedAsset, localAsset, caller
+        - event: AssetAdded(indexed bytes32,indexed bytes32,indexed uint32,address,address,address)
+          handler: handleAssetAdded
+        - event: AssetRemoved(indexed bytes32,address)
+          handler: handleAssetRemoved
+        # RelayerAdded: relayer, caller
+        - event: RelayerAdded(address,address)
+          handler: handleRelayerAdded
+        # RelayerRemoved: relayer, caller
+        - event: RelayerRemoved(address,address)
+          handler: handleRelayerRemoved
+        - event: SequencerAdded(address,address)
+          handler: handleSequencerAdded
+        - event: SequencerRemoved(address,address)
+          handler: handleSequencerRemoved
+        - event: RouterLiquidityAdded(indexed address,address,bytes32,uint256,address)
+          handler: handleRouterLiquidityAdded
+        - event: RouterLiquidityRemoved(indexed address,address,address,bytes32,uint256,address)
+          handler: handleRouterLiquidityRemoved
+        - event: XCalled(indexed bytes32,indexed uint256,indexed bytes32,(uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address,uint256,address,bytes)
+          handler: handleXCalled
+        - event: Executed(indexed bytes32,indexed address,indexed address,((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes),address,uint256,address)
+          handler: handleExecuted
+          # Reconciled: transferId, origin, routers, asset, amount, caller
+        - event: Reconciled(indexed bytes32,indexed uint32,indexed address,address[],uint256,address)
+          handler: handleReconciled
+        - event: RouterAdded(indexed address,address)
+          handler: handleRouterAdded
+        - event: RouterRemoved(indexed address,address)
+          handler: handleRouterRemoved
+        - event: RouterRecipientSet(indexed address,indexed address,indexed address)
+          handler: handleRouterRecipientSet
+        - event: RouterOwnerProposed(indexed address,indexed address,indexed address)
+          handler: handleRouterOwnerProposed
+        - event: RouterOwnerAccepted(indexed address,indexed address,indexed address)
+          handler: handleRouterOwnerAccepted
+        - event: MaxRoutersPerTransferUpdated(uint256,address)
+          handler: handleMaxRoutersPerTransferUpdated
+        - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address)
+          handler: handleRelayerFeesIncreasedNativeOnly
+        - event: TransferRelayerFeesIncreased(indexed bytes32,uint256,address,address)
+          handler: handleRelayerFeesIncreased
+          # SlippageUpdated(indexed bytes32,uint256)
+        - event: SlippageUpdated(indexed bytes32,uint256)
+          handler: handleSlippageUpdated
+      file: ./src/amarok-runtime/mapping/index.ts
+  # SPOKE CONNECTOR events
+  - kind: ethereum/contract
+    name: SpokeConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: SpokeConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - AggregateRoot
+        - RootMessageSent
+        - ConnectorMeta
+        - DestinationMessage
+        - SnapshotRoot
+      abis:
+        - name: SpokeConnector
+          file: ./src/amarok-runtime/abis/SpokeConnector.json
+      eventHandlers:
+        - event: AggregateRootReceived(indexed bytes32)
+          handler: handleAggregateRootReceived
+        - event: MessageSent(bytes,bytes,address)
+          handler: handleMessageSent
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleNewConnector
+        - event: SnapshotRootSaved(indexed uint256,indexed bytes32,indexed uint256)
+          handler: handleSnapshotRootSaved
+        - event: SlowModeActivated(indexed address)
+          handler: handleSlowModeActivated
+        - event: OptimisticModeActivated()
+          handler: handleOptimisticModeActivated
+        - event: AggregateRootProposed(indexed bytes32,indexed uint256,indexed uint256,uint32)
+          handler: handleAggregateRootProposed
+        - event: ProposedRootFinalized(bytes32)
+          handler: handleProposedRootFinalized
+      file: ./src/amarok-runtime/mapping/index.ts
+  # MERKLE TREE MANAGER events
+  - kind: ethereum/contract
+    name: MerkleTreeManager
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: MerkleTreeManager
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - OriginMessage
+        - RootCount
+      abis:
+        - name: MerkleTreeManager
+          file: ./src/amarok-runtime/abis/MerkleTreeManager.json
+      eventHandlers:
+        - event: LeafInserted(bytes32,uint256,bytes32)
+          handler: handleLeafInserted
+      file: ./src/amarok-runtime/mapping/index.ts

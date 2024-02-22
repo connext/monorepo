@@ -26,7 +26,7 @@ import {
   NoDomainInSnapshot,
 } from "../../../errors";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
+import { DEFAULT_BATCH_WAIT_TIME, DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
@@ -106,16 +106,27 @@ export const getUnProcessedMessagesByIndex = async (
   endIndex: number,
 ): Promise<XMessage[]> => {
   const {
+    logger,
     config,
     adapters: { cache },
   } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(prefetch.name);
   const pendingMessages: XMessage[] = [];
+
   const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
   let offset = 0;
   const limit = 1000;
   let end = false;
   while (!end) {
     const leaves = await cache.messages.getPending(originDomain, destinationDomain, offset, limit);
+    logger.debug("Getting pending leaves", requestContext, methodContext, {
+      leaves,
+      offset,
+      limit,
+      originDomain,
+      destinationDomain,
+    });
+
     for (const leaf of leaves) {
       const message = await cache.messages.getMessage(leaf);
       if (
@@ -125,6 +136,15 @@ export const getUnProcessedMessagesByIndex = async (
         message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
+      } else {
+        logger.debug("No push", requestContext, methodContext, {
+          leaf: message?.data.leaf,
+          attempt: message?.attempt,
+          timestamp: message?.timestamp,
+          waitTime,
+          originIndex: message?.data.origin.index,
+          status: message?.status,
+        });
       }
     }
     if (leaves.length == limit) offset += limit;
@@ -159,7 +179,6 @@ export const enqueue = async () => {
   const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
   // Track the number of messages published to the queue in this iteration.
   let publishedCount = 0;
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
@@ -276,6 +295,7 @@ export const enqueue = async () => {
                   throw new NoMessageRootCount(originDomain, targetMessageRoot);
                 }
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const batchWaitTime = config.proverBatchWaitTime[destinationDomain] ?? DEFAULT_BATCH_WAIT_TIME;
                 const pendingMessages = await getUnProcessedMessagesByIndex(
                   originDomain,
                   destinationDomain,
@@ -292,13 +312,45 @@ export const enqueue = async () => {
                     `${originDomain}-${destinationDomain}-${offset}-${targetMessageRoot}`,
                   );
                   if (unprocessed.length > 0) {
-                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                      unprocessed: unprocessed.map((message) => message.leaf),
+                    const lastBatchExecutionTime = await cache.messages.getLastBatchTime(
                       originDomain,
                       destinationDomain,
-                      endIndex: messageRootCount,
-                      offset,
-                    });
+                    );
+                    const fullyBatched = unprocessed.length >= batchSize;
+                    const waitTimePassed = getNtpTimeSeconds() - lastBatchExecutionTime > batchWaitTime;
+
+                    if (fullyBatched || waitTimePassed) {
+                      logger.info(
+                        "Got unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                    } else {
+                      logger.info(
+                        "Skipping to publish messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                      return;
+                    }
 
                     const brokerMessage = await createBrokerMessage(
                       unprocessed,
@@ -336,6 +388,8 @@ export const enqueue = async () => {
                           brokerMessage,
                         },
                       );
+
+                      await cache.messages.setLastBatchTime(originDomain, destinationDomain, getNtpTimeSeconds());
                     }
 
                     offset += unprocessed.length;

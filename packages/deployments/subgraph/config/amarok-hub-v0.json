@@ -42,42 +42,36 @@
         "name": "LineaHubConnector",
         "address": "0x56Ab287e5c33Ee70158c951f34818bd095446255",
         "startBlock": 18737822
-      }
-    ]
-  },
-  {
-    "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
-    "network": "goerli",
-    "source": [
-      {
-        "name": "RootManager",
-        "address": "0xA63DF6af82091BdB11402800B56c9440BD97f1bB",
-        "startBlock": 10168630
       },
       {
-        "name": "MerkleTreeManager",
-        "address": "0x2A2A9a4B612678E081b74a0bBcfD51DE726a9bd7",
-        "startBlock": 8173338
-      },
-      {
-        "name": "PolygonHubConnector",
-        "address": "0x5C9d14CCfC6481EC6bDAaA9f0D7663f1e7349eE4",
-        "startBlock": 10168636
-      },
-      {
-        "name": "OptimismHubConnector",
-        "address": "0x4e1A541A3217799C58AEECDE3bbe00D6f2aA7Afb",
-        "startBlock": 10168634
-      },
-      {
-        "name": "LineaHubConnector",
-        "address": "0x7cF93aDe5C9E84b1875987d976805D0A3b87B4eb",
-        "startBlock": 10168635
+        "name": "AvalancheHubConnector",
+        "address": "0xf5a3372ed529FCD0690b6013EAaE04170ec0626b",
+        "startBlock": 19113188
       },
       {
         "name": "BaseHubConnector",
-        "address": "0x5CF82cB512A3CDCDb117c09D3bFFF34709900647",
-        "startBlock": 10209383
+        "address": "0x23b7abe4cc664F24Eb68E80cFAdc572857799a94",
+        "startBlock": 19113187
+      },
+      {
+        "name": "ZkSyncHubConnector",
+        "address": "0x63C6c79F3E79406B62f8623881cBFD7B2Ec1E8cB",
+        "startBlock": 19113183
+      },
+      {
+        "name": "MantleHubConnector",
+        "address": "0x5B0E1a507E786f0a7c11C972ad5F4dd254661e24",
+        "startBlock": 19113186
+      },
+      {
+        "name": "MetisHubConnector",
+        "address": "0x9Ba7D2Ab079Bd1924859e2fECDAD1bEBe5B119Fa",
+        "startBlock": 19113184
+      },
+      {
+        "name": "PolygonZkHubConnector",
+        "address": "0x7ed49D0a13255802A281C08688563bd8D5f726b1",
+        "startBlock": 19113185
       }
     ]
   }

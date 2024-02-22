@@ -3,7 +3,7 @@ import {
   jsonifyError,
   NxtpError,
   SparseMerkleTree,
-  GELATO_RELAYER_ADDRESS,
+  getGelatoRelayerAddress,
   RequestContext,
   XMessage,
   ExecStatus,
@@ -133,7 +133,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
       const [messageStatus] = contracts.merkleTreeManager.decodeFunctionResult("leaves", messageResultData);
       if (messageStatus == 0) {
-        logger.debug("Message still unprocessed onchain", requestContext, methodContext, message.leaf);
+        logger.debug("Message still unprocessed onchain", requestContext, methodContext, { leaf: message.leaf });
       } else if (messageStatus == 2) {
         await cache.messages.removePending(originDomain, destinationDomain, [message.leaf]);
         continue;
@@ -165,7 +165,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       });
     } else {
       // Delete local application caches
-      spokeStore.clearLocalCache();
+      await spokeStore.clearLocalCache();
 
       // Try again
       const messageVerification = spokeSMT.verify(message.origin.index, message.leaf, messageProof.path, messageRoot);
@@ -229,7 +229,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     });
   } else {
     // Delete db and application caches
-    hubStore.clearCache();
+    await hubStore.clearCache();
     // Try again
     const rootVerification = hubSMT.verify(messageRootIndex, messageRoot, messageRootProof, aggregateRoot);
     if (rootVerification && rootVerification.verified) {
@@ -272,7 +272,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
 
     /// Temp: Using relayer proxy
     const domain = +destinationDomain;
-    const relayerAddress = GELATO_RELAYER_ADDRESS; // hardcoded gelato address will always be whitelisted
+    const relayerAddress = getGelatoRelayerAddress(destinationDomain); // hardcoded gelato address will always be whitelisted
 
     logger.info("Sending tx to relayer", requestContext, methodContext, {
       relayer: relayerAddress,
@@ -298,7 +298,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
       destinationDomain,
       provenMessages.map((it) => it.leaf),
     );
-    const statuses = messages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
+    const statuses = provenMessages.map((it) => ({ leaf: it.leaf, status: ExecStatus.Sent }));
     await cache.messages.setStatus(statuses);
   } catch (err: unknown) {
     throw new RelayerSendFailed({

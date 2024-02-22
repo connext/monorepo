@@ -42,5 +42,16 @@
         "startBlock": 44311590
       }
     ]
+  },
+  {
+    "subgraphName": "connext/stableswap-staging-metis",
+    "network": "metis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xFD81392229b6252cF761459d370C239Be3aFc54F",
+        "startBlock": 11012512
+      }
+    ]
   }
 ]

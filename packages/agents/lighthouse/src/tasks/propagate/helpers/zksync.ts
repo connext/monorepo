@@ -83,14 +83,18 @@ export const getPropagateParams = async (
   const l1Provider = getJsonRpcProvider(l1RpcUrl);
   const l2Provider = getZkSyncWeb3Provider(l2RpcUrl);
 
-  const gasPrice = await l1Provider.getGasPrice();
+  const _gasPrice = await l1Provider.getGasPrice();
+  const gasPrice = _gasPrice.mul(14).div(10);
   const gasLimit = BigNumber.from(5000000);
   const gasPerPubdataByte = BigNumber.from(800);
 
   const zkSyncContract = getContract(await l2Provider.getMainContractAddress(), ZKSYNC_ABI, l1Provider);
   const txCostPrice = await zkSyncContract.l2TransactionBaseCost(gasPrice, gasLimit, gasPerPubdataByte);
 
-  const encodedData = utils.defaultAbiCoder.encode(["uint256"], [gasLimit]);
+  const encodedData = utils.defaultAbiCoder.encode(
+    ["uint256", "uint256", "address"],
+    [gasLimit, gasPerPubdataByte, l2SpokeConnector.address],
+  );
 
   logger.info("Got propagate params for ZkSync", requestContext, methodContext, {
     gasPrice,

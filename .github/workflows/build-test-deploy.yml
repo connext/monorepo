@@ -89,7 +89,7 @@ jobs:
 
       - name: Yarn lint
         env:
-          NODE_OPTIONS: "--max-old-space-size=8192"
+          NODE_OPTIONS: "--max-old-space-size=12288"
         run: yarn lint:all
 
       - name: Install jq
@@ -204,6 +204,100 @@ jobs:
           workspaces=(
             "packages/utils:@connext/nxtp-utils"
             "packages/agents/chain-abstraction:@connext/chain-abstraction"
+          )
+
+          for entry in "${workspaces[@]}"; do
+            IFS=":"; read -ra split_entry <<< "$entry"
+            directory="${split_entry[0]}"
+            workspace="${split_entry[1]}"
+            subpackage_version=$(cat $directory/package.json | jq -r '.version')
+
+            tag=""
+            if [[ "$subpackage_version" == *"-alpha"* ]]; then
+              tag="alpha"
+            elif [[ "$subpackage_version" == *"-beta"* ]]; then
+              tag="beta"
+            fi
+
+            echo "Checking $workspace for existing version..."
+            npm_package_info=$(npm view $workspace versions --json)
+
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
+              echo "Publishing $workspace with version $subpackage_version"
+              if [[ ! -z "$tag" ]]; then
+                yarn workspace $workspace npm publish --access public --tag $tag
+              else
+                yarn workspace $workspace npm publish --access public
+              fi
+            else
+              echo "Skipping $workspace as version $subpackage_version already exists"
+            fi
+          done
+
+      - name: Extract version, determine tag, and publish utils
+        if: ${{ startsWith(github.ref, 'refs/tags/utils-v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          workspaces=(
+            "packages/utils:@connext/nxtp-utils"
+          )
+
+          for entry in "${workspaces[@]}"; do
+            IFS=":"; read -ra split_entry <<< "$entry"
+            directory="${split_entry[0]}"
+            workspace="${split_entry[1]}"
+            subpackage_version=$(cat $directory/package.json | jq -r '.version')
+
+            tag=""
+            if [[ "$subpackage_version" == *"-alpha"* ]]; then
+              tag="alpha"
+            elif [[ "$subpackage_version" == *"-beta"* ]]; then
+              tag="beta"
+            fi
+
+            echo "Checking $workspace for existing version..."
+            npm_package_info=$(npm view $workspace versions --json)
+
+            if [[ -z "$tag" ]]; then
+              # "stable" is not explicitly in the version name for stable releases
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"-\") | not)" | tail -1)
+            else
+              # pre-release versions have the tag in the version name
+              base_version=$(echo "$subpackage_version" | sed 's/-.*//')
+              last_version=$(echo "$npm_package_info" | jq -r ".[] | select(test(\"^${base_version}-${tag}\"))" | tail -1)
+            fi
+
+            echo "Compare version in NPM ($last_version) against local version ($subpackage_version)"
+            if [[ "$last_version" != "$subpackage_version" ]]; then
+              echo "Publishing $workspace with version $subpackage_version"
+              if [[ ! -z "$tag" ]]; then
+                yarn workspace $workspace npm publish --access public --tag $tag
+              else
+                yarn workspace $workspace npm publish --access public
+              fi
+            else
+              echo "Skipping $workspace as version $subpackage_version already exists"
+            fi
+          done
+
+      - name: Extract version, determine tag, and publish nxtp-adapters-subgraph
+        if: ${{ startsWith(github.ref, 'refs/tags/subgraph-v') }}
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          workspaces=(
+            "packages/adapters/subgraph:@connext/nxtp-adapters-subgraph"
           )
 
           for entry in "${workspaces[@]}"; do

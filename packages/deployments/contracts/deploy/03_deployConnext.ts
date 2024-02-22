@@ -5,7 +5,7 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getConnectorName, getDeploymentName, getProtocolNetwork, ProtocolNetwork } from "../src/utils";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, mustGetEnv, ProtocolNetwork } from "../src/utils";
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
 
@@ -25,6 +25,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const deployer = _deployer as Wallet;
   console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
+
+  const env = mustGetEnv();
+  console.log("env: ", env);
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
@@ -155,14 +158,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       execute: isDiamondUpgrade
         ? undefined
         : {
-            contract: "DiamondInit",
             methodName: "init",
             args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
           },
     });
   }
 
-  if (!SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.LOCAL) {
+  const testOrLocalNetwork = !SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.LOCAL;
+  if (testOrLocalNetwork || env === "staging") {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
     let deployment = await hre.deployments.deploy("TestERC20", {
@@ -173,23 +176,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     console.log("TestERC20: ", deployment.address);
 
-    deployment = await hre.deployments.deploy("TestAdopted", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Adopted", "TEST2"],
-    });
+    if (testOrLocalNetwork) {
+      deployment = await hre.deployments.deploy("TestAdopted", {
+        contract: "TestERC20",
+        from: deployer.address,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: ["Test Adopted", "TEST2"],
+      });
 
-    deployment = await hre.deployments.deploy("TestWETH", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Wrapped Ether", "TWETH"],
-    });
+      deployment = await hre.deployments.deploy("TestWETH", {
+        contract: "TestERC20",
+        from: deployer.address,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: ["Test Wrapped Ether", "TWETH"],
+      });
 
-    console.log("TestERC20: ", deployment.address);
+      console.log("TestWETH: ", deployment.address);
+    }
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
   }

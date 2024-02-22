@@ -111,6 +111,10 @@ locals {
       "1650553703" = {
         providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
       }
+      "2016506996" = {
+        providers                 = ["https://testrpc.x1.tech", "https://x1testrpc.okx.com/", "https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}"]
+        excludeListFromRelayerFee = ["0x471F702E7D96E541488140042bCD1206Ae55CCa5"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -122,7 +126,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer.service_endpoint}"
+        url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
     environment = var.stage
@@ -178,6 +182,12 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
+        },
+        {
+          name       = "2016506996"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
         }
         # {
         #   name       = "2053862260"
@@ -216,6 +226,11 @@ locals {
           exchange = "sequencerX"
           target   = "1650553703"
           keys     = ["1650553703"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "2016506996"
+          keys     = ["2016506996"]
         }
         # {
         #   exchange = "sequencerX"
@@ -264,6 +279,9 @@ locals {
       "1650553703" = {
         providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
       }
+      "2016506996" = {
+        providers = ["https://testrpc.x1.tech", "https://x1testrpc.okx.com/", "https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}"]
+      }
     }
     cartographerUrl = "https://postgrest.testnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -298,6 +316,9 @@ locals {
       "1650553703" = {
         providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
       }
+      "2016506996" = {
+        providers = ["https://testrpc.x1.tech", "https://x1testrpc.okx.com/", "https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -316,7 +337,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer.service_endpoint}"
+        url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
     healthUrls = {
@@ -333,7 +354,12 @@ locals {
       "1735353714" = 10,
       # "2053862260" = 10,
       "1735356532" = 10,
-      "1650553703" = 10
+      "1650553703" = 10,
+      "2016506996" = 10
+    }
+    proverBatchWaitTime = {
+      "1735353714" = 3600,
+      "2016506996" = 3600,
     }
     messageQueue = {
       connection = {
@@ -378,6 +404,10 @@ locals {
       # }
       "1650553703" = {
         providers = ["https://base-goerli.g.alchemy.com/v2/${var.basegoerli_alchemy_key_0}", "https://lb.drpc.org/ogrpc?network=base-goerli&dkey=${var.drpc_key}", "https://goerli.base.org"]
+      }
+      "2016506996" = {
+        providers   = ["https://x1-testnet.blockpi.network/v1/rpc/${var.blockpi_key}", "https://testrpc.x1.tech", "https://x1testrpc.okx.com/"],
+        minGasPrice = "200000000000"
       }
     }
     environment   = var.stage
