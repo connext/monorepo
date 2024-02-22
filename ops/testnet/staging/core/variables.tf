@@ -17,7 +17,7 @@ variable "domain" {
 
 variable "stage" {
   description = "stage of deployment"
-  default     = "staging"
+  default     = "production"
 }
 
 variable "environment" {
@@ -200,5 +200,5 @@ variable "betteruptime_requester_email" {
 }
 
 variable "lighthouse_web3_signer_private_key" {
-  type    = string
+  type = string
 }

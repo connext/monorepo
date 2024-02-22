@@ -17,7 +17,7 @@ variable "domain" {
 
 variable "stage" {
   description = "stage of deployment"
-  default     = "staging"
+  default     = "production"
 }
 
 variable "environment" {
