@@ -33,6 +33,9 @@ export const setupCache = async (
 export const setupMq = async (
   uri: string,
   limit: number,
+  heartbeat: number,
+  failAfter: number,
+  retryLimit: number,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<typeof rabbit> => {
@@ -41,7 +44,7 @@ export const setupMq = async (
   const replyQueue = false;
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
   await rabbit.configure({
-    connection: { uri, replyQueue, heartbeat: 10, failAfter: 10, retryLimit: 20 },
+    connection: { uri, replyQueue, heartbeat, failAfter, retryLimit },
     queues: [{ name: XCALL_QUEUE, limit }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],

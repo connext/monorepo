@@ -78,4 +78,7 @@ export const TRequiredPeripheralConfig = Type.Object({
   user: Type.Optional(Type.String()),
   pass: Type.Optional(Type.String()),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  heartbeat: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  failAfter: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  retryLimit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
 });
