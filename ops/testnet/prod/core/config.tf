@@ -94,7 +94,7 @@ locals {
       "1735356532" = {
         providers = ["https://lb.drpc.org/ogrpc?network=optimism-testnet&dkey=${var.drpc_key}", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
-      "1936027759" = {
+      "1735353714" = {
         providers                 = ["https://lb.drpc.org/ogrpc?network=goerli&dkey=${var.drpc_key}", "https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
         excludeListFromRelayerFee = ["0x79D5007F9782eE0407DB4C7a9fC6AE030586afac", "0xc8D125853346a389A8a68390dd23D719c08BF8F8"]
       }
@@ -160,7 +160,7 @@ locals {
           subscribe  = true
         },
         {
-          name       = "1936027759"
+          name       = "1735353714"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
@@ -209,8 +209,8 @@ locals {
         },
         {
           exchange = "sequencerX"
-          target   = "1936027759"
-          keys     = ["1936027759"]
+          target   = "1735353714"
+          keys     = ["1735353714"]
         },
         {
           exchange = "sequencerX"
@@ -267,8 +267,8 @@ locals {
       "1735356532" = {
         providers = ["https://lb.drpc.org/ogrpc?network=optimism-testnet&dkey=${var.drpc_key}", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
-      "1936027759" = {
-        providers = ["https://endpoints.omniatech.io/v1/eth/sepolia/public"]
+      "1735353714" = {
+        providers = ["https://lb.drpc.org/ogrpc?network=goerli&dkey=${var.drpc_key}", "https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
@@ -301,8 +301,8 @@ locals {
       "1735356532" = {
         providers = ["https://lb.drpc.org/ogrpc?network=optimism-testnet&dkey=${var.drpc_key}", "https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_for_lh}"]
       }
-      "1936027759" = {
-        providers = ["https://endpoints.omniatech.io/v1/eth/sepolia/public"]
+      "1735353714" = {
+        providers = ["https://lb.drpc.org/ogrpc?network=goerli&dkey=${var.drpc_key}", "https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
@@ -347,18 +347,18 @@ locals {
       propose          = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_propose_heartbeat}"
       sendOutboundRoot = "https://betteruptime.com/api/v1/heartbeat/${var.lighthouse_send_outbound_root_heartbeat}"
     }
-    hubDomain = "1936027759"
+    hubDomain = "1735353714"
     proverBatchSize = {
       # "1668247156" = 10,
       "9991"       = 10,
-      "1936027759" = 10,
+      "1735353714" = 10,
       # "2053862260" = 10,
       "1735356532" = 10,
       "1650553703" = 10,
       "2016506996" = 10
     }
     proverBatchWaitTime = {
-      "1936027759" = 3600,
+      "1735353714" = 3600,
       "2016506996" = 3600,
     }
     messageQueue = {
@@ -390,8 +390,8 @@ locals {
       "1735356532" = {
         providers = ["https://lb.drpc.org/ogrpc?network=optimism-testnet&dkey=${var.drpc_key}", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
       }
-      "1936027759" = {
-        providers = ["https://endpoints.omniatech.io/v1/eth/sepolia/public"]
+      "1735353714" = {
+        providers = ["https://lb.drpc.org/ogrpc?network=goerli&dkey=${var.drpc_key}", "https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
       }
       "9991" = {
         providers = ["https://lb.drpc.org/ogrpc?network=polygon-mumbai&dkey=${var.drpc_key}", "https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
