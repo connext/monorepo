@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { providers, Wallet, utils, constants } from "ethers";
 import * as zk from "zksync-web3";
 import commandLineArgs from "command-line-args";
-import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, getGelatoRelayerAddress, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId } from "../../domain";
@@ -483,9 +483,9 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
             await updateIfNeeded({
               apply,
               deployment: network.deployments.messaging.RelayerProxy,
-              desired: GELATO_RELAYER_ADDRESS,
+              desired: getGelatoRelayerAddress,
               read: { method: "gelatoRelayer" },
-              write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
+              write: { method: "setGelatoRelayer", args: [getGelatoRelayerAddress] },
               chainData,
             });
 
