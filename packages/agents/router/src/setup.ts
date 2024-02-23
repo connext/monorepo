@@ -65,8 +65,8 @@ export const setupMq = async (
       });
       try {
         await rabbit.retry();
-      } catch (e) {
-        throw new MQConnectionFailed(e);
+      } catch (err: unknown) {
+        throw new MQConnectionFailed(err as Error);
       }
     } else {
       throw new MQConnectionFailed();
