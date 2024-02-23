@@ -12,6 +12,7 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+    { name = "GRAPH_API_KEY", value = var.graph_api_key }
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
