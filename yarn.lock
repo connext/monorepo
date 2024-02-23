@@ -2663,7 +2663,7 @@ __metadata:
     eslint: 8.34.0
     ethers: 5.7.2
     fastify: 4.13.0
-    foo-foo-mq: 7.1.0
+    foo-foo-mq: 9.0.3
     graphql: 16.6.0
     interval-promise: 1.4.0
     mocha: 10.2.0
@@ -17589,6 +17589,21 @@ __metadata:
     postal: ^2.0.5
     uuid: ^8.2.0
   checksum: cab58eaedaeb0eea423d7ed4b1b6c3de76dbe80f20eb69a34135d5da4f0d9de632e558b1a302aec5919fe7b0f09329e7aae2711f9d631e23357f6c97e0720105
+  languageName: node
+  linkType: hard
+
+"foo-foo-mq@npm:9.0.3":
+  version: 9.0.3
+  resolution: "foo-foo-mq@npm:9.0.3"
+  dependencies:
+    amqplib: ~0.8.0
+    bole: ^4.0.0
+    debug: ^4.1.1
+    machina: ^4.0.2
+    node-monologue: ^2.0.0
+    postal: ^2.0.5
+    uuid: ^8.2.0
+  checksum: fa1eee1ac36960977272532267a1ed2f74a4c139a86c710d6516900283f096c6c2b1dfa6e9dcaa81db10d27777f206e8606f87ecec5f2e0198325e6a8dad66cb
   languageName: node
   linkType: hard
 

@@ -35,7 +35,7 @@
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
     "fastify": "4.13.0",
-    "foo-foo-mq": "7.1.0",
+    "foo-foo-mq": "9.0.3",
     "graphql": "16.6.0",
     "prom-client": "14.1.1"
   },
