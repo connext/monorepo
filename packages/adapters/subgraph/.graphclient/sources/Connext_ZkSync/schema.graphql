@@ -142,11 +142,6 @@ enum zksync_AggregateRoot_orderBy {
   blockNumber
 }
 
-enum zksync_Aggregation_interval {
-  hour
-  day
-}
-
 type zksync_Asset {
   id: ID!
   key: zksync_Bytes
