@@ -50,7 +50,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "2.1.0"
+    "@eth-optimism/sdk": "3.2.0"
   },
   "devDependencies": {
     "@arbitrum/sdk": "3.1.11",
