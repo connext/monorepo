@@ -2933,7 +2933,7 @@ __metadata:
     "@certusone/wormhole-sdk": 0.9.21
     "@connext/nxtp-utils": "workspace:*"
     "@consensys/linea-sdk": 0.1.6
-    "@eth-optimism/sdk": 2.1.0
+    "@eth-optimism/sdk": 3.2.0
     "@gelatonetwork/relay-context": 2.1.0
     "@mantleio/sdk": 1.0.0
     "@matterlabs/hardhat-zksync-deploy": 0.6.3
@@ -3448,18 +3448,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.14.0":
-  version: 0.14.0
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.14.0"
-  dependencies:
-    "@eth-optimism/core-utils": ^0.12.0
-    "@openzeppelin/contracts": 4.7.3
-    "@openzeppelin/contracts-upgradeable": 4.7.3
-    ethers: ^5.7.0
-  checksum: ca9abf55660573b0dbd701d5154d8d083b7fdb4e49951678e30acf97e5e161d202e62a17fbff7fbdbe36dd61128598b169d7c8c8cd913db80adaaa6b5a5ac79c
-  languageName: node
-  linkType: hard
-
 "@eth-optimism/contracts-bedrock@npm:0.17.1":
   version: 0.17.1
   resolution: "@eth-optimism/contracts-bedrock@npm:0.17.1"
@@ -3523,44 +3511,6 @@ __metadata:
     ethers: ^5.7.2
     node-fetch: ^2.6.7
   checksum: ed1f1bcec4fd308463c6bd6e6cc8f6c89041dfa5e0c03c67ee487f5b3bef7bb34c59ea1f8039d00cc0e8696ed8ae9a4486c10d86b2db1d9dadb94294fc83b6fc
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/core-utils@npm:^0.12.0":
-  version: 0.12.3
-  resolution: "@eth-optimism/core-utils@npm:0.12.3"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/address": ^5.7.0
-    "@ethersproject/bignumber": ^5.7.0
-    "@ethersproject/bytes": ^5.7.0
-    "@ethersproject/constants": ^5.7.0
-    "@ethersproject/contracts": ^5.7.0
-    "@ethersproject/keccak256": ^5.7.0
-    "@ethersproject/properties": ^5.7.0
-    "@ethersproject/rlp": ^5.7.0
-    "@ethersproject/web": ^5.7.1
-    chai: ^4.3.7
-    ethers: ^5.7.2
-    node-fetch: ^2.6.7
-  checksum: c1ac822d2829c1a2bf8654ab1374fbb9cbdfbc4d4a1b34dd3c026a1f9c007c100c4a7e0e88b3e8f7681580506d50edbc34f4b094da2fb9d3e72066a1b3506d22
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/sdk@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@eth-optimism/sdk@npm:2.1.0"
-  dependencies:
-    "@eth-optimism/contracts": 0.6.0
-    "@eth-optimism/contracts-bedrock": 0.14.0
-    "@eth-optimism/core-utils": 0.12.0
-    lodash: ^4.17.21
-    merkletreejs: ^0.2.27
-    rlp: ^2.2.7
-  peerDependencies:
-    ethers: ^5
-  checksum: 8002d32734cde69524b23ec79e5b9dfeb56994ef65008f94c73067b2d391aa70f4b9cca5313e617c3391ae6547dce78a3c12a6898748295b04ee67448a9ddc4d
   languageName: node
   linkType: hard
 
@@ -12914,7 +12864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.4, chai@npm:^4.3.7, chai@npm:^4.3.9":
+"chai@npm:^4.3.4, chai@npm:^4.3.9":
   version: 4.4.1
   resolution: "chai@npm:4.4.1"
   dependencies:
