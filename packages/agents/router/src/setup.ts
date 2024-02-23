@@ -3,7 +3,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
 import rabbit from "foo-foo-mq";
 
-import { MQConnectionClosed, MQConnectionFailed, MQConnectionUnreachable } from "./errors";
+import { MQConnectionClosed, MQConnectionFailed } from "./errors";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
