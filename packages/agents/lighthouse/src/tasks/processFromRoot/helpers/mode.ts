@@ -46,12 +46,12 @@ export const getProcessFromModeRootArgs = async ({
     contracts: {
       l1: {
         AddressManager: "0x50eF494573f28Cad6B64C31b7a00Cdaa48306e15",
-        L1CrossDomainMessenger: "0x735aDBbE72226BD52e818E7181953f42E3b0FF21",
-        L1StandardBridge: "0x9c67ACcb38137CB761587032179b176c9276Eb5a",
+        L1CrossDomainMessenger: "0x95bDCA6c8EdEB69C98Bd5bd17660BaCef1298A6f",
+        L1StandardBridge: "0x735aDBbE72226BD52e818E7181953f42E3b0FF21",
         StateCommitmentChain: "0x0000000000000000000000000000000000000000",
         CanonicalTransactionChain: "0x0000000000000000000000000000000000000000",
         BondManager: "0x0000000000000000000000000000000000000000",
-        OptimismPortal: "0xad3DC277d3242938F8Be18f0560e3d9B9988C46A",
+        OptimismPortal: "0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07",
         L2OutputOracle: "0x4317ba146D4933D889518a3e5E11Fe7a53199b04",
       },
       l2: DEFAULT_L2_CONTRACT_ADDRESSES,
@@ -84,7 +84,7 @@ export const getProcessFromModeRootArgs = async ({
     gasLimit,
     data,
   };
-  logger.info("Got withdrawal tx from optimism", requestContext, methodContext, { tx });
+  logger.info("Got withdrawal tx from mode", requestContext, methodContext, { tx });
 
   // get the proof
   const proof = await messenger.getBedrockMessageProof(sendHash);
