@@ -443,4 +443,19 @@ export const hardhatNetworks = {
       },
     },
   },
+  mode: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 34443,
+    url: urlOverride || process.env.MODE_PROVIDER_URL || "https://mainnet.mode.network/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("1.5", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.MODE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mode.network/",
+      },
+    },
+  },
 };

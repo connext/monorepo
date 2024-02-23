@@ -191,6 +191,17 @@ type ZkSyncConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# MODE
+type ModeConnectorMeta @entity {
+  id: ID! # "ModeConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!

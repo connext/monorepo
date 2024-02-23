@@ -428,3 +428,30 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleZkSyncNewConnector
       file: ./src/amarok-hub/mapping/zksync.ts
+  # ModeHubConnector.sol events
+  - kind: ethereum/contract
+    name: ModeHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: ModeHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: ModeHubConnector
+          file: ./src/amarok-hub/abis/OptimismHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleModeMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleModeNewConnector
+      file: ./src/amarok-hub/mapping/mode.ts

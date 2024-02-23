@@ -17,6 +17,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "1650553709", // Base
     "1635148152", // Avalanche
     "1835101812", // Mantle
+    "1836016741", // Mode
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -78,6 +79,10 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
           adopted: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
         },
+        "1836016741": {
+          local: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+          adopted: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+        },
       },
     },
   ],
@@ -96,6 +101,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       "1650553709": PROTOCOL_ADMINS.mainnet["1650553709"], // Base
       "1635148152": PROTOCOL_ADMINS.mainnet["1635148152"], // Avalanche
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
+      "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
     },
     watchers: {
       allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],

@@ -150,6 +150,10 @@ export type base_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type base_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type base_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['base_Bytes']>;

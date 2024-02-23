@@ -16,7 +16,7 @@ import {
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
 import * as zk from "zksync-web3";
 
-import { getProcessFromMetisRootArgs as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/args";
+import { getMessagesByTransaction as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/utils";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
