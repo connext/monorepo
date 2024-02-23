@@ -22,10 +22,6 @@ export type Scalars = {
   base_swap_Int8: any;
 };
 
-export type base_swap_Aggregation_interval =
-  | 'hour'
-  | 'day';
-
 export type base_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
