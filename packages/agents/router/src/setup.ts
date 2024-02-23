@@ -10,7 +10,7 @@ export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
 export const XCALL_MESSAGE_TYPE = "xcall";
 
-var routerRetryLimit = DEFAULT_ROUTER_MQ_RETRY_LIMIT;
+let routerRetryLimit = DEFAULT_ROUTER_MQ_RETRY_LIMIT;
 
 export const setupCache = async (
   host: string | undefined,
