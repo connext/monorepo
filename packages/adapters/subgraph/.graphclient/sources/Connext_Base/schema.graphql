@@ -142,11 +142,6 @@ enum base_AggregateRoot_orderBy {
   blockNumber
 }
 
-enum base_Aggregation_interval {
-  hour
-  day
-}
-
 type base_Asset {
   id: ID!
   key: base_Bytes
