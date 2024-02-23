@@ -28,6 +28,7 @@ const mainnetChainIdToDomainMapping: Map<number, number> = new Map([
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
   [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
   [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
+  [34443, 0x6d6f6465], // Mode (mode interpreted as int) 1836016741
 ]);
 
 const testnetChainIdToDomainMapping: Map<number, number> = new Map([

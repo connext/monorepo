@@ -35,7 +35,7 @@
     "@connext/nxtp-utils": "workspace:*",
     "@connext/smart-contracts": "workspace:*",
     "@consensys/linea-sdk": "0.1.6",
-    "@eth-optimism/sdk": "2.1.0",
+    "@eth-optimism/sdk": "3.2.0",
     "@mantleio/sdk": "1.0.0",
     "@sinclair/typebox": "0.25.21",
     "@types/aws-lambda": "8.10.110",

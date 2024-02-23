@@ -2419,7 +2419,7 @@ __metadata:
     "@connext/nxtp-utils": "workspace:*"
     "@connext/smart-contracts": "workspace:*"
     "@consensys/linea-sdk": 0.1.6
-    "@eth-optimism/sdk": 2.1.0
+    "@eth-optimism/sdk": 3.2.0
     "@graphql-codegen/cli": 3.0.0
     "@mantleio/sdk": 1.0.0
     "@sinclair/typebox": 0.25.21
@@ -2663,7 +2663,7 @@ __metadata:
     eslint: 8.34.0
     ethers: 5.7.2
     fastify: 4.13.0
-    foo-foo-mq: 7.1.0
+    foo-foo-mq: 9.0.3
     graphql: 16.6.0
     interval-promise: 1.4.0
     mocha: 10.2.0
@@ -2720,7 +2720,7 @@ __metadata:
   resolution: "@connext/nxtp-subgraph@workspace:packages/deployments/subgraph"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@graphprotocol/graph-cli": 0.67.2
+    "@graphprotocol/graph-cli": 0.68.0
     "@graphprotocol/graph-ts": 0.30.0
     "@protofire/subgraph-toolkit": 0.1.2
     "@types/js-yaml": 4.0.5
@@ -2933,7 +2933,7 @@ __metadata:
     "@certusone/wormhole-sdk": 0.9.21
     "@connext/nxtp-utils": "workspace:*"
     "@consensys/linea-sdk": 0.1.6
-    "@eth-optimism/sdk": 2.1.0
+    "@eth-optimism/sdk": 3.2.0
     "@gelatonetwork/relay-context": 2.1.0
     "@mantleio/sdk": 1.0.0
     "@matterlabs/hardhat-zksync-deploy": 0.6.3
@@ -3448,15 +3448,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts-bedrock@npm:0.14.0":
-  version: 0.14.0
-  resolution: "@eth-optimism/contracts-bedrock@npm:0.14.0"
-  dependencies:
-    "@eth-optimism/core-utils": ^0.12.0
-    "@openzeppelin/contracts": 4.7.3
-    "@openzeppelin/contracts-upgradeable": 4.7.3
-    ethers: ^5.7.0
-  checksum: ca9abf55660573b0dbd701d5154d8d083b7fdb4e49951678e30acf97e5e161d202e62a17fbff7fbdbe36dd61128598b169d7c8c8cd913db80adaaa6b5a5ac79c
+"@eth-optimism/contracts-bedrock@npm:0.17.1":
+  version: 0.17.1
+  resolution: "@eth-optimism/contracts-bedrock@npm:0.17.1"
+  checksum: ae75458ca843dc36d050a484a97226112d1c5a1453cb8a59a1a64e4805052984663b2d83ca1a2764751ea182e09ee53ddc1ab19c6a94885a6e743371498060a2
   languageName: node
   linkType: hard
 
@@ -3497,9 +3492,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/core-utils@npm:^0.12.0":
-  version: 0.12.3
-  resolution: "@eth-optimism/core-utils@npm:0.12.3"
+"@eth-optimism/core-utils@npm:0.13.1":
+  version: 0.13.1
+  resolution: "@eth-optimism/core-utils@npm:0.13.1"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/abstract-provider": ^5.7.0
@@ -3512,26 +3507,27 @@ __metadata:
     "@ethersproject/properties": ^5.7.0
     "@ethersproject/rlp": ^5.7.0
     "@ethersproject/web": ^5.7.1
-    chai: ^4.3.7
+    chai: ^4.3.9
     ethers: ^5.7.2
     node-fetch: ^2.6.7
-  checksum: c1ac822d2829c1a2bf8654ab1374fbb9cbdfbc4d4a1b34dd3c026a1f9c007c100c4a7e0e88b3e8f7681580506d50edbc34f4b094da2fb9d3e72066a1b3506d22
+  checksum: ed1f1bcec4fd308463c6bd6e6cc8f6c89041dfa5e0c03c67ee487f5b3bef7bb34c59ea1f8039d00cc0e8696ed8ae9a4486c10d86b2db1d9dadb94294fc83b6fc
   languageName: node
   linkType: hard
 
-"@eth-optimism/sdk@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@eth-optimism/sdk@npm:2.1.0"
+"@eth-optimism/sdk@npm:3.2.0":
+  version: 3.2.0
+  resolution: "@eth-optimism/sdk@npm:3.2.0"
   dependencies:
     "@eth-optimism/contracts": 0.6.0
-    "@eth-optimism/contracts-bedrock": 0.14.0
-    "@eth-optimism/core-utils": 0.12.0
+    "@eth-optimism/contracts-bedrock": 0.17.1
+    "@eth-optimism/core-utils": 0.13.1
     lodash: ^4.17.21
-    merkletreejs: ^0.2.27
+    merkletreejs: ^0.3.11
     rlp: ^2.2.7
+    semver: ^7.5.4
   peerDependencies:
     ethers: ^5
-  checksum: 8002d32734cde69524b23ec79e5b9dfeb56994ef65008f94c73067b2d391aa70f4b9cca5313e617c3391ae6547dce78a3c12a6898748295b04ee67448a9ddc4d
+  checksum: e8101a3d9c3dde9f02bc0862aa1afe68235505976b27e1ea1bcb4524d4fd9531fdb66dcbb841ff3f8b38fd9110a51260f38a434532d72b6857710c1d76a1d2a4
   languageName: node
   linkType: hard
 
@@ -4303,9 +4299,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.67.2":
-  version: 0.67.2
-  resolution: "@graphprotocol/graph-cli@npm:0.67.2"
+"@graphprotocol/graph-cli@npm:0.68.0":
+  version: 0.68.0
+  resolution: "@graphprotocol/graph-cli@npm:0.68.0"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4336,7 +4332,7 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: 6e0e81e3058dd2932071046199ac7adcdda3732a2c9bb8b5f768e87b138457a7a5b7b65b38646788b11f2a70931cceeeff40035605c5546543cb67babc93f9d1
+  checksum: 3ba2bc43cec157bc1462da94d36fe878c9818890c55b149d238e949e30379909de453e76cbf8df040d2cf71ccb2dba7dd2c92955cda62f80cf95c8bd47cc0943
   languageName: node
   linkType: hard
 
@@ -12868,7 +12864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.4, chai@npm:^4.3.7":
+"chai@npm:^4.3.4, chai@npm:^4.3.9":
   version: 4.4.1
   resolution: "chai@npm:4.4.1"
   dependencies:
@@ -14199,6 +14195,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crypto-js@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "crypto-js@npm:4.2.0"
+  checksum: f051666dbc077c8324777f44fbd3aaea2986f198fe85092535130d17026c7c2ccf2d23ee5b29b36f7a4a07312db2fae23c9094b644cc35f7858b1b4fcaf27774
+  languageName: node
+  linkType: hard
+
 "crypto-randomuuid@npm:^1.0.0":
   version: 1.0.0
   resolution: "crypto-randomuuid@npm:1.0.0"
@@ -15499,7 +15502,7 @@ __metadata:
     es6-iterator: ^2.0.3
     es6-symbol: ^3.1.3
     next-tick: ^1.1.0
-  checksum: 25f42f6068cfc6e393cf670bc5bba249132c5f5ec2dd0ed6e200e6274aca2fed8e9aec8a31c76031744c78ca283c57f0b41c7e737804c6328c7b8d3fbcba7983
+  checksum: 721bcd16406872c934c54dcfc870a18544ff88d0633a271aab15235d06148d6c0eff8b5230a8e21556692c555ac7d64fb94439fcdbd99690eaaec84c80a19ad0
   languageName: node
   linkType: hard
 
@@ -17586,6 +17589,21 @@ __metadata:
     postal: ^2.0.5
     uuid: ^8.2.0
   checksum: cab58eaedaeb0eea423d7ed4b1b6c3de76dbe80f20eb69a34135d5da4f0d9de632e558b1a302aec5919fe7b0f09329e7aae2711f9d631e23357f6c97e0720105
+  languageName: node
+  linkType: hard
+
+"foo-foo-mq@npm:9.0.3":
+  version: 9.0.3
+  resolution: "foo-foo-mq@npm:9.0.3"
+  dependencies:
+    amqplib: ~0.8.0
+    bole: ^4.0.0
+    debug: ^4.1.1
+    machina: ^4.0.2
+    node-monologue: ^2.0.0
+    postal: ^2.0.5
+    uuid: ^8.2.0
+  checksum: fa1eee1ac36960977272532267a1ed2f74a4c139a86c710d6516900283f096c6c2b1dfa6e9dcaa81db10d27777f206e8606f87ecec5f2e0198325e6a8dad66cb
   languageName: node
   linkType: hard
 
@@ -22995,6 +23013,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"merkletreejs@npm:^0.3.11":
+  version: 0.3.11
+  resolution: "merkletreejs@npm:0.3.11"
+  dependencies:
+    bignumber.js: ^9.0.1
+    buffer-reverse: ^1.0.1
+    crypto-js: ^4.2.0
+    treeify: ^1.1.0
+    web3-utils: ^1.3.4
+  checksum: 93edb8ec66aa6c9f59aa0902e675590e3791692893bb3e8c1018f758367ded1bf7d6b1057ccde3729b283ca946a316838a631a922960b76889b3be528c43ef4e
+  languageName: node
+  linkType: hard
+
 "meros@npm:^1.2.1":
   version: 1.3.0
   resolution: "meros@npm:1.3.0"
@@ -27913,6 +27944,17 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: ae47d06de28836adb9d3e25f22a92943477371292d9b665fb023fae278d345d508ca1958232af086d85e0155aee22e313e100971898bbb8d5d89b8b1d4054ca2
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.5.4":
+  version: 7.6.0
+  resolution: "semver@npm:7.6.0"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: 7427f05b70786c696640edc29fdd4bc33b2acf3bbe1740b955029044f80575fc664e1a512e4113c3af21e767154a94b4aa214bf6cd6e42a1f6dba5914e0b208c
   languageName: node
   linkType: hard
 

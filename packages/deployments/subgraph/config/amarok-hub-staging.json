@@ -103,6 +103,11 @@
         "name": "ZkSyncHubConnector",
         "address": "0x18a7a4e4C70fcec6Eb4844eb84bc98523F58b898",
         "startBlock": 19035303
+      },
+      {
+        "name": "ModeHubConnector",
+        "address": "0x842aD61A06f8f6bC125E8059bcD4D6D3440ECA34",
+        "startBlock": 19232286
       }
     ]
   }

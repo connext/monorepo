@@ -25,6 +25,11 @@ const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
+//Router MQ limits
+export const DEFAULT_ROUTER_MQ_RETRY_LIMIT = 20;
+const DEFAULT_ROUTER_MQ_HEARTBEAT_LIMIT = 10;
+const DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT = 10;
+
 // Sequencer and Cartographer default urls
 const SEQUENCER_URLS: Record<string, any> = {
   testnet: {
@@ -234,6 +239,21 @@ export const getEnvConfig = (
         configFile.messageQueue?.uri ||
         "amqp://guest:guest@localhost:5672",
       limit: process.env.MESSAGE_QUEUE_LIMIT || configJson.messageQueue?.limit || configFile.messageQueue?.limit || 25,
+      heartbeat:
+        process.env.ROUTER_MQ_HEARTBEAT_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_HEARTBEAT_LIMIT,
+      failAfter:
+        process.env.ROUTER_MQ_FAILAFTER_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT,
+      retryLimit:
+        process.env.ROUTER_MQ_RETRY_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_RETRY_LIMIT,
     },
   };
 

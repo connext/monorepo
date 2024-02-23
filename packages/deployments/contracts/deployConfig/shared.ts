@@ -35,6 +35,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   1101: 8, //polygon-zkevm
   324: 10, // zksync-era
   5000: 200, // mantle network
+  34443: 30, // mode network
 
   // testnets
   5: 4, // goerli
@@ -708,6 +709,35 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             gasCap: ZKSYNC_DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Mode chain
+      34443: {
+        prefix: "Optimism",
+        networkName: "Mode",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://github.com/mode-network/chain-deployments/blob/main/mainnet/addresses.json
+          hub: "0x95bDCA6c8EdEB69C98Bd5bd17660BaCef1298A6f",
+          // L2CrossDomainMessenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443] / 2,
+        custom: {
+          hub: {
+            // OptimismPortal
+            // https://docs.mode.network/mode-mainnet/mainnet-contract-addresses/l1-l2-contracts
+            // https://etherscan.io/address/0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07#code
+            optimismPortal: "0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },
