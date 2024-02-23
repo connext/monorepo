@@ -150,10 +150,6 @@ export type zksync_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
-export type zksync_Aggregation_interval =
-  | 'hour'
-  | 'day';
-
 export type zksync_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['zksync_Bytes']>;
