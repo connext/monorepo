@@ -150,6 +150,10 @@ export type stagingpolygon_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingpolygon_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingpolygon_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingpolygon_Bytes']>;

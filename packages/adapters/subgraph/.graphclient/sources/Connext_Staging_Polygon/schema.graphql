@@ -142,6 +142,11 @@ enum stagingpolygon_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingpolygon_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingpolygon_Asset {
   id: ID!
   key: stagingpolygon_Bytes

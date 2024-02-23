@@ -150,6 +150,10 @@ export type localmainnet_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type localmainnet_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type localmainnet_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['localmainnet_Bytes']>;

@@ -142,6 +142,11 @@ enum localmainnet_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum localmainnet_Aggregation_interval {
+  hour
+  day
+}
+
 type localmainnet_Asset {
   id: ID!
   key: localmainnet_Bytes

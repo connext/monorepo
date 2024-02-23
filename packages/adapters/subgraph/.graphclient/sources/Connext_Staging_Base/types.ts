@@ -150,6 +150,10 @@ export type stagingbase_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingbase_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingbase_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingbase_Bytes']>;

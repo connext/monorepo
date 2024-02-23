@@ -142,6 +142,11 @@ enum localoptimism_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum localoptimism_Aggregation_interval {
+  hour
+  day
+}
+
 type localoptimism_Asset {
   id: ID!
   key: localoptimism_Bytes

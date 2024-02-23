@@ -142,6 +142,11 @@ enum mumbai_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum mumbai_Aggregation_interval {
+  hour
+  day
+}
+
 type mumbai_Asset {
   id: ID!
   key: mumbai_Bytes

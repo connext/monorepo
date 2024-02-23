@@ -142,6 +142,11 @@ enum stagingavalanche_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingavalanche_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingavalanche_Asset {
   id: ID!
   key: stagingavalanche_Bytes

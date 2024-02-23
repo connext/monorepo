@@ -150,6 +150,10 @@ export type localoptimism_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type localoptimism_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type localoptimism_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['localoptimism_Bytes']>;

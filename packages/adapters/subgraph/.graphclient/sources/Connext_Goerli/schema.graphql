@@ -142,6 +142,11 @@ enum goerli_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum goerli_Aggregation_interval {
+  hour
+  day
+}
+
 type goerli_Asset {
   id: ID!
   key: goerli_Bytes

@@ -42,7 +42,8 @@ variable "certificate_arn_testnet" {
 }
 
 variable "postgres_password" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "postgres_user" {
@@ -51,7 +52,8 @@ variable "postgres_user" {
 }
 
 variable "dd_api_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "carto_messages_heartbeat" {

@@ -12,6 +12,11 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
+enum polygon_swap_Aggregation_interval {
+  hour
+  day
+}
+
 scalar polygon_swap_BigDecimal
 
 scalar BigInt
