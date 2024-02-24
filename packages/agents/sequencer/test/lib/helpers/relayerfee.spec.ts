@@ -140,5 +140,15 @@ describe("Helpers:RelayerFee", () => {
       const res = await canSubmitToRelayer(transfer);
       expect(res).to.be.deep.eq({ canSubmit: false, needed: "8000000003203" });
     });
+
+    it("should return true if asset is registered with the pseudo-canonical domain", async () => {
+      const transfer = mock.entity.xtransfer({
+        canonicalDomain: "11111",
+        relayerFees: { [constants.AddressZero]: "3", [localAsset]: "8" },
+      }) as OriginTransfer;
+      safeCalculateRelayerFeeStub.resolves(BigNumber.from("1000000000000"));
+      const res = await canSubmitToRelayer(transfer);
+      expect(res).to.be.deep.eq({ canSubmit: true, needed: "800000000000" });
+    });
   });
 });
