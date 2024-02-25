@@ -195,7 +195,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
         "1836016741": {
           // mode
-          local: "",
+          local: "0x609aEfb9FB2Ee8f2FDAd5dc48efb8fA4EE0e80fB",
           adopted: "0x4200000000000000000000000000000000000006",
         },
       },
