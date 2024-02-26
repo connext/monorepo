@@ -134,7 +134,7 @@ locals {
       }
     ]
     relayerFeeTolerance = 60
-    environment         = var.stage
+    environment         = "production"
     database = {
       url = local.default_db_url
     }
@@ -293,7 +293,7 @@ locals {
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
-    environment     = var.stage
+    environment     = "production"
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
@@ -330,7 +330,7 @@ locals {
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
-    environment  = var.stage
+    environment  = "production"
     database = {
       url = local.read_replica_db_url
     }
@@ -414,7 +414,7 @@ locals {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
     }
-    environment   = var.stage
+    environment   = "production"
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
   })
 }

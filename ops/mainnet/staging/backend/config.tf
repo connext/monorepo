@@ -89,7 +89,7 @@ locals {
       "6778479"    = { confirmations = 100 }
       "1818848877" = { confirmations = 10 }
     }
-    environment = var.stage
+    environment = "production"
     # healthUrls = {
     #   messages  = "https://betteruptime.com/api/v1/heartbeat/${var.carto_messages_heartbeat}"
     #   roots     = "https://betteruptime.com/api/v1/heartbeat/${var.carto_roots_heartbeat}"
