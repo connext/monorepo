@@ -3,11 +3,14 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
 import rabbit from "foo-foo-mq";
 
-import { MQConnectionClosed, MQConnectionFailed, MQConnectionUnreachable } from "./errors";
+import { MQConnectionClosed, MQConnectionFailed } from "./errors";
+import { DEFAULT_ROUTER_MQ_RETRY_LIMIT } from "./config";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
 export const XCALL_MESSAGE_TYPE = "xcall";
+
+let routerRetryLimit = DEFAULT_ROUTER_MQ_RETRY_LIMIT;
 
 export const setupCache = async (
   host: string | undefined,
@@ -33,6 +36,9 @@ export const setupCache = async (
 export const setupMq = async (
   uri: string,
   limit: number,
+  heartbeat: number,
+  failAfter: number,
+  retryLimit: number,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<typeof rabbit> => {
@@ -41,7 +47,7 @@ export const setupMq = async (
   const replyQueue = false;
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
   await rabbit.configure({
-    connection: { uri, replyQueue },
+    connection: { uri, replyQueue, heartbeat, failAfter, retryLimit },
     queues: [{ name: XCALL_QUEUE, limit }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
@@ -50,13 +56,29 @@ export const setupMq = async (
   await rabbit.on("closed", function () {
     throw new MQConnectionClosed();
   });
-
-  await rabbit.on("failed", function () {
-    throw new MQConnectionFailed();
+  await rabbit.on("failed", async function () {
+    if (routerRetryLimit > 0) {
+      routerRetryLimit--;
+      logger.warn("MQ connection failed, retrying", requestContext, methodContext, {
+        uri,
+        routerRetryLimit,
+      });
+      try {
+        await rabbit.retry();
+      } catch (err: unknown) {
+        throw new MQConnectionFailed(err as Error);
+      }
+    } else {
+      throw new MQConnectionFailed();
+    }
   });
 
-  await rabbit.on("unreachable", function () {
-    throw new MQConnectionUnreachable();
+  await rabbit.on("unreachable", async function () {
+    // throw new MQConnectionUnreachable();
+    logger.warn("MQ is unreachable, retrying connection", requestContext, methodContext, {
+      uri,
+    });
+    await rabbit.retry();
   });
 
   logger.info("Message queue setup is done!", requestContext, methodContext, {
