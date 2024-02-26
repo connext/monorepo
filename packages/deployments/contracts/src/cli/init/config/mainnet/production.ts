@@ -670,7 +670,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
     },
     watchers: {
-      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
+      allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],
+      blacklist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
