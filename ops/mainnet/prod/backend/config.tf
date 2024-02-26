@@ -72,6 +72,9 @@ locals {
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }      
     }
 
@@ -111,6 +114,7 @@ locals {
       "1635148152" = { confirmations = 10 }
       "1835365481" = { confirmations = 10 }
       "1835101812" = { confirmations = 10 }
+      "1836016741" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {
