@@ -2721,7 +2721,7 @@ __metadata:
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
     "@graphprotocol/graph-cli": 0.68.0
-    "@graphprotocol/graph-ts": 0.30.0
+    "@graphprotocol/graph-ts": 0.33.0
     "@protofire/subgraph-toolkit": 0.1.2
     "@types/js-yaml": 4.0.5
     "@types/mustache": 4.2.2
@@ -4336,12 +4336,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-ts@npm:0.30.0":
-  version: 0.30.0
-  resolution: "@graphprotocol/graph-ts@npm:0.30.0"
+"@graphprotocol/graph-ts@npm:0.33.0":
+  version: 0.33.0
+  resolution: "@graphprotocol/graph-ts@npm:0.33.0"
   dependencies:
     assemblyscript: 0.19.10
-  checksum: ec99741117c884161d644c83014418628358f0ed3e3d29c2ed59035c099db58c3d7d42718df45233f2c26724d8ae8d562af8a5b75f468cb16d5f4b04a7443121
+  checksum: 083400dbf82cad7af6e2f059ced514a84776a708f6083b41048641c3ff53c7ab2e06d49c709dff67fc941ae0a00b2fe99a7fcb8da7f14718e2bb6f5556aac835
   languageName: node
   linkType: hard
 
