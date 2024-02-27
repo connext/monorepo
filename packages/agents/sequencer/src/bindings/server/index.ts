@@ -26,6 +26,8 @@ import {
   RouterPingRequest,
   RouterPingRequestSchema,
   RouterPingMessage,
+  RouterStatusApiResponseSchema,
+  RouterStatusApiResponse,
 } from "@connext/nxtp-utils";
 import { verifyMessage } from "ethers/lib/utils";
 
@@ -42,9 +44,41 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
 
   server.get("/ping", (_, res) => api.get.ping(res));
 
-  server.get("/router-status", (_, res) => api.get.ping(res));
-
   server.get("/supportedBidVersion", (_, res) => api.get.supportedBidVersion(res));
+
+  server.get<{
+    Params: { router: string };
+    Reply: RouterStatusApiResponse | SequencerApiErrorResponse;
+  }>(
+    "/router-status",
+    {
+      schema: {
+        response: {
+          200: RouterStatusApiResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {
+      const { requestContext, methodContext } = createLoggingContext("GET /router-status/:router endpoint");
+
+      try {
+        const { router } = request.params;
+        const lastActiveTimestamp = await cache.routers.getLastActive(router);
+        const lastBidTimestamp = await cache.routers.getLastBidTime(router);
+
+        return response.status(200).send({
+          lastActiveTimestamp,
+          lastBidTimestamp: lastBidTimestamp ?? ({} as any),
+        });
+      } catch (error: unknown) {
+        logger.debug(`Router Status by Router Get Error`, requestContext, methodContext, jsonifyError(error as Error));
+        return response
+          .code(500)
+          .send({ message: `Router Status by Router Get Error`, error: jsonifyError(error as Error) });
+      }
+    },
+  );
 
   server.get<{
     Params: { transferId: string };

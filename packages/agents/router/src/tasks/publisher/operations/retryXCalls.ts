@@ -2,6 +2,7 @@ import { createLoggingContext, jsonifyError, OriginTransfer, getNtpTimeSeconds, 
 
 import { MQ_EXCHANGE, XCALL_MESSAGE_TYPE, XCALL_QUEUE } from "../../../setup";
 import { getContext } from "../publisher";
+import { sendStatusToSequencer } from "./status";
 
 const DEFAULT_EXECUTION_WINDOW = 4 * 60; // The average execution window is 4mins
 // Shuffle the input array in place
@@ -116,6 +117,8 @@ export const retryXCalls = async (): Promise<void> => {
 
       if (pending.length == pageSize) offset += pageSize;
       else done = true;
+
+      await sendStatusToSequencer();
     }
   }
 };

@@ -65,6 +65,12 @@ export const ExecuteFastApiGetAuctionsStatusResponseSchema = Type.Object({
 
 export type ExecuteFastApiGetExecStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
 
+export const RouterStatusApiResponseSchema = Type.Object({
+  lastActiveTimestamp: Type.Number(),
+  lastBidTimestamp: Type.Record(Type.String(), Type.String()),
+});
+export type RouterStatusApiResponse = Static<typeof RouterStatusApiResponseSchema>;
+
 export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),
 });

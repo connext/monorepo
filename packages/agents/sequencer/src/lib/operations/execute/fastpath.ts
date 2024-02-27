@@ -52,13 +52,6 @@ export const storeFastPathData = async (bid: Bid, _requestContext: RequestContex
     });
   }
 
-  // Update the last bid time for a given router.
-  await cache.routers.setLastBidTime(bid.router, {
-    originDomain: transfer.xparams.originDomain,
-    destinationDomain: transfer.xparams.destinationDomain,
-    asset: transfer.origin.assets.transacting.asset,
-  });
-
   if (transfer.destination?.execute || transfer.destination?.reconcile) {
     // This transfer has already been Executed or Reconciled, so fast liquidity is no longer valid.
     throw new AuctionExpired(status, {
@@ -371,6 +364,7 @@ export const executeFastPathData = async (
             }),
           },
         });
+
         // Send the relayer request based on chosen bids.
         const { taskId: _taskId } = await sendExecuteFastToRelayer(
           roundIdInNum,
@@ -387,6 +381,17 @@ export const executeFastPathData = async (
           origin,
           destination,
         });
+
+        // Update the last bid time for a given router.
+        await Promise.all(
+          randomCombination.map((bid) =>
+            cache.routers.setLastBidTime(bid.router, {
+              originDomain: transfer!.xparams.originDomain,
+              destinationDomain: transfer!.xparams.destinationDomain,
+              asset: transfer!.origin.assets.transacting.asset,
+            }),
+          ),
+        );
 
         // Update router liquidity record to reflect spending.
         for (const router of routerLiquidityMap.keys()) {
