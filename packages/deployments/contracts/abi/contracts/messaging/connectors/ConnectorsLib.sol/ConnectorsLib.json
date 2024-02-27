@@ -1,0 +1,3 @@
+[
+  "function checkMessageLength(bytes _data) pure returns (bool _validLength)"
+]
