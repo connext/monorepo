@@ -19,6 +19,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1650553709", // Base
     "1635148152", // Avalanche
     "1835101812", // Mantle
+    "1836016741", // Mode
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -190,6 +191,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1650553709": {
           // base
           local: "0xE08D4907b2C7aa5458aC86596b6D17B1feA03F7E",
+          adopted: "0x4200000000000000000000000000000000000006",
+        },
+        "1836016741": {
+          // mode
+          local: "0x609aEfb9FB2Ee8f2FDAd5dc48efb8fA4EE0e80fB",
           adopted: "0x4200000000000000000000000000000000000006",
         },
       },
@@ -668,9 +674,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1650553709": PROTOCOL_ADMINS.mainnet["1650553709"], // Base
       "1635148152": PROTOCOL_ADMINS.mainnet["1635148152"], // Avalanche
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
+      "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
     },
     watchers: {
-      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
+      allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],
+      blacklist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
