@@ -12,7 +12,6 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
-    { name = "GRAPH_API_KEY", value = var.graph_api_key }
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
@@ -120,6 +119,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
@@ -135,6 +137,9 @@ locals {
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }  
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -217,6 +222,12 @@ locals {
           subscribe  = true
         },
         {
+          name       = "2053862243"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
           name       = "1887071085"
           limit      = 1
           queueLimit = 1000000
@@ -245,7 +256,13 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }
+        },   
+        {
+          name       = "1836016741"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }                                                
       ]
       bindings = [
         {
@@ -290,6 +307,11 @@ locals {
         },
         {
           exchange = "sequencerX"
+          target   = "2053862243"
+          keys     = ["2053862243"]
+        },
+        {
+          exchange = "sequencerX"
           target   = "1887071085"
           keys     = ["1887071085"]
         },
@@ -312,7 +334,12 @@ locals {
           exchange = "sequencerX"
           target   = "1835101812"
           keys     = ["1835101812"]
-        }
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1836016741"
+          keys     = ["1836016741"]
+        }                                                  
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -361,6 +388,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
@@ -376,6 +406,9 @@ locals {
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }   
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -394,25 +427,28 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}"]
+        providers = ["https://eth-mainnet.alchemyapi.io/v2/${var.mainnet_alchemy_key_1}", "https://eth-mainnet.blastapi.io/${var.blast_key}"]
       },
       "1869640809" = {
-        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.optimism.io"]
       },
       "1886350457" = {
-        providers = ["https://polygon-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://polygon-mainnet.g.alchemy.com/v2/${var.polygon_alchemy_key_0}", "https://poly-mainnet.gateway.pokt.network/v1/lb/${var.pokt_key}", "https://polygon-mainnet.blastapi.io/${var.blast_key}", "https://polygon.llamarpc.com"]
       },
       "1634886255" = {
-        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}"]
+        providers = ["https://arb-mainnet.g.alchemy.com/v2/${var.arbitrum_alchemy_key_0}", "https://arb1.arbitrum.io/rpc"]
       },
       "6450786" = {
-        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org"]
       }
       "6778479" = {
-        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"]
       }
       "1818848877" = {
-        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}"]
+        providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
+      }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
@@ -429,6 +465,9 @@ locals {
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }       
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -466,14 +505,16 @@ locals {
       "6450786"    = 10,
       "6778479"    = 10,
       "1818848877" = 10,
+      "2053862243" = 10,
       "1887071085" = 10,
       "1650553709" = 10,
       "1635148152" = 10,
       "1835365481" = 10,
-      "1835101812" = 10
+      "1835101812" = 10,
+      "1836016741" = 10
     }
     proverBatchWaitTime = {
-      "6648936"    = 43200,
+      "6648936" = 43200,
       "1634886255" = 14400,
       "1869640809" = 14400,
       "1886350457" = 14400,
@@ -481,11 +522,13 @@ locals {
       "6450786"    = 14400,
       "6778479"    = 14400,
       "1818848877" = 14400,
+      "2053862243" = 14400,
       "1887071085" = 14400,
       "1650553709" = 14400,
       "1635148152" = 14400,
       "1835365481" = 14400,
-      "1835101812" = 14400
+      "1835101812" = 14400,         
+      "1836016741" = 14400         
     }
     messageQueue = {
       connection = {
@@ -502,7 +545,7 @@ locals {
     }
     web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
     server = {
-      adminToken = var.admin_token_lighthouse_prover_subscriber
+      adminToken  = var.admin_token_lighthouse_prover_subscriber
     }
   })
 
@@ -537,6 +580,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
@@ -552,6 +598,9 @@ locals {
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }  
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"

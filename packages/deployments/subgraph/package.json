@@ -23,6 +23,7 @@
     "deploy:amarok-stableswap-staging": "yarn deploy amarok-stableswap-staging amarok-stableswap-staging all",
     "deploy:testnet:amarok-stableswap-v0": "yarn deploy amarok-stableswap amarok-stableswap-v0 'goerli,optimism-goerli,mumbai'",
     "deploy:amarok-stableswap-v0": "yarn deploy amarok-stableswap amarok-stableswap-v0 all",
+    "deploy:amarok-stableswap-v1": "yarn deploy amarok-stableswap amarok-stableswap-v1 all",
     "prepare:v0": "yarn deploy amarok-runtime local mainnet",
     "prepare:staging": "yarn deploy amarok-runtime-staging local mainnet",
     "prepare:hub-staging": "yarn deploy amarok-hub-staging local_hub mainnet",
@@ -89,7 +90,7 @@
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "0.68.0",
-    "@graphprotocol/graph-ts": "0.30.0",
+    "@graphprotocol/graph-ts": "0.33.0",
     "@protofire/subgraph-toolkit": "0.1.2",
     "@types/js-yaml": "4.0.5",
     "@types/mustache": "4.2.2",
