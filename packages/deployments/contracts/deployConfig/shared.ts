@@ -36,6 +36,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   324: 10, // zksync-era
   5000: 200, // mantle network
   34443: 30, // mode network
+  534352: 15, // scroll
 
   // testnets
   5: 4, // goerli
@@ -44,6 +45,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   59140: 30, // linea-goerli
   84531: 30, // base-goerli
   195: 60, // x1-testnet
+  534351: 14, // scroll sepolia l2
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -735,6 +737,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
             // https://etherscan.io/address/0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07#code
             optimismPortal: "0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07",
             gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // Scroll L2ScrollMessenger
+          // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        custom: {
+          hub: {
+            gasCap: BigNumber.from("200000"),
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
