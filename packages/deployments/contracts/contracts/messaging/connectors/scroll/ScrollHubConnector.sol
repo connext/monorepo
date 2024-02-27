@@ -64,7 +64,10 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
    * @dev The message length must be 32 bytes
    */
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override checkMessageLength(_data) {
+    // refund address must be specified
     address _refundAddress = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
+    require(_refundAddress != address(0), "!refund address");
+
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     L1_SCROLL_MESSENGER.sendMessage{value: msg.value}(
       mirrorConnector,
