@@ -24,6 +24,11 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
   error ScrollHubConnector_OriginSenderIsNotMirror();
 
   /**
+   * @notice Thrown when the refund address is empty
+   */
+  error ScrollHubConnector_EmptyRefundAddress();
+
+  /**
    * @notice L1 Scroll Messenger
    */
   IL1ScrollMessenger public immutable L1_SCROLL_MESSENGER;
@@ -66,7 +71,9 @@ contract ScrollHubConnector is HubConnector, BaseScroll {
   function _sendMessage(bytes memory _data, bytes memory _encodedData) internal override checkMessageLength(_data) {
     // refund address must be specified
     address _refundAddress = (_encodedData.length > 0) ? abi.decode(_encodedData, (address)) : address(0);
-    require(_refundAddress != address(0), "!refund address");
+    if (_refundAddress == address(0)) {
+      revert ScrollHubConnector_EmptyRefundAddress();
+    }
 
     bytes memory _calldata = abi.encodeWithSelector(Connector.processMessage.selector, _data);
     L1_SCROLL_MESSENGER.sendMessage{value: msg.value}(

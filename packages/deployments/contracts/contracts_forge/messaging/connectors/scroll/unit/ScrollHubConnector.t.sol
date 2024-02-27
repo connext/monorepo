@@ -88,13 +88,20 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
   /**
    * @notice Tests that reverts when called with invalid length data
    * @param _data Message data to be sent
-   * @param _encodedData Encoded data to be sent
+   * @param _refund Refund address
    */
-  function test_revertIfDataNotRootLength(bytes memory _data, bytes memory _encodedData) public {
+  function test_revertIfDataNotRootLength(bytes memory _data, address _refund) public {
     vm.assume(_data.length != ROOT_LENGTH);
     vm.prank(user);
     vm.expectRevert(ScrollHubConnector.ScrollHubConnector_DataLengthIsNot32.selector);
-    scrollHubConnector.forTest_sendMessage(_data, _encodedData);
+    scrollHubConnector.forTest_sendMessage(_data, abi.encode(_refund));
+  }
+
+  function test_revertIfRefundAddressEmpty(bytes memory _data) public {
+    vm.assume(_data.length == ROOT_LENGTH);
+    vm.prank(user);
+    vm.expectRevert(ScrollHubConnector.ScrollHubConnector_EmptyRefundAddress.selector);
+    scrollHubConnector.forTest_sendMessage(_data, abi.encode(address(0)));
   }
 
   /**
