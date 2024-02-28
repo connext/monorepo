@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.3.0-alpha.2
+
+- Mainnet support for mode
+
 ## v2.3.0-alpha.1
 
 - Environment-specific Unwrapper contracts deployed
