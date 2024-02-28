@@ -6,6 +6,7 @@ import {
   getNtpTimeSeconds,
   jsonifyError,
 } from "@connext/nxtp-utils";
+
 import { getContext } from "../publisher";
 import { axiosPost } from "../../../mockable";
 
@@ -34,9 +35,9 @@ export const sendStatusToSequencer = async (): Promise<void> => {
 
     if (!response || !response.data) {
       logger.error("Sending status to the sequencer failed", requestContext, methodContext);
+    } else {
+      logger.info("Sent status to the sequencer", requestContext, methodContext, { data: response.data });
     }
-
-    logger.info("Sent status to the sequencer", requestContext, methodContext, { data: response.data });
   } catch (error: unknown) {
     logger.error(
       "Sending status to the sequencer failed",
