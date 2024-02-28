@@ -72,6 +72,11 @@
         "name": "PolygonZkHubConnector",
         "address": "0x7ed49D0a13255802A281C08688563bd8D5f726b1",
         "startBlock": 19113185
+      },
+      {
+        "name": "ModeHubConnector",
+        "address": "0x7b2bE683266909A6a4068e743083dd40621d663E",
+        "startBlock": 19287458
       }
     ]
   }
