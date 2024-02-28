@@ -118,8 +118,8 @@ export const retryXCalls = async (): Promise<void> => {
 
       if (pending.length == pageSize) offset += pageSize;
       else done = true;
-
-      await sendStatusToSequencer();
     }
   }
+
+  await sendStatusToSequencer();
 };
