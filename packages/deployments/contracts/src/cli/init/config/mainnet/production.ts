@@ -658,6 +658,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "InstETH",
+      canonical: {
+        domain: "11111",
+        address: "0xb368ae21081709d03c00d7Dc51737d8abd9384e6",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xb368ae21081709d03c00d7Dc51737d8abd9384e6",
+          adopted: "0xb368ae21081709d03c00d7Dc51737d8abd9384e6",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xb368ae21081709d03c00d7Dc51737d8abd9384e6",
+          adopted: "0xb368ae21081709d03c00d7Dc51737d8abd9384e6",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
