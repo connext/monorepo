@@ -192,6 +192,9 @@ export const domainsToChainNames: Record<string, string> = {
   "6450786": "bsc",
   "6778479": "xdai",
   "1818848877": "linea",
+  "1835365481": "metis",
+  "1650553709": "base",
+  "1836016741": "mode",
 };
 
 // Need to add more domains here.
