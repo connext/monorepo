@@ -283,14 +283,14 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "InrETH",
       canonical: {
         domain: "11111",
-        address: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
+        address: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
         decimals: 18,
       },
       representations: {
         /// Goerli
         "1735353714": {
-          local: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
-          adopted: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
+          local: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
+          adopted: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
         },
         /// Mumbai
         "9991": {
