@@ -240,6 +240,7 @@ const handleDeploySpoke = async (
       !contract.includes("Wormhole") &&
       !contract.includes("OptimismV0") &&
       !contract.includes("Mantle") &&
+      !contract.includes("Scroll") &&
       !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {

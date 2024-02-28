@@ -470,7 +470,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.SCROLL_API_KEY!,
-        apiUrl: "https://api.scrollscan.com/api",
+        apiUrl: "https://api.scrollscan.com/",
       },
     },
   },

@@ -31,7 +31,6 @@ import type * as zksync from "./zksync";
 export type { zksync };
 export type { Connector } from "./Connector";
 export type { ConnectorManager } from "./ConnectorManager";
-export type { ConnectorsLib } from "./ConnectorsLib";
 export type { GasCap } from "./GasCap";
 export type { HubConnector } from "./HubConnector";
 export type { SpokeConnector } from "./SpokeConnector";

@@ -15,7 +15,7 @@ library ConnectorsLib {
    * @param _data Message data
    * @return _validLength True if the message length is 32 bytes, false otherwise
    */
-  function checkMessageLength(bytes memory _data) external pure returns (bool _validLength) {
+  function checkMessageLength(bytes memory _data) internal pure returns (bool _validLength) {
     _validLength = _data.length == ROOT_LENGTH;
   }
 }

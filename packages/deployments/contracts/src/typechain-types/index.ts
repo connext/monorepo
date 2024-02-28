@@ -176,8 +176,6 @@ export type { Connector } from "./contracts/messaging/connectors/Connector";
 export { Connector__factory } from "./factories/contracts/messaging/connectors/Connector__factory";
 export type { ConnectorManager } from "./contracts/messaging/connectors/ConnectorManager";
 export { ConnectorManager__factory } from "./factories/contracts/messaging/connectors/ConnectorManager__factory";
-export type { ConnectorsLib } from "./contracts/messaging/connectors/ConnectorsLib";
-export { ConnectorsLib__factory } from "./factories/contracts/messaging/connectors/ConnectorsLib__factory";
 export type { GasCap } from "./contracts/messaging/connectors/GasCap";
 export { GasCap__factory } from "./factories/contracts/messaging/connectors/GasCap__factory";
 export type { GnosisBase } from "./contracts/messaging/connectors/gnosis/GnosisBase";
