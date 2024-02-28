@@ -9,6 +9,7 @@
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
   "error ScrollHubConnector_DataLengthIsNot32()",
+  "error ScrollHubConnector_EmptyRefundAddress()",
   "error ScrollHubConnector_OriginSenderIsNotMirror()",
   "event FundsWithdrawn(address indexed to, uint256 amount)",
   "event GasCapUpdated(uint256 _previous, uint256 _updated)",
