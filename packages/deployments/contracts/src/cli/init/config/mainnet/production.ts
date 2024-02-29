@@ -658,6 +658,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ezETH",
+      canonical: {
+        domain: "11111",
+        address: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
