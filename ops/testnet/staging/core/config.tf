@@ -74,20 +74,6 @@ locals {
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
-  watcher_env_vars = [
-    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage }
-  ]
-  watcher_web3signer_env_vars = [
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.watcher_web3_signer_private_key },
-    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
-  ]
 }
 
 locals {
@@ -316,31 +302,5 @@ locals {
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
-  })
-
-  local_watcher_config = jsonencode({
-    server = {
-      adminToken = var.admin_token_watcher
-    }
-    logLevel    = "debug"
-    environment = "staging"
-    chains = {
-      "1869640549" = {
-        providers = ["https://sepolia.optimism.io/"]
-      }
-      "1936027759" = {
-        providers = ["https://eth-sepolia.public.blastapi.io"]
-      }
-      "1633842021" = {
-        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
-      }
-    }
-    web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
-    environment                = var.stage
-    discordHookUrl             = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
-    telegramApiKey             = "${var.telegram_api_key}"
-    telegramChatId             = "${var.telegram_chat_id}"
-    betterUptimeApiKey         = "${var.betteruptime_api_key}"
-    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }
