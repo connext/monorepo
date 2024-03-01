@@ -1,9 +1,22 @@
 import { Wallet } from "ethers";
-import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
+import {
+  createMethodContext,
+  createRequestContext,
+  getChainData,
+  getNtpTimeSeconds,
+  jsonifyError,
+  Logger,
+} from "@connext/nxtp-utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
+import rabbit from "foo-foo-mq";
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import {
+  DEFAULT_ROUTER_MQ_RETRY_LIMIT,
+  DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT,
+  getConfig,
+  NxtpRouterConfig,
+} from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupMq, setupSubgraphReader } from "../../setup";
 import { axiosGet } from "../../mockable";
@@ -18,6 +31,7 @@ export const getContext = () => context;
 export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
   const requestContext = createRequestContext("Router subscriber Init");
   const methodContext = createMethodContext(makeSubscriber.name);
+  let MQConnection = false;
 
   try {
     context.adapters = {} as any;
@@ -69,15 +83,6 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
       context.adapters.wallet as Wallet,
     );
     context.adapters.contracts = getContractInterfaces();
-    context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.uri as string,
-      context.config.messageQueue.limit as number,
-      context.config.messageQueue.heartbeat as number,
-      context.config.messageQueue.failAfter as number,
-      context.config.messageQueue.retryLimit as number,
-      context.logger,
-      requestContext,
-    );
 
     /// MARK - Validation for auctionRoundDepth
 
@@ -107,7 +112,54 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     // TODO: New diagnostic mode / cleanup mode?
     await bindServer();
     await bindMetrics("subscriber");
-    await bindMessageQueue();
+
+    const retryTimeLimit =
+      getNtpTimeSeconds() +
+      (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) *
+        (context.config.messageQueue.failAfter ?? DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT);
+
+    while (retryTimeLimit > getNtpTimeSeconds()) {
+      try {
+        context.adapters.mqClient = await setupMq(
+          context.config.messageQueue.uri as string,
+          context.config.messageQueue.limit as number,
+          context.config.messageQueue.heartbeat as number,
+          context.config.messageQueue.failAfter as number,
+          context.config.messageQueue.retryLimit as number,
+          context.logger,
+          requestContext,
+        );
+        await bindMessageQueue();
+        context.logger.info("MQ subscription successfull.", requestContext, methodContext);
+        MQConnection = true;
+        break;
+      } catch (e: unknown) {
+        rabbit.reset();
+        context.logger.error(
+          "Error binding message queue, retrying...",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
+        // Wait for 1 second before retrying.
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    if (!MQConnection) {
+      // If we failed to connect to the message queue after many retries, throw an error.
+      MQConnection = false;
+      rabbit.reset();
+      context.adapters.mqClient = await setupMq(
+        context.config.messageQueue.uri as string,
+        context.config.messageQueue.limit as number,
+        context.config.messageQueue.heartbeat as number,
+        context.config.messageQueue.failAfter as number,
+        context.config.messageQueue.retryLimit as number,
+        context.logger,
+        requestContext,
+      );
+      await bindMessageQueue();
+    }
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {
