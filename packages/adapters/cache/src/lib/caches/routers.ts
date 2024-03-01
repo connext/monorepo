@@ -121,6 +121,7 @@ export class RoutersCache extends Cache {
     const addressKey = `${this.prefix}:address`;
     const res = await this.data.hget(activeKey, router);
     if (!res) {
+      await this.data.hset(activeKey, router, getNtpTimeSeconds().toString());
       await this.data.rpush(addressKey, router);
     }
   }
