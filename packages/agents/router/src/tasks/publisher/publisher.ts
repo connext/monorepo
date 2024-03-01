@@ -7,6 +7,8 @@ import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
 import { AppContext } from "./context";
 import { bindSubgraph, bindServer } from "./bindings";
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -23,6 +25,18 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
     // Get ChainData and parse out configuration.
     context.chainData = await getChainData();
     context.config = _configOverride ?? (await getConfig(context.chainData, contractDeployments));
+
+    /// MARK - Signer
+    if (!context.config.mnemonic && !context.config.web3SignerUrl) {
+      throw new Error(
+        "No mnemonic or web3signer was configured. Please ensure either a mnemonic or a web3signer" +
+          " URL is provided in the config. Exiting!",
+      );
+    }
+    context.adapters.wallet = context.config.mnemonic
+      ? Wallet.fromMnemonic(context.config.mnemonic)
+      : new Web3Signer(context.config.web3SignerUrl!);
+    context.routerAddress = await context.adapters.wallet.getAddress();
 
     /// MARK - Logger
     context.logger = new Logger({
