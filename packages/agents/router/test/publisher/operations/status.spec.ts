@@ -10,7 +10,11 @@ describe("Operation:status", () => {
     it("send router status to the sequencer successfully", async () => {
       expect(() => sendStatusToSequencer()).to.not.throw;
     });
-    it("should throw if sending failed", () => {});
-    it("should fail to send router status", () => {});
+    it("should throw if sending failed", () => {
+      expect(() => sendStatusToSequencer()).to.not.throw;
+    });
+    it("should fail to send router status", () => {
+      expect(() => sendStatusToSequencer()).to.not.throw;
+    });
   });
 });

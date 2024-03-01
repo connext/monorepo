@@ -120,6 +120,4 @@ export const retryXCalls = async (): Promise<void> => {
       else done = true;
     }
   }
-
-  await sendStatusToSequencer();
 };
