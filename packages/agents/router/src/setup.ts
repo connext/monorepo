@@ -4,13 +4,10 @@ import { ChainData, createMethodContext, Logger, RequestContext } from "@connext
 import rabbit from "foo-foo-mq";
 
 import { MQConnectionClosed, MQConnectionFailed } from "./errors";
-import { DEFAULT_ROUTER_MQ_RETRY_LIMIT } from "./config";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
 export const XCALL_MESSAGE_TYPE = "xcall";
-
-let routerRetryLimit = DEFAULT_ROUTER_MQ_RETRY_LIMIT;
 
 export const setupCache = async (
   host: string | undefined,
@@ -45,7 +42,9 @@ export const setupMq = async (
   const methodContext = createMethodContext("setupMq");
   // Disable reply queues
   const replyQueue = false;
+
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
+
   await rabbit.configure({
     connection: { uri, replyQueue, heartbeat, failAfter, retryLimit },
     queues: [{ name: XCALL_QUEUE, limit }],
@@ -53,32 +52,22 @@ export const setupMq = async (
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
   });
 
-  await rabbit.on("closed", function () {
+  await rabbit.on("closed", async function () {
     throw new MQConnectionClosed();
   });
+
   await rabbit.on("failed", async function () {
-    if (routerRetryLimit > 0) {
-      routerRetryLimit--;
-      logger.warn("MQ connection failed, retrying", requestContext, methodContext, {
-        uri,
-        routerRetryLimit,
-      });
-      try {
-        await rabbit.retry();
-      } catch (err: unknown) {
-        throw new MQConnectionFailed(err as Error);
-      }
-    } else {
-      throw new MQConnectionFailed();
-    }
+    throw new MQConnectionFailed();
   });
 
   await rabbit.on("unreachable", async function () {
-    // throw new MQConnectionUnreachable();
-    logger.warn("MQ is unreachable, retrying connection", requestContext, methodContext, {
+    throw new MQConnectionFailed();
+  });
+
+  await rabbit.on("connected", function () {
+    logger.info("Connected to MQ!", requestContext, methodContext, {
       uri,
     });
-    await rabbit.retry();
   });
 
   logger.info("Message queue setup is done!", requestContext, methodContext, {

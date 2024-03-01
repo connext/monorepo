@@ -1,7 +1,20 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import {
+  createMethodContext,
+  createRequestContext,
+  getChainData,
+  Logger,
+  jsonifyError,
+  getNtpTimeSeconds,
+} from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
+import rabbit from "foo-foo-mq";
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import {
+  getConfig,
+  NxtpRouterConfig,
+  DEFAULT_ROUTER_MQ_RETRY_LIMIT,
+  DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT,
+} from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
@@ -17,6 +30,7 @@ export const getContext = () => context;
 export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
   const requestContext = createRequestContext("Publisher Init");
   const methodContext = createMethodContext(makePublisher.name);
+  let MQConnection = false;
 
   try {
     context.adapters = {} as any;
@@ -67,15 +81,52 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       context.logger,
       requestContext,
     );
-    context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.uri as string,
-      context.config.messageQueue.limit as number,
-      context.config.messageQueue.heartbeat as number,
-      context.config.messageQueue.failAfter as number,
-      context.config.messageQueue.retryLimit as number,
-      context.logger,
-      requestContext,
-    );
+
+    const retryTimeLimit =
+      getNtpTimeSeconds() +
+      (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) *
+        (context.config.messageQueue.failAfter ?? DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT);
+
+    while (retryTimeLimit > getNtpTimeSeconds()) {
+      try {
+        context.adapters.mqClient = await setupMq(
+          context.config.messageQueue.uri as string,
+          context.config.messageQueue.limit as number,
+          context.config.messageQueue.heartbeat as number,
+          context.config.messageQueue.failAfter as number,
+          context.config.messageQueue.retryLimit as number,
+          context.logger,
+          requestContext,
+        );
+        context.logger.info("MQ configuration successfull.", requestContext, methodContext);
+        MQConnection = true;
+        break;
+      } catch (e: unknown) {
+        MQConnection = false;
+        rabbit.reset();
+        context.logger.error(
+          "Error binding message queue, retrying...",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
+        // Wait for 1 second before retrying.
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    if (!MQConnection) {
+      // If we failed to connect to the message queue after many retries, throw an error.
+      rabbit.reset();
+      context.adapters.mqClient = await setupMq(
+        context.config.messageQueue.uri as string,
+        context.config.messageQueue.limit as number,
+        context.config.messageQueue.heartbeat as number,
+        context.config.messageQueue.failAfter as number,
+        context.config.messageQueue.retryLimit as number,
+        context.logger,
+        requestContext,
+      );
+    }
 
     /// MARK - Bindings
     await bindMetrics("publisher");
