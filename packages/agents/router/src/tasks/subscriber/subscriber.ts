@@ -1,17 +1,28 @@
 import { Wallet } from "ethers";
-import { createMethodContext, createRequestContext, getChainData, jsonifyError, Logger } from "@connext/nxtp-utils";
+import {
+  createMethodContext,
+  createRequestContext,
+  getChainData,
+  getNtpTimeSeconds,
+  jsonifyError,
+  Logger,
+} from "@connext/nxtp-utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
+import rabbit from "foo-foo-mq";
 
-import { DEFAULT_ROUTER_MQ_RETRY_LIMIT, getConfig, NxtpRouterConfig } from "../../config";
+import {
+  DEFAULT_ROUTER_MQ_RETRY_LIMIT,
+  DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT,
+  getConfig,
+  NxtpRouterConfig,
+} from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupMq, setupSubgraphReader } from "../../setup";
 import { axiosGet } from "../../mockable";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
-
-import rabbit from "foo-foo-mq";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -20,6 +31,7 @@ export const getContext = () => context;
 export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
   const requestContext = createRequestContext("Router subscriber Init");
   const methodContext = createMethodContext(makeSubscriber.name);
+  let MQConnection = false;
 
   try {
     context.adapters = {} as any;
@@ -55,8 +67,6 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     context.logger.info("Generated config.", requestContext, methodContext, {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
-
-    let retryCount = (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) * 2;
 
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
@@ -103,7 +113,12 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     await bindServer();
     await bindMetrics("subscriber");
 
-    while (retryCount > 0) {
+    const retryTimeLimit =
+      getNtpTimeSeconds() +
+      (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) *
+        (context.config.messageQueue.failAfter ?? DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT);
+
+    while (retryTimeLimit > getNtpTimeSeconds()) {
       try {
         context.adapters.mqClient = await setupMq(
           context.config.messageQueue.uri as string,
@@ -116,6 +131,7 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
         );
         await bindMessageQueue();
         context.logger.info("MQ subscription successfull.", requestContext, methodContext);
+        MQConnection = true;
         break;
       } catch (e: unknown) {
         rabbit.reset();
@@ -125,20 +141,25 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
           methodContext,
           jsonifyError(e as Error),
         );
+        // Wait for 1 second before retrying.
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        retryCount--;
       }
     }
-    context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.uri as string,
-      context.config.messageQueue.limit as number,
-      context.config.messageQueue.heartbeat as number,
-      context.config.messageQueue.failAfter as number,
-      context.config.messageQueue.retryLimit as number,
-      context.logger,
-      requestContext,
-    );
-    await bindMessageQueue();
+    if (!MQConnection) {
+      // If we failed to connect to the message queue after many retries, throw an error.
+      MQConnection = false;
+      rabbit.reset();
+      context.adapters.mqClient = await setupMq(
+        context.config.messageQueue.uri as string,
+        context.config.messageQueue.limit as number,
+        context.config.messageQueue.heartbeat as number,
+        context.config.messageQueue.failAfter as number,
+        context.config.messageQueue.retryLimit as number,
+        context.logger,
+        requestContext,
+      );
+      await bindMessageQueue();
+    }
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);
     context.logger.info("Router subscriber boot complete!", requestContext, methodContext, {

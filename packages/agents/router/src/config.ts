@@ -26,9 +26,9 @@ const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
 //Router MQ limits
-export const DEFAULT_ROUTER_MQ_RETRY_LIMIT = 100;
+export const DEFAULT_ROUTER_MQ_RETRY_LIMIT = 10;
 const DEFAULT_ROUTER_MQ_HEARTBEAT_LIMIT = 10;
-const DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT = 10;
+export const DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT = 10;
 
 // Sequencer and Cartographer default urls
 const SEQUENCER_URLS: Record<string, any> = {
