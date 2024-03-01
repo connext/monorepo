@@ -3,13 +3,15 @@ import { createMethodContext, createRequestContext, getChainData, jsonifyError, 
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { getContractInterfaces, TransactionService, contractDeployments } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import { DEFAULT_ROUTER_MQ_RETRY_LIMIT, getConfig, NxtpRouterConfig } from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupMq, setupSubgraphReader } from "../../setup";
 import { axiosGet } from "../../mockable";
 
 import { AppContext } from "./context";
 import { bindMessageQueue, bindServer } from "./bindings";
+
+import rabbit from "foo-foo-mq";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -54,6 +56,8 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
 
+    let retryCount = (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) * 2;
+
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
       context.logger,
@@ -69,15 +73,6 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
       context.adapters.wallet as Wallet,
     );
     context.adapters.contracts = getContractInterfaces();
-    context.adapters.mqClient = await setupMq(
-      context.config.messageQueue.uri as string,
-      context.config.messageQueue.limit as number,
-      context.config.messageQueue.heartbeat as number,
-      context.config.messageQueue.failAfter as number,
-      context.config.messageQueue.retryLimit as number,
-      context.logger,
-      requestContext,
-    );
 
     /// MARK - Validation for auctionRoundDepth
 
@@ -107,6 +102,42 @@ export const makeSubscriber = async (_configOverride?: NxtpRouterConfig) => {
     // TODO: New diagnostic mode / cleanup mode?
     await bindServer();
     await bindMetrics("subscriber");
+
+    while (retryCount > 0) {
+      try {
+        context.adapters.mqClient = await setupMq(
+          context.config.messageQueue.uri as string,
+          context.config.messageQueue.limit as number,
+          context.config.messageQueue.heartbeat as number,
+          context.config.messageQueue.failAfter as number,
+          context.config.messageQueue.retryLimit as number,
+          context.logger,
+          requestContext,
+        );
+        await bindMessageQueue();
+        context.logger.info("MQ subscription successfull.", requestContext, methodContext);
+        break;
+      } catch (e: unknown) {
+        rabbit.reset();
+        context.logger.error(
+          "Error binding message queue, retrying...",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        retryCount--;
+      }
+    }
+    context.adapters.mqClient = await setupMq(
+      context.config.messageQueue.uri as string,
+      context.config.messageQueue.limit as number,
+      context.config.messageQueue.heartbeat as number,
+      context.config.messageQueue.failAfter as number,
+      context.config.messageQueue.retryLimit as number,
+      context.logger,
+      requestContext,
+    );
     await bindMessageQueue();
 
     context.logger.info("Bindings initialized.", requestContext, methodContext);

@@ -1,12 +1,14 @@
-import { createMethodContext, createRequestContext, getChainData, Logger } from "@connext/nxtp-utils";
+import { createMethodContext, createRequestContext, getChainData, Logger, jsonifyError } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
-import { getConfig, NxtpRouterConfig } from "../../config";
+import { getConfig, NxtpRouterConfig, DEFAULT_ROUTER_MQ_RETRY_LIMIT } from "../../config";
 import { bindMetrics } from "../../bindings";
 import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
 import { AppContext } from "./context";
 import { bindSubgraph, bindServer } from "./bindings";
+
+import rabbit from "foo-foo-mq";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;
@@ -38,6 +40,8 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       config: { ...context.config, mnemonic: context.config.mnemonic ? "*****" : "N/A" },
     });
 
+    let retryCount = (context.config.messageQueue.retryLimit ?? DEFAULT_ROUTER_MQ_RETRY_LIMIT) * 2;
+
     /// MARK - Adapters
     context.adapters.subgraph = await setupSubgraphReader(
       context.logger,
@@ -53,6 +57,32 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       context.logger,
       requestContext,
     );
+
+    while (retryCount > 0) {
+      try {
+        context.adapters.mqClient = await setupMq(
+          context.config.messageQueue.uri as string,
+          context.config.messageQueue.limit as number,
+          context.config.messageQueue.heartbeat as number,
+          context.config.messageQueue.failAfter as number,
+          context.config.messageQueue.retryLimit as number,
+          context.logger,
+          requestContext,
+        );
+        context.logger.info("MQ configuration successfull.", requestContext, methodContext);
+        break;
+      } catch (e: unknown) {
+        rabbit.reset();
+        context.logger.error(
+          "Error binding message queue, retrying...",
+          requestContext,
+          methodContext,
+          jsonifyError(e as Error),
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        retryCount--;
+      }
+    }
     context.adapters.mqClient = await setupMq(
       context.config.messageQueue.uri as string,
       context.config.messageQueue.limit as number,
