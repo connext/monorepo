@@ -50,7 +50,7 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
     Params: { router: string };
     Reply: RouterStatusApiResponse | SequencerApiErrorResponse;
   }>(
-    "/router-status",
+    "/router-status/:router",
     {
       schema: {
         response: {
