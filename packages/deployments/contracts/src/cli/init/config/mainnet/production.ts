@@ -676,6 +676,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
           adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
         },
+        /// BNB
+        "6450786": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
       },
     },
   ],
