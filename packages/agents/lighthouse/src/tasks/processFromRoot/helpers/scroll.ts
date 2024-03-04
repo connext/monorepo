@@ -1,0 +1,70 @@
+import { axiosGet, createLoggingContext } from "@connext/nxtp-utils";
+import { BigNumber } from "ethers";
+
+import { AlreadyProcessed, NoRootAvailable } from "../errors";
+import { getContext } from "../processFromRoot";
+
+import { GetProcessArgsParams } from ".";
+
+export const getProcessFromScrollRootArgs = async ({
+  spokeChainId,
+  hubChainId,
+  message: _message,
+  sendHash,
+  _requestContext,
+}: GetProcessArgsParams): Promise<
+  [string, string, BigNumber, BigNumber, string, { batchIndex: BigNumber; merkleProof: string }]
+> => {
+  const {
+    logger,
+    config,
+    adapters: { contracts },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getProcessFromScrollRootArgs.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext);
+
+  const scrollApiEndpoint =
+    hubChainId === 1 ? "https://mainnet-api-bridge.scroll.io/api/" : " https://sepolia-api-bridge.scroll.io/api/";
+
+  const spokeConnector = contracts.spokeConnector(
+    spokeChainId ?? 0,
+    "Scroll",
+    config.environment === "staging" ? "Staging" : "",
+  );
+
+  // get Claimable messages
+  const claimableRes = await axiosGet(
+    `${scrollApiEndpoint}claimable?address=${spokeConnector!.address}&page_size=100&page=1`,
+  );
+
+  if (claimableRes.status !== 200 || claimableRes.data.errcode !== 0 || claimableRes.data?.data?.result?.length === 0) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: `${sendHash} has no message sent`,
+    });
+  }
+  const transaction = claimableRes.data.data.result.find((tx: any) => tx.hash.toLowerCase() === sendHash.toLowerCase());
+  if (!transaction) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: `${sendHash} has no message sent`,
+    });
+  } else if (transaction.finalizeTx.hash) {
+    throw new AlreadyProcessed(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: `${sendHash} already finalized. finalized tx: ${transaction.finalizeTx.hash}`,
+    });
+  }
+
+  const claimInfo = await transaction.claimInfo;
+  logger.info("Got Claim Info from scroll api", requestContext, methodContext, {
+    sendHash,
+    transaction: transaction,
+  });
+
+  return [
+    claimInfo.from,
+    claimInfo.to,
+    BigNumber.from(claimInfo.value),
+    BigNumber.from(claimInfo.nonce),
+    claimInfo.message,
+    { batchIndex: BigNumber.from(claimInfo.batch_index), merkleProof: claimInfo.proof },
+  ];
+};
