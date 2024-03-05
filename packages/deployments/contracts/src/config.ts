@@ -5,8 +5,8 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161],
-  testnet: [5, 280, 420, 59140, 80001, 421613],
+  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114, 1088],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -46,6 +46,11 @@ Object.values(SUPPORTED_CHAINS).forEach((chains) => {
   });
 });
 
+/**
+ * @notice If zksync is true, then deterministic deployments are NOT supported
+ * @dev If this is true, you must modify the `helpers.js` file in the hardhat deploy node_module
+ * directory
+ */
 export const hardhatNetworks = {
   ...hardhatForkNetworks,
   hardhat: {
@@ -61,21 +66,46 @@ export const hardhatNetworks = {
     url: urlOverride || "http://localhost:8545",
     allowUnlimitedContractSize: true,
   },
-  local_1337: {
+  "local-mainnet": {
     accounts: { mnemonic },
-    chainId: 1337,
+    chainId: 31337,
     url: "http://localhost:8547",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
   },
-  local_1338: {
+  "local-optimism": {
     accounts: { mnemonic },
-    chainId: 1338,
-    url: "http://localhost:8546",
-    saveDeployments: true,
-    allowUnlimitedContractSize: true,
+    chainId: 31338,
+    url: "http://localhost:8548",
     companionNetworks: {
-      hub: "local_1337",
+      hub: "local-mainnet",
+    },
+  },
+  "local-arbitrum": {
+    accounts: { mnemonic },
+    chainId: 31339,
+    url: "http://localhost:8549",
+    companionNetworks: {
+      hub: "local-mainnet",
+    },
+  },
+  "devnet-mainnet": {
+    accounts: { mnemonic },
+    chainId: 1,
+    url: process.env.MAINNET_DEVNET_RPC_URL || "http://localhost:8545",
+  },
+  "devnet-optimism": {
+    accounts: { mnemonic },
+    chainId: 10,
+    url: process.env.OPTIMISM_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
+    },
+  },
+  "devnet-gnosis": {
+    accounts: { mnemonic },
+    chainId: 100,
+    url: process.env.GNOSIS_DEVNET_RPC_URL || "http://localhost:8545",
+    companionNetworks: {
+      hub: "devnet-mainnet",
     },
   },
   mainnet: {
@@ -117,6 +147,7 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "goerli",
     },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
     verify: {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
@@ -175,6 +206,19 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
+    },
+  },
+  avalanche: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 43114,
+    url: urlOverride || process.env.AVALANCHE_PROVIDER_URL || "https://api.avax.network/ext/bc/C/rpc",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.SNOWTRACESCAN_API_KEY!,
       },
     },
   },
@@ -256,6 +300,20 @@ export const hardhatNetworks = {
       },
     },
   },
+  polygonzk: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1101,
+    url: urlOverride || process.env.POLYGONZK_PROVIDER_URL || "https://zkevm-rpc.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONZKSCAN_API_KEY!,
+        apiUrl: "https://api-zkevm.polygonscan.com",
+      },
+    },
+  },
   "zksync2-testnet": {
     accounts: { mnemonic },
     chainId: 280,
@@ -273,13 +331,131 @@ export const hardhatNetworks = {
       },
     },
   },
-  consensys: {
+  "zksync-era": {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 324,
+    url: process.env.ZKSYNC2_PROVIDER_URL || "https://mainnet.era.zksync.io",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    zksync: true,
+    ethNetwork: "mainnet",
+    verify: {
+      etherscan: {
+        apiKey: process.env.ZKSYNCSCAN_API_KEY!,
+        apiUrl: "https://api-era.zksync.network",
+      },
+    },
+  },
+  "linea-goerli": {
     accounts: { mnemonic },
     chainId: 59140,
-    // gasPrice: utils.parseUnits("15", "gwei").toNumber(),
-    url: urlOverride || process.env.CONSENSYS_PROVIDER_URL || "https://consensys-zkevm-goerli-prealpha.infura.io/v3/",
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
+    url: urlOverride || process.env.LINEA_GOERLI_PROVIDER_URL || "https://rpc.goerli.linea.build",
     companionNetworks: {
       hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api-testnet.lineascan.build",
+      },
+    },
+  },
+  linea: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 59144,
+    gasPrice: utils.parseUnits("30", "gwei").toNumber(),
+    url: urlOverride || process.env.LINEA_PROVIDER_URL || "https://rpc.linea.build",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.LINEASCAN_API_KEY!,
+        apiUrl: "https://api.lineascan.build",
+      },
+    },
+  },
+  "base-goerli": {
+    accounts: { mnemonic },
+    chainId: 84531,
+    gasPrice: utils.parseUnits("0.2", "gwei").toNumber(),
+    url: urlOverride || process.env.BASE_GOERLI_PROVIDER_URL || "https://goerli.base.org",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api-goerli.basescan.org",
+      },
+    },
+  },
+  base: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 8453,
+    url: urlOverride || process.env.BASE_PROVIDER_URL || "https://mainnet.base.org",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.BASESCAN_API_KEY!,
+        apiUrl: "https://api.basescan.org",
+      },
+    },
+  },
+  "x1-testnet": {
+    accounts: { mnemonic },
+    chainId: 195,
+    gasPrice: utils.parseUnits("300", "gwei").toNumber(),
+    url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
+    companionNetworks: {
+      hub: "goerli",
+    },
+  },
+  metis: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 1088,
+    url: urlOverride || process.env.METIS_PROVIDER_URL || "https://andromeda.metis.io/?owner=1088",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.METIS_EXPLORER_API_KEY!,
+        apiUrl: "https://andromeda-explorer.metis.io",
+      },
+    },
+  },
+  mantle: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 5000,
+    url: urlOverride || process.env.MANTLE_PROVIDER_URL || "https://rpc.mantle.xyz",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.MANTLE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mantle.xyz/api",
+      },
+    },
+  },
+  mode: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 34443,
+    url: urlOverride || process.env.MODE_PROVIDER_URL || "https://mainnet.mode.network/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("1.5", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.MODE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mode.network/",
+      },
     },
   },
 };

@@ -1,4 +1,4 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, Wallet } from "ethers";
 import { createStubInstance, SinonStubbedInstance, stub } from "sinon";
 import { ChainReader, ConnextContractDeployments, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 import {
@@ -11,6 +11,7 @@ import {
   RootMessage,
   RelayerType,
   ReceivedAggregateRoot,
+  ModeType,
 } from "@connext/nxtp-utils";
 import { Relayer } from "@connext/nxtp-adapters-relayer";
 import { mockRelayer } from "@connext/nxtp-adapters-relayer/test/mock";
@@ -23,6 +24,7 @@ import { ProcessFromRootContext } from "../src/tasks/processFromRoot/context";
 import { PropagateContext } from "../src/tasks/propagate/context";
 import { mockSubgraph } from "@connext/nxtp-adapters-subgraph/test/mock";
 import { SendOutboundRootContext } from "../src/tasks/sendOutboundRoot/context";
+import { ProposeContext } from "../src/tasks/propose/context";
 
 export const mockTaskId = mkBytes32("0xabcdef123");
 export const mockRelayerAddress = mkAddress("0xabcdef123");
@@ -54,10 +56,14 @@ export const mockCache = () => {
     messages: {
       getNonce: stub().resolves(1),
       setNonce: stub().resolves(),
+      getLastBatchTime: stub().resolves(0),
+      setLastBatchTime: stub().resolves(),
       storeMessages: stub().resolves(),
       getPending: stub().resolves(),
       getPendingTasks: stub().resolves(),
+      addTaskPending: stub().resolves(),
       getMessage: stub().resolves(),
+      setStatus: stub().resolves(),
       increaseAttempt: stub().resolves(),
       removePending: stub().resolves(),
       getNode: stub().resolves(),
@@ -93,12 +99,14 @@ export const mock = {
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        subgraph: mock.adapters.subgraph(),
         databaseWriter: { database: mock.adapters.database(), pool: mockDatabasePool() },
         cache: mockCache() as any,
         mqClient: mockMqClient() as any,
       },
       config: mock.config(),
       chainData: mock.chainData(),
+      mode: ModeType.SlowMode,
     };
   },
   processFromRootCtx: (): ProcessFromRootContext => {
@@ -109,6 +117,7 @@ export const mock = {
         contracts: mock.adapters.deployments(),
         relayers: mock.adapters.relayers(),
         database: mock.adapters.database(),
+        subgraph: mock.adapters.subgraph(),
       },
       config: mock.config(),
       chainData: mock.chainData(),
@@ -122,6 +131,7 @@ export const mock = {
         deployments: mock.adapters.deployments(),
         contracts: mock.adapters.contracts(),
         relayers: mock.adapters.relayers(),
+        database: mock.adapters.database(),
         subgraph: mock.adapters.subgraph(),
         ambs: mock.adapters.ambs(),
       },
@@ -144,19 +154,41 @@ export const mock = {
       chainData: mock.chainData(),
     };
   },
+  proposeCtx: (): ProposeContext => {
+    return {
+      logger: new Logger({ name: "mock", level: process.env.LOG_LEVEL || "silent" }),
+      adapters: {
+        chainreader: mock.adapters.chainreader() as unknown as ChainReader,
+        deployments: mock.adapters.deployments(),
+        contracts: mock.adapters.contracts(),
+        relayers: mock.adapters.relayers(),
+        database: mock.adapters.database(),
+        subgraph: mock.adapters.subgraph(),
+        ambs: mock.adapters.ambs(),
+        wallet: mock.adapters.wallet(),
+      },
+      config: mock.config(),
+      chainData: mock.chainData(),
+    };
+  },
   config: (): NxtpLighthouseConfig => ({
+    snapshotDuration: mock.snapshotDuration,
     chains: {
       [mock.domain.A]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
+          spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
         },
       },
       [mock.domain.B]: {
         providers: ["http://example.com"],
         deployments: {
+          connext: mkAddress("0xfedcba3234343434343"),
           spokeConnector: mkAddress("0xfedcba321"),
+          spokeMerkleTree: mkAddress("0xfedcba321"),
           relayerProxy: mkAddress("0xfedcba321"),
         },
       },
@@ -173,6 +205,7 @@ export const mock = {
     },
     environment: "staging",
     database: { url: "postgres://localhost:5432/lighthouse" },
+    databaseWriter: { url: "postgres://localhost:5432/lighthouse" },
     healthUrls: {},
     hubDomain: mock.domain.A,
     relayers: [
@@ -183,6 +216,10 @@ export const mock = {
       },
     ],
     proverBatchSize: {
+      "1111": 10,
+      "2222": 10,
+    },
+    proverBatchWaitTime: {
       "1111": 10,
       "2222": 10,
     },
@@ -248,6 +285,10 @@ export const mock = {
       spokeConnector.decodeFunctionResult.returns([BigNumber.from(1000)]);
       spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
 
+      const merkleTreeManager = createStubInstance(utils.Interface);
+      spokeConnector.encodeFunctionData.returns(encodedDataMock);
+      spokeConnector.decodeFunctionData.returns([BigNumber.from(1000)]);
+
       return {
         erc20: erc20 as unknown as ConnextContractInterfaces["erc20"],
         relayerProxy: relayerProxy as unknown as ConnextContractInterfaces["relayerProxy"],
@@ -256,6 +297,7 @@ export const mock = {
         priceOracle: priceOracle as unknown as ConnextContractInterfaces["priceOracle"],
         stableSwap: stableSwap as unknown as ConnextContractInterfaces["stableSwap"],
         spokeConnector: spokeConnector as unknown as ConnextContractInterfaces["spokeConnector"],
+        merkleTreeManager: merkleTreeManager as unknown as ConnextContractInterfaces["merkleTreeManager"],
         relayerProxyHub: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["relayerProxyHub"],
         multisend: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["multisend"],
         unwrapper: createStubInstance(utils.Interface) as unknown as ConnextContractInterfaces["unwrapper"],
@@ -268,6 +310,7 @@ export const mock = {
         hubConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         priceOracle: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         spokeConnector: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
+        spokeMerkleTreeManager: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         stableSwap: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         multisend: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
         unwrapper: stub().returns({ address: mkAddress("0xabc"), abi: [] }) as any,
@@ -290,6 +333,14 @@ export const mock = {
         bnb: [],
       };
     },
+    wallet: (): SinonStubbedInstance<Wallet> => {
+      const wallet = createStubInstance(Wallet);
+      // need to do this differently bc the function doesnt exist on the interface
+      (wallet as any).address = mock.address.router;
+      wallet.getAddress.resolves(mock.address.router);
+      wallet.signMessage.resolves(mock.signature);
+      return wallet;
+    },
   },
   contracts: {
     deployments: (): ConnextContractDeployments => {
@@ -304,6 +355,7 @@ export const mock = {
         }),
         priceOracle: (_: number) => ({ address: mkAddress("0xbaddad"), abi: {} }),
         stableSwap: (_: number) => ({ address: mkAddress("0xbbbdddf"), abi: {} }),
+        spokeMerkleTreeManager: (_: number) => ({ address: mkAddress("bbbcccdddaaa"), abi: {} }),
         spokeConnector: (_: number) => ({ address: mkAddress("0xbbbddda"), abi: {} }),
         hubConnector: (_: number) => ({ address: mkAddress("0xbbbdddb"), abi: {} }),
         multisend: (_: number) => ({ address: mkAddress("0xbbbdddc"), abi: {} }),

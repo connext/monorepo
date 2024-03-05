@@ -146,10 +146,57 @@ contract MerkleTreeManagerTest is ForgeHelper {
     assertEq(root, expectedRoot);
   }
 
+  // ========= setArborist =========
+
   function test_Merkle__setArborist_shouldWork() public {
     vm.expectEmit(true, true, true, true);
     emit ArboristUpdated(address(this), address(1));
 
     merkle.setArborist(address(1));
+  }
+
+  // ========= incrementNonce =========
+
+  function test_Merkle__incrementNonce_works() public {
+    uint32 domain = uint32(1);
+    uint32 returned = merkle.incrementNonce(domain);
+    assertEq(returned, 0);
+    assertEq(merkle.nonces(domain), returned + 1);
+  }
+
+  // ========= markAsProven =========
+
+  function test_Merkle__markAsProven_failsIfNotArborist() public {
+    vm.expectRevert("!arborist");
+    vm.prank(address(1231));
+    merkle.markAsProven(bytes32(bytes("123123")));
+  }
+
+  function test_Merkle__markAsProven_failsIfBadStatus() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    vm.expectRevert("!empty");
+    merkle.markAsProven(leaf);
+  }
+
+  function test_Merkle__markAsProven_works() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    assertTrue(merkle.leaves(leaf) == MerkleTreeManager.LeafStatus.Proven);
+  }
+
+  // ========= markAsProcessed =========
+
+  function test_Merkle__markAsProcessed_failsIfBadStatus() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    vm.expectRevert("!proven");
+    merkle.markAsProcessed(leaf);
+  }
+
+  function test_Merkle__markAsProcessed_works() public {
+    bytes32 leaf = bytes32(bytes("123123"));
+    merkle.markAsProven(leaf);
+    merkle.markAsProcessed(leaf);
+    assertTrue(merkle.leaves(leaf) == MerkleTreeManager.LeafStatus.Processed);
   }
 }

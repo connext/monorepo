@@ -7,11 +7,12 @@ import { SdkBase } from "../src/sdkBase";
 import { SdkUtils } from "../src/sdkUtils";
 import { SdkPool } from "../src/sdkPool";
 import { PoolAsset, Pool, Transfer } from "../src/interfaces";
-import { getEnvConfig } from "../src/config";
+import { getEnvConfig, LOCKBOX_ADAPTER_DOMAIN_ADDRESS } from "../src/config";
 import { CannotUnwrapOnDestination, ParamsInvalid, SignerAddressMissing, ProviderMissing } from "../src/lib/errors";
 
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
+
 import { SdkXCallParams } from "../src/interfaces";
 
 const mockConfig = mock.config();
@@ -153,14 +154,12 @@ describe("SdkBase", () => {
     const mockXCallRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
       data: standardXCallData,
-      from: mock.config().signerAddress,
       value: relayerFee,
       chainId,
     };
     const mockXCallIntoLocalRequest: providers.TransactionRequest = {
       to: mockConnextAddress,
       data: standardXCallIntoLocalData,
-      from: mock.config().signerAddress,
       value: relayerFee,
       chainId,
     };
@@ -208,9 +207,27 @@ describe("SdkBase", () => {
     });
 
     it("happy-1: should work if ERC20", async () => {
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(sdkXCallArgs);
-
       expect(res).to.be.deep.eq(mockXCallRequest);
+    });
+
+    it("happy-1.1: should work if ERC20 and if asset is xERC20", async () => {
+      stub(sdkBase, "isXERC20WithLockbox").resolves(true);
+      // Changing domain to mainnet
+      const mockXcallArgs = {
+        ...sdkXCallArgs,
+        origin: "6648936",
+      };
+      stub(sdkBase, "providerSanityCheck").resolves(true);
+      const res = await sdkBase.xcall(mockXcallArgs);
+
+      const adapterMockXcallArgs = {
+        ...mockXCallRequest,
+        chainId: 1,
+        to: LOCKBOX_ADAPTER_DOMAIN_ADDRESS["6648936"],
+      };
+      expect(res).to.be.deep.eq(adapterMockXcallArgs);
     });
 
     it("happy-2: should work if a user wants to pay fee in transacting asset", async () => {
@@ -231,16 +248,16 @@ describe("SdkBase", () => {
       const xcallRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data: xcallData,
-        from: mock.config().signerAddress,
         value: relayerFee,
         chainId,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(_sdkXCallArgs);
       expect(res).to.be.deep.eq(xcallRequest);
     });
 
     it("happy-3: should use xcallIntoLocal if receiveLocal is used", async () => {
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
@@ -255,12 +272,11 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(wrapNativeOnOriginMultisendTxs(asset!, amount)),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
@@ -277,12 +293,11 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(txs),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         receiveLocal: true,
@@ -311,11 +326,10 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data: xcallData,
-        from: mock.config().signerAddress,
         value: relayerFee,
         chainId,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         unwrapNativeOnDestination: true,
@@ -348,12 +362,11 @@ describe("SdkBase", () => {
       const expectedTxRequest: providers.TransactionRequest = {
         to: mockMultisendAddress,
         data: encodeMultisendCall(txs),
-        from: mock.config().signerAddress,
         // Important: must send the full amount in ETH for transfer! Not just relayerFee.
         value: relayerFee.add(amount),
         chainId,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({
         ...sdkXCallArgs,
         wrapNativeOnOrigin: true,
@@ -403,7 +416,8 @@ describe("SdkBase", () => {
         ...mock.entity.xcallArgs(),
         origin,
       };
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall(sdkXcallArgs);
 
       expect(res).to.be.deep.eq(mockXCallRequest);
@@ -419,23 +433,14 @@ describe("SdkBase", () => {
         ...mock.entity.xcallArgs(),
         origin,
       };
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       const res = await sdkBase.xcall({ ...sdkXcallArgs, options });
 
       expect(res).to.not.be.undefined;
     });
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkBase.config.signerAddress = undefined;
-      const origin = mock.entity.callParams().originDomain;
-      const sdkXcallArgs = {
-        ...mock.entity.xcallArgs(),
-        origin,
-      };
-
-      await expect(sdkBase.xcall(sdkXcallArgs)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
     it("throws CannotUnwrapOnDestination if receiveLocal && unwrapNativeOnDestination", async () => {
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(
         sdkBase.xcall({
           ...sdkXCallArgs,
@@ -446,6 +451,7 @@ describe("SdkBase", () => {
     });
 
     it("throws CannotUnwrapOnDestination if callData specified && unwrapNativeOnDestination", async () => {
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(
         sdkBase.xcall({
           ...sdkXCallArgs,
@@ -457,7 +463,7 @@ describe("SdkBase", () => {
 
     it("should error if provider sanity check returns false", async () => {
       stub(sdkBase, "providerSanityCheck").resolves(false);
-
+      stub(sdkBase, "isXERC20WithLockbox").resolves(false);
       await expect(sdkBase.xcall(sdkXCallArgs)).to.be.rejectedWith(ProviderMissing);
     });
   });
@@ -470,19 +476,12 @@ describe("SdkBase", () => {
       relayerFee: "1",
     };
 
-    it("should error if signerAddress is undefined", async () => {
-      sdkBase.config.signerAddress = undefined;
-
-      await expect(sdkBase.bumpTransfer(mockBumpTransferParams)).to.be.rejectedWith(SignerAddressMissing);
-    });
-
     it("happy-1: should work with native asset", async () => {
       const bumpParams = { ...mockBumpTransferParams, asset: constants.AddressZero };
       const data = getConnextInterface().encodeFunctionData("bumpTransfer(bytes32)", [bumpParams.transferId]);
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
-        from: mock.config().signerAddress,
         value: BigNumber.from(bumpParams.relayerFee),
         chainId,
       };
@@ -502,7 +501,6 @@ describe("SdkBase", () => {
       const mockBumpTransferTxRequest: providers.TransactionRequest = {
         to: mockConnextAddress,
         data,
-        from: mock.config().signerAddress,
         chainId,
       };
 

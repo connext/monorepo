@@ -125,8 +125,9 @@ resource "aws_ecs_service" "service" {
   task_definition = "${aws_ecs_task_definition.service.family}:${max("${aws_ecs_task_definition.service.revision}", "${aws_ecs_task_definition.service.revision}")}"
 
   network_configuration {
-    security_groups = flatten([var.service_security_groups, aws_security_group.lb.id])
-    subnets         = var.private_subnets
+    security_groups  = flatten([var.service_security_groups, aws_security_group.lb.id])
+    subnets          = var.lb_subnets
+    assign_public_ip = var.internal_lb ? false : true
   }
 
   load_balancer {

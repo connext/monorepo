@@ -7,5 +7,5 @@
     "tsBuildInfoFile": "./tsconfig.tsBuildInfo"
   },
   "exclude": ["test/**/*.ts"],
-  "include": ["src/**/*.ts", "src/typechain-types/**/*.json"]
+  "include": ["src/**/*.ts", "src/**/**/**/*.json"]
 }

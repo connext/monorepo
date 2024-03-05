@@ -90,16 +90,27 @@ dataSources:
         - RootMessageSent
         - ConnectorMeta
         - DestinationMessage
+        - SnapshotRoot
       abis:
         - name: SpokeConnector
           file: ./src/amarok-runtime-staging/abis/SpokeConnector.json
       eventHandlers:
-        - event: AggregateRootReceived(bytes32)
+        - event: AggregateRootReceived(indexed bytes32)
           handler: handleAggregateRootReceived
         - event: MessageSent(bytes,bytes,address)
           handler: handleMessageSent
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleNewConnector
+        - event: SnapshotRootSaved(indexed uint256,indexed bytes32,indexed uint256)
+          handler: handleSnapshotRootSaved
+        - event: SlowModeActivated(indexed address)
+          handler: handleSlowModeActivated
+        - event: OptimisticModeActivated()
+          handler: handleOptimisticModeActivated
+        - event: AggregateRootProposed(indexed bytes32,indexed uint256,indexed uint256,uint32)
+          handler: handleAggregateRootProposed
+        - event: ProposedRootFinalized(bytes32)
+          handler: handleProposedRootFinalized
       file: ./src/amarok-runtime-staging/mapping/index.ts
   # MERKLE TREE MANAGER events
   - kind: ethereum/contract

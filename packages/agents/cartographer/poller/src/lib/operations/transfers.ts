@@ -10,6 +10,7 @@ import {
 } from "@connext/nxtp-utils";
 
 import { getContext } from "../../shared";
+
 import { DEFAULT_LOAD_SIZE } from ".";
 
 const getMaxNonce = (transfers: DestinationTransfer[] | XTransfer[]): number => {
@@ -43,20 +44,20 @@ export const updateTransfers = async () => {
   const subgraphOriginQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const subgraphDestinationQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
-  const lastestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
+  const latestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
   await Promise.all(
     domains.map(async (domain) => {
       let latestBlockNumber: number | undefined = undefined;
-      if (lastestBlockNumbers.has(domain)) {
-        latestBlockNumber = lastestBlockNumbers.get(domain)!;
+      if (latestBlockNumbers.has(domain)) {
+        latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
 
       if (!latestBlockNumber) {
         logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
           domain,
           latestBlockNumber,
-          lastestBlockNumbers,
+          latestBlockNumbers,
         });
         return;
       }
@@ -178,7 +179,7 @@ export const updateTransfers = async () => {
 
         const _destinationPendingQueryMetaParams: Map<string, SubgraphQueryByTransferIDsMetaParams> = new Map();
         _destinationPendingQueryMetaParams.set(destinationDomain, {
-          maxBlockNumber: lastestBlockNumbers.get(originDomain)!,
+          maxBlockNumber: latestBlockNumbers.get(originDomain)!,
           transferIDs: pendingTransfers,
         });
         const _destinationTransfers = await subgraph.getDestinationTransfersById(_destinationPendingQueryMetaParams);

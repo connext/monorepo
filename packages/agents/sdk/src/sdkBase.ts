@@ -20,7 +20,7 @@ import {
   SlippageInvalid,
   ProviderMissing,
 } from "./lib/errors";
-import { SdkConfig, getConfig } from "./config";
+import { SdkConfig, getConfig, LOCKBOX_ADAPTER_DOMAIN_ADDRESS } from "./config";
 import { SdkShared } from "./sdkShared";
 import {
   SdkXCallParamsSchema,
@@ -183,12 +183,6 @@ export class SdkBase extends SdkShared {
       throw new ProviderMissing(origin);
     }
 
-    // Ensure signer is provided.
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     let { to, callData } = params;
 
     // Set default values if not provided
@@ -228,7 +222,16 @@ export class SdkBase extends SdkShared {
       });
     }
 
-    const connextContractAddress = (await this.getConnext(origin, options)).address;
+    const isLockboxAsset = await this.isXERC20WithLockbox(origin, asset, options);
+    const LOCKBOX_ADAPTER_ADDRESS = LOCKBOX_ADAPTER_DOMAIN_ADDRESS[origin];
+    if (isLockboxAsset && !LOCKBOX_ADAPTER_ADDRESS) {
+      throw new Error("Lockbox adapter not deployed on given domain");
+    }
+
+    // In case given asset is XERC20 and have lockbox tx should hit adapter rather than connext contracts
+    const connextContractAddress = isLockboxAsset
+      ? LOCKBOX_ADAPTER_ADDRESS
+      : (await this.getConnext(origin, options)).address;
 
     const chainId = await this.getChainId(origin);
 
@@ -344,7 +347,6 @@ export class SdkBase extends SdkShared {
         to: multisendContractAddress,
         value: amountBN.add(relayerFeeInNativeAsset), // Amount in ETH (which will be converted to WETH) + ETH for xcall relayer fee.
         data: encodeMultisendCall(txs),
-        from: _signerAddress,
         chainId,
       };
     } else {
@@ -357,14 +359,12 @@ export class SdkBase extends SdkShared {
           to: connextContractAddress,
           value,
           data: xcallData,
-          from: _signerAddress,
           chainId,
         };
       } else {
         txRequest = {
           to: connextContractAddress,
           data: xcallData,
-          from: _signerAddress,
           chainId,
         };
       }
@@ -535,11 +535,6 @@ export class SdkBase extends SdkShared {
       throw new ProviderMissing(domainId);
     }
 
-    const _signerAddress = options?.signerAddress ?? this.config.signerAddress;
-    if (!_signerAddress) {
-      throw new SignerAddressMissing();
-    }
-
     // Input validation
     if (parseInt(relayerFee) <= 0) {
       throw new ParamsInvalid({ paramsError: "Must increase relayerFee by > 0", relayerFee: relayerFee });
@@ -575,13 +570,11 @@ export class SdkBase extends SdkShared {
             to: ConnextContractAddress,
             value,
             data,
-            from: _signerAddress,
             chainId,
           }
         : {
             to: ConnextContractAddress,
             data,
-            from: _signerAddress,
             chainId,
           };
 
@@ -601,6 +594,7 @@ export class SdkBase extends SdkShared {
    * @param params.originNativeTokenPrice - (optional) The USD price of the origin native token.
    * @param params.destinationNativetokenPrice - (optional) The USD price of the destination native token.
    * @param params.destinationGasPrice - (optional) The gas price of the destination chain, in gwei units.
+   * @param params.signerAddress - (optional) The signer address requesting this estimate.
    * @returns The relayer fee in either native asset of the origin domain or USD (18 decimal fidelity).
    *
    * @example
@@ -671,6 +665,7 @@ export class SdkBase extends SdkShared {
    * @param amount - The amount of the origin token to bridge, in the origin token's native decimal precision.
    * @param receiveLocal - (optional) Whether the desired destination token is the local asset ("nextAsset").
    * @param checkFastLiquidity - (optional) Whether to check for fast liquidity availability.
+   * @param signerAddress - (optional) The signer address requesting this estimate.
    * @returns Estimated amount received for local/adopted assets, if applicable, in their native decimal precisions.
    */
   async calculateAmountReceived(
@@ -680,6 +675,7 @@ export class SdkBase extends SdkShared {
     amount: BigNumberish,
     receiveLocal = false,
     checkFastLiquidity = false,
+    signerAddress = this.config.signerAddress,
   ): Promise<{
     amountReceived: BigNumberish;
     originSlippage: BigNumberish;
@@ -695,6 +691,7 @@ export class SdkBase extends SdkShared {
       amount,
       receiveLocal,
       checkFastLiquidity,
+      signerAddress,
     );
   }
 }

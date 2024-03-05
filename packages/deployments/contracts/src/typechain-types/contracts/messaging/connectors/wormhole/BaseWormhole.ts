@@ -32,6 +32,7 @@ export interface BaseWormholeInterface extends utils.Interface {
     "MIRROR_WORMHOLE_ID()": FunctionFragment;
     "acceptProposedOwner()": FunctionFragment;
     "delay()": FunctionFragment;
+    "gasCap()": FunctionFragment;
     "owner()": FunctionFragment;
     "processedWhMessages(bytes32)": FunctionFragment;
     "proposeNewOwner(address)": FunctionFragment;
@@ -50,6 +51,7 @@ export interface BaseWormholeInterface extends utils.Interface {
       | "MIRROR_WORMHOLE_ID"
       | "acceptProposedOwner"
       | "delay"
+      | "gasCap"
       | "owner"
       | "processedWhMessages"
       | "proposeNewOwner"
@@ -72,6 +74,7 @@ export interface BaseWormholeInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "delay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "gasCap", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processedWhMessages",
@@ -117,6 +120,7 @@ export interface BaseWormholeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "delay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasCap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processedWhMessages",
@@ -244,6 +248,8 @@ export interface BaseWormhole extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    gasCap(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     processedWhMessages(
@@ -293,6 +299,8 @@ export interface BaseWormhole extends BaseContract {
 
   delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+  gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   processedWhMessages(
@@ -339,6 +347,8 @@ export interface BaseWormhole extends BaseContract {
     acceptProposedOwner(overrides?: CallOverrides): Promise<void>;
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
+
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -421,6 +431,8 @@ export interface BaseWormhole extends BaseContract {
 
     delay(overrides?: CallOverrides): Promise<BigNumber>;
 
+    gasCap(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     processedWhMessages(
@@ -472,6 +484,8 @@ export interface BaseWormhole extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     delay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    gasCap(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

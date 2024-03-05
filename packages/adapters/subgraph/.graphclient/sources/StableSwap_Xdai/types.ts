@@ -22,6 +22,10 @@ export type Scalars = {
   xdai_swap_Int8: any;
 };
 
+export type xdai_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type xdai_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

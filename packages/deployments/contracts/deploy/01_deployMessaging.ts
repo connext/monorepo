@@ -32,43 +32,67 @@ const formatConnectorArgs = (
   const config = protocol.configs[connectorChainId];
   console.log(`using config`, config);
 
-  const isHub = deploymentChainId === protocol.hub && connectorChainId != protocol.hub;
+  const isHub = deploymentChainId === protocol.hub.chain && connectorChainId != protocol.hub.chain;
 
   const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
   const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
 
   const amb = args.amb ?? isHub ? config.ambs.hub : config.ambs.spoke;
 
-  const hubArgs = [
-    deploymentDomain,
-    // Mirror domain should be known.
-    mirrorDomain,
-    amb,
-    rootManager,
-    mirrorConnector ?? constants.AddressZero,
-    ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
-  ];
   if (isHub) {
+    const hubArgs = [
+      deploymentDomain,
+      // Mirror domain should be known.
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector ?? constants.AddressZero,
+      ...Object.values((isHub ? config?.custom?.hub : {}) ?? {}),
+    ];
     console.log(
       `hub connector constructorArgs:`,
       hubArgs.map((c) => c.toString()),
     );
     return hubArgs;
   }
-  const constructorArgs = [
-    ...hubArgs,
-    config.processGas,
-    config.reserveGas,
-    config.delayBlocks,
-    merkleManager!,
-    watcherManager!,
-    ...Object.values(config?.custom?.spoke ?? {}),
+  // struct ConstructorParams {
+  //   uint32 domain;
+  //   uint32 mirrorDomain;
+  //   address amb;
+  //   address rootManager;
+  //   address mirrorConnector;
+  //   uint256 processGas;
+  //   uint256 reserveGas;
+  //   uint256 delayBlocks;
+  //   address merkle;
+  //   address watcherManager;
+  //   uint256 minDisputeBlocks;
+  //   uint256 disputeBlocks;
+  // }
+  const constructorArgs: any[] = [
+    {
+      domain: deploymentDomain,
+      mirrorDomain,
+      amb,
+      rootManager,
+      mirrorConnector: mirrorConnector ?? constants.AddressZero,
+      processGas: config.processGas,
+      reserveGas: config.reserveGas,
+      delayBlocks: config.delayBlocks,
+      merkle: merkleManager,
+      watcherManager,
+      minDisputeBlocks: config.minDisputeBlocks,
+      disputeBlocks: config.disputeBlocks,
+    },
   ];
+
+  if (config.custom?.spoke) {
+    constructorArgs.push(...Object.values(config.custom.spoke));
+  }
   console.log(
     `spoke connector constructorArgs:`,
-    constructorArgs.map((c) => c.toString()),
+    Object.fromEntries(Object.entries(constructorArgs).map(([k, v]) => [k, v.toString()])),
   );
-  // console.log(`- domain:`, constructorArgs[0].toString());
   return constructorArgs;
 };
 
@@ -102,12 +126,11 @@ const handleDeployHub = async (
 
   // Deploy RootManager.
   console.log("Deploying RootManager...");
-  // TODO: need to make this hardcoded value configurable
-  const delayBlocks = 100;
+  const delay = protocol.configs[protocol.hub.chain].delayBlocks;
   const rootManager = await hre.deployments.deploy(getDeploymentName("RootManager"), {
     contract: "RootManager",
     from: deployer.address,
-    args: [delayBlocks, merkleTreeManagerForRoot.address, watcherManager.address],
+    args: [delay, merkleTreeManagerForRoot.address, watcherManager.address, delay / 2, delay],
     skipIfAlreadyDeployed: true,
     log: true,
   });
@@ -125,15 +148,15 @@ const handleDeployHub = async (
   );
 
   // Deploy MainnetSpokeConnector.
-  const connectorName = getConnectorName(protocol, protocol.hub);
+  const connectorName = getConnectorName(protocol, protocol.hub.chain);
   console.log(`Deploying ${connectorName}...`);
   const deployment = await hre.deployments.deploy(getDeploymentName(connectorName), {
     contract: connectorName,
     from: deployer.address,
     args: formatConnectorArgs(protocol, {
-      connectorChainId: protocol.hub,
-      deploymentChainId: protocol.hub,
-      mirrorChainId: protocol.hub,
+      connectorChainId: protocol.hub.chain,
+      deploymentChainId: protocol.hub.chain,
+      mirrorChainId: protocol.hub.chain,
       rootManager: rootManager.address,
       merkleManager: merkleTreeManagerForSpoke.address,
       watcherManager: watcherManager.address,
@@ -149,23 +172,18 @@ const handleDeployHub = async (
     merkleTreeManagerForSpoke.address,
     deployer,
   );
-  if (!(await merkleForSpokeContract.arborist())) {
-    const tx = await merkleForSpokeContract.setArborist(deployment.address);
-    console.log(`setArborist for MainnetSpokeConnector tx submitted:`, tx.hash);
-    await tx.wait();
-  }
 
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.
   const { configs } = protocol;
   for (const mirrorChain of Object.keys(configs)) {
     const mirrorChainId = +mirrorChain;
-    if (mirrorChainId === protocol.hub) {
+    if (mirrorChainId === protocol.hub.chain) {
       // Skip; we're just deploying the spokes' hub-side connectors.
       continue;
     }
 
-    const contract = getConnectorName(protocol, mirrorChainId, protocol.hub);
+    const contract = getConnectorName(protocol, mirrorChainId, protocol.hub.chain);
 
     const deploymentName = getDeploymentName(contract, undefined, protocol.configs[mirrorChainId].networkName);
 
@@ -175,7 +193,7 @@ const handleDeployHub = async (
       from: deployer.address,
       args: formatConnectorArgs(protocol, {
         connectorChainId: mirrorChainId,
-        deploymentChainId: protocol.hub,
+        deploymentChainId: protocol.hub.chain,
         mirrorChainId,
         rootManager: rootManager.address,
       }),
@@ -218,10 +236,14 @@ const handleDeploySpoke = async (
       !contract.includes("Arbitrum") &&
       !contract.includes("PolygonZk") &&
       !contract.includes("ZkSync") &&
-      !contract.includes("Consensys") &&
-      !contract.includes("Wormhole")) ||
+      !contract.includes("Linea") &&
+      !contract.includes("Wormhole") &&
+      !contract.includes("OptimismV0") &&
+      !contract.includes("Mantle") &&
+      !contract.includes("Admin")) ||
     contract.includes("Mainnet")
   ) {
+    console.error("Unsupported connector name!");
     return;
   }
 
@@ -269,7 +291,7 @@ const handleDeploySpoke = async (
       args: formatConnectorArgs(protocol, {
         connectorChainId: deploymentChainId,
         deploymentChainId,
-        mirrorChainId: protocol.hub,
+        mirrorChainId: protocol.hub.chain,
         mirrorConnector: hubConnectorAddress,
         rootManager: rootManagerDeployment.address,
         merkleManager: merkleTreeManager.address,
@@ -285,13 +307,6 @@ const handleDeploySpoke = async (
   // setArborist to Merkle
   const merkleContract = await hre.ethers.getContractAt("MerkleTreeManager", merkleTreeManager.address, deployer);
   console.log("merkleContract: ", merkleContract.address);
-
-  console.log("await merkleContract.arborist(): ", await merkleContract.arborist());
-  if (!(await merkleContract.arborist())) {
-    const tx = await merkleContract.setArborist(deployment.address);
-    console.log(`setArborist tx submitted:`, tx.hash);
-    await tx.wait();
-  }
   return deployment;
 };
 
@@ -312,15 +327,15 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Messaging Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("Network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
-  if (!protocol.configs[+chain] && +chain !== protocol.hub) {
+  if (!protocol.configs[+chain] && +chain !== protocol.hub.chain) {
     throw new Error(`Network ${network} is not supported for chain ${chain}!`);
   }
 
-  const isHub = chain === protocol.hub.toString();
+  const isHub = chain === protocol.hub.chain.toString();
 
   // Handle deployment for Connector(s) and RootManager, if applicable.
   if (isHub) {
@@ -341,5 +356,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Messaging", "prod", "local", "mainnet"];
+func.tags = ["Messaging", "prod", "local", "mainnet", "devnet"];
 func.dependencies = [];

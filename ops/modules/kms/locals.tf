@@ -4,7 +4,6 @@ locals {
     "arn:aws:iam::679752396206:user/carlo",
     "arn:aws:iam::679752396206:user/rahul",
     "arn:aws:iam::679752396206:user/layne",
-    "arn:aws:iam::679752396206:user/sanchay",
     "arn:aws:iam::679752396206:user/arjun",
     "arn:aws:iam::679752396206:user/preetham",
     "arn:aws:iam::679752396206:user/wang"

@@ -90,6 +90,12 @@ export const getEnvConfig = (
         configJson.server?.adminToken ||
         configFile.server?.adminToken,
     },
+    poller: {
+      port: process.env.RELAYER_POLLER_PORT || configJson.poller?.port || configFile.poller?.port || 8081,
+      host: process.env.RELAYER_POLLER_HOST || configJson.poller?.host || configFile.poller?.host || "0.0.0.0",
+      interval:
+        process.env.RELAYER_POLLER_INTERVAL || configJson.poller?.interval || configFile.poller?.interval || 1000,
+    },
     mode: {
       cleanup: process.env.NXTP_CLEAN_UP_MODE || configJson.mode?.cleanup || configFile.mode?.cleanup || false,
     },
@@ -118,7 +124,9 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res = chainDataForChain
+            ? deployments.connext(chainDataForChain.chainId, contractPostfix, _relayerConfig.network)
+            : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

@@ -3,12 +3,13 @@ import { expect } from "@connext/nxtp-utils";
 import {
   mockAssetsResponse,
   mockRouterDailyTVLResponse,
+  mockRouterLiquidityEventsResponse,
   mockRouterResponse,
 } from "@connext/nxtp-adapters-subgraph/test/mock";
 
 import { mockContext } from "../../globalTestHook";
 import { updateRouters } from "../../../src/lib/operations";
-import { updateAssets, updateDailyRouterTvl } from "../../../src/lib/operations/routers";
+import { updateAssets, updateDailyRouterTvl, updateRouterLiquidityEvents } from "../../../src/lib/operations/routers";
 
 describe("Routers operations", () => {
   describe("#updateRouters", () => {
@@ -106,6 +107,25 @@ describe("Routers operations", () => {
       expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
         "daily_router_tvl_timestamp_" + mockContext.domains[0],
         mockRouterDailyTVLResponse[0].timestamp,
+      );
+    });
+  });
+
+  describe("#updateRouterLiquidityEvents", () => {
+    it("should work", async () => {
+      (mockContext.adapters.subgraph.getRouterLiquidityEventsByDomainAndNonce as SinonStub).resolves(
+        mockRouterLiquidityEventsResponse,
+      );
+      await updateRouterLiquidityEvents();
+      expect(mockContext.adapters.database.saveRouterLiquidityEvents as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveRouterLiquidityEvents as SinonStub).to.be.calledWithExactly(
+        mockRouterLiquidityEventsResponse,
+      );
+      expect(mockContext.adapters.database.getCheckPoint as SinonStub).callCount(mockContext.domains.length);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).callCount(1);
+      expect(mockContext.adapters.database.saveCheckPoint as SinonStub).to.be.calledWithExactly(
+        "router_liquidity_event_nonce_" + mockRouterLiquidityEventsResponse[0].domain,
+        mockRouterLiquidityEventsResponse[0].nonce,
       );
     });
   });

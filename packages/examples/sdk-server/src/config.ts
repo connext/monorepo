@@ -29,7 +29,12 @@ export const TRedisConfig = Type.Object({
 export const SdkServerConfigSchema = Type.Object({
   chains: Type.Record(Type.String(), TChainConfig),
   environment: Type.Union([Type.Literal("staging"), Type.Literal("production")]),
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   logLevel: Type.Union([
     Type.Literal("fatal"),
     Type.Literal("error"),

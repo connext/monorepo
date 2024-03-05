@@ -40,13 +40,24 @@ export default task("add-liquidity", "Add liquidity for a router")
       console.log("connextAddress: ", connextAddress);
 
       const connext = new Contract(connextAddress, connextDeployment.abi, deployer);
+      // const [recipient, owner] = await Promise.all([
+      //   connext.getRouterRecipient(router),
+      //   connext.getRouterOwner(router),
+      // ]);
+
+      // console.log("recipient: ", recipient);
+      // console.log("owner: ", owner);
+
+      // const liquidity = await connext.routerBalances(router, asset);
+      // console.log("liquidity: ", liquidity.toString());
+
       let liquidity = await connext.routerBalances(router, asset);
       console.log("current liquidity: ", liquidity.toString());
-      let amount;
+      let amount = _amount;
       if (asset !== ethers.constants.AddressZero) {
         const erc20 = await ethers.getContractAt("TestERC20", asset);
         const balance = await erc20.balanceOf(deployer.address);
-        amount = utils.parseUnits(_amount, (await erc20.decimals()) as BigNumberish);
+        // amount = utils.parseUnits(_amount, (await erc20.decimals()) as BigNumberish);
         console.log("balance: ", balance.toString());
         console.log("amount: ", amount.toString());
         if (balance.lt(amount)) {
@@ -62,7 +73,7 @@ export default task("add-liquidity", "Add liquidity for a router")
           console.log(`Sufficient allowance: ${allowance.toString()}`);
         }
       } else {
-        amount = utils.parseEther(_amount);
+        amount = utils.parseEther(_amount).toString();
       }
 
       const approvedRouter = await connext.getRouterApproval(router);

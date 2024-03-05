@@ -5,17 +5,9 @@ import { DeploymentSubmission } from "hardhat-deploy/dist/types";
 import { chainIdToDomain } from "@connext/nxtp-utils";
 
 import { SKIP_SETUP } from "../src/constants";
-import { getConnectorName, getDeploymentName, getProtocolNetwork, getRelayerProxyConfig } from "../src/utils";
+import { getConnectorName, getDeploymentName, getProtocolNetwork, mustGetEnv, ProtocolNetwork } from "../src/utils";
 import { FacetOptions, getProposedFacetCuts, getUpgradedAbi } from "../deployHelpers";
 import { MESSAGING_PROTOCOL_CONFIGS, getFacetsToDeploy } from "../deployConfig/shared";
-
-const KEEP3R_ADDRESSES: Record<number, string> = {
-  1: "0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC",
-  5: "0x85063437C02Ba7F4f82F898859e4992380DEd3bb",
-};
-
-const PROPAGATE_COOLDOWN = 60 * 30; // 30 minutes
-const AUTONOLAS_PRIORITY = 0;
 
 /**
  * Hardhat task defining the contract deployments for Connext
@@ -24,8 +16,6 @@ const AUTONOLAS_PRIORITY = 0;
  */
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<void> => {
   const chainId = await hre.getChainId();
-
-  const acceptanceDelay = SKIP_SETUP.includes(parseInt(chainId)) ? 604800 : 0; // 604800 = 7 days
 
   let _deployer: any;
   ({ deployer: _deployer } = await hre.ethers.getNamedSigners());
@@ -36,7 +26,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Connext Contracts ===============================");
   console.log("deployer: ", deployer.address);
 
-  console.log("acceptance delay: ", acceptanceDelay);
+  const env = mustGetEnv();
+  console.log("env: ", env);
 
   const network = await hre.ethers.provider.getNetwork();
   console.log("network: ", network);
@@ -51,10 +42,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("balance: ", balance.toString());
 
   // Get connector manager
-  const messagingNetwork = getProtocolNetwork(chainId);
+  const messagingNetwork = getProtocolNetwork(chainId, hre.network.name);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[messagingNetwork];
 
-  if (!protocol.configs[protocol.hub]) {
+  if (!protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${messagingNetwork} is not supported! (no messaging config)`);
   }
 
@@ -65,6 +56,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   if (!connectorManagerDeployment) {
     throw new Error(`${connectorName} not deployed`);
   }
+
+  const acceptanceDelay =
+    SKIP_SETUP.includes(parseInt(chainId)) && messagingNetwork !== ProtocolNetwork.DEVNET ? 604800 : 0; // 604800 = 7 days
+  console.log("acceptance delay: ", acceptanceDelay);
 
   const lpTokenDeployment = await hre.deployments.deploy("LPToken", {
     from: deployer.address,
@@ -87,13 +82,14 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const isDiamondUpgrade = !!(await hre.deployments.getOrNull(getDeploymentName("Connext")));
 
   // Get all the facet options
-  const facetsToDeploy = getFacetsToDeploy(zksync);
+  let facetsToDeploy = getFacetsToDeploy(zksync);
   const facets: (FacetOptions & { abi: any[] })[] = [];
   for (const facet of facetsToDeploy) {
     const deployment = await hre.deployments.getOrNull(facet.name);
     if (!deployment) {
       throw new Error(`Failed to get deployment for ${facet.name}`);
     }
+
     facets.push({
       abi: deployment.abi,
       name: facet.name,
@@ -148,88 +144,28 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
       console.log(`upgrade failed`, e);
     }
   } else {
+    // hardhat-deploy push `DiamondLoupeFacet` as default
+    facetsToDeploy = facetsToDeploy.filter((f) => f.contract !== "DiamondLoupeFacet");
+
     connext = await hre.deployments.diamond.deploy(getDeploymentName("Connext"), {
       from: deployer.address,
       owner: deployer.address,
       log: true,
-      facets: facetsToDeploy,
+      facets: facetsToDeploy.filter((f) => !f.name.includes("LoupeFacet")),
       diamondContract: "ConnextDiamond",
       defaultOwnershipFacet: false,
       defaultCutFacet: false,
       execute: isDiamondUpgrade
         ? undefined
         : {
-            contract: "DiamondInit",
             methodName: "init",
             args: [domain, connectorManagerDeployment.address, acceptanceDelay, lpTokenDeployment.address],
           },
     });
   }
 
-  // const connext = (await hre.deployments.getOrNull(getDeploymentName("Connext")))!;
-  const connextAddress = connext.address;
-  console.log("connextAddress: ", connextAddress);
-
-  console.log("Deploying Relayer Proxy...");
-
-  const { feeCollector, gelatoRelayer } = getRelayerProxyConfig(chainId);
-  const spokeConnector = await hre.ethers.getContract(
-    getDeploymentName(getConnectorName(protocol, +chainId), undefined, protocol.configs[Number(chainId)].networkName),
-  );
-
-  const { configs } = protocol;
-
-  if (protocol.hub === network.chainId) {
-    const chains = [];
-    const hubConnectors = [];
-    for (const spokeChain of Object.keys(configs)) {
-      const contract = getConnectorName(protocol, +spokeChain, protocol.hub);
-      const deploymentName = getDeploymentName(contract, undefined, protocol.configs[+spokeChain].networkName);
-      const hubConnector = await hre.ethers.getContract(deploymentName);
-      chains.push(+spokeChain);
-      hubConnectors.push(hubConnector.address);
-    }
-    const rootManager = await hre.ethers.getContract(getDeploymentName("RootManager"));
-    const relayerProxyHub = await hre.deployments.deploy(getDeploymentName("RelayerProxyHub"), {
-      from: deployer.address,
-      log: true,
-      contract: "RelayerProxyHub",
-      args: [
-        connextAddress,
-        spokeConnector.address,
-        gelatoRelayer,
-        feeCollector,
-        rootManager.address,
-        KEEP3R_ADDRESSES[network.chainId],
-        constants.AddressZero,
-        AUTONOLAS_PRIORITY,
-        PROPAGATE_COOLDOWN,
-        hubConnectors,
-        chains,
-      ],
-    });
-
-    console.log("relayerProxyHub: ", relayerProxyHub.address);
-  } else {
-    const relayerProxy = await hre.deployments.deploy(getDeploymentName("RelayerProxy"), {
-      from: deployer.address,
-      log: true,
-      contract: "RelayerProxy",
-      args: [
-        connextAddress,
-        spokeConnector.address,
-        gelatoRelayer,
-        feeCollector,
-        KEEP3R_ADDRESSES[network.chainId] ?? constants.AddressZero,
-        constants.AddressZero,
-        AUTONOLAS_PRIORITY,
-      ],
-    });
-
-    console.log("relayerProxy: ", relayerProxy.address);
-  }
-
-  if (!SKIP_SETUP.includes(parseInt(chainId))) {
+  const testOrLocalNetwork = !SKIP_SETUP.includes(parseInt(chainId)) || messagingNetwork === ProtocolNetwork.LOCAL;
+  if (testOrLocalNetwork || env === "staging") {
     console.log("Deploying test token on non-mainnet chain...");
     // Note: NOT using special token for staging envs
     let deployment = await hre.deployments.deploy("TestERC20", {
@@ -240,23 +176,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
     });
     console.log("TestERC20: ", deployment.address);
 
-    deployment = await hre.deployments.deploy("TestAdopted", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Adopted", "TEST2"],
-    });
+    if (testOrLocalNetwork) {
+      deployment = await hre.deployments.deploy("TestAdopted", {
+        contract: "TestERC20",
+        from: deployer.address,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: ["Test Adopted", "TEST2"],
+      });
 
-    deployment = await hre.deployments.deploy("TestWETH", {
-      contract: "TestERC20",
-      from: deployer.address,
-      log: true,
-      skipIfAlreadyDeployed: true,
-      args: ["Test Wrapped Ether", "TWETH"],
-    });
+      deployment = await hre.deployments.deploy("TestWETH", {
+        contract: "TestERC20",
+        from: deployer.address,
+        log: true,
+        skipIfAlreadyDeployed: true,
+        args: ["Test Wrapped Ether", "TWETH"],
+      });
 
-    console.log("TestERC20: ", deployment.address);
+      console.log("TestWETH: ", deployment.address);
+    }
   } else {
     console.log("Skipping test setup on chainId: ", chainId);
   }
@@ -264,5 +202,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
 
 export default func;
 
-func.tags = ["Connext", "prod", "local", "mainnet"];
+func.tags = ["Connext", "prod", "local", "mainnet", "devnet"];
 // func.dependencies = ["Messaging", "Facets"];

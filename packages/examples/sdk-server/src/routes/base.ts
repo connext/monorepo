@@ -12,6 +12,7 @@ import {
   SdkCalculateAmountReceivedParamsSchema,
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
+
 import { RoutesOptions } from "../server";
 
 interface BaseRoutesOptions extends RoutesOptions {
@@ -127,8 +128,15 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
       },
     },
     async (request, reply) => {
-      const { originDomain, destinationDomain, originTokenAddress, amount, receiveLocal, checkFastLiquidity } =
-        request.body;
+      const {
+        originDomain,
+        destinationDomain,
+        originTokenAddress,
+        amount,
+        receiveLocal,
+        checkFastLiquidity,
+        signerAddress,
+      } = request.body;
       const res = await sdkBaseInstance.calculateAmountReceived(
         originDomain,
         destinationDomain,
@@ -136,6 +144,7 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
         amount,
         receiveLocal,
         checkFastLiquidity,
+        signerAddress,
       );
       reply.status(200).send(res);
     },

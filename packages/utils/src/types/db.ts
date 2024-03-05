@@ -1,6 +1,16 @@
 import { BigNumber, constants } from "ethers";
 
-import { XMessage, RootMessage, AggregatedRoot, PropagatedRoot, ReceivedAggregateRoot, RootMessageStatus } from "./amb";
+import {
+  XMessage,
+  RootMessage,
+  AggregatedRoot,
+  PropagatedRoot,
+  ReceivedAggregateRoot,
+  RootMessageStatus,
+  Snapshot,
+  SnapshotRoot,
+  SpokeOptimisticRoot,
+} from "./amb";
 import {
   PoolActionType,
   StableSwapExchange,
@@ -256,6 +266,7 @@ export const convertFromDbAsset = (asset: any): Asset => {
     key: asset.key,
     id: asset.id,
     decimal: asset.decimal,
+    adoptedDecimal: asset.adopted_decimal,
     localAsset: asset.local,
     adoptedAsset: asset.adopted,
     canonicalId: asset.canonical_id,
@@ -319,6 +330,7 @@ export const convertToRouterBalance = (routerBalanceRows: any[]): RouterBalance[
       domain: routerBalanceRow.asset_domain,
       id: routerBalanceRow.id,
       decimal: routerBalanceRow.decimal,
+      adoptedDecimal: routerBalanceRow.adopted_decimal,
       localAsset: routerBalanceRow.local,
       key: routerBalanceRow.key,
     };
@@ -449,6 +461,34 @@ export const convertFromDbRootStatus = (status: any): RootMessageStatus => {
   return sanitizeNull(obj);
 };
 
+export const convertFromDbSnapshot = (snapshot: any): Snapshot => {
+  return {
+    id: snapshot.id,
+    aggregateRoot: snapshot.aggregate_root,
+    baseAggregateRoot: snapshot.base_aggregate_root,
+    roots: snapshot.roots,
+    domains: snapshot.domains,
+    endOfDispute: snapshot.end_of_dispute,
+    processed: snapshot.processed,
+    status: snapshot.status,
+    proposedTimestamp: snapshot.proposed_timestamp ?? undefined,
+    propagateTimestamp: snapshot.propagate_timestamp ?? undefined,
+    finalizedTimestamp: snapshot.finalized_timestamp ?? undefined,
+    propagateTaskId: snapshot.propagate_task_id ?? undefined,
+    relayerType: snapshot.relayer_type ?? undefined,
+  };
+};
+
+export const convertFromDbSnapshotRoot = (snapshot: any): SnapshotRoot => {
+  return {
+    id: snapshot.id,
+    spokeDomain: snapshot.spoke_domain,
+    root: snapshot.root,
+    count: snapshot.count,
+    timestamp: snapshot.timestamp,
+  };
+};
+
 /**
  * Converts a stable swap pool from the cartographer db through
  * @param pool - the stable swap pool from the cartographer db as a JSON object
@@ -546,5 +586,15 @@ export const convertFromDbStableSwapLpTransfer = (event: any): StableSwapTransfe
     transactionHash: event.transactionHash,
     timestamp: event.timestamp,
     nonce: event.nonce,
+  };
+};
+
+export const convertFromDbSpokeOptimisticRoot = (opRoot: any): SpokeOptimisticRoot => {
+  return {
+    id: opRoot.id,
+    domain: opRoot.domain,
+    aggregateRoot: opRoot.root,
+    rootTimestamp: opRoot.root_timestamp,
+    endOfDispute: opRoot.end_of_dispute,
   };
 };

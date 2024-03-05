@@ -25,6 +25,11 @@ const MIN_CACHE_POLL_INTERVAL = 2_000;
 const DEFAULT_CACHE_POLL_INTERVAL = 20_000;
 const DEFAULT_AUCTION_ROUND_DEPTH = 3;
 
+//Router MQ limits
+export const DEFAULT_ROUTER_MQ_RETRY_LIMIT = 10;
+const DEFAULT_ROUTER_MQ_HEARTBEAT_LIMIT = 10;
+export const DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT = 10;
+
 // Sequencer and Cartographer default urls
 const SEQUENCER_URLS: Record<string, any> = {
   testnet: {
@@ -92,7 +97,12 @@ export const NxtpRouterConfigSchema = Type.Object({
   ]),
   slippage: Type.Integer({ minimum: 0, maximum: 10000 }),
   mode: TModeConfig,
-  network: Type.Union([Type.Literal("testnet"), Type.Literal("mainnet"), Type.Literal("local")]),
+  network: Type.Union([
+    Type.Literal("testnet"),
+    Type.Literal("mainnet"),
+    Type.Literal("local"),
+    Type.Literal("devnet"),
+  ]),
   polling: TPollingConfig,
   auctionRoundDepth: Type.Integer(),
   subgraphPrefix: Type.Optional(Type.String()),
@@ -229,6 +239,21 @@ export const getEnvConfig = (
         configFile.messageQueue?.uri ||
         "amqp://guest:guest@localhost:5672",
       limit: process.env.MESSAGE_QUEUE_LIMIT || configJson.messageQueue?.limit || configFile.messageQueue?.limit || 25,
+      heartbeat:
+        process.env.ROUTER_MQ_HEARTBEAT_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_HEARTBEAT_LIMIT,
+      failAfter:
+        process.env.ROUTER_MQ_FAILAFTER_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_FAILAFTER_LIMIT,
+      retryLimit:
+        process.env.ROUTER_MQ_RETRY_LIMIT ||
+        configJson.messageQueue?.heartbeat ||
+        configFile.messageQueue?.hearbeat ||
+        DEFAULT_ROUTER_MQ_RETRY_LIMIT,
     },
   };
 
@@ -254,7 +279,9 @@ export const getEnvConfig = (
       connext:
         chainConfig.deployments?.connext ??
         (() => {
-          const res = chainDataForChain ? deployments.connext(chainDataForChain.chainId, contractPostfix) : undefined;
+          const res = chainDataForChain
+            ? deployments.connext(chainDataForChain.chainId, contractPostfix, nxtpConfig.network)
+            : undefined;
           if (!res) {
             throw new Error(`No Connext contract address for domain ${domainId}`);
           }

@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { Wallet, constants } from "ethers";
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { chainIdToDomain } from "@connext/nxtp-utils";
@@ -22,11 +22,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   console.log("\n============================= Deploying Admin Hub ===============================");
   console.log("deployer: ", deployer.address);
 
-  const network = getProtocolNetwork(chain);
+  const network = getProtocolNetwork(chain, hre.network.name);
   console.log("network: ", network, chain);
   const protocol = MESSAGING_PROTOCOL_CONFIGS[network];
 
-  if (+chain !== protocol.hub) {
+  if (+chain !== protocol.hub.chain) {
     console.warn(`Admin connector must be deployed on network hub (${protocol.hub}), not ${chain})`);
     return;
   }
@@ -36,7 +36,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const mirrorChain = network === ProtocolNetwork.TESTNET ? 97 : 56;
   const contract = "AdminHubConnector";
   const deploymentName = getDeploymentName(
-    getConnectorName(protocol, mirrorChain, protocol.hub),
+    getConnectorName(protocol, mirrorChain, protocol.hub.chain),
     undefined,
     protocol.configs[mirrorChain].networkName,
   );
@@ -51,7 +51,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment): Promise<voi
   const deployment = await hre.deployments.deploy(deploymentName, {
     contract,
     from: deployer.address,
-    args: [chainIdToDomain(protocol.hub), chainIdToDomain(mirrorChain), rootManager.address],
+    args: [
+      chainIdToDomain(protocol.hub.chain),
+      chainIdToDomain(mirrorChain),
+      constants.AddressZero,
+      rootManager.address,
+      constants.AddressZero,
+    ],
     skipIfAlreadyDeployed: true,
     log: true,
   });

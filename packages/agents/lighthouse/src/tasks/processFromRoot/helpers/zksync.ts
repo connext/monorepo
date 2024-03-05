@@ -64,13 +64,39 @@ export const getProcessFromZkSyncRootArgs = async ({
 
   // check L2Message Inclusion
   const zkAddress = await l2Provider.getMainContractAddress();
-  const mailboxL1Contract = getContract(zkAddress, utils.ZKSYNC_MAIN_ABI, l1Provider);
+  const mailboxL1Contract = getContract(
+    zkAddress,
+    [
+      ...utils.ZKSYNC_MAIN_ABI.format(),
+      {
+        inputs: [],
+        name: "getTotalBatchesExecuted",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    l1Provider,
+  );
   // all the information of the message sent from L2
   const messageInfo = {
     txNumberInBlock: l1BatchTxIndex,
     sender: getAddress(hexDataSlice(l2Tol1Log.key, 12)),
     data: message,
   };
+
+  const totalBatchExecuted = await mailboxL1Contract.getTotalBatchesExecuted();
+  if (l1BatchNumber > totalBatchExecuted) {
+    throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
+      error: `L1 batch number (${l1BatchNumber}) > totalBatchesExecuted (${totalBatchExecuted})`,
+    });
+  }
 
   const inclusion = await mailboxL1Contract.proveL2MessageInclusion(
     l1BatchNumber,

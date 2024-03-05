@@ -1,0 +1,11 @@
+[
+  "event StateBatchAppended(uint256 indexed _batchIndex, bytes32 _batchRoot, uint256 _batchSize, uint256 _prevTotalElements, bytes _extraData)",
+  "event StateBatchDeleted(uint256 indexed _batchIndex, bytes32 _batchRoot)",
+  "function appendStateBatch(bytes32[] _batch, uint256 _shouldStartAtElement)",
+  "function deleteStateBatch(tuple(uint256 batchIndex, bytes32 batchRoot, uint256 batchSize, uint256 prevTotalElements, bytes signature, bytes extraData) _batchHeader)",
+  "function getLastSequencerTimestamp() view returns (uint256 _lastSequencerTimestamp)",
+  "function getTotalBatches() view returns (uint256 _totalBatches)",
+  "function getTotalElements() view returns (uint256 _totalElements)",
+  "function insideFraudProofWindow(tuple(uint256 batchIndex, bytes32 batchRoot, uint256 batchSize, uint256 prevTotalElements, bytes signature, bytes extraData) _batchHeader) view returns (bool _inside)",
+  "function verifyStateCommitment(bytes32 _element, tuple(uint256 batchIndex, bytes32 batchRoot, uint256 batchSize, uint256 prevTotalElements, bytes signature, bytes extraData) _batchHeader, tuple(uint256 index, bytes32[] siblings) _proof) view returns (bool _verified)"
+]

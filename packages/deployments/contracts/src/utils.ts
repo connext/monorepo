@@ -7,6 +7,7 @@ import { HUB_PREFIX, MessagingProtocolConfig, MESSAGING_PROTOCOL_CONFIGS, SPOKE_
 import deploymentRecords from "../deployments.json";
 
 import { hardhatNetworks } from "./config";
+import { spawn } from "child_process";
 
 export type Env = "staging" | "production" | "local";
 
@@ -22,12 +23,17 @@ export enum ProtocolNetwork {
   MAINNET = "mainnet",
   TESTNET = "testnet",
   LOCAL = "local",
+  DEVNET = "devnet",
 }
 
 export const ProtocolNetworks: Record<string, string> = {
   // local networks
   "1337": ProtocolNetwork.LOCAL,
   "1338": ProtocolNetwork.LOCAL,
+
+  "31337": ProtocolNetwork.LOCAL,
+  "31338": ProtocolNetwork.LOCAL,
+  "31339": ProtocolNetwork.LOCAL,
 
   // testnets
   "5": ProtocolNetwork.TESTNET,
@@ -38,6 +44,8 @@ export const ProtocolNetworks: Record<string, string> = {
   "1442": ProtocolNetwork.TESTNET,
   "280": ProtocolNetwork.TESTNET,
   "59140": ProtocolNetwork.TESTNET,
+  "84531": ProtocolNetwork.TESTNET,
+  "195": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -46,12 +54,25 @@ export const ProtocolNetworks: Record<string, string> = {
   "137": ProtocolNetwork.MAINNET,
   "42161": ProtocolNetwork.MAINNET,
   "100": ProtocolNetwork.MAINNET,
+  "59144": ProtocolNetwork.MAINNET,
+  "8453": ProtocolNetwork.MAINNET,
+  "1088": ProtocolNetwork.MAINNET,
+  "43114": ProtocolNetwork.MAINNET,
+  "1101": ProtocolNetwork.MAINNET,
+  "324": ProtocolNetwork.MAINNET,
+  "5000": ProtocolNetwork.MAINNET,
+  "34443": ProtocolNetwork.MAINNET,
 };
 
-export const getProtocolNetwork = (_chain: string | number): string => {
+export const isDevnetName = (_name: string): boolean => {
+  return _name.includes("devnet");
+};
+
+export const getProtocolNetwork = (_chain: string | number, _name: string | undefined): string => {
   const chain = _chain.toString();
   // If chain 1337 or 1338, use local network.
-  return ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
+  // If chain name is devnet-*, use devnet
+  return _name && isDevnetName(_name) ? ProtocolNetwork.DEVNET : ProtocolNetworks[chain] ?? ProtocolNetwork.LOCAL;
 };
 
 export type RelayerProxyConfig = {
@@ -78,8 +99,11 @@ export const getConnectorName = (
     throw new Error(`Could not find ${connectorChainId} in config`);
   }
   // Only spoke connectors deployed for mainnet contracts
+  // return Artifacts name for spoke connectors
   return `${naming.prefix}${
-    config.hub === deployChainId && !naming.prefix.includes("Mainnet") ? HUB_PREFIX : SPOKE_PREFIX
+    config.hub.chain === deployChainId && !naming.prefix.includes("Mainnet") && !naming.networkName?.includes("Mainnet")
+      ? HUB_PREFIX
+      : SPOKE_PREFIX
   }Connector`;
 };
 
@@ -90,9 +114,20 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
   const env = mustGetEnv(_env);
   let contractName = _contractName;
 
-  if (contractName.includes("Wormhole")) {
-    const networkName = _networkName!.charAt(0).toUpperCase() + _networkName!.slice(1).toLowerCase();
-    contractName = contractName.replace("Wormhole", networkName);
+  const networkName = _networkName
+    ? _networkName.charAt(0).toUpperCase() + _networkName.slice(1).toLowerCase()
+    : undefined;
+
+  if (/^(?=.*Wormhole)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Wormhole/g, networkName!);
+  } else if (/^(?=.*AdminMainnet)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/AdminMainnet/g, networkName!);
+  } else if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/Admin/g, networkName!);
+  } else if (/^(?=.*Optimism)(?=.*Connector)/.test(contractName) && ["Base", "Mode"].includes(_networkName!)) {
+    contractName = contractName.replace(/Optimism/g, networkName!);
+  } else if (/^(?=.*OptimismV0)(?=.*Connector)/.test(contractName) && ["Metis", "Mantle"].includes(_networkName!)) {
+    contractName = contractName.replace(/OptimismV0/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {
@@ -127,7 +162,7 @@ export const getMessagingProtocolConfig = (protocolNetwork: ProtocolNetwork): Me
   // TODO: "tesnet"  => "mainnet"  for production
   const protocol = MESSAGING_PROTOCOL_CONFIGS[protocolNetwork];
 
-  if (!protocol || !protocol.configs[protocol.hub]) {
+  if (!protocol || !protocol.configs[protocol.hub.chain]) {
     throw new Error(`Network ${protocolNetwork} is not supported! (no messaging config)`);
   }
   return protocol;
@@ -143,17 +178,29 @@ export type ConnectorDeployment = {
   name: string;
 };
 
+export const getContractAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
+  const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
+  if (!record) {
+    throw new Error(`Deployment records not found for ${chain}`);
+  }
+  const { address, abi } = record.contracts[name] ?? {};
+  if (!address || !abi) {
+    throw new Error(`Deployment values not found for ${name} on ${chain}`);
+  }
+  return { address, abi };
+};
+
 export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwork): ConnectorDeployment[] => {
   const protocol = getMessagingProtocolConfig(protocolNetwork);
 
   const connectors: { name: string; chain: number; mirrorName?: string; mirrorChain?: number }[] = [];
   Object.keys(protocol.configs).forEach((_chainId) => {
     const chainId = +_chainId;
-    if (protocol.hub === chainId) {
+    if (protocol.hub.chain === chainId) {
       // On the hub, you only need to connect the mainnet l1 connector (no mirror)
       connectors.push({
-        chain: protocol.hub,
-        name: getDeploymentName(getConnectorName(protocol, protocol.hub), env),
+        chain: protocol.hub.chain,
+        name: getDeploymentName(getConnectorName(protocol, protocol.hub.chain), env),
         mirrorName: undefined,
         mirrorChain: undefined,
       });
@@ -161,7 +208,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
     }
     // When not on the hub, there will be a name for both the hub and spoke side connectors
     const hubName = getDeploymentName(
-      getConnectorName(protocol, chainId, protocol.hub),
+      getConnectorName(protocol, chainId, protocol.hub.chain),
       env,
       protocol.configs[chainId].networkName,
     );
@@ -171,7 +218,7 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       protocol.configs[chainId].networkName,
     );
     connectors.push({
-      chain: protocol.hub,
+      chain: protocol.hub.chain,
       name: hubName,
       mirrorName: spokeName,
       mirrorChain: chainId,
@@ -180,27 +227,16 @@ export const getConnectorDeployments = (env: Env, protocolNetwork: ProtocolNetwo
       chain: chainId,
       name: spokeName,
       mirrorName: hubName,
-      mirrorChain: protocol.hub,
+      mirrorChain: protocol.hub.chain,
     });
   });
-
-  const getAddressAndAbi = (name: string, chain: number): { address: string; abi: ContractInterface } => {
-    const [record] = (deploymentRecords as any)[chain.toString()] ?? [undefined];
-    if (!record) {
-      throw new Error(`Deployment records not found for ${chain}`);
-    }
-    const { address, abi } = record.contracts[name] ?? {};
-    if (!address || !abi) {
-      throw new Error(`Deployment values not found for ${name} on ${chain}`);
-    }
-    return { address, abi };
-  };
 
   // get deployments for connectors
   const deployments = connectors.map(({ name, chain, mirrorName, mirrorChain }) => {
     // Get deployment records
-    const { address, abi } = getAddressAndAbi(name, chain);
-    const mirrorConnector = mirrorName && mirrorChain ? getAddressAndAbi(mirrorName, mirrorChain).address : undefined;
+    const { address, abi } = getContractAddressAndAbi(name, chain);
+    const mirrorConnector =
+      mirrorName && mirrorChain ? getContractAddressAndAbi(mirrorName, mirrorChain).address : undefined;
     return { address, abi, mirrorConnector, chain, mirrorChain, name };
   });
 
@@ -211,7 +247,8 @@ export const getProviderUrlFromHardhatConfig = (chainId: number): string => {
   // Get the provider address from the hardhat config on given chain
   const url = (
     Object.entries(hardhatNetworks).find(
-      ([name, network]: [string, any]) => network?.chainId === chainId && !name.includes("fork"),
+      ([name, network]: [string, any]) =>
+        network?.chainId === chainId && !name.includes("fork") && !name.includes("local") && !name.includes("devnet"),
     ) as any
   )[1]?.url;
   if (!url) {
@@ -279,7 +316,11 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   name: string,
   args: any[],
   deployer: Signer & { address: string },
-  hre: HardhatRuntimeEnvironment & { deployments: DeploymentsExtension; ethers: any },
+  hre: HardhatRuntimeEnvironment & {
+    deployments: DeploymentsExtension;
+    ethers: any;
+    getChainId: () => Promise<string>;
+  },
   implementationArgs: any[] = [],
   deployName?: string,
 ): Promise<T> => {
@@ -292,7 +333,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   const upgradeBeaconControllerName = getDeploymentName(`UpgradeBeaconController`);
 
   // get data + factories
-  const factory = await hre.ethers.getContractFactory(name, deployer.address);
+  const factory = await hre.ethers.getContractFactory(name);
   const initData = factory.interface.encodeFunctionData("initialize", args);
 
   // Get controller deployment
@@ -311,7 +352,7 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   let beaconAddress: string | undefined;
 
   if (proxyDeployment) {
-    console.log(`${implementationName} proxy deployed. upgrading...`);
+    console.log(`${implementationName} proxy deployed. attempting to upgrade...`);
     // Get beacon and implementation addresses
     beaconAddress = (await hre.deployments.getOrNull(upgradeBeaconName))?.address;
     implementation = (await hre.deployments.getOrNull(implementationName))?.address;
@@ -337,6 +378,25 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
 
       // Then, upgrade proxy via beacon controller
       const controller = new Contract(controllerDeployment.address, controllerDeployment.abi).connect(deployer);
+
+      // The deployer can only submit this transaction _if_ it is the owner. If not, simply log the
+      // upgrade transaction.
+      const owner = await controller.owner();
+      if (deployer.address.toLowerCase() !== owner.toLowerCase()) {
+        console.log("=============================================");
+        console.log(`WARNING: deployer ${deployer.address} is not the owner of the controller ${controller.address}.`);
+        console.log(`please submit the upgrade transaction manually:`);
+        console.log(`- tx: `, {
+          to: controller.address,
+          chainId: await hre.getChainId(),
+          from: owner,
+          data: controller.interface.encodeFunctionData("upgrade", [beaconAddress, implementation]),
+        });
+        console.log("=============================================");
+
+        return new Contract(proxyDeployment.address, proxyDeployment.abi).connect(deployer) as unknown as T;
+      }
+
       const upgrade = await controller.upgrade(beaconAddress, implementation, { gasLimit: BigNumber.from(1_000_000) });
       console.log(`${implementationName} upgrade transaction:`, upgrade.hash);
       const receipt = await upgrade.wait();
@@ -384,4 +444,38 @@ export const deployBeaconProxy = async <T extends Contract = Contract>(
   ).connect(deployer);
 
   return proxy as unknown as T;
+};
+
+export const runCommand = (command: string, maxRetries: number = 1) => {
+  return new Promise((resolve, reject) => {
+    let retryCount = 0;
+
+    function spawnChildProcess() {
+      const childProcess = spawn(command, {
+        stdio: "inherit",
+        shell: true,
+      });
+
+      childProcess.stdout?.on("data", (data) => {});
+
+      childProcess.stderr?.on("data", (data) => {});
+
+      childProcess.on("exit", (code) => {
+        if (code === 0) {
+          resolve({});
+        } else {
+          console.error(`Child Process exited with code ${code}`);
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying (attempt ${retryCount})...`);
+            spawnChildProcess(); // Retry the child process
+          } else {
+            reject(new Error(`Command failed with code ${code}, Maximum retry count (${maxRetries}) reached.`));
+          }
+        }
+      });
+    }
+
+    spawnChildProcess(); // Start the initial child process
+  });
 };

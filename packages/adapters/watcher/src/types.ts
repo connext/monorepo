@@ -17,6 +17,11 @@ export type VerifyResponse = {
   reason?: string;
 };
 
+export type ValidateResponse = {
+  needsSwitch: boolean;
+  reason?: string;
+};
+
 export type WatcherInvariantResponse = VerifyResponse & { transactions?: Record<string, string[]> };
 
 // Base class for all verifiers. Should be inherited by verifiers, each with their own
@@ -58,6 +63,7 @@ export type AssetInfo = {
 
 export enum ReportEventType {
   Pause = "Pause",
+  Switch = "Switch",
   Rpc = "Rpc",
   Tx = "Tx",
 }

@@ -5,15 +5,16 @@ import { parseUnits } from "ethers/lib/utils";
 import { canonizeId } from "../../../domain";
 
 import { AssetStack, NetworkStack } from "./types";
-import { getValue, updateIfNeeded } from "./tx";
+import { getValue, updateIfNeeded } from "../../helpers";
 
 export const setupAsset = async (args: {
   apply: boolean;
   asset: AssetStack;
   networks: NetworkStack[];
   chainData: Map<string, ChainData>;
+  useStaging: boolean;
 }) => {
-  const { asset, networks, chainData, apply } = args;
+  const { asset, networks, chainData, apply, useStaging } = args;
 
   // Derive the global asset key using the (canonized) canonical address and the canonical domain.
   const canonical = {
@@ -25,7 +26,7 @@ export const setupAsset = async (args: {
     [utils.defaultAbiCoder.encode(["bytes32", "uint32"], [canonical.id, canonical.domain])],
   );
   console.log(
-    `\tVerifying asset setup for ${asset.name} (${asset.canonical.address}). Canonical ID: ${canonical.id}; Canonical Domain: ${canonical.domain}; Key: ${key}`,
+    `\n\tVerifying asset setup for ${asset.name} (${asset.canonical.address}). Canonical ID: ${canonical.id}; Canonical Domain: ${canonical.domain}; Key: ${key}`,
   );
 
   // Set up the canonical asset on the canonical domain.
@@ -110,6 +111,10 @@ export const setupAsset = async (args: {
           apply,
           deployment: network.deployments.Connext,
           desired: false,
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+            { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          ],
           read: { method: "approvedAssets(bytes32)", args: [key] },
           write: {
             method: "removeAssetId((uint32,bytes32),address,address)",
@@ -131,6 +136,10 @@ export const setupAsset = async (args: {
         deployment: network.deployments.Connext,
         desired: desiredAdopted,
         read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+        auth: [
+          { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+        ],
         write: {
           method: "setupAssetWithDeployedRepresentation",
           args: [[canonical.domain, canonical.id], representation.local, desiredAdopted, stableswapPool],
@@ -143,6 +152,10 @@ export const setupAsset = async (args: {
           deployment: network.deployments.Connext,
           desired: desiredAdopted,
           read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+            { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+          ],
           write: {
             method: "setupAsset",
             args: [
@@ -175,8 +188,19 @@ export const setupAsset = async (args: {
         })
       : [representation.local ?? constants.AddressZero, representation.adopted];
 
-    if (local.toLowerCase() === adopted.toLowerCase()) {
-      // No pools are needed
+    if (local.toLowerCase() === adopted.toLowerCase() || local.toLowerCase() === constants.AddressZero) {
+      // No pools are needed / configured
+      continue;
+    }
+
+    // Verify pools must be initialized
+    const poolInitd = await getValue<BigNumber>({
+      read: { method: "getSwapA(bytes32)", args: [key] },
+      deployment: network.deployments.Connext,
+    });
+
+    if (poolInitd.gt(0)) {
+      // Pool init-d, continue
       continue;
     }
 
@@ -199,6 +223,10 @@ export const setupAsset = async (args: {
       deployment: network.deployments.Connext,
       desired: BigNumber.from(a),
       read: { method: "getSwapA(bytes32)", args: [key] },
+      auth: [
+        { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+        { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+      ],
       write: {
         method: "initializeSwap",
         args: [
@@ -216,7 +244,7 @@ export const setupAsset = async (args: {
 
     // Deposit into pool in equal amounts
     const liquidity = decimals.map((decimal) =>
-      parseUnits((representation.pool?.initialLiquidity ?? "15") as string, decimal as number),
+      parseUnits(representation.pool?.initialLiquidity ?? "15", decimal as number),
     );
 
     // Verify there is sufficient amounts

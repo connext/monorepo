@@ -11,32 +11,9 @@ import {BaseOptimism} from "./BaseOptimism.sol";
 contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
   // ============ Constructor ============
   constructor(
-    uint32 _domain,
-    uint32 _mirrorDomain,
-    address _amb,
-    address _rootManager,
-    address _mirrorConnector,
-    uint256 _processGas,
-    uint256 _reserveGas,
-    uint256 _delayBlocks,
-    address _merkle,
-    address _watcherManager,
+    ConstructorParams memory _baseSpokeParams,
     uint256 _gasCap // gasLimit of message call on L1
-  )
-    SpokeConnector(
-      _domain,
-      _mirrorDomain,
-      _amb,
-      _rootManager,
-      _mirrorConnector,
-      _processGas,
-      _reserveGas,
-      _delayBlocks,
-      _merkle,
-      _watcherManager
-    )
-    BaseOptimism(_gasCap)
-  {}
+  ) SpokeConnector(_baseSpokeParams) BaseOptimism(_gasCap) {}
 
   // ============ Override Fns ============
   function _verifySender(address _expected) internal view override returns (bool) {
@@ -46,7 +23,9 @@ contract OptimismSpokeConnector is SpokeConnector, BaseOptimism {
   /**
    * @notice Should not be able to renounce ownership
    */
-  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {}
+  function renounceOwnership() public virtual override(SpokeConnector, ProposedOwnable) onlyOwner {
+    require(false, "prohibited");
+  }
 
   /**
    * @dev Sends `outboundRoot` to root manager on l1

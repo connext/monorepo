@@ -10,6 +10,9 @@ import {
   getNtpTimeSeconds,
   ExecStatus,
   RelayerTaskStatus,
+  ModeType,
+  Snapshot,
+  EMPTY_ROOT,
 } from "@connext/nxtp-utils";
 
 import {
@@ -19,9 +22,11 @@ import {
   NoMessageRootCount,
   NoTargetMessageRoot,
   NoReceivedAggregateRoot,
+  NoFinalizedAggregateRoot,
+  NoDomainInSnapshot,
 } from "../../../errors";
 import { getContext } from "../prover";
-import { DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
+import { DEFAULT_BATCH_WAIT_TIME, DEFAULT_PROVER_BATCH_SIZE, DEFAULT_PROVER_PUB_MAX } from "../../../config";
 
 import { BrokerMessage, PROVER_QUEUE } from "./types";
 
@@ -61,12 +66,13 @@ export const prefetch = async () => {
   const domains: string[] = Object.keys(config.chains);
   for (const originDomain of domains) {
     const cachedNonce = await cache.messages.getNonce(originDomain);
+    const startIndex = cachedNonce == 0 ? 0 : cachedNonce + 1;
     logger.info("Getting unprocessed messages from database", requestContext, methodContext, {
       originDomain,
-      startIndex: cachedNonce + 1,
+      startIndex,
     });
 
-    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, cachedNonce + 1);
+    const unprocessed: XMessage[] = await database.getUnProcessedMessages(originDomain, 1000, 0, startIndex);
     const indexes = unprocessed.map((item: XMessage) => item.origin.index);
     if (indexes.length > 0) {
       logger.info(
@@ -76,7 +82,7 @@ export const prefetch = async () => {
 
         {
           originDomain,
-          startIndex: cachedNonce + 1,
+          startIndex,
           min: Math.min(...indexes),
           max: Math.max(...indexes),
         },
@@ -100,25 +106,45 @@ export const getUnProcessedMessagesByIndex = async (
   endIndex: number,
 ): Promise<XMessage[]> => {
   const {
+    logger,
     config,
     adapters: { cache },
   } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(prefetch.name);
   const pendingMessages: XMessage[] = [];
+
   const waitTime = config.messageQueue.publisherWaitTime ?? DEFAULT_PUBLISHER_WAIT_TIME;
   let offset = 0;
   const limit = 1000;
   let end = false;
   while (!end) {
     const leaves = await cache.messages.getPending(originDomain, destinationDomain, offset, limit);
+    logger.debug("Getting pending leaves", requestContext, methodContext, {
+      leaves,
+      offset,
+      limit,
+      originDomain,
+      destinationDomain,
+    });
+
     for (const leaf of leaves) {
       const message = await cache.messages.getMessage(leaf);
       if (
         message &&
-        getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt &&
+        (message.attempt === 0 || getNtpTimeSeconds() - message.timestamp > waitTime * 2 ** message.attempt) &&
         message.data.origin.index <= endIndex &&
         message.status == ExecStatus.None
       ) {
         pendingMessages.push(message.data);
+      } else {
+        logger.debug("No push", requestContext, methodContext, {
+          leaf: message?.data.leaf,
+          attempt: message?.attempt,
+          timestamp: message?.timestamp,
+          waitTime,
+          originIndex: message?.data.origin.index,
+          status: message?.status,
+        });
       }
     }
     if (leaves.length == limit) offset += limit;
@@ -134,6 +160,7 @@ export const enqueue = async () => {
     logger,
     adapters: { database, mqClient, cache },
     config,
+    mode,
   } = getContext();
   const channel = await mqClient.createChannel();
   await channel.assertExchange(config.messageQueue.exchange.name, config.messageQueue.exchange.type, {
@@ -152,60 +179,127 @@ export const enqueue = async () => {
   const proverPubMax = config.proverPubMax ?? DEFAULT_PROVER_PUB_MAX;
   // Track the number of messages published to the queue in this iteration.
   let publishedCount = 0;
-
   // Process messages
   // Batch messages to be processed by origin_domain and destination_domain.
   await Promise.all(
     domains.map(async (destinationDomain) => {
       try {
-        const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(destinationDomain, 3);
-
-        if (curDestAggRoots.length == 0) {
-          throw new NoReceivedAggregateRoot(destinationDomain);
-        }
-        logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
-          destinationDomain,
-          curDestAggRoots,
-        });
-
         await Promise.all(
           domains
             .filter((domain) => domain != destinationDomain)
             .map(async (originDomain) => {
+              let latestMessageRoot: RootMessage | undefined = undefined;
+              let aggregateRootCount: number | undefined;
+              let targetMessageRoot: string;
+              let messageRootCount: number | undefined;
+              let messageRootIndex: number | undefined;
+              let snapshot: Snapshot | undefined;
+              let targetAggregateRoot: string;
               try {
-                let latestMessageRoot: RootMessage | undefined = undefined;
-                const targetAggregateRoot: ReceivedAggregateRoot = curDestAggRoots[0];
-                for (const destAggregateRoot of curDestAggRoots) {
-                  latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
-                  if (latestMessageRoot) break;
-                }
-                if (!latestMessageRoot) {
-                  throw new NoTargetMessageRoot(originDomain);
+                // Slowmode
+                if (mode === ModeType.SlowMode) {
+                  // Slowmode
+
+                  // Find latest received aggregate root propagated via AMB for each destination domain
+                  const curDestAggRoots: ReceivedAggregateRoot[] = await database.getLatestAggregateRoots(
+                    destinationDomain,
+                    3,
+                  );
+
+                  if (curDestAggRoots.length == 0) {
+                    throw new NoReceivedAggregateRoot(destinationDomain);
+                  }
+                  logger.debug("Got latest aggregate roots for domain", requestContext, methodContext, {
+                    destinationDomain,
+                    curDestAggRoots,
+                  });
+
+                  targetAggregateRoot = curDestAggRoots[0].root;
+
+                  for (const destAggregateRoot of curDestAggRoots) {
+                    latestMessageRoot = await database.getLatestMessageRoot(originDomain, destAggregateRoot.root);
+                    if (latestMessageRoot) break;
+                  }
+                  if (!latestMessageRoot) {
+                    throw new NoTargetMessageRoot(originDomain);
+                  }
+                  // Count of leafs in aggregate tree at targetAggregateRoot.
+                  aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot);
+                  if (!aggregateRootCount) {
+                    throw new NoAggregateRootCount(targetAggregateRoot);
+                  }
+
+                  targetMessageRoot = latestMessageRoot.root;
+
+                  // Index of messageRoot leaf node in aggregate tree.
+                  messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
+                  if (messageRootIndex === undefined) {
+                    throw new NoMessageRootIndex(originDomain, targetMessageRoot);
+                  }
+                } else {
+                  // Optimistic mode
+
+                  // Find latest finalized aggregate root each destination domain
+                  const latestFinalizedRoot = await database.getLatestFinalizedOptimisticRoot(destinationDomain);
+
+                  if (!latestFinalizedRoot) {
+                    throw new NoFinalizedAggregateRoot(destinationDomain);
+                  }
+
+                  logger.debug("Got latest finalized aggregate root for domain", requestContext, methodContext, {
+                    destinationDomain,
+                    latestFinalizedRoot,
+                  });
+
+                  targetAggregateRoot = latestFinalizedRoot.aggregateRoot;
+
+                  snapshot = await database.getFinalizedSnapshot(targetAggregateRoot);
+                  if (snapshot) {
+                    logger.debug("Got pending snapshot", requestContext, methodContext, {
+                      snapshot,
+                      destinationDomain,
+                    });
+                  } else {
+                    logger.debug("No pending snapshot to process.", requestContext, methodContext, {
+                      snapshot,
+                      destinationDomain,
+                    });
+                    return;
+                  }
+                  const domainIndex = snapshot.domains.indexOf(originDomain);
+                  if (domainIndex === -1) {
+                    throw new NoDomainInSnapshot(originDomain, snapshot);
+                  }
+                  targetMessageRoot = snapshot.roots[domainIndex];
+                  if (!targetMessageRoot) {
+                    throw new NoTargetMessageRoot(originDomain);
+                  }
+                  // Count of leafs in aggregate tree at snapshot baseAggregateRoot.
+                  const _baseAggregateRootCount =
+                    snapshot.baseAggregateRoot === EMPTY_ROOT
+                      ? 0
+                      : await database.getAggregateRootCount(snapshot.baseAggregateRoot);
+                  if (_baseAggregateRootCount === undefined) {
+                    throw new NoAggregateRootCount(snapshot.baseAggregateRoot);
+                  }
+                  aggregateRootCount = snapshot.roots.length + _baseAggregateRootCount;
+                  messageRootIndex = _baseAggregateRootCount + domainIndex;
                 }
 
-                const targetMessageRoot = latestMessageRoot.root;
                 // Count of leaf nodes in origin domain`s outbound tree with the targetMessageRoot as root
-                const messageRootCount = await database.getMessageRootCount(originDomain, targetMessageRoot);
+                messageRootCount =
+                  targetMessageRoot === EMPTY_ROOT
+                    ? 0
+                    : await database.getMessageRootCount(originDomain, targetMessageRoot);
                 if (messageRootCount === undefined) {
                   throw new NoMessageRootCount(originDomain, targetMessageRoot);
                 }
-                // Index of messageRoot leaf node in aggregate tree.
-                const messageRootIndex = await database.getMessageRootIndex(config.hubDomain, targetMessageRoot);
-                if (messageRootIndex === undefined) {
-                  throw new NoMessageRootIndex(originDomain, targetMessageRoot);
-                }
-
-                // Count of leafs in aggregate tree at targetAggregateRoot.
-                const aggregateRootCount = await database.getAggregateRootCount(targetAggregateRoot.root);
-                if (!aggregateRootCount) {
-                  throw new NoAggregateRootCount(targetAggregateRoot.root);
-                }
-
                 const batchSize = config.proverBatchSize[destinationDomain] ?? DEFAULT_PROVER_BATCH_SIZE;
+                const batchWaitTime = config.proverBatchWaitTime[destinationDomain] ?? DEFAULT_BATCH_WAIT_TIME;
                 const pendingMessages = await getUnProcessedMessagesByIndex(
                   originDomain,
                   destinationDomain,
-                  latestMessageRoot.count,
+                  messageRootCount,
                 );
 
                 // Paginate through all unprocessed messages from the domain
@@ -215,16 +309,48 @@ export const enqueue = async () => {
                   const unprocessed = pendingMessages.slice(offset, offset + batchSize);
                   const subContext = createRequestContext(
                     "processUnprocessedMessages",
-                    `${originDomain}-${destinationDomain}-${offset}-${latestMessageRoot.root}`,
+                    `${originDomain}-${destinationDomain}-${offset}-${targetMessageRoot}`,
                   );
                   if (unprocessed.length > 0) {
-                    logger.info("Got unprocessed messages for origin and destination pair", subContext, methodContext, {
-                      unprocessed: unprocessed.map((message) => message.leaf),
+                    const lastBatchExecutionTime = await cache.messages.getLastBatchTime(
                       originDomain,
                       destinationDomain,
-                      endIndex: latestMessageRoot.count,
-                      offset,
-                    });
+                    );
+                    const fullyBatched = unprocessed.length >= batchSize;
+                    const waitTimePassed = getNtpTimeSeconds() - lastBatchExecutionTime > batchWaitTime;
+
+                    if (fullyBatched || waitTimePassed) {
+                      logger.info(
+                        "Got unprocessed messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                    } else {
+                      logger.info(
+                        "Skipping to publish messages for origin and destination pair",
+                        subContext,
+                        methodContext,
+                        {
+                          unprocessed: unprocessed.map((message) => message.leaf),
+                          originDomain,
+                          destinationDomain,
+                          endIndex: messageRootCount,
+                          offset,
+                          fullyBatched,
+                          waitTimePassed,
+                        },
+                      );
+                      return;
+                    }
 
                     const brokerMessage = await createBrokerMessage(
                       unprocessed,
@@ -233,8 +359,9 @@ export const enqueue = async () => {
                       targetMessageRoot,
                       messageRootIndex,
                       messageRootCount,
-                      targetAggregateRoot.root,
+                      targetAggregateRoot,
                       aggregateRootCount,
+                      snapshot ? snapshot.roots : [],
                       subContext,
                     );
                     if (brokerMessage) {
@@ -256,11 +383,13 @@ export const enqueue = async () => {
                         {
                           originDomain,
                           destinationDomain,
-                          endIndex: latestMessageRoot.count,
+                          endIndex: messageRootCount,
                           offset,
                           brokerMessage,
                         },
                       );
+
+                      await cache.messages.setLastBatchTime(originDomain, destinationDomain, getNtpTimeSeconds());
                     }
 
                     offset += unprocessed.length;
@@ -326,6 +455,7 @@ export const createBrokerMessage = async (
   messageRootCount: number,
   targetAggregateRoot: string,
   aggregateRootCount: number,
+  snapshotRoots: string[],
   _requestContext: RequestContext,
 ): Promise<BrokerMessage | undefined> => {
   const {
@@ -335,8 +465,8 @@ export const createBrokerMessage = async (
   } = getContext();
   const { requestContext, methodContext } = createLoggingContext(createBrokerMessage.name, _requestContext);
 
-  const destinationSpokeConnector = config.chains[destinationDomain]?.deployments.spokeConnector;
-  if (!destinationSpokeConnector) {
+  const destinationSpokeMerkle = config.chains[destinationDomain]?.deployments.spokeMerkleTree;
+  if (!destinationSpokeMerkle) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
 
@@ -347,15 +477,15 @@ export const createBrokerMessage = async (
   const messages: XMessage[] = [];
   const processedMessages: XMessage[] = [];
   for (const message of _messages) {
-    const messageEncodedData = contracts.spokeConnector.encodeFunctionData("messages", [message.leaf]);
+    const messageEncodedData = contracts.merkleTreeManager.encodeFunctionData("leaves", [message.leaf]);
     try {
       const messageResultData = await chainreader.readTx({
         domain: +destinationDomain,
-        to: destinationSpokeConnector,
+        to: destinationSpokeMerkle,
         data: messageEncodedData,
       });
 
-      const [messageStatus] = contracts.spokeConnector.decodeFunctionResult("messages", messageResultData);
+      const [messageStatus] = contracts.merkleTreeManager.decodeFunctionResult("leaves", messageResultData);
       if (messageStatus == 0) messages.push(message);
       else if (messageStatus == 2)
         processedMessages.push({
@@ -394,6 +524,7 @@ export const createBrokerMessage = async (
     messageRootCount,
     aggregateRoot: targetAggregateRoot,
     aggregateRootCount,
+    snapshotRoots,
   };
 };
 

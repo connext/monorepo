@@ -34,6 +34,27 @@ export class MessagesCache extends Cache {
   }
 
   /**
+   * Get the timestamp of the last batch for a given domain ID.
+   * @param originDomain - The origin domain ID.
+   * @param destinationDomain - The destination domain ID.
+   */
+  public async getLastBatchTime(originDomain: string, destinationDomain: string): Promise<number> {
+    const pendingKey = `${originDomain}-${destinationDomain}`;
+    const res = await this.data.hget(`${this.prefix}:lastbatch`, pendingKey);
+    return res ? +res : 0;
+  }
+
+  /**
+   * Set the last batch time for a given domain.
+   * @param domain - The domain ID
+   * @param timestamp - The unix timestamp of the last batch execution
+   */
+  public async setLastBatchTime(originDomain: string, destinationDomain: string, timestamp: number): Promise<void> {
+    const pendingKey = `${originDomain}-${destinationDomain}`;
+    await this.data.hset(`${this.prefix}:lastbatch`, pendingKey, timestamp.toString());
+  }
+
+  /**
    * Stores the messages in the cache.
    * @param messages - The messages to store
    */
@@ -85,7 +106,7 @@ export class MessagesCache extends Cache {
     for (const value of values) {
       const message = await this.getMessage(value.leaf);
       if (message) {
-        await this.storeMessage(message.data, value.status, message.attempt);
+        await this.storeMessage(message.data, value.status, value.status == ExecStatus.None ? 0 : message.attempt);
       }
     }
   }
@@ -122,7 +143,10 @@ export class MessagesCache extends Cache {
    */
   private async addPending(originDomain: string, destinationDomain: string, leaf: string) {
     const pendingKey = `${originDomain}-${destinationDomain}`;
-    await this.data.rpush(`${this.prefix}:pending:${pendingKey}`, leaf);
+    const message = await this.getMessage(leaf);
+    if (!message) {
+      await this.data.rpush(`${this.prefix}:pending:${pendingKey}`, leaf);
+    }
   }
 
   /**

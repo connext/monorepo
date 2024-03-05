@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 pragma solidity 0.8.17;
 
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ProposedOwnable} from "../../shared/ProposedOwnable.sol";
 
+/**
+ * @notice This contract is used to enforce upper bounds on the amount of fees
+ * forwarded along. This caps the amount relayers could charge for the service
+ */
 abstract contract GasCap is ProposedOwnable {
   // ============ Storage ============
   /**
@@ -10,7 +15,7 @@ abstract contract GasCap is ProposedOwnable {
    * The gas used will be passed in by the relayer to allow for real-time estimates,
    * but will be capped at the admin-set cap.
    */
-  uint256 gasCap;
+  uint256 public gasCap;
 
   // ============ Events ============
 

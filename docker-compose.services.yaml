@@ -16,11 +16,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/publisher/:/home/node/agents/publisher/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
-
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
   router-subscriber:
     container_name: router-subscriber
     depends_on:
@@ -37,10 +38,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/subscriber/:/home/node/agents/subscriber/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   router-executor:
     container_name: router-executor
@@ -56,10 +59,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/router/executor/:/home/node/agents/executor/
-      - ${PWD}/docker/router/config.local.json:/home/node/packages/agents/router/config.json
+      - ${PWD}/docker/router/config.json:/home/node/packages/agents/router/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   signer-router:
     container_name: signer-router
@@ -94,10 +99,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   sequencer-publisher:
     container_name: sequencer-publisher
@@ -113,10 +120,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   sequencer-subscriber:
     container_name: sequencer-subscriber
@@ -132,10 +141,12 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/sequencer/:/home/node/agents/sequencer/
-      - ${PWD}/docker/sequencer/config.local.json:/home/node/packages/agents/sequencer/config.json
+      - ${PWD}/docker/sequencer/config.json:/home/node/packages/agents/sequencer/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
 
   signer-sequencer:
     container_name: signer-sequencer
@@ -177,7 +188,7 @@ services:
         max-size: 10m
     volumes:
       - ${PWD}/docker/relayer/:/home/node/agents/relayer/
-      - ${PWD}/docker/relayer/config.local.json:/home/node/packages/agents/relayer/config.json
+      - ${PWD}/docker/relayer/config.json:/home/node/packages/agents/relayer/config.json
 
   signer-relayer:
     container_name: signer-relayer
@@ -198,32 +209,10 @@ services:
     ports:
       - "6381:6379"
 
-  cartographer-transfers:
-    container_name: cartographer-transfers
-    depends_on:
-      - cartographer-database
-      - cartographer-api
-    image: ${CARTOGRAPHER_IMAGE}
-    restart: always
-    ports:
-      - "8083:8080"
-    logging:
-      driver: json-file
-      options:
-        max-size: 10m
-    volumes:
-      - ${PWD}/docker/cartographer/transfers/:/home/node/agents/cartographer/
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
-    environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
-      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
-
   cartographer-routers:
     container_name: cartographer-routers
     depends_on:
       - cartographer-database
-      - cartographer-api
     image: ${CARTOGRAPHER_IMAGE}
     restart: always
     ports:
@@ -233,18 +222,152 @@ services:
       options:
         max-size: 10m
     volumes:
-      - ${PWD}/docker/cartographer/routers/:/home/node/agents/cartographer/
-      - ${PWD}/docker/cartographer/config.local.json:/home/node/packages/agents/cartographer/poller/config.json
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
     environment:
-      GRAPH_1337_ENDPOINT: "http://graph-node-1337:8000/subgraphs/name/connext/nxtp"
-      GRAPH_1338_ENDPOINT: "http://graph-node-1338:8000/subgraphs/name/connext/nxtp"
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
       DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: routers
+
+  cartographer-transfers:
+    container_name: cartographer-transfers
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8094:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: transfers
+
+  cartographer-messages:
+    container_name: cartographer-messages
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8095:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: messages
+
+  cartographer-roots:
+    container_name: cartographer-roots
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8096:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: roots
+
+  cartographer-stableswap:
+    container_name: cartographer-stableswap
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8097:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: stableswap
+
+  cartographer-messagestatus:
+    container_name: cartographer-messagestatus
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8098:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: messagestatus
+
+  cartographer-prices:
+    container_name: cartographer-prices
+    depends_on:
+      - cartographer-database
+    image: ${CARTOGRAPHER_IMAGE}
+    restart: always
+    ports:
+      - "8099:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/cartographer/config.json:/home/node/packages/agents/cartographer/poller/config.json
+    environment:
+      GRAPH_LOCAL_HUB_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-hub-v0"
+      GRAPH_LOCAL_SPOKE_MAINNET: "http://graph-node-local-hub-mainnet:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_OPTIMISM: "http://graph-node-local-spoke-optimism:8000/subgraphs/name/connext/amarok-runtime-v0"
+      GRAPH_LOCAL_SPOKE_ARBITRUM: "http://graph-node-local-spoke-arbitrum:8000/subgraphs/name/connext/amarok-runtime-v0"
+      DATABASE_URL: "postgres://postgres:qwerty@cartographer-database:5432/connext?sslmode=disable"
+      CARTOGRAPHER_SERVICE: prices
 
   cartographer-database:
     container_name: cartographer-database
-    image: postgres
+    image: ghcr.io/connext/database:sha-5b85d66
     ports:
-      - "5434:5432"
+      - "5435:5432"
     command: ["postgres"]
     environment:
       POSTGRES_PASSWORD: qwerty
@@ -253,7 +376,7 @@ services:
     container_name: cartographer-api
     depends_on:
       - cartographer-database
-    image: postgrest/postgrest:v9.0.0.20220107
+    image: postgrest/postgrest:v10.0.0
     ports:
       - "3000:3000"
     environment:
@@ -261,10 +384,54 @@ services:
       PGRST_DB_SCHEMA: public
       PGRST_DB_ANON_ROLE: query
 
-  # lighthouse:
-  #   container_name: lighthouse
+  lighthouse-prover-subscriber:
+    container_name: lighthouse-prover-subscriber
+    depends_on:
+      - cartographer-database
+      - message-queue
+      - lighthouse-cache
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: prover-sub
+
+  lighthouse-prover-publisher:
+    container_name: lighthouse-prover-publisher
+    depends_on:
+      - cartographer-database
+      - message-queue
+      - lighthouse-cache
+    image: ${LIGHTHOUSE_IMAGE}
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    volumes:
+      - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+      - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+    environment:
+      LIGHTHOUSE_SERVICE: prover-pub
+
+  lighthouse-cache:
+    container_name: lighthouse-cache
+    image: redis:latest
+    ports:
+      - "6382:6379"
+
+  # lighthouse-process-from-root:
+  #   container_name: lighthouse-process-from-root
   #   depends_on:
-  #     - cartographer-api
+  #     - cartographer-database
+  #     - message-queue
+  #     - lighthouse-cache
   #   image: ${LIGHTHOUSE_IMAGE}
   #   restart: always
   #   logging:
@@ -273,4 +440,40 @@ services:
   #       max-size: 10m
   #   volumes:
   #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
-  #     - ${PWD}/docker/lighthouse/config.local.json:/home/node/packages/agents/lighthouse/config.json
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: process
+
+  # lighthouse-propagate:
+  #   container_name: lighthouse-propagate
+  #   depends_on:
+  #     - cartographer-database
+  #     - lighthouse-cache
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: propagate
+
+  # lighthouse-sendoutboundroot:
+  #   container_name: lighthouse-sendoutboundroot
+  #   depends_on:
+  #     - cartographer-database
+  #     - lighthouse-cache
+  #   image: ${LIGHTHOUSE_IMAGE}
+  #   restart: always
+  #   logging:
+  #     driver: json-file
+  #     options:
+  #       max-size: 10m
+  #   volumes:
+  #     - ${PWD}/docker/lighthouse/:/home/node/agents/lighthouse/
+  #     - ${PWD}/docker/lighthouse/config.json:/home/node/packages/agents/lighthouse/config.json
+  #   environment:
+  #     LIGHTHOUSE_SERVICE: sendoutboundroot

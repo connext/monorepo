@@ -1,7 +1,7 @@
 import { constants } from "ethers";
 
 import { HubMessagingDeployments, NetworkStack, ProtocolStack, SpokeMessagingDeployments } from "./types";
-import { assertValue, getValue, updateIfNeeded } from "./tx";
+import { assertValue, getValue, updateIfNeeded } from "../../helpers";
 
 export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) => {
   /// MARK - Peripherals
@@ -18,9 +18,8 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
   // TODO: Currently unused, as messaging init checks are not needed with the AMB-compatible stack.
   // However, they will be useful as sanity checks for deployments in the future - thus, leaving
   // this placeholder here for now...
-
-  /// MARK - Connector Mirrors
   console.log("\n\nMESSAGING");
+
   // Connectors should have their mirrors' address set; this lets them know about their counterparts.
   for (const HubConnector of HubConnectors) {
     // Get the connector's mirror domain (and convert to a string value).
@@ -62,12 +61,14 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
         /// MARK - Connectors: Mirrors
         // Set the mirrors for both the spoke domain's Connector and hub domain's Connector.
         console.log("\tVerifying mirror connectors are set correctly.");
+
         await updateIfNeeded({
           apply,
           deployment: HubConnector,
           desired: SpokeConnector.address,
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [SpokeConnector.address] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
         });
         await updateIfNeeded({
           apply,
@@ -75,6 +76,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           desired: HubConnector.address,
           read: { method: "mirrorConnector", args: [] },
           write: { method: "setMirrorConnector", args: [HubConnector.address] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
         });
 
         /// MARK - RootManager: Add Connector
@@ -97,6 +99,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
               desired: constants.AddressZero,
               read: { method: "getConnectorForDomain", args: [spoke.domain] },
               write: { method: "removeConnector", args: [spoke.domain] },
+              auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
             });
           }
         } catch {}
@@ -107,6 +110,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           desired: HubConnector.address,
           read: { method: "getConnectorForDomain", args: [spoke.domain] },
           write: { method: "addConnector", args: [spoke.domain, HubConnector.address] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
         });
 
         /// MARK - Connectors: Allowlist Senders
@@ -117,6 +121,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           desired: true,
           read: { method: "allowlistedSenders", args: [spoke.deployments.Connext.address] },
           write: { method: "addSender", args: [spoke.deployments.Connext.address] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
         });
 
         /// MARK - MerkleTreeManager
@@ -127,6 +132,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           desired: SpokeConnector.address,
           read: { method: "arborist", args: [] },
           write: { method: "setArborist", args: [SpokeConnector.address] },
+          auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
         });
 
         /// MARK - xAppManager
@@ -138,6 +144,10 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
           desired: SpokeConnector.address,
           read: { method: "xAppConnectionManager", args: [] },
           write: { method: "setXAppConnectionManager", args: [SpokeConnector.address] },
+          auth: [
+            { method: "owner", eval: (ret: string) => ret.toLowerCase() === spoke.signerAddress },
+            { method: "queryRole", args: [spoke.signerAddress], eval: (ret) => ret === 3 },
+          ],
         });
       }
     }
@@ -176,6 +186,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: true,
     read: { method: "allowlistedSenders", args: [hub.deployments.Connext.address] },
     write: { method: "addSender", args: [hub.deployments.Connext.address] },
+    auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
   });
 
   // Functionality of the MainnetConnector is that of a spoke; we should hook it up to the RootManager.
@@ -192,6 +203,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
         desired: constants.AddressZero,
         read: { method: "getConnectorForDomain", args: [hub.domain] },
         write: { method: "removeConnector", args: [hub.domain] },
+        auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
       });
     }
   } catch {}
@@ -202,6 +214,18 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: MainnetConnector.address,
     read: { method: "getConnectorForDomain", args: [hub.domain] },
     write: { method: "addConnector", args: [hub.domain, MainnetConnector.address] },
+    auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
+  });
+
+  /// MARK - Set Hub Domain (must happen after domain is supported)
+  // Set hub domain to the root manager, mandatorily requires since Op Roots v1.1
+  await updateIfNeeded({
+    apply,
+    deployment: RootManager,
+    desired: +protocol.hub,
+    read: { method: "hubDomain" },
+    write: { method: "setHubDomain", args: [protocol.hub] },
+    auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
   });
 
   await updateIfNeeded({
@@ -210,6 +234,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: RootManager.address,
     read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [RootManager.address] },
+    auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
   });
 
   await updateIfNeeded({
@@ -218,6 +243,7 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: MainnetConnector.address,
     read: { method: "arborist", args: [] },
     write: { method: "setArborist", args: [MainnetConnector.address] },
+    auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
   });
 
   await updateIfNeeded({
@@ -226,5 +252,9 @@ export const setupMessaging = async (protocol: ProtocolStack, apply: boolean) =>
     desired: MainnetConnector.address,
     read: { method: "xAppConnectionManager", args: [] },
     write: { method: "setXAppConnectionManager", args: [MainnetConnector.address] },
+    auth: [
+      { method: "owner", eval: (ret: string) => ret.toLowerCase() === hub.signerAddress },
+      { method: "queryRole", args: [hub.signerAddress], eval: (ret) => ret === 3 },
+    ],
   });
 };

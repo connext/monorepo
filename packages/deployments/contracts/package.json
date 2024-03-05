@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.0.0",
+  "version": "2.3.0-alpha.5",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/fork/**.sol'",
@@ -13,7 +13,7 @@
     "allowlist": "ts-node ./src/allowlist.ts",
     "create-router": "ts-node ./src/createRouter.ts",
     "prepublish": "yarn build",
-    "export": "hardhat export --export-all ./deployments.json",
+    "export": "ts-node ./src/exportDeployments.ts",
     "lint:sol": "solhint --config ./.solhint.json \"contracts/**/*.sol\"",
     "prettier:sol": "prettier --write './contracts/**/*.sol' && prettier --write './contracts_forge/**/*.sol'",
     "lint": "eslint ./src --ext .ts --env node && yarn lint:sol",
@@ -25,7 +25,12 @@
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
+    "switch": "ts-node ./src/cli/op-mode/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
+    "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",
+    "devnet:deploy": "ts-node ./src/devnet/devnetDeploy.ts",
+    "devnet:init": "ts-node ./src/devnet/devnetInit.ts",
+    "local:init": "ts-node ./src/localnet/localInit.ts",
     "version": "yarn version"
   },
   "main": "dist/src/index.js",
@@ -37,19 +42,23 @@
     "!tasks/**/*",
     "artifacts",
     "deployments.json",
+    "local.deployments.json",
+    "devnet.deployments.json",
     "contracts",
     "abi"
   ],
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "2.1.0"
+    "@eth-optimism/sdk": "3.2.0"
   },
   "devDependencies": {
-    "@arbitrum/sdk": "3.1.3",
+    "@arbitrum/sdk": "3.1.11",
     "@certusone/wormhole-sdk": "0.9.21",
     "@connext/nxtp-utils": "workspace:*",
+    "@consensys/linea-sdk": "0.1.6",
     "@gelatonetwork/relay-context": "2.1.0",
+    "@mantleio/sdk": "1.0.0",
     "@matterlabs/hardhat-zksync-deploy": "0.6.3",
     "@matterlabs/hardhat-zksync-solc": "0.3.17",
     "@matterlabs/hardhat-zksync-verify": "0.1.7",
@@ -60,6 +69,7 @@
     "@openzeppelin/contracts-upgradeable": "4.8.0",
     "@openzeppelin/hardhat-upgrades": "1.17.0",
     "@sinclair/typebox": "0.25.21",
+    "@tenderly/hardhat-tenderly": "^1.7.7",
     "@typechain/ethers-v5": "10.2.0",
     "@typechain/hardhat": "6.1.5",
     "@types/chai": "4.3.4",
@@ -72,10 +82,10 @@
     "eslint": "8.34.0",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.2",
-    "hardhat": "2.12.7",
+    "hardhat": "2.16.0",
     "hardhat-abi-exporter": "2.10.1",
     "hardhat-contract-sizer": "2.8.0",
-    "hardhat-deploy": "0.11.30",
+    "hardhat-deploy": "0.11.45",
     "hardhat-diamond-abi": "3.0.1",
     "hardhat-gas-reporter": "1.0.9",
     "prettier": "2.8.4",
@@ -89,7 +99,7 @@
     "ts-node": "10.9.1",
     "typechain": "8.1.1",
     "typescript": "4.9.5",
-    "zksync-web3": "0.14.3"
+    "zksync-ethers": "5.0.0"
   },
   "gitHead": "937a7cde93e6ac1e151c6374f48adf83d3fa4ec6",
   "stableVersion": "0.1.25"

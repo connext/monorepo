@@ -1,13 +1,18 @@
 import { task } from "hardhat/config";
 import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
-import { BigNumber, BigNumberish, Contract, providers, Wallet } from "ethers";
+import { BigNumber, BigNumberish, constants, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
 import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
-import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
+import {
+  DEFAULT_L2_CONTRACT_ADDRESSES,
+  CrossChainMessenger as OptimismCrossChainMessenger,
+  MessageStatus as OptimismMessageStatus,
+} from "@eth-optimism/sdk";
 import { FetchedEvent } from "@arbitrum/sdk/dist/lib/utils/eventFetcher";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 import { NODE_INTERFACE_ADDRESS } from "@arbitrum/sdk/dist/lib/dataEntities/constants";
 import { chainIdToDomain, generateExitPayload } from "@connext/nxtp-utils";
+import { CrossChainMessenger as MantleCrossChainMessenger } from "@mantleio/sdk";
 
 import {
   Env,
@@ -21,6 +26,7 @@ import {
 import { RollupUserLogic__factory } from "../../src/abis/RollupUserLogic__factory";
 import { MessagingProtocolConfig } from "../../deployConfig/shared";
 import { NodeCreatedEvent, getProviderUrlFromHardhatConfig } from "../../src";
+import { getMessageProof, getMessagesByTransaction, getMessageStateRoot } from "./metis";
 
 type TaskArgs = {
   tx: string;
@@ -182,16 +188,16 @@ const processFromOptimismRoot = async (
   // Determine if this is using bedrock or not
 
   // create the messenger
-  const messenger = new CrossChainMessenger({
+  const messenger = new OptimismCrossChainMessenger({
     l2ChainId: spoke,
     l2SignerOrProvider: spokeProvider,
-    l1ChainId: protocolConfig.hub,
+    l1ChainId: protocolConfig.hub.chain,
     l1SignerOrProvider: hubProvider,
     bedrock: true,
   });
 
   const status = await messenger.getMessageStatus(sendHash);
-  if (status !== MessageStatus.READY_TO_PROVE) {
+  if (status !== OptimismMessageStatus.READY_TO_PROVE) {
     throw new Error(`Optimism message status is not ready to prove: ${status}`);
   }
   // get the message
@@ -228,6 +234,89 @@ const processFromOptimismRoot = async (
   return [tx, l2OutputIndex, outputRootProof, withdrawalProof];
 };
 
+const processFromMantleRoot = async (
+  spoke: number,
+  sendHash: string,
+  protocolConfig: MessagingProtocolConfig,
+  spokeProvider: providers.JsonRpcProvider,
+  hubProvider: providers.JsonRpcProvider,
+) => {
+  // create the messenger
+  const messenger = new MantleCrossChainMessenger({
+    l2ChainId: spoke,
+    l2SignerOrProvider: spokeProvider,
+    l1ChainId: protocolConfig.hub.chain,
+    l1SignerOrProvider: hubProvider,
+    bedrock: false,
+  });
+
+  // check to make sure you can prove
+  console.log("getting the root...");
+  const root = await messenger.getMessageStateRoot(sendHash);
+  if (!root) {
+    throw new Error(`No root available`);
+  }
+
+  // get the message to get the message nonce
+  console.log("getting the message by transaction...");
+  const [message] = await messenger.getMessagesByTransaction(sendHash);
+  console.log("Got message from mantle");
+
+  // get the inclusion proof
+  console.log("getting the message proof...");
+  const proof = await messenger.getMessageProof(sendHash);
+  console.log("Got proof from mantle");
+
+  return [message.target, message.sender, message.message, message.messageNonce, proof];
+};
+
+const processFromMetisRoot = async (
+  spoke: number,
+  sendHash: string,
+  protocolConfig: MessagingProtocolConfig,
+  spokeProvider: providers.JsonRpcProvider,
+  hubProvider: providers.JsonRpcProvider,
+) => {
+  // create the messenger
+  const messenger = new OptimismCrossChainMessenger({
+    l2ChainId: spoke,
+    l2SignerOrProvider: spokeProvider,
+    l1ChainId: protocolConfig.hub.chain,
+    l1SignerOrProvider: hubProvider,
+    contracts: {
+      l1: {
+        AddressManager: "0x918778e825747a892b17C66fe7D24C618262867d",
+        L1CrossDomainMessenger: "0x081D1101855bD523bA69A9794e0217F0DB6323ff",
+        L1StandardBridge: "0x3980c9ed79d2c191A89E02Fa3529C60eD6e9c04b",
+        StateCommitmentChain: "0xf209815E595Cdf3ed0aAF9665b1772e608AB9380",
+        CanonicalTransactionChain: "0x56a76bcC92361f6DF8D75476feD8843EdC70e1C9",
+        BondManager: "0xf51B9C9a1c12e7E48BEC15DC358D0C1f0d7Eb3be",
+        OptimismPortal: constants.AddressZero,
+        L2OutputOracle: constants.AddressZero,
+      },
+      l2: DEFAULT_L2_CONTRACT_ADDRESSES,
+    },
+    bedrock: false,
+  });
+
+  // check to make sure you can prove
+  const root = await getMessageStateRoot(messenger, sendHash);
+  if (!root) {
+    throw new Error(`No metis root available`);
+  }
+  console.log(`metis root:`, root);
+
+  // get the message to get the message nonce
+  const [message] = await getMessagesByTransaction(messenger, sendHash);
+  console.log("Got message from metis", message);
+
+  // get the inclusion proof
+  const proof = await getMessageProof(messenger, sendHash);
+  console.log("Got proof from metis", proof);
+
+  return [message.target, message.sender, message.message, message.messageNonce, proof];
+};
+
 export default task("process-from-root", "Call `Connector.processFromRoot()` to process message")
   .addParam("tx", "The transaction hash that sent the L2 -> L1 message that should be processed")
   .addParam("spoke", "The chainId for the spoke")
@@ -235,7 +324,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(
     async ({ env: _env, tx: sendHash, spoke: _spoke, networkType: _networkType }: TaskArgs, { deployments }) => {
-      const deployer = Wallet.fromMnemonic(process.env.MNEMONIC!);
+      const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC!);
 
       const env = mustGetEnv(_env);
       const spoke = +_spoke;
@@ -252,10 +341,10 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
       // get the l2 provider
       const l2Provider = getProviderFromHardhatConfig(spoke);
       // get the l1 provider
-      const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub);
+      const l1Provider = getProviderFromHardhatConfig(protocolConfig.hub.chain);
 
       // see what prefix this spoke is
-      const prefix = protocolConfig.configs[spoke].prefix;
+      const prefix = protocolConfig.configs[spoke].networkName ?? protocolConfig.configs[spoke].prefix;
 
       let args: any[];
       let method = "processFromRoot";
@@ -271,12 +360,20 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
           method = "receiveMessage";
           args = await processFromPolygonRoot(spoke, sendHash, l1Provider);
           break;
+        case "Mantle":
+          method = "processMessageFromRoot";
+          args = await processFromMantleRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
+          break;
+        case "Metis":
+          method = "processMessageFromRoot";
+          args = await processFromMetisRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
+          break;
         default:
           throw new Error(`${prefix} is not supported`);
       }
 
       // try to call process from root on hub connector
-      const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub), env);
+      const deploymentName = getDeploymentName(getConnectorName(protocolConfig, spoke, protocolConfig.hub.chain), env);
       const deployment = await deployments.get(deploymentName);
       const address = deployment.address;
       console.log(deploymentName, "connector:", address);

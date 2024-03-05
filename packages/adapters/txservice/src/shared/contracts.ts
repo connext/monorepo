@@ -1,11 +1,14 @@
 import { utils } from "ethers";
 import _contractDeployments from "@connext/smart-contracts/deployments.json";
+import _contractDeploymentsDevnet from "@connext/smart-contracts/devnet.deployments.json";
+import _contractDeploymentsLocal from "@connext/smart-contracts/local.deployments.json";
 import {
   IERC20 as TIERC20Minimal,
   Connext as TConnext,
   ConnextPriceOracle as TConnextPriceOracle,
   StableSwap as TStableSwap,
   SpokeConnector as TSpokeConnector,
+  MerkleTreeManager as TMerkleTreeManager,
   RelayerProxy as TRelayerProxy,
   RelayerProxyHub as TRelayerProxyHub,
   RootManager as TRootManager,
@@ -17,6 +20,7 @@ import PriceOracleAbi from "@connext/smart-contracts/abi/contracts/core/connext/
 import ConnextAbi from "@connext/smart-contracts/abi/hardhat-diamond-abi/HardhatDiamondABI.sol/Connext.json";
 import StableSwapAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/StableSwap.sol/StableSwap.json";
 import SpokeConnectorAbi from "@connext/smart-contracts/abi/contracts/messaging/connectors/SpokeConnector.sol/SpokeConnector.json";
+import MerkleTreeManagerAbi from "@connext/smart-contracts/abi/contracts/messaging/MerkleTreeManager.sol/MerkleTreeManager.json";
 import RelayerProxyAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxy.sol/RelayerProxy.json";
 import RelayerProxyHubAbi from "@connext/smart-contracts/abi/contracts/core/connext/helpers/RelayerProxyHub.sol/RelayerProxyHub.json";
 import MultiSendAbi from "@connext/smart-contracts/abi/contracts/shared/libraries/Multisend.sol/MultiSend.json";
@@ -28,13 +32,30 @@ import ArbitrumAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/int
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
+export type Network = "mainnet" | "testnet" | "local" | "devnet";
 
 /// MARK - CONTRACT DEPLOYMENTS
 /**
  * Helper to allow easy mocking
  */
-export const _getContractDeployments = (): Record<string, Record<string, any>> => {
-  return _contractDeployments as any;
+export const _getContractDeployments = (network?: string): Record<string, Record<string, any>> => {
+  return (
+    network === "devnet"
+      ? _contractDeploymentsDevnet
+      : network === "local"
+      ? _contractDeploymentsLocal
+      : _contractDeployments
+  ) as any;
+};
+
+export const _getDeployedContract = (chainId: number, name: string, network?: string): any => {
+  const record = _getContractDeployments(network)[chainId.toString()] ?? [];
+
+  if (!record.length) {
+    return undefined;
+  }
+
+  return record[0]?.contracts ? record[0]?.contracts[name] : undefined;
 };
 
 /**
@@ -47,57 +68,81 @@ export const _getContractDeployments = (): Record<string, Record<string, any>> =
 export const getDeployedConnextContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`Connext${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `Connext${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const getDeployedRootManagerContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`RootManager${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `RootManager${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const _getDeployedRelayerProxyContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`RelayerProxy${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `RelayerProxy${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const _getDeployedRelayerProxyHubContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`RelayerProxyHub${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `RelayerProxyHub${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const getDeployedRelayerProxyContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
   if (chainId === 5 || chainId === 1) {
-    return _getDeployedRelayerProxyHubContract(chainId, postfix);
+    return _getDeployedRelayerProxyHubContract(chainId, postfix, network);
   }
 
-  return _getDeployedRelayerProxyContract(chainId, postfix);
+  return _getDeployedRelayerProxyContract(chainId, postfix, network);
 };
 
 export const getDeployedSpokeConnecterContract = (
   chainId: number,
   prefix: string,
   postfix: ContractPostfix = "",
+  network?: Network,
+): { address: string; abi: any } | undefined => {
+  const contract = _getDeployedContract(chainId, `${prefix}SpokeConnector${postfix}`, network);
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedMerkleRootManagerContract = (
+  chainId: number,
+  isHub: boolean,
+  postfix: ContractPostfix = "",
 ): { address: string; abi: any } | undefined => {
   const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}SpokeConnector${postfix}`] : undefined;
+  const contract = record[0]?.contracts
+    ? record[0]?.contracts[`MerkleTreeManager${isHub ? "Spoke" : ""}UpgradeBeaconProxy${postfix}`]
+    : undefined;
+  return contract ? { address: contract.address, abi: contract.abi } : undefined;
+};
+
+export const getDeployedMerkleTreeManagerRootContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+): { address: string; abi: any } | undefined => {
+  const record = _getContractDeployments()[chainId.toString()] ?? {};
+  const contract = record[0]?.contracts
+    ? record[0]?.contracts[`MerkleTreeManagerRootUpgradeBeaconProxy${postfix}`]
+    : undefined;
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -105,21 +150,26 @@ export const getDeployedHubConnecterContract = (
   chainId: number,
   prefix: string,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts[`${prefix}HubConnector${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `${prefix}HubConnector${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedMultisendContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts["MultiSend"] : undefined;
+export const getDeployedMultisendContract = (
+  chainId: number,
+  network?: Network,
+): { address: string; abi: any } | undefined => {
+  const contract = _getDeployedContract(chainId, `MultiSend`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
-export const getDeployedUnwrapperContract = (chainId: number): { address: string; abi: any } | undefined => {
-  const record = _getContractDeployments()[chainId.toString()] ?? {};
-  const contract = record[0]?.contracts ? record[0]?.contracts["Unwrapper"] : undefined;
+export const getDeployedUnwrapperContract = (
+  chainId: number,
+  postfix: ContractPostfix = "",
+  network?: Network,
+): { address: string; abi: any } | undefined => {
+  const contract = _getDeployedContract(chainId, `Unwrapper${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -155,40 +205,42 @@ export const CHAINS_WITH_PRICE_ORACLES: number[] = ((): number[] => {
 export const getDeployedPriceOracleContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const _contractDeployments = _getContractDeployments();
-  const record = _contractDeployments[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0] as string | undefined;
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts ? record[name]?.contracts[`ConnextPriceOracle${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `ConnextPriceOracle${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export const getDeployedStableSwapContract = (
   chainId: number,
   postfix: ContractPostfix = "",
+  network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const _contractDeployments = _getContractDeployments();
-  const record = _contractDeployments[chainId.toString()] ?? {};
-  const name = Object.keys(record)[0] as string | undefined;
-  if (!name) {
-    return undefined;
-  }
-  const contract = record[name]?.contracts ? record[name]?.contracts[`StableSwap${postfix}`] : undefined;
+  const contract = _getDeployedContract(chainId, `StableSwap${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
 export type ConnextContractDeploymentGetter = (
   chainId: number,
   postfix?: ContractPostfix,
-  proxy?: boolean,
+  network?: Network,
 ) => { address: string; abi: any } | undefined;
 
 export type SpokeConnectorDeploymentGetter = (
   chainId: number,
   prefix: string,
+  postfix?: ContractPostfix,
+  network?: Network,
+) => { address: string; abi: any } | undefined;
+
+export type MerkleTreeManagerDeploymentGetter = (
+  chainId: number,
+  isHub: boolean,
+  postfix?: ContractPostfix,
+) => { address: string; abi: any } | undefined;
+
+export type RootMerkleTreeManagerDeploymentGetter = (
+  chainId: number,
   postfix?: ContractPostfix,
 ) => { address: string; abi: any } | undefined;
 
@@ -196,21 +248,32 @@ export type AmbDeploymentGetter = (
   chainId: number,
   prefix: string,
   postfix?: ContractPostfix,
+  network?: Network,
 ) => { address: string; abi: any } | undefined;
 
 export type HubConnectorDeploymentGetter = (
   chainId: number,
   prefix: string,
   postfix?: ContractPostfix,
+  network?: Network,
 ) => { address: string; abi: any } | undefined;
 
 export type RootManagerPropagateWrapperGetter = (
   chainId: number,
   postfix?: ContractPostfix,
+  network?: Network,
 ) => { address: string; abi: any } | undefined;
 
-export type MultisendContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
-export type UnwrapperContractDeploymentGetter = (chainId: number) => { address: string; abi: any } | undefined;
+export type MultisendContractDeploymentGetter = (
+  chainId: number,
+  network?: Network,
+) => { address: string; abi: any } | undefined;
+
+export type UnwrapperContractDeploymentGetter = (
+  chainId: number,
+  postfix?: ContractPostfix,
+  network?: Network,
+) => { address: string; abi: any } | undefined;
 
 export type ConnextContractDeployments = {
   connext: ConnextContractDeploymentGetter;
@@ -218,9 +281,12 @@ export type ConnextContractDeployments = {
   priceOracle: ConnextContractDeploymentGetter;
   stableSwap: ConnextContractDeploymentGetter;
   spokeConnector: SpokeConnectorDeploymentGetter;
+  spokeMerkleTreeManager: MerkleTreeManagerDeploymentGetter;
+  rootMerkleTreeManager: RootMerkleTreeManagerDeploymentGetter;
   hubConnector: HubConnectorDeploymentGetter;
   multisend: MultisendContractDeploymentGetter;
   unwrapper: UnwrapperContractDeploymentGetter;
+  rootManager: RootManagerPropagateWrapperGetter;
 };
 
 export const contractDeployments: ConnextContractDeployments = {
@@ -229,9 +295,12 @@ export const contractDeployments: ConnextContractDeployments = {
   priceOracle: getDeployedPriceOracleContract,
   stableSwap: getDeployedStableSwapContract,
   spokeConnector: getDeployedSpokeConnecterContract,
+  spokeMerkleTreeManager: getDeployedMerkleRootManagerContract,
+  rootMerkleTreeManager: getDeployedMerkleTreeManagerRootContract,
   hubConnector: getDeployedHubConnecterContract,
   multisend: getDeployedMultisendContract,
   unwrapper: getDeployedUnwrapperContract,
+  rootManager: getDeployedRootManagerContract,
 };
 
 /// MARK - CONTRACT INTERFACES
@@ -257,6 +326,9 @@ export const getStableSwapInterface = () => new utils.Interface(StableSwapAbi) a
 
 export const getSpokeConnectorInterface = () => new utils.Interface(SpokeConnectorAbi) as TSpokeConnector["interface"];
 
+export const getMerkleTreeManagerInterface = () =>
+  new utils.Interface(MerkleTreeManagerAbi) as TMerkleTreeManager["interface"];
+
 export const getRootManagerInterface = () => new utils.Interface(RootManagerAbi) as TRootManager["interface"];
 
 export const getMultisendInterface = () => new utils.Interface(MultiSendAbi) as TMultisend["interface"];
@@ -269,6 +341,7 @@ export type ConnextContractInterfaces = {
   priceOracle: TConnextPriceOracle["interface"];
   stableSwap: TStableSwap["interface"];
   spokeConnector: TSpokeConnector["interface"];
+  merkleTreeManager: TMerkleTreeManager["interface"];
   rootManager: TRootManager["interface"];
   relayerProxy: TRelayerProxy["interface"];
   relayerProxyHub: TRelayerProxyHub["interface"];
@@ -282,6 +355,7 @@ export const getContractInterfaces = (): ConnextContractInterfaces => ({
   priceOracle: getPriceOracleInterface(),
   stableSwap: getStableSwapInterface(),
   spokeConnector: getSpokeConnectorInterface(),
+  merkleTreeManager: getMerkleTreeManagerInterface(),
   rootManager: getRootManagerInterface(),
   relayerProxy: getRelayerProxyInterface(),
   relayerProxyHub: getRelayerProxyHubInterface(),

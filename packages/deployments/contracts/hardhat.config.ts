@@ -13,11 +13,13 @@ import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
 import { HardhatUserConfig } from "hardhat/types";
+import * as tdly from "@tenderly/hardhat-tenderly";
 
 import "./tasks/addWatcher";
 import "./tasks/approveRouter";
 import "./tasks/addAdmin";
 import "./tasks/setupAsset";
+import "./tasks/setLiquidityCap";
 import "./tasks/addLiquidity";
 import "./tasks/mintTestToken";
 import "./tasks/setupTestRouter";
@@ -61,8 +63,15 @@ import "./tasks/unpause";
 import "./tasks/bumpTransfer";
 import "./tasks/rootmanager/enrollAdminConnector";
 import "./tasks/connector/addSpokeRootToAggregate";
+import "./tasks/connector/receiveHubAggregateRoot";
 import "./tasks/connector/wormholeDeliver";
+import "./tasks/connector/claimLinea";
+import "./tasks/connector/setOptimisticMode";
 import { hardhatNetworks } from "./src/config";
+
+tdly.setup({
+  automaticVerifications: false,
+});
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -111,7 +120,7 @@ const config: HardhatUserConfig = {
       "gnosis-testnet": process.env.GNOSISSCAN_API_KEY!,
       mumbai: process.env.POLYGONSCAN_API_KEY!,
       chapel: process.env.BNBSCAN_API_KEY!,
-      consensys: "abc",
+
       // mainnets
       mainnet: process.env.ETHERSCAN_API_KEY!,
       matic: process.env.POLYGONSCAN_API_KEY!,
@@ -119,6 +128,8 @@ const config: HardhatUserConfig = {
       bnb: process.env.BNBSCAN_API_KEY!,
       "arbitrum-one": process.env.ARBISCAN_API_KEY!,
       xdai: process.env.GNOSISSCAN_API_KEY!,
+      linea: process.env.LINEASCAN_API_KEY!,
+      snowtrace: "snowtrace", // apiKey is not required, just set a placeholder
     },
     customChains: [
       {
@@ -138,19 +149,19 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "consensys",
-        chainId: 59140,
-        urls: {
-          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
-          browserURL: "https://explorer.goerli.zkevm.consensys.net",
-        },
-      },
-      {
         network: "zksync2-testnet",
         chainId: 280,
         urls: {
           apiURL: "hhttps://zksync2-testnet.zkscan.io/api",
           browserURL: "https://zksync2-testnet.zkscan.io",
+        },
+      },
+      {
+        network: "snowtrace",
+        chainId: 43114,
+        urls: {
+          apiURL: "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan",
+          browserURL: "https://avalanche.routescan.io",
         },
       },
     ],
@@ -185,6 +196,12 @@ const config: HardhatUserConfig = {
 
       return true;
     },
+  },
+  tenderly: {
+    username: process.env.TENDERLY_ACCOUNT_ID!,
+    project: process.env.TENDERLY_PROJECT_SLUG!,
+    accessKey: process.env.TENDERLY_ACCESS_KEY!,
+    privateVerification: false, // if true, contracts will be verified privately, if false, contracts will be verified publicly
   },
   typechain: {
     outDir: "src/typechain-types",

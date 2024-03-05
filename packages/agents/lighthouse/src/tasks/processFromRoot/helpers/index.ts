@@ -5,6 +5,11 @@ export { getProcessFromPolygonRootArgs } from "./polygon";
 export { getProcessFromGnosisRootArgs } from "./gnosis";
 export { getProcessFromArbitrumRootArgs } from "./arbitrum";
 export { getProcessFromZkSyncRootArgs } from "./zksync";
+export { getProcessFromLineaRootArgs } from "./linea";
+export { getProcessFromBaseRootArgs } from "./base";
+export { getProcessFromMantleRootArgs } from "./mantle";
+export { getProcessFromMetisRootArgs } from "./metis";
+export { getProcessFromModeRootArgs } from "./mode";
 
 export type GetProcessArgsParams = {
   spokeChainId: number;

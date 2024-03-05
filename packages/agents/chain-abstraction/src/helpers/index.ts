@@ -63,7 +63,7 @@ export const DestinationSwapPathFns: Record<Swapper, DestinationSwapPathCallback
   UniV3: getSwapPathForUniV3,
   PanCake: getPathForPanCake,
   // HoneySwap: getSwapPathForHoneySwap,
-}; 
+};
 
 export const SwapQuoteFns: Record<Swapper, SwapQuoteCallback> = {
   UniV2: getSwapQuoteForUniV2,

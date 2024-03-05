@@ -1,4 +1,4 @@
-import { Deployment } from "../../types";
+import { Deployment } from "../../helpers";
 
 export const FACET_CONTRACTS = [
   "DiamondLoupeFacet",

@@ -1,5 +1,5 @@
 [
-  "constructor(uint32 _domain, uint32 _mirrorDomain, address _rootManager)",
+  "constructor(uint32 _domain, uint32 _mirrorDomain, address, address _rootManager, address)",
   "error Connector__processMessage_notUsed()",
   "error ProposedOwnable__onlyOwner_notOwner()",
   "error ProposedOwnable__onlyProposed_notProposedOwner()",
@@ -8,6 +8,7 @@
   "error ProposedOwnable__proposeNewOwner_noOwnershipChange()",
   "error ProposedOwnable__renounceOwnership_invalidProposal()",
   "error ProposedOwnable__renounceOwnership_noProposal()",
+  "event FundsWithdrawn(address indexed to, uint256 amount)",
   "event MessageProcessed(bytes data, address caller)",
   "event MessageSent(bytes data, bytes encodedData, address caller)",
   "event MirrorConnectorUpdated(address previous, address current)",
@@ -31,5 +32,6 @@
   "function renounced() view returns (bool)",
   "function sendMessage(bytes _data, bytes _encodedData) payable",
   "function setMirrorConnector(address _mirrorConnector)",
-  "function verifySender(address _expected) returns (bool)"
+  "function verifySender(address _expected) returns (bool)",
+  "function withdrawFunds(address _to)"
 ]

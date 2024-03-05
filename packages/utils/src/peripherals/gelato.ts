@@ -1,5 +1,4 @@
 import { BigNumber } from "ethers";
-import interval from "interval-promise";
 
 import { axiosGet } from "../helpers";
 import { Logger } from "../logging/logger";
@@ -9,7 +8,16 @@ import { GelatoEstimatedFeeRequestError, GelatoConversionRateRequestError } from
 
 export const GELATO_SERVER = "https://api.gelato.digital";
 
-export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
+// Testnet addresses (2/5)
+// - On all networks except zkSync: 0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0
+// - On zkSync: 0x0c1B63765Be752F07147ACb80a7817A8b74d9831
+// So, for testnets you can already update the whitelist to these new addresses.
+
+export const getGelatoRelayerAddress = (domain: string): string =>
+  domain === "2053862260" || // zksync testnet
+  domain === "2053862243" // zksync mainnet
+    ? "0x0c1B63765Be752F07147ACb80a7817A8b74d9831"
+    : "0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0"; // all other networks
 
 /**
  * Get the fee estimate
@@ -53,19 +61,20 @@ const EquivalentChainsForTestnetEstimate: Record<number, number> = {
   421613: 421613, // arbitrum-goerli
   80001: 80001,
   10200: 10200,
+  195: 195, // x1 testnet
 };
 
 /// MARK - This is used for testnets and mainnets which aren't being supported by gelato
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
   59140: 42161, // linea
+  34443: 42161, // mode
 
   // LOCALNETS
   1337: 1, // local chain
   1338: 1, // local chain
   13337: 1, // local chain
   13338: 1, // local chain
-
 
   // TESTNETS
   4: 1, // rinkeby
@@ -75,6 +84,12 @@ const EquivalentChainsForGelato: Record<number, number> = {
   80001: 137, // mumbai (polygon testnet)
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
+  195: 1, // x1 testnet
+
+  // LOCAL NETWORKS
+  31337: 1,
+  31338: 1,
+  31339: 1,
 };
 
 /**
@@ -93,36 +108,8 @@ export const getConversionRate = async (_chainId: number, to?: string, logger?: 
     apiEndpoint = apiEndpoint.concat(`?to=${to}`);
   }
 
-  let totalRetries = 5;
-  const retryInterval = 2_000;
-  await new Promise((res) => {
-    interval(async (_, stop) => {
-      if (totalRetries === 0) {
-        stop();
-        res(undefined);
-      }
-
-      try {
-        totalRetries--;
-        const axiosRes = await axiosGet(apiEndpoint);
-        result = axiosRes.data.conversionRate as number;
-        if (result > 0) {
-          stop();
-          res(undefined);
-        }
-      } catch (error: unknown) {
-        if (logger)
-          logger.error(
-            `Error in getConversionRate. Retrying in ${retryInterval} ms`,
-            undefined,
-            undefined,
-            jsonifyError(error as Error),
-          );
-      }
-    }, retryInterval);
-  });
   try {
-    const res = await axiosGet(apiEndpoint);
+    const res = await axiosGet(apiEndpoint, undefined, 5, 2000);
     result = res.data.conversionRate as number;
   } catch (error: unknown) {
     if (logger) logger.error("Error in getConversionRate", undefined, undefined, jsonifyError(error as Error));

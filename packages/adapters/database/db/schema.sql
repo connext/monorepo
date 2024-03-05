@@ -41,6 +41,38 @@ CREATE TYPE public.action_type AS ENUM (
 
 
 --
+-- Name: event_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.event_type AS ENUM (
+    'Add',
+    'Remove'
+);
+
+
+--
+-- Name: snapshot_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.snapshot_status AS ENUM (
+    'Proposed',
+    'Finalized',
+    'Propagated'
+);
+
+
+--
+-- Name: spoke_root_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.spoke_root_status AS ENUM (
+    'Submitted',
+    'Proposed',
+    'Finalized'
+);
+
+
+--
 -- Name: transfer_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -144,7 +176,8 @@ CREATE TABLE public.assets (
     domain character varying(255) NOT NULL,
     key character(66),
     id character(42),
-    "decimal" numeric DEFAULT 0
+    "decimal" numeric DEFAULT 0,
+    adopted_decimal numeric DEFAULT 0
 );
 
 
@@ -703,6 +736,7 @@ CREATE VIEW public.routers_with_balances AS
     asset_balances.supplied,
     asset_balances.removed,
     assets."decimal",
+    assets.adopted_decimal,
     COALESCE(asset_prices.price, (0)::numeric) AS asset_usd_price,
     (asset_prices.price * (asset_balances.balance / ((10)::numeric ^ assets."decimal"))) AS balance_usd,
     (asset_prices.price * (asset_balances.fees_earned / ((10)::numeric ^ assets."decimal"))) AS fee_earned_usd,
@@ -739,6 +773,25 @@ CREATE VIEW public.router_liquidity AS
 
 
 --
+-- Name: router_liquidity_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.router_liquidity_events (
+    id character varying(255) NOT NULL,
+    domain character varying(255) NOT NULL,
+    router character(42) NOT NULL,
+    event public.event_type DEFAULT 'Add'::public.event_type NOT NULL,
+    asset character(42) NOT NULL,
+    amount numeric DEFAULT 0,
+    balance numeric DEFAULT 0,
+    block_number integer NOT NULL,
+    transaction_hash character(66) NOT NULL,
+    "timestamp" integer NOT NULL,
+    nonce numeric DEFAULT 0 NOT NULL
+);
+
+
+--
 -- Name: router_tvl; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -764,6 +817,59 @@ CREATE VIEW public.router_tvl AS
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
+);
+
+
+--
+-- Name: snapshot_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshot_roots (
+    id character varying(255) NOT NULL,
+    spoke_domain integer NOT NULL,
+    root character(66) NOT NULL,
+    count integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    "timestamp" integer NOT NULL
+);
+
+
+--
+-- Name: snapshots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.snapshots (
+    id character varying(255) NOT NULL,
+    aggregate_root character(66) NOT NULL,
+    base_aggregate_root character(66) NOT NULL,
+    roots character(66)[] DEFAULT (ARRAY[]::bpchar[])::character(66)[] NOT NULL,
+    domains character varying(255)[] DEFAULT (ARRAY[]::character varying[])::character varying(255)[] NOT NULL,
+    end_of_dispute integer NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    status public.snapshot_status DEFAULT 'Proposed'::public.snapshot_status NOT NULL,
+    propagate_timestamp integer,
+    propagate_task_id character(66),
+    relayer_type text,
+    proposed_timestamp integer,
+    finalized_timestamp integer
+);
+
+
+--
+-- Name: spoke_optimistic_roots; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.spoke_optimistic_roots (
+    id character varying(255) NOT NULL,
+    root character(66) NOT NULL,
+    domain character varying(255) NOT NULL,
+    end_of_dispute integer NOT NULL,
+    root_timestamp integer NOT NULL,
+    status public.spoke_root_status DEFAULT 'Proposed'::public.spoke_root_status NOT NULL,
+    processed boolean DEFAULT false NOT NULL,
+    propose_timestamp integer,
+    propose_task_id character varying(255),
+    relayer_type text
 );
 
 
@@ -839,6 +945,79 @@ CREATE VIEW public.transfer_count AS
     count(tf.transfer_id) AS transfer_count
    FROM public.transfers tf
   GROUP BY tf.status, ((date_trunc('day'::text, to_timestamp((tf.xcall_timestamp)::double precision)))::date), tf.origin_domain, tf.origin_transacting_asset;
+
+
+--
+-- Name: transfers_with_numeric_id; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.transfers_with_numeric_id AS
+ SELECT tf.transfer_id,
+    tf.nonce,
+    tf."to",
+    tf.call_data,
+    tf.origin_domain,
+    tf.destination_domain,
+    tf.receive_local,
+    tf.origin_chain,
+    tf.origin_transacting_asset,
+    tf.origin_transacting_amount,
+    tf.origin_bridged_asset,
+    tf.origin_bridged_amount,
+    tf.xcall_caller,
+    tf.xcall_transaction_hash,
+    tf.xcall_timestamp,
+    tf.xcall_gas_price,
+    tf.xcall_gas_limit,
+    tf.xcall_block_number,
+    tf.destination_chain,
+    tf.status,
+    tf.routers,
+    tf.destination_transacting_asset,
+    tf.destination_transacting_amount,
+    tf.destination_local_asset,
+    tf.destination_local_amount,
+    tf.execute_caller,
+    tf.execute_transaction_hash,
+    tf.execute_timestamp,
+    tf.execute_gas_price,
+    tf.execute_gas_limit,
+    tf.execute_block_number,
+    tf.execute_origin_sender,
+    tf.reconcile_caller,
+    tf.reconcile_transaction_hash,
+    tf.reconcile_timestamp,
+    tf.reconcile_gas_price,
+    tf.reconcile_gas_limit,
+    tf.reconcile_block_number,
+    tf.update_time,
+    tf.delegate,
+    tf.message_hash,
+    tf.canonical_domain,
+    tf.slippage,
+    tf.origin_sender,
+    tf.bridged_amt,
+    tf.normalized_in,
+    tf.canonical_id,
+    tf.router_fee,
+    tf.xcall_tx_origin,
+    tf.execute_tx_origin,
+    tf.reconcile_tx_origin,
+    tf.error_status,
+    tf.backoff,
+    tf.next_execution_timestamp,
+    tf.updated_slippage,
+    tf.execute_simulation_input,
+    tf.execute_simulation_from,
+    tf.execute_simulation_to,
+    tf.execute_simulation_network,
+    tf.error_message,
+    tf.message_status,
+    tf.relayer_fees,
+    (tf.execute_timestamp - tf.xcall_timestamp) AS ttv,
+    (tf.reconcile_timestamp - tf.xcall_timestamp) AS ttr,
+    ((('x'::text || lpad("substring"((tf.transfer_id)::text, 3, 64), 64, '0'::text)))::bit(64))::bigint AS numeric_id
+   FROM public.transfers tf;
 
 
 --
@@ -1116,6 +1295,14 @@ ALTER TABLE ONLY public.root_messages
 
 
 --
+-- Name: router_liquidity_events router_liquidity_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.router_liquidity_events
+    ADD CONSTRAINT router_liquidity_events_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: routers routers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1129,6 +1316,46 @@ ALTER TABLE ONLY public.routers
 
 ALTER TABLE ONLY public.schema_migrations
     ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: snapshot_roots snapshot_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshot_roots
+    ADD CONSTRAINT snapshot_roots_pkey PRIMARY KEY (spoke_domain, root);
+
+
+--
+-- Name: snapshots snapshots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_key UNIQUE (id);
+
+
+--
+-- Name: snapshots snapshots_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.snapshots
+    ADD CONSTRAINT snapshots_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_id_key UNIQUE (id);
+
+
+--
+-- Name: spoke_optimistic_roots spoke_optimistic_roots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.spoke_optimistic_roots
+    ADD CONSTRAINT spoke_optimistic_roots_pkey PRIMARY KEY (id);
 
 
 --
@@ -1234,6 +1461,62 @@ CREATE INDEX messages_domain_leaf_idx ON public.messages USING btree (origin_dom
 --
 
 CREATE INDEX messages_processed_index_idx ON public.messages USING btree (processed, index);
+
+
+--
+-- Name: snapshot_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_idx ON public.snapshot_roots USING btree (id);
+
+
+--
+-- Name: snapshot_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_root_idx ON public.snapshot_roots USING btree (root);
+
+
+--
+-- Name: snapshot_roots_spoke_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshot_roots_spoke_domain_idx ON public.snapshot_roots USING btree (spoke_domain);
+
+
+--
+-- Name: snapshots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX snapshots_idx ON public.snapshots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_domain_idx ON public.spoke_optimistic_roots USING btree (domain);
+
+
+--
+-- Name: spoke_optimistic_roots_domain_root_propose_timestamp_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX spoke_optimistic_roots_domain_root_propose_timestamp_idx ON public.spoke_optimistic_roots USING btree (domain, root, propose_timestamp);
+
+
+--
+-- Name: spoke_optimistic_roots_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_idx ON public.spoke_optimistic_roots USING btree (id);
+
+
+--
+-- Name: spoke_optimistic_roots_root_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX spoke_optimistic_roots_root_idx ON public.spoke_optimistic_roots USING btree (root);
 
 
 --
@@ -1400,6 +1683,7 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230308083252'),
     ('20230308162843'),
     ('20230310035445'),
+    ('20230405050248'),
     ('20230405091124'),
     ('20230412003613'),
     ('20230412084403'),
@@ -1417,4 +1701,17 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20230530074124'),
     ('20230608135754'),
     ('20230608174759'),
-    ('20230613125451');
+    ('20230613125451'),
+    ('20231012233640'),
+    ('20231020201556'),
+    ('20231031081722'),
+    ('20231031145848'),
+    ('20231102213156'),
+    ('20231127165037'),
+    ('20231127165223'),
+    ('20231128023332'),
+    ('20231130084431'),
+    ('20231219013906'),
+    ('20231219072355'),
+    ('20231219231640'),
+    ('20240212031628');

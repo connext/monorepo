@@ -1,6 +1,5 @@
 import { ajv, createLoggingContext, ExecuteArgs, ExecuteArgsSchema } from "@connext/nxtp-utils";
 
-import { DomainNotSupported } from "../../../errors";
 import { getContext } from "../executor";
 
 import { sendExecuteSlowToSequencer } from "./sequencer";
@@ -20,18 +19,28 @@ export const execute = async (args: ExecuteArgs, transferId: string): Promise<vo
 
   logger.info(`Method start: ${execute.name}`, requestContext, methodContext, { args });
 
+  if (args.params.destinationDomain === "2053862260") {
+    logger.info("Skipping unsupported domain", requestContext, methodContext, args.params.destinationDomain);
+    return;
+  }
+
   // Ensure we support the target domain (i.e. it's been configured).
   if (!config.chains[args.params.destinationDomain]) {
-    throw new DomainNotSupported(args.params.destinationDomain, transferId, {
+    logger.debug("Unsupported destination domain", requestContext, methodContext, {
+      domain: args.params.destinationDomain,
+      transferId,
       supportedDomains: Object.keys(config.chains),
     });
+
+    return;
   }
 
   // Validate input schema
   const validate = ajv.compile(ExecuteArgsSchema);
   const valid = validate(args);
   if (!valid) {
-    throw new Error(validate.errors?.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
+    logger.debug(validate.errors!.map((err: unknown) => JSON.stringify(err, null, 2)).join(","));
+    return;
   }
 
   const encodedData = contracts.connext.encodeFunctionData("execute", [args]);

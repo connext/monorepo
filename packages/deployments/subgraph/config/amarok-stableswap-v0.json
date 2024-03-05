@@ -55,6 +55,83 @@
     ]
   },
   {
+    "subgraphName": "connext/stableswap-v0-linea",
+    "network": "linea-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xa05eF29e9aC8C75c530c2795Fa6A800e188dE0a9",
+        "startBlock": 754343
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-metis",
+    "network": "metis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x6B142227A277CE62808E0Df93202483547Ec0188",
+        "startBlock": 12940172
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-polygon-zk",
+    "network": "polygon-zkevm",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xBA72D06783896B1AAbe7A83F92e62FA12860Ab20",
+        "startBlock": 9554161
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-base",
+    "network": "base",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB8448C6f7f7887D36DcA487370778e419e9ebE3F",
+        "startBlock": 7866926
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-zksync",
+    "network": "zksync-era",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x05e42245388A0CCC8576eC953Fec241455Bb6E23",
+        "startBlock": 25275845
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-avalanche",
+    "network": "avalanche",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x137072F68708eb7c82edceEceCcf64D6c29C171b",
+        "startBlock": 40990035
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v0-mantle",
+    "network": "mantle",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xA93C4a6e19BeE415cAb341D19046c799a80A1496",
+        "startBlock": 51229385
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/stableswap-v0-goerli",
     "network": "goerli",
     "source": [

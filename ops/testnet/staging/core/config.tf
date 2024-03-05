@@ -19,6 +19,10 @@ locals {
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
+  router_publisher_env_vars = concat(
+    local.router_env_vars, [
+      { name = "NODE_OPTIONS", value = "--max-old-space-size=1536" }
+  ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
     ENVIRONMENT       = var.environment,
@@ -33,6 +37,13 @@ locals {
     { name = "ENVIRONMENT", value = var.environment },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
+    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
+  ]
+  lighthouse_web3signer_env_vars = [
+    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.lighthouse_web3_signer_private_key },
+    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
+    { name = "ENVIRONMENT", value = var.environment },
+    { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_web3signer_env_vars = [
@@ -101,12 +112,9 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -142,39 +150,33 @@ locals {
         {
           name       = "http"
           limit      = 100
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735353714"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "1735356532"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
         {
           name       = "9991"
           limit      = 1
-          queueLimit = 100000
+          queueLimit = 1000000
           subscribe  = true
         },
-        {
-          name       = "2053862260"
-          limit      = 1
-          queueLimit = 100000
-          subscribe  = true
-        },
-        {
-          name       = "1734439522"
-          limit      = 1
-          queueLimit = 100000
-          subscribe  = true
-        },
+        # {
+        #   name       = "2053862260"
+        #  limit      = 1
+        #   queueLimit = 100000
+        #   subscribe  = true
+        # },
       ]
       bindings = [
         {
@@ -197,16 +199,11 @@ locals {
           target   = "9991"
           keys     = ["9991"]
         },
-        {
-          exchange = "sequencerX"
-          target   = "2053862260"
-          keys     = ["2053862260"]
-        },
-        {
-          exchange = "sequencerX"
-          target   = "1734439522"
-          keys     = ["1734439522"]
-        }
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "2053862260"
+        #   keys     = ["2053862260"]
+        # },
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
@@ -242,12 +239,9 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -265,20 +259,17 @@ locals {
     logLevel = "debug"
     chains = {
       "1735356532" = {
-        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}"]
       }
       "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
       }
       "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
@@ -295,13 +286,33 @@ locals {
     ]
     environment = var.stage
     database = {
-      url = local.read_replica_db_url
+      url = local.default_db_url
     }
     databaseWriter = {
       url = local.default_db_url
     }
-    main            = "1735353714"
-    proverBatchSize = 1
+    main = "1735353714"
+    proverBatchSize = {
+      # "1668247156" = 10,
+      "9991"       = 10,
+      "1735353714" = 10,
+      # "2053862260" = 10,
+      "1735356532" = 10
+    }
+    messageQueue = {
+      connection = {
+        uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
+      }
+      exchange = {
+        name           = "proverX"
+        type           = "direct"
+        publishTimeout = 1000
+        persistent     = true
+        durable        = true
+      }
+      prefetchSize = 1
+    }
+    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
@@ -323,12 +334,9 @@ locals {
       "9991" = {
         providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
       }
-      "1734439522" = {
-        providers = ["https://arb-goerli.g.alchemy.com/v2/${var.arbgoerli_alchemy_key_0}", "https://goerli-rollup.arbitrum.io/rpc"]
-      }
-      "2053862260" = {
-        providers = ["https://zksync2-testnet.zksync.dev"]
-      }
+      # "2053862260" = {
+      #   providers = ["https://zksync2-testnet.zksync.dev"]
+      # }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"

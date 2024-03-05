@@ -8,6 +8,7 @@ import { makePropagate } from "./propagate";
 import { makeProcessFromRoot } from "./processFromRoot";
 import { makeSendOutboundRoot } from "./sendOutboundRoot";
 import { makeProverFunc } from "./prover/handler";
+import { makePropose } from "./propose";
 
 export const makeLighthouse = async (event?: any) => {
   const chainData = await getChainData();
@@ -34,6 +35,9 @@ export const makeLighthouse = async (event?: any) => {
       break;
     case "sendoutboundroot":
       await makeSendOutboundRoot(config, chainData);
+      break;
+    case "propose":
+      await makePropose(config, chainData);
       break;
   }
 };

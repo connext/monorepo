@@ -343,6 +343,11 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
       port: 8082,
       host: LOCALHOST,
     },
+    poller: {
+      port: 8083,
+      host: LOCALHOST,
+      interval: 1000,
+    },
     chains: {
       // [ORIGIN.domain]: {
       //   providers: ORIGIN.config.providers,
