@@ -11,6 +11,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1634886255", // ARBITRUM ONE
     "6450786", // BNB
     "6778479", // GNOSIS
+    "1836016741", // MODE
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -481,6 +482,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
         /// BNB
         "6450786": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// MODE
+        "1836016741": {
           local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
           adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
         },
