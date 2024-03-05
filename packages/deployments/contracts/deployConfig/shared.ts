@@ -762,7 +762,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
         custom: {
           hub: {
-            gasCap: BigNumber.from("200000"),
+            // https://scrollscan.com/tx/0xb1de68a188d86bcae0c51b684396dd62ce9e95c34edfd2f45ba0acc3e52308b0
+            gasCap: BigNumber.from("130000"),
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
