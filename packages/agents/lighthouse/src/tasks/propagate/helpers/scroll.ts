@@ -66,9 +66,11 @@ export const getPropagateParams = async (
     l1Provider,
   );
 
-  // gasLimit on spoke side = 200_000
+  // gasLimit on spoke side = 130_000
+  // relayMessage Transaction:
+  // https://scrollscan.com/tx/0xb1de68a188d86bcae0c51b684396dd62ce9e95c34edfd2f45ba0acc3e52308b0
   // remain gas will be refunded on scroll chain to refund address (default: spoke connector address)
-  const gasLimit = "200000";
+  const gasLimit = "130000";
   const estimateMessageFee = await messageQueueContract.estimateCrossDomainMessageFee(gasLimit);
   const refundAddress = l2SpokeConnector.address;
   const encodedData = utils.defaultAbiCoder.encode(["address"], [refundAddress]);
