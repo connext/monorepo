@@ -1,10 +1,11 @@
-import { axiosGet, createLoggingContext } from "@connext/nxtp-utils";
+import { createLoggingContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
 import { AlreadyProcessed, NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 
 import { GetProcessArgsParams } from ".";
+import { axiosGet } from "../../../mockable";
 
 export const getProcessFromScrollRootArgs = async ({
   spokeChainId,
@@ -36,8 +37,7 @@ export const getProcessFromScrollRootArgs = async ({
   const claimableRes = await axiosGet(
     `${scrollApiEndpoint}claimable?address=${spokeConnector!.address}&page_size=100&page=1`,
   );
-
-  if (claimableRes.status !== 200 || claimableRes.data.errcode !== 0 || claimableRes.data?.data?.result?.length === 0) {
+  if (claimableRes.data.errcode !== 0 || claimableRes.data?.data?.result?.length === 0) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `${sendHash} has no message sent`,
     });
