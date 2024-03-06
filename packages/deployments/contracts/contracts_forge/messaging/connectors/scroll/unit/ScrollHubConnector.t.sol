@@ -110,6 +110,8 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
    * @param _refundAddress Address where the extra gas will be refunded
    */
   modifier happyPath(bytes32 _root, address _refundAddress) {
+    vm.assume(_refundAddress != address(0));
+    vm.assume(_root != bytes32(0));
     // Encode the root
     bytes memory _data = abi.encode(_root);
     // Get the calldata of the `processMessage` function call to be executed on the mirror connector
@@ -137,7 +139,6 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
    * @param _refundAddress Address where the extra gas will be refunded
    */
   function test_callAMBSendMessage(bytes32 _root, address _refundAddress) public happyPath(_root, _refundAddress) {
-    vm.assume(_refundAddress != address(0));
     // Encode the data to be sent
     bytes memory _data = abi.encode(_root);
     bytes memory _encodedData = abi.encode(_refundAddress);
@@ -151,7 +152,6 @@ contract Unit_Connector_ScrollHubConnector_SendMessage is Base {
    * @param _refundAddress Address where the extra gas will be refunded
    */
   function test_emitMessageSent(bytes32 _root, address _refundAddress) public happyPath(_root, _refundAddress) {
-    vm.assume(_refundAddress != address(0));
     // Encode the data to be sent
     bytes memory _data = abi.encode(_root);
     bytes memory _encodedData = abi.encode(_refundAddress);
