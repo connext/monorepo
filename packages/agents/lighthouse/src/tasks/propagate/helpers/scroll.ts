@@ -61,7 +61,7 @@ export const getPropagateParams = async (
   const ambContract = getContract(ambAddress as string, ambs.scroll as ContractInterface, l1Provider);
   const messageQueueAddress = await ambContract.messageQueue();
   const messageQueueContract = getContract(
-    messageQueueAddress,
+    messageQueueAddress as string,
     SCROLL_MESSAGE_QUEUE_ABI as ContractInterface,
     l1Provider,
   );

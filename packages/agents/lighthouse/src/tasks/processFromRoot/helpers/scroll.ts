@@ -1,11 +1,11 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
 import { BigNumber } from "ethers";
 
+import { axiosGet } from "../../../mockable";
 import { AlreadyProcessed, NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 
 import { GetProcessArgsParams } from ".";
-import { axiosGet } from "../../../mockable";
 
 export const getProcessFromScrollRootArgs = async ({
   spokeChainId,
@@ -42,7 +42,23 @@ export const getProcessFromScrollRootArgs = async ({
       error: `${sendHash} has no message sent`,
     });
   }
-  const transaction = claimableRes.data.data.result.find((tx: any) => tx.hash.toLowerCase() === sendHash.toLowerCase());
+  const result = claimableRes.data.data.result as unknown as {
+    hash: string;
+    finalizeTx: {
+      hash: string;
+    };
+    claimInfo: {
+      from: string;
+      to: string;
+      value: string;
+      nonce: string;
+      batch_hash: string;
+      message: string;
+      proof: string;
+      batch_index: string;
+    };
+  }[];
+  const transaction = result.find((tx) => tx.hash.toLowerCase() === sendHash.toLowerCase());
   if (!transaction) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `${sendHash} has no message sent`,
@@ -53,7 +69,7 @@ export const getProcessFromScrollRootArgs = async ({
     });
   }
 
-  const claimInfo = await transaction.claimInfo;
+  const claimInfo = transaction.claimInfo;
   logger.info("Got Claim Info from scroll api", requestContext, methodContext, {
     sendHash,
     transaction: transaction,
