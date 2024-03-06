@@ -195,6 +195,7 @@ export const domainsToChainNames: Record<string, string> = {
   "1835365481": "metis",
   "1650553709": "base",
   "1836016741": "mode",
+  "1935897199": "scroll",
 };
 
 // Need to add more domains here.
@@ -212,6 +213,7 @@ export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
   "1835365481": "0xbe57a0A92C33dB065D8Db102e27805C1526e0E99", //metis
   "1650553709": "0xcc1ce162fb1d70a377d1542873b1db57f5ff14d1", //base
   "1836016741": "0x689cCB572262e0ca66146FE5Ed5D998543d3AA3B", //mode
+  "1935897199": "", // scroll
 };
 
 // Need to add more domains here.
@@ -229,4 +231,5 @@ export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
   "1835365481": "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109", //metis
   "1650553709": "0x542AaB88B14055e47222791276967Db5f9B840f6", //base
   "1836016741": "0x981A06E33b228299f33a45a892d7AA61d0b95a83", //mode
+  "1935897199": "", // scroll
 };
