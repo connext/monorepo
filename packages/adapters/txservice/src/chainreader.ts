@@ -217,6 +217,17 @@ export class ChainReader {
   }
 
   /**
+   * Gets the blocktime
+   *
+   * @param domain - The ID of the chain for which this call is related.
+   * @param number - The block number.
+   * @returns number representing the requested blocks blocktime
+   */
+  public async getBlockTimeByNumber(domain: number, blockNumber: string): Promise<number> {
+    return await this.getProvider(domain).getBlockTime(blockNumber);
+  }
+
+  /**
    * Gets the current block number
    *
    * @param domain - The ID of the chain for which this call is related.

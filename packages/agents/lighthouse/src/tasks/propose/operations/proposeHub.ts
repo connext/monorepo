@@ -103,7 +103,7 @@ export const proposeHub = async () => {
           logger.debug("Found snapshot root in db", requestContext, methodContext, { snapshotRoot, domain });
           domainSnapshotRoot = snapshotRoot.root;
         } else {
-          const domainOutboundRoot = await getCurrentOutboundRoot(domain, requestContext);
+          let domainOutboundRoot = await getCurrentOutboundRoot(domain, requestContext);
 
           /* Handle boundary case where snapshot for the outbound root is not yet saved.
           There is a window between the time LH proposes the outbound root and watcher reads the spoke connector contract,
@@ -118,17 +118,28 @@ export const proposeHub = async () => {
               and instead gets the exact same outbound root from the spoke connector contract
           3. Ensure that the snapshot root is not older than the latest snapshot timestamp
           4. Handle the case where the outbound root is an empty root
+          5. Handle the case where the outbound root is not found in the db by fetching it from the spoke merkle tree
          */
-          const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, domainOutboundRoot);
+          let outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, domainOutboundRoot);
+          let messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
+
+          if (!outboundRootTimestamp || outboundRootTimestamp > latestSnapshotTimestamp || !messageRootCount) {
+            // Get the outbound root at or before the latest snapshot timestamp via chainreader
+            const _rpcResult = await getOutboundRootAtTimestamp(domain, latestSnapshotTimestamp, requestContext);
+            domainOutboundRoot = _rpcResult.outboundRoot;
+            outboundRootTimestamp = _rpcResult.blockTime;
+            messageRootCount = _rpcResult.rootCount - 1;
+          }
+
+          if (domainOutboundRoot === EMPTY_ROOT) {
+            // Handle intial case where there is no message root count
+            messageRootCount = 0;
+          }
+
           if (
             domainOutboundRoot === EMPTY_ROOT ||
             (outboundRootTimestamp && outboundRootTimestamp < latestSnapshotTimestamp)
           ) {
-            let messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
-            if (domainOutboundRoot === EMPTY_ROOT) {
-              // Handle intial case where there is no message root count
-              messageRootCount = 0;
-            }
             if (messageRootCount !== undefined) {
               logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
                 domain,
@@ -454,6 +465,81 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
 
   // All checks passed, can propose the aggregate root.
   return true;
+};
+
+export const getOutboundRootAtTimestamp = async (
+  domain: string,
+  timestamp: number,
+  _requestContext: RequestContext,
+): Promise<any> => {
+  const {
+    logger,
+    config,
+    chainData,
+    adapters: { chainreader, contracts },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getCurrentOutboundRoot.name, _requestContext);
+  logger.info("Fetching outboundRoot from spoke connector", requestContext, methodContext, { domain });
+
+  const domainChainId = chainData.get(domain)?.chainId;
+  if (!domainChainId) {
+    throw new NoChainIdForDomain(domain, requestContext, methodContext);
+  }
+
+  // Find the spoke merkle tree proxy.
+  const spokeMerkleTree = config.chains[domain]?.deployments.spokeMerkleTree;
+  if (!spokeMerkleTree) {
+    throw new NoMerkleTreeAddress(domain, requestContext, methodContext);
+  }
+
+  let outboundRoot: string;
+  let rootCount: number;
+
+  let blockNumber = await chainreader.getBlockNumber(+domain);
+  let blockTime = await chainreader.getBlockTimeByNumber(+domain, blockNumber.toString());
+
+  while (blockTime > timestamp) {
+    blockNumber--;
+    blockTime = await chainreader.getBlockTimeByNumber(+domain, blockNumber.toString());
+  }
+
+  const idEncodedData = contracts.merkleTreeManager.encodeFunctionData("rootAndCount");
+  try {
+    const idResultData = await chainreader.readTx(
+      {
+        domain: +domain,
+        to: spokeMerkleTree,
+        data: idEncodedData,
+      },
+      blockNumber.toString(),
+    );
+
+    const [_currentOutboundRoot, _currentRootCount] = contracts.merkleTreeManager.decodeFunctionResult(
+      "rootAndCount",
+      idResultData,
+    );
+    outboundRoot = _currentOutboundRoot.toString();
+    rootCount = _currentRootCount.toNumber();
+  } catch (err: unknown) {
+    logger.error(
+      "Failed to read the outbound root and count from onchain",
+      requestContext,
+      methodContext,
+      jsonifyError(err as NxtpError),
+    );
+    // Cannot proceed without the current outbound root.
+    throw err as NxtpError;
+  }
+
+  logger.info("Got the outbounbdRoot from spoke merkle tree from snapshot block", requestContext, methodContext, {
+    outboundRoot,
+    domain,
+    blockNumber,
+    blockTime,
+    rootCount,
+  });
+
+  return { outboundRoot, blockTime, rootCount };
 };
 
 export const getCurrentOutboundRoot = async (domain: string, _requestContext: RequestContext): Promise<string> => {
