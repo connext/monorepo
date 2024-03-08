@@ -478,8 +478,8 @@ export const getOutboundRootAtTimestamp = async (
     chainData,
     adapters: { chainreader, contracts },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(getCurrentOutboundRoot.name, _requestContext);
-  logger.info("Fetching outboundRoot from spoke connector", requestContext, methodContext, { domain });
+  const { requestContext, methodContext } = createLoggingContext(getOutboundRootAtTimestamp.name, _requestContext);
+  logger.info("Fetching outboundRoot from spoke merkle", requestContext, methodContext, { domain });
 
   const domainChainId = chainData.get(domain)?.chainId;
   if (!domainChainId) {
