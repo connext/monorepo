@@ -1,0 +1,4 @@
+[
+  "function calculateIntrinsicGasFee(bytes _message) view returns (uint256 _fee)",
+  "function estimateCrossDomainMessageFee(uint256 _gasLimit) view returns (uint256 _fee)"
+]

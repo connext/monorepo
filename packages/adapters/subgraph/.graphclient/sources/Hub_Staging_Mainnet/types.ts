@@ -1390,6 +1390,8 @@ export type Query = {
   stagingmainnet_zkSyncConnectorMetas: Array<stagingmainnet_ZkSyncConnectorMeta>;
   stagingmainnet_modeConnectorMeta?: Maybe<stagingmainnet_ModeConnectorMeta>;
   stagingmainnet_modeConnectorMetas: Array<stagingmainnet_ModeConnectorMeta>;
+  stagingmainnet_scrollConnectorMeta?: Maybe<stagingmainnet_ScrollConnectorMeta>;
+  stagingmainnet_scrollConnectorMetas: Array<stagingmainnet_ScrollConnectorMeta>;
   stagingmainnet_rootMessageProcessed?: Maybe<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_rootMessageProcesseds: Array<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_aggregateRootSavedSlow?: Maybe<stagingmainnet_AggregateRootSavedSlow>;
@@ -1779,6 +1781,24 @@ export type Querystagingmainnet_modeConnectorMetasArgs = {
 };
 
 
+export type Querystagingmainnet_scrollConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmainnet_scrollConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_ScrollConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_ScrollConnectorMeta_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingmainnet_rootMessageProcessedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmainnet_Block_height>;
@@ -2157,6 +2177,84 @@ export type stagingmainnet_RootPropagated_orderBy =
   | 'count'
   | 'blockNumber';
 
+export type stagingmainnet_ScrollConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['stagingmainnet_Bytes'];
+  rootManager: Scalars['stagingmainnet_Bytes'];
+  mirrorConnector: Scalars['stagingmainnet_Bytes'];
+};
+
+export type stagingmainnet_ScrollConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmainnet_ScrollConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmainnet_ScrollConnectorMeta_filter>>>;
+};
+
+export type stagingmainnet_ScrollConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
 export type Subscription = {
   stagingmainnet_rootAggregated?: Maybe<stagingmainnet_RootAggregated>;
   stagingmainnet_rootAggregateds: Array<stagingmainnet_RootAggregated>;
@@ -2200,6 +2298,8 @@ export type Subscription = {
   stagingmainnet_zkSyncConnectorMetas: Array<stagingmainnet_ZkSyncConnectorMeta>;
   stagingmainnet_modeConnectorMeta?: Maybe<stagingmainnet_ModeConnectorMeta>;
   stagingmainnet_modeConnectorMetas: Array<stagingmainnet_ModeConnectorMeta>;
+  stagingmainnet_scrollConnectorMeta?: Maybe<stagingmainnet_ScrollConnectorMeta>;
+  stagingmainnet_scrollConnectorMetas: Array<stagingmainnet_ScrollConnectorMeta>;
   stagingmainnet_rootMessageProcessed?: Maybe<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_rootMessageProcesseds: Array<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_aggregateRootSavedSlow?: Maybe<stagingmainnet_AggregateRootSavedSlow>;
@@ -2589,6 +2689,24 @@ export type Subscriptionstagingmainnet_modeConnectorMetasArgs = {
 };
 
 
+export type Subscriptionstagingmainnet_scrollConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmainnet_scrollConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_ScrollConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_ScrollConnectorMeta_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmainnet_rootMessageProcessedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmainnet_Block_height>;
@@ -2842,6 +2960,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmainnet_modeConnectorMetas: InContextSdkMethod<Query['stagingmainnet_modeConnectorMetas'], Querystagingmainnet_modeConnectorMetasArgs, MeshContext>,
   /** null **/
+  stagingmainnet_scrollConnectorMeta: InContextSdkMethod<Query['stagingmainnet_scrollConnectorMeta'], Querystagingmainnet_scrollConnectorMetaArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_scrollConnectorMetas: InContextSdkMethod<Query['stagingmainnet_scrollConnectorMetas'], Querystagingmainnet_scrollConnectorMetasArgs, MeshContext>,
+  /** null **/
   stagingmainnet_rootMessageProcessed: InContextSdkMethod<Query['stagingmainnet_rootMessageProcessed'], Querystagingmainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   stagingmainnet_rootMessageProcesseds: InContextSdkMethod<Query['stagingmainnet_rootMessageProcesseds'], Querystagingmainnet_rootMessageProcessedsArgs, MeshContext>,
@@ -2946,6 +3068,10 @@ export type _SubgraphErrorPolicy_ =
   stagingmainnet_modeConnectorMeta: InContextSdkMethod<Subscription['stagingmainnet_modeConnectorMeta'], Subscriptionstagingmainnet_modeConnectorMetaArgs, MeshContext>,
   /** null **/
   stagingmainnet_modeConnectorMetas: InContextSdkMethod<Subscription['stagingmainnet_modeConnectorMetas'], Subscriptionstagingmainnet_modeConnectorMetasArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_scrollConnectorMeta: InContextSdkMethod<Subscription['stagingmainnet_scrollConnectorMeta'], Subscriptionstagingmainnet_scrollConnectorMetaArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_scrollConnectorMetas: InContextSdkMethod<Subscription['stagingmainnet_scrollConnectorMetas'], Subscriptionstagingmainnet_scrollConnectorMetasArgs, MeshContext>,
   /** null **/
   stagingmainnet_rootMessageProcessed: InContextSdkMethod<Subscription['stagingmainnet_rootMessageProcessed'], Subscriptionstagingmainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/
