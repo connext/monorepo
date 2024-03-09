@@ -1,13 +1,34 @@
 import * as fs from "fs";
 
-import { ajv, ChainData } from "@connext/nxtp-utils";
+import { ajv, ChainData, chainIdToDomain } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
 
 import { RelayerConfig, RelayerConfigSchema } from "./lib/entities";
 
+export const AutomationVaultAbi = [];
+
+const getAutomationVaultDeployment = (
+  chainId: number,
+  postfix: ContractPostfix,
+  _network: string,
+): { address: string; abi: any } => {
+  // only testnet staging has sepolia support
+  if (chainId === 11155111 && postfix == "Staging") {
+    return {
+      address: "0x862cBf0Aa10a608A2f55831473CdaC3DceF14eBe",
+      abi: AutomationVaultAbi,
+    };
+  }
+  throw new Error(`No AutomationVault deployment found for chainId ${chainId} and postfix ${postfix}`);
+};
+
+export type XKeeprContractDeployments = {
+  automationVault: (chainId: number, postfix: ContractPostfix, network: string) => { address: string; abi: any };
+};
+
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
+  deployments: ConnextContractDeployments & XKeeprContractDeployments,
 ): RelayerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};

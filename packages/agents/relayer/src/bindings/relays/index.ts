@@ -89,10 +89,20 @@ export const pollCache = async () => {
         continue;
       }
 
-      const { data, to } = task;
+      const { data, to, keeper } = task;
 
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
+        if (keeper) {
+          // NOTE: vault holds klp liquidity, and is the job address. have to bond this to job via the keep3r UI
+          // verify keeper support is valid on this chain
+          const automationVault = config.chains.[domain].deployments.automationVault;
+          // lookup relay address (consistent across chains, minus zksync)
+          // lookup automation vault
+          // call keeperRelay.exec with the transaction data
+          // Prerequisites:
+          // -
+        }
         const transaction = {
           domain,
           to,
