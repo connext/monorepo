@@ -139,7 +139,7 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}"]
-      }  
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -256,13 +256,13 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        },   
+        },
         {
           name       = "1836016741"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }                                                
+        }
       ]
       bindings = [
         {
@@ -408,7 +408,7 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
-      }   
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -467,7 +467,7 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
-      }       
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -516,18 +516,18 @@ locals {
     proverBatchWaitTime = {
       "6648936"    = 43200,
       "1634886255" = 7200,
-      "1869640809" = 14400,
-      "1886350457" = 14400,
-      "6450786"    = 14400,
-      "6778479"    = 14400,
-      "1818848877" = 14400,
-      "2053862243" = 14400,
-      "1887071085" = 14400,
-      "1650553709" = 14400,
-      "1635148152" = 14400,
-      "1835365481" = 14400,
-      "1835101812" = 14400,
-      "1836016741" = 14400
+      "1869640809" = 7200,
+      "1886350457" = 7200,
+      "6450786"    = 7200,
+      "6778479"    = 7200,
+      "1818848877" = 7200,
+      "2053862243" = 7200,
+      "1887071085" = 7200,
+      "1650553709" = 7200,
+      "1635148152" = 7200,
+      "1835365481" = 7200,
+      "1835101812" = 7200,
+      "1836016741" = 7200
     }
     messageQueue = {
       connection = {
@@ -599,7 +599,7 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}"]
-      }  
+      }
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
