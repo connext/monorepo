@@ -57,6 +57,7 @@
   "function bumpTransfer(bytes32 _transferId, address _relayerFeeAsset, uint256 _relayerFee)",
   "function domain() view returns (uint32)",
   "function enrollRemoteRouter(uint32 _domain, bytes32 _router)",
+  "function handle(uint32 _origin, uint32 _nonce, bytes32 _sender, bytes _message)",
   "function execute(tuple(tuple(uint32 originDomain, uint32 destinationDomain, uint32 canonicalDomain, address to, address delegate, bool receiveLocal, bytes callData, uint256 slippage, address originSender, uint256 bridgedAmt, uint256 normalizedIn, uint256 nonce, bytes32 canonicalId) params, address[] routers, bytes[] routerSignatures, address sequencer, bytes sequencerSignature) _args) returns (bytes32)",
   "function forceReceiveLocal(tuple(uint32 originDomain, uint32 destinationDomain, uint32 canonicalDomain, address to, address delegate, bool receiveLocal, bytes callData, uint256 slippage, address originSender, uint256 bridgedAmt, uint256 normalizedIn, uint256 nonce, bytes32 canonicalId) _params)",
   "function forceUpdateSlippage(tuple(uint32 originDomain, uint32 destinationDomain, uint32 canonicalDomain, address to, address delegate, bool receiveLocal, bytes callData, uint256 slippage, address originSender, uint256 bridgedAmt, uint256 normalizedIn, uint256 nonce, bytes32 canonicalId) _params, uint256 _slippage)",
