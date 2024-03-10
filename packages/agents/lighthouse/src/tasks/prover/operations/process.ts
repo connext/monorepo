@@ -27,6 +27,7 @@ import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 import { BrokerMessage, ProofStruct } from "./types";
+import { constants } from "ethers";
 
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
@@ -165,9 +166,9 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         to: connext,
         from: destinationSpokeConnector,
         data: reconciledEncodedData,
-        domain: destinationDomain,
+        domain: +destinationDomain,
       };
-      const gas = await chainreader.estimateGas(tx);
+      const gas = await chainreader.getGasEstimateWithRevertCode(tx);
       logger.debug("Gas estimated for reconcile", requestContext, methodContext, {
         gas: gas.toString(),
         ...tx,

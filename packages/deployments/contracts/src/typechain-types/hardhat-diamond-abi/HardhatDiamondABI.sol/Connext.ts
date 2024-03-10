@@ -191,6 +191,7 @@ export interface ConnextInterface extends utils.Interface {
     "bumpTransfer(bytes32,address,uint256)": FunctionFragment;
     "domain()": FunctionFragment;
     "enrollRemoteRouter(uint32,bytes32)": FunctionFragment;
+    "handle(uint32,uint32,bytes32,bytes)": FunctionFragment;
     "execute(((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),address[],bytes[],address,bytes))": FunctionFragment;
     "forceReceiveLocal((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32))": FunctionFragment;
     "forceUpdateSlippage((uint32,uint32,uint32,address,address,bool,bytes,uint256,address,uint256,uint256,uint256,bytes32),uint256)": FunctionFragment;
@@ -319,6 +320,7 @@ export interface ConnextInterface extends utils.Interface {
       | "bumpTransfer(bytes32,address,uint256)"
       | "domain"
       | "enrollRemoteRouter"
+      | "handle"
       | "execute"
       | "forceReceiveLocal"
       | "forceUpdateSlippage"
@@ -463,6 +465,15 @@ export interface ConnextInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "enrollRemoteRouter",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handle",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
@@ -1076,6 +1087,7 @@ export interface ConnextInterface extends utils.Interface {
     functionFragment: "enrollRemoteRouter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "forceReceiveLocal",
@@ -2344,6 +2356,14 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     execute(
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3028,6 +3048,14 @@ export interface Connext extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  handle(
+    _origin: PromiseOrValue<BigNumberish>,
+    _nonce: PromiseOrValue<BigNumberish>,
+    _sender: PromiseOrValue<BytesLike>,
+    _message: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   execute(
     _args: ExecuteArgsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3701,6 +3729,14 @@ export interface Connext extends BaseContract {
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
       _router: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -4935,6 +4971,14 @@ export interface Connext extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     execute(
       _args: ExecuteArgsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5609,6 +5653,14 @@ export interface Connext extends BaseContract {
     enrollRemoteRouter(
       _domain: PromiseOrValue<BigNumberish>,
       _router: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    handle(
+      _origin: PromiseOrValue<BigNumberish>,
+      _nonce: PromiseOrValue<BigNumberish>,
+      _sender: PromiseOrValue<BytesLike>,
+      _message: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
