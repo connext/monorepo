@@ -27,7 +27,6 @@ import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
 import { getContext } from "../prover";
 
 import { BrokerMessage, ProofStruct } from "./types";
-import { constants } from "ethers";
 
 export const processMessages = async (brokerMessage: BrokerMessage, _requestContext: RequestContext) => {
   const {
