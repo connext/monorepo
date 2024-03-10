@@ -8,6 +8,7 @@ import {
   XMessage,
   ExecStatus,
   DBHelper,
+  canonizeId,
 } from "@connext/nxtp-utils";
 
 import {
@@ -19,6 +20,7 @@ import {
   RelayerSendFailed,
   NoDestinationDomainConnext,
   ExecutionLayerPaused,
+  NoOriginDomainConnext,
 } from "../../../errors";
 import { sendWithRelayerWithBackup } from "../../../mockable";
 import { HubDBHelper, SpokeDBHelper, OptimisticHubDBHelper } from "../adapters";
@@ -114,6 +116,10 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
   if (!destinationSpokeConnector || !destinationMerkleTree) {
     throw new NoDestinationDomainForProof(destinationDomain);
   }
+  const { connext: originConnext } = config.chains[originDomain]?.deployments ?? {};
+  if (!originConnext) {
+    throw new NoOriginDomainConnext(originDomain, { chains: config.chains });
+  }
 
   // process messages
   const messageProofs: ProofStruct[] = [];
@@ -146,6 +152,37 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         jsonifyError(err as NxtpError),
       );
     }
+
+    // Verify handle will work once proven
+    try {
+      const reconciledEncodedData = contracts.connext.encodeFunctionData("handle", [
+        originDomain,
+        message.origin.index,
+        canonizeId(originConnext),
+        message.origin.message,
+      ]);
+      const tx = {
+        to: connext,
+        from: destinationSpokeConnector,
+        data: reconciledEncodedData,
+        domain: +destinationDomain,
+      };
+      const gas = await chainreader.getGasEstimateWithRevertCode(tx);
+      logger.debug("Gas estimated for reconcile", requestContext, methodContext, {
+        gas: gas.toString(),
+        ...tx,
+      });
+    } catch (err: unknown) {
+      // ignore message
+      logger.warn(
+        "Failed to estimate gas for reconcile",
+        requestContext,
+        methodContext,
+        jsonifyError(err as NxtpError),
+      );
+      continue;
+    }
+
     const messageProof: ProofStruct = {
       message: message.origin.message,
       path: await spokeSMT.getProof(message.origin.index),

@@ -202,6 +202,17 @@ type ModeConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# SCROLL
+type ScrollConnectorMeta @entity {
+  id: ID! # "ScrollConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!

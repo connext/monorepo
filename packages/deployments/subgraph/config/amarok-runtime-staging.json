@@ -376,5 +376,26 @@
         "startBlock": 3909389
       }
     ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-scroll",
+    "network": "scroll",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
+        "startBlock": 3699367
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0x69Dd4385EdC7BDBe221159278981dD81ff792247",
+        "startBlock": 3699222
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 3692845
+      }
+    ]
   }
 ]
