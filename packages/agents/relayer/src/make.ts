@@ -1,8 +1,13 @@
-import { Wallet } from "ethers";
+import { Wallet, constants } from "ethers";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
-import { getContractInterfaces, contractDeployments, TransactionService } from "@connext/nxtp-txservice";
+import {
+  getContractInterfaces,
+  contractDeployments,
+  TransactionService,
+  ContractPostfix,
+} from "@connext/nxtp-txservice";
 
 import { RelayerConfig, AppContext } from "./lib/entities";
 import { getConfig } from "./config";
@@ -31,8 +36,37 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
   }
 };
 
+export const AutomationVaultAbi = [];
+export const XKeeperRelayerAbi = [];
+
 export const setupContext = async (_configOverride?: RelayerConfig) => {
   const { requestContext, methodContext } = createLoggingContext(setupContext.name);
+
+  const deployments = {
+    ...contractDeployments,
+    automationVault: (chainId: number, postfix: ContractPostfix, _network: string) => {
+      if (chainId === 11155111 && postfix == "Staging") {
+        return {
+          address: "0x862cBf0Aa10a608A2f55831473CdaC3DceF14eBe",
+          abi: AutomationVaultAbi,
+        };
+      }
+      return undefined;
+    },
+    xKeeperRelayer: (chainId: number, _postfix: ContractPostfix, _network: string) => {
+      // zksync has different addresses
+      if (chainId === 324 || chainId === 280) {
+        return {
+          address: "",
+          abi: XKeeperRelayerAbi,
+        };
+      }
+      return {
+        address: "",
+        abi: XKeeperRelayerAbi,
+      };
+    },
+  };
   try {
     context.adapters = {} as any;
 
@@ -40,7 +74,7 @@ export const setupContext = async (_configOverride?: RelayerConfig) => {
     // Get ChainData and parse out configuration.
     const chainData = await getChainData();
     context.chainData = chainData;
-    context.config = _configOverride ?? (await getConfig(chainData, contractDeployments));
+    context.config = _configOverride ?? (await getConfig(chainData, deployments));
     context.logger = new Logger({
       level: context.config.logLevel,
       name: "relayer",

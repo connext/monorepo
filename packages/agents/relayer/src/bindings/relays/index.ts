@@ -96,7 +96,13 @@ export const pollCache = async () => {
         if (keeper) {
           // NOTE: vault holds klp liquidity, and is the job address. have to bond this to job via the keep3r UI
           // verify keeper support is valid on this chain
-          const automationVault = config.chains.[domain].deployments.automationVault;
+
+          // lookup relay address (consistent across chains, minus zksync)
+          // lookup automation vault
+          const { automationVault, xKeeperRelayer } = config.chains[domain].deployments;
+          if (!automationVault || !xKeeperRelayer) {
+            throw new Error(`No automationVault or xkeeperRelayer for domain ${domain}`);
+          }
           // lookup relay address (consistent across chains, minus zksync)
           // lookup automation vault
           // call keeperRelay.exec with the transaction data
@@ -154,7 +160,7 @@ export const pollCache = async () => {
           },
           requestContext,
         );
-        await cache.tasks.setHash(taskId, receipt.transactionHash);
+        await cache.tasks.setHash(taskId, receipt.transactionHash as string);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
           taskId,

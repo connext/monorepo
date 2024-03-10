@@ -1,34 +1,23 @@
 import * as fs from "fs";
 
-import { ajv, ChainData, chainIdToDomain } from "@connext/nxtp-utils";
+import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { constants } from "ethers";
 
 import { RelayerConfig, RelayerConfigSchema } from "./lib/entities";
 
-export const AutomationVaultAbi = [];
-
-const getAutomationVaultDeployment = (
-  chainId: number,
-  postfix: ContractPostfix,
-  _network: string,
-): { address: string; abi: any } => {
-  // only testnet staging has sepolia support
-  if (chainId === 11155111 && postfix == "Staging") {
-    return {
-      address: "0x862cBf0Aa10a608A2f55831473CdaC3DceF14eBe",
-      abi: AutomationVaultAbi,
-    };
-  }
-  throw new Error(`No AutomationVault deployment found for chainId ${chainId} and postfix ${postfix}`);
-};
-
-export type XKeeprContractDeployments = {
-  automationVault: (chainId: number, postfix: ContractPostfix, network: string) => { address: string; abi: any };
+export type XKeeperContractDeployments = {
+  automationVault: (
+    chainId: number,
+    postfix: ContractPostfix,
+    network: string,
+  ) => { address: string; abi: any } | undefined;
+  xKeeperRelayer: (chainId: number, postfix: ContractPostfix, network: string) => { address: string; abi: any };
 };
 
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments & XKeeprContractDeployments,
+  deployments: ConnextContractDeployments & XKeeperContractDeployments,
 ): RelayerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
@@ -153,6 +142,22 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
+      automationVault:
+        chainConfig.deployments?.automationVault ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.automationVault(chainDataForChain.chainId, contractPostfix, _relayerConfig.network)
+            : undefined;
+          return res?.address ?? constants.AddressZero;
+        })(),
+      xKeeperRelayer:
+        chainConfig.deployments?.xKeeperRelayer ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.xKeeperRelayer(chainDataForChain.chainId, contractPostfix, _relayerConfig.network)
+            : undefined;
+          return res?.address ?? constants.AddressZero;
+        })(),
     };
 
     if (!chainConfig.confirmations) {
@@ -177,7 +182,7 @@ export let sequencerConfig: RelayerConfig | undefined;
  */
 export const getConfig = async (
   chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
+  deployments: ConnextContractDeployments & XKeeperContractDeployments,
 ): Promise<RelayerConfig> => {
   if (!sequencerConfig) {
     sequencerConfig = getEnvConfig(chainData, deployments);
