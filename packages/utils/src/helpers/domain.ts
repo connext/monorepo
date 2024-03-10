@@ -29,6 +29,7 @@ const mainnetChainIdToDomainMapping: Map<number, number> = new Map([
   [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
   [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
   [34443, 0x6d6f6465], // Mode (mode interpreted as int) 1836016741
+  [534352, 0x7363726f], // Scroll (scroll interpreted as int) 1935897199
 ]);
 
 const testnetChainIdToDomainMapping: Map<number, number> = new Map([

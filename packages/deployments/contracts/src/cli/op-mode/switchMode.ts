@@ -14,9 +14,9 @@ import { hardhatNetworks } from "../../config";
 export const optionDefinitions = [
   { name: "env", type: String, defaultOption: true },
   { name: "network", type: String },
-  { name: "apply", type: Boolean, defaultValue: false },
+  { name: "apply", type: String, defaultValue: "false" },
   { name: "domains", type: Number, multiple: true },
-  { name: "optimistic", type: Boolean, defaultValue: true },
+  { name: "optimistic", type: String, defaultValue: "true" },
 ];
 
 export const switchMode = async () => {
@@ -24,6 +24,7 @@ export const switchMode = async () => {
   try {
     cmdArgs = commandLineArgs(optionDefinitions);
   } catch (err: any) {
+    console.error(err);
     throw new Error(`Parsing arguments failed, cmdArgs: ${process.argv}`);
   }
 
@@ -45,7 +46,9 @@ export const switchMode = async () => {
   }
 
   // get default config values
-  const { env: _env, domains: _domains, network: _network, apply, optimistic } = cmdArgs;
+  const { env: _env, domains: _domains, network: _network, apply: _apply, optimistic: _optimistic } = cmdArgs;
+  const apply = _apply === "true";
+  const optimistic = _optimistic === "true";
   const env: Env = _env ?? process.env.ENV ?? "staging";
   const network: "testnet" | "mainnet" = _network ?? process.env.NETWORK ?? "testnet";
 
@@ -57,6 +60,7 @@ export const switchMode = async () => {
   console.log("env:    ", env);
   console.log("network:", network);
   console.log("domains:", domains);
+  console.log("optimistic:", optimistic);
 
   // config validation
   if (!["staging", "production"].includes(env as string)) {

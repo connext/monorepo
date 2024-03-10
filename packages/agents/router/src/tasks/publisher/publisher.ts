@@ -8,6 +8,8 @@ import {
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 import rabbit from "foo-foo-mq";
+import { Wallet } from "ethers";
+import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 import {
   getConfig,
@@ -20,8 +22,6 @@ import { setupCache, setupMq, setupSubgraphReader } from "../../setup";
 
 import { AppContext } from "./context";
 import { bindSubgraph, bindServer } from "./bindings";
-import { Wallet } from "ethers";
-import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 
 // AppContext instance used for interacting with adapters, config, etc.
 const context: AppContext = {} as any;

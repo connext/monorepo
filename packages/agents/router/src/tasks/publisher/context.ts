@@ -2,10 +2,10 @@ import { ChainData, Logger } from "@connext/nxtp-utils";
 import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import Rabbit from "foo-foo-mq";
-
-import { NxtpRouterConfig } from "../../config";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { Wallet } from "ethers";
+
+import { NxtpRouterConfig } from "../../config";
 
 export type AppContext = {
   logger: Logger;
