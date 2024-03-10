@@ -1,5 +1,5 @@
 import { utils, Wallet } from "ethers";
-import { getChainData, mkBytes32, ChainData, ChainConfig } from "@connext/nxtp-utils";
+import { getChainData, mkBytes32, ChainData, ChainConfig, mkAddress } from "@connext/nxtp-utils";
 import {
   getDeployedConnextContract,
   getDeployedRelayerProxyContract,
@@ -357,7 +357,11 @@ export const RELAYER_CONFIG: Promise<RelayerConfig> = (async (): Promise<Relayer
       [DESTINATION.domain]: {
         providers: DESTINATION.config.providers,
         confirmations: DESTINATION.config.confirmations,
-        deployments: DESTINATION.config.deployments,
+        deployments: {
+          ...DESTINATION.config.deployments,
+          automationVault: mkAddress("0x123123123"),
+          xKeeperRelayer: mkAddress("0x123231232"),
+        },
       },
     },
     logLevel: "debug",

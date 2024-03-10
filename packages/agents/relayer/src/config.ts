@@ -2,12 +2,22 @@ import * as fs from "fs";
 
 import { ajv, ChainData } from "@connext/nxtp-utils";
 import { ConnextContractDeployments, ContractPostfix } from "@connext/nxtp-txservice";
+import { constants } from "ethers";
 
 import { RelayerConfig, RelayerConfigSchema } from "./lib/entities";
 
+export type XKeeperContractDeployments = {
+  automationVault: (
+    chainId: number,
+    postfix: ContractPostfix,
+    network: string,
+  ) => { address: string; abi: any } | undefined;
+  xKeeperRelayer: (chainId: number, postfix: ContractPostfix, network: string) => { address: string; abi: any };
+};
+
 export const getEnvConfig = (
   chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
+  deployments: ConnextContractDeployments & XKeeperContractDeployments,
 ): RelayerConfig => {
   let configJson: Record<string, any> = {};
   let configFile: any = {};
@@ -132,6 +142,22 @@ export const getEnvConfig = (
           }
           return res.address;
         })(),
+      automationVault:
+        chainConfig.deployments?.automationVault ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.automationVault(chainDataForChain.chainId, contractPostfix, _relayerConfig.network)
+            : undefined;
+          return res?.address ?? constants.AddressZero;
+        })(),
+      xKeeperRelayer:
+        chainConfig.deployments?.xKeeperRelayer ??
+        (() => {
+          const res = chainDataForChain
+            ? deployments.xKeeperRelayer(chainDataForChain.chainId, contractPostfix, _relayerConfig.network)
+            : undefined;
+          return res?.address ?? constants.AddressZero;
+        })(),
     };
 
     if (!chainConfig.confirmations) {
@@ -156,7 +182,7 @@ export let sequencerConfig: RelayerConfig | undefined;
  */
 export const getConfig = async (
   chainData: Map<string, ChainData>,
-  deployments: ConnextContractDeployments,
+  deployments: ConnextContractDeployments & XKeeperContractDeployments,
 ): Promise<RelayerConfig> => {
   if (!sequencerConfig) {
     sequencerConfig = getEnvConfig(chainData, deployments);

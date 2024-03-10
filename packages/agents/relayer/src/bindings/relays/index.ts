@@ -28,7 +28,7 @@ export const bindRelays = async () => {
 
 export const pollCache = async () => {
   const {
-    adapters: { cache, wallet, txservice },
+    adapters: { cache, wallet, txservice, contracts },
     config,
     logger,
     chainToDomainMap,
@@ -89,16 +89,41 @@ export const pollCache = async () => {
         continue;
       }
 
-      const { data, to } = task;
+      const { data, to, keeper } = task;
 
       // TODO: Queue up fee claiming for this transfer after this (assuming transaction is successful)!
       try {
-        const transaction = {
+        // Define transaction
+        let transaction = {
           domain,
           to,
           data,
           from: await wallet.getAddress(),
         };
+
+        if (keeper) {
+          // NOTE: vault holds klp liquidity, and is the job address. have to bond this to job via the keep3r UI
+          // verify keeper support is valid on this chain
+
+          // lookup relay address (consistent across chains, minus zksync)
+          // lookup automation vault
+          const { automationVault, xKeeperRelayer } = config.chains[domain].deployments;
+          if (!automationVault || !xKeeperRelayer) {
+            throw new Error(`No automationVault or xkeeperRelayer for domain ${domain}`);
+          }
+
+          // call keeperRelay.exec with the transaction data
+          // TODO: batch exec calls from cache that are keeper flagged
+          // TODO: fallthrough if keeper sending fails. likely in cache
+          const encoded = contracts.xKeeperRelayer.encodeFunctionData("exec", [automationVault, [[to, data]]]);
+          transaction = {
+            domain,
+            to: xKeeperRelayer,
+            data: encoded,
+            from: await wallet.getAddress(),
+          };
+        }
+
         // Estimate gas limit.
         // TODO: For `proveAndProcess` calls, we should be providing:
         // gas limit = expected gas cost + PROCESS_GAS + RESERVE_GAS
@@ -133,6 +158,8 @@ export const pollCache = async () => {
           gasPrice: bumpedGasPrice.toString(),
           gasLimit: bumpedGasLimit.toString(),
           nonce,
+          keeper,
+          transaction,
         });
 
         const receipt = await txservice.sendTx(
@@ -144,7 +171,7 @@ export const pollCache = async () => {
           },
           requestContext,
         );
-        await cache.tasks.setHash(taskId, receipt.transactionHash);
+        await cache.tasks.setHash(taskId, receipt.transactionHash as string);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
           taskId,

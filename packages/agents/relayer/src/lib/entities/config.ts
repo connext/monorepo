@@ -7,6 +7,8 @@ export const TChainConfig = Type.Object({
   minGasPrice: Type.Optional(TIntegerString), // minimun gas price in wei
   deployments: Type.Object({
     connext: TAddress,
+    automationVault: TAddress,
+    xKeeperRelayer: TAddress,
   }),
 });
 

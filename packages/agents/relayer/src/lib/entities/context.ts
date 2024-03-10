@@ -5,6 +5,7 @@ import { StoreManager } from "@connext/nxtp-adapters-cache";
 import { TransactionService, ConnextContractInterfaces } from "@connext/nxtp-txservice";
 
 import { RelayerConfig } from ".";
+import { Interface } from "ethers/lib/utils";
 
 export type AppContext = {
   logger: Logger;
@@ -13,7 +14,7 @@ export type AppContext = {
     wallet: Wallet | Web3Signer;
     cache: StoreManager; // Used to cache important data locally.
     txservice: TransactionService; // For reading blockchain using RPC providers.
-    contracts: ConnextContractInterfaces; // Used to encode/decode fn data for smart contracts.
+    contracts: ConnextContractInterfaces & { automationVault: Interface; xKeeperRelayer: Interface }; // Used to encode/decode fn data for smart contracts.
   };
   config: RelayerConfig;
   chainData: Map<string, ChainData>;

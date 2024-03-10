@@ -30,7 +30,7 @@ export const createTask = async (
   const { requestContext, methodContext } = createLoggingContext(createTask.name, _requestContext);
   logger.info("Method start", requestContext, methodContext, { chain, params });
 
-  const { data, fee, to } = params;
+  const { data, fee, to, keeper } = params;
 
   // Validate execute arguments.
   const validateInput = ajv.compile(RelayerApiPostTaskRequestParamsSchema);
@@ -56,6 +56,7 @@ export const createTask = async (
     to,
     data,
     fee,
+    keeper: keeper ?? false,
   });
   logger.info("Created a new task.", requestContext, methodContext, { taskId });
   return taskId;

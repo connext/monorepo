@@ -7,6 +7,7 @@ export type CachedTaskData = {
   to: string;
   data: string;
   fee: RelayerApiFee;
+  keeper: boolean;
 };
 
 /**
