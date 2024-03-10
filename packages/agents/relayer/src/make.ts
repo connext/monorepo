@@ -1,4 +1,5 @@
-import { Wallet, constants } from "ethers";
+import { Wallet } from "ethers";
+import { Interface } from "ethers/lib/utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
 import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
@@ -12,6 +13,7 @@ import {
 import { RelayerConfig, AppContext } from "./lib/entities";
 import { getConfig } from "./config";
 import { bindServer, bindRelays, bindHealthServer } from "./bindings";
+import { AutomationVaultAbi, XKeeperRelayerAbi } from "./abi";
 
 const context: AppContext = {} as any;
 export const getContext = () => context;
@@ -36,18 +38,16 @@ export const makeRelayer = async (_configOverride?: RelayerConfig) => {
   }
 };
 
-export const AutomationVaultAbi = [];
-export const XKeeperRelayerAbi = [];
-
 export const setupContext = async (_configOverride?: RelayerConfig) => {
   const { requestContext, methodContext } = createLoggingContext(setupContext.name);
 
   const deployments = {
     ...contractDeployments,
     automationVault: (chainId: number, postfix: ContractPostfix, _network: string) => {
+      // only available in testnet staging
       if (chainId === 11155111 && postfix == "Staging") {
         return {
-          address: "0x862cBf0Aa10a608A2f55831473CdaC3DceF14eBe",
+          address: "0x0ad045A64A4c90252C9Ac75e5a7e2F1c4e863917",
           abi: AutomationVaultAbi,
         };
       }
@@ -56,17 +56,15 @@ export const setupContext = async (_configOverride?: RelayerConfig) => {
     xKeeperRelayer: (chainId: number, _postfix: ContractPostfix, _network: string) => {
       // zksync has different addresses
       if (chainId === 324 || chainId === 280) {
-        return {
-          address: "",
-          abi: XKeeperRelayerAbi,
-        };
+        undefined;
       }
       return {
-        address: "",
+        address: "0xB0CB8E6Fe8F655d46eE0910332C263ddB61FF9a0",
         abi: XKeeperRelayerAbi,
       };
     },
   };
+
   try {
     context.adapters = {} as any;
 
@@ -100,7 +98,11 @@ export const setupContext = async (_configOverride?: RelayerConfig) => {
       context.adapters.wallet,
       true, // Ghost instance, in the event that this is running in the same process as a router.
     );
-    context.adapters.contracts = getContractInterfaces();
+    context.adapters.contracts = {
+      ...getContractInterfaces(),
+      automationVault: new Interface(AutomationVaultAbi),
+      xKeeperRelayer: new Interface(XKeeperRelayerAbi),
+    };
 
     /// MARK - Utilities
     context.chainToDomainMap = new Map();
