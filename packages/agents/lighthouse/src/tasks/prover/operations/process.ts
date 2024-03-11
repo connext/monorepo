@@ -13,6 +13,7 @@ import {
   parseNonceFromMessage,
   parseOriginFromMessage,
 } from "@connext/nxtp-utils";
+import { ReadTransaction } from "@connext/nxtp-txservice";
 
 import {
   NoDestinationDomainForProof,
@@ -177,7 +178,7 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
         domain: +destinationDomain,
       };
       logger.debug("Getting gas estimate for reconcile", requestContext, methodContext, { ...tx });
-      const gas = await chainreader.getGasEstimateWithRevertCode(tx);
+      const gas = await chainreader.getGasEstimateWithRevertCode(tx as ReadTransaction);
       logger.debug("Gas estimated for reconcile", requestContext, methodContext, {
         gas: gas.toString(),
         ...tx,
