@@ -71,7 +71,7 @@ locals {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1836016741" = {
-        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}"]
       }      
     }
 
