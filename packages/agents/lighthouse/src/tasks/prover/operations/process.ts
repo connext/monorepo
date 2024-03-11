@@ -8,8 +8,13 @@ import {
   XMessage,
   ExecStatus,
   DBHelper,
-  // canonizeId,
+  parseBodyFromMessage,
+  parseSenderFromMessage,
+  parseNonceFromMessage,
+  parseOriginFromMessage,
+
 } from "@connext/nxtp-utils";
+import { ReadTransaction } from "@connext/nxtp-txservice";
 
 import {
   NoDestinationDomainForProof,
@@ -154,34 +159,39 @@ export const processMessages = async (brokerMessage: BrokerMessage, _requestCont
     }
 
     // Verify handle will work once proven
-    // try {
-    //   const reconciledEncodedData = contracts.connext.encodeFunctionData("handle", [
-    //     originDomain,
-    //     message.origin.index,
-    //     canonizeId(originConnext),
-    //     message.origin.message,
-    //   ]);
-    //   const tx = {
-    //     to: connext,
-    //     from: destinationSpokeConnector,
-    //     data: reconciledEncodedData,
-    //     domain: +destinationDomain,
-    //   };
-    //   const gas = await chainreader.getGasEstimateWithRevertCode(tx);
-    //   logger.debug("Gas estimated for reconcile", requestContext, methodContext, {
-    //     gas: gas.toString(),
-    //     ...tx,
-    //   });
-    // } catch (err: unknown) {
-    //   // ignore message
-    //   logger.warn(
-    //     "Failed to estimate gas for reconcile",
-    //     requestContext,
-    //     methodContext,
-    //     jsonifyError(err as NxtpError),
-    //   );
-    //   continue;
-    // }
+    let tx = {};
+    try {
+      const parsedMessage = {
+        originDomain: parseOriginFromMessage(message.origin.message),
+        nonce: parseNonceFromMessage(message.origin.message),
+        sender: parseSenderFromMessage(message.origin.message),
+        body: parseBodyFromMessage(message.origin.message),
+      };
+      tx = {
+        to: connext,
+        from: destinationSpokeConnector,
+        data: contracts.connext.encodeFunctionData("handle", [
+          parsedMessage.originDomain,
+          parsedMessage.nonce,
+          parsedMessage.sender,
+          parsedMessage.body,
+        ]),
+        domain: +destinationDomain,
+      };
+      logger.debug("Getting gas estimate for reconcile", requestContext, methodContext, { ...tx });
+      const gas = await chainreader.getGasEstimateWithRevertCode(tx as ReadTransaction);
+      logger.debug("Gas estimated for reconcile", requestContext, methodContext, {
+        gas: gas.toString(),
+        ...tx,
+      });
+    } catch (err: unknown) {
+      // ignore message
+      logger.warn("Failed to estimate gas for reconcile", requestContext, methodContext, {
+        ...jsonifyError(err as NxtpError),
+        tx,
+      });
+      continue;
+    }
 
     const messageProof: ProofStruct = {
       message: message.origin.message,
