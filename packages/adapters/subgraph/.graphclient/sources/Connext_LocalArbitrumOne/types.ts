@@ -150,6 +150,10 @@ export type localarbitrumone_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type localarbitrumone_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type localarbitrumone_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['localarbitrumone_Bytes']>;

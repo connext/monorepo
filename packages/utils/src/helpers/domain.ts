@@ -28,6 +28,8 @@ const mainnetChainIdToDomainMapping: Map<number, number> = new Map([
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
   [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
   [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
+  [34443, 0x6d6f6465], // Mode (mode interpreted as int) 1836016741
+  [534352, 0x7363726f], // Scroll (scroll interpreted as int) 1935897199
 ]);
 
 const testnetChainIdToDomainMapping: Map<number, number> = new Map([
@@ -61,12 +63,18 @@ const devnetChainIdToDomainMapping: Map<number, number> = new Map([
   [31339, 31339],
 ]);
 
+const specialChainIdToDomainMapping: Map<number, number> = new Map([
+  // special pseudo-canonical domain for xERC20s
+  [11111, 11111],
+]);
+
 // Hex domains calculated using `getHexDomainFromString`
 // alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
 export const chainIdToDomainMapping: Map<number, number> = new Map([
   ...mainnetChainIdToDomainMapping.entries(),
   ...testnetChainIdToDomainMapping.entries(),
   ...devnetChainIdToDomainMapping.entries(),
+  ...specialChainIdToDomainMapping.entries(),
 ]);
 
 /**

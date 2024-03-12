@@ -504,6 +504,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -532,6 +535,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-polygonzkevm/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/HoMRKh7XucTwnXEXKptrsdbesEHwnVNMkdYWqEp5V9GR"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -560,6 +566,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-zksync/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9cfvpKf98sFNxHKqJnSbGiPqFS9LB9uyeykUKy4Q9B23"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -620,6 +629,61 @@ sources:
     transforms:
       - prefix:
           value: metis_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Mode
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mode/gn"
+            retry: 2
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mode_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_Avalanche
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-avalanche
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: avalanche_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -720,9 +784,24 @@ sources:
   - name: StableSwap_Base
     handler:
       graphql:
-        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-base/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: base_swap_
@@ -735,9 +814,24 @@ sources:
   - name: StableSwap_PolygonZkEvm
     handler:
       graphql:
-        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/Xz7Xan1tEb7mzeD4G38LjyhpD9iuvipP53YKXR8LBzt"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-polygonzkevm/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/Xz7Xan1tEb7mzeD4G38LjyhpD9iuvipP53YKXR8LBzt"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: polygonzkevm_swap_
@@ -750,9 +844,24 @@ sources:
   - name: StableSwap_ZkSyncEra
     handler:
       graphql:
-        endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9MukGP8oU2zTbGKUwZAJEYSJJ8eWkUdYGNo3AM7cuUZN"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-zksync/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9MukGP8oU2zTbGKUwZAJEYSJJ8eWkUdYGNo3AM7cuUZN"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: zksync_swap_
@@ -786,6 +895,36 @@ sources:
     transforms:
       - prefix:
           value: metis_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Mode
+    handler:
+      graphql:
+        endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mode/gn"
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mode_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: StableSwap_Avalanche
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-avalanche
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: avalanche_swap_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_
@@ -1168,6 +1307,64 @@ sources:
     transforms:
       - prefix:
           value: stagingavalanche_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_Staging_Mode
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-mode/gn
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mode
+            retry: 2
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingmode_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+  - name: Connext_Staging_Scroll
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-scroll/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingscroll_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

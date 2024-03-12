@@ -150,6 +150,10 @@ export type stagingmumbai_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingmumbai_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingmumbai_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingmumbai_Bytes']>;

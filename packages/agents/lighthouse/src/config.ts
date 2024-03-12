@@ -154,6 +154,8 @@ export const SPOKE_CONNECTOR_PREFIXES: Record<string, string> = {
   "1635148152": "Avalanche",
   "1835101812": "Mantle",
   "1835365481": "Metis",
+  "1836016741": "Mode",
+  "1935897199": "Scroll",
 };
 
 /**

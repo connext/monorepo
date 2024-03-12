@@ -150,6 +150,10 @@ export type staginggoerli_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type staginggoerli_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type staginggoerli_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['staginggoerli_Bytes']>;

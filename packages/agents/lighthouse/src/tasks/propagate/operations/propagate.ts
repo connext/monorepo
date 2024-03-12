@@ -10,6 +10,7 @@ import {
   getPropagateParamsGnosis,
   getPropagateParamsZkSync,
   getPropagateParamsAvalanche,
+  getPropagateParamsScroll,
 } from "../helpers";
 import { getContext } from "../propagate";
 
@@ -35,6 +36,7 @@ export const getParamsForDomainFn: Record<
   "1818848877": getPropagateParamsLinea,
   "1635148152": getPropagateParamsAvalanche,
   "2053862243": getPropagateParamsZkSync,
+  "1935897199": getPropagateParamsScroll,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
   "1633842021": getPropagateParamsArbitrum,

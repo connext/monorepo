@@ -3,7 +3,7 @@ import { SubgraphReader } from "@connext/nxtp-adapters-subgraph";
 import { ChainData, createMethodContext, Logger, RequestContext } from "@connext/nxtp-utils";
 import rabbit from "foo-foo-mq";
 
-import { MQConnectionClosed, MQConnectionFailed, MQConnectionUnreachable } from "./errors";
+import { MQConnectionClosed, MQConnectionFailed } from "./errors";
 
 export const XCALL_QUEUE = "xcalls";
 export const MQ_EXCHANGE = "router";
@@ -33,30 +33,41 @@ export const setupCache = async (
 export const setupMq = async (
   uri: string,
   limit: number,
+  heartbeat: number,
+  failAfter: number,
+  retryLimit: number,
   logger: Logger,
   requestContext: RequestContext,
 ): Promise<typeof rabbit> => {
   const methodContext = createMethodContext("setupMq");
   // Disable reply queues
   const replyQueue = false;
+
   logger.info("Message queue setup in progress...", requestContext, methodContext, { uri });
+
   await rabbit.configure({
-    connection: { uri, replyQueue },
+    connection: { uri, replyQueue, heartbeat, failAfter, retryLimit },
     queues: [{ name: XCALL_QUEUE, limit }],
     exchanges: [{ name: MQ_EXCHANGE, type: "direct" }],
     bindings: [{ exchange: MQ_EXCHANGE, target: XCALL_QUEUE, keys: [XCALL_QUEUE] }],
   });
 
-  await rabbit.on("closed", function () {
+  await rabbit.on("closed", async function () {
     throw new MQConnectionClosed();
   });
 
-  await rabbit.on("failed", function () {
+  await rabbit.on("failed", async function () {
     throw new MQConnectionFailed();
   });
 
-  await rabbit.on("unreachable", function () {
-    throw new MQConnectionUnreachable();
+  await rabbit.on("unreachable", async function () {
+    throw new MQConnectionFailed();
+  });
+
+  await rabbit.on("connected", function () {
+    logger.info("Connected to MQ!", requestContext, methodContext, {
+      uri,
+    });
   });
 
   logger.info("Message queue setup is done!", requestContext, methodContext, {

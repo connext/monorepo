@@ -22,6 +22,10 @@ export type Scalars = {
   arbitrumone_swap_Int8: any;
 };
 
+export type arbitrumone_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type arbitrumone_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

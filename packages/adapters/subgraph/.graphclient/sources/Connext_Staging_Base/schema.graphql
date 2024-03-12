@@ -142,6 +142,11 @@ enum stagingbase_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingbase_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingbase_Asset {
   id: ID!
   key: stagingbase_Bytes

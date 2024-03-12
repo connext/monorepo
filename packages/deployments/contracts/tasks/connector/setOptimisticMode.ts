@@ -11,16 +11,16 @@ import {
 } from "../../src/utils";
 
 type TaskArgs = {
-  optimistic: boolean;
+  mode: "optimistic" | "slow";
   env?: Env;
   networkType?: ProtocolNetwork;
 };
 
 export default task("set-optimistic-mode", "set optimistic mode / slow mode at connector")
-  .addParam("optimistic", "If optimistic mode?")
+  .addParam("mode", "If optimistic mode?")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
-  .setAction(async ({ optimistic, env: _env, networkType }: TaskArgs, { deployments, ethers }) => {
+  .setAction(async ({ mode, env: _env, networkType }: TaskArgs, { deployments, ethers }) => {
     let { deployer } = await ethers.getNamedSigners();
     if (!deployer) {
       [deployer] = await ethers.getUnnamedSigners();
@@ -43,12 +43,13 @@ export default task("set-optimistic-mode", "set optimistic mode / slow mode at c
 
     const connector = new Contract(address, deployment.abi, deployer);
 
+    const isOptimistic = mode === "optimistic";
     const currentMode = await connector.optimisticMode();
-    if (currentMode && optimistic) {
+    if (currentMode === isOptimistic) {
       throw new Error(`No need to change the mode!`);
     }
 
-    const tx = optimistic ? await connector.activateOptimisticMode() : await connector.activateSlowMode();
+    const tx = isOptimistic ? await connector.activateOptimisticMode() : await connector.activateSlowMode();
     console.log("connector set optimistic mode tx: ", tx);
     const receipt = await tx.wait();
     console.log("connector set optimistic mode tx mined: ", receipt.transactionHash);

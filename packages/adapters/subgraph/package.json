@@ -1,6 +1,6 @@
 {
   "name": "@connext/nxtp-adapters-subgraph",
-  "version": "2.3.0-alpha.1",
+  "version": "2.3.0-alpha.2",
   "description": "adapter for subgraph interaction of nxtp protocol",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

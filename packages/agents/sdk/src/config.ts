@@ -192,6 +192,10 @@ export const domainsToChainNames: Record<string, string> = {
   "6450786": "bsc",
   "6778479": "xdai",
   "1818848877": "linea",
+  "1835365481": "metis",
+  "1650553709": "base",
+  "1836016741": "mode",
+  "1935897199": "scroll",
 };
 
 // Need to add more domains here.
@@ -207,6 +211,10 @@ export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
   "1936027759": "",
   "1735356532": "0xaB591adE0D0e08F117086c2b3159e50e2746AcA6",
   "9991": "0xE4e98Bd63F134FFf3DD54BF29cCa024538D836f5",
+  "1835365481": "0xbe57a0A92C33dB065D8Db102e27805C1526e0E99", // metis
+  "1650553709": "0xcc1ce162fb1d70a377d1542873b1db57f5ff14d1", // base
+  "1836016741": "0x689cCB572262e0ca66146FE5Ed5D998543d3AA3B", // mode
+  "1935897199": "0x397aEEEDd44f40326f9eB583a1DFB8A7A673C40B", // scroll
 };
 
 // Need to add more domains here.
@@ -222,4 +230,8 @@ export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
   "1936027759": "",
   "1735356532": "0x55fc076b9b0618a657f8986c83a97bd06e8a80f2",
   "9991": "0xec531b272fa2b82efe49ef6d830c2d848753642a",
+  "1835365481": "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109", // metis
+  "1650553709": "0x542AaB88B14055e47222791276967Db5f9B840f6", // base
+  "1836016741": "0x981A06E33b228299f33a45a892d7AA61d0b95a83", // mode
+  "1935897199": "", // scroll (TODO)
 };

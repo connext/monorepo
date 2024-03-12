@@ -29,6 +29,7 @@ import GnosisAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/inter
 import MultichainAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
 import ArbitrumAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
+import ScrollAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol/IL1ScrollMessenger.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
@@ -368,6 +369,7 @@ export type AmbContractABIs = {
   gnosis: any[];
   arbitrum: any[];
   bnb: any[];
+  scroll: any[];
 };
 
 export const getAmbABIs = (): AmbContractABIs => ({
@@ -375,4 +377,5 @@ export const getAmbABIs = (): AmbContractABIs => ({
   gnosis: GnosisAmbAbi,
   arbitrum: ArbitrumAmbAbi,
   bnb: MultichainAmbAbi,
+  scroll: ScrollAmbAbi,
 });

@@ -150,6 +150,10 @@ export type stagingarbitrumone_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type stagingarbitrumone_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingarbitrumone_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['stagingarbitrumone_Bytes']>;

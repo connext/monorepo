@@ -22,6 +22,10 @@ export type Scalars = {
   stagingmumbai_swap_Int8: any;
 };
 
+export type stagingmumbai_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type stagingmumbai_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };

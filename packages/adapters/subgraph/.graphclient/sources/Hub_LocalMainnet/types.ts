@@ -148,6 +148,10 @@ export type localmainnet_AggregatedMessageRoot_orderBy =
   | 'domain'
   | 'blockNumber';
 
+export type localmainnet_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type localmainnet_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];

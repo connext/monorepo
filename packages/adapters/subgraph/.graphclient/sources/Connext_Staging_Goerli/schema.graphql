@@ -142,6 +142,11 @@ enum staginggoerli_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum staginggoerli_Aggregation_interval {
+  hour
+  day
+}
+
 type staginggoerli_Asset {
   id: ID!
   key: staginggoerli_Bytes

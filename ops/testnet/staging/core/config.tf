@@ -124,7 +124,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer_server.service_endpoint}"
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
     environment = var.stage
@@ -262,7 +262,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer_server.service_endpoint}"
+        url    = "https://${module.relayer.service_endpoint}"
       }
     ]
     environment = var.stage

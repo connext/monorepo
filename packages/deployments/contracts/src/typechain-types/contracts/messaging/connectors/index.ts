@@ -23,6 +23,8 @@ import type * as polygon from "./polygon";
 export type { polygon };
 import type * as polygonzk from "./polygonzk";
 export type { polygonzk };
+import type * as scroll from "./scroll";
+export type { scroll };
 import type * as wormhole from "./wormhole";
 export type { wormhole };
 import type * as zksync from "./zksync";
