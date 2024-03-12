@@ -151,6 +151,21 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+  - name: Connext_X1Testnet
+    handler:
+      graphql:
+        endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-v1-x1-testnet/gn
+        retry: 5
+        timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: x1testnet_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
   - name: StableSwap_Sepolia
     handler:
