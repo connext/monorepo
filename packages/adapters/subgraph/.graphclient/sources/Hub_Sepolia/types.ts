@@ -148,6 +148,10 @@ export type sepolia_AggregatedMessageRoot_orderBy =
   | 'domain'
   | 'blockNumber';
 
+export type sepolia_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type sepolia_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];
@@ -2610,6 +2614,8 @@ export type sepolia__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

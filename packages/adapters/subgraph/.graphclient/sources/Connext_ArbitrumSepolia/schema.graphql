@@ -12,15 +12,15 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
-type basegoerli_AggregateRoot {
+type arbitrumsepolia_AggregateRoot {
   id: ID!
-  root: basegoerli_Bytes!
+  root: arbitrumsepolia_Bytes!
   blockNumber: BigInt!
 }
 
-type basegoerli_AggregateRootProposed {
+type arbitrumsepolia_AggregateRootProposed {
   id: ID!
-  aggregateRoot: basegoerli_Bytes!
+  aggregateRoot: arbitrumsepolia_Bytes!
   rootTimestamp: BigInt!
   endOfDispute: BigInt!
   domain: BigInt!
@@ -28,7 +28,7 @@ type basegoerli_AggregateRootProposed {
   blockNumber: BigInt
 }
 
-input basegoerli_AggregateRootProposed_filter {
+input arbitrumsepolia_AggregateRootProposed_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -37,16 +37,16 @@ input basegoerli_AggregateRootProposed_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  aggregateRoot: basegoerli_Bytes
-  aggregateRoot_not: basegoerli_Bytes
-  aggregateRoot_gt: basegoerli_Bytes
-  aggregateRoot_lt: basegoerli_Bytes
-  aggregateRoot_gte: basegoerli_Bytes
-  aggregateRoot_lte: basegoerli_Bytes
-  aggregateRoot_in: [basegoerli_Bytes!]
-  aggregateRoot_not_in: [basegoerli_Bytes!]
-  aggregateRoot_contains: basegoerli_Bytes
-  aggregateRoot_not_contains: basegoerli_Bytes
+  aggregateRoot: arbitrumsepolia_Bytes
+  aggregateRoot_not: arbitrumsepolia_Bytes
+  aggregateRoot_gt: arbitrumsepolia_Bytes
+  aggregateRoot_lt: arbitrumsepolia_Bytes
+  aggregateRoot_gte: arbitrumsepolia_Bytes
+  aggregateRoot_lte: arbitrumsepolia_Bytes
+  aggregateRoot_in: [arbitrumsepolia_Bytes!]
+  aggregateRoot_not_in: [arbitrumsepolia_Bytes!]
+  aggregateRoot_contains: arbitrumsepolia_Bytes
+  aggregateRoot_not_contains: arbitrumsepolia_Bytes
   rootTimestamp: BigInt
   rootTimestamp_not: BigInt
   rootTimestamp_gt: BigInt
@@ -88,12 +88,12 @@ input basegoerli_AggregateRootProposed_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_AggregateRootProposed_filter]
-  or: [basegoerli_AggregateRootProposed_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_AggregateRootProposed_filter]
+  or: [arbitrumsepolia_AggregateRootProposed_filter]
 }
 
-enum basegoerli_AggregateRootProposed_orderBy {
+enum arbitrumsepolia_AggregateRootProposed_orderBy {
   id
   aggregateRoot
   rootTimestamp
@@ -103,7 +103,7 @@ enum basegoerli_AggregateRootProposed_orderBy {
   blockNumber
 }
 
-input basegoerli_AggregateRoot_filter {
+input arbitrumsepolia_AggregateRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -112,16 +112,16 @@ input basegoerli_AggregateRoot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  root: basegoerli_Bytes
-  root_not: basegoerli_Bytes
-  root_gt: basegoerli_Bytes
-  root_lt: basegoerli_Bytes
-  root_gte: basegoerli_Bytes
-  root_lte: basegoerli_Bytes
-  root_in: [basegoerli_Bytes!]
-  root_not_in: [basegoerli_Bytes!]
-  root_contains: basegoerli_Bytes
-  root_not_contains: basegoerli_Bytes
+  root: arbitrumsepolia_Bytes
+  root_not: arbitrumsepolia_Bytes
+  root_gt: arbitrumsepolia_Bytes
+  root_lt: arbitrumsepolia_Bytes
+  root_gte: arbitrumsepolia_Bytes
+  root_lte: arbitrumsepolia_Bytes
+  root_in: [arbitrumsepolia_Bytes!]
+  root_not_in: [arbitrumsepolia_Bytes!]
+  root_contains: arbitrumsepolia_Bytes
+  root_not_contains: arbitrumsepolia_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -131,47 +131,47 @@ input basegoerli_AggregateRoot_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_AggregateRoot_filter]
-  or: [basegoerli_AggregateRoot_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_AggregateRoot_filter]
+  or: [arbitrumsepolia_AggregateRoot_filter]
 }
 
-enum basegoerli_AggregateRoot_orderBy {
+enum arbitrumsepolia_AggregateRoot_orderBy {
   id
   root
   blockNumber
 }
 
-enum basegoerli_Aggregation_interval {
+enum arbitrumsepolia_Aggregation_interval {
   hour
   day
 }
 
-type basegoerli_Asset {
+type arbitrumsepolia_Asset {
   id: ID!
-  key: basegoerli_Bytes
+  key: arbitrumsepolia_Bytes
   decimal: BigInt
   adoptedDecimal: BigInt
-  canonicalId: basegoerli_Bytes
+  canonicalId: arbitrumsepolia_Bytes
   canonicalDomain: BigInt
-  adoptedAsset: basegoerli_Bytes
-  localAsset: basegoerli_Bytes
+  adoptedAsset: arbitrumsepolia_Bytes
+  localAsset: arbitrumsepolia_Bytes
   blockNumber: BigInt
-  status: basegoerli_AssetStatus
+  status: arbitrumsepolia_AssetStatus
 }
 
-type basegoerli_AssetBalance {
+type arbitrumsepolia_AssetBalance {
   id: ID!
   amount: BigInt!
   locked: BigInt!
   supplied: BigInt!
   removed: BigInt!
-  router: basegoerli_Router!
-  asset: basegoerli_Asset!
+  router: arbitrumsepolia_Router!
+  asset: arbitrumsepolia_Asset!
   feesEarned: BigInt!
 }
 
-input basegoerli_AssetBalance_filter {
+input arbitrumsepolia_AssetBalance_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -232,7 +232,7 @@ input basegoerli_AssetBalance_filter {
   router_ends_with_nocase: String
   router_not_ends_with: String
   router_not_ends_with_nocase: String
-  router_: basegoerli_Router_filter
+  router_: arbitrumsepolia_Router_filter
   asset: String
   asset_not: String
   asset_gt: String
@@ -253,7 +253,7 @@ input basegoerli_AssetBalance_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: basegoerli_Asset_filter
+  asset_: arbitrumsepolia_Asset_filter
   feesEarned: BigInt
   feesEarned_not: BigInt
   feesEarned_gt: BigInt
@@ -263,12 +263,12 @@ input basegoerli_AssetBalance_filter {
   feesEarned_in: [BigInt!]
   feesEarned_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_AssetBalance_filter]
-  or: [basegoerli_AssetBalance_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_AssetBalance_filter]
+  or: [arbitrumsepolia_AssetBalance_filter]
 }
 
-enum basegoerli_AssetBalance_orderBy {
+enum arbitrumsepolia_AssetBalance_orderBy {
   id
   amount
   locked
@@ -294,12 +294,12 @@ enum basegoerli_AssetBalance_orderBy {
   feesEarned
 }
 
-type basegoerli_AssetStatus {
+type arbitrumsepolia_AssetStatus {
   id: ID!
   status: Boolean
 }
 
-input basegoerli_AssetStatus_filter {
+input arbitrumsepolia_AssetStatus_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -313,17 +313,17 @@ input basegoerli_AssetStatus_filter {
   status_in: [Boolean!]
   status_not_in: [Boolean!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_AssetStatus_filter]
-  or: [basegoerli_AssetStatus_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_AssetStatus_filter]
+  or: [arbitrumsepolia_AssetStatus_filter]
 }
 
-enum basegoerli_AssetStatus_orderBy {
+enum arbitrumsepolia_AssetStatus_orderBy {
   id
   status
 }
 
-input basegoerli_Asset_filter {
+input arbitrumsepolia_Asset_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -332,16 +332,16 @@ input basegoerli_Asset_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  key: basegoerli_Bytes
-  key_not: basegoerli_Bytes
-  key_gt: basegoerli_Bytes
-  key_lt: basegoerli_Bytes
-  key_gte: basegoerli_Bytes
-  key_lte: basegoerli_Bytes
-  key_in: [basegoerli_Bytes!]
-  key_not_in: [basegoerli_Bytes!]
-  key_contains: basegoerli_Bytes
-  key_not_contains: basegoerli_Bytes
+  key: arbitrumsepolia_Bytes
+  key_not: arbitrumsepolia_Bytes
+  key_gt: arbitrumsepolia_Bytes
+  key_lt: arbitrumsepolia_Bytes
+  key_gte: arbitrumsepolia_Bytes
+  key_lte: arbitrumsepolia_Bytes
+  key_in: [arbitrumsepolia_Bytes!]
+  key_not_in: [arbitrumsepolia_Bytes!]
+  key_contains: arbitrumsepolia_Bytes
+  key_not_contains: arbitrumsepolia_Bytes
   decimal: BigInt
   decimal_not: BigInt
   decimal_gt: BigInt
@@ -358,16 +358,16 @@ input basegoerli_Asset_filter {
   adoptedDecimal_lte: BigInt
   adoptedDecimal_in: [BigInt!]
   adoptedDecimal_not_in: [BigInt!]
-  canonicalId: basegoerli_Bytes
-  canonicalId_not: basegoerli_Bytes
-  canonicalId_gt: basegoerli_Bytes
-  canonicalId_lt: basegoerli_Bytes
-  canonicalId_gte: basegoerli_Bytes
-  canonicalId_lte: basegoerli_Bytes
-  canonicalId_in: [basegoerli_Bytes!]
-  canonicalId_not_in: [basegoerli_Bytes!]
-  canonicalId_contains: basegoerli_Bytes
-  canonicalId_not_contains: basegoerli_Bytes
+  canonicalId: arbitrumsepolia_Bytes
+  canonicalId_not: arbitrumsepolia_Bytes
+  canonicalId_gt: arbitrumsepolia_Bytes
+  canonicalId_lt: arbitrumsepolia_Bytes
+  canonicalId_gte: arbitrumsepolia_Bytes
+  canonicalId_lte: arbitrumsepolia_Bytes
+  canonicalId_in: [arbitrumsepolia_Bytes!]
+  canonicalId_not_in: [arbitrumsepolia_Bytes!]
+  canonicalId_contains: arbitrumsepolia_Bytes
+  canonicalId_not_contains: arbitrumsepolia_Bytes
   canonicalDomain: BigInt
   canonicalDomain_not: BigInt
   canonicalDomain_gt: BigInt
@@ -376,26 +376,26 @@ input basegoerli_Asset_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  adoptedAsset: basegoerli_Bytes
-  adoptedAsset_not: basegoerli_Bytes
-  adoptedAsset_gt: basegoerli_Bytes
-  adoptedAsset_lt: basegoerli_Bytes
-  adoptedAsset_gte: basegoerli_Bytes
-  adoptedAsset_lte: basegoerli_Bytes
-  adoptedAsset_in: [basegoerli_Bytes!]
-  adoptedAsset_not_in: [basegoerli_Bytes!]
-  adoptedAsset_contains: basegoerli_Bytes
-  adoptedAsset_not_contains: basegoerli_Bytes
-  localAsset: basegoerli_Bytes
-  localAsset_not: basegoerli_Bytes
-  localAsset_gt: basegoerli_Bytes
-  localAsset_lt: basegoerli_Bytes
-  localAsset_gte: basegoerli_Bytes
-  localAsset_lte: basegoerli_Bytes
-  localAsset_in: [basegoerli_Bytes!]
-  localAsset_not_in: [basegoerli_Bytes!]
-  localAsset_contains: basegoerli_Bytes
-  localAsset_not_contains: basegoerli_Bytes
+  adoptedAsset: arbitrumsepolia_Bytes
+  adoptedAsset_not: arbitrumsepolia_Bytes
+  adoptedAsset_gt: arbitrumsepolia_Bytes
+  adoptedAsset_lt: arbitrumsepolia_Bytes
+  adoptedAsset_gte: arbitrumsepolia_Bytes
+  adoptedAsset_lte: arbitrumsepolia_Bytes
+  adoptedAsset_in: [arbitrumsepolia_Bytes!]
+  adoptedAsset_not_in: [arbitrumsepolia_Bytes!]
+  adoptedAsset_contains: arbitrumsepolia_Bytes
+  adoptedAsset_not_contains: arbitrumsepolia_Bytes
+  localAsset: arbitrumsepolia_Bytes
+  localAsset_not: arbitrumsepolia_Bytes
+  localAsset_gt: arbitrumsepolia_Bytes
+  localAsset_lt: arbitrumsepolia_Bytes
+  localAsset_gte: arbitrumsepolia_Bytes
+  localAsset_lte: arbitrumsepolia_Bytes
+  localAsset_in: [arbitrumsepolia_Bytes!]
+  localAsset_not_in: [arbitrumsepolia_Bytes!]
+  localAsset_contains: arbitrumsepolia_Bytes
+  localAsset_not_contains: arbitrumsepolia_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -424,14 +424,14 @@ input basegoerli_Asset_filter {
   status_ends_with_nocase: String
   status_not_ends_with: String
   status_not_ends_with_nocase: String
-  status_: basegoerli_AssetStatus_filter
+  status_: arbitrumsepolia_AssetStatus_filter
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_Asset_filter]
-  or: [basegoerli_Asset_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_Asset_filter]
+  or: [arbitrumsepolia_Asset_filter]
 }
 
-enum basegoerli_Asset_orderBy {
+enum arbitrumsepolia_Asset_orderBy {
   id
   key
   decimal
@@ -446,32 +446,32 @@ enum basegoerli_Asset_orderBy {
   status__status
 }
 
-scalar basegoerli_BigDecimal
+scalar arbitrumsepolia_BigDecimal
 
 scalar BigInt
 
-input basegoerli_BlockChangedFilter {
+input arbitrumsepolia_BlockChangedFilter {
   number_gte: Int!
 }
 
-input basegoerli_Block_height {
-  hash: basegoerli_Bytes
+input arbitrumsepolia_Block_height {
+  hash: arbitrumsepolia_Bytes
   number: Int
   number_gte: Int
 }
 
-scalar basegoerli_Bytes
+scalar arbitrumsepolia_Bytes
 
-type basegoerli_ConnectorMeta {
+type arbitrumsepolia_ConnectorMeta {
   id: ID!
   spokeDomain: BigInt
   hubDomain: BigInt
-  amb: basegoerli_Bytes
-  rootManager: basegoerli_Bytes
-  mirrorConnector: basegoerli_Bytes
+  amb: arbitrumsepolia_Bytes
+  rootManager: arbitrumsepolia_Bytes
+  mirrorConnector: arbitrumsepolia_Bytes
 }
 
-input basegoerli_ConnectorMeta_filter {
+input arbitrumsepolia_ConnectorMeta_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -496,43 +496,43 @@ input basegoerli_ConnectorMeta_filter {
   hubDomain_lte: BigInt
   hubDomain_in: [BigInt!]
   hubDomain_not_in: [BigInt!]
-  amb: basegoerli_Bytes
-  amb_not: basegoerli_Bytes
-  amb_gt: basegoerli_Bytes
-  amb_lt: basegoerli_Bytes
-  amb_gte: basegoerli_Bytes
-  amb_lte: basegoerli_Bytes
-  amb_in: [basegoerli_Bytes!]
-  amb_not_in: [basegoerli_Bytes!]
-  amb_contains: basegoerli_Bytes
-  amb_not_contains: basegoerli_Bytes
-  rootManager: basegoerli_Bytes
-  rootManager_not: basegoerli_Bytes
-  rootManager_gt: basegoerli_Bytes
-  rootManager_lt: basegoerli_Bytes
-  rootManager_gte: basegoerli_Bytes
-  rootManager_lte: basegoerli_Bytes
-  rootManager_in: [basegoerli_Bytes!]
-  rootManager_not_in: [basegoerli_Bytes!]
-  rootManager_contains: basegoerli_Bytes
-  rootManager_not_contains: basegoerli_Bytes
-  mirrorConnector: basegoerli_Bytes
-  mirrorConnector_not: basegoerli_Bytes
-  mirrorConnector_gt: basegoerli_Bytes
-  mirrorConnector_lt: basegoerli_Bytes
-  mirrorConnector_gte: basegoerli_Bytes
-  mirrorConnector_lte: basegoerli_Bytes
-  mirrorConnector_in: [basegoerli_Bytes!]
-  mirrorConnector_not_in: [basegoerli_Bytes!]
-  mirrorConnector_contains: basegoerli_Bytes
-  mirrorConnector_not_contains: basegoerli_Bytes
+  amb: arbitrumsepolia_Bytes
+  amb_not: arbitrumsepolia_Bytes
+  amb_gt: arbitrumsepolia_Bytes
+  amb_lt: arbitrumsepolia_Bytes
+  amb_gte: arbitrumsepolia_Bytes
+  amb_lte: arbitrumsepolia_Bytes
+  amb_in: [arbitrumsepolia_Bytes!]
+  amb_not_in: [arbitrumsepolia_Bytes!]
+  amb_contains: arbitrumsepolia_Bytes
+  amb_not_contains: arbitrumsepolia_Bytes
+  rootManager: arbitrumsepolia_Bytes
+  rootManager_not: arbitrumsepolia_Bytes
+  rootManager_gt: arbitrumsepolia_Bytes
+  rootManager_lt: arbitrumsepolia_Bytes
+  rootManager_gte: arbitrumsepolia_Bytes
+  rootManager_lte: arbitrumsepolia_Bytes
+  rootManager_in: [arbitrumsepolia_Bytes!]
+  rootManager_not_in: [arbitrumsepolia_Bytes!]
+  rootManager_contains: arbitrumsepolia_Bytes
+  rootManager_not_contains: arbitrumsepolia_Bytes
+  mirrorConnector: arbitrumsepolia_Bytes
+  mirrorConnector_not: arbitrumsepolia_Bytes
+  mirrorConnector_gt: arbitrumsepolia_Bytes
+  mirrorConnector_lt: arbitrumsepolia_Bytes
+  mirrorConnector_gte: arbitrumsepolia_Bytes
+  mirrorConnector_lte: arbitrumsepolia_Bytes
+  mirrorConnector_in: [arbitrumsepolia_Bytes!]
+  mirrorConnector_not_in: [arbitrumsepolia_Bytes!]
+  mirrorConnector_contains: arbitrumsepolia_Bytes
+  mirrorConnector_not_contains: arbitrumsepolia_Bytes
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_ConnectorMeta_filter]
-  or: [basegoerli_ConnectorMeta_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_ConnectorMeta_filter]
+  or: [arbitrumsepolia_ConnectorMeta_filter]
 }
 
-enum basegoerli_ConnectorMeta_orderBy {
+enum arbitrumsepolia_ConnectorMeta_orderBy {
   id
   spokeDomain
   hubDomain
@@ -541,48 +541,48 @@ enum basegoerli_ConnectorMeta_orderBy {
   mirrorConnector
 }
 
-type basegoerli_DestinationTransfer {
+type arbitrumsepolia_DestinationTransfer {
   id: ID!
   chainId: BigInt
-  transferId: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
   nonce: BigInt
-  status: basegoerli_TransferStatus
-  routers(skip: Int = 0, first: Int = 100, orderBy: basegoerli_Router_orderBy, orderDirection: basegoerli_OrderDirection, where: basegoerli_Router_filter): [basegoerli_Router!]
+  status: arbitrumsepolia_TransferStatus
+  routers(skip: Int = 0, first: Int = 100, orderBy: arbitrumsepolia_Router_orderBy, orderDirection: arbitrumsepolia_OrderDirection, where: arbitrumsepolia_Router_filter): [arbitrumsepolia_Router!]
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
-  to: basegoerli_Bytes
-  delegate: basegoerli_Bytes
+  to: arbitrumsepolia_Bytes
+  delegate: arbitrumsepolia_Bytes
   receiveLocal: Boolean
-  callData: basegoerli_Bytes
+  callData: arbitrumsepolia_Bytes
   slippage: BigInt
   bumpSlippageCount: BigInt
-  originSender: basegoerli_Bytes
+  originSender: arbitrumsepolia_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
-  canonicalId: basegoerli_Bytes
-  asset: basegoerli_Asset
+  canonicalId: arbitrumsepolia_Bytes
+  asset: arbitrumsepolia_Asset
   amount: BigInt
   routersFee: BigInt
-  executedCaller: basegoerli_Bytes
-  executedTransactionHash: basegoerli_Bytes
+  executedCaller: arbitrumsepolia_Bytes
+  executedTransactionHash: arbitrumsepolia_Bytes
   executedTimestamp: BigInt
   executedGasPrice: BigInt
   executedGasLimit: BigInt
   executedBlockNumber: BigInt
-  executedTxOrigin: basegoerli_Bytes
+  executedTxOrigin: arbitrumsepolia_Bytes
   executedTxNonce: BigInt
-  reconciledCaller: basegoerli_Bytes
-  reconciledTransactionHash: basegoerli_Bytes
+  reconciledCaller: arbitrumsepolia_Bytes
+  reconciledTransactionHash: arbitrumsepolia_Bytes
   reconciledTimestamp: BigInt
   reconciledGasPrice: BigInt
   reconciledGasLimit: BigInt
   reconciledBlockNumber: BigInt
-  reconciledTxOrigin: basegoerli_Bytes
+  reconciledTxOrigin: arbitrumsepolia_Bytes
   reconciledTxNonce: BigInt
 }
 
-input basegoerli_DestinationTransfer_filter {
+input arbitrumsepolia_DestinationTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -599,16 +599,16 @@ input basegoerli_DestinationTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: basegoerli_Bytes
-  transferId_not: basegoerli_Bytes
-  transferId_gt: basegoerli_Bytes
-  transferId_lt: basegoerli_Bytes
-  transferId_gte: basegoerli_Bytes
-  transferId_lte: basegoerli_Bytes
-  transferId_in: [basegoerli_Bytes!]
-  transferId_not_in: [basegoerli_Bytes!]
-  transferId_contains: basegoerli_Bytes
-  transferId_not_contains: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
+  transferId_not: arbitrumsepolia_Bytes
+  transferId_gt: arbitrumsepolia_Bytes
+  transferId_lt: arbitrumsepolia_Bytes
+  transferId_gte: arbitrumsepolia_Bytes
+  transferId_lte: arbitrumsepolia_Bytes
+  transferId_in: [arbitrumsepolia_Bytes!]
+  transferId_not_in: [arbitrumsepolia_Bytes!]
+  transferId_contains: arbitrumsepolia_Bytes
+  transferId_not_contains: arbitrumsepolia_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -617,17 +617,17 @@ input basegoerli_DestinationTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  status: basegoerli_TransferStatus
-  status_not: basegoerli_TransferStatus
-  status_in: [basegoerli_TransferStatus!]
-  status_not_in: [basegoerli_TransferStatus!]
+  status: arbitrumsepolia_TransferStatus
+  status_not: arbitrumsepolia_TransferStatus
+  status_in: [arbitrumsepolia_TransferStatus!]
+  status_not_in: [arbitrumsepolia_TransferStatus!]
   routers: [String!]
   routers_not: [String!]
   routers_contains: [String!]
   routers_contains_nocase: [String!]
   routers_not_contains: [String!]
   routers_not_contains_nocase: [String!]
-  routers_: basegoerli_Router_filter
+  routers_: arbitrumsepolia_Router_filter
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -652,40 +652,40 @@ input basegoerli_DestinationTransfer_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  to: basegoerli_Bytes
-  to_not: basegoerli_Bytes
-  to_gt: basegoerli_Bytes
-  to_lt: basegoerli_Bytes
-  to_gte: basegoerli_Bytes
-  to_lte: basegoerli_Bytes
-  to_in: [basegoerli_Bytes!]
-  to_not_in: [basegoerli_Bytes!]
-  to_contains: basegoerli_Bytes
-  to_not_contains: basegoerli_Bytes
-  delegate: basegoerli_Bytes
-  delegate_not: basegoerli_Bytes
-  delegate_gt: basegoerli_Bytes
-  delegate_lt: basegoerli_Bytes
-  delegate_gte: basegoerli_Bytes
-  delegate_lte: basegoerli_Bytes
-  delegate_in: [basegoerli_Bytes!]
-  delegate_not_in: [basegoerli_Bytes!]
-  delegate_contains: basegoerli_Bytes
-  delegate_not_contains: basegoerli_Bytes
+  to: arbitrumsepolia_Bytes
+  to_not: arbitrumsepolia_Bytes
+  to_gt: arbitrumsepolia_Bytes
+  to_lt: arbitrumsepolia_Bytes
+  to_gte: arbitrumsepolia_Bytes
+  to_lte: arbitrumsepolia_Bytes
+  to_in: [arbitrumsepolia_Bytes!]
+  to_not_in: [arbitrumsepolia_Bytes!]
+  to_contains: arbitrumsepolia_Bytes
+  to_not_contains: arbitrumsepolia_Bytes
+  delegate: arbitrumsepolia_Bytes
+  delegate_not: arbitrumsepolia_Bytes
+  delegate_gt: arbitrumsepolia_Bytes
+  delegate_lt: arbitrumsepolia_Bytes
+  delegate_gte: arbitrumsepolia_Bytes
+  delegate_lte: arbitrumsepolia_Bytes
+  delegate_in: [arbitrumsepolia_Bytes!]
+  delegate_not_in: [arbitrumsepolia_Bytes!]
+  delegate_contains: arbitrumsepolia_Bytes
+  delegate_not_contains: arbitrumsepolia_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callData: basegoerli_Bytes
-  callData_not: basegoerli_Bytes
-  callData_gt: basegoerli_Bytes
-  callData_lt: basegoerli_Bytes
-  callData_gte: basegoerli_Bytes
-  callData_lte: basegoerli_Bytes
-  callData_in: [basegoerli_Bytes!]
-  callData_not_in: [basegoerli_Bytes!]
-  callData_contains: basegoerli_Bytes
-  callData_not_contains: basegoerli_Bytes
+  callData: arbitrumsepolia_Bytes
+  callData_not: arbitrumsepolia_Bytes
+  callData_gt: arbitrumsepolia_Bytes
+  callData_lt: arbitrumsepolia_Bytes
+  callData_gte: arbitrumsepolia_Bytes
+  callData_lte: arbitrumsepolia_Bytes
+  callData_in: [arbitrumsepolia_Bytes!]
+  callData_not_in: [arbitrumsepolia_Bytes!]
+  callData_contains: arbitrumsepolia_Bytes
+  callData_not_contains: arbitrumsepolia_Bytes
   slippage: BigInt
   slippage_not: BigInt
   slippage_gt: BigInt
@@ -702,16 +702,16 @@ input basegoerli_DestinationTransfer_filter {
   bumpSlippageCount_lte: BigInt
   bumpSlippageCount_in: [BigInt!]
   bumpSlippageCount_not_in: [BigInt!]
-  originSender: basegoerli_Bytes
-  originSender_not: basegoerli_Bytes
-  originSender_gt: basegoerli_Bytes
-  originSender_lt: basegoerli_Bytes
-  originSender_gte: basegoerli_Bytes
-  originSender_lte: basegoerli_Bytes
-  originSender_in: [basegoerli_Bytes!]
-  originSender_not_in: [basegoerli_Bytes!]
-  originSender_contains: basegoerli_Bytes
-  originSender_not_contains: basegoerli_Bytes
+  originSender: arbitrumsepolia_Bytes
+  originSender_not: arbitrumsepolia_Bytes
+  originSender_gt: arbitrumsepolia_Bytes
+  originSender_lt: arbitrumsepolia_Bytes
+  originSender_gte: arbitrumsepolia_Bytes
+  originSender_lte: arbitrumsepolia_Bytes
+  originSender_in: [arbitrumsepolia_Bytes!]
+  originSender_not_in: [arbitrumsepolia_Bytes!]
+  originSender_contains: arbitrumsepolia_Bytes
+  originSender_not_contains: arbitrumsepolia_Bytes
   bridgedAmt: BigInt
   bridgedAmt_not: BigInt
   bridgedAmt_gt: BigInt
@@ -728,16 +728,16 @@ input basegoerli_DestinationTransfer_filter {
   normalizedIn_lte: BigInt
   normalizedIn_in: [BigInt!]
   normalizedIn_not_in: [BigInt!]
-  canonicalId: basegoerli_Bytes
-  canonicalId_not: basegoerli_Bytes
-  canonicalId_gt: basegoerli_Bytes
-  canonicalId_lt: basegoerli_Bytes
-  canonicalId_gte: basegoerli_Bytes
-  canonicalId_lte: basegoerli_Bytes
-  canonicalId_in: [basegoerli_Bytes!]
-  canonicalId_not_in: [basegoerli_Bytes!]
-  canonicalId_contains: basegoerli_Bytes
-  canonicalId_not_contains: basegoerli_Bytes
+  canonicalId: arbitrumsepolia_Bytes
+  canonicalId_not: arbitrumsepolia_Bytes
+  canonicalId_gt: arbitrumsepolia_Bytes
+  canonicalId_lt: arbitrumsepolia_Bytes
+  canonicalId_gte: arbitrumsepolia_Bytes
+  canonicalId_lte: arbitrumsepolia_Bytes
+  canonicalId_in: [arbitrumsepolia_Bytes!]
+  canonicalId_not_in: [arbitrumsepolia_Bytes!]
+  canonicalId_contains: arbitrumsepolia_Bytes
+  canonicalId_not_contains: arbitrumsepolia_Bytes
   asset: String
   asset_not: String
   asset_gt: String
@@ -758,7 +758,7 @@ input basegoerli_DestinationTransfer_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: basegoerli_Asset_filter
+  asset_: arbitrumsepolia_Asset_filter
   amount: BigInt
   amount_not: BigInt
   amount_gt: BigInt
@@ -775,26 +775,26 @@ input basegoerli_DestinationTransfer_filter {
   routersFee_lte: BigInt
   routersFee_in: [BigInt!]
   routersFee_not_in: [BigInt!]
-  executedCaller: basegoerli_Bytes
-  executedCaller_not: basegoerli_Bytes
-  executedCaller_gt: basegoerli_Bytes
-  executedCaller_lt: basegoerli_Bytes
-  executedCaller_gte: basegoerli_Bytes
-  executedCaller_lte: basegoerli_Bytes
-  executedCaller_in: [basegoerli_Bytes!]
-  executedCaller_not_in: [basegoerli_Bytes!]
-  executedCaller_contains: basegoerli_Bytes
-  executedCaller_not_contains: basegoerli_Bytes
-  executedTransactionHash: basegoerli_Bytes
-  executedTransactionHash_not: basegoerli_Bytes
-  executedTransactionHash_gt: basegoerli_Bytes
-  executedTransactionHash_lt: basegoerli_Bytes
-  executedTransactionHash_gte: basegoerli_Bytes
-  executedTransactionHash_lte: basegoerli_Bytes
-  executedTransactionHash_in: [basegoerli_Bytes!]
-  executedTransactionHash_not_in: [basegoerli_Bytes!]
-  executedTransactionHash_contains: basegoerli_Bytes
-  executedTransactionHash_not_contains: basegoerli_Bytes
+  executedCaller: arbitrumsepolia_Bytes
+  executedCaller_not: arbitrumsepolia_Bytes
+  executedCaller_gt: arbitrumsepolia_Bytes
+  executedCaller_lt: arbitrumsepolia_Bytes
+  executedCaller_gte: arbitrumsepolia_Bytes
+  executedCaller_lte: arbitrumsepolia_Bytes
+  executedCaller_in: [arbitrumsepolia_Bytes!]
+  executedCaller_not_in: [arbitrumsepolia_Bytes!]
+  executedCaller_contains: arbitrumsepolia_Bytes
+  executedCaller_not_contains: arbitrumsepolia_Bytes
+  executedTransactionHash: arbitrumsepolia_Bytes
+  executedTransactionHash_not: arbitrumsepolia_Bytes
+  executedTransactionHash_gt: arbitrumsepolia_Bytes
+  executedTransactionHash_lt: arbitrumsepolia_Bytes
+  executedTransactionHash_gte: arbitrumsepolia_Bytes
+  executedTransactionHash_lte: arbitrumsepolia_Bytes
+  executedTransactionHash_in: [arbitrumsepolia_Bytes!]
+  executedTransactionHash_not_in: [arbitrumsepolia_Bytes!]
+  executedTransactionHash_contains: arbitrumsepolia_Bytes
+  executedTransactionHash_not_contains: arbitrumsepolia_Bytes
   executedTimestamp: BigInt
   executedTimestamp_not: BigInt
   executedTimestamp_gt: BigInt
@@ -827,16 +827,16 @@ input basegoerli_DestinationTransfer_filter {
   executedBlockNumber_lte: BigInt
   executedBlockNumber_in: [BigInt!]
   executedBlockNumber_not_in: [BigInt!]
-  executedTxOrigin: basegoerli_Bytes
-  executedTxOrigin_not: basegoerli_Bytes
-  executedTxOrigin_gt: basegoerli_Bytes
-  executedTxOrigin_lt: basegoerli_Bytes
-  executedTxOrigin_gte: basegoerli_Bytes
-  executedTxOrigin_lte: basegoerli_Bytes
-  executedTxOrigin_in: [basegoerli_Bytes!]
-  executedTxOrigin_not_in: [basegoerli_Bytes!]
-  executedTxOrigin_contains: basegoerli_Bytes
-  executedTxOrigin_not_contains: basegoerli_Bytes
+  executedTxOrigin: arbitrumsepolia_Bytes
+  executedTxOrigin_not: arbitrumsepolia_Bytes
+  executedTxOrigin_gt: arbitrumsepolia_Bytes
+  executedTxOrigin_lt: arbitrumsepolia_Bytes
+  executedTxOrigin_gte: arbitrumsepolia_Bytes
+  executedTxOrigin_lte: arbitrumsepolia_Bytes
+  executedTxOrigin_in: [arbitrumsepolia_Bytes!]
+  executedTxOrigin_not_in: [arbitrumsepolia_Bytes!]
+  executedTxOrigin_contains: arbitrumsepolia_Bytes
+  executedTxOrigin_not_contains: arbitrumsepolia_Bytes
   executedTxNonce: BigInt
   executedTxNonce_not: BigInt
   executedTxNonce_gt: BigInt
@@ -845,26 +845,26 @@ input basegoerli_DestinationTransfer_filter {
   executedTxNonce_lte: BigInt
   executedTxNonce_in: [BigInt!]
   executedTxNonce_not_in: [BigInt!]
-  reconciledCaller: basegoerli_Bytes
-  reconciledCaller_not: basegoerli_Bytes
-  reconciledCaller_gt: basegoerli_Bytes
-  reconciledCaller_lt: basegoerli_Bytes
-  reconciledCaller_gte: basegoerli_Bytes
-  reconciledCaller_lte: basegoerli_Bytes
-  reconciledCaller_in: [basegoerli_Bytes!]
-  reconciledCaller_not_in: [basegoerli_Bytes!]
-  reconciledCaller_contains: basegoerli_Bytes
-  reconciledCaller_not_contains: basegoerli_Bytes
-  reconciledTransactionHash: basegoerli_Bytes
-  reconciledTransactionHash_not: basegoerli_Bytes
-  reconciledTransactionHash_gt: basegoerli_Bytes
-  reconciledTransactionHash_lt: basegoerli_Bytes
-  reconciledTransactionHash_gte: basegoerli_Bytes
-  reconciledTransactionHash_lte: basegoerli_Bytes
-  reconciledTransactionHash_in: [basegoerli_Bytes!]
-  reconciledTransactionHash_not_in: [basegoerli_Bytes!]
-  reconciledTransactionHash_contains: basegoerli_Bytes
-  reconciledTransactionHash_not_contains: basegoerli_Bytes
+  reconciledCaller: arbitrumsepolia_Bytes
+  reconciledCaller_not: arbitrumsepolia_Bytes
+  reconciledCaller_gt: arbitrumsepolia_Bytes
+  reconciledCaller_lt: arbitrumsepolia_Bytes
+  reconciledCaller_gte: arbitrumsepolia_Bytes
+  reconciledCaller_lte: arbitrumsepolia_Bytes
+  reconciledCaller_in: [arbitrumsepolia_Bytes!]
+  reconciledCaller_not_in: [arbitrumsepolia_Bytes!]
+  reconciledCaller_contains: arbitrumsepolia_Bytes
+  reconciledCaller_not_contains: arbitrumsepolia_Bytes
+  reconciledTransactionHash: arbitrumsepolia_Bytes
+  reconciledTransactionHash_not: arbitrumsepolia_Bytes
+  reconciledTransactionHash_gt: arbitrumsepolia_Bytes
+  reconciledTransactionHash_lt: arbitrumsepolia_Bytes
+  reconciledTransactionHash_gte: arbitrumsepolia_Bytes
+  reconciledTransactionHash_lte: arbitrumsepolia_Bytes
+  reconciledTransactionHash_in: [arbitrumsepolia_Bytes!]
+  reconciledTransactionHash_not_in: [arbitrumsepolia_Bytes!]
+  reconciledTransactionHash_contains: arbitrumsepolia_Bytes
+  reconciledTransactionHash_not_contains: arbitrumsepolia_Bytes
   reconciledTimestamp: BigInt
   reconciledTimestamp_not: BigInt
   reconciledTimestamp_gt: BigInt
@@ -897,16 +897,16 @@ input basegoerli_DestinationTransfer_filter {
   reconciledBlockNumber_lte: BigInt
   reconciledBlockNumber_in: [BigInt!]
   reconciledBlockNumber_not_in: [BigInt!]
-  reconciledTxOrigin: basegoerli_Bytes
-  reconciledTxOrigin_not: basegoerli_Bytes
-  reconciledTxOrigin_gt: basegoerli_Bytes
-  reconciledTxOrigin_lt: basegoerli_Bytes
-  reconciledTxOrigin_gte: basegoerli_Bytes
-  reconciledTxOrigin_lte: basegoerli_Bytes
-  reconciledTxOrigin_in: [basegoerli_Bytes!]
-  reconciledTxOrigin_not_in: [basegoerli_Bytes!]
-  reconciledTxOrigin_contains: basegoerli_Bytes
-  reconciledTxOrigin_not_contains: basegoerli_Bytes
+  reconciledTxOrigin: arbitrumsepolia_Bytes
+  reconciledTxOrigin_not: arbitrumsepolia_Bytes
+  reconciledTxOrigin_gt: arbitrumsepolia_Bytes
+  reconciledTxOrigin_lt: arbitrumsepolia_Bytes
+  reconciledTxOrigin_gte: arbitrumsepolia_Bytes
+  reconciledTxOrigin_lte: arbitrumsepolia_Bytes
+  reconciledTxOrigin_in: [arbitrumsepolia_Bytes!]
+  reconciledTxOrigin_not_in: [arbitrumsepolia_Bytes!]
+  reconciledTxOrigin_contains: arbitrumsepolia_Bytes
+  reconciledTxOrigin_not_contains: arbitrumsepolia_Bytes
   reconciledTxNonce: BigInt
   reconciledTxNonce_not: BigInt
   reconciledTxNonce_gt: BigInt
@@ -916,12 +916,12 @@ input basegoerli_DestinationTransfer_filter {
   reconciledTxNonce_in: [BigInt!]
   reconciledTxNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_DestinationTransfer_filter]
-  or: [basegoerli_DestinationTransfer_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_DestinationTransfer_filter]
+  or: [arbitrumsepolia_DestinationTransfer_filter]
 }
 
-enum basegoerli_DestinationTransfer_orderBy {
+enum arbitrumsepolia_DestinationTransfer_orderBy {
   id
   chainId
   transferId
@@ -975,16 +975,16 @@ enum basegoerli_DestinationTransfer_orderBy {
 8 bytes signed integer
 
 """
-scalar basegoerli_Int8
+scalar arbitrumsepolia_Int8
 
-type basegoerli_OptimisticRootFinalized {
+type arbitrumsepolia_OptimisticRootFinalized {
   id: ID!
-  aggregateRoot: basegoerli_Bytes!
+  aggregateRoot: arbitrumsepolia_Bytes!
   timestamp: BigInt!
   blockNumber: BigInt
 }
 
-input basegoerli_OptimisticRootFinalized_filter {
+input arbitrumsepolia_OptimisticRootFinalized_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -993,16 +993,16 @@ input basegoerli_OptimisticRootFinalized_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  aggregateRoot: basegoerli_Bytes
-  aggregateRoot_not: basegoerli_Bytes
-  aggregateRoot_gt: basegoerli_Bytes
-  aggregateRoot_lt: basegoerli_Bytes
-  aggregateRoot_gte: basegoerli_Bytes
-  aggregateRoot_lte: basegoerli_Bytes
-  aggregateRoot_in: [basegoerli_Bytes!]
-  aggregateRoot_not_in: [basegoerli_Bytes!]
-  aggregateRoot_contains: basegoerli_Bytes
-  aggregateRoot_not_contains: basegoerli_Bytes
+  aggregateRoot: arbitrumsepolia_Bytes
+  aggregateRoot_not: arbitrumsepolia_Bytes
+  aggregateRoot_gt: arbitrumsepolia_Bytes
+  aggregateRoot_lt: arbitrumsepolia_Bytes
+  aggregateRoot_gte: arbitrumsepolia_Bytes
+  aggregateRoot_lte: arbitrumsepolia_Bytes
+  aggregateRoot_in: [arbitrumsepolia_Bytes!]
+  aggregateRoot_not_in: [arbitrumsepolia_Bytes!]
+  aggregateRoot_contains: arbitrumsepolia_Bytes
+  aggregateRoot_not_contains: arbitrumsepolia_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1020,12 +1020,12 @@ input basegoerli_OptimisticRootFinalized_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_OptimisticRootFinalized_filter]
-  or: [basegoerli_OptimisticRootFinalized_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_OptimisticRootFinalized_filter]
+  or: [arbitrumsepolia_OptimisticRootFinalized_filter]
 }
 
-enum basegoerli_OptimisticRootFinalized_orderBy {
+enum arbitrumsepolia_OptimisticRootFinalized_orderBy {
   id
   aggregateRoot
   timestamp
@@ -1033,25 +1033,25 @@ enum basegoerli_OptimisticRootFinalized_orderBy {
 }
 
 """Defines the order direction, either ascending or descending"""
-enum basegoerli_OrderDirection {
+enum arbitrumsepolia_OrderDirection {
   asc
   desc
 }
 
-type basegoerli_OriginMessage {
+type arbitrumsepolia_OriginMessage {
   id: ID!
-  transferId: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
   destinationDomain: BigInt
-  leaf: basegoerli_Bytes
+  leaf: arbitrumsepolia_Bytes
   index: BigInt
-  message: basegoerli_Bytes
-  root: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
+  message: arbitrumsepolia_Bytes
+  root: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
   blockNumber: BigInt
-  rootCount: basegoerli_RootCount
+  rootCount: arbitrumsepolia_RootCount
 }
 
-input basegoerli_OriginMessage_filter {
+input arbitrumsepolia_OriginMessage_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1060,16 +1060,16 @@ input basegoerli_OriginMessage_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  transferId: basegoerli_Bytes
-  transferId_not: basegoerli_Bytes
-  transferId_gt: basegoerli_Bytes
-  transferId_lt: basegoerli_Bytes
-  transferId_gte: basegoerli_Bytes
-  transferId_lte: basegoerli_Bytes
-  transferId_in: [basegoerli_Bytes!]
-  transferId_not_in: [basegoerli_Bytes!]
-  transferId_contains: basegoerli_Bytes
-  transferId_not_contains: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
+  transferId_not: arbitrumsepolia_Bytes
+  transferId_gt: arbitrumsepolia_Bytes
+  transferId_lt: arbitrumsepolia_Bytes
+  transferId_gte: arbitrumsepolia_Bytes
+  transferId_lte: arbitrumsepolia_Bytes
+  transferId_in: [arbitrumsepolia_Bytes!]
+  transferId_not_in: [arbitrumsepolia_Bytes!]
+  transferId_contains: arbitrumsepolia_Bytes
+  transferId_not_contains: arbitrumsepolia_Bytes
   destinationDomain: BigInt
   destinationDomain_not: BigInt
   destinationDomain_gt: BigInt
@@ -1078,16 +1078,16 @@ input basegoerli_OriginMessage_filter {
   destinationDomain_lte: BigInt
   destinationDomain_in: [BigInt!]
   destinationDomain_not_in: [BigInt!]
-  leaf: basegoerli_Bytes
-  leaf_not: basegoerli_Bytes
-  leaf_gt: basegoerli_Bytes
-  leaf_lt: basegoerli_Bytes
-  leaf_gte: basegoerli_Bytes
-  leaf_lte: basegoerli_Bytes
-  leaf_in: [basegoerli_Bytes!]
-  leaf_not_in: [basegoerli_Bytes!]
-  leaf_contains: basegoerli_Bytes
-  leaf_not_contains: basegoerli_Bytes
+  leaf: arbitrumsepolia_Bytes
+  leaf_not: arbitrumsepolia_Bytes
+  leaf_gt: arbitrumsepolia_Bytes
+  leaf_lt: arbitrumsepolia_Bytes
+  leaf_gte: arbitrumsepolia_Bytes
+  leaf_lte: arbitrumsepolia_Bytes
+  leaf_in: [arbitrumsepolia_Bytes!]
+  leaf_not_in: [arbitrumsepolia_Bytes!]
+  leaf_contains: arbitrumsepolia_Bytes
+  leaf_not_contains: arbitrumsepolia_Bytes
   index: BigInt
   index_not: BigInt
   index_gt: BigInt
@@ -1096,36 +1096,36 @@ input basegoerli_OriginMessage_filter {
   index_lte: BigInt
   index_in: [BigInt!]
   index_not_in: [BigInt!]
-  message: basegoerli_Bytes
-  message_not: basegoerli_Bytes
-  message_gt: basegoerli_Bytes
-  message_lt: basegoerli_Bytes
-  message_gte: basegoerli_Bytes
-  message_lte: basegoerli_Bytes
-  message_in: [basegoerli_Bytes!]
-  message_not_in: [basegoerli_Bytes!]
-  message_contains: basegoerli_Bytes
-  message_not_contains: basegoerli_Bytes
-  root: basegoerli_Bytes
-  root_not: basegoerli_Bytes
-  root_gt: basegoerli_Bytes
-  root_lt: basegoerli_Bytes
-  root_gte: basegoerli_Bytes
-  root_lte: basegoerli_Bytes
-  root_in: [basegoerli_Bytes!]
-  root_not_in: [basegoerli_Bytes!]
-  root_contains: basegoerli_Bytes
-  root_not_contains: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  message: arbitrumsepolia_Bytes
+  message_not: arbitrumsepolia_Bytes
+  message_gt: arbitrumsepolia_Bytes
+  message_lt: arbitrumsepolia_Bytes
+  message_gte: arbitrumsepolia_Bytes
+  message_lte: arbitrumsepolia_Bytes
+  message_in: [arbitrumsepolia_Bytes!]
+  message_not_in: [arbitrumsepolia_Bytes!]
+  message_contains: arbitrumsepolia_Bytes
+  message_not_contains: arbitrumsepolia_Bytes
+  root: arbitrumsepolia_Bytes
+  root_not: arbitrumsepolia_Bytes
+  root_gt: arbitrumsepolia_Bytes
+  root_lt: arbitrumsepolia_Bytes
+  root_gte: arbitrumsepolia_Bytes
+  root_lte: arbitrumsepolia_Bytes
+  root_in: [arbitrumsepolia_Bytes!]
+  root_not_in: [arbitrumsepolia_Bytes!]
+  root_contains: arbitrumsepolia_Bytes
+  root_not_contains: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -1154,14 +1154,14 @@ input basegoerli_OriginMessage_filter {
   rootCount_ends_with_nocase: String
   rootCount_not_ends_with: String
   rootCount_not_ends_with_nocase: String
-  rootCount_: basegoerli_RootCount_filter
+  rootCount_: arbitrumsepolia_RootCount_filter
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_OriginMessage_filter]
-  or: [basegoerli_OriginMessage_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_OriginMessage_filter]
+  or: [arbitrumsepolia_OriginMessage_filter]
 }
 
-enum basegoerli_OriginMessage_orderBy {
+enum arbitrumsepolia_OriginMessage_orderBy {
   id
   transferId
   destinationDomain
@@ -1176,42 +1176,42 @@ enum basegoerli_OriginMessage_orderBy {
   rootCount__count
 }
 
-type basegoerli_OriginTransfer {
+type arbitrumsepolia_OriginTransfer {
   id: ID!
   chainId: BigInt
-  transferId: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
   nonce: BigInt
-  status: basegoerli_TransferStatus
-  messageHash: basegoerli_Bytes
+  status: arbitrumsepolia_TransferStatus
+  messageHash: arbitrumsepolia_Bytes
   originDomain: BigInt
   destinationDomain: BigInt
   canonicalDomain: BigInt
-  to: basegoerli_Bytes
-  delegate: basegoerli_Bytes
+  to: arbitrumsepolia_Bytes
+  delegate: arbitrumsepolia_Bytes
   receiveLocal: Boolean
-  callData: basegoerli_Bytes
+  callData: arbitrumsepolia_Bytes
   slippage: BigInt
-  originSender: basegoerli_Bytes
+  originSender: arbitrumsepolia_Bytes
   bridgedAmt: BigInt
   normalizedIn: BigInt
-  canonicalId: basegoerli_Bytes
-  asset: basegoerli_Asset
-  transactingAsset: basegoerli_Bytes
-  message: basegoerli_OriginMessage
+  canonicalId: arbitrumsepolia_Bytes
+  asset: arbitrumsepolia_Asset
+  transactingAsset: arbitrumsepolia_Bytes
+  message: arbitrumsepolia_OriginMessage
   bumpRelayerFeeCount: BigInt
-  relayerFees(skip: Int = 0, first: Int = 100, orderBy: basegoerli_RelayerFee_orderBy, orderDirection: basegoerli_OrderDirection, where: basegoerli_RelayerFee_filter): [basegoerli_RelayerFee!]
-  initialRelayerFeeAsset: basegoerli_Bytes
-  caller: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
+  relayerFees(skip: Int = 0, first: Int = 100, orderBy: arbitrumsepolia_RelayerFee_orderBy, orderDirection: arbitrumsepolia_OrderDirection, where: arbitrumsepolia_RelayerFee_filter): [arbitrumsepolia_RelayerFee!]
+  initialRelayerFeeAsset: arbitrumsepolia_Bytes
+  caller: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
-  txOrigin: basegoerli_Bytes
+  txOrigin: arbitrumsepolia_Bytes
   txNonce: BigInt
 }
 
-input basegoerli_OriginTransfer_filter {
+input arbitrumsepolia_OriginTransfer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -1228,16 +1228,16 @@ input basegoerli_OriginTransfer_filter {
   chainId_lte: BigInt
   chainId_in: [BigInt!]
   chainId_not_in: [BigInt!]
-  transferId: basegoerli_Bytes
-  transferId_not: basegoerli_Bytes
-  transferId_gt: basegoerli_Bytes
-  transferId_lt: basegoerli_Bytes
-  transferId_gte: basegoerli_Bytes
-  transferId_lte: basegoerli_Bytes
-  transferId_in: [basegoerli_Bytes!]
-  transferId_not_in: [basegoerli_Bytes!]
-  transferId_contains: basegoerli_Bytes
-  transferId_not_contains: basegoerli_Bytes
+  transferId: arbitrumsepolia_Bytes
+  transferId_not: arbitrumsepolia_Bytes
+  transferId_gt: arbitrumsepolia_Bytes
+  transferId_lt: arbitrumsepolia_Bytes
+  transferId_gte: arbitrumsepolia_Bytes
+  transferId_lte: arbitrumsepolia_Bytes
+  transferId_in: [arbitrumsepolia_Bytes!]
+  transferId_not_in: [arbitrumsepolia_Bytes!]
+  transferId_contains: arbitrumsepolia_Bytes
+  transferId_not_contains: arbitrumsepolia_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -1246,20 +1246,20 @@ input basegoerli_OriginTransfer_filter {
   nonce_lte: BigInt
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
-  status: basegoerli_TransferStatus
-  status_not: basegoerli_TransferStatus
-  status_in: [basegoerli_TransferStatus!]
-  status_not_in: [basegoerli_TransferStatus!]
-  messageHash: basegoerli_Bytes
-  messageHash_not: basegoerli_Bytes
-  messageHash_gt: basegoerli_Bytes
-  messageHash_lt: basegoerli_Bytes
-  messageHash_gte: basegoerli_Bytes
-  messageHash_lte: basegoerli_Bytes
-  messageHash_in: [basegoerli_Bytes!]
-  messageHash_not_in: [basegoerli_Bytes!]
-  messageHash_contains: basegoerli_Bytes
-  messageHash_not_contains: basegoerli_Bytes
+  status: arbitrumsepolia_TransferStatus
+  status_not: arbitrumsepolia_TransferStatus
+  status_in: [arbitrumsepolia_TransferStatus!]
+  status_not_in: [arbitrumsepolia_TransferStatus!]
+  messageHash: arbitrumsepolia_Bytes
+  messageHash_not: arbitrumsepolia_Bytes
+  messageHash_gt: arbitrumsepolia_Bytes
+  messageHash_lt: arbitrumsepolia_Bytes
+  messageHash_gte: arbitrumsepolia_Bytes
+  messageHash_lte: arbitrumsepolia_Bytes
+  messageHash_in: [arbitrumsepolia_Bytes!]
+  messageHash_not_in: [arbitrumsepolia_Bytes!]
+  messageHash_contains: arbitrumsepolia_Bytes
+  messageHash_not_contains: arbitrumsepolia_Bytes
   originDomain: BigInt
   originDomain_not: BigInt
   originDomain_gt: BigInt
@@ -1284,40 +1284,40 @@ input basegoerli_OriginTransfer_filter {
   canonicalDomain_lte: BigInt
   canonicalDomain_in: [BigInt!]
   canonicalDomain_not_in: [BigInt!]
-  to: basegoerli_Bytes
-  to_not: basegoerli_Bytes
-  to_gt: basegoerli_Bytes
-  to_lt: basegoerli_Bytes
-  to_gte: basegoerli_Bytes
-  to_lte: basegoerli_Bytes
-  to_in: [basegoerli_Bytes!]
-  to_not_in: [basegoerli_Bytes!]
-  to_contains: basegoerli_Bytes
-  to_not_contains: basegoerli_Bytes
-  delegate: basegoerli_Bytes
-  delegate_not: basegoerli_Bytes
-  delegate_gt: basegoerli_Bytes
-  delegate_lt: basegoerli_Bytes
-  delegate_gte: basegoerli_Bytes
-  delegate_lte: basegoerli_Bytes
-  delegate_in: [basegoerli_Bytes!]
-  delegate_not_in: [basegoerli_Bytes!]
-  delegate_contains: basegoerli_Bytes
-  delegate_not_contains: basegoerli_Bytes
+  to: arbitrumsepolia_Bytes
+  to_not: arbitrumsepolia_Bytes
+  to_gt: arbitrumsepolia_Bytes
+  to_lt: arbitrumsepolia_Bytes
+  to_gte: arbitrumsepolia_Bytes
+  to_lte: arbitrumsepolia_Bytes
+  to_in: [arbitrumsepolia_Bytes!]
+  to_not_in: [arbitrumsepolia_Bytes!]
+  to_contains: arbitrumsepolia_Bytes
+  to_not_contains: arbitrumsepolia_Bytes
+  delegate: arbitrumsepolia_Bytes
+  delegate_not: arbitrumsepolia_Bytes
+  delegate_gt: arbitrumsepolia_Bytes
+  delegate_lt: arbitrumsepolia_Bytes
+  delegate_gte: arbitrumsepolia_Bytes
+  delegate_lte: arbitrumsepolia_Bytes
+  delegate_in: [arbitrumsepolia_Bytes!]
+  delegate_not_in: [arbitrumsepolia_Bytes!]
+  delegate_contains: arbitrumsepolia_Bytes
+  delegate_not_contains: arbitrumsepolia_Bytes
   receiveLocal: Boolean
   receiveLocal_not: Boolean
   receiveLocal_in: [Boolean!]
   receiveLocal_not_in: [Boolean!]
-  callData: basegoerli_Bytes
-  callData_not: basegoerli_Bytes
-  callData_gt: basegoerli_Bytes
-  callData_lt: basegoerli_Bytes
-  callData_gte: basegoerli_Bytes
-  callData_lte: basegoerli_Bytes
-  callData_in: [basegoerli_Bytes!]
-  callData_not_in: [basegoerli_Bytes!]
-  callData_contains: basegoerli_Bytes
-  callData_not_contains: basegoerli_Bytes
+  callData: arbitrumsepolia_Bytes
+  callData_not: arbitrumsepolia_Bytes
+  callData_gt: arbitrumsepolia_Bytes
+  callData_lt: arbitrumsepolia_Bytes
+  callData_gte: arbitrumsepolia_Bytes
+  callData_lte: arbitrumsepolia_Bytes
+  callData_in: [arbitrumsepolia_Bytes!]
+  callData_not_in: [arbitrumsepolia_Bytes!]
+  callData_contains: arbitrumsepolia_Bytes
+  callData_not_contains: arbitrumsepolia_Bytes
   slippage: BigInt
   slippage_not: BigInt
   slippage_gt: BigInt
@@ -1326,16 +1326,16 @@ input basegoerli_OriginTransfer_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
-  originSender: basegoerli_Bytes
-  originSender_not: basegoerli_Bytes
-  originSender_gt: basegoerli_Bytes
-  originSender_lt: basegoerli_Bytes
-  originSender_gte: basegoerli_Bytes
-  originSender_lte: basegoerli_Bytes
-  originSender_in: [basegoerli_Bytes!]
-  originSender_not_in: [basegoerli_Bytes!]
-  originSender_contains: basegoerli_Bytes
-  originSender_not_contains: basegoerli_Bytes
+  originSender: arbitrumsepolia_Bytes
+  originSender_not: arbitrumsepolia_Bytes
+  originSender_gt: arbitrumsepolia_Bytes
+  originSender_lt: arbitrumsepolia_Bytes
+  originSender_gte: arbitrumsepolia_Bytes
+  originSender_lte: arbitrumsepolia_Bytes
+  originSender_in: [arbitrumsepolia_Bytes!]
+  originSender_not_in: [arbitrumsepolia_Bytes!]
+  originSender_contains: arbitrumsepolia_Bytes
+  originSender_not_contains: arbitrumsepolia_Bytes
   bridgedAmt: BigInt
   bridgedAmt_not: BigInt
   bridgedAmt_gt: BigInt
@@ -1352,16 +1352,16 @@ input basegoerli_OriginTransfer_filter {
   normalizedIn_lte: BigInt
   normalizedIn_in: [BigInt!]
   normalizedIn_not_in: [BigInt!]
-  canonicalId: basegoerli_Bytes
-  canonicalId_not: basegoerli_Bytes
-  canonicalId_gt: basegoerli_Bytes
-  canonicalId_lt: basegoerli_Bytes
-  canonicalId_gte: basegoerli_Bytes
-  canonicalId_lte: basegoerli_Bytes
-  canonicalId_in: [basegoerli_Bytes!]
-  canonicalId_not_in: [basegoerli_Bytes!]
-  canonicalId_contains: basegoerli_Bytes
-  canonicalId_not_contains: basegoerli_Bytes
+  canonicalId: arbitrumsepolia_Bytes
+  canonicalId_not: arbitrumsepolia_Bytes
+  canonicalId_gt: arbitrumsepolia_Bytes
+  canonicalId_lt: arbitrumsepolia_Bytes
+  canonicalId_gte: arbitrumsepolia_Bytes
+  canonicalId_lte: arbitrumsepolia_Bytes
+  canonicalId_in: [arbitrumsepolia_Bytes!]
+  canonicalId_not_in: [arbitrumsepolia_Bytes!]
+  canonicalId_contains: arbitrumsepolia_Bytes
+  canonicalId_not_contains: arbitrumsepolia_Bytes
   asset: String
   asset_not: String
   asset_gt: String
@@ -1382,17 +1382,17 @@ input basegoerli_OriginTransfer_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: basegoerli_Asset_filter
-  transactingAsset: basegoerli_Bytes
-  transactingAsset_not: basegoerli_Bytes
-  transactingAsset_gt: basegoerli_Bytes
-  transactingAsset_lt: basegoerli_Bytes
-  transactingAsset_gte: basegoerli_Bytes
-  transactingAsset_lte: basegoerli_Bytes
-  transactingAsset_in: [basegoerli_Bytes!]
-  transactingAsset_not_in: [basegoerli_Bytes!]
-  transactingAsset_contains: basegoerli_Bytes
-  transactingAsset_not_contains: basegoerli_Bytes
+  asset_: arbitrumsepolia_Asset_filter
+  transactingAsset: arbitrumsepolia_Bytes
+  transactingAsset_not: arbitrumsepolia_Bytes
+  transactingAsset_gt: arbitrumsepolia_Bytes
+  transactingAsset_lt: arbitrumsepolia_Bytes
+  transactingAsset_gte: arbitrumsepolia_Bytes
+  transactingAsset_lte: arbitrumsepolia_Bytes
+  transactingAsset_in: [arbitrumsepolia_Bytes!]
+  transactingAsset_not_in: [arbitrumsepolia_Bytes!]
+  transactingAsset_contains: arbitrumsepolia_Bytes
+  transactingAsset_not_contains: arbitrumsepolia_Bytes
   message: String
   message_not: String
   message_gt: String
@@ -1413,7 +1413,7 @@ input basegoerli_OriginTransfer_filter {
   message_ends_with_nocase: String
   message_not_ends_with: String
   message_not_ends_with_nocase: String
-  message_: basegoerli_OriginMessage_filter
+  message_: arbitrumsepolia_OriginMessage_filter
   bumpRelayerFeeCount: BigInt
   bumpRelayerFeeCount_not: BigInt
   bumpRelayerFeeCount_gt: BigInt
@@ -1428,37 +1428,37 @@ input basegoerli_OriginTransfer_filter {
   relayerFees_contains_nocase: [String!]
   relayerFees_not_contains: [String!]
   relayerFees_not_contains_nocase: [String!]
-  relayerFees_: basegoerli_RelayerFee_filter
-  initialRelayerFeeAsset: basegoerli_Bytes
-  initialRelayerFeeAsset_not: basegoerli_Bytes
-  initialRelayerFeeAsset_gt: basegoerli_Bytes
-  initialRelayerFeeAsset_lt: basegoerli_Bytes
-  initialRelayerFeeAsset_gte: basegoerli_Bytes
-  initialRelayerFeeAsset_lte: basegoerli_Bytes
-  initialRelayerFeeAsset_in: [basegoerli_Bytes!]
-  initialRelayerFeeAsset_not_in: [basegoerli_Bytes!]
-  initialRelayerFeeAsset_contains: basegoerli_Bytes
-  initialRelayerFeeAsset_not_contains: basegoerli_Bytes
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  relayerFees_: arbitrumsepolia_RelayerFee_filter
+  initialRelayerFeeAsset: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_not: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_gt: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_lt: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_gte: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_lte: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_in: [arbitrumsepolia_Bytes!]
+  initialRelayerFeeAsset_not_in: [arbitrumsepolia_Bytes!]
+  initialRelayerFeeAsset_contains: arbitrumsepolia_Bytes
+  initialRelayerFeeAsset_not_contains: arbitrumsepolia_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -1491,16 +1491,16 @@ input basegoerli_OriginTransfer_filter {
   blockNumber_lte: BigInt
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
-  txOrigin: basegoerli_Bytes
-  txOrigin_not: basegoerli_Bytes
-  txOrigin_gt: basegoerli_Bytes
-  txOrigin_lt: basegoerli_Bytes
-  txOrigin_gte: basegoerli_Bytes
-  txOrigin_lte: basegoerli_Bytes
-  txOrigin_in: [basegoerli_Bytes!]
-  txOrigin_not_in: [basegoerli_Bytes!]
-  txOrigin_contains: basegoerli_Bytes
-  txOrigin_not_contains: basegoerli_Bytes
+  txOrigin: arbitrumsepolia_Bytes
+  txOrigin_not: arbitrumsepolia_Bytes
+  txOrigin_gt: arbitrumsepolia_Bytes
+  txOrigin_lt: arbitrumsepolia_Bytes
+  txOrigin_gte: arbitrumsepolia_Bytes
+  txOrigin_lte: arbitrumsepolia_Bytes
+  txOrigin_in: [arbitrumsepolia_Bytes!]
+  txOrigin_not_in: [arbitrumsepolia_Bytes!]
+  txOrigin_contains: arbitrumsepolia_Bytes
+  txOrigin_not_contains: arbitrumsepolia_Bytes
   txNonce: BigInt
   txNonce_not: BigInt
   txNonce_gt: BigInt
@@ -1510,12 +1510,12 @@ input basegoerli_OriginTransfer_filter {
   txNonce_in: [BigInt!]
   txNonce_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_OriginTransfer_filter]
-  or: [basegoerli_OriginTransfer_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_OriginTransfer_filter]
+  or: [arbitrumsepolia_OriginTransfer_filter]
 }
 
-enum basegoerli_OriginTransfer_orderBy {
+enum arbitrumsepolia_OriginTransfer_orderBy {
   id
   chainId
   transferId
@@ -1569,622 +1569,622 @@ enum basegoerli_OriginTransfer_orderBy {
 }
 
 type Query {
-  basegoerli_asset(
+  arbitrumsepolia_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Asset
-  basegoerli_assets(
+  ): arbitrumsepolia_Asset
+  arbitrumsepolia_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Asset_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Asset_filter
+    orderBy: arbitrumsepolia_Asset_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Asset!]!
-  basegoerli_assetStatus(
+  ): [arbitrumsepolia_Asset!]!
+  arbitrumsepolia_assetStatus(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AssetStatus
-  basegoerli_assetStatuses(
+  ): arbitrumsepolia_AssetStatus
+  arbitrumsepolia_assetStatuses(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AssetStatus_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AssetStatus_filter
+    orderBy: arbitrumsepolia_AssetStatus_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AssetStatus_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AssetStatus!]!
-  basegoerli_assetBalance(
+  ): [arbitrumsepolia_AssetStatus!]!
+  arbitrumsepolia_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AssetBalance
-  basegoerli_assetBalances(
+  ): arbitrumsepolia_AssetBalance
+  arbitrumsepolia_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AssetBalance_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AssetBalance_filter
+    orderBy: arbitrumsepolia_AssetBalance_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AssetBalance!]!
-  basegoerli_router(
+  ): [arbitrumsepolia_AssetBalance!]!
+  arbitrumsepolia_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Router
-  basegoerli_routers(
+  ): arbitrumsepolia_Router
+  arbitrumsepolia_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Router_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Router_filter
+    orderBy: arbitrumsepolia_Router_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Router!]!
-  basegoerli_routerDailyTVL(
+  ): [arbitrumsepolia_Router!]!
+  arbitrumsepolia_routerDailyTVL(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RouterDailyTVL
-  basegoerli_routerDailyTVLs(
+  ): arbitrumsepolia_RouterDailyTVL
+  arbitrumsepolia_routerDailyTVLs(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RouterDailyTVL_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RouterDailyTVL_filter
+    orderBy: arbitrumsepolia_RouterDailyTVL_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RouterDailyTVL_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RouterDailyTVL!]!
-  basegoerli_routerLiquidityEvent(
+  ): [arbitrumsepolia_RouterDailyTVL!]!
+  arbitrumsepolia_routerLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RouterLiquidityEvent
-  basegoerli_routerLiquidityEvents(
+  ): arbitrumsepolia_RouterLiquidityEvent
+  arbitrumsepolia_routerLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RouterLiquidityEvent_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RouterLiquidityEvent_filter
+    orderBy: arbitrumsepolia_RouterLiquidityEvent_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RouterLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RouterLiquidityEvent!]!
-  basegoerli_setting(
+  ): [arbitrumsepolia_RouterLiquidityEvent!]!
+  arbitrumsepolia_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Setting
-  basegoerli_settings(
+  ): arbitrumsepolia_Setting
+  arbitrumsepolia_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Setting_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Setting_filter
+    orderBy: arbitrumsepolia_Setting_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Setting!]!
-  basegoerli_relayer(
+  ): [arbitrumsepolia_Setting!]!
+  arbitrumsepolia_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Relayer
-  basegoerli_relayers(
+  ): arbitrumsepolia_Relayer
+  arbitrumsepolia_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Relayer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Relayer_filter
+    orderBy: arbitrumsepolia_Relayer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Relayer!]!
-  basegoerli_sequencer(
+  ): [arbitrumsepolia_Relayer!]!
+  arbitrumsepolia_sequencer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Sequencer
-  basegoerli_sequencers(
+  ): arbitrumsepolia_Sequencer
+  arbitrumsepolia_sequencers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Sequencer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Sequencer_filter
+    orderBy: arbitrumsepolia_Sequencer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Sequencer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Sequencer!]!
-  basegoerli_relayerFee(
+  ): [arbitrumsepolia_Sequencer!]!
+  arbitrumsepolia_relayerFee(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RelayerFee
-  basegoerli_relayerFees(
+  ): arbitrumsepolia_RelayerFee
+  arbitrumsepolia_relayerFees(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RelayerFee_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RelayerFee_filter
+    orderBy: arbitrumsepolia_RelayerFee_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RelayerFee_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RelayerFee!]!
-  basegoerli_originTransfer(
+  ): [arbitrumsepolia_RelayerFee!]!
+  arbitrumsepolia_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OriginTransfer
-  basegoerli_originTransfers(
+  ): arbitrumsepolia_OriginTransfer
+  arbitrumsepolia_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OriginTransfer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OriginTransfer_filter
+    orderBy: arbitrumsepolia_OriginTransfer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OriginTransfer!]!
-  basegoerli_destinationTransfer(
+  ): [arbitrumsepolia_OriginTransfer!]!
+  arbitrumsepolia_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_DestinationTransfer
-  basegoerli_destinationTransfers(
+  ): arbitrumsepolia_DestinationTransfer
+  arbitrumsepolia_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_DestinationTransfer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_DestinationTransfer_filter
+    orderBy: arbitrumsepolia_DestinationTransfer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_DestinationTransfer!]!
-  basegoerli_originMessage(
+  ): [arbitrumsepolia_DestinationTransfer!]!
+  arbitrumsepolia_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OriginMessage
-  basegoerli_originMessages(
+  ): arbitrumsepolia_OriginMessage
+  arbitrumsepolia_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OriginMessage_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OriginMessage_filter
+    orderBy: arbitrumsepolia_OriginMessage_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OriginMessage!]!
-  basegoerli_aggregateRoot(
+  ): [arbitrumsepolia_OriginMessage!]!
+  arbitrumsepolia_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AggregateRoot
-  basegoerli_aggregateRoots(
+  ): arbitrumsepolia_AggregateRoot
+  arbitrumsepolia_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AggregateRoot_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AggregateRoot_filter
+    orderBy: arbitrumsepolia_AggregateRoot_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AggregateRoot!]!
-  basegoerli_connectorMeta(
+  ): [arbitrumsepolia_AggregateRoot!]!
+  arbitrumsepolia_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_ConnectorMeta
-  basegoerli_connectorMetas(
+  ): arbitrumsepolia_ConnectorMeta
+  arbitrumsepolia_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_ConnectorMeta_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_ConnectorMeta_filter
+    orderBy: arbitrumsepolia_ConnectorMeta_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_ConnectorMeta!]!
-  basegoerli_rootCount(
+  ): [arbitrumsepolia_ConnectorMeta!]!
+  arbitrumsepolia_rootCount(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RootCount
-  basegoerli_rootCounts(
+  ): arbitrumsepolia_RootCount
+  arbitrumsepolia_rootCounts(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RootCount_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RootCount_filter
+    orderBy: arbitrumsepolia_RootCount_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RootCount_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RootCount!]!
-  basegoerli_rootMessageSent(
+  ): [arbitrumsepolia_RootCount!]!
+  arbitrumsepolia_rootMessageSent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RootMessageSent
-  basegoerli_rootMessageSents(
+  ): arbitrumsepolia_RootMessageSent
+  arbitrumsepolia_rootMessageSents(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RootMessageSent_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RootMessageSent_filter
+    orderBy: arbitrumsepolia_RootMessageSent_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RootMessageSent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RootMessageSent!]!
-  basegoerli_relayerFeesIncrease(
+  ): [arbitrumsepolia_RootMessageSent!]!
+  arbitrumsepolia_relayerFeesIncrease(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RelayerFeesIncrease
-  basegoerli_relayerFeesIncreases(
+  ): arbitrumsepolia_RelayerFeesIncrease
+  arbitrumsepolia_relayerFeesIncreases(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RelayerFeesIncrease_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RelayerFeesIncrease_filter
+    orderBy: arbitrumsepolia_RelayerFeesIncrease_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RelayerFeesIncrease_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RelayerFeesIncrease!]!
-  basegoerli_slippageUpdate(
+  ): [arbitrumsepolia_RelayerFeesIncrease!]!
+  arbitrumsepolia_slippageUpdate(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SlippageUpdate
-  basegoerli_slippageUpdates(
+  ): arbitrumsepolia_SlippageUpdate
+  arbitrumsepolia_slippageUpdates(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SlippageUpdate_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SlippageUpdate_filter
+    orderBy: arbitrumsepolia_SlippageUpdate_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SlippageUpdate_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SlippageUpdate!]!
-  basegoerli_snapshotRoot(
+  ): [arbitrumsepolia_SlippageUpdate!]!
+  arbitrumsepolia_snapshotRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SnapshotRoot
-  basegoerli_snapshotRoots(
+  ): arbitrumsepolia_SnapshotRoot
+  arbitrumsepolia_snapshotRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SnapshotRoot_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SnapshotRoot_filter
+    orderBy: arbitrumsepolia_SnapshotRoot_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SnapshotRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SnapshotRoot!]!
-  basegoerli_spokeConnectorMode(
+  ): [arbitrumsepolia_SnapshotRoot!]!
+  arbitrumsepolia_spokeConnectorMode(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SpokeConnectorMode
-  basegoerli_spokeConnectorModes(
+  ): arbitrumsepolia_SpokeConnectorMode
+  arbitrumsepolia_spokeConnectorModes(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SpokeConnectorMode_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SpokeConnectorMode_filter
+    orderBy: arbitrumsepolia_SpokeConnectorMode_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SpokeConnectorMode_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SpokeConnectorMode!]!
-  basegoerli_aggregateRootProposed(
+  ): [arbitrumsepolia_SpokeConnectorMode!]!
+  arbitrumsepolia_aggregateRootProposed(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AggregateRootProposed
-  basegoerli_aggregateRootProposeds(
+  ): arbitrumsepolia_AggregateRootProposed
+  arbitrumsepolia_aggregateRootProposeds(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AggregateRootProposed_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AggregateRootProposed_filter
+    orderBy: arbitrumsepolia_AggregateRootProposed_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AggregateRootProposed_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AggregateRootProposed!]!
-  basegoerli_optimisticRootFinalized(
+  ): [arbitrumsepolia_AggregateRootProposed!]!
+  arbitrumsepolia_optimisticRootFinalized(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OptimisticRootFinalized
-  basegoerli_optimisticRootFinalizeds(
+  ): arbitrumsepolia_OptimisticRootFinalized
+  arbitrumsepolia_optimisticRootFinalizeds(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OptimisticRootFinalized_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OptimisticRootFinalized_filter
+    orderBy: arbitrumsepolia_OptimisticRootFinalized_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OptimisticRootFinalized_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OptimisticRootFinalized!]!
+  ): [arbitrumsepolia_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
-  basegoerli__meta(block: basegoerli_Block_height): basegoerli__Meta_
+  arbitrumsepolia__meta(block: arbitrumsepolia_Block_height): arbitrumsepolia__Meta_
 }
 
-type basegoerli_Relayer {
+type arbitrumsepolia_Relayer {
   id: ID!
   isActive: Boolean!
-  relayer: basegoerli_Bytes
+  relayer: arbitrumsepolia_Bytes
 }
 
-type basegoerli_RelayerFee {
+type arbitrumsepolia_RelayerFee {
   id: ID!
-  transfer: basegoerli_OriginTransfer!
+  transfer: arbitrumsepolia_OriginTransfer!
   fee: BigInt!
-  asset: basegoerli_Bytes!
+  asset: arbitrumsepolia_Bytes!
 }
 
-input basegoerli_RelayerFee_filter {
+input arbitrumsepolia_RelayerFee_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2213,7 +2213,7 @@ input basegoerli_RelayerFee_filter {
   transfer_ends_with_nocase: String
   transfer_not_ends_with: String
   transfer_not_ends_with_nocase: String
-  transfer_: basegoerli_OriginTransfer_filter
+  transfer_: arbitrumsepolia_OriginTransfer_filter
   fee: BigInt
   fee_not: BigInt
   fee_gt: BigInt
@@ -2222,23 +2222,23 @@ input basegoerli_RelayerFee_filter {
   fee_lte: BigInt
   fee_in: [BigInt!]
   fee_not_in: [BigInt!]
-  asset: basegoerli_Bytes
-  asset_not: basegoerli_Bytes
-  asset_gt: basegoerli_Bytes
-  asset_lt: basegoerli_Bytes
-  asset_gte: basegoerli_Bytes
-  asset_lte: basegoerli_Bytes
-  asset_in: [basegoerli_Bytes!]
-  asset_not_in: [basegoerli_Bytes!]
-  asset_contains: basegoerli_Bytes
-  asset_not_contains: basegoerli_Bytes
+  asset: arbitrumsepolia_Bytes
+  asset_not: arbitrumsepolia_Bytes
+  asset_gt: arbitrumsepolia_Bytes
+  asset_lt: arbitrumsepolia_Bytes
+  asset_gte: arbitrumsepolia_Bytes
+  asset_lte: arbitrumsepolia_Bytes
+  asset_in: [arbitrumsepolia_Bytes!]
+  asset_not_in: [arbitrumsepolia_Bytes!]
+  asset_contains: arbitrumsepolia_Bytes
+  asset_not_contains: arbitrumsepolia_Bytes
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RelayerFee_filter]
-  or: [basegoerli_RelayerFee_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RelayerFee_filter]
+  or: [arbitrumsepolia_RelayerFee_filter]
 }
 
-enum basegoerli_RelayerFee_orderBy {
+enum arbitrumsepolia_RelayerFee_orderBy {
   id
   transfer
   transfer__id
@@ -2274,20 +2274,20 @@ enum basegoerli_RelayerFee_orderBy {
   asset
 }
 
-type basegoerli_RelayerFeesIncrease {
+type arbitrumsepolia_RelayerFeesIncrease {
   id: ID!
-  transfer: basegoerli_OriginTransfer!
+  transfer: arbitrumsepolia_OriginTransfer!
   increase: BigInt
-  asset: basegoerli_Bytes
-  caller: basegoerli_Bytes!
-  transactionHash: basegoerli_Bytes!
+  asset: arbitrumsepolia_Bytes
+  caller: arbitrumsepolia_Bytes!
+  transactionHash: arbitrumsepolia_Bytes!
   timestamp: BigInt!
   gasPrice: BigInt!
   gasLimit: BigInt!
   blockNumber: BigInt!
 }
 
-input basegoerli_RelayerFeesIncrease_filter {
+input arbitrumsepolia_RelayerFeesIncrease_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2316,7 +2316,7 @@ input basegoerli_RelayerFeesIncrease_filter {
   transfer_ends_with_nocase: String
   transfer_not_ends_with: String
   transfer_not_ends_with_nocase: String
-  transfer_: basegoerli_OriginTransfer_filter
+  transfer_: arbitrumsepolia_OriginTransfer_filter
   increase: BigInt
   increase_not: BigInt
   increase_gt: BigInt
@@ -2325,36 +2325,36 @@ input basegoerli_RelayerFeesIncrease_filter {
   increase_lte: BigInt
   increase_in: [BigInt!]
   increase_not_in: [BigInt!]
-  asset: basegoerli_Bytes
-  asset_not: basegoerli_Bytes
-  asset_gt: basegoerli_Bytes
-  asset_lt: basegoerli_Bytes
-  asset_gte: basegoerli_Bytes
-  asset_lte: basegoerli_Bytes
-  asset_in: [basegoerli_Bytes!]
-  asset_not_in: [basegoerli_Bytes!]
-  asset_contains: basegoerli_Bytes
-  asset_not_contains: basegoerli_Bytes
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  asset: arbitrumsepolia_Bytes
+  asset_not: arbitrumsepolia_Bytes
+  asset_gt: arbitrumsepolia_Bytes
+  asset_lt: arbitrumsepolia_Bytes
+  asset_gte: arbitrumsepolia_Bytes
+  asset_lte: arbitrumsepolia_Bytes
+  asset_in: [arbitrumsepolia_Bytes!]
+  asset_not_in: [arbitrumsepolia_Bytes!]
+  asset_contains: arbitrumsepolia_Bytes
+  asset_not_contains: arbitrumsepolia_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -2388,12 +2388,12 @@ input basegoerli_RelayerFeesIncrease_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RelayerFeesIncrease_filter]
-  or: [basegoerli_RelayerFeesIncrease_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RelayerFeesIncrease_filter]
+  or: [arbitrumsepolia_RelayerFeesIncrease_filter]
 }
 
-enum basegoerli_RelayerFeesIncrease_orderBy {
+enum arbitrumsepolia_RelayerFeesIncrease_orderBy {
   id
   transfer
   transfer__id
@@ -2435,7 +2435,7 @@ enum basegoerli_RelayerFeesIncrease_orderBy {
   blockNumber
 }
 
-input basegoerli_Relayer_filter {
+input arbitrumsepolia_Relayer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2448,34 +2448,34 @@ input basegoerli_Relayer_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  relayer: basegoerli_Bytes
-  relayer_not: basegoerli_Bytes
-  relayer_gt: basegoerli_Bytes
-  relayer_lt: basegoerli_Bytes
-  relayer_gte: basegoerli_Bytes
-  relayer_lte: basegoerli_Bytes
-  relayer_in: [basegoerli_Bytes!]
-  relayer_not_in: [basegoerli_Bytes!]
-  relayer_contains: basegoerli_Bytes
-  relayer_not_contains: basegoerli_Bytes
+  relayer: arbitrumsepolia_Bytes
+  relayer_not: arbitrumsepolia_Bytes
+  relayer_gt: arbitrumsepolia_Bytes
+  relayer_lt: arbitrumsepolia_Bytes
+  relayer_gte: arbitrumsepolia_Bytes
+  relayer_lte: arbitrumsepolia_Bytes
+  relayer_in: [arbitrumsepolia_Bytes!]
+  relayer_not_in: [arbitrumsepolia_Bytes!]
+  relayer_contains: arbitrumsepolia_Bytes
+  relayer_not_contains: arbitrumsepolia_Bytes
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_Relayer_filter]
-  or: [basegoerli_Relayer_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_Relayer_filter]
+  or: [arbitrumsepolia_Relayer_filter]
 }
 
-enum basegoerli_Relayer_orderBy {
+enum arbitrumsepolia_Relayer_orderBy {
   id
   isActive
   relayer
 }
 
-type basegoerli_RootCount {
+type arbitrumsepolia_RootCount {
   id: ID!
   count: BigInt
 }
 
-input basegoerli_RootCount_filter {
+input arbitrumsepolia_RootCount_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2493,31 +2493,31 @@ input basegoerli_RootCount_filter {
   count_in: [BigInt!]
   count_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RootCount_filter]
-  or: [basegoerli_RootCount_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RootCount_filter]
+  or: [arbitrumsepolia_RootCount_filter]
 }
 
-enum basegoerli_RootCount_orderBy {
+enum arbitrumsepolia_RootCount_orderBy {
   id
   count
 }
 
-type basegoerli_RootMessageSent {
+type arbitrumsepolia_RootMessageSent {
   id: ID!
   spokeDomain: BigInt
   hubDomain: BigInt
-  root: basegoerli_Bytes
+  root: arbitrumsepolia_Bytes
   count: BigInt
-  caller: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
   timestamp: BigInt
   gasPrice: BigInt
   gasLimit: BigInt
   blockNumber: BigInt
 }
 
-input basegoerli_RootMessageSent_filter {
+input arbitrumsepolia_RootMessageSent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2542,16 +2542,16 @@ input basegoerli_RootMessageSent_filter {
   hubDomain_lte: BigInt
   hubDomain_in: [BigInt!]
   hubDomain_not_in: [BigInt!]
-  root: basegoerli_Bytes
-  root_not: basegoerli_Bytes
-  root_gt: basegoerli_Bytes
-  root_lt: basegoerli_Bytes
-  root_gte: basegoerli_Bytes
-  root_lte: basegoerli_Bytes
-  root_in: [basegoerli_Bytes!]
-  root_not_in: [basegoerli_Bytes!]
-  root_contains: basegoerli_Bytes
-  root_not_contains: basegoerli_Bytes
+  root: arbitrumsepolia_Bytes
+  root_not: arbitrumsepolia_Bytes
+  root_gt: arbitrumsepolia_Bytes
+  root_lt: arbitrumsepolia_Bytes
+  root_gte: arbitrumsepolia_Bytes
+  root_lte: arbitrumsepolia_Bytes
+  root_in: [arbitrumsepolia_Bytes!]
+  root_not_in: [arbitrumsepolia_Bytes!]
+  root_contains: arbitrumsepolia_Bytes
+  root_not_contains: arbitrumsepolia_Bytes
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -2560,26 +2560,26 @@ input basegoerli_RootMessageSent_filter {
   count_lte: BigInt
   count_in: [BigInt!]
   count_not_in: [BigInt!]
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -2613,12 +2613,12 @@ input basegoerli_RootMessageSent_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RootMessageSent_filter]
-  or: [basegoerli_RootMessageSent_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RootMessageSent_filter]
+  or: [arbitrumsepolia_RootMessageSent_filter]
 }
 
-enum basegoerli_RootMessageSent_orderBy {
+enum arbitrumsepolia_RootMessageSent_orderBy {
   id
   spokeDomain
   hubDomain
@@ -2632,25 +2632,25 @@ enum basegoerli_RootMessageSent_orderBy {
   blockNumber
 }
 
-type basegoerli_Router {
+type arbitrumsepolia_Router {
   id: ID!
   isActive: Boolean!
-  owner: basegoerli_Bytes
-  recipient: basegoerli_Bytes
-  proposedOwner: basegoerli_Bytes
+  owner: arbitrumsepolia_Bytes
+  recipient: arbitrumsepolia_Bytes
+  proposedOwner: arbitrumsepolia_Bytes
   proposedTimestamp: BigInt
-  assetBalances(skip: Int = 0, first: Int = 100, orderBy: basegoerli_AssetBalance_orderBy, orderDirection: basegoerli_OrderDirection, where: basegoerli_AssetBalance_filter): [basegoerli_AssetBalance!]!
+  assetBalances(skip: Int = 0, first: Int = 100, orderBy: arbitrumsepolia_AssetBalance_orderBy, orderDirection: arbitrumsepolia_OrderDirection, where: arbitrumsepolia_AssetBalance_filter): [arbitrumsepolia_AssetBalance!]!
 }
 
-type basegoerli_RouterDailyTVL {
+type arbitrumsepolia_RouterDailyTVL {
   id: ID!
-  router: basegoerli_Router!
-  asset: basegoerli_Asset!
+  router: arbitrumsepolia_Router!
+  asset: arbitrumsepolia_Asset!
   timestamp: BigInt!
   balance: BigInt!
 }
 
-input basegoerli_RouterDailyTVL_filter {
+input arbitrumsepolia_RouterDailyTVL_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2679,7 +2679,7 @@ input basegoerli_RouterDailyTVL_filter {
   router_ends_with_nocase: String
   router_not_ends_with: String
   router_not_ends_with_nocase: String
-  router_: basegoerli_Router_filter
+  router_: arbitrumsepolia_Router_filter
   asset: String
   asset_not: String
   asset_gt: String
@@ -2700,7 +2700,7 @@ input basegoerli_RouterDailyTVL_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: basegoerli_Asset_filter
+  asset_: arbitrumsepolia_Asset_filter
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -2718,12 +2718,12 @@ input basegoerli_RouterDailyTVL_filter {
   balance_in: [BigInt!]
   balance_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RouterDailyTVL_filter]
-  or: [basegoerli_RouterDailyTVL_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RouterDailyTVL_filter]
+  or: [arbitrumsepolia_RouterDailyTVL_filter]
 }
 
-enum basegoerli_RouterDailyTVL_orderBy {
+enum arbitrumsepolia_RouterDailyTVL_orderBy {
   id
   router
   router__id
@@ -2746,26 +2746,26 @@ enum basegoerli_RouterDailyTVL_orderBy {
   balance
 }
 
-type basegoerli_RouterLiquidityEvent {
+type arbitrumsepolia_RouterLiquidityEvent {
   id: ID!
-  type: basegoerli_RouterLiquidityEventType
-  router: basegoerli_Router!
-  asset: basegoerli_Asset!
+  type: arbitrumsepolia_RouterLiquidityEventType
+  router: arbitrumsepolia_Router!
+  asset: arbitrumsepolia_Asset!
   amount: BigInt!
   balance: BigInt!
-  caller: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
   blockNumber: BigInt!
   timestamp: BigInt!
-  transactionHash: basegoerli_Bytes!
+  transactionHash: arbitrumsepolia_Bytes!
   nonce: BigInt!
 }
 
-enum basegoerli_RouterLiquidityEventType {
+enum arbitrumsepolia_RouterLiquidityEventType {
   Add
   Remove
 }
 
-input basegoerli_RouterLiquidityEvent_filter {
+input arbitrumsepolia_RouterLiquidityEvent_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2774,10 +2774,10 @@ input basegoerli_RouterLiquidityEvent_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  type: basegoerli_RouterLiquidityEventType
-  type_not: basegoerli_RouterLiquidityEventType
-  type_in: [basegoerli_RouterLiquidityEventType!]
-  type_not_in: [basegoerli_RouterLiquidityEventType!]
+  type: arbitrumsepolia_RouterLiquidityEventType
+  type_not: arbitrumsepolia_RouterLiquidityEventType
+  type_in: [arbitrumsepolia_RouterLiquidityEventType!]
+  type_not_in: [arbitrumsepolia_RouterLiquidityEventType!]
   router: String
   router_not: String
   router_gt: String
@@ -2798,7 +2798,7 @@ input basegoerli_RouterLiquidityEvent_filter {
   router_ends_with_nocase: String
   router_not_ends_with: String
   router_not_ends_with_nocase: String
-  router_: basegoerli_Router_filter
+  router_: arbitrumsepolia_Router_filter
   asset: String
   asset_not: String
   asset_gt: String
@@ -2819,7 +2819,7 @@ input basegoerli_RouterLiquidityEvent_filter {
   asset_ends_with_nocase: String
   asset_not_ends_with: String
   asset_not_ends_with_nocase: String
-  asset_: basegoerli_Asset_filter
+  asset_: arbitrumsepolia_Asset_filter
   amount: BigInt
   amount_not: BigInt
   amount_gt: BigInt
@@ -2836,16 +2836,16 @@ input basegoerli_RouterLiquidityEvent_filter {
   balance_lte: BigInt
   balance_in: [BigInt!]
   balance_not_in: [BigInt!]
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
   blockNumber: BigInt
   blockNumber_not: BigInt
   blockNumber_gt: BigInt
@@ -2862,16 +2862,16 @@ input basegoerli_RouterLiquidityEvent_filter {
   timestamp_lte: BigInt
   timestamp_in: [BigInt!]
   timestamp_not_in: [BigInt!]
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   nonce: BigInt
   nonce_not: BigInt
   nonce_gt: BigInt
@@ -2881,12 +2881,12 @@ input basegoerli_RouterLiquidityEvent_filter {
   nonce_in: [BigInt!]
   nonce_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_RouterLiquidityEvent_filter]
-  or: [basegoerli_RouterLiquidityEvent_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_RouterLiquidityEvent_filter]
+  or: [arbitrumsepolia_RouterLiquidityEvent_filter]
 }
 
-enum basegoerli_RouterLiquidityEvent_orderBy {
+enum arbitrumsepolia_RouterLiquidityEvent_orderBy {
   id
   type
   router
@@ -2915,7 +2915,7 @@ enum basegoerli_RouterLiquidityEvent_orderBy {
   nonce
 }
 
-input basegoerli_Router_filter {
+input arbitrumsepolia_Router_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -2928,36 +2928,36 @@ input basegoerli_Router_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  owner: basegoerli_Bytes
-  owner_not: basegoerli_Bytes
-  owner_gt: basegoerli_Bytes
-  owner_lt: basegoerli_Bytes
-  owner_gte: basegoerli_Bytes
-  owner_lte: basegoerli_Bytes
-  owner_in: [basegoerli_Bytes!]
-  owner_not_in: [basegoerli_Bytes!]
-  owner_contains: basegoerli_Bytes
-  owner_not_contains: basegoerli_Bytes
-  recipient: basegoerli_Bytes
-  recipient_not: basegoerli_Bytes
-  recipient_gt: basegoerli_Bytes
-  recipient_lt: basegoerli_Bytes
-  recipient_gte: basegoerli_Bytes
-  recipient_lte: basegoerli_Bytes
-  recipient_in: [basegoerli_Bytes!]
-  recipient_not_in: [basegoerli_Bytes!]
-  recipient_contains: basegoerli_Bytes
-  recipient_not_contains: basegoerli_Bytes
-  proposedOwner: basegoerli_Bytes
-  proposedOwner_not: basegoerli_Bytes
-  proposedOwner_gt: basegoerli_Bytes
-  proposedOwner_lt: basegoerli_Bytes
-  proposedOwner_gte: basegoerli_Bytes
-  proposedOwner_lte: basegoerli_Bytes
-  proposedOwner_in: [basegoerli_Bytes!]
-  proposedOwner_not_in: [basegoerli_Bytes!]
-  proposedOwner_contains: basegoerli_Bytes
-  proposedOwner_not_contains: basegoerli_Bytes
+  owner: arbitrumsepolia_Bytes
+  owner_not: arbitrumsepolia_Bytes
+  owner_gt: arbitrumsepolia_Bytes
+  owner_lt: arbitrumsepolia_Bytes
+  owner_gte: arbitrumsepolia_Bytes
+  owner_lte: arbitrumsepolia_Bytes
+  owner_in: [arbitrumsepolia_Bytes!]
+  owner_not_in: [arbitrumsepolia_Bytes!]
+  owner_contains: arbitrumsepolia_Bytes
+  owner_not_contains: arbitrumsepolia_Bytes
+  recipient: arbitrumsepolia_Bytes
+  recipient_not: arbitrumsepolia_Bytes
+  recipient_gt: arbitrumsepolia_Bytes
+  recipient_lt: arbitrumsepolia_Bytes
+  recipient_gte: arbitrumsepolia_Bytes
+  recipient_lte: arbitrumsepolia_Bytes
+  recipient_in: [arbitrumsepolia_Bytes!]
+  recipient_not_in: [arbitrumsepolia_Bytes!]
+  recipient_contains: arbitrumsepolia_Bytes
+  recipient_not_contains: arbitrumsepolia_Bytes
+  proposedOwner: arbitrumsepolia_Bytes
+  proposedOwner_not: arbitrumsepolia_Bytes
+  proposedOwner_gt: arbitrumsepolia_Bytes
+  proposedOwner_lt: arbitrumsepolia_Bytes
+  proposedOwner_gte: arbitrumsepolia_Bytes
+  proposedOwner_lte: arbitrumsepolia_Bytes
+  proposedOwner_in: [arbitrumsepolia_Bytes!]
+  proposedOwner_not_in: [arbitrumsepolia_Bytes!]
+  proposedOwner_contains: arbitrumsepolia_Bytes
+  proposedOwner_not_contains: arbitrumsepolia_Bytes
   proposedTimestamp: BigInt
   proposedTimestamp_not: BigInt
   proposedTimestamp_gt: BigInt
@@ -2966,14 +2966,14 @@ input basegoerli_Router_filter {
   proposedTimestamp_lte: BigInt
   proposedTimestamp_in: [BigInt!]
   proposedTimestamp_not_in: [BigInt!]
-  assetBalances_: basegoerli_AssetBalance_filter
+  assetBalances_: arbitrumsepolia_AssetBalance_filter
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_Router_filter]
-  or: [basegoerli_Router_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_Router_filter]
+  or: [arbitrumsepolia_Router_filter]
 }
 
-enum basegoerli_Router_orderBy {
+enum arbitrumsepolia_Router_orderBy {
   id
   isActive
   owner
@@ -2983,13 +2983,13 @@ enum basegoerli_Router_orderBy {
   assetBalances
 }
 
-type basegoerli_Sequencer {
+type arbitrumsepolia_Sequencer {
   id: ID!
   isActive: Boolean!
-  sequencer: basegoerli_Bytes
+  sequencer: arbitrumsepolia_Bytes
 }
 
-input basegoerli_Sequencer_filter {
+input arbitrumsepolia_Sequencer_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -3002,35 +3002,35 @@ input basegoerli_Sequencer_filter {
   isActive_not: Boolean
   isActive_in: [Boolean!]
   isActive_not_in: [Boolean!]
-  sequencer: basegoerli_Bytes
-  sequencer_not: basegoerli_Bytes
-  sequencer_gt: basegoerli_Bytes
-  sequencer_lt: basegoerli_Bytes
-  sequencer_gte: basegoerli_Bytes
-  sequencer_lte: basegoerli_Bytes
-  sequencer_in: [basegoerli_Bytes!]
-  sequencer_not_in: [basegoerli_Bytes!]
-  sequencer_contains: basegoerli_Bytes
-  sequencer_not_contains: basegoerli_Bytes
+  sequencer: arbitrumsepolia_Bytes
+  sequencer_not: arbitrumsepolia_Bytes
+  sequencer_gt: arbitrumsepolia_Bytes
+  sequencer_lt: arbitrumsepolia_Bytes
+  sequencer_gte: arbitrumsepolia_Bytes
+  sequencer_lte: arbitrumsepolia_Bytes
+  sequencer_in: [arbitrumsepolia_Bytes!]
+  sequencer_not_in: [arbitrumsepolia_Bytes!]
+  sequencer_contains: arbitrumsepolia_Bytes
+  sequencer_not_contains: arbitrumsepolia_Bytes
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_Sequencer_filter]
-  or: [basegoerli_Sequencer_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_Sequencer_filter]
+  or: [arbitrumsepolia_Sequencer_filter]
 }
 
-enum basegoerli_Sequencer_orderBy {
+enum arbitrumsepolia_Sequencer_orderBy {
   id
   isActive
   sequencer
 }
 
-type basegoerli_Setting {
+type arbitrumsepolia_Setting {
   id: ID!
   maxRoutersPerTransfer: BigInt!
-  caller: basegoerli_Bytes!
+  caller: arbitrumsepolia_Bytes!
 }
 
-input basegoerli_Setting_filter {
+input arbitrumsepolia_Setting_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -3047,41 +3047,41 @@ input basegoerli_Setting_filter {
   maxRoutersPerTransfer_lte: BigInt
   maxRoutersPerTransfer_in: [BigInt!]
   maxRoutersPerTransfer_not_in: [BigInt!]
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_Setting_filter]
-  or: [basegoerli_Setting_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_Setting_filter]
+  or: [arbitrumsepolia_Setting_filter]
 }
 
-enum basegoerli_Setting_orderBy {
+enum arbitrumsepolia_Setting_orderBy {
   id
   maxRoutersPerTransfer
   caller
 }
 
-type basegoerli_SlippageUpdate {
+type arbitrumsepolia_SlippageUpdate {
   id: ID!
-  transfer: basegoerli_DestinationTransfer!
+  transfer: arbitrumsepolia_DestinationTransfer!
   slippage: BigInt!
-  caller: basegoerli_Bytes!
-  transactionHash: basegoerli_Bytes!
+  caller: arbitrumsepolia_Bytes!
+  transactionHash: arbitrumsepolia_Bytes!
   timestamp: BigInt!
   gasPrice: BigInt!
   gasLimit: BigInt!
   blockNumber: BigInt!
 }
 
-input basegoerli_SlippageUpdate_filter {
+input arbitrumsepolia_SlippageUpdate_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -3110,7 +3110,7 @@ input basegoerli_SlippageUpdate_filter {
   transfer_ends_with_nocase: String
   transfer_not_ends_with: String
   transfer_not_ends_with_nocase: String
-  transfer_: basegoerli_DestinationTransfer_filter
+  transfer_: arbitrumsepolia_DestinationTransfer_filter
   slippage: BigInt
   slippage_not: BigInt
   slippage_gt: BigInt
@@ -3119,26 +3119,26 @@ input basegoerli_SlippageUpdate_filter {
   slippage_lte: BigInt
   slippage_in: [BigInt!]
   slippage_not_in: [BigInt!]
-  caller: basegoerli_Bytes
-  caller_not: basegoerli_Bytes
-  caller_gt: basegoerli_Bytes
-  caller_lt: basegoerli_Bytes
-  caller_gte: basegoerli_Bytes
-  caller_lte: basegoerli_Bytes
-  caller_in: [basegoerli_Bytes!]
-  caller_not_in: [basegoerli_Bytes!]
-  caller_contains: basegoerli_Bytes
-  caller_not_contains: basegoerli_Bytes
-  transactionHash: basegoerli_Bytes
-  transactionHash_not: basegoerli_Bytes
-  transactionHash_gt: basegoerli_Bytes
-  transactionHash_lt: basegoerli_Bytes
-  transactionHash_gte: basegoerli_Bytes
-  transactionHash_lte: basegoerli_Bytes
-  transactionHash_in: [basegoerli_Bytes!]
-  transactionHash_not_in: [basegoerli_Bytes!]
-  transactionHash_contains: basegoerli_Bytes
-  transactionHash_not_contains: basegoerli_Bytes
+  caller: arbitrumsepolia_Bytes
+  caller_not: arbitrumsepolia_Bytes
+  caller_gt: arbitrumsepolia_Bytes
+  caller_lt: arbitrumsepolia_Bytes
+  caller_gte: arbitrumsepolia_Bytes
+  caller_lte: arbitrumsepolia_Bytes
+  caller_in: [arbitrumsepolia_Bytes!]
+  caller_not_in: [arbitrumsepolia_Bytes!]
+  caller_contains: arbitrumsepolia_Bytes
+  caller_not_contains: arbitrumsepolia_Bytes
+  transactionHash: arbitrumsepolia_Bytes
+  transactionHash_not: arbitrumsepolia_Bytes
+  transactionHash_gt: arbitrumsepolia_Bytes
+  transactionHash_lt: arbitrumsepolia_Bytes
+  transactionHash_gte: arbitrumsepolia_Bytes
+  transactionHash_lte: arbitrumsepolia_Bytes
+  transactionHash_in: [arbitrumsepolia_Bytes!]
+  transactionHash_not_in: [arbitrumsepolia_Bytes!]
+  transactionHash_contains: arbitrumsepolia_Bytes
+  transactionHash_not_contains: arbitrumsepolia_Bytes
   timestamp: BigInt
   timestamp_not: BigInt
   timestamp_gt: BigInt
@@ -3172,12 +3172,12 @@ input basegoerli_SlippageUpdate_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_SlippageUpdate_filter]
-  or: [basegoerli_SlippageUpdate_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_SlippageUpdate_filter]
+  or: [arbitrumsepolia_SlippageUpdate_filter]
 }
 
-enum basegoerli_SlippageUpdate_orderBy {
+enum arbitrumsepolia_SlippageUpdate_orderBy {
   id
   transfer
   transfer__id
@@ -3225,16 +3225,16 @@ enum basegoerli_SlippageUpdate_orderBy {
   blockNumber
 }
 
-type basegoerli_SnapshotRoot {
+type arbitrumsepolia_SnapshotRoot {
   id: ID!
   spokeDomain: BigInt
-  root: basegoerli_Bytes!
+  root: arbitrumsepolia_Bytes!
   count: BigInt!
   timestamp: BigInt!
   blockNumber: BigInt!
 }
 
-input basegoerli_SnapshotRoot_filter {
+input arbitrumsepolia_SnapshotRoot_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -3251,16 +3251,16 @@ input basegoerli_SnapshotRoot_filter {
   spokeDomain_lte: BigInt
   spokeDomain_in: [BigInt!]
   spokeDomain_not_in: [BigInt!]
-  root: basegoerli_Bytes
-  root_not: basegoerli_Bytes
-  root_gt: basegoerli_Bytes
-  root_lt: basegoerli_Bytes
-  root_gte: basegoerli_Bytes
-  root_lte: basegoerli_Bytes
-  root_in: [basegoerli_Bytes!]
-  root_not_in: [basegoerli_Bytes!]
-  root_contains: basegoerli_Bytes
-  root_not_contains: basegoerli_Bytes
+  root: arbitrumsepolia_Bytes
+  root_not: arbitrumsepolia_Bytes
+  root_gt: arbitrumsepolia_Bytes
+  root_lt: arbitrumsepolia_Bytes
+  root_gte: arbitrumsepolia_Bytes
+  root_lte: arbitrumsepolia_Bytes
+  root_in: [arbitrumsepolia_Bytes!]
+  root_not_in: [arbitrumsepolia_Bytes!]
+  root_contains: arbitrumsepolia_Bytes
+  root_not_contains: arbitrumsepolia_Bytes
   count: BigInt
   count_not: BigInt
   count_gt: BigInt
@@ -3286,12 +3286,12 @@ input basegoerli_SnapshotRoot_filter {
   blockNumber_in: [BigInt!]
   blockNumber_not_in: [BigInt!]
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_SnapshotRoot_filter]
-  or: [basegoerli_SnapshotRoot_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_SnapshotRoot_filter]
+  or: [arbitrumsepolia_SnapshotRoot_filter]
 }
 
-enum basegoerli_SnapshotRoot_orderBy {
+enum arbitrumsepolia_SnapshotRoot_orderBy {
   id
   spokeDomain
   root
@@ -3300,12 +3300,12 @@ enum basegoerli_SnapshotRoot_orderBy {
   blockNumber
 }
 
-type basegoerli_SpokeConnectorMode {
+type arbitrumsepolia_SpokeConnectorMode {
   id: ID!
   mode: String!
 }
 
-input basegoerli_SpokeConnectorMode_filter {
+input arbitrumsepolia_SpokeConnectorMode_filter {
   id: ID
   id_not: ID
   id_gt: ID
@@ -3335,620 +3335,620 @@ input basegoerli_SpokeConnectorMode_filter {
   mode_not_ends_with: String
   mode_not_ends_with_nocase: String
   """Filter for the block changed event."""
-  _change_block: basegoerli_BlockChangedFilter
-  and: [basegoerli_SpokeConnectorMode_filter]
-  or: [basegoerli_SpokeConnectorMode_filter]
+  _change_block: arbitrumsepolia_BlockChangedFilter
+  and: [arbitrumsepolia_SpokeConnectorMode_filter]
+  or: [arbitrumsepolia_SpokeConnectorMode_filter]
 }
 
-enum basegoerli_SpokeConnectorMode_orderBy {
+enum arbitrumsepolia_SpokeConnectorMode_orderBy {
   id
   mode
 }
 
 type Subscription {
-  basegoerli_asset(
+  arbitrumsepolia_asset(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Asset
-  basegoerli_assets(
+  ): arbitrumsepolia_Asset
+  arbitrumsepolia_assets(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Asset_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Asset_filter
+    orderBy: arbitrumsepolia_Asset_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Asset_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Asset!]!
-  basegoerli_assetStatus(
+  ): [arbitrumsepolia_Asset!]!
+  arbitrumsepolia_assetStatus(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AssetStatus
-  basegoerli_assetStatuses(
+  ): arbitrumsepolia_AssetStatus
+  arbitrumsepolia_assetStatuses(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AssetStatus_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AssetStatus_filter
+    orderBy: arbitrumsepolia_AssetStatus_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AssetStatus_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AssetStatus!]!
-  basegoerli_assetBalance(
+  ): [arbitrumsepolia_AssetStatus!]!
+  arbitrumsepolia_assetBalance(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AssetBalance
-  basegoerli_assetBalances(
+  ): arbitrumsepolia_AssetBalance
+  arbitrumsepolia_assetBalances(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AssetBalance_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AssetBalance_filter
+    orderBy: arbitrumsepolia_AssetBalance_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AssetBalance_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AssetBalance!]!
-  basegoerli_router(
+  ): [arbitrumsepolia_AssetBalance!]!
+  arbitrumsepolia_router(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Router
-  basegoerli_routers(
+  ): arbitrumsepolia_Router
+  arbitrumsepolia_routers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Router_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Router_filter
+    orderBy: arbitrumsepolia_Router_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Router_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Router!]!
-  basegoerli_routerDailyTVL(
+  ): [arbitrumsepolia_Router!]!
+  arbitrumsepolia_routerDailyTVL(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RouterDailyTVL
-  basegoerli_routerDailyTVLs(
+  ): arbitrumsepolia_RouterDailyTVL
+  arbitrumsepolia_routerDailyTVLs(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RouterDailyTVL_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RouterDailyTVL_filter
+    orderBy: arbitrumsepolia_RouterDailyTVL_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RouterDailyTVL_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RouterDailyTVL!]!
-  basegoerli_routerLiquidityEvent(
+  ): [arbitrumsepolia_RouterDailyTVL!]!
+  arbitrumsepolia_routerLiquidityEvent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RouterLiquidityEvent
-  basegoerli_routerLiquidityEvents(
+  ): arbitrumsepolia_RouterLiquidityEvent
+  arbitrumsepolia_routerLiquidityEvents(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RouterLiquidityEvent_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RouterLiquidityEvent_filter
+    orderBy: arbitrumsepolia_RouterLiquidityEvent_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RouterLiquidityEvent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RouterLiquidityEvent!]!
-  basegoerli_setting(
+  ): [arbitrumsepolia_RouterLiquidityEvent!]!
+  arbitrumsepolia_setting(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Setting
-  basegoerli_settings(
+  ): arbitrumsepolia_Setting
+  arbitrumsepolia_settings(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Setting_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Setting_filter
+    orderBy: arbitrumsepolia_Setting_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Setting_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Setting!]!
-  basegoerli_relayer(
+  ): [arbitrumsepolia_Setting!]!
+  arbitrumsepolia_relayer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Relayer
-  basegoerli_relayers(
+  ): arbitrumsepolia_Relayer
+  arbitrumsepolia_relayers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Relayer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Relayer_filter
+    orderBy: arbitrumsepolia_Relayer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Relayer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Relayer!]!
-  basegoerli_sequencer(
+  ): [arbitrumsepolia_Relayer!]!
+  arbitrumsepolia_sequencer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_Sequencer
-  basegoerli_sequencers(
+  ): arbitrumsepolia_Sequencer
+  arbitrumsepolia_sequencers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_Sequencer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_Sequencer_filter
+    orderBy: arbitrumsepolia_Sequencer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_Sequencer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_Sequencer!]!
-  basegoerli_relayerFee(
+  ): [arbitrumsepolia_Sequencer!]!
+  arbitrumsepolia_relayerFee(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RelayerFee
-  basegoerli_relayerFees(
+  ): arbitrumsepolia_RelayerFee
+  arbitrumsepolia_relayerFees(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RelayerFee_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RelayerFee_filter
+    orderBy: arbitrumsepolia_RelayerFee_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RelayerFee_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RelayerFee!]!
-  basegoerli_originTransfer(
+  ): [arbitrumsepolia_RelayerFee!]!
+  arbitrumsepolia_originTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OriginTransfer
-  basegoerli_originTransfers(
+  ): arbitrumsepolia_OriginTransfer
+  arbitrumsepolia_originTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OriginTransfer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OriginTransfer_filter
+    orderBy: arbitrumsepolia_OriginTransfer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OriginTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OriginTransfer!]!
-  basegoerli_destinationTransfer(
+  ): [arbitrumsepolia_OriginTransfer!]!
+  arbitrumsepolia_destinationTransfer(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_DestinationTransfer
-  basegoerli_destinationTransfers(
+  ): arbitrumsepolia_DestinationTransfer
+  arbitrumsepolia_destinationTransfers(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_DestinationTransfer_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_DestinationTransfer_filter
+    orderBy: arbitrumsepolia_DestinationTransfer_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_DestinationTransfer_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_DestinationTransfer!]!
-  basegoerli_originMessage(
+  ): [arbitrumsepolia_DestinationTransfer!]!
+  arbitrumsepolia_originMessage(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OriginMessage
-  basegoerli_originMessages(
+  ): arbitrumsepolia_OriginMessage
+  arbitrumsepolia_originMessages(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OriginMessage_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OriginMessage_filter
+    orderBy: arbitrumsepolia_OriginMessage_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OriginMessage_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OriginMessage!]!
-  basegoerli_aggregateRoot(
+  ): [arbitrumsepolia_OriginMessage!]!
+  arbitrumsepolia_aggregateRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AggregateRoot
-  basegoerli_aggregateRoots(
+  ): arbitrumsepolia_AggregateRoot
+  arbitrumsepolia_aggregateRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AggregateRoot_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AggregateRoot_filter
+    orderBy: arbitrumsepolia_AggregateRoot_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AggregateRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AggregateRoot!]!
-  basegoerli_connectorMeta(
+  ): [arbitrumsepolia_AggregateRoot!]!
+  arbitrumsepolia_connectorMeta(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_ConnectorMeta
-  basegoerli_connectorMetas(
+  ): arbitrumsepolia_ConnectorMeta
+  arbitrumsepolia_connectorMetas(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_ConnectorMeta_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_ConnectorMeta_filter
+    orderBy: arbitrumsepolia_ConnectorMeta_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_ConnectorMeta_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_ConnectorMeta!]!
-  basegoerli_rootCount(
+  ): [arbitrumsepolia_ConnectorMeta!]!
+  arbitrumsepolia_rootCount(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RootCount
-  basegoerli_rootCounts(
+  ): arbitrumsepolia_RootCount
+  arbitrumsepolia_rootCounts(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RootCount_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RootCount_filter
+    orderBy: arbitrumsepolia_RootCount_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RootCount_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RootCount!]!
-  basegoerli_rootMessageSent(
+  ): [arbitrumsepolia_RootCount!]!
+  arbitrumsepolia_rootMessageSent(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RootMessageSent
-  basegoerli_rootMessageSents(
+  ): arbitrumsepolia_RootMessageSent
+  arbitrumsepolia_rootMessageSents(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RootMessageSent_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RootMessageSent_filter
+    orderBy: arbitrumsepolia_RootMessageSent_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RootMessageSent_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RootMessageSent!]!
-  basegoerli_relayerFeesIncrease(
+  ): [arbitrumsepolia_RootMessageSent!]!
+  arbitrumsepolia_relayerFeesIncrease(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_RelayerFeesIncrease
-  basegoerli_relayerFeesIncreases(
+  ): arbitrumsepolia_RelayerFeesIncrease
+  arbitrumsepolia_relayerFeesIncreases(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_RelayerFeesIncrease_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_RelayerFeesIncrease_filter
+    orderBy: arbitrumsepolia_RelayerFeesIncrease_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_RelayerFeesIncrease_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_RelayerFeesIncrease!]!
-  basegoerli_slippageUpdate(
+  ): [arbitrumsepolia_RelayerFeesIncrease!]!
+  arbitrumsepolia_slippageUpdate(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SlippageUpdate
-  basegoerli_slippageUpdates(
+  ): arbitrumsepolia_SlippageUpdate
+  arbitrumsepolia_slippageUpdates(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SlippageUpdate_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SlippageUpdate_filter
+    orderBy: arbitrumsepolia_SlippageUpdate_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SlippageUpdate_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SlippageUpdate!]!
-  basegoerli_snapshotRoot(
+  ): [arbitrumsepolia_SlippageUpdate!]!
+  arbitrumsepolia_snapshotRoot(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SnapshotRoot
-  basegoerli_snapshotRoots(
+  ): arbitrumsepolia_SnapshotRoot
+  arbitrumsepolia_snapshotRoots(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SnapshotRoot_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SnapshotRoot_filter
+    orderBy: arbitrumsepolia_SnapshotRoot_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SnapshotRoot_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SnapshotRoot!]!
-  basegoerli_spokeConnectorMode(
+  ): [arbitrumsepolia_SnapshotRoot!]!
+  arbitrumsepolia_spokeConnectorMode(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_SpokeConnectorMode
-  basegoerli_spokeConnectorModes(
+  ): arbitrumsepolia_SpokeConnectorMode
+  arbitrumsepolia_spokeConnectorModes(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_SpokeConnectorMode_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_SpokeConnectorMode_filter
+    orderBy: arbitrumsepolia_SpokeConnectorMode_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_SpokeConnectorMode_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_SpokeConnectorMode!]!
-  basegoerli_aggregateRootProposed(
+  ): [arbitrumsepolia_SpokeConnectorMode!]!
+  arbitrumsepolia_aggregateRootProposed(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_AggregateRootProposed
-  basegoerli_aggregateRootProposeds(
+  ): arbitrumsepolia_AggregateRootProposed
+  arbitrumsepolia_aggregateRootProposeds(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_AggregateRootProposed_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_AggregateRootProposed_filter
+    orderBy: arbitrumsepolia_AggregateRootProposed_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_AggregateRootProposed_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_AggregateRootProposed!]!
-  basegoerli_optimisticRootFinalized(
+  ): [arbitrumsepolia_AggregateRootProposed!]!
+  arbitrumsepolia_optimisticRootFinalized(
     id: ID!
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): basegoerli_OptimisticRootFinalized
-  basegoerli_optimisticRootFinalizeds(
+  ): arbitrumsepolia_OptimisticRootFinalized
+  arbitrumsepolia_optimisticRootFinalizeds(
     skip: Int = 0
     first: Int = 100
-    orderBy: basegoerli_OptimisticRootFinalized_orderBy
-    orderDirection: basegoerli_OrderDirection
-    where: basegoerli_OptimisticRootFinalized_filter
+    orderBy: arbitrumsepolia_OptimisticRootFinalized_orderBy
+    orderDirection: arbitrumsepolia_OrderDirection
+    where: arbitrumsepolia_OptimisticRootFinalized_filter
     """
     The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
     """
-    block: basegoerli_Block_height
+    block: arbitrumsepolia_Block_height
     """
     Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
-  ): [basegoerli_OptimisticRootFinalized!]!
+  ): [arbitrumsepolia_OptimisticRootFinalized!]!
   """Access to subgraph metadata"""
-  basegoerli__meta(block: basegoerli_Block_height): basegoerli__Meta_
+  arbitrumsepolia__meta(block: arbitrumsepolia_Block_height): arbitrumsepolia__Meta_
 }
 
-enum basegoerli_TransferStatus {
+enum arbitrumsepolia_TransferStatus {
   XCalled
   Executed
   Reconciled
@@ -3956,17 +3956,19 @@ enum basegoerli_TransferStatus {
   CompletedFast
 }
 
-type basegoerli__Block_ {
+type arbitrumsepolia__Block_ {
   """The hash of the block"""
-  hash: basegoerli_Bytes
+  hash: arbitrumsepolia_Bytes
   """The block number"""
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: arbitrumsepolia_Bytes
 }
 
 """The type for the top-level _meta field"""
-type basegoerli__Meta_ {
+type arbitrumsepolia__Meta_ {
   """
   Information about a specific subgraph block. The hash of the block
   will be null if the _meta field has a block constraint that asks for
@@ -3974,7 +3976,7 @@ type basegoerli__Meta_ {
   and therefore asks for the latest  block
   
   """
-  block: basegoerli__Block_!
+  block: arbitrumsepolia__Block_!
   """The deployment ID"""
   deployment: String!
   """If `true`, the subgraph encountered indexing errors at some past block"""

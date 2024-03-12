@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextMumbaiTypes {
+export namespace ConnextSepoliaTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,21 +16,21 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  mumbai_BigDecimal: any;
+  sepolia_BigDecimal: any;
   BigInt: any;
-  mumbai_Bytes: any;
-  mumbai_Int8: any;
+  sepolia_Bytes: any;
+  sepolia_Int8: any;
 };
 
-export type mumbai_AggregateRoot = {
+export type sepolia_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['mumbai_Bytes'];
+  root: Scalars['sepolia_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type mumbai_AggregateRootProposed = {
+export type sepolia_AggregateRootProposed = {
   id: Scalars['ID'];
-  aggregateRoot: Scalars['mumbai_Bytes'];
+  aggregateRoot: Scalars['sepolia_Bytes'];
   rootTimestamp: Scalars['BigInt'];
   endOfDispute: Scalars['BigInt'];
   domain: Scalars['BigInt'];
@@ -38,7 +38,7 @@ export type mumbai_AggregateRootProposed = {
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type mumbai_AggregateRootProposed_filter = {
+export type sepolia_AggregateRootProposed_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -47,16 +47,16 @@ export type mumbai_AggregateRootProposed_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  aggregateRoot?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  aggregateRoot_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   rootTimestamp?: InputMaybe<Scalars['BigInt']>;
   rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -98,12 +98,12 @@ export type mumbai_AggregateRootProposed_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_AggregateRootProposed_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_AggregateRootProposed_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_AggregateRootProposed_filter>>>;
 };
 
-export type mumbai_AggregateRootProposed_orderBy =
+export type sepolia_AggregateRootProposed_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'rootTimestamp'
@@ -112,7 +112,7 @@ export type mumbai_AggregateRootProposed_orderBy =
   | 'timestamp'
   | 'blockNumber';
 
-export type mumbai_AggregateRoot_filter = {
+export type sepolia_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -121,16 +121,16 @@ export type mumbai_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -140,45 +140,45 @@ export type mumbai_AggregateRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_AggregateRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_AggregateRoot_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_AggregateRoot_filter>>>;
 };
 
-export type mumbai_AggregateRoot_orderBy =
+export type sepolia_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
 
-export type mumbai_Aggregation_interval =
+export type sepolia_Aggregation_interval =
   | 'hour'
   | 'day';
 
-export type mumbai_Asset = {
+export type sepolia_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['mumbai_Bytes']>;
+  key?: Maybe<Scalars['sepolia_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
   adoptedDecimal?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
+  canonicalId?: Maybe<Scalars['sepolia_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['mumbai_Bytes']>;
-  localAsset?: Maybe<Scalars['mumbai_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['sepolia_Bytes']>;
+  localAsset?: Maybe<Scalars['sepolia_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<mumbai_AssetStatus>;
+  status?: Maybe<sepolia_AssetStatus>;
 };
 
-export type mumbai_AssetBalance = {
+export type sepolia_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   supplied: Scalars['BigInt'];
   removed: Scalars['BigInt'];
-  router: mumbai_Router;
-  asset: mumbai_Asset;
+  router: sepolia_Router;
+  asset: sepolia_Asset;
   feesEarned: Scalars['BigInt'];
 };
 
-export type mumbai_AssetBalance_filter = {
+export type sepolia_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -239,7 +239,7 @@ export type mumbai_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<mumbai_Router_filter>;
+  router_?: InputMaybe<sepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -260,7 +260,7 @@ export type mumbai_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<mumbai_Asset_filter>;
+  asset_?: InputMaybe<sepolia_Asset_filter>;
   feesEarned?: InputMaybe<Scalars['BigInt']>;
   feesEarned_not?: InputMaybe<Scalars['BigInt']>;
   feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
@@ -270,12 +270,12 @@ export type mumbai_AssetBalance_filter = {
   feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_AssetBalance_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_AssetBalance_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_AssetBalance_filter>>>;
 };
 
-export type mumbai_AssetBalance_orderBy =
+export type sepolia_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'locked'
@@ -300,12 +300,12 @@ export type mumbai_AssetBalance_orderBy =
   | 'asset__blockNumber'
   | 'feesEarned';
 
-export type mumbai_AssetStatus = {
+export type sepolia_AssetStatus = {
   id: Scalars['ID'];
   status?: Maybe<Scalars['Boolean']>;
 };
 
-export type mumbai_AssetStatus_filter = {
+export type sepolia_AssetStatus_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -319,16 +319,16 @@ export type mumbai_AssetStatus_filter = {
   status_in?: InputMaybe<Array<Scalars['Boolean']>>;
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_AssetStatus_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_AssetStatus_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_AssetStatus_filter>>>;
 };
 
-export type mumbai_AssetStatus_orderBy =
+export type sepolia_AssetStatus_orderBy =
   | 'id'
   | 'status';
 
-export type mumbai_Asset_filter = {
+export type sepolia_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -337,16 +337,16 @@ export type mumbai_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  key?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   decimal?: InputMaybe<Scalars['BigInt']>;
   decimal_not?: InputMaybe<Scalars['BigInt']>;
   decimal_gt?: InputMaybe<Scalars['BigInt']>;
@@ -363,16 +363,16 @@ export type mumbai_Asset_filter = {
   adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
   adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -381,26 +381,26 @@ export type mumbai_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -429,14 +429,14 @@ export type mumbai_Asset_filter = {
   status_ends_with_nocase?: InputMaybe<Scalars['String']>;
   status_not_ends_with?: InputMaybe<Scalars['String']>;
   status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  status_?: InputMaybe<mumbai_AssetStatus_filter>;
+  status_?: InputMaybe<sepolia_AssetStatus_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_Asset_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_Asset_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_Asset_filter>>>;
 };
 
-export type mumbai_Asset_orderBy =
+export type sepolia_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
@@ -450,26 +450,26 @@ export type mumbai_Asset_orderBy =
   | 'status__id'
   | 'status__status';
 
-export type mumbai_BlockChangedFilter = {
+export type sepolia_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type mumbai_Block_height = {
-  hash?: InputMaybe<Scalars['mumbai_Bytes']>;
+export type sepolia_Block_height = {
+  hash?: InputMaybe<Scalars['sepolia_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type mumbai_ConnectorMeta = {
+export type sepolia_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['mumbai_Bytes']>;
-  rootManager?: Maybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['mumbai_Bytes']>;
+  amb?: Maybe<Scalars['sepolia_Bytes']>;
+  rootManager?: Maybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
-export type mumbai_ConnectorMeta_filter = {
+export type sepolia_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -494,43 +494,43 @@ export type mumbai_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  amb?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_ConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_ConnectorMeta_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_ConnectorMeta_filter>>>;
 };
 
-export type mumbai_ConnectorMeta_orderBy =
+export type sepolia_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -538,57 +538,57 @@ export type mumbai_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type mumbai_DestinationTransfer = {
+export type sepolia_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['mumbai_Bytes']>;
+  transferId?: Maybe<Scalars['sepolia_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<mumbai_TransferStatus>;
-  routers?: Maybe<Array<mumbai_Router>>;
+  status?: Maybe<sepolia_TransferStatus>;
+  routers?: Maybe<Array<sepolia_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['mumbai_Bytes']>;
-  delegate?: Maybe<Scalars['mumbai_Bytes']>;
+  to?: Maybe<Scalars['sepolia_Bytes']>;
+  delegate?: Maybe<Scalars['sepolia_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['mumbai_Bytes']>;
+  callData?: Maybe<Scalars['sepolia_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
   bumpSlippageCount?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['mumbai_Bytes']>;
+  originSender?: Maybe<Scalars['sepolia_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
-  asset?: Maybe<mumbai_Asset>;
+  canonicalId?: Maybe<Scalars['sepolia_Bytes']>;
+  asset?: Maybe<sepolia_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  executedCaller?: Maybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['sepolia_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedTxOrigin?: Maybe<Scalars['mumbai_Bytes']>;
+  executedTxOrigin?: Maybe<Scalars['sepolia_Bytes']>;
   executedTxNonce?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['sepolia_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledTxOrigin?: Maybe<Scalars['mumbai_Bytes']>;
+  reconciledTxOrigin?: Maybe<Scalars['sepolia_Bytes']>;
   reconciledTxNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type mumbai_DestinationTransferroutersArgs = {
+export type sepolia_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Router_filter>;
+  orderBy?: InputMaybe<sepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Router_filter>;
 };
 
-export type mumbai_DestinationTransfer_filter = {
+export type sepolia_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -605,16 +605,16 @@ export type mumbai_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -623,17 +623,17 @@ export type mumbai_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<mumbai_TransferStatus>;
-  status_not?: InputMaybe<mumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<mumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<mumbai_TransferStatus>>;
+  status?: InputMaybe<sepolia_TransferStatus>;
+  status_not?: InputMaybe<sepolia_TransferStatus>;
+  status_in?: InputMaybe<Array<sepolia_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<sepolia_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<mumbai_Router_filter>;
+  routers_?: InputMaybe<sepolia_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -658,40 +658,40 @@ export type mumbai_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  to?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -708,16 +708,16 @@ export type mumbai_DestinationTransfer_filter = {
   bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  originSender?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -734,16 +734,16 @@ export type mumbai_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -764,7 +764,7 @@ export type mumbai_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<mumbai_Asset_filter>;
+  asset_?: InputMaybe<sepolia_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -781,26 +781,26 @@ export type mumbai_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -833,16 +833,16 @@ export type mumbai_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTxOrigin?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  executedTxOrigin_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  executedTxOrigin_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  executedTxOrigin?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   executedTxNonce?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -851,26 +851,26 @@ export type mumbai_DestinationTransfer_filter = {
   executedTxNonce_lte?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -903,16 +903,16 @@ export type mumbai_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTxOrigin?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  reconciledTxOrigin_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  reconciledTxOrigin?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   reconciledTxNonce?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -922,12 +922,12 @@ export type mumbai_DestinationTransfer_filter = {
   reconciledTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_DestinationTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_DestinationTransfer_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_DestinationTransfer_filter>>>;
 };
 
-export type mumbai_DestinationTransfer_orderBy =
+export type sepolia_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -976,14 +976,14 @@ export type mumbai_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
-export type mumbai_OptimisticRootFinalized = {
+export type sepolia_OptimisticRootFinalized = {
   id: Scalars['ID'];
-  aggregateRoot: Scalars['mumbai_Bytes'];
+  aggregateRoot: Scalars['sepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type mumbai_OptimisticRootFinalized_filter = {
+export type sepolia_OptimisticRootFinalized_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -992,16 +992,16 @@ export type mumbai_OptimisticRootFinalized_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  aggregateRoot?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  aggregateRoot_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  aggregateRoot_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  aggregateRoot_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  aggregateRoot?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1019,36 +1019,36 @@ export type mumbai_OptimisticRootFinalized_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_OptimisticRootFinalized_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_OptimisticRootFinalized_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_OptimisticRootFinalized_filter>>>;
 };
 
-export type mumbai_OptimisticRootFinalized_orderBy =
+export type sepolia_OptimisticRootFinalized_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'timestamp'
   | 'blockNumber';
 
 /** Defines the order direction, either ascending or descending */
-export type mumbai_OrderDirection =
+export type sepolia_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type mumbai_OriginMessage = {
+export type sepolia_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['mumbai_Bytes']>;
+  transferId?: Maybe<Scalars['sepolia_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['mumbai_Bytes']>;
+  leaf?: Maybe<Scalars['sepolia_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<Scalars['mumbai_Bytes']>;
-  root?: Maybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  message?: Maybe<Scalars['sepolia_Bytes']>;
+  root?: Maybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['sepolia_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<mumbai_RootCount>;
+  rootCount?: Maybe<sepolia_RootCount>;
 };
 
-export type mumbai_OriginMessage_filter = {
+export type sepolia_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1057,16 +1057,16 @@ export type mumbai_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1075,16 +1075,16 @@ export type mumbai_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  leaf?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1093,36 +1093,36 @@ export type mumbai_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  message?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1151,14 +1151,14 @@ export type mumbai_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<mumbai_RootCount_filter>;
+  rootCount_?: InputMaybe<sepolia_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_OriginMessage_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_OriginMessage_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_OriginMessage_filter>>>;
 };
 
-export type mumbai_OriginMessage_orderBy =
+export type sepolia_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -1172,51 +1172,51 @@ export type mumbai_OriginMessage_orderBy =
   | 'rootCount__id'
   | 'rootCount__count';
 
-export type mumbai_OriginTransfer = {
+export type sepolia_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['mumbai_Bytes']>;
+  transferId?: Maybe<Scalars['sepolia_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<mumbai_TransferStatus>;
-  messageHash?: Maybe<Scalars['mumbai_Bytes']>;
+  status?: Maybe<sepolia_TransferStatus>;
+  messageHash?: Maybe<Scalars['sepolia_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['mumbai_Bytes']>;
-  delegate?: Maybe<Scalars['mumbai_Bytes']>;
+  to?: Maybe<Scalars['sepolia_Bytes']>;
+  delegate?: Maybe<Scalars['sepolia_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['mumbai_Bytes']>;
+  callData?: Maybe<Scalars['sepolia_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['mumbai_Bytes']>;
+  originSender?: Maybe<Scalars['sepolia_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['mumbai_Bytes']>;
-  asset?: Maybe<mumbai_Asset>;
-  transactingAsset?: Maybe<Scalars['mumbai_Bytes']>;
-  message?: Maybe<mumbai_OriginMessage>;
+  canonicalId?: Maybe<Scalars['sepolia_Bytes']>;
+  asset?: Maybe<sepolia_Asset>;
+  transactingAsset?: Maybe<Scalars['sepolia_Bytes']>;
+  message?: Maybe<sepolia_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
-  relayerFees?: Maybe<Array<mumbai_RelayerFee>>;
-  initialRelayerFeeAsset?: Maybe<Scalars['mumbai_Bytes']>;
-  caller?: Maybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  relayerFees?: Maybe<Array<sepolia_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['sepolia_Bytes']>;
+  caller?: Maybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['sepolia_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  txOrigin?: Maybe<Scalars['mumbai_Bytes']>;
+  txOrigin?: Maybe<Scalars['sepolia_Bytes']>;
   txNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type mumbai_OriginTransferrelayerFeesArgs = {
+export type sepolia_OriginTransferrelayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RelayerFee_filter>;
+  orderBy?: InputMaybe<sepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RelayerFee_filter>;
 };
 
-export type mumbai_OriginTransfer_filter = {
+export type sepolia_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1233,16 +1233,16 @@ export type mumbai_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transferId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1251,20 +1251,20 @@ export type mumbai_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<mumbai_TransferStatus>;
-  status_not?: InputMaybe<mumbai_TransferStatus>;
-  status_in?: InputMaybe<Array<mumbai_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<mumbai_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  status?: InputMaybe<sepolia_TransferStatus>;
+  status_not?: InputMaybe<sepolia_TransferStatus>;
+  status_in?: InputMaybe<Array<sepolia_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<sepolia_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1289,40 +1289,40 @@ export type mumbai_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  to?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  callData?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1331,16 +1331,16 @@ export type mumbai_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  originSender?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1357,16 +1357,16 @@ export type mumbai_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -1387,17 +1387,17 @@ export type mumbai_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<mumbai_Asset_filter>;
-  transactingAsset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  asset_?: InputMaybe<sepolia_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1418,7 +1418,7 @@ export type mumbai_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<mumbai_OriginMessage_filter>;
+  message_?: InputMaybe<sepolia_OriginMessage_filter>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1433,37 +1433,37 @@ export type mumbai_OriginTransfer_filter = {
   relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  relayerFees_?: InputMaybe<mumbai_RelayerFee_filter>;
-  initialRelayerFeeAsset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  relayerFees_?: InputMaybe<sepolia_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1496,16 +1496,16 @@ export type mumbai_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  txOrigin?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  txOrigin_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  txOrigin_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  txOrigin_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  txOrigin?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   txNonce?: InputMaybe<Scalars['BigInt']>;
   txNonce_not?: InputMaybe<Scalars['BigInt']>;
   txNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1515,12 +1515,12 @@ export type mumbai_OriginTransfer_filter = {
   txNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_OriginTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_OriginTransfer_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_OriginTransfer_filter>>>;
 };
 
-export type mumbai_OriginTransfer_orderBy =
+export type sepolia_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1573,489 +1573,489 @@ export type mumbai_OriginTransfer_orderBy =
   | 'txNonce';
 
 export type Query = {
-  mumbai_asset?: Maybe<mumbai_Asset>;
-  mumbai_assets: Array<mumbai_Asset>;
-  mumbai_assetStatus?: Maybe<mumbai_AssetStatus>;
-  mumbai_assetStatuses: Array<mumbai_AssetStatus>;
-  mumbai_assetBalance?: Maybe<mumbai_AssetBalance>;
-  mumbai_assetBalances: Array<mumbai_AssetBalance>;
-  mumbai_router?: Maybe<mumbai_Router>;
-  mumbai_routers: Array<mumbai_Router>;
-  mumbai_routerDailyTVL?: Maybe<mumbai_RouterDailyTVL>;
-  mumbai_routerDailyTVLs: Array<mumbai_RouterDailyTVL>;
-  mumbai_routerLiquidityEvent?: Maybe<mumbai_RouterLiquidityEvent>;
-  mumbai_routerLiquidityEvents: Array<mumbai_RouterLiquidityEvent>;
-  mumbai_setting?: Maybe<mumbai_Setting>;
-  mumbai_settings: Array<mumbai_Setting>;
-  mumbai_relayer?: Maybe<mumbai_Relayer>;
-  mumbai_relayers: Array<mumbai_Relayer>;
-  mumbai_sequencer?: Maybe<mumbai_Sequencer>;
-  mumbai_sequencers: Array<mumbai_Sequencer>;
-  mumbai_relayerFee?: Maybe<mumbai_RelayerFee>;
-  mumbai_relayerFees: Array<mumbai_RelayerFee>;
-  mumbai_originTransfer?: Maybe<mumbai_OriginTransfer>;
-  mumbai_originTransfers: Array<mumbai_OriginTransfer>;
-  mumbai_destinationTransfer?: Maybe<mumbai_DestinationTransfer>;
-  mumbai_destinationTransfers: Array<mumbai_DestinationTransfer>;
-  mumbai_originMessage?: Maybe<mumbai_OriginMessage>;
-  mumbai_originMessages: Array<mumbai_OriginMessage>;
-  mumbai_aggregateRoot?: Maybe<mumbai_AggregateRoot>;
-  mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
-  mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
-  mumbai_connectorMetas: Array<mumbai_ConnectorMeta>;
-  mumbai_rootCount?: Maybe<mumbai_RootCount>;
-  mumbai_rootCounts: Array<mumbai_RootCount>;
-  mumbai_rootMessageSent?: Maybe<mumbai_RootMessageSent>;
-  mumbai_rootMessageSents: Array<mumbai_RootMessageSent>;
-  mumbai_relayerFeesIncrease?: Maybe<mumbai_RelayerFeesIncrease>;
-  mumbai_relayerFeesIncreases: Array<mumbai_RelayerFeesIncrease>;
-  mumbai_slippageUpdate?: Maybe<mumbai_SlippageUpdate>;
-  mumbai_slippageUpdates: Array<mumbai_SlippageUpdate>;
-  mumbai_snapshotRoot?: Maybe<mumbai_SnapshotRoot>;
-  mumbai_snapshotRoots: Array<mumbai_SnapshotRoot>;
-  mumbai_spokeConnectorMode?: Maybe<mumbai_SpokeConnectorMode>;
-  mumbai_spokeConnectorModes: Array<mumbai_SpokeConnectorMode>;
-  mumbai_aggregateRootProposed?: Maybe<mumbai_AggregateRootProposed>;
-  mumbai_aggregateRootProposeds: Array<mumbai_AggregateRootProposed>;
-  mumbai_optimisticRootFinalized?: Maybe<mumbai_OptimisticRootFinalized>;
-  mumbai_optimisticRootFinalizeds: Array<mumbai_OptimisticRootFinalized>;
+  sepolia_asset?: Maybe<sepolia_Asset>;
+  sepolia_assets: Array<sepolia_Asset>;
+  sepolia_assetStatus?: Maybe<sepolia_AssetStatus>;
+  sepolia_assetStatuses: Array<sepolia_AssetStatus>;
+  sepolia_assetBalance?: Maybe<sepolia_AssetBalance>;
+  sepolia_assetBalances: Array<sepolia_AssetBalance>;
+  sepolia_router?: Maybe<sepolia_Router>;
+  sepolia_routers: Array<sepolia_Router>;
+  sepolia_routerDailyTVL?: Maybe<sepolia_RouterDailyTVL>;
+  sepolia_routerDailyTVLs: Array<sepolia_RouterDailyTVL>;
+  sepolia_routerLiquidityEvent?: Maybe<sepolia_RouterLiquidityEvent>;
+  sepolia_routerLiquidityEvents: Array<sepolia_RouterLiquidityEvent>;
+  sepolia_setting?: Maybe<sepolia_Setting>;
+  sepolia_settings: Array<sepolia_Setting>;
+  sepolia_relayer?: Maybe<sepolia_Relayer>;
+  sepolia_relayers: Array<sepolia_Relayer>;
+  sepolia_sequencer?: Maybe<sepolia_Sequencer>;
+  sepolia_sequencers: Array<sepolia_Sequencer>;
+  sepolia_relayerFee?: Maybe<sepolia_RelayerFee>;
+  sepolia_relayerFees: Array<sepolia_RelayerFee>;
+  sepolia_originTransfer?: Maybe<sepolia_OriginTransfer>;
+  sepolia_originTransfers: Array<sepolia_OriginTransfer>;
+  sepolia_destinationTransfer?: Maybe<sepolia_DestinationTransfer>;
+  sepolia_destinationTransfers: Array<sepolia_DestinationTransfer>;
+  sepolia_originMessage?: Maybe<sepolia_OriginMessage>;
+  sepolia_originMessages: Array<sepolia_OriginMessage>;
+  sepolia_aggregateRoot?: Maybe<sepolia_AggregateRoot>;
+  sepolia_aggregateRoots: Array<sepolia_AggregateRoot>;
+  sepolia_connectorMeta?: Maybe<sepolia_ConnectorMeta>;
+  sepolia_connectorMetas: Array<sepolia_ConnectorMeta>;
+  sepolia_rootCount?: Maybe<sepolia_RootCount>;
+  sepolia_rootCounts: Array<sepolia_RootCount>;
+  sepolia_rootMessageSent?: Maybe<sepolia_RootMessageSent>;
+  sepolia_rootMessageSents: Array<sepolia_RootMessageSent>;
+  sepolia_relayerFeesIncrease?: Maybe<sepolia_RelayerFeesIncrease>;
+  sepolia_relayerFeesIncreases: Array<sepolia_RelayerFeesIncrease>;
+  sepolia_slippageUpdate?: Maybe<sepolia_SlippageUpdate>;
+  sepolia_slippageUpdates: Array<sepolia_SlippageUpdate>;
+  sepolia_snapshotRoot?: Maybe<sepolia_SnapshotRoot>;
+  sepolia_snapshotRoots: Array<sepolia_SnapshotRoot>;
+  sepolia_spokeConnectorMode?: Maybe<sepolia_SpokeConnectorMode>;
+  sepolia_spokeConnectorModes: Array<sepolia_SpokeConnectorMode>;
+  sepolia_aggregateRootProposed?: Maybe<sepolia_AggregateRootProposed>;
+  sepolia_aggregateRootProposeds: Array<sepolia_AggregateRootProposed>;
+  sepolia_optimisticRootFinalized?: Maybe<sepolia_OptimisticRootFinalized>;
+  sepolia_optimisticRootFinalizeds: Array<sepolia_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
-  mumbai__meta?: Maybe<mumbai__Meta_>;
+  sepolia__meta?: Maybe<sepolia__Meta_>;
 };
 
 
-export type Querymumbai_assetArgs = {
+export type Querysepolia_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_assetsArgs = {
+export type Querysepolia_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Asset_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Asset_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Asset_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_assetStatusArgs = {
+export type Querysepolia_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_assetStatusesArgs = {
+export type Querysepolia_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AssetStatus_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AssetStatus_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_assetBalanceArgs = {
+export type Querysepolia_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_assetBalancesArgs = {
+export type Querysepolia_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AssetBalance_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AssetBalance_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routerArgs = {
+export type Querysepolia_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routersArgs = {
+export type Querysepolia_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Router_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Router_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routerDailyTVLArgs = {
+export type Querysepolia_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routerDailyTVLsArgs = {
+export type Querysepolia_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RouterDailyTVL_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RouterDailyTVL_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routerLiquidityEventArgs = {
+export type Querysepolia_routerLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_routerLiquidityEventsArgs = {
+export type Querysepolia_routerLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RouterLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RouterLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RouterLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_settingArgs = {
+export type Querysepolia_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_settingsArgs = {
+export type Querysepolia_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Setting_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Setting_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Setting_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayerArgs = {
+export type Querysepolia_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayersArgs = {
+export type Querysepolia_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Relayer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Relayer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Relayer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_sequencerArgs = {
+export type Querysepolia_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_sequencersArgs = {
+export type Querysepolia_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Sequencer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Sequencer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayerFeeArgs = {
+export type Querysepolia_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayerFeesArgs = {
+export type Querysepolia_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RelayerFee_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RelayerFee_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_originTransferArgs = {
+export type Querysepolia_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_originTransfersArgs = {
+export type Querysepolia_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OriginTransfer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OriginTransfer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_destinationTransferArgs = {
+export type Querysepolia_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_destinationTransfersArgs = {
+export type Querysepolia_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_DestinationTransfer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_originMessageArgs = {
+export type Querysepolia_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_originMessagesArgs = {
+export type Querysepolia_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OriginMessage_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OriginMessage_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_aggregateRootArgs = {
+export type Querysepolia_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_aggregateRootsArgs = {
+export type Querysepolia_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AggregateRoot_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AggregateRoot_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_connectorMetaArgs = {
+export type Querysepolia_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_connectorMetasArgs = {
+export type Querysepolia_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_rootCountArgs = {
+export type Querysepolia_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_rootCountsArgs = {
+export type Querysepolia_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RootCount_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RootCount_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RootCount_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RootCount_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_rootMessageSentArgs = {
+export type Querysepolia_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_rootMessageSentsArgs = {
+export type Querysepolia_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RootMessageSent_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RootMessageSent_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayerFeesIncreaseArgs = {
+export type Querysepolia_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_relayerFeesIncreasesArgs = {
+export type Querysepolia_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_slippageUpdateArgs = {
+export type Querysepolia_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_slippageUpdatesArgs = {
+export type Querysepolia_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SlippageUpdate_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SlippageUpdate_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_snapshotRootArgs = {
+export type Querysepolia_snapshotRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_snapshotRootsArgs = {
+export type Querysepolia_snapshotRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SnapshotRoot_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SnapshotRoot_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_spokeConnectorModeArgs = {
+export type Querysepolia_spokeConnectorModeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_spokeConnectorModesArgs = {
+export type Querysepolia_spokeConnectorModesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SpokeConnectorMode_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SpokeConnectorMode_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SpokeConnectorMode_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_aggregateRootProposedArgs = {
+export type Querysepolia_aggregateRootProposedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_aggregateRootProposedsArgs = {
+export type Querysepolia_aggregateRootProposedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AggregateRootProposed_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AggregateRootProposed_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AggregateRootProposed_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_optimisticRootFinalizedArgs = {
+export type Querysepolia_optimisticRootFinalizedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_optimisticRootFinalizedsArgs = {
+export type Querysepolia_optimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OptimisticRootFinalized_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OptimisticRootFinalized_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai__metaArgs = {
-  block?: InputMaybe<mumbai_Block_height>;
+export type Querysepolia__metaArgs = {
+  block?: InputMaybe<sepolia_Block_height>;
 };
 
-export type mumbai_Relayer = {
+export type sepolia_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['mumbai_Bytes']>;
+  relayer?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
-export type mumbai_RelayerFee = {
+export type sepolia_RelayerFee = {
   id: Scalars['ID'];
-  transfer: mumbai_OriginTransfer;
+  transfer: sepolia_OriginTransfer;
   fee: Scalars['BigInt'];
-  asset: Scalars['mumbai_Bytes'];
+  asset: Scalars['sepolia_Bytes'];
 };
 
-export type mumbai_RelayerFee_filter = {
+export type sepolia_RelayerFee_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2084,7 +2084,7 @@ export type mumbai_RelayerFee_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<mumbai_OriginTransfer_filter>;
+  transfer_?: InputMaybe<sepolia_OriginTransfer_filter>;
   fee?: InputMaybe<Scalars['BigInt']>;
   fee_not?: InputMaybe<Scalars['BigInt']>;
   fee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2093,23 +2093,23 @@ export type mumbai_RelayerFee_filter = {
   fee_lte?: InputMaybe<Scalars['BigInt']>;
   fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  asset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RelayerFee_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RelayerFee_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RelayerFee_filter>>>;
 };
 
-export type mumbai_RelayerFee_orderBy =
+export type sepolia_RelayerFee_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -2144,20 +2144,20 @@ export type mumbai_RelayerFee_orderBy =
   | 'fee'
   | 'asset';
 
-export type mumbai_RelayerFeesIncrease = {
+export type sepolia_RelayerFeesIncrease = {
   id: Scalars['ID'];
-  transfer: mumbai_OriginTransfer;
+  transfer: sepolia_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
-  asset?: Maybe<Scalars['mumbai_Bytes']>;
-  caller: Scalars['mumbai_Bytes'];
-  transactionHash: Scalars['mumbai_Bytes'];
+  asset?: Maybe<Scalars['sepolia_Bytes']>;
+  caller: Scalars['sepolia_Bytes'];
+  transactionHash: Scalars['sepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type mumbai_RelayerFeesIncrease_filter = {
+export type sepolia_RelayerFeesIncrease_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2186,7 +2186,7 @@ export type mumbai_RelayerFeesIncrease_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<mumbai_OriginTransfer_filter>;
+  transfer_?: InputMaybe<sepolia_OriginTransfer_filter>;
   increase?: InputMaybe<Scalars['BigInt']>;
   increase_not?: InputMaybe<Scalars['BigInt']>;
   increase_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2195,36 +2195,36 @@ export type mumbai_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  asset?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2258,12 +2258,12 @@ export type mumbai_RelayerFeesIncrease_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RelayerFeesIncrease_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RelayerFeesIncrease_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RelayerFeesIncrease_filter>>>;
 };
 
-export type mumbai_RelayerFeesIncrease_orderBy =
+export type sepolia_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -2304,7 +2304,7 @@ export type mumbai_RelayerFeesIncrease_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type mumbai_Relayer_filter = {
+export type sepolia_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2317,33 +2317,33 @@ export type mumbai_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  relayer?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_Relayer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_Relayer_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_Relayer_filter>>>;
 };
 
-export type mumbai_Relayer_orderBy =
+export type sepolia_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type mumbai_RootCount = {
+export type sepolia_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type mumbai_RootCount_filter = {
+export type sepolia_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2361,30 +2361,30 @@ export type mumbai_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RootCount_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RootCount_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RootCount_filter>>>;
 };
 
-export type mumbai_RootCount_orderBy =
+export type sepolia_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type mumbai_RootMessageSent = {
+export type sepolia_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['mumbai_Bytes']>;
+  root?: Maybe<Scalars['sepolia_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: Maybe<Scalars['mumbai_Bytes']>;
+  caller?: Maybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['sepolia_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type mumbai_RootMessageSent_filter = {
+export type sepolia_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2409,16 +2409,16 @@ export type mumbai_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2427,26 +2427,26 @@ export type mumbai_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2480,12 +2480,12 @@ export type mumbai_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RootMessageSent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RootMessageSent_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RootMessageSent_filter>>>;
 };
 
-export type mumbai_RootMessageSent_orderBy =
+export type sepolia_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -2498,34 +2498,34 @@ export type mumbai_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type mumbai_Router = {
+export type sepolia_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['mumbai_Bytes']>;
-  recipient?: Maybe<Scalars['mumbai_Bytes']>;
-  proposedOwner?: Maybe<Scalars['mumbai_Bytes']>;
+  owner?: Maybe<Scalars['sepolia_Bytes']>;
+  recipient?: Maybe<Scalars['sepolia_Bytes']>;
+  proposedOwner?: Maybe<Scalars['sepolia_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<mumbai_AssetBalance>;
+  assetBalances: Array<sepolia_AssetBalance>;
 };
 
 
-export type mumbai_RouterassetBalancesArgs = {
+export type sepolia_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AssetBalance_filter>;
+  orderBy?: InputMaybe<sepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AssetBalance_filter>;
 };
 
-export type mumbai_RouterDailyTVL = {
+export type sepolia_RouterDailyTVL = {
   id: Scalars['ID'];
-  router: mumbai_Router;
-  asset: mumbai_Asset;
+  router: sepolia_Router;
+  asset: sepolia_Asset;
   timestamp: Scalars['BigInt'];
   balance: Scalars['BigInt'];
 };
 
-export type mumbai_RouterDailyTVL_filter = {
+export type sepolia_RouterDailyTVL_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2554,7 +2554,7 @@ export type mumbai_RouterDailyTVL_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<mumbai_Router_filter>;
+  router_?: InputMaybe<sepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2575,7 +2575,7 @@ export type mumbai_RouterDailyTVL_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<mumbai_Asset_filter>;
+  asset_?: InputMaybe<sepolia_Asset_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2593,12 +2593,12 @@ export type mumbai_RouterDailyTVL_filter = {
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RouterDailyTVL_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RouterDailyTVL_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RouterDailyTVL_filter>>>;
 };
 
-export type mumbai_RouterDailyTVL_orderBy =
+export type sepolia_RouterDailyTVL_orderBy =
   | 'id'
   | 'router'
   | 'router__id'
@@ -2620,25 +2620,25 @@ export type mumbai_RouterDailyTVL_orderBy =
   | 'timestamp'
   | 'balance';
 
-export type mumbai_RouterLiquidityEvent = {
+export type sepolia_RouterLiquidityEvent = {
   id: Scalars['ID'];
-  type?: Maybe<mumbai_RouterLiquidityEventType>;
-  router: mumbai_Router;
-  asset: mumbai_Asset;
+  type?: Maybe<sepolia_RouterLiquidityEventType>;
+  router: sepolia_Router;
+  asset: sepolia_Asset;
   amount: Scalars['BigInt'];
   balance: Scalars['BigInt'];
-  caller?: Maybe<Scalars['mumbai_Bytes']>;
+  caller?: Maybe<Scalars['sepolia_Bytes']>;
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transactionHash: Scalars['mumbai_Bytes'];
+  transactionHash: Scalars['sepolia_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_RouterLiquidityEventType =
+export type sepolia_RouterLiquidityEventType =
   | 'Add'
   | 'Remove';
 
-export type mumbai_RouterLiquidityEvent_filter = {
+export type sepolia_RouterLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2647,10 +2647,10 @@ export type mumbai_RouterLiquidityEvent_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  type?: InputMaybe<mumbai_RouterLiquidityEventType>;
-  type_not?: InputMaybe<mumbai_RouterLiquidityEventType>;
-  type_in?: InputMaybe<Array<mumbai_RouterLiquidityEventType>>;
-  type_not_in?: InputMaybe<Array<mumbai_RouterLiquidityEventType>>;
+  type?: InputMaybe<sepolia_RouterLiquidityEventType>;
+  type_not?: InputMaybe<sepolia_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<sepolia_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<sepolia_RouterLiquidityEventType>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -2671,7 +2671,7 @@ export type mumbai_RouterLiquidityEvent_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<mumbai_Router_filter>;
+  router_?: InputMaybe<sepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2692,7 +2692,7 @@ export type mumbai_RouterLiquidityEvent_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<mumbai_Asset_filter>;
+  asset_?: InputMaybe<sepolia_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2709,16 +2709,16 @@ export type mumbai_RouterLiquidityEvent_filter = {
   balance_lte?: InputMaybe<Scalars['BigInt']>;
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2735,16 +2735,16 @@ export type mumbai_RouterLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2754,12 +2754,12 @@ export type mumbai_RouterLiquidityEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_RouterLiquidityEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_RouterLiquidityEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_RouterLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_RouterLiquidityEvent_filter>>>;
 };
 
-export type mumbai_RouterLiquidityEvent_orderBy =
+export type sepolia_RouterLiquidityEvent_orderBy =
   | 'id'
   | 'type'
   | 'router'
@@ -2787,7 +2787,7 @@ export type mumbai_RouterLiquidityEvent_orderBy =
   | 'transactionHash'
   | 'nonce';
 
-export type mumbai_Router_filter = {
+export type sepolia_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2800,36 +2800,36 @@ export type mumbai_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  owner?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2838,14 +2838,14 @@ export type mumbai_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<mumbai_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<sepolia_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_Router_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_Router_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_Router_filter>>>;
 };
 
-export type mumbai_Router_orderBy =
+export type sepolia_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -2854,13 +2854,13 @@ export type mumbai_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type mumbai_Sequencer = {
+export type sepolia_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['mumbai_Bytes']>;
+  sequencer?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
-export type mumbai_Sequencer_filter = {
+export type sepolia_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2873,34 +2873,34 @@ export type mumbai_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  sequencer?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_Sequencer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_Sequencer_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_Sequencer_filter>>>;
 };
 
-export type mumbai_Sequencer_orderBy =
+export type sepolia_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type mumbai_Setting = {
+export type sepolia_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['mumbai_Bytes'];
+  caller: Scalars['sepolia_Bytes'];
 };
 
-export type mumbai_Setting_filter = {
+export type sepolia_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2917,40 +2917,40 @@ export type mumbai_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_Setting_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_Setting_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_Setting_filter>>>;
 };
 
-export type mumbai_Setting_orderBy =
+export type sepolia_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type mumbai_SlippageUpdate = {
+export type sepolia_SlippageUpdate = {
   id: Scalars['ID'];
-  transfer: mumbai_DestinationTransfer;
+  transfer: sepolia_DestinationTransfer;
   slippage: Scalars['BigInt'];
-  caller: Scalars['mumbai_Bytes'];
-  transactionHash: Scalars['mumbai_Bytes'];
+  caller: Scalars['sepolia_Bytes'];
+  transactionHash: Scalars['sepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type mumbai_SlippageUpdate_filter = {
+export type sepolia_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2979,7 +2979,7 @@ export type mumbai_SlippageUpdate_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<mumbai_DestinationTransfer_filter>;
+  transfer_?: InputMaybe<sepolia_DestinationTransfer_filter>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2988,26 +2988,26 @@ export type mumbai_SlippageUpdate_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  caller?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3041,12 +3041,12 @@ export type mumbai_SlippageUpdate_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_SlippageUpdate_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_SlippageUpdate_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_SlippageUpdate_filter>>>;
 };
 
-export type mumbai_SlippageUpdate_orderBy =
+export type sepolia_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -3093,16 +3093,16 @@ export type mumbai_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type mumbai_SnapshotRoot = {
+export type sepolia_SnapshotRoot = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
-  root: Scalars['mumbai_Bytes'];
+  root: Scalars['sepolia_Bytes'];
   count: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type mumbai_SnapshotRoot_filter = {
+export type sepolia_SnapshotRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3119,16 +3119,16 @@ export type mumbai_SnapshotRoot_filter = {
   spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
   spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lt?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_gte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_lte?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['mumbai_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['mumbai_Bytes']>;
+  root?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3154,12 +3154,12 @@ export type mumbai_SnapshotRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_SnapshotRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_SnapshotRoot_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_SnapshotRoot_filter>>>;
 };
 
-export type mumbai_SnapshotRoot_orderBy =
+export type sepolia_SnapshotRoot_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'root'
@@ -3167,12 +3167,12 @@ export type mumbai_SnapshotRoot_orderBy =
   | 'timestamp'
   | 'blockNumber';
 
-export type mumbai_SpokeConnectorMode = {
+export type sepolia_SpokeConnectorMode = {
   id: Scalars['ID'];
   mode: Scalars['String'];
 };
 
-export type mumbai_SpokeConnectorMode_filter = {
+export type sepolia_SpokeConnectorMode_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3202,503 +3202,505 @@ export type mumbai_SpokeConnectorMode_filter = {
   mode_not_ends_with?: InputMaybe<Scalars['String']>;
   mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_SpokeConnectorMode_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_SpokeConnectorMode_filter>>>;
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_SpokeConnectorMode_filter>>>;
 };
 
-export type mumbai_SpokeConnectorMode_orderBy =
+export type sepolia_SpokeConnectorMode_orderBy =
   | 'id'
   | 'mode';
 
 export type Subscription = {
-  mumbai_asset?: Maybe<mumbai_Asset>;
-  mumbai_assets: Array<mumbai_Asset>;
-  mumbai_assetStatus?: Maybe<mumbai_AssetStatus>;
-  mumbai_assetStatuses: Array<mumbai_AssetStatus>;
-  mumbai_assetBalance?: Maybe<mumbai_AssetBalance>;
-  mumbai_assetBalances: Array<mumbai_AssetBalance>;
-  mumbai_router?: Maybe<mumbai_Router>;
-  mumbai_routers: Array<mumbai_Router>;
-  mumbai_routerDailyTVL?: Maybe<mumbai_RouterDailyTVL>;
-  mumbai_routerDailyTVLs: Array<mumbai_RouterDailyTVL>;
-  mumbai_routerLiquidityEvent?: Maybe<mumbai_RouterLiquidityEvent>;
-  mumbai_routerLiquidityEvents: Array<mumbai_RouterLiquidityEvent>;
-  mumbai_setting?: Maybe<mumbai_Setting>;
-  mumbai_settings: Array<mumbai_Setting>;
-  mumbai_relayer?: Maybe<mumbai_Relayer>;
-  mumbai_relayers: Array<mumbai_Relayer>;
-  mumbai_sequencer?: Maybe<mumbai_Sequencer>;
-  mumbai_sequencers: Array<mumbai_Sequencer>;
-  mumbai_relayerFee?: Maybe<mumbai_RelayerFee>;
-  mumbai_relayerFees: Array<mumbai_RelayerFee>;
-  mumbai_originTransfer?: Maybe<mumbai_OriginTransfer>;
-  mumbai_originTransfers: Array<mumbai_OriginTransfer>;
-  mumbai_destinationTransfer?: Maybe<mumbai_DestinationTransfer>;
-  mumbai_destinationTransfers: Array<mumbai_DestinationTransfer>;
-  mumbai_originMessage?: Maybe<mumbai_OriginMessage>;
-  mumbai_originMessages: Array<mumbai_OriginMessage>;
-  mumbai_aggregateRoot?: Maybe<mumbai_AggregateRoot>;
-  mumbai_aggregateRoots: Array<mumbai_AggregateRoot>;
-  mumbai_connectorMeta?: Maybe<mumbai_ConnectorMeta>;
-  mumbai_connectorMetas: Array<mumbai_ConnectorMeta>;
-  mumbai_rootCount?: Maybe<mumbai_RootCount>;
-  mumbai_rootCounts: Array<mumbai_RootCount>;
-  mumbai_rootMessageSent?: Maybe<mumbai_RootMessageSent>;
-  mumbai_rootMessageSents: Array<mumbai_RootMessageSent>;
-  mumbai_relayerFeesIncrease?: Maybe<mumbai_RelayerFeesIncrease>;
-  mumbai_relayerFeesIncreases: Array<mumbai_RelayerFeesIncrease>;
-  mumbai_slippageUpdate?: Maybe<mumbai_SlippageUpdate>;
-  mumbai_slippageUpdates: Array<mumbai_SlippageUpdate>;
-  mumbai_snapshotRoot?: Maybe<mumbai_SnapshotRoot>;
-  mumbai_snapshotRoots: Array<mumbai_SnapshotRoot>;
-  mumbai_spokeConnectorMode?: Maybe<mumbai_SpokeConnectorMode>;
-  mumbai_spokeConnectorModes: Array<mumbai_SpokeConnectorMode>;
-  mumbai_aggregateRootProposed?: Maybe<mumbai_AggregateRootProposed>;
-  mumbai_aggregateRootProposeds: Array<mumbai_AggregateRootProposed>;
-  mumbai_optimisticRootFinalized?: Maybe<mumbai_OptimisticRootFinalized>;
-  mumbai_optimisticRootFinalizeds: Array<mumbai_OptimisticRootFinalized>;
+  sepolia_asset?: Maybe<sepolia_Asset>;
+  sepolia_assets: Array<sepolia_Asset>;
+  sepolia_assetStatus?: Maybe<sepolia_AssetStatus>;
+  sepolia_assetStatuses: Array<sepolia_AssetStatus>;
+  sepolia_assetBalance?: Maybe<sepolia_AssetBalance>;
+  sepolia_assetBalances: Array<sepolia_AssetBalance>;
+  sepolia_router?: Maybe<sepolia_Router>;
+  sepolia_routers: Array<sepolia_Router>;
+  sepolia_routerDailyTVL?: Maybe<sepolia_RouterDailyTVL>;
+  sepolia_routerDailyTVLs: Array<sepolia_RouterDailyTVL>;
+  sepolia_routerLiquidityEvent?: Maybe<sepolia_RouterLiquidityEvent>;
+  sepolia_routerLiquidityEvents: Array<sepolia_RouterLiquidityEvent>;
+  sepolia_setting?: Maybe<sepolia_Setting>;
+  sepolia_settings: Array<sepolia_Setting>;
+  sepolia_relayer?: Maybe<sepolia_Relayer>;
+  sepolia_relayers: Array<sepolia_Relayer>;
+  sepolia_sequencer?: Maybe<sepolia_Sequencer>;
+  sepolia_sequencers: Array<sepolia_Sequencer>;
+  sepolia_relayerFee?: Maybe<sepolia_RelayerFee>;
+  sepolia_relayerFees: Array<sepolia_RelayerFee>;
+  sepolia_originTransfer?: Maybe<sepolia_OriginTransfer>;
+  sepolia_originTransfers: Array<sepolia_OriginTransfer>;
+  sepolia_destinationTransfer?: Maybe<sepolia_DestinationTransfer>;
+  sepolia_destinationTransfers: Array<sepolia_DestinationTransfer>;
+  sepolia_originMessage?: Maybe<sepolia_OriginMessage>;
+  sepolia_originMessages: Array<sepolia_OriginMessage>;
+  sepolia_aggregateRoot?: Maybe<sepolia_AggregateRoot>;
+  sepolia_aggregateRoots: Array<sepolia_AggregateRoot>;
+  sepolia_connectorMeta?: Maybe<sepolia_ConnectorMeta>;
+  sepolia_connectorMetas: Array<sepolia_ConnectorMeta>;
+  sepolia_rootCount?: Maybe<sepolia_RootCount>;
+  sepolia_rootCounts: Array<sepolia_RootCount>;
+  sepolia_rootMessageSent?: Maybe<sepolia_RootMessageSent>;
+  sepolia_rootMessageSents: Array<sepolia_RootMessageSent>;
+  sepolia_relayerFeesIncrease?: Maybe<sepolia_RelayerFeesIncrease>;
+  sepolia_relayerFeesIncreases: Array<sepolia_RelayerFeesIncrease>;
+  sepolia_slippageUpdate?: Maybe<sepolia_SlippageUpdate>;
+  sepolia_slippageUpdates: Array<sepolia_SlippageUpdate>;
+  sepolia_snapshotRoot?: Maybe<sepolia_SnapshotRoot>;
+  sepolia_snapshotRoots: Array<sepolia_SnapshotRoot>;
+  sepolia_spokeConnectorMode?: Maybe<sepolia_SpokeConnectorMode>;
+  sepolia_spokeConnectorModes: Array<sepolia_SpokeConnectorMode>;
+  sepolia_aggregateRootProposed?: Maybe<sepolia_AggregateRootProposed>;
+  sepolia_aggregateRootProposeds: Array<sepolia_AggregateRootProposed>;
+  sepolia_optimisticRootFinalized?: Maybe<sepolia_OptimisticRootFinalized>;
+  sepolia_optimisticRootFinalizeds: Array<sepolia_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
-  mumbai__meta?: Maybe<mumbai__Meta_>;
+  sepolia__meta?: Maybe<sepolia__Meta_>;
 };
 
 
-export type Subscriptionmumbai_assetArgs = {
+export type Subscriptionsepolia_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_assetsArgs = {
+export type Subscriptionsepolia_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Asset_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Asset_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Asset_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Asset_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_assetStatusArgs = {
+export type Subscriptionsepolia_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_assetStatusesArgs = {
+export type Subscriptionsepolia_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AssetStatus_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AssetStatus_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_assetBalanceArgs = {
+export type Subscriptionsepolia_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_assetBalancesArgs = {
+export type Subscriptionsepolia_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AssetBalance_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AssetBalance_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routerArgs = {
+export type Subscriptionsepolia_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routersArgs = {
+export type Subscriptionsepolia_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Router_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Router_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Router_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routerDailyTVLArgs = {
+export type Subscriptionsepolia_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routerDailyTVLsArgs = {
+export type Subscriptionsepolia_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RouterDailyTVL_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RouterDailyTVL_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routerLiquidityEventArgs = {
+export type Subscriptionsepolia_routerLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_routerLiquidityEventsArgs = {
+export type Subscriptionsepolia_routerLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RouterLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RouterLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RouterLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_settingArgs = {
+export type Subscriptionsepolia_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_settingsArgs = {
+export type Subscriptionsepolia_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Setting_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Setting_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Setting_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Setting_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayerArgs = {
+export type Subscriptionsepolia_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayersArgs = {
+export type Subscriptionsepolia_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Relayer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Relayer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Relayer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Relayer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_sequencerArgs = {
+export type Subscriptionsepolia_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_sequencersArgs = {
+export type Subscriptionsepolia_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_Sequencer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_Sequencer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayerFeeArgs = {
+export type Subscriptionsepolia_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayerFeesArgs = {
+export type Subscriptionsepolia_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RelayerFee_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RelayerFee_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_originTransferArgs = {
+export type Subscriptionsepolia_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_originTransfersArgs = {
+export type Subscriptionsepolia_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OriginTransfer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OriginTransfer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_destinationTransferArgs = {
+export type Subscriptionsepolia_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_destinationTransfersArgs = {
+export type Subscriptionsepolia_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_DestinationTransfer_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_DestinationTransfer_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_originMessageArgs = {
+export type Subscriptionsepolia_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_originMessagesArgs = {
+export type Subscriptionsepolia_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OriginMessage_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OriginMessage_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_aggregateRootArgs = {
+export type Subscriptionsepolia_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_aggregateRootsArgs = {
+export type Subscriptionsepolia_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AggregateRoot_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AggregateRoot_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_connectorMetaArgs = {
+export type Subscriptionsepolia_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_connectorMetasArgs = {
+export type Subscriptionsepolia_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_ConnectorMeta_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_rootCountArgs = {
+export type Subscriptionsepolia_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_rootCountsArgs = {
+export type Subscriptionsepolia_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RootCount_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RootCount_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RootCount_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RootCount_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_rootMessageSentArgs = {
+export type Subscriptionsepolia_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_rootMessageSentsArgs = {
+export type Subscriptionsepolia_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RootMessageSent_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RootMessageSent_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayerFeesIncreaseArgs = {
+export type Subscriptionsepolia_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_relayerFeesIncreasesArgs = {
+export type Subscriptionsepolia_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_slippageUpdateArgs = {
+export type Subscriptionsepolia_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_slippageUpdatesArgs = {
+export type Subscriptionsepolia_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SlippageUpdate_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SlippageUpdate_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_snapshotRootArgs = {
+export type Subscriptionsepolia_snapshotRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_snapshotRootsArgs = {
+export type Subscriptionsepolia_snapshotRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SnapshotRoot_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SnapshotRoot_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_spokeConnectorModeArgs = {
+export type Subscriptionsepolia_spokeConnectorModeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_spokeConnectorModesArgs = {
+export type Subscriptionsepolia_spokeConnectorModesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_SpokeConnectorMode_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_SpokeConnectorMode_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_SpokeConnectorMode_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_aggregateRootProposedArgs = {
+export type Subscriptionsepolia_aggregateRootProposedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_aggregateRootProposedsArgs = {
+export type Subscriptionsepolia_aggregateRootProposedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_AggregateRootProposed_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_AggregateRootProposed_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_AggregateRootProposed_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_optimisticRootFinalizedArgs = {
+export type Subscriptionsepolia_optimisticRootFinalizedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_Block_height>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_optimisticRootFinalizedsArgs = {
+export type Subscriptionsepolia_optimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_OptimisticRootFinalized_orderBy>;
-  orderDirection?: InputMaybe<mumbai_OrderDirection>;
-  where?: InputMaybe<mumbai_OptimisticRootFinalized_filter>;
-  block?: InputMaybe<mumbai_Block_height>;
+  orderBy?: InputMaybe<sepolia_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai__metaArgs = {
-  block?: InputMaybe<mumbai_Block_height>;
+export type Subscriptionsepolia__metaArgs = {
+  block?: InputMaybe<sepolia_Block_height>;
 };
 
-export type mumbai_TransferStatus =
+export type sepolia_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type mumbai__Block_ = {
+export type sepolia__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['mumbai_Bytes']>;
+  hash?: Maybe<Scalars['sepolia_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
-export type mumbai__Meta_ = {
+export type sepolia__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -3706,7 +3708,7 @@ export type mumbai__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: mumbai__Block_;
+  block: sepolia__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -3721,99 +3723,99 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  mumbai_asset: InContextSdkMethod<Query['mumbai_asset'], Querymumbai_assetArgs, MeshContext>,
+  sepolia_asset: InContextSdkMethod<Query['sepolia_asset'], Querysepolia_assetArgs, MeshContext>,
   /** null **/
-  mumbai_assets: InContextSdkMethod<Query['mumbai_assets'], Querymumbai_assetsArgs, MeshContext>,
+  sepolia_assets: InContextSdkMethod<Query['sepolia_assets'], Querysepolia_assetsArgs, MeshContext>,
   /** null **/
-  mumbai_assetStatus: InContextSdkMethod<Query['mumbai_assetStatus'], Querymumbai_assetStatusArgs, MeshContext>,
+  sepolia_assetStatus: InContextSdkMethod<Query['sepolia_assetStatus'], Querysepolia_assetStatusArgs, MeshContext>,
   /** null **/
-  mumbai_assetStatuses: InContextSdkMethod<Query['mumbai_assetStatuses'], Querymumbai_assetStatusesArgs, MeshContext>,
+  sepolia_assetStatuses: InContextSdkMethod<Query['sepolia_assetStatuses'], Querysepolia_assetStatusesArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalance: InContextSdkMethod<Query['mumbai_assetBalance'], Querymumbai_assetBalanceArgs, MeshContext>,
+  sepolia_assetBalance: InContextSdkMethod<Query['sepolia_assetBalance'], Querysepolia_assetBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalances: InContextSdkMethod<Query['mumbai_assetBalances'], Querymumbai_assetBalancesArgs, MeshContext>,
+  sepolia_assetBalances: InContextSdkMethod<Query['sepolia_assetBalances'], Querysepolia_assetBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_router: InContextSdkMethod<Query['mumbai_router'], Querymumbai_routerArgs, MeshContext>,
+  sepolia_router: InContextSdkMethod<Query['sepolia_router'], Querysepolia_routerArgs, MeshContext>,
   /** null **/
-  mumbai_routers: InContextSdkMethod<Query['mumbai_routers'], Querymumbai_routersArgs, MeshContext>,
+  sepolia_routers: InContextSdkMethod<Query['sepolia_routers'], Querysepolia_routersArgs, MeshContext>,
   /** null **/
-  mumbai_routerDailyTVL: InContextSdkMethod<Query['mumbai_routerDailyTVL'], Querymumbai_routerDailyTVLArgs, MeshContext>,
+  sepolia_routerDailyTVL: InContextSdkMethod<Query['sepolia_routerDailyTVL'], Querysepolia_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  mumbai_routerDailyTVLs: InContextSdkMethod<Query['mumbai_routerDailyTVLs'], Querymumbai_routerDailyTVLsArgs, MeshContext>,
+  sepolia_routerDailyTVLs: InContextSdkMethod<Query['sepolia_routerDailyTVLs'], Querysepolia_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  mumbai_routerLiquidityEvent: InContextSdkMethod<Query['mumbai_routerLiquidityEvent'], Querymumbai_routerLiquidityEventArgs, MeshContext>,
+  sepolia_routerLiquidityEvent: InContextSdkMethod<Query['sepolia_routerLiquidityEvent'], Querysepolia_routerLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_routerLiquidityEvents: InContextSdkMethod<Query['mumbai_routerLiquidityEvents'], Querymumbai_routerLiquidityEventsArgs, MeshContext>,
+  sepolia_routerLiquidityEvents: InContextSdkMethod<Query['sepolia_routerLiquidityEvents'], Querysepolia_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_setting: InContextSdkMethod<Query['mumbai_setting'], Querymumbai_settingArgs, MeshContext>,
+  sepolia_setting: InContextSdkMethod<Query['sepolia_setting'], Querysepolia_settingArgs, MeshContext>,
   /** null **/
-  mumbai_settings: InContextSdkMethod<Query['mumbai_settings'], Querymumbai_settingsArgs, MeshContext>,
+  sepolia_settings: InContextSdkMethod<Query['sepolia_settings'], Querysepolia_settingsArgs, MeshContext>,
   /** null **/
-  mumbai_relayer: InContextSdkMethod<Query['mumbai_relayer'], Querymumbai_relayerArgs, MeshContext>,
+  sepolia_relayer: InContextSdkMethod<Query['sepolia_relayer'], Querysepolia_relayerArgs, MeshContext>,
   /** null **/
-  mumbai_relayers: InContextSdkMethod<Query['mumbai_relayers'], Querymumbai_relayersArgs, MeshContext>,
+  sepolia_relayers: InContextSdkMethod<Query['sepolia_relayers'], Querysepolia_relayersArgs, MeshContext>,
   /** null **/
-  mumbai_sequencer: InContextSdkMethod<Query['mumbai_sequencer'], Querymumbai_sequencerArgs, MeshContext>,
+  sepolia_sequencer: InContextSdkMethod<Query['sepolia_sequencer'], Querysepolia_sequencerArgs, MeshContext>,
   /** null **/
-  mumbai_sequencers: InContextSdkMethod<Query['mumbai_sequencers'], Querymumbai_sequencersArgs, MeshContext>,
+  sepolia_sequencers: InContextSdkMethod<Query['sepolia_sequencers'], Querysepolia_sequencersArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFee: InContextSdkMethod<Query['mumbai_relayerFee'], Querymumbai_relayerFeeArgs, MeshContext>,
+  sepolia_relayerFee: InContextSdkMethod<Query['sepolia_relayerFee'], Querysepolia_relayerFeeArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFees: InContextSdkMethod<Query['mumbai_relayerFees'], Querymumbai_relayerFeesArgs, MeshContext>,
+  sepolia_relayerFees: InContextSdkMethod<Query['sepolia_relayerFees'], Querysepolia_relayerFeesArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfer: InContextSdkMethod<Query['mumbai_originTransfer'], Querymumbai_originTransferArgs, MeshContext>,
+  sepolia_originTransfer: InContextSdkMethod<Query['sepolia_originTransfer'], Querysepolia_originTransferArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfers: InContextSdkMethod<Query['mumbai_originTransfers'], Querymumbai_originTransfersArgs, MeshContext>,
+  sepolia_originTransfers: InContextSdkMethod<Query['sepolia_originTransfers'], Querysepolia_originTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfer: InContextSdkMethod<Query['mumbai_destinationTransfer'], Querymumbai_destinationTransferArgs, MeshContext>,
+  sepolia_destinationTransfer: InContextSdkMethod<Query['sepolia_destinationTransfer'], Querysepolia_destinationTransferArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfers: InContextSdkMethod<Query['mumbai_destinationTransfers'], Querymumbai_destinationTransfersArgs, MeshContext>,
+  sepolia_destinationTransfers: InContextSdkMethod<Query['sepolia_destinationTransfers'], Querysepolia_destinationTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_originMessage: InContextSdkMethod<Query['mumbai_originMessage'], Querymumbai_originMessageArgs, MeshContext>,
+  sepolia_originMessage: InContextSdkMethod<Query['sepolia_originMessage'], Querysepolia_originMessageArgs, MeshContext>,
   /** null **/
-  mumbai_originMessages: InContextSdkMethod<Query['mumbai_originMessages'], Querymumbai_originMessagesArgs, MeshContext>,
+  sepolia_originMessages: InContextSdkMethod<Query['sepolia_originMessages'], Querysepolia_originMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoot: InContextSdkMethod<Query['mumbai_aggregateRoot'], Querymumbai_aggregateRootArgs, MeshContext>,
+  sepolia_aggregateRoot: InContextSdkMethod<Query['sepolia_aggregateRoot'], Querysepolia_aggregateRootArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoots: InContextSdkMethod<Query['mumbai_aggregateRoots'], Querymumbai_aggregateRootsArgs, MeshContext>,
+  sepolia_aggregateRoots: InContextSdkMethod<Query['sepolia_aggregateRoots'], Querysepolia_aggregateRootsArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMeta: InContextSdkMethod<Query['mumbai_connectorMeta'], Querymumbai_connectorMetaArgs, MeshContext>,
+  sepolia_connectorMeta: InContextSdkMethod<Query['sepolia_connectorMeta'], Querysepolia_connectorMetaArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMetas: InContextSdkMethod<Query['mumbai_connectorMetas'], Querymumbai_connectorMetasArgs, MeshContext>,
+  sepolia_connectorMetas: InContextSdkMethod<Query['sepolia_connectorMetas'], Querysepolia_connectorMetasArgs, MeshContext>,
   /** null **/
-  mumbai_rootCount: InContextSdkMethod<Query['mumbai_rootCount'], Querymumbai_rootCountArgs, MeshContext>,
+  sepolia_rootCount: InContextSdkMethod<Query['sepolia_rootCount'], Querysepolia_rootCountArgs, MeshContext>,
   /** null **/
-  mumbai_rootCounts: InContextSdkMethod<Query['mumbai_rootCounts'], Querymumbai_rootCountsArgs, MeshContext>,
+  sepolia_rootCounts: InContextSdkMethod<Query['sepolia_rootCounts'], Querysepolia_rootCountsArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSent: InContextSdkMethod<Query['mumbai_rootMessageSent'], Querymumbai_rootMessageSentArgs, MeshContext>,
+  sepolia_rootMessageSent: InContextSdkMethod<Query['sepolia_rootMessageSent'], Querysepolia_rootMessageSentArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSents: InContextSdkMethod<Query['mumbai_rootMessageSents'], Querymumbai_rootMessageSentsArgs, MeshContext>,
+  sepolia_rootMessageSents: InContextSdkMethod<Query['sepolia_rootMessageSents'], Querysepolia_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFeesIncrease: InContextSdkMethod<Query['mumbai_relayerFeesIncrease'], Querymumbai_relayerFeesIncreaseArgs, MeshContext>,
+  sepolia_relayerFeesIncrease: InContextSdkMethod<Query['sepolia_relayerFeesIncrease'], Querysepolia_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFeesIncreases: InContextSdkMethod<Query['mumbai_relayerFeesIncreases'], Querymumbai_relayerFeesIncreasesArgs, MeshContext>,
+  sepolia_relayerFeesIncreases: InContextSdkMethod<Query['sepolia_relayerFeesIncreases'], Querysepolia_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  mumbai_slippageUpdate: InContextSdkMethod<Query['mumbai_slippageUpdate'], Querymumbai_slippageUpdateArgs, MeshContext>,
+  sepolia_slippageUpdate: InContextSdkMethod<Query['sepolia_slippageUpdate'], Querysepolia_slippageUpdateArgs, MeshContext>,
   /** null **/
-  mumbai_slippageUpdates: InContextSdkMethod<Query['mumbai_slippageUpdates'], Querymumbai_slippageUpdatesArgs, MeshContext>,
+  sepolia_slippageUpdates: InContextSdkMethod<Query['sepolia_slippageUpdates'], Querysepolia_slippageUpdatesArgs, MeshContext>,
   /** null **/
-  mumbai_snapshotRoot: InContextSdkMethod<Query['mumbai_snapshotRoot'], Querymumbai_snapshotRootArgs, MeshContext>,
+  sepolia_snapshotRoot: InContextSdkMethod<Query['sepolia_snapshotRoot'], Querysepolia_snapshotRootArgs, MeshContext>,
   /** null **/
-  mumbai_snapshotRoots: InContextSdkMethod<Query['mumbai_snapshotRoots'], Querymumbai_snapshotRootsArgs, MeshContext>,
+  sepolia_snapshotRoots: InContextSdkMethod<Query['sepolia_snapshotRoots'], Querysepolia_snapshotRootsArgs, MeshContext>,
   /** null **/
-  mumbai_spokeConnectorMode: InContextSdkMethod<Query['mumbai_spokeConnectorMode'], Querymumbai_spokeConnectorModeArgs, MeshContext>,
+  sepolia_spokeConnectorMode: InContextSdkMethod<Query['sepolia_spokeConnectorMode'], Querysepolia_spokeConnectorModeArgs, MeshContext>,
   /** null **/
-  mumbai_spokeConnectorModes: InContextSdkMethod<Query['mumbai_spokeConnectorModes'], Querymumbai_spokeConnectorModesArgs, MeshContext>,
+  sepolia_spokeConnectorModes: InContextSdkMethod<Query['sepolia_spokeConnectorModes'], Querysepolia_spokeConnectorModesArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRootProposed: InContextSdkMethod<Query['mumbai_aggregateRootProposed'], Querymumbai_aggregateRootProposedArgs, MeshContext>,
+  sepolia_aggregateRootProposed: InContextSdkMethod<Query['sepolia_aggregateRootProposed'], Querysepolia_aggregateRootProposedArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRootProposeds: InContextSdkMethod<Query['mumbai_aggregateRootProposeds'], Querymumbai_aggregateRootProposedsArgs, MeshContext>,
+  sepolia_aggregateRootProposeds: InContextSdkMethod<Query['sepolia_aggregateRootProposeds'], Querysepolia_aggregateRootProposedsArgs, MeshContext>,
   /** null **/
-  mumbai_optimisticRootFinalized: InContextSdkMethod<Query['mumbai_optimisticRootFinalized'], Querymumbai_optimisticRootFinalizedArgs, MeshContext>,
+  sepolia_optimisticRootFinalized: InContextSdkMethod<Query['sepolia_optimisticRootFinalized'], Querysepolia_optimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  mumbai_optimisticRootFinalizeds: InContextSdkMethod<Query['mumbai_optimisticRootFinalizeds'], Querymumbai_optimisticRootFinalizedsArgs, MeshContext>,
+  sepolia_optimisticRootFinalizeds: InContextSdkMethod<Query['sepolia_optimisticRootFinalizeds'], Querysepolia_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai__meta: InContextSdkMethod<Query['mumbai__meta'], Querymumbai__metaArgs, MeshContext>
+  sepolia__meta: InContextSdkMethod<Query['sepolia__meta'], Querysepolia__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -3822,103 +3824,103 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  mumbai_asset: InContextSdkMethod<Subscription['mumbai_asset'], Subscriptionmumbai_assetArgs, MeshContext>,
+  sepolia_asset: InContextSdkMethod<Subscription['sepolia_asset'], Subscriptionsepolia_assetArgs, MeshContext>,
   /** null **/
-  mumbai_assets: InContextSdkMethod<Subscription['mumbai_assets'], Subscriptionmumbai_assetsArgs, MeshContext>,
+  sepolia_assets: InContextSdkMethod<Subscription['sepolia_assets'], Subscriptionsepolia_assetsArgs, MeshContext>,
   /** null **/
-  mumbai_assetStatus: InContextSdkMethod<Subscription['mumbai_assetStatus'], Subscriptionmumbai_assetStatusArgs, MeshContext>,
+  sepolia_assetStatus: InContextSdkMethod<Subscription['sepolia_assetStatus'], Subscriptionsepolia_assetStatusArgs, MeshContext>,
   /** null **/
-  mumbai_assetStatuses: InContextSdkMethod<Subscription['mumbai_assetStatuses'], Subscriptionmumbai_assetStatusesArgs, MeshContext>,
+  sepolia_assetStatuses: InContextSdkMethod<Subscription['sepolia_assetStatuses'], Subscriptionsepolia_assetStatusesArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalance: InContextSdkMethod<Subscription['mumbai_assetBalance'], Subscriptionmumbai_assetBalanceArgs, MeshContext>,
+  sepolia_assetBalance: InContextSdkMethod<Subscription['sepolia_assetBalance'], Subscriptionsepolia_assetBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_assetBalances: InContextSdkMethod<Subscription['mumbai_assetBalances'], Subscriptionmumbai_assetBalancesArgs, MeshContext>,
+  sepolia_assetBalances: InContextSdkMethod<Subscription['sepolia_assetBalances'], Subscriptionsepolia_assetBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_router: InContextSdkMethod<Subscription['mumbai_router'], Subscriptionmumbai_routerArgs, MeshContext>,
+  sepolia_router: InContextSdkMethod<Subscription['sepolia_router'], Subscriptionsepolia_routerArgs, MeshContext>,
   /** null **/
-  mumbai_routers: InContextSdkMethod<Subscription['mumbai_routers'], Subscriptionmumbai_routersArgs, MeshContext>,
+  sepolia_routers: InContextSdkMethod<Subscription['sepolia_routers'], Subscriptionsepolia_routersArgs, MeshContext>,
   /** null **/
-  mumbai_routerDailyTVL: InContextSdkMethod<Subscription['mumbai_routerDailyTVL'], Subscriptionmumbai_routerDailyTVLArgs, MeshContext>,
+  sepolia_routerDailyTVL: InContextSdkMethod<Subscription['sepolia_routerDailyTVL'], Subscriptionsepolia_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  mumbai_routerDailyTVLs: InContextSdkMethod<Subscription['mumbai_routerDailyTVLs'], Subscriptionmumbai_routerDailyTVLsArgs, MeshContext>,
+  sepolia_routerDailyTVLs: InContextSdkMethod<Subscription['sepolia_routerDailyTVLs'], Subscriptionsepolia_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  mumbai_routerLiquidityEvent: InContextSdkMethod<Subscription['mumbai_routerLiquidityEvent'], Subscriptionmumbai_routerLiquidityEventArgs, MeshContext>,
+  sepolia_routerLiquidityEvent: InContextSdkMethod<Subscription['sepolia_routerLiquidityEvent'], Subscriptionsepolia_routerLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_routerLiquidityEvents: InContextSdkMethod<Subscription['mumbai_routerLiquidityEvents'], Subscriptionmumbai_routerLiquidityEventsArgs, MeshContext>,
+  sepolia_routerLiquidityEvents: InContextSdkMethod<Subscription['sepolia_routerLiquidityEvents'], Subscriptionsepolia_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_setting: InContextSdkMethod<Subscription['mumbai_setting'], Subscriptionmumbai_settingArgs, MeshContext>,
+  sepolia_setting: InContextSdkMethod<Subscription['sepolia_setting'], Subscriptionsepolia_settingArgs, MeshContext>,
   /** null **/
-  mumbai_settings: InContextSdkMethod<Subscription['mumbai_settings'], Subscriptionmumbai_settingsArgs, MeshContext>,
+  sepolia_settings: InContextSdkMethod<Subscription['sepolia_settings'], Subscriptionsepolia_settingsArgs, MeshContext>,
   /** null **/
-  mumbai_relayer: InContextSdkMethod<Subscription['mumbai_relayer'], Subscriptionmumbai_relayerArgs, MeshContext>,
+  sepolia_relayer: InContextSdkMethod<Subscription['sepolia_relayer'], Subscriptionsepolia_relayerArgs, MeshContext>,
   /** null **/
-  mumbai_relayers: InContextSdkMethod<Subscription['mumbai_relayers'], Subscriptionmumbai_relayersArgs, MeshContext>,
+  sepolia_relayers: InContextSdkMethod<Subscription['sepolia_relayers'], Subscriptionsepolia_relayersArgs, MeshContext>,
   /** null **/
-  mumbai_sequencer: InContextSdkMethod<Subscription['mumbai_sequencer'], Subscriptionmumbai_sequencerArgs, MeshContext>,
+  sepolia_sequencer: InContextSdkMethod<Subscription['sepolia_sequencer'], Subscriptionsepolia_sequencerArgs, MeshContext>,
   /** null **/
-  mumbai_sequencers: InContextSdkMethod<Subscription['mumbai_sequencers'], Subscriptionmumbai_sequencersArgs, MeshContext>,
+  sepolia_sequencers: InContextSdkMethod<Subscription['sepolia_sequencers'], Subscriptionsepolia_sequencersArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFee: InContextSdkMethod<Subscription['mumbai_relayerFee'], Subscriptionmumbai_relayerFeeArgs, MeshContext>,
+  sepolia_relayerFee: InContextSdkMethod<Subscription['sepolia_relayerFee'], Subscriptionsepolia_relayerFeeArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFees: InContextSdkMethod<Subscription['mumbai_relayerFees'], Subscriptionmumbai_relayerFeesArgs, MeshContext>,
+  sepolia_relayerFees: InContextSdkMethod<Subscription['sepolia_relayerFees'], Subscriptionsepolia_relayerFeesArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfer: InContextSdkMethod<Subscription['mumbai_originTransfer'], Subscriptionmumbai_originTransferArgs, MeshContext>,
+  sepolia_originTransfer: InContextSdkMethod<Subscription['sepolia_originTransfer'], Subscriptionsepolia_originTransferArgs, MeshContext>,
   /** null **/
-  mumbai_originTransfers: InContextSdkMethod<Subscription['mumbai_originTransfers'], Subscriptionmumbai_originTransfersArgs, MeshContext>,
+  sepolia_originTransfers: InContextSdkMethod<Subscription['sepolia_originTransfers'], Subscriptionsepolia_originTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfer: InContextSdkMethod<Subscription['mumbai_destinationTransfer'], Subscriptionmumbai_destinationTransferArgs, MeshContext>,
+  sepolia_destinationTransfer: InContextSdkMethod<Subscription['sepolia_destinationTransfer'], Subscriptionsepolia_destinationTransferArgs, MeshContext>,
   /** null **/
-  mumbai_destinationTransfers: InContextSdkMethod<Subscription['mumbai_destinationTransfers'], Subscriptionmumbai_destinationTransfersArgs, MeshContext>,
+  sepolia_destinationTransfers: InContextSdkMethod<Subscription['sepolia_destinationTransfers'], Subscriptionsepolia_destinationTransfersArgs, MeshContext>,
   /** null **/
-  mumbai_originMessage: InContextSdkMethod<Subscription['mumbai_originMessage'], Subscriptionmumbai_originMessageArgs, MeshContext>,
+  sepolia_originMessage: InContextSdkMethod<Subscription['sepolia_originMessage'], Subscriptionsepolia_originMessageArgs, MeshContext>,
   /** null **/
-  mumbai_originMessages: InContextSdkMethod<Subscription['mumbai_originMessages'], Subscriptionmumbai_originMessagesArgs, MeshContext>,
+  sepolia_originMessages: InContextSdkMethod<Subscription['sepolia_originMessages'], Subscriptionsepolia_originMessagesArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoot: InContextSdkMethod<Subscription['mumbai_aggregateRoot'], Subscriptionmumbai_aggregateRootArgs, MeshContext>,
+  sepolia_aggregateRoot: InContextSdkMethod<Subscription['sepolia_aggregateRoot'], Subscriptionsepolia_aggregateRootArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRoots: InContextSdkMethod<Subscription['mumbai_aggregateRoots'], Subscriptionmumbai_aggregateRootsArgs, MeshContext>,
+  sepolia_aggregateRoots: InContextSdkMethod<Subscription['sepolia_aggregateRoots'], Subscriptionsepolia_aggregateRootsArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMeta: InContextSdkMethod<Subscription['mumbai_connectorMeta'], Subscriptionmumbai_connectorMetaArgs, MeshContext>,
+  sepolia_connectorMeta: InContextSdkMethod<Subscription['sepolia_connectorMeta'], Subscriptionsepolia_connectorMetaArgs, MeshContext>,
   /** null **/
-  mumbai_connectorMetas: InContextSdkMethod<Subscription['mumbai_connectorMetas'], Subscriptionmumbai_connectorMetasArgs, MeshContext>,
+  sepolia_connectorMetas: InContextSdkMethod<Subscription['sepolia_connectorMetas'], Subscriptionsepolia_connectorMetasArgs, MeshContext>,
   /** null **/
-  mumbai_rootCount: InContextSdkMethod<Subscription['mumbai_rootCount'], Subscriptionmumbai_rootCountArgs, MeshContext>,
+  sepolia_rootCount: InContextSdkMethod<Subscription['sepolia_rootCount'], Subscriptionsepolia_rootCountArgs, MeshContext>,
   /** null **/
-  mumbai_rootCounts: InContextSdkMethod<Subscription['mumbai_rootCounts'], Subscriptionmumbai_rootCountsArgs, MeshContext>,
+  sepolia_rootCounts: InContextSdkMethod<Subscription['sepolia_rootCounts'], Subscriptionsepolia_rootCountsArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSent: InContextSdkMethod<Subscription['mumbai_rootMessageSent'], Subscriptionmumbai_rootMessageSentArgs, MeshContext>,
+  sepolia_rootMessageSent: InContextSdkMethod<Subscription['sepolia_rootMessageSent'], Subscriptionsepolia_rootMessageSentArgs, MeshContext>,
   /** null **/
-  mumbai_rootMessageSents: InContextSdkMethod<Subscription['mumbai_rootMessageSents'], Subscriptionmumbai_rootMessageSentsArgs, MeshContext>,
+  sepolia_rootMessageSents: InContextSdkMethod<Subscription['sepolia_rootMessageSents'], Subscriptionsepolia_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFeesIncrease: InContextSdkMethod<Subscription['mumbai_relayerFeesIncrease'], Subscriptionmumbai_relayerFeesIncreaseArgs, MeshContext>,
+  sepolia_relayerFeesIncrease: InContextSdkMethod<Subscription['sepolia_relayerFeesIncrease'], Subscriptionsepolia_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  mumbai_relayerFeesIncreases: InContextSdkMethod<Subscription['mumbai_relayerFeesIncreases'], Subscriptionmumbai_relayerFeesIncreasesArgs, MeshContext>,
+  sepolia_relayerFeesIncreases: InContextSdkMethod<Subscription['sepolia_relayerFeesIncreases'], Subscriptionsepolia_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  mumbai_slippageUpdate: InContextSdkMethod<Subscription['mumbai_slippageUpdate'], Subscriptionmumbai_slippageUpdateArgs, MeshContext>,
+  sepolia_slippageUpdate: InContextSdkMethod<Subscription['sepolia_slippageUpdate'], Subscriptionsepolia_slippageUpdateArgs, MeshContext>,
   /** null **/
-  mumbai_slippageUpdates: InContextSdkMethod<Subscription['mumbai_slippageUpdates'], Subscriptionmumbai_slippageUpdatesArgs, MeshContext>,
+  sepolia_slippageUpdates: InContextSdkMethod<Subscription['sepolia_slippageUpdates'], Subscriptionsepolia_slippageUpdatesArgs, MeshContext>,
   /** null **/
-  mumbai_snapshotRoot: InContextSdkMethod<Subscription['mumbai_snapshotRoot'], Subscriptionmumbai_snapshotRootArgs, MeshContext>,
+  sepolia_snapshotRoot: InContextSdkMethod<Subscription['sepolia_snapshotRoot'], Subscriptionsepolia_snapshotRootArgs, MeshContext>,
   /** null **/
-  mumbai_snapshotRoots: InContextSdkMethod<Subscription['mumbai_snapshotRoots'], Subscriptionmumbai_snapshotRootsArgs, MeshContext>,
+  sepolia_snapshotRoots: InContextSdkMethod<Subscription['sepolia_snapshotRoots'], Subscriptionsepolia_snapshotRootsArgs, MeshContext>,
   /** null **/
-  mumbai_spokeConnectorMode: InContextSdkMethod<Subscription['mumbai_spokeConnectorMode'], Subscriptionmumbai_spokeConnectorModeArgs, MeshContext>,
+  sepolia_spokeConnectorMode: InContextSdkMethod<Subscription['sepolia_spokeConnectorMode'], Subscriptionsepolia_spokeConnectorModeArgs, MeshContext>,
   /** null **/
-  mumbai_spokeConnectorModes: InContextSdkMethod<Subscription['mumbai_spokeConnectorModes'], Subscriptionmumbai_spokeConnectorModesArgs, MeshContext>,
+  sepolia_spokeConnectorModes: InContextSdkMethod<Subscription['sepolia_spokeConnectorModes'], Subscriptionsepolia_spokeConnectorModesArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRootProposed: InContextSdkMethod<Subscription['mumbai_aggregateRootProposed'], Subscriptionmumbai_aggregateRootProposedArgs, MeshContext>,
+  sepolia_aggregateRootProposed: InContextSdkMethod<Subscription['sepolia_aggregateRootProposed'], Subscriptionsepolia_aggregateRootProposedArgs, MeshContext>,
   /** null **/
-  mumbai_aggregateRootProposeds: InContextSdkMethod<Subscription['mumbai_aggregateRootProposeds'], Subscriptionmumbai_aggregateRootProposedsArgs, MeshContext>,
+  sepolia_aggregateRootProposeds: InContextSdkMethod<Subscription['sepolia_aggregateRootProposeds'], Subscriptionsepolia_aggregateRootProposedsArgs, MeshContext>,
   /** null **/
-  mumbai_optimisticRootFinalized: InContextSdkMethod<Subscription['mumbai_optimisticRootFinalized'], Subscriptionmumbai_optimisticRootFinalizedArgs, MeshContext>,
+  sepolia_optimisticRootFinalized: InContextSdkMethod<Subscription['sepolia_optimisticRootFinalized'], Subscriptionsepolia_optimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  mumbai_optimisticRootFinalizeds: InContextSdkMethod<Subscription['mumbai_optimisticRootFinalizeds'], Subscriptionmumbai_optimisticRootFinalizedsArgs, MeshContext>,
+  sepolia_optimisticRootFinalizeds: InContextSdkMethod<Subscription['sepolia_optimisticRootFinalizeds'], Subscriptionsepolia_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai__meta: InContextSdkMethod<Subscription['mumbai__meta'], Subscriptionmumbai__metaArgs, MeshContext>
+  sepolia__meta: InContextSdkMethod<Subscription['sepolia__meta'], Subscriptionsepolia__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_Mumbai"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_Sepolia"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }

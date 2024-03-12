@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace StableSwapMumbaiTypes {
+export namespace StableSwapSepoliaTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,52 +16,52 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  mumbai_swap_BigDecimal: any;
+  sepolia_swap_BigDecimal: any;
   BigInt: any;
-  mumbai_swap_Bytes: any;
-  mumbai_swap_Int8: any;
+  sepolia_swap_Bytes: any;
+  sepolia_swap_Int8: any;
 };
 
-export type mumbai_swap_Aggregation_interval =
+export type sepolia_swap_Aggregation_interval =
   | 'hour'
   | 'day';
 
-export type mumbai_swap_BlockChangedFilter = {
+export type sepolia_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type mumbai_swap_Block_height = {
-  hash?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+export type sepolia_swap_Block_height = {
+  hash?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type mumbai_swap_LpAccount = {
+export type sepolia_swap_LpAccount = {
   id: Scalars['ID'];
-  address: Scalars['mumbai_swap_Bytes'];
-  balances: Array<mumbai_swap_LpAccountBalance>;
+  address: Scalars['sepolia_swap_Bytes'];
+  balances: Array<sepolia_swap_LpAccountBalance>;
 };
 
 
-export type mumbai_swap_LpAccountbalancesArgs = {
+export type sepolia_swap_LpAccountbalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpAccountBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpAccountBalance_filter>;
+  orderBy?: InputMaybe<sepolia_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpAccountBalance_filter>;
 };
 
-export type mumbai_swap_LpAccountBalance = {
+export type sepolia_swap_LpAccountBalance = {
   id: Scalars['ID'];
-  account: mumbai_swap_LpAccount;
-  token: mumbai_swap_LpToken;
-  amount: Scalars['mumbai_swap_BigDecimal'];
+  account: sepolia_swap_LpAccount;
+  token: sepolia_swap_LpToken;
+  amount: Scalars['sepolia_swap_BigDecimal'];
   block?: Maybe<Scalars['BigInt']>;
   modified?: Maybe<Scalars['BigInt']>;
-  transaction?: Maybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: Maybe<Scalars['sepolia_swap_Bytes']>;
 };
 
-export type mumbai_swap_LpAccountBalance_filter = {
+export type sepolia_swap_LpAccountBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -90,7 +90,7 @@ export type mumbai_swap_LpAccountBalance_filter = {
   account_ends_with_nocase?: InputMaybe<Scalars['String']>;
   account_not_ends_with?: InputMaybe<Scalars['String']>;
   account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  account_?: InputMaybe<mumbai_swap_LpAccount_filter>;
+  account_?: InputMaybe<sepolia_swap_LpAccount_filter>;
   token?: InputMaybe<Scalars['String']>;
   token_not?: InputMaybe<Scalars['String']>;
   token_gt?: InputMaybe<Scalars['String']>;
@@ -111,15 +111,15 @@ export type mumbai_swap_LpAccountBalance_filter = {
   token_ends_with_nocase?: InputMaybe<Scalars['String']>;
   token_not_ends_with?: InputMaybe<Scalars['String']>;
   token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  token_?: InputMaybe<mumbai_swap_LpToken_filter>;
-  amount?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  token_?: InputMaybe<sepolia_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -136,23 +136,23 @@ export type mumbai_swap_LpAccountBalance_filter = {
   modified_lte?: InputMaybe<Scalars['BigInt']>;
   modified_in?: InputMaybe<Array<Scalars['BigInt']>>;
   modified_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_LpAccountBalance_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_LpAccountBalance_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_LpAccountBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_LpAccountBalance_filter>>>;
 };
 
-export type mumbai_swap_LpAccountBalance_orderBy =
+export type sepolia_swap_LpAccountBalance_orderBy =
   | 'id'
   | 'account'
   | 'account__id'
@@ -169,7 +169,7 @@ export type mumbai_swap_LpAccountBalance_orderBy =
   | 'modified'
   | 'transaction';
 
-export type mumbai_swap_LpAccount_filter = {
+export type sepolia_swap_LpAccount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -178,59 +178,59 @@ export type mumbai_swap_LpAccount_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  address?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  address_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  address_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  balances_?: InputMaybe<mumbai_swap_LpAccountBalance_filter>;
+  address?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  balances_?: InputMaybe<sepolia_swap_LpAccountBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_LpAccount_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_LpAccount_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_LpAccount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_LpAccount_filter>>>;
 };
 
-export type mumbai_swap_LpAccount_orderBy =
+export type sepolia_swap_LpAccount_orderBy =
   | 'id'
   | 'address'
   | 'balances';
 
-export type mumbai_swap_LpToken = {
+export type sepolia_swap_LpToken = {
   id: Scalars['ID'];
-  address: Scalars['mumbai_swap_Bytes'];
-  stableSwap: mumbai_swap_StableSwap;
+  address: Scalars['sepolia_swap_Bytes'];
+  stableSwap: sepolia_swap_StableSwap;
   decimals: Scalars['Int'];
   name: Scalars['String'];
   symbol: Scalars['String'];
-  totalSupply: Scalars['mumbai_swap_BigDecimal'];
-  events: Array<mumbai_swap_LpTokenEvent>;
+  totalSupply: Scalars['sepolia_swap_BigDecimal'];
+  events: Array<sepolia_swap_LpTokenEvent>;
 };
 
 
-export type mumbai_swap_LpTokeneventsArgs = {
+export type sepolia_swap_LpTokeneventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpTokenEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpTokenEvent_filter>;
+  orderBy?: InputMaybe<sepolia_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpTokenEvent_filter>;
 };
 
-export type mumbai_swap_LpTokenEvent = {
+export type sepolia_swap_LpTokenEvent = {
   id: Scalars['ID'];
-  token: mumbai_swap_LpToken;
-  amount: Scalars['mumbai_swap_BigDecimal'];
+  token: sepolia_swap_LpToken;
+  amount: Scalars['sepolia_swap_BigDecimal'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_LpTokenEvent_filter = {
+export type sepolia_swap_LpTokenEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -259,15 +259,15 @@ export type mumbai_swap_LpTokenEvent_filter = {
   token_ends_with_nocase?: InputMaybe<Scalars['String']>;
   token_not_ends_with?: InputMaybe<Scalars['String']>;
   token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  token_?: InputMaybe<mumbai_swap_LpToken_filter>;
-  amount?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  token_?: InputMaybe<sepolia_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -284,16 +284,16 @@ export type mumbai_swap_LpTokenEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -303,12 +303,12 @@ export type mumbai_swap_LpTokenEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_LpTokenEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_LpTokenEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_LpTokenEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_LpTokenEvent_filter>>>;
 };
 
-export type mumbai_swap_LpTokenEvent_orderBy =
+export type sepolia_swap_LpTokenEvent_orderBy =
   | 'id'
   | 'token'
   | 'token__id'
@@ -323,7 +323,7 @@ export type mumbai_swap_LpTokenEvent_orderBy =
   | 'transaction'
   | 'nonce';
 
-export type mumbai_swap_LpToken_filter = {
+export type sepolia_swap_LpToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -332,16 +332,16 @@ export type mumbai_swap_LpToken_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  address?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  address_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  address_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  address_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  address?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  address_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  address_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  address_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   stableSwap?: InputMaybe<Scalars['String']>;
   stableSwap_not?: InputMaybe<Scalars['String']>;
   stableSwap_gt?: InputMaybe<Scalars['String']>;
@@ -362,7 +362,7 @@ export type mumbai_swap_LpToken_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   decimals?: InputMaybe<Scalars['Int']>;
   decimals_not?: InputMaybe<Scalars['Int']>;
   decimals_gt?: InputMaybe<Scalars['Int']>;
@@ -411,22 +411,22 @@ export type mumbai_swap_LpToken_filter = {
   symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
   symbol_not_ends_with?: InputMaybe<Scalars['String']>;
   symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  totalSupply?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  totalSupply_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  totalSupply_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  events_?: InputMaybe<mumbai_swap_LpTokenEvent_filter>;
+  totalSupply?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  totalSupply_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  totalSupply_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  events_?: InputMaybe<sepolia_swap_LpTokenEvent_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_LpToken_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_LpToken_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_LpToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_LpToken_filter>>>;
 };
 
-export type mumbai_swap_LpToken_orderBy =
+export type sepolia_swap_LpToken_orderBy =
   | 'id'
   | 'address'
   | 'stableSwap'
@@ -452,21 +452,21 @@ export type mumbai_swap_LpToken_orderBy =
   | 'totalSupply'
   | 'events';
 
-export type mumbai_swap_LpTransferEvent = mumbai_swap_LpTokenEvent & {
+export type sepolia_swap_LpTransferEvent = sepolia_swap_LpTokenEvent & {
   id: Scalars['ID'];
-  token: mumbai_swap_LpToken;
-  amount: Scalars['mumbai_swap_BigDecimal'];
-  from: Scalars['mumbai_swap_Bytes'];
-  to: Scalars['mumbai_swap_Bytes'];
-  fromBalance: Scalars['mumbai_swap_BigDecimal'];
-  toBalance: Scalars['mumbai_swap_BigDecimal'];
+  token: sepolia_swap_LpToken;
+  amount: Scalars['sepolia_swap_BigDecimal'];
+  from: Scalars['sepolia_swap_Bytes'];
+  to: Scalars['sepolia_swap_Bytes'];
+  fromBalance: Scalars['sepolia_swap_BigDecimal'];
+  toBalance: Scalars['sepolia_swap_BigDecimal'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_LpTransferEvent_filter = {
+export type sepolia_swap_LpTransferEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -495,51 +495,51 @@ export type mumbai_swap_LpTransferEvent_filter = {
   token_ends_with_nocase?: InputMaybe<Scalars['String']>;
   token_not_ends_with?: InputMaybe<Scalars['String']>;
   token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  token_?: InputMaybe<mumbai_swap_LpToken_filter>;
-  amount?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  amount_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  from?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  from_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  from_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  from_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  fromBalance?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  fromBalance_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  fromBalance_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  toBalance?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  toBalance_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  toBalance_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  token_?: InputMaybe<sepolia_swap_LpToken_filter>;
+  amount?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  amount_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  from?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  from_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  from_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  from_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  fromBalance?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  fromBalance_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  fromBalance_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  toBalance?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  toBalance_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  toBalance_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -556,16 +556,16 @@ export type mumbai_swap_LpTransferEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -575,12 +575,12 @@ export type mumbai_swap_LpTransferEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_LpTransferEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_LpTransferEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_LpTransferEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_LpTransferEvent_filter>>>;
 };
 
-export type mumbai_swap_LpTransferEvent_orderBy =
+export type sepolia_swap_LpTransferEvent_orderBy =
   | 'id'
   | 'token'
   | 'token__id'
@@ -600,16 +600,16 @@ export type mumbai_swap_LpTransferEvent_orderBy =
   | 'nonce';
 
 /** Defines the order direction, either ascending or descending */
-export type mumbai_swap_OrderDirection =
+export type sepolia_swap_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type mumbai_swap_PooledToken = {
+export type sepolia_swap_PooledToken = {
   id: Scalars['ID'];
-  asset: Scalars['mumbai_swap_Bytes'];
+  asset: Scalars['sepolia_swap_Bytes'];
 };
 
-export type mumbai_swap_PooledToken_filter = {
+export type sepolia_swap_PooledToken_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -618,433 +618,433 @@ export type mumbai_swap_PooledToken_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  asset?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_PooledToken_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_PooledToken_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_PooledToken_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_PooledToken_filter>>>;
 };
 
-export type mumbai_swap_PooledToken_orderBy =
+export type sepolia_swap_PooledToken_orderBy =
   | 'id'
   | 'asset';
 
 export type Query = {
-  mumbai_swap_systemInfo?: Maybe<mumbai_swap_SystemInfo>;
-  mumbai_swap_systemInfos: Array<mumbai_swap_SystemInfo>;
-  mumbai_swap_pooledToken?: Maybe<mumbai_swap_PooledToken>;
-  mumbai_swap_pooledTokens: Array<mumbai_swap_PooledToken>;
-  mumbai_swap_stableSwap?: Maybe<mumbai_swap_StableSwap>;
-  mumbai_swap_stableSwaps: Array<mumbai_swap_StableSwap>;
-  mumbai_swap_stableSwapAddLiquidityEvent?: Maybe<mumbai_swap_StableSwapAddLiquidityEvent>;
-  mumbai_swap_stableSwapAddLiquidityEvents: Array<mumbai_swap_StableSwapAddLiquidityEvent>;
-  mumbai_swap_stableSwapRemoveLiquidityEvent?: Maybe<mumbai_swap_StableSwapRemoveLiquidityEvent>;
-  mumbai_swap_stableSwapRemoveLiquidityEvents: Array<mumbai_swap_StableSwapRemoveLiquidityEvent>;
-  mumbai_swap_stableSwapExchange?: Maybe<mumbai_swap_StableSwapExchange>;
-  mumbai_swap_stableSwapExchanges: Array<mumbai_swap_StableSwapExchange>;
-  mumbai_swap_swapDailyVolume?: Maybe<mumbai_swap_SwapDailyVolume>;
-  mumbai_swap_swapDailyVolumes: Array<mumbai_swap_SwapDailyVolume>;
-  mumbai_swap_swapHourlyVolume?: Maybe<mumbai_swap_SwapHourlyVolume>;
-  mumbai_swap_swapHourlyVolumes: Array<mumbai_swap_SwapHourlyVolume>;
-  mumbai_swap_swapWeeklyVolume?: Maybe<mumbai_swap_SwapWeeklyVolume>;
-  mumbai_swap_swapWeeklyVolumes: Array<mumbai_swap_SwapWeeklyVolume>;
-  mumbai_swap_lpAccount?: Maybe<mumbai_swap_LpAccount>;
-  mumbai_swap_lpAccounts: Array<mumbai_swap_LpAccount>;
-  mumbai_swap_lpAccountBalance?: Maybe<mumbai_swap_LpAccountBalance>;
-  mumbai_swap_lpAccountBalances: Array<mumbai_swap_LpAccountBalance>;
-  mumbai_swap_lpToken?: Maybe<mumbai_swap_LpToken>;
-  mumbai_swap_lpTokens: Array<mumbai_swap_LpToken>;
-  mumbai_swap_lpTransferEvent?: Maybe<mumbai_swap_LpTransferEvent>;
-  mumbai_swap_lpTransferEvents: Array<mumbai_swap_LpTransferEvent>;
-  mumbai_swap_stableSwapEvent?: Maybe<mumbai_swap_StableSwapEvent>;
-  mumbai_swap_stableSwapEvents: Array<mumbai_swap_StableSwapEvent>;
-  mumbai_swap_swapTradeVolume?: Maybe<mumbai_swap_SwapTradeVolume>;
-  mumbai_swap_swapTradeVolumes: Array<mumbai_swap_SwapTradeVolume>;
-  mumbai_swap_lpTokenEvent?: Maybe<mumbai_swap_LpTokenEvent>;
-  mumbai_swap_lpTokenEvents: Array<mumbai_swap_LpTokenEvent>;
+  sepolia_swap_systemInfo?: Maybe<sepolia_swap_SystemInfo>;
+  sepolia_swap_systemInfos: Array<sepolia_swap_SystemInfo>;
+  sepolia_swap_pooledToken?: Maybe<sepolia_swap_PooledToken>;
+  sepolia_swap_pooledTokens: Array<sepolia_swap_PooledToken>;
+  sepolia_swap_stableSwap?: Maybe<sepolia_swap_StableSwap>;
+  sepolia_swap_stableSwaps: Array<sepolia_swap_StableSwap>;
+  sepolia_swap_stableSwapAddLiquidityEvent?: Maybe<sepolia_swap_StableSwapAddLiquidityEvent>;
+  sepolia_swap_stableSwapAddLiquidityEvents: Array<sepolia_swap_StableSwapAddLiquidityEvent>;
+  sepolia_swap_stableSwapRemoveLiquidityEvent?: Maybe<sepolia_swap_StableSwapRemoveLiquidityEvent>;
+  sepolia_swap_stableSwapRemoveLiquidityEvents: Array<sepolia_swap_StableSwapRemoveLiquidityEvent>;
+  sepolia_swap_stableSwapExchange?: Maybe<sepolia_swap_StableSwapExchange>;
+  sepolia_swap_stableSwapExchanges: Array<sepolia_swap_StableSwapExchange>;
+  sepolia_swap_swapDailyVolume?: Maybe<sepolia_swap_SwapDailyVolume>;
+  sepolia_swap_swapDailyVolumes: Array<sepolia_swap_SwapDailyVolume>;
+  sepolia_swap_swapHourlyVolume?: Maybe<sepolia_swap_SwapHourlyVolume>;
+  sepolia_swap_swapHourlyVolumes: Array<sepolia_swap_SwapHourlyVolume>;
+  sepolia_swap_swapWeeklyVolume?: Maybe<sepolia_swap_SwapWeeklyVolume>;
+  sepolia_swap_swapWeeklyVolumes: Array<sepolia_swap_SwapWeeklyVolume>;
+  sepolia_swap_lpAccount?: Maybe<sepolia_swap_LpAccount>;
+  sepolia_swap_lpAccounts: Array<sepolia_swap_LpAccount>;
+  sepolia_swap_lpAccountBalance?: Maybe<sepolia_swap_LpAccountBalance>;
+  sepolia_swap_lpAccountBalances: Array<sepolia_swap_LpAccountBalance>;
+  sepolia_swap_lpToken?: Maybe<sepolia_swap_LpToken>;
+  sepolia_swap_lpTokens: Array<sepolia_swap_LpToken>;
+  sepolia_swap_lpTransferEvent?: Maybe<sepolia_swap_LpTransferEvent>;
+  sepolia_swap_lpTransferEvents: Array<sepolia_swap_LpTransferEvent>;
+  sepolia_swap_stableSwapEvent?: Maybe<sepolia_swap_StableSwapEvent>;
+  sepolia_swap_stableSwapEvents: Array<sepolia_swap_StableSwapEvent>;
+  sepolia_swap_swapTradeVolume?: Maybe<sepolia_swap_SwapTradeVolume>;
+  sepolia_swap_swapTradeVolumes: Array<sepolia_swap_SwapTradeVolume>;
+  sepolia_swap_lpTokenEvent?: Maybe<sepolia_swap_LpTokenEvent>;
+  sepolia_swap_lpTokenEvents: Array<sepolia_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
-  mumbai_swap__meta?: Maybe<mumbai_swap__Meta_>;
+  sepolia_swap__meta?: Maybe<sepolia_swap__Meta_>;
 };
 
 
-export type Querymumbai_swap_systemInfoArgs = {
+export type Querysepolia_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_systemInfosArgs = {
+export type Querysepolia_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SystemInfo_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SystemInfo_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_pooledTokenArgs = {
+export type Querysepolia_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_pooledTokensArgs = {
+export type Querysepolia_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_PooledToken_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_PooledToken_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapArgs = {
+export type Querysepolia_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapsArgs = {
+export type Querysepolia_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwap_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwap_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapAddLiquidityEventArgs = {
+export type Querysepolia_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapAddLiquidityEventsArgs = {
+export type Querysepolia_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapRemoveLiquidityEventArgs = {
+export type Querysepolia_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapRemoveLiquidityEventsArgs = {
+export type Querysepolia_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapExchangeArgs = {
+export type Querysepolia_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapExchangesArgs = {
+export type Querysepolia_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapExchange_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapDailyVolumeArgs = {
+export type Querysepolia_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapDailyVolumesArgs = {
+export type Querysepolia_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapDailyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapHourlyVolumeArgs = {
+export type Querysepolia_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapHourlyVolumesArgs = {
+export type Querysepolia_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapHourlyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapWeeklyVolumeArgs = {
+export type Querysepolia_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapWeeklyVolumesArgs = {
+export type Querysepolia_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpAccountArgs = {
+export type Querysepolia_swap_lpAccountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpAccountsArgs = {
+export type Querysepolia_swap_lpAccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpAccount_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpAccount_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpAccount_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpAccountBalanceArgs = {
+export type Querysepolia_swap_lpAccountBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpAccountBalancesArgs = {
+export type Querysepolia_swap_lpAccountBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpAccountBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpAccountBalance_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTokenArgs = {
+export type Querysepolia_swap_lpTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTokensArgs = {
+export type Querysepolia_swap_lpTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpToken_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpToken_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpToken_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTransferEventArgs = {
+export type Querysepolia_swap_lpTransferEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTransferEventsArgs = {
+export type Querysepolia_swap_lpTransferEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpTransferEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpTransferEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapEventArgs = {
+export type Querysepolia_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_stableSwapEventsArgs = {
+export type Querysepolia_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapTradeVolumeArgs = {
+export type Querysepolia_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_swapTradeVolumesArgs = {
+export type Querysepolia_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapTradeVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTokenEventArgs = {
+export type Querysepolia_swap_lpTokenEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap_lpTokenEventsArgs = {
+export type Querysepolia_swap_lpTokenEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpTokenEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpTokenEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpTokenEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Querymumbai_swap__metaArgs = {
-  block?: InputMaybe<mumbai_swap_Block_height>;
+export type Querysepolia_swap__metaArgs = {
+  block?: InputMaybe<sepolia_swap_Block_height>;
 };
 
-export type mumbai_swap_StableSwap = {
+export type sepolia_swap_StableSwap = {
   id: Scalars['ID'];
   isActive?: Maybe<Scalars['Boolean']>;
-  key: Scalars['mumbai_swap_Bytes'];
-  canonicalId?: Maybe<Scalars['mumbai_swap_Bytes']>;
+  key: Scalars['sepolia_swap_Bytes'];
+  canonicalId?: Maybe<Scalars['sepolia_swap_Bytes']>;
   domain?: Maybe<Scalars['BigInt']>;
-  swapPool?: Maybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken?: Maybe<Scalars['mumbai_swap_Bytes']>;
+  swapPool?: Maybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken?: Maybe<Scalars['sepolia_swap_Bytes']>;
   initialA?: Maybe<Scalars['BigInt']>;
   futureA?: Maybe<Scalars['BigInt']>;
   initialATime?: Maybe<Scalars['BigInt']>;
   futureATime?: Maybe<Scalars['BigInt']>;
   swapFee?: Maybe<Scalars['BigInt']>;
   adminFee?: Maybe<Scalars['BigInt']>;
-  pooledTokens: Array<Scalars['mumbai_swap_Bytes']>;
+  pooledTokens: Array<Scalars['sepolia_swap_Bytes']>;
   tokenPrecisionMultipliers: Array<Scalars['BigInt']>;
   balances: Array<Scalars['BigInt']>;
   adminFees: Array<Scalars['BigInt']>;
   virtualPrice: Scalars['BigInt'];
   invariant: Scalars['BigInt'];
   lpTokenSupply: Scalars['BigInt'];
-  events?: Maybe<Array<mumbai_swap_StableSwapEvent>>;
-  exchanges?: Maybe<Array<mumbai_swap_StableSwapExchange>>;
-  hourlyVolumes?: Maybe<Array<mumbai_swap_SwapHourlyVolume>>;
-  dailyVolumes?: Maybe<Array<mumbai_swap_SwapDailyVolume>>;
-  weeklyVolumes?: Maybe<Array<mumbai_swap_SwapWeeklyVolume>>;
+  events?: Maybe<Array<sepolia_swap_StableSwapEvent>>;
+  exchanges?: Maybe<Array<sepolia_swap_StableSwapExchange>>;
+  hourlyVolumes?: Maybe<Array<sepolia_swap_SwapHourlyVolume>>;
+  dailyVolumes?: Maybe<Array<sepolia_swap_SwapDailyVolume>>;
+  weeklyVolumes?: Maybe<Array<sepolia_swap_SwapWeeklyVolume>>;
 };
 
 
-export type mumbai_swap_StableSwapeventsArgs = {
+export type sepolia_swap_StableSwapeventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapEvent_filter>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapEvent_filter>;
 };
 
 
-export type mumbai_swap_StableSwapexchangesArgs = {
+export type sepolia_swap_StableSwapexchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapExchange_filter>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapExchange_filter>;
 };
 
 
-export type mumbai_swap_StableSwaphourlyVolumesArgs = {
+export type sepolia_swap_StableSwaphourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapHourlyVolume_filter>;
+  orderBy?: InputMaybe<sepolia_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapHourlyVolume_filter>;
 };
 
 
-export type mumbai_swap_StableSwapdailyVolumesArgs = {
+export type sepolia_swap_StableSwapdailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapDailyVolume_filter>;
+  orderBy?: InputMaybe<sepolia_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapDailyVolume_filter>;
 };
 
 
-export type mumbai_swap_StableSwapweeklyVolumesArgs = {
+export type sepolia_swap_StableSwapweeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>;
+  orderBy?: InputMaybe<sepolia_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>;
 };
 
-export type mumbai_swap_StableSwapAddLiquidityEvent = mumbai_swap_StableSwapEvent & {
+export type sepolia_swap_StableSwapAddLiquidityEvent = sepolia_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
-  provider: Scalars['mumbai_swap_Bytes'];
+  stableSwap: sepolia_swap_StableSwap;
+  provider: Scalars['sepolia_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees: Array<Scalars['BigInt']>;
   invariant?: Maybe<Scalars['BigInt']>;
@@ -1053,11 +1053,11 @@ export type mumbai_swap_StableSwapAddLiquidityEvent = mumbai_swap_StableSwapEven
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_StableSwapAddLiquidityEvent_filter = {
+export type sepolia_swap_StableSwapAddLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1086,17 +1086,17 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -1155,16 +1155,16 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1174,12 +1174,12 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_filter>>>;
 };
 
-export type mumbai_swap_StableSwapAddLiquidityEvent_orderBy =
+export type sepolia_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -1210,16 +1210,16 @@ export type mumbai_swap_StableSwapAddLiquidityEvent_orderBy =
   | 'transaction'
   | 'nonce';
 
-export type mumbai_swap_StableSwapEvent = {
+export type sepolia_swap_StableSwapEvent = {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
+  stableSwap: sepolia_swap_StableSwap;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_StableSwapEvent_filter = {
+export type sepolia_swap_StableSwapEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1248,7 +1248,7 @@ export type mumbai_swap_StableSwapEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   block?: InputMaybe<Scalars['BigInt']>;
   block_not?: InputMaybe<Scalars['BigInt']>;
   block_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1265,16 +1265,16 @@ export type mumbai_swap_StableSwapEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1284,12 +1284,12 @@ export type mumbai_swap_StableSwapEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapEvent_filter>>>;
 };
 
-export type mumbai_swap_StableSwapEvent_orderBy =
+export type sepolia_swap_StableSwapEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -1313,10 +1313,10 @@ export type mumbai_swap_StableSwapEvent_orderBy =
   | 'transaction'
   | 'nonce';
 
-export type mumbai_swap_StableSwapExchange = {
+export type sepolia_swap_StableSwapExchange = {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
-  buyer: Scalars['mumbai_swap_Bytes'];
+  stableSwap: sepolia_swap_StableSwap;
+  buyer: Scalars['sepolia_swap_Bytes'];
   boughtId: Scalars['BigInt'];
   tokensBought: Scalars['BigInt'];
   soldId: Scalars['BigInt'];
@@ -1325,11 +1325,11 @@ export type mumbai_swap_StableSwapExchange = {
   fee: Scalars['BigInt'];
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_StableSwapExchange_filter = {
+export type sepolia_swap_StableSwapExchange_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1358,17 +1358,17 @@ export type mumbai_swap_StableSwapExchange_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
-  buyer?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  buyer_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  buyer_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  buyer_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
+  buyer?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  buyer_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  buyer_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  buyer_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   boughtId?: InputMaybe<Scalars['BigInt']>;
   boughtId_not?: InputMaybe<Scalars['BigInt']>;
   boughtId_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1431,16 +1431,16 @@ export type mumbai_swap_StableSwapExchange_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1450,12 +1450,12 @@ export type mumbai_swap_StableSwapExchange_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapExchange_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapExchange_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapExchange_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapExchange_filter>>>;
 };
 
-export type mumbai_swap_StableSwapExchange_orderBy =
+export type sepolia_swap_StableSwapExchange_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -1486,10 +1486,10 @@ export type mumbai_swap_StableSwapExchange_orderBy =
   | 'transaction'
   | 'nonce';
 
-export type mumbai_swap_StableSwapRemoveLiquidityEvent = mumbai_swap_StableSwapEvent & {
+export type sepolia_swap_StableSwapRemoveLiquidityEvent = sepolia_swap_StableSwapEvent & {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
-  provider: Scalars['mumbai_swap_Bytes'];
+  stableSwap: sepolia_swap_StableSwap;
+  provider: Scalars['sepolia_swap_Bytes'];
   tokenAmounts: Array<Scalars['BigInt']>;
   fees?: Maybe<Array<Scalars['BigInt']>>;
   invariant?: Maybe<Scalars['BigInt']>;
@@ -1498,11 +1498,11 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent = mumbai_swap_StableSwapE
   balances: Array<Scalars['BigInt']>;
   block: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transaction: Scalars['mumbai_swap_Bytes'];
+  transaction: Scalars['sepolia_swap_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type mumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
+export type sepolia_swap_StableSwapRemoveLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1531,17 +1531,17 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
-  provider?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  provider_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  provider_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  provider_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
+  provider?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  provider_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  provider_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  provider_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   tokenAmounts?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenAmounts_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -1600,16 +1600,16 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transaction?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  transaction_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  transaction_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  transaction?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  transaction_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  transaction_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1619,12 +1619,12 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_filter>>>;
 };
 
-export type mumbai_swap_StableSwapRemoveLiquidityEvent_orderBy =
+export type sepolia_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -1655,7 +1655,7 @@ export type mumbai_swap_StableSwapRemoveLiquidityEvent_orderBy =
   | 'transaction'
   | 'nonce';
 
-export type mumbai_swap_StableSwap_filter = {
+export type sepolia_swap_StableSwap_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1668,26 +1668,26 @@ export type mumbai_swap_StableSwap_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  key?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  key?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   domain?: InputMaybe<Scalars['BigInt']>;
   domain_not?: InputMaybe<Scalars['BigInt']>;
   domain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1696,26 +1696,26 @@ export type mumbai_swap_StableSwap_filter = {
   domain_lte?: InputMaybe<Scalars['BigInt']>;
   domain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   domain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  swapPool?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  swapPool_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  swapPool_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  swapPool_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_not?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_gt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_lt?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_gte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_lte?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  lpToken_not_in?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  lpToken_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
-  lpToken_not_contains?: InputMaybe<Scalars['mumbai_swap_Bytes']>;
+  swapPool?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  swapPool_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  swapPool_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  swapPool_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_not?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_gt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_lt?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_gte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_lte?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  lpToken_not_in?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  lpToken_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
+  lpToken_not_contains?: InputMaybe<Scalars['sepolia_swap_Bytes']>;
   initialA?: InputMaybe<Scalars['BigInt']>;
   initialA_not?: InputMaybe<Scalars['BigInt']>;
   initialA_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1764,12 +1764,12 @@ export type mumbai_swap_StableSwap_filter = {
   adminFee_lte?: InputMaybe<Scalars['BigInt']>;
   adminFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adminFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  pooledTokens?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  pooledTokens_not?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  pooledTokens_contains?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  pooledTokens_not_contains?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
-  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['mumbai_swap_Bytes']>>;
+  pooledTokens?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  pooledTokens_not?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  pooledTokens_contains?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  pooledTokens_contains_nocase?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  pooledTokens_not_contains?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
+  pooledTokens_not_contains_nocase?: InputMaybe<Array<Scalars['sepolia_swap_Bytes']>>;
   tokenPrecisionMultipliers?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_not?: InputMaybe<Array<Scalars['BigInt']>>;
   tokenPrecisionMultipliers_contains?: InputMaybe<Array<Scalars['BigInt']>>;
@@ -1812,18 +1812,18 @@ export type mumbai_swap_StableSwap_filter = {
   lpTokenSupply_lte?: InputMaybe<Scalars['BigInt']>;
   lpTokenSupply_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lpTokenSupply_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  events_?: InputMaybe<mumbai_swap_StableSwapEvent_filter>;
-  exchanges_?: InputMaybe<mumbai_swap_StableSwapExchange_filter>;
-  hourlyVolumes_?: InputMaybe<mumbai_swap_SwapHourlyVolume_filter>;
-  dailyVolumes_?: InputMaybe<mumbai_swap_SwapDailyVolume_filter>;
-  weeklyVolumes_?: InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>;
+  events_?: InputMaybe<sepolia_swap_StableSwapEvent_filter>;
+  exchanges_?: InputMaybe<sepolia_swap_StableSwapExchange_filter>;
+  hourlyVolumes_?: InputMaybe<sepolia_swap_SwapHourlyVolume_filter>;
+  dailyVolumes_?: InputMaybe<sepolia_swap_SwapDailyVolume_filter>;
+  weeklyVolumes_?: InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwap_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_StableSwap_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwap_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_StableSwap_filter>>>;
 };
 
-export type mumbai_swap_StableSwap_orderBy =
+export type sepolia_swap_StableSwap_orderBy =
   | 'id'
   | 'isActive'
   | 'key'
@@ -1851,343 +1851,343 @@ export type mumbai_swap_StableSwap_orderBy =
   | 'weeklyVolumes';
 
 export type Subscription = {
-  mumbai_swap_systemInfo?: Maybe<mumbai_swap_SystemInfo>;
-  mumbai_swap_systemInfos: Array<mumbai_swap_SystemInfo>;
-  mumbai_swap_pooledToken?: Maybe<mumbai_swap_PooledToken>;
-  mumbai_swap_pooledTokens: Array<mumbai_swap_PooledToken>;
-  mumbai_swap_stableSwap?: Maybe<mumbai_swap_StableSwap>;
-  mumbai_swap_stableSwaps: Array<mumbai_swap_StableSwap>;
-  mumbai_swap_stableSwapAddLiquidityEvent?: Maybe<mumbai_swap_StableSwapAddLiquidityEvent>;
-  mumbai_swap_stableSwapAddLiquidityEvents: Array<mumbai_swap_StableSwapAddLiquidityEvent>;
-  mumbai_swap_stableSwapRemoveLiquidityEvent?: Maybe<mumbai_swap_StableSwapRemoveLiquidityEvent>;
-  mumbai_swap_stableSwapRemoveLiquidityEvents: Array<mumbai_swap_StableSwapRemoveLiquidityEvent>;
-  mumbai_swap_stableSwapExchange?: Maybe<mumbai_swap_StableSwapExchange>;
-  mumbai_swap_stableSwapExchanges: Array<mumbai_swap_StableSwapExchange>;
-  mumbai_swap_swapDailyVolume?: Maybe<mumbai_swap_SwapDailyVolume>;
-  mumbai_swap_swapDailyVolumes: Array<mumbai_swap_SwapDailyVolume>;
-  mumbai_swap_swapHourlyVolume?: Maybe<mumbai_swap_SwapHourlyVolume>;
-  mumbai_swap_swapHourlyVolumes: Array<mumbai_swap_SwapHourlyVolume>;
-  mumbai_swap_swapWeeklyVolume?: Maybe<mumbai_swap_SwapWeeklyVolume>;
-  mumbai_swap_swapWeeklyVolumes: Array<mumbai_swap_SwapWeeklyVolume>;
-  mumbai_swap_lpAccount?: Maybe<mumbai_swap_LpAccount>;
-  mumbai_swap_lpAccounts: Array<mumbai_swap_LpAccount>;
-  mumbai_swap_lpAccountBalance?: Maybe<mumbai_swap_LpAccountBalance>;
-  mumbai_swap_lpAccountBalances: Array<mumbai_swap_LpAccountBalance>;
-  mumbai_swap_lpToken?: Maybe<mumbai_swap_LpToken>;
-  mumbai_swap_lpTokens: Array<mumbai_swap_LpToken>;
-  mumbai_swap_lpTransferEvent?: Maybe<mumbai_swap_LpTransferEvent>;
-  mumbai_swap_lpTransferEvents: Array<mumbai_swap_LpTransferEvent>;
-  mumbai_swap_stableSwapEvent?: Maybe<mumbai_swap_StableSwapEvent>;
-  mumbai_swap_stableSwapEvents: Array<mumbai_swap_StableSwapEvent>;
-  mumbai_swap_swapTradeVolume?: Maybe<mumbai_swap_SwapTradeVolume>;
-  mumbai_swap_swapTradeVolumes: Array<mumbai_swap_SwapTradeVolume>;
-  mumbai_swap_lpTokenEvent?: Maybe<mumbai_swap_LpTokenEvent>;
-  mumbai_swap_lpTokenEvents: Array<mumbai_swap_LpTokenEvent>;
+  sepolia_swap_systemInfo?: Maybe<sepolia_swap_SystemInfo>;
+  sepolia_swap_systemInfos: Array<sepolia_swap_SystemInfo>;
+  sepolia_swap_pooledToken?: Maybe<sepolia_swap_PooledToken>;
+  sepolia_swap_pooledTokens: Array<sepolia_swap_PooledToken>;
+  sepolia_swap_stableSwap?: Maybe<sepolia_swap_StableSwap>;
+  sepolia_swap_stableSwaps: Array<sepolia_swap_StableSwap>;
+  sepolia_swap_stableSwapAddLiquidityEvent?: Maybe<sepolia_swap_StableSwapAddLiquidityEvent>;
+  sepolia_swap_stableSwapAddLiquidityEvents: Array<sepolia_swap_StableSwapAddLiquidityEvent>;
+  sepolia_swap_stableSwapRemoveLiquidityEvent?: Maybe<sepolia_swap_StableSwapRemoveLiquidityEvent>;
+  sepolia_swap_stableSwapRemoveLiquidityEvents: Array<sepolia_swap_StableSwapRemoveLiquidityEvent>;
+  sepolia_swap_stableSwapExchange?: Maybe<sepolia_swap_StableSwapExchange>;
+  sepolia_swap_stableSwapExchanges: Array<sepolia_swap_StableSwapExchange>;
+  sepolia_swap_swapDailyVolume?: Maybe<sepolia_swap_SwapDailyVolume>;
+  sepolia_swap_swapDailyVolumes: Array<sepolia_swap_SwapDailyVolume>;
+  sepolia_swap_swapHourlyVolume?: Maybe<sepolia_swap_SwapHourlyVolume>;
+  sepolia_swap_swapHourlyVolumes: Array<sepolia_swap_SwapHourlyVolume>;
+  sepolia_swap_swapWeeklyVolume?: Maybe<sepolia_swap_SwapWeeklyVolume>;
+  sepolia_swap_swapWeeklyVolumes: Array<sepolia_swap_SwapWeeklyVolume>;
+  sepolia_swap_lpAccount?: Maybe<sepolia_swap_LpAccount>;
+  sepolia_swap_lpAccounts: Array<sepolia_swap_LpAccount>;
+  sepolia_swap_lpAccountBalance?: Maybe<sepolia_swap_LpAccountBalance>;
+  sepolia_swap_lpAccountBalances: Array<sepolia_swap_LpAccountBalance>;
+  sepolia_swap_lpToken?: Maybe<sepolia_swap_LpToken>;
+  sepolia_swap_lpTokens: Array<sepolia_swap_LpToken>;
+  sepolia_swap_lpTransferEvent?: Maybe<sepolia_swap_LpTransferEvent>;
+  sepolia_swap_lpTransferEvents: Array<sepolia_swap_LpTransferEvent>;
+  sepolia_swap_stableSwapEvent?: Maybe<sepolia_swap_StableSwapEvent>;
+  sepolia_swap_stableSwapEvents: Array<sepolia_swap_StableSwapEvent>;
+  sepolia_swap_swapTradeVolume?: Maybe<sepolia_swap_SwapTradeVolume>;
+  sepolia_swap_swapTradeVolumes: Array<sepolia_swap_SwapTradeVolume>;
+  sepolia_swap_lpTokenEvent?: Maybe<sepolia_swap_LpTokenEvent>;
+  sepolia_swap_lpTokenEvents: Array<sepolia_swap_LpTokenEvent>;
   /** Access to subgraph metadata */
-  mumbai_swap__meta?: Maybe<mumbai_swap__Meta_>;
+  sepolia_swap__meta?: Maybe<sepolia_swap__Meta_>;
 };
 
 
-export type Subscriptionmumbai_swap_systemInfoArgs = {
+export type Subscriptionsepolia_swap_systemInfoArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_systemInfosArgs = {
+export type Subscriptionsepolia_swap_systemInfosArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SystemInfo_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SystemInfo_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SystemInfo_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SystemInfo_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_pooledTokenArgs = {
+export type Subscriptionsepolia_swap_pooledTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_pooledTokensArgs = {
+export type Subscriptionsepolia_swap_pooledTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_PooledToken_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_PooledToken_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_PooledToken_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_PooledToken_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapArgs = {
+export type Subscriptionsepolia_swap_stableSwapArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapsArgs = {
+export type Subscriptionsepolia_swap_stableSwapsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwap_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwap_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwap_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwap_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapAddLiquidityEventArgs = {
+export type Subscriptionsepolia_swap_stableSwapAddLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapAddLiquidityEventsArgs = {
+export type Subscriptionsepolia_swap_stableSwapAddLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapAddLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapAddLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapRemoveLiquidityEventArgs = {
+export type Subscriptionsepolia_swap_stableSwapRemoveLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapRemoveLiquidityEventsArgs = {
+export type Subscriptionsepolia_swap_stableSwapRemoveLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapRemoveLiquidityEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapRemoveLiquidityEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapExchangeArgs = {
+export type Subscriptionsepolia_swap_stableSwapExchangeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapExchangesArgs = {
+export type Subscriptionsepolia_swap_stableSwapExchangesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapExchange_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapExchange_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapExchange_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapExchange_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapDailyVolumeArgs = {
+export type Subscriptionsepolia_swap_swapDailyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapDailyVolumesArgs = {
+export type Subscriptionsepolia_swap_swapDailyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapDailyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapDailyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapDailyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapDailyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapHourlyVolumeArgs = {
+export type Subscriptionsepolia_swap_swapHourlyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapHourlyVolumesArgs = {
+export type Subscriptionsepolia_swap_swapHourlyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapHourlyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapHourlyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapHourlyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapHourlyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapWeeklyVolumeArgs = {
+export type Subscriptionsepolia_swap_swapWeeklyVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapWeeklyVolumesArgs = {
+export type Subscriptionsepolia_swap_swapWeeklyVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapWeeklyVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapWeeklyVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpAccountArgs = {
+export type Subscriptionsepolia_swap_lpAccountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpAccountsArgs = {
+export type Subscriptionsepolia_swap_lpAccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpAccount_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpAccount_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpAccount_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpAccount_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpAccountBalanceArgs = {
+export type Subscriptionsepolia_swap_lpAccountBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpAccountBalancesArgs = {
+export type Subscriptionsepolia_swap_lpAccountBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpAccountBalance_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpAccountBalance_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpAccountBalance_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpAccountBalance_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTokenArgs = {
+export type Subscriptionsepolia_swap_lpTokenArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTokensArgs = {
+export type Subscriptionsepolia_swap_lpTokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpToken_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpToken_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpToken_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpToken_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTransferEventArgs = {
+export type Subscriptionsepolia_swap_lpTransferEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTransferEventsArgs = {
+export type Subscriptionsepolia_swap_lpTransferEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpTransferEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpTransferEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpTransferEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpTransferEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapEventArgs = {
+export type Subscriptionsepolia_swap_stableSwapEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_stableSwapEventsArgs = {
+export type Subscriptionsepolia_swap_stableSwapEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_StableSwapEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_StableSwapEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_StableSwapEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_StableSwapEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapTradeVolumeArgs = {
+export type Subscriptionsepolia_swap_swapTradeVolumeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_swapTradeVolumesArgs = {
+export type Subscriptionsepolia_swap_swapTradeVolumesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_SwapTradeVolume_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_SwapTradeVolume_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_SwapTradeVolume_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_SwapTradeVolume_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTokenEventArgs = {
+export type Subscriptionsepolia_swap_lpTokenEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap_lpTokenEventsArgs = {
+export type Subscriptionsepolia_swap_lpTokenEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<mumbai_swap_LpTokenEvent_orderBy>;
-  orderDirection?: InputMaybe<mumbai_swap_OrderDirection>;
-  where?: InputMaybe<mumbai_swap_LpTokenEvent_filter>;
-  block?: InputMaybe<mumbai_swap_Block_height>;
+  orderBy?: InputMaybe<sepolia_swap_LpTokenEvent_orderBy>;
+  orderDirection?: InputMaybe<sepolia_swap_OrderDirection>;
+  where?: InputMaybe<sepolia_swap_LpTokenEvent_filter>;
+  block?: InputMaybe<sepolia_swap_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionmumbai_swap__metaArgs = {
-  block?: InputMaybe<mumbai_swap_Block_height>;
+export type Subscriptionsepolia_swap__metaArgs = {
+  block?: InputMaybe<sepolia_swap_Block_height>;
 };
 
-export type mumbai_swap_SwapDailyVolume = mumbai_swap_SwapTradeVolume & {
+export type sepolia_swap_SwapDailyVolume = sepolia_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
+  stableSwap: sepolia_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['mumbai_swap_BigDecimal'];
+  volume: Scalars['sepolia_swap_BigDecimal'];
 };
 
-export type mumbai_swap_SwapDailyVolume_filter = {
+export type sepolia_swap_SwapDailyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2216,7 +2216,7 @@ export type mumbai_swap_SwapDailyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2225,21 +2225,21 @@ export type mumbai_swap_SwapDailyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapDailyVolume_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapDailyVolume_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapDailyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapDailyVolume_filter>>>;
 };
 
-export type mumbai_swap_SwapDailyVolume_orderBy =
+export type sepolia_swap_SwapDailyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -2261,14 +2261,14 @@ export type mumbai_swap_SwapDailyVolume_orderBy =
   | 'timestamp'
   | 'volume';
 
-export type mumbai_swap_SwapHourlyVolume = mumbai_swap_SwapTradeVolume & {
+export type sepolia_swap_SwapHourlyVolume = sepolia_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
+  stableSwap: sepolia_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['mumbai_swap_BigDecimal'];
+  volume: Scalars['sepolia_swap_BigDecimal'];
 };
 
-export type mumbai_swap_SwapHourlyVolume_filter = {
+export type sepolia_swap_SwapHourlyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2297,7 +2297,7 @@ export type mumbai_swap_SwapHourlyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2306,21 +2306,21 @@ export type mumbai_swap_SwapHourlyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapHourlyVolume_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapHourlyVolume_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapHourlyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapHourlyVolume_filter>>>;
 };
 
-export type mumbai_swap_SwapHourlyVolume_orderBy =
+export type sepolia_swap_SwapHourlyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -2342,13 +2342,13 @@ export type mumbai_swap_SwapHourlyVolume_orderBy =
   | 'timestamp'
   | 'volume';
 
-export type mumbai_swap_SwapTradeVolume = {
-  stableSwap: mumbai_swap_StableSwap;
+export type sepolia_swap_SwapTradeVolume = {
+  stableSwap: sepolia_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['mumbai_swap_BigDecimal'];
+  volume: Scalars['sepolia_swap_BigDecimal'];
 };
 
-export type mumbai_swap_SwapTradeVolume_filter = {
+export type sepolia_swap_SwapTradeVolume_filter = {
   stableSwap?: InputMaybe<Scalars['String']>;
   stableSwap_not?: InputMaybe<Scalars['String']>;
   stableSwap_gt?: InputMaybe<Scalars['String']>;
@@ -2369,7 +2369,7 @@ export type mumbai_swap_SwapTradeVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2378,21 +2378,21 @@ export type mumbai_swap_SwapTradeVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapTradeVolume_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapTradeVolume_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapTradeVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapTradeVolume_filter>>>;
 };
 
-export type mumbai_swap_SwapTradeVolume_orderBy =
+export type sepolia_swap_SwapTradeVolume_orderBy =
   | 'stableSwap'
   | 'stableSwap__id'
   | 'stableSwap__isActive'
@@ -2413,14 +2413,14 @@ export type mumbai_swap_SwapTradeVolume_orderBy =
   | 'timestamp'
   | 'volume';
 
-export type mumbai_swap_SwapWeeklyVolume = mumbai_swap_SwapTradeVolume & {
+export type sepolia_swap_SwapWeeklyVolume = sepolia_swap_SwapTradeVolume & {
   id: Scalars['ID'];
-  stableSwap: mumbai_swap_StableSwap;
+  stableSwap: sepolia_swap_StableSwap;
   timestamp: Scalars['BigInt'];
-  volume: Scalars['mumbai_swap_BigDecimal'];
+  volume: Scalars['sepolia_swap_BigDecimal'];
 };
 
-export type mumbai_swap_SwapWeeklyVolume_filter = {
+export type sepolia_swap_SwapWeeklyVolume_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2449,7 +2449,7 @@ export type mumbai_swap_SwapWeeklyVolume_filter = {
   stableSwap_ends_with_nocase?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with?: InputMaybe<Scalars['String']>;
   stableSwap_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  stableSwap_?: InputMaybe<mumbai_swap_StableSwap_filter>;
+  stableSwap_?: InputMaybe<sepolia_swap_StableSwap_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2458,21 +2458,21 @@ export type mumbai_swap_SwapWeeklyVolume_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  volume?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_not?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lt?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_gte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_lte?: InputMaybe<Scalars['mumbai_swap_BigDecimal']>;
-  volume_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
-  volume_not_in?: InputMaybe<Array<Scalars['mumbai_swap_BigDecimal']>>;
+  volume?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_not?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lt?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_gte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_lte?: InputMaybe<Scalars['sepolia_swap_BigDecimal']>;
+  volume_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
+  volume_not_in?: InputMaybe<Array<Scalars['sepolia_swap_BigDecimal']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_SwapWeeklyVolume_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_SwapWeeklyVolume_filter>>>;
 };
 
-export type mumbai_swap_SwapWeeklyVolume_orderBy =
+export type sepolia_swap_SwapWeeklyVolume_orderBy =
   | 'id'
   | 'stableSwap'
   | 'stableSwap__id'
@@ -2494,13 +2494,13 @@ export type mumbai_swap_SwapWeeklyVolume_orderBy =
   | 'timestamp'
   | 'volume';
 
-export type mumbai_swap_SystemInfo = {
+export type sepolia_swap_SystemInfo = {
   id: Scalars['ID'];
   exchangeCount: Scalars['BigInt'];
   swapCount: Scalars['BigInt'];
 };
 
-export type mumbai_swap_SystemInfo_filter = {
+export type sepolia_swap_SystemInfo_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2526,27 +2526,29 @@ export type mumbai_swap_SystemInfo_filter = {
   swapCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   swapCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<mumbai_swap_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<mumbai_swap_SystemInfo_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<mumbai_swap_SystemInfo_filter>>>;
+  _change_block?: InputMaybe<sepolia_swap_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_swap_SystemInfo_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_swap_SystemInfo_filter>>>;
 };
 
-export type mumbai_swap_SystemInfo_orderBy =
+export type sepolia_swap_SystemInfo_orderBy =
   | 'id'
   | 'exchangeCount'
   | 'swapCount';
 
-export type mumbai_swap__Block_ = {
+export type sepolia_swap__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['mumbai_swap_Bytes']>;
+  hash?: Maybe<Scalars['sepolia_swap_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['sepolia_swap_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
-export type mumbai_swap__Meta_ = {
+export type sepolia_swap__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -2554,7 +2556,7 @@ export type mumbai_swap__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: mumbai_swap__Block_;
+  block: sepolia_swap__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -2569,71 +2571,71 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  mumbai_swap_systemInfo: InContextSdkMethod<Query['mumbai_swap_systemInfo'], Querymumbai_swap_systemInfoArgs, MeshContext>,
+  sepolia_swap_systemInfo: InContextSdkMethod<Query['sepolia_swap_systemInfo'], Querysepolia_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  mumbai_swap_systemInfos: InContextSdkMethod<Query['mumbai_swap_systemInfos'], Querymumbai_swap_systemInfosArgs, MeshContext>,
+  sepolia_swap_systemInfos: InContextSdkMethod<Query['sepolia_swap_systemInfos'], Querysepolia_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  mumbai_swap_pooledToken: InContextSdkMethod<Query['mumbai_swap_pooledToken'], Querymumbai_swap_pooledTokenArgs, MeshContext>,
+  sepolia_swap_pooledToken: InContextSdkMethod<Query['sepolia_swap_pooledToken'], Querysepolia_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  mumbai_swap_pooledTokens: InContextSdkMethod<Query['mumbai_swap_pooledTokens'], Querymumbai_swap_pooledTokensArgs, MeshContext>,
+  sepolia_swap_pooledTokens: InContextSdkMethod<Query['sepolia_swap_pooledTokens'], Querysepolia_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwap: InContextSdkMethod<Query['mumbai_swap_stableSwap'], Querymumbai_swap_stableSwapArgs, MeshContext>,
+  sepolia_swap_stableSwap: InContextSdkMethod<Query['sepolia_swap_stableSwap'], Querysepolia_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwaps: InContextSdkMethod<Query['mumbai_swap_stableSwaps'], Querymumbai_swap_stableSwapsArgs, MeshContext>,
+  sepolia_swap_stableSwaps: InContextSdkMethod<Query['sepolia_swap_stableSwaps'], Querysepolia_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['mumbai_swap_stableSwapAddLiquidityEvent'], Querymumbai_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
+  sepolia_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Query['sepolia_swap_stableSwapAddLiquidityEvent'], Querysepolia_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['mumbai_swap_stableSwapAddLiquidityEvents'], Querymumbai_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Query['sepolia_swap_stableSwapAddLiquidityEvents'], Querysepolia_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['mumbai_swap_stableSwapRemoveLiquidityEvent'], Querymumbai_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  sepolia_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Query['sepolia_swap_stableSwapRemoveLiquidityEvent'], Querysepolia_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['mumbai_swap_stableSwapRemoveLiquidityEvents'], Querymumbai_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Query['sepolia_swap_stableSwapRemoveLiquidityEvents'], Querysepolia_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapExchange: InContextSdkMethod<Query['mumbai_swap_stableSwapExchange'], Querymumbai_swap_stableSwapExchangeArgs, MeshContext>,
+  sepolia_swap_stableSwapExchange: InContextSdkMethod<Query['sepolia_swap_stableSwapExchange'], Querysepolia_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapExchanges: InContextSdkMethod<Query['mumbai_swap_stableSwapExchanges'], Querymumbai_swap_stableSwapExchangesArgs, MeshContext>,
+  sepolia_swap_stableSwapExchanges: InContextSdkMethod<Query['sepolia_swap_stableSwapExchanges'], Querysepolia_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapDailyVolume: InContextSdkMethod<Query['mumbai_swap_swapDailyVolume'], Querymumbai_swap_swapDailyVolumeArgs, MeshContext>,
+  sepolia_swap_swapDailyVolume: InContextSdkMethod<Query['sepolia_swap_swapDailyVolume'], Querysepolia_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapDailyVolumes: InContextSdkMethod<Query['mumbai_swap_swapDailyVolumes'], Querymumbai_swap_swapDailyVolumesArgs, MeshContext>,
+  sepolia_swap_swapDailyVolumes: InContextSdkMethod<Query['sepolia_swap_swapDailyVolumes'], Querysepolia_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapHourlyVolume: InContextSdkMethod<Query['mumbai_swap_swapHourlyVolume'], Querymumbai_swap_swapHourlyVolumeArgs, MeshContext>,
+  sepolia_swap_swapHourlyVolume: InContextSdkMethod<Query['sepolia_swap_swapHourlyVolume'], Querysepolia_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapHourlyVolumes: InContextSdkMethod<Query['mumbai_swap_swapHourlyVolumes'], Querymumbai_swap_swapHourlyVolumesArgs, MeshContext>,
+  sepolia_swap_swapHourlyVolumes: InContextSdkMethod<Query['sepolia_swap_swapHourlyVolumes'], Querysepolia_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapWeeklyVolume: InContextSdkMethod<Query['mumbai_swap_swapWeeklyVolume'], Querymumbai_swap_swapWeeklyVolumeArgs, MeshContext>,
+  sepolia_swap_swapWeeklyVolume: InContextSdkMethod<Query['sepolia_swap_swapWeeklyVolume'], Querysepolia_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapWeeklyVolumes: InContextSdkMethod<Query['mumbai_swap_swapWeeklyVolumes'], Querymumbai_swap_swapWeeklyVolumesArgs, MeshContext>,
+  sepolia_swap_swapWeeklyVolumes: InContextSdkMethod<Query['sepolia_swap_swapWeeklyVolumes'], Querysepolia_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccount: InContextSdkMethod<Query['mumbai_swap_lpAccount'], Querymumbai_swap_lpAccountArgs, MeshContext>,
+  sepolia_swap_lpAccount: InContextSdkMethod<Query['sepolia_swap_lpAccount'], Querysepolia_swap_lpAccountArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccounts: InContextSdkMethod<Query['mumbai_swap_lpAccounts'], Querymumbai_swap_lpAccountsArgs, MeshContext>,
+  sepolia_swap_lpAccounts: InContextSdkMethod<Query['sepolia_swap_lpAccounts'], Querysepolia_swap_lpAccountsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccountBalance: InContextSdkMethod<Query['mumbai_swap_lpAccountBalance'], Querymumbai_swap_lpAccountBalanceArgs, MeshContext>,
+  sepolia_swap_lpAccountBalance: InContextSdkMethod<Query['sepolia_swap_lpAccountBalance'], Querysepolia_swap_lpAccountBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccountBalances: InContextSdkMethod<Query['mumbai_swap_lpAccountBalances'], Querymumbai_swap_lpAccountBalancesArgs, MeshContext>,
+  sepolia_swap_lpAccountBalances: InContextSdkMethod<Query['sepolia_swap_lpAccountBalances'], Querysepolia_swap_lpAccountBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpToken: InContextSdkMethod<Query['mumbai_swap_lpToken'], Querymumbai_swap_lpTokenArgs, MeshContext>,
+  sepolia_swap_lpToken: InContextSdkMethod<Query['sepolia_swap_lpToken'], Querysepolia_swap_lpTokenArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokens: InContextSdkMethod<Query['mumbai_swap_lpTokens'], Querymumbai_swap_lpTokensArgs, MeshContext>,
+  sepolia_swap_lpTokens: InContextSdkMethod<Query['sepolia_swap_lpTokens'], Querysepolia_swap_lpTokensArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTransferEvent: InContextSdkMethod<Query['mumbai_swap_lpTransferEvent'], Querymumbai_swap_lpTransferEventArgs, MeshContext>,
+  sepolia_swap_lpTransferEvent: InContextSdkMethod<Query['sepolia_swap_lpTransferEvent'], Querysepolia_swap_lpTransferEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTransferEvents: InContextSdkMethod<Query['mumbai_swap_lpTransferEvents'], Querymumbai_swap_lpTransferEventsArgs, MeshContext>,
+  sepolia_swap_lpTransferEvents: InContextSdkMethod<Query['sepolia_swap_lpTransferEvents'], Querysepolia_swap_lpTransferEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapEvent: InContextSdkMethod<Query['mumbai_swap_stableSwapEvent'], Querymumbai_swap_stableSwapEventArgs, MeshContext>,
+  sepolia_swap_stableSwapEvent: InContextSdkMethod<Query['sepolia_swap_stableSwapEvent'], Querysepolia_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapEvents: InContextSdkMethod<Query['mumbai_swap_stableSwapEvents'], Querymumbai_swap_stableSwapEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapEvents: InContextSdkMethod<Query['sepolia_swap_stableSwapEvents'], Querysepolia_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapTradeVolume: InContextSdkMethod<Query['mumbai_swap_swapTradeVolume'], Querymumbai_swap_swapTradeVolumeArgs, MeshContext>,
+  sepolia_swap_swapTradeVolume: InContextSdkMethod<Query['sepolia_swap_swapTradeVolume'], Querysepolia_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapTradeVolumes: InContextSdkMethod<Query['mumbai_swap_swapTradeVolumes'], Querymumbai_swap_swapTradeVolumesArgs, MeshContext>,
+  sepolia_swap_swapTradeVolumes: InContextSdkMethod<Query['sepolia_swap_swapTradeVolumes'], Querysepolia_swap_swapTradeVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokenEvent: InContextSdkMethod<Query['mumbai_swap_lpTokenEvent'], Querymumbai_swap_lpTokenEventArgs, MeshContext>,
+  sepolia_swap_lpTokenEvent: InContextSdkMethod<Query['sepolia_swap_lpTokenEvent'], Querysepolia_swap_lpTokenEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokenEvents: InContextSdkMethod<Query['mumbai_swap_lpTokenEvents'], Querymumbai_swap_lpTokenEventsArgs, MeshContext>,
+  sepolia_swap_lpTokenEvents: InContextSdkMethod<Query['sepolia_swap_lpTokenEvents'], Querysepolia_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai_swap__meta: InContextSdkMethod<Query['mumbai_swap__meta'], Querymumbai_swap__metaArgs, MeshContext>
+  sepolia_swap__meta: InContextSdkMethod<Query['sepolia_swap__meta'], Querysepolia_swap__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -2642,75 +2644,75 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  mumbai_swap_systemInfo: InContextSdkMethod<Subscription['mumbai_swap_systemInfo'], Subscriptionmumbai_swap_systemInfoArgs, MeshContext>,
+  sepolia_swap_systemInfo: InContextSdkMethod<Subscription['sepolia_swap_systemInfo'], Subscriptionsepolia_swap_systemInfoArgs, MeshContext>,
   /** null **/
-  mumbai_swap_systemInfos: InContextSdkMethod<Subscription['mumbai_swap_systemInfos'], Subscriptionmumbai_swap_systemInfosArgs, MeshContext>,
+  sepolia_swap_systemInfos: InContextSdkMethod<Subscription['sepolia_swap_systemInfos'], Subscriptionsepolia_swap_systemInfosArgs, MeshContext>,
   /** null **/
-  mumbai_swap_pooledToken: InContextSdkMethod<Subscription['mumbai_swap_pooledToken'], Subscriptionmumbai_swap_pooledTokenArgs, MeshContext>,
+  sepolia_swap_pooledToken: InContextSdkMethod<Subscription['sepolia_swap_pooledToken'], Subscriptionsepolia_swap_pooledTokenArgs, MeshContext>,
   /** null **/
-  mumbai_swap_pooledTokens: InContextSdkMethod<Subscription['mumbai_swap_pooledTokens'], Subscriptionmumbai_swap_pooledTokensArgs, MeshContext>,
+  sepolia_swap_pooledTokens: InContextSdkMethod<Subscription['sepolia_swap_pooledTokens'], Subscriptionsepolia_swap_pooledTokensArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwap: InContextSdkMethod<Subscription['mumbai_swap_stableSwap'], Subscriptionmumbai_swap_stableSwapArgs, MeshContext>,
+  sepolia_swap_stableSwap: InContextSdkMethod<Subscription['sepolia_swap_stableSwap'], Subscriptionsepolia_swap_stableSwapArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwaps: InContextSdkMethod<Subscription['mumbai_swap_stableSwaps'], Subscriptionmumbai_swap_stableSwapsArgs, MeshContext>,
+  sepolia_swap_stableSwaps: InContextSdkMethod<Subscription['sepolia_swap_stableSwaps'], Subscriptionsepolia_swap_stableSwapsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['mumbai_swap_stableSwapAddLiquidityEvent'], Subscriptionmumbai_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
+  sepolia_swap_stableSwapAddLiquidityEvent: InContextSdkMethod<Subscription['sepolia_swap_stableSwapAddLiquidityEvent'], Subscriptionsepolia_swap_stableSwapAddLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['mumbai_swap_stableSwapAddLiquidityEvents'], Subscriptionmumbai_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapAddLiquidityEvents: InContextSdkMethod<Subscription['sepolia_swap_stableSwapAddLiquidityEvents'], Subscriptionsepolia_swap_stableSwapAddLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['mumbai_swap_stableSwapRemoveLiquidityEvent'], Subscriptionmumbai_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
+  sepolia_swap_stableSwapRemoveLiquidityEvent: InContextSdkMethod<Subscription['sepolia_swap_stableSwapRemoveLiquidityEvent'], Subscriptionsepolia_swap_stableSwapRemoveLiquidityEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['mumbai_swap_stableSwapRemoveLiquidityEvents'], Subscriptionmumbai_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapRemoveLiquidityEvents: InContextSdkMethod<Subscription['sepolia_swap_stableSwapRemoveLiquidityEvents'], Subscriptionsepolia_swap_stableSwapRemoveLiquidityEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapExchange: InContextSdkMethod<Subscription['mumbai_swap_stableSwapExchange'], Subscriptionmumbai_swap_stableSwapExchangeArgs, MeshContext>,
+  sepolia_swap_stableSwapExchange: InContextSdkMethod<Subscription['sepolia_swap_stableSwapExchange'], Subscriptionsepolia_swap_stableSwapExchangeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapExchanges: InContextSdkMethod<Subscription['mumbai_swap_stableSwapExchanges'], Subscriptionmumbai_swap_stableSwapExchangesArgs, MeshContext>,
+  sepolia_swap_stableSwapExchanges: InContextSdkMethod<Subscription['sepolia_swap_stableSwapExchanges'], Subscriptionsepolia_swap_stableSwapExchangesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapDailyVolume: InContextSdkMethod<Subscription['mumbai_swap_swapDailyVolume'], Subscriptionmumbai_swap_swapDailyVolumeArgs, MeshContext>,
+  sepolia_swap_swapDailyVolume: InContextSdkMethod<Subscription['sepolia_swap_swapDailyVolume'], Subscriptionsepolia_swap_swapDailyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapDailyVolumes: InContextSdkMethod<Subscription['mumbai_swap_swapDailyVolumes'], Subscriptionmumbai_swap_swapDailyVolumesArgs, MeshContext>,
+  sepolia_swap_swapDailyVolumes: InContextSdkMethod<Subscription['sepolia_swap_swapDailyVolumes'], Subscriptionsepolia_swap_swapDailyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapHourlyVolume: InContextSdkMethod<Subscription['mumbai_swap_swapHourlyVolume'], Subscriptionmumbai_swap_swapHourlyVolumeArgs, MeshContext>,
+  sepolia_swap_swapHourlyVolume: InContextSdkMethod<Subscription['sepolia_swap_swapHourlyVolume'], Subscriptionsepolia_swap_swapHourlyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapHourlyVolumes: InContextSdkMethod<Subscription['mumbai_swap_swapHourlyVolumes'], Subscriptionmumbai_swap_swapHourlyVolumesArgs, MeshContext>,
+  sepolia_swap_swapHourlyVolumes: InContextSdkMethod<Subscription['sepolia_swap_swapHourlyVolumes'], Subscriptionsepolia_swap_swapHourlyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapWeeklyVolume: InContextSdkMethod<Subscription['mumbai_swap_swapWeeklyVolume'], Subscriptionmumbai_swap_swapWeeklyVolumeArgs, MeshContext>,
+  sepolia_swap_swapWeeklyVolume: InContextSdkMethod<Subscription['sepolia_swap_swapWeeklyVolume'], Subscriptionsepolia_swap_swapWeeklyVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['mumbai_swap_swapWeeklyVolumes'], Subscriptionmumbai_swap_swapWeeklyVolumesArgs, MeshContext>,
+  sepolia_swap_swapWeeklyVolumes: InContextSdkMethod<Subscription['sepolia_swap_swapWeeklyVolumes'], Subscriptionsepolia_swap_swapWeeklyVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccount: InContextSdkMethod<Subscription['mumbai_swap_lpAccount'], Subscriptionmumbai_swap_lpAccountArgs, MeshContext>,
+  sepolia_swap_lpAccount: InContextSdkMethod<Subscription['sepolia_swap_lpAccount'], Subscriptionsepolia_swap_lpAccountArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccounts: InContextSdkMethod<Subscription['mumbai_swap_lpAccounts'], Subscriptionmumbai_swap_lpAccountsArgs, MeshContext>,
+  sepolia_swap_lpAccounts: InContextSdkMethod<Subscription['sepolia_swap_lpAccounts'], Subscriptionsepolia_swap_lpAccountsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccountBalance: InContextSdkMethod<Subscription['mumbai_swap_lpAccountBalance'], Subscriptionmumbai_swap_lpAccountBalanceArgs, MeshContext>,
+  sepolia_swap_lpAccountBalance: InContextSdkMethod<Subscription['sepolia_swap_lpAccountBalance'], Subscriptionsepolia_swap_lpAccountBalanceArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpAccountBalances: InContextSdkMethod<Subscription['mumbai_swap_lpAccountBalances'], Subscriptionmumbai_swap_lpAccountBalancesArgs, MeshContext>,
+  sepolia_swap_lpAccountBalances: InContextSdkMethod<Subscription['sepolia_swap_lpAccountBalances'], Subscriptionsepolia_swap_lpAccountBalancesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpToken: InContextSdkMethod<Subscription['mumbai_swap_lpToken'], Subscriptionmumbai_swap_lpTokenArgs, MeshContext>,
+  sepolia_swap_lpToken: InContextSdkMethod<Subscription['sepolia_swap_lpToken'], Subscriptionsepolia_swap_lpTokenArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokens: InContextSdkMethod<Subscription['mumbai_swap_lpTokens'], Subscriptionmumbai_swap_lpTokensArgs, MeshContext>,
+  sepolia_swap_lpTokens: InContextSdkMethod<Subscription['sepolia_swap_lpTokens'], Subscriptionsepolia_swap_lpTokensArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTransferEvent: InContextSdkMethod<Subscription['mumbai_swap_lpTransferEvent'], Subscriptionmumbai_swap_lpTransferEventArgs, MeshContext>,
+  sepolia_swap_lpTransferEvent: InContextSdkMethod<Subscription['sepolia_swap_lpTransferEvent'], Subscriptionsepolia_swap_lpTransferEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTransferEvents: InContextSdkMethod<Subscription['mumbai_swap_lpTransferEvents'], Subscriptionmumbai_swap_lpTransferEventsArgs, MeshContext>,
+  sepolia_swap_lpTransferEvents: InContextSdkMethod<Subscription['sepolia_swap_lpTransferEvents'], Subscriptionsepolia_swap_lpTransferEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapEvent: InContextSdkMethod<Subscription['mumbai_swap_stableSwapEvent'], Subscriptionmumbai_swap_stableSwapEventArgs, MeshContext>,
+  sepolia_swap_stableSwapEvent: InContextSdkMethod<Subscription['sepolia_swap_stableSwapEvent'], Subscriptionsepolia_swap_stableSwapEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_stableSwapEvents: InContextSdkMethod<Subscription['mumbai_swap_stableSwapEvents'], Subscriptionmumbai_swap_stableSwapEventsArgs, MeshContext>,
+  sepolia_swap_stableSwapEvents: InContextSdkMethod<Subscription['sepolia_swap_stableSwapEvents'], Subscriptionsepolia_swap_stableSwapEventsArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapTradeVolume: InContextSdkMethod<Subscription['mumbai_swap_swapTradeVolume'], Subscriptionmumbai_swap_swapTradeVolumeArgs, MeshContext>,
+  sepolia_swap_swapTradeVolume: InContextSdkMethod<Subscription['sepolia_swap_swapTradeVolume'], Subscriptionsepolia_swap_swapTradeVolumeArgs, MeshContext>,
   /** null **/
-  mumbai_swap_swapTradeVolumes: InContextSdkMethod<Subscription['mumbai_swap_swapTradeVolumes'], Subscriptionmumbai_swap_swapTradeVolumesArgs, MeshContext>,
+  sepolia_swap_swapTradeVolumes: InContextSdkMethod<Subscription['sepolia_swap_swapTradeVolumes'], Subscriptionsepolia_swap_swapTradeVolumesArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokenEvent: InContextSdkMethod<Subscription['mumbai_swap_lpTokenEvent'], Subscriptionmumbai_swap_lpTokenEventArgs, MeshContext>,
+  sepolia_swap_lpTokenEvent: InContextSdkMethod<Subscription['sepolia_swap_lpTokenEvent'], Subscriptionsepolia_swap_lpTokenEventArgs, MeshContext>,
   /** null **/
-  mumbai_swap_lpTokenEvents: InContextSdkMethod<Subscription['mumbai_swap_lpTokenEvents'], Subscriptionmumbai_swap_lpTokenEventsArgs, MeshContext>,
+  sepolia_swap_lpTokenEvents: InContextSdkMethod<Subscription['sepolia_swap_lpTokenEvents'], Subscriptionsepolia_swap_lpTokenEventsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  mumbai_swap__meta: InContextSdkMethod<Subscription['mumbai_swap__meta'], Subscriptionmumbai_swap__metaArgs, MeshContext>
+  sepolia_swap__meta: InContextSdkMethod<Subscription['sepolia_swap__meta'], Subscriptionsepolia_swap__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["StableSwap_Mumbai"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["StableSwap_Sepolia"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }

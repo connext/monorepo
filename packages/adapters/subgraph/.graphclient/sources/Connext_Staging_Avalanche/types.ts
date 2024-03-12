@@ -3695,6 +3695,8 @@ export type stagingavalanche__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['stagingavalanche_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
