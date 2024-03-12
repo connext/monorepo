@@ -51,6 +51,7 @@ describe("Connext Relayer", () => {
           token: constants.AddressZero,
         },
         apiKey: "foo",
+        keeper: false,
       };
       const res = await connextRelayerSend(
         Number(mock.chain.A),
@@ -60,6 +61,7 @@ describe("Connext Relayer", () => {
         "foo",
         chainReaderMock,
         logger,
+        false,
         loggingContext.requestContext,
       );
       expect(axiosPostStub).to.have.been.calledOnceWithExactly(
@@ -81,6 +83,7 @@ describe("Connext Relayer", () => {
           "foo",
           chainReaderMock,
           logger,
+          false,
           loggingContext.requestContext,
         ),
       ).to.be.rejectedWith(NxtpError);
