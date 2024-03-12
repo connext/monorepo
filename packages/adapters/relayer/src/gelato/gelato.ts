@@ -203,6 +203,7 @@ export const send = async (
   gelatoApiKey: string,
   chainReader: ChainReader,
   logger: Logger,
+  keeper?: boolean,
   _requestContext?: RequestContext,
 ): Promise<string> => {
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);

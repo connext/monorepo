@@ -23,6 +23,7 @@ export type Relayer = {
     gelatoApiKey: string,
     chainReader: ChainReader,
     logger: Logger,
+    keeper?: boolean,
     _requestContext?: RequestContext,
   ) => Promise<string>;
   getTaskStatus: (taskId: string) => Promise<RelayerTaskStatus>;
@@ -58,6 +59,7 @@ export const sendWithRelayerWithBackup = async (
       destinationAddress,
       data,
     });
+    const keeper = relayer.type === RelayerType.ConnextKeep3r ? true : false;
     try {
       const taskId = await relayer.instance.send(
         chainId,
@@ -67,6 +69,7 @@ export const sendWithRelayerWithBackup = async (
         relayer.apiKey,
         chainReader,
         logger,
+        keeper,
         requestContext,
       );
       return { taskId, relayerType: relayer.type };

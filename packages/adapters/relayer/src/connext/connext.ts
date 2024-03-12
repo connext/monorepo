@@ -30,6 +30,7 @@ export const connextRelayerSend = async (
   apiKey: string,
   chainReader: ChainReader,
   logger: Logger,
+  keeper?: boolean,
   _requestContext?: RequestContext,
 ): Promise<string> => {
   const { requestContext, methodContext } = createLoggingContext(connextRelayerSend.name, _requestContext);
@@ -39,6 +40,7 @@ export const connextRelayerSend = async (
     data: encodedData,
     fee: { amount: "0", chain: chainId, token: constants.AddressZero },
     to: destinationAddress,
+    keeper,
   };
 
   // Validate the call will succeed on chain.
