@@ -229,5 +229,26 @@
         "startBlock": 14231146
       }
     ]
+  },
+  {
+    "subgraphName": "connext/runtime-v1-x1-testnet",
+    "network": "x1-testnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xDB8310cAa57B052ab270A573B512dc5644558f0A",
+        "startBlock": 12446083
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xABEe5b21a10128cC57139da3e3D2dC858358EF83",
+        "startBlock": 12448933
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0x2bD1b90cc180444e8868f131EeD3eaBf8A825d36",
+        "startBlock": 12448921
+      }
+    ]
   }
 ]

@@ -253,7 +253,7 @@ dataSources:
         - Transfer
       abis:
         - name: X1HubConnector
-          file: ./src/amarok-hub/abis/AdminHubConnector.json
+          file: ./src/amarok-hub/abis/PolygonZkHubConnector.json
       eventHandlers:
         - event: MessageProcessed(bytes,address)
           handler: handleX1MessageProcessed

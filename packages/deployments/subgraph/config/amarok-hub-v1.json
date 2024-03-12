@@ -103,6 +103,11 @@
         "name": "OptimismHubConnector",
         "address": "0x743811821472f1C897bEAdFED280aa993a9594cb",
         "startBlock": 5287641
+      },
+      {
+        "name": "X1HubConnector",
+        "address": "0xccdAAb5B42Eb8f0618b6f2A22608D8812448e8BC",
+        "startBlock": 5471090
       }
     ]
   }
