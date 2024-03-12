@@ -426,6 +426,31 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111],
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111] / 2,
       },
+      195: {
+        prefix: "PolygonZk",
+        networkName: "X1",
+        ambs: {
+          // PolygonZkEVMBridge on sepolia
+          // https://sepolia.etherscan.io/address/0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5
+          hub: "0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5",
+          // PolygonZkEVMBridge on x1-testnet
+          // https://www.okx.com/explorer/x1-test/address/0x7a4ee6f9f0ab037fe771fc36d39c1e19bcc0fdb5
+          spoke: "0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "1",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
+          },
+        },
+      },
     },
   },
   mainnet: {
