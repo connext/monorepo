@@ -659,6 +659,37 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "GOAT",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+          adopted: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+          adopted: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+          adopted: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+        },
+        // BSC
+        "6450786": {
+          local: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+          adopted: "0x9C060a031c3925207F24FE719e23EBf548e9b07b",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
