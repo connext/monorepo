@@ -460,6 +460,12 @@ export const hardhatNetworks = {
     companionNetworks: {
       hub: "sepolia",
     },
+    verify: {
+      etherscan: {
+        apiKey: process.env.OKLINK_API_KEY!,
+        apiUrl: "https://www.oklink.com/api/explorer/v1/contract/verify/async/api/x1_test/",
+      },
+    },
   },
   metis: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
