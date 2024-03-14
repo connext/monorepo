@@ -62,7 +62,7 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(8453);
   } else if (network == "zksync-era") {
     chainId = BigInt.fromI32(324);
-  } else if (network == "xgon" || network === "x1-testnet") {
+  } else if (network == "xgon" || network == "x1-testnet") {
     chainId = BigInt.fromI32(195);
   } else if (network == "mode-mainnet") {
     chainId = BigInt.fromI32(34443);
