@@ -614,6 +614,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
           adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
         },
+        /// LINEA
+        "1818848877": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
       },
     },
     {
