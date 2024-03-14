@@ -6,6 +6,7 @@ import {
   RelayerTaskStatus,
   RelayerType,
   RequestContext,
+  xKeeperRelayerAddresses,
 } from "@connext/nxtp-utils";
 import { ChainReader, TransactionReverted } from "@connext/nxtp-txservice";
 
@@ -52,6 +53,7 @@ export const sendWithRelayerWithBackup = async (
   const { methodContext, requestContext } = createLoggingContext(sendWithRelayerWithBackup.name, _requestContext);
 
   let error_msg = "";
+  let keeper = false;
   for (const relayer of relayers) {
     logger.info(`Sending tx with ${relayer.type} relayer`, requestContext, methodContext, {
       chainId,
@@ -59,7 +61,17 @@ export const sendWithRelayerWithBackup = async (
       destinationAddress,
       data,
     });
-    const keeper = relayer.type === RelayerType.ConnextKeep3r ? true : false;
+    // Check if relayer is a keeper and if chainId is supported
+    if (relayer.type === RelayerType.ConnextKeep3r) {
+      if (!xKeeperRelayerAddresses.get(chainId)) {
+        logger.error(`ChainId ${chainId} not supported by ConnextKeep3r`, requestContext, methodContext);
+        continue;
+      }
+      // ChainId is supported by ConnextKeep3r
+      keeper = true;
+      logger.info(`ChainId ${chainId} is supported by ConnextKeep3r`, requestContext, methodContext);
+    }
+
     try {
       const taskId = await relayer.instance.send(
         chainId,

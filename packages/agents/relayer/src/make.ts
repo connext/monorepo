@@ -1,7 +1,14 @@
 import { Wallet } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import { Web3Signer } from "@connext/nxtp-adapters-web3signer";
-import { Logger, getChainData, RequestContext, createLoggingContext, createMethodContext } from "@connext/nxtp-utils";
+import {
+  Logger,
+  getChainData,
+  RequestContext,
+  createLoggingContext,
+  createMethodContext,
+  xKeeperRelayerAddresses,
+} from "@connext/nxtp-utils";
 import { StoreManager } from "@connext/nxtp-adapters-cache";
 import {
   getContractInterfaces,
@@ -54,14 +61,14 @@ export const setupContext = async (_configOverride?: RelayerConfig) => {
       return undefined;
     },
     xKeeperRelayer: (chainId: number, _postfix: ContractPostfix, _network: string) => {
-      // zksync has different addresses
-      if (chainId === 324 || chainId === 280) {
-        undefined;
+      const _address = xKeeperRelayerAddresses.get(chainId);
+      if (_address) {
+        return {
+          address: _address,
+          abi: XKeeperRelayerAbi,
+        };
       }
-      return {
-        address: "0xB0CB8E6Fe8F655d46eE0910332C263ddB61FF9a0",
-        abi: XKeeperRelayerAbi,
-      };
+      return undefined;
     },
   };
 

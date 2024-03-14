@@ -12,7 +12,11 @@ export type XKeeperContractDeployments = {
     postfix: ContractPostfix,
     network: string,
   ) => { address: string; abi: any } | undefined;
-  xKeeperRelayer: (chainId: number, postfix: ContractPostfix, network: string) => { address: string; abi: any };
+  xKeeperRelayer: (
+    chainId: number,
+    postfix: ContractPostfix,
+    network: string,
+  ) => { address: string; abi: any } | undefined;
 };
 
 export const getEnvConfig = (
