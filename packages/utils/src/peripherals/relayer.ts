@@ -27,6 +27,7 @@ export const calculateRelayerFee = async (
   chainData: Map<string, ChainData>,
   logger?: Logger,
   _requestContext?: RequestContext,
+  onlyExecute = false,
 ): Promise<BigNumber> => {
   const { requestContext, methodContext } = createLoggingContext(calculateRelayerFee.name, _requestContext);
 
@@ -73,7 +74,15 @@ export const calculateRelayerFee = async (
     });
   }
 
-  const baseGasFees = Number(executeGasAmount) + Number(proveAndProcessGasAmount) + Number(messagingGasAmount);
+  const baseGasFees =
+    Number(executeGasAmount) +
+    Number(onlyExecute ? 0 : proveAndProcessGasAmount) +
+    Number(onlyExecute ? 0 : messagingGasAmount);
+
+  const l1GasLimit =
+    destinationChainId == 10
+      ? Number(executeL1GasAmount) + Number(onlyExecute ? 0 : proveAndProcessL1GasAmount)
+      : undefined;
 
   const totalGasAmount = callDataGasAmount ? Number(baseGasFees) + Number(callDataGasAmount) : Number(executeGasAmount);
   const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
@@ -82,7 +91,7 @@ export const calculateRelayerFee = async (
       constants.AddressZero,
       Number(totalGasAmount),
       isHighPriority,
-      destinationChainId == 10 ? Number(executeL1GasAmount) + Number(proveAndProcessL1GasAmount) : undefined,
+      l1GasLimit,
     ),
     originNativeTokenPrice
       ? Promise.resolve(originNativeTokenPrice)
