@@ -57,26 +57,32 @@ export const calculateRelayerFee = async (
   const {
     execute: executeGasAmount,
     executeL1: executeL1GasAmount,
+    proveAndProcess: proveAndProcessGasAmount,
+    proveAndProcessL1: proveAndProcessL1GasAmount,
+    messaging: messagingGasAmount,
     gasPriceFactor,
   } = await getHardcodedGasLimits(destinationDomain, chainData);
   if (logger) {
     logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
       executeL1: executeL1GasAmount,
+      proveAndProcess: proveAndProcessGasAmount,
+      proveAndProcessL1: proveAndProcessL1GasAmount,
+      messaging: messagingGasAmount,
       gasPriceFactor,
     });
   }
 
-  const totalGasAmount = callDataGasAmount
-    ? Number(executeGasAmount) + Number(callDataGasAmount)
-    : Number(executeGasAmount);
+  const baseGasFees = Number(executeGasAmount) + Number(proveAndProcessGasAmount) + Number(messagingGasAmount);
+
+  const totalGasAmount = callDataGasAmount ? Number(baseGasFees) + Number(callDataGasAmount) : Number(executeGasAmount);
   const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
     getGelatoEstimatedFee(
       destinationChainId,
       constants.AddressZero,
       Number(totalGasAmount),
       isHighPriority,
-      destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
+      destinationChainId == 10 ? Number(executeL1GasAmount) + Number(proveAndProcessL1GasAmount) : undefined,
     ),
     originNativeTokenPrice
       ? Promise.resolve(originNativeTokenPrice)
