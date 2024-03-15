@@ -16,7 +16,7 @@ import { providers } from "ethers";
 
 import { UriInvalid, ApiRequestFailed, ParseConnextLogFailed } from "../errors/index";
 
-export const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
+export const relayerBufferPercentage = 40; // 40% bump on total estimated relayer fee
 
 export const getChainData = _getChainData;
 export const domainToChainId = _domainToChainId;

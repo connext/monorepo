@@ -8,7 +8,7 @@ import { Logger, createLoggingContext, RequestContext } from "../logging";
 import { ChainData } from "./chainData";
 import { safeGetConversionRate, getGelatoEstimatedFee } from "./gelato";
 
-const relayerBufferPercentage = 20; // 20% bump on total estimated relayer fee
+const relayerBufferPercentage = 40; // 40% bump on total estimated relayer fee
 
 export const calculateRelayerFee = async (
   params: {
