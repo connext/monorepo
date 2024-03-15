@@ -67,7 +67,7 @@ const claimFromPolygonZk = async (
     const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
       proof.merkle_proof,
       proof.rollup_merkle_proof,
-      deposit.deposit_cnt,
+      deposit.global_index,
       proof.main_exit_root,
       proof.rollup_exit_root,
       deposit.orig_net,

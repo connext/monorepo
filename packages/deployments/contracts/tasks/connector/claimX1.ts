@@ -34,7 +34,6 @@ export const getDeposits = async (apiUrl: string, address: string, limit = 100, 
 export const getMerkleProof = async (apiUrl: string, depositCount: string, networkId: number) => {
   try {
     const res = await axiosGet(`${apiUrl}/merkle-proof?deposit_cnt=${depositCount}&net_id=${networkId}`);
-    console.log(res.data);
     return res.data.proof;
   } catch (e: any) {
     console.log(e);
@@ -59,18 +58,17 @@ const claimFromPolygonZk = async (
   for (const deposit of claimableDeposits) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const proof = await getMerkleProof(apiUrl, deposit.deposit_cnt, deposit.network_id);
-    console.log(deposit, proof);
     if (!proof) {
       continue;
     }
 
+    console.log(deposit, proof);
     console.log("Claiming message", deposit.orig_net, deposit.dest_net, deposit.tx_hash, deposit.metadata);
-
     try {
       const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
         proof.merkle_proof,
         proof.rollup_merkle_proof,
-        deposit.deposit_cnt,
+        deposit.global_index,
         proof.main_exit_root,
         proof.rollup_exit_root,
         deposit.orig_net,
