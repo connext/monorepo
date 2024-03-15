@@ -42,8 +42,8 @@ describe("Peripherals:Relayer", () => {
         logger,
       );
       // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
-      // ==> (10000 + 10000 x 20 / 100) x ( 1.5 / 1 ) = 18000
-      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
+      // ==> (10000 + 10000 x 40 / 100) x ( 1.5 / 1 ) = 18000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("21000"));
     });
 
     it("should return correct value when provided token prices", async () => {
@@ -59,8 +59,8 @@ describe("Peripherals:Relayer", () => {
         logger,
       );
       // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
-      // ==> (10000 + 10000 x 20 / 100) x ( 1500 / 1000 ) = 18000
-      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
+      // ==> (10000 + 10000 x 40 / 100) x ( 1500 / 1000 ) = 18000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("21000"));
     });
 
     it("should return correct value when provided gas price", async () => {
@@ -79,8 +79,8 @@ describe("Peripherals:Relayer", () => {
       // fallbackRelayerFee = gasPrice x executeGasAmount
       // ==> 50 x 400000 = 20000000
       // estimatedRelayerFee = (fallbackRelayerFee + fallbackRelayerFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
-      // ==> (20000000 + 20000000 x 20 / 100) x ( 1.5 / 1 ) = 36000000
-      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("36000000"));
+      // ==> (20000000 + 20000000 x 40 / 100) x ( 1.5 / 1 ) = 36000000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("42000000"));
     });
 
     it("should add l1Gas for optimism network", async () => {
@@ -133,8 +133,8 @@ describe("Peripherals:Relayer", () => {
         logger,
       );
       // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
-      // ==> (10000 + 10000 x 20 / 100) x ( 1.5 / 1 ) = 108000
-      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
+      // ==> (10000 + 10000 x 40 / 100) x ( 1.5 / 1 ) = 108000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("21000"));
     });
   });
 });
