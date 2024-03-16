@@ -701,6 +701,9 @@ sources:
           value: "_meta.block.number"
         sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-metis"
+            retry: 3
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-metis/gn"
             retry: 2
             timeout: 30000 # 30 seconds
     transforms:
