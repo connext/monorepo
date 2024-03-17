@@ -659,6 +659,31 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ESX",
+      canonical: {
+        domain: "11111",
+        address: "0x97315D3EEbAe38C1cdAc5bee24f2806601bEbACE",
+        decimals: 9
+      },
+      representations: {
+        // BSC
+        "6450786": {
+          local: "0x97315D3EEbAe38C1cdAc5bee24f2806601bEbACE",
+          adopted: "0x97315D3EEbAe38C1cdAc5bee24f2806601bEbACE",
+        },
+        // Ethereum
+        "6648936": {
+          local: "0x368DC7424A2Ad92e8c115dEE9bF92Cd232E8AE82",
+          adopted: "0x368DC7424A2Ad92e8c115dEE9bF92Cd232E8AE82",
+        },
+        // Polygon
+        "1886350457": {
+          local: "0x17d13fd3a9d2a115456b210875d2bde292d14565",
+          adopted: "0x17d13fd3a9d2a115456b210875d2bde292d14565",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
