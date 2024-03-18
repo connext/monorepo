@@ -330,6 +330,7 @@ export const SEQUENCER_CONFIG: Promise<SequencerConfig> = (async (): Promise<Seq
       url: "postgres://postgres:qwerty@localhost:5432/connext?sslmode=disable",
     },
     relayerFeeTolerance: 20,
+    checkOnlyExecuteFee: false,
   };
 })();
 
