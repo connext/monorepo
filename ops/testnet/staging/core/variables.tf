@@ -89,16 +89,19 @@ variable "mnemonic" {
   type        = string
   description = "mnemonic"
   default     = "female autumn drive capable scorpion congress hockey chunk mouse cherry blame trumpet"
+  sensitive   = true
 }
 
 variable "admin_token_router" {
   type        = string
   description = "admin token"
+  sensitive   = true
 }
 
 variable "rmq_mgt_password" {
   type        = string
   description = "RabbitMQ management password"
+  sensitive   = true
 }
 
 variable "rmq_mgt_user" {
@@ -113,47 +116,58 @@ variable "certificate_arn_testnet" {
 }
 
 variable "goerli_alchemy_key_0" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "goerli_alchemy_key_1" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "optgoerli_alchemy_key_0" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "optgoerli_alchemy_key_1" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "mumbai_alchemy_key_0" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "blast_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "dd_api_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "router_web3_signer_private_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "sequencer_web3_signer_private_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "gelato_api_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "postgres_password" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "postgres_user" {
@@ -162,36 +176,44 @@ variable "postgres_user" {
 }
 
 variable "relayer_web3_signer_private_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "admin_token_relayer" {
-  type    = string
-  default = "blahblah"
+  type      = string
+  default   = "blahblah"
+  sensitive = true
 }
 
 variable "watcher_web3_signer_private_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 variable "admin_token_watcher" {
-  type    = string
-  default = "blahblah"
+  type      = string
+  default   = "blahblah"
+  sensitive = true
 }
 
 variable "discord_webhook_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "telegram_api_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "telegram_chat_id" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "betteruptime_api_key" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 variable "betteruptime_requester_email" {
@@ -200,5 +222,6 @@ variable "betteruptime_requester_email" {
 }
 
 variable "lighthouse_web3_signer_private_key" {
-  type    = string
+  type      = string
+  sensitive = true
 }

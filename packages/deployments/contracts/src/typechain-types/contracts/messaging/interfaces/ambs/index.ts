@@ -11,6 +11,8 @@ import type * as optimismV0 from "./optimism-v0";
 export type { optimismV0 };
 import type * as polygonzk from "./polygonzk";
 export type { polygonzk };
+import type * as scroll from "./scroll";
+export type { scroll };
 import type * as wormhole from "./wormhole";
 export type { wormhole };
 import type * as zksync from "./zksync";

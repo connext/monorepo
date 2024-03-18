@@ -376,7 +376,7 @@ services:
     container_name: cartographer-api
     depends_on:
       - cartographer-database
-    image: postgrest/postgrest:v9.0.0.20220107
+    image: postgrest/postgrest:v10.0.0
     ports:
       - "3000:3000"
     environment:
