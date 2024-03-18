@@ -150,6 +150,10 @@ export type mainnet_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
+export type mainnet_Aggregation_interval =
+  | 'hour'
+  | 'day';
+
 export type mainnet_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['mainnet_Bytes']>;
@@ -3691,6 +3695,8 @@ export type mainnet__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['mainnet_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

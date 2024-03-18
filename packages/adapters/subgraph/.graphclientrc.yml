@@ -701,6 +701,9 @@ sources:
           value: "_meta.block.number"
         sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-metis"
+            retry: 3
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-metis/gn"
             retry: 2
             timeout: 30000 # 30 seconds
     transforms:
@@ -966,9 +969,24 @@ sources:
   - name: StableSwap_Metis
     handler:
       graphql:
-        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-metis"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-metis/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-metis"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: metis_swap_

@@ -132,7 +132,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -401,7 +401,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -460,7 +460,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -592,7 +592,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
