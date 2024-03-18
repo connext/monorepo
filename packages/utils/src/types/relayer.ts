@@ -27,6 +27,7 @@ export enum RelayerType {
   Gelato = "Gelato",
   Connext = "Connext",
   Mock = "Mock",
+  ConnextKeep3r = "ConnextKeep3r",
 }
 
 // Record of important data for any meta tx.

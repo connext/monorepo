@@ -171,7 +171,7 @@ export const pollCache = async () => {
           },
           requestContext,
         );
-        await cache.tasks.setHash(taskId, receipt.transactionHash as string);
+        await cache.tasks.setHash(taskId, receipt.transactionHash);
         logger.info("Transaction confirmed.", requestContext, methodContext, {
           chain,
           taskId,

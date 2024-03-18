@@ -360,6 +360,11 @@ locals {
     }
     relayers = [
       {
+        type   = "ConnextKeep3r",
+        apiKey = "${var.admin_token_relayer}",
+        url    = "https://${module.relayer_server.service_endpoint}"
+      },
+      {
         type   = "Gelato",
         apiKey = "${var.gelato_api_key}",
         url    = "https://relay.gelato.digital"

@@ -274,6 +274,11 @@ locals {
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
       {
+        type   = "ConnextKeep3r",
+        apiKey = "${var.admin_token_relayer}",
+        url    = "https://${module.relayer_server.service_endpoint}"
+      },
+      {
         type   = "Gelato",
         apiKey = "${var.gelato_api_key}",
         url    = "https://relay.gelato.digital"
@@ -281,7 +286,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer.service_endpoint}"
+        url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
     environment = var.stage
@@ -312,7 +317,7 @@ locals {
       }
       prefetchSize = 1
     }
-    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
+    web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({

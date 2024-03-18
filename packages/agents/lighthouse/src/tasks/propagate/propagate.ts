@@ -63,7 +63,7 @@ export const makePropagate = async (config: NxtpLighthouseConfig, chainData: Map
       const setupFunc =
         relayerConfig.type == RelayerType.Gelato
           ? setupGelatoRelayer
-          : RelayerType.Connext
+          : RelayerType.Connext || RelayerType.ConnextKeep3r
           ? setupConnextRelayer
           : undefined;
 
