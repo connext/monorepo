@@ -100,10 +100,8 @@ export const getEnvConfig = (
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);
 
-  const contractPostfix: ContractPostfix =
-    nxtpConfig.environment === "production"
-      ? ""
-      : (`${nxtpConfig.environment![0].toUpperCase()}${nxtpConfig.environment!.slice(1)}` as ContractPostfix);
+  const contractPostfix: ContractPostfix = nxtpConfig.environment === "production" ? "" : "";
+
   // add contract deployments if they exist
   Object.entries(nxtpConfig.chains).forEach(([domainId, chainConfig]) => {
     nxtpConfig.chains[domainId].disabled = chainConfig.disabled ?? false;
