@@ -84,6 +84,9 @@ const EquivalentChainsForGelato: Record<number, number> = {
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
   195: 1, // x1 testnet
+  11155111: 1, // Sepolia
+  1869640549: 10, // Op-Sepolia
+  1633842021: 42161, // Arb-Sepolia
 
   // LOCAL NETWORKS
   31337: 1,
