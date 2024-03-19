@@ -283,8 +283,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "InrETH",
       canonical: {
         domain: "11111",
-        address: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
         decimals: 18,
+        address: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
       },
       representations: {
         /// Goerli
@@ -306,19 +306,38 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         address: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
         decimals: 18,
     },
-    representations: {
-    /// Mumbai
-      "9991": {
-        local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
-        adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
-      },
-    /// Optimism-sepolia
-      "1869640549": {
-        local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
-        adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+      representations: {
+      /// Mumbai
+        "9991": {
+          local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+          adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+        },
+      /// Optimism-sepolia
+        "1869640549": {
+          local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+          adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+        },
       },
   },
-},
+      name: "xezETH",
+      canonical: {
+        domain: "11111",
+        address: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        decimals: 18,
+      },
+      representations: {
+        /// Goerli
+        "1735353714": {
+          local: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+          adopted: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        },
+        /// Optimism-Goerli
+        "1735356532": {
+          local: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+          adopted: "0xe60EEEEE9503D59c7db940889228fAceB0aF5DF2",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
