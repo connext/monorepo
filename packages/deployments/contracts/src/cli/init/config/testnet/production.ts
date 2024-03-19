@@ -307,8 +307,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         decimals: 18,
     },
       representations: {
-      /// Mumbai
-        "9991": {
+      /// Sepolia
+        "1936027759": {
           local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
           adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
         },
