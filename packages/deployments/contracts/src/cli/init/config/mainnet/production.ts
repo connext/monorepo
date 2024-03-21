@@ -659,6 +659,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "Artyfact",
+      canonical: {
+        domain: "11111",
+        address: "0x617Cab4aAae1f8dfb3eE138698330776a1e1b324",
+        decimals: 6,
+      },
+      representations: {
+        /// BSC
+        "6450786": {
+          local: "0xa92fe215ae1476Bf714C1C363CB730B079C4a745",
+          adopted: "0xa92fe215ae1476Bf714C1C363CB730B079C4a745",
+        },
+        /// ETHEREUM
+        "6648936": {
+          local: "0xD6b53a5718df3B5D40621D31Bbf1e955b66B3f75",
+          adopted: "0xD6b53a5718df3B5D40621D31Bbf1e955b66B3f75",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
