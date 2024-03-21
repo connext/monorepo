@@ -1550,7 +1550,11 @@ export const resetBackoffs = async (
   const poolToUse = _pool ?? pool;
   const backoff = 32;
   await db
-    .update("transfers", { backoff, next_execution_timestamp: 0 }, { transfer_id: dc.isIn(transferIds) })
+    .update(
+      "transfers",
+      { backoff, next_execution_timestamp: 0, error_status: null },
+      { transfer_id: dc.isIn(transferIds) },
+    )
     .run(poolToUse);
 };
 

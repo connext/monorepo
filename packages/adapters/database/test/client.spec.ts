@@ -1257,10 +1257,12 @@ describe("Database client", () => {
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer1.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(32);
     expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
+    expect(queryRes.rows[0].error_status).to.be.null;
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer2.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(32);
     expect(queryRes.rows[0].next_execution_timestamp).to.eq(0);
+    expect(queryRes.rows[0].error_status).to.be.null;
 
     queryRes = await pool.query("SELECT * FROM transfers WHERE transfer_id = $1", [transfer3.transferId]);
     expect(queryRes.rows[0].backoff).to.eq(64);
