@@ -737,6 +737,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x32d63da9f776891843c90787cec54ada23abd4c2", // Ingag
         "0xFaAB88015477493cFAa5DFAA533099C590876F21", // Paradox
         "0x6fd84ba95525c4ccd218f2f16f646a08b4b0a598", // Dokia
+        "0x5f4E31F4F402E368743bF29954f80f7C4655EA68", // Amber
+        "0xc770eC66052fe77ff2eF9edF9558236e2D1C41Ef", // Dialectic
       ],
     },
     sequencers: {
