@@ -119,9 +119,9 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
-      "2053862243" = {
-        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
-      }
+      # "2053862243" = {
+      #   providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      # }
       "1887071085" = {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
@@ -222,12 +222,12 @@ locals {
           queueLimit = 1000000
           subscribe  = true
         },
-        {
-          name       = "2053862243"
-          limit      = 1
-          queueLimit = 1000000
-          subscribe  = true
-        },
+        # {
+        #   name       = "2053862243"
+        #   limit      = 1
+        #   queueLimit = 1000000
+        #   subscribe  = true
+        # },
         {
           name       = "1887071085"
           limit      = 1
@@ -306,11 +306,11 @@ locals {
           target   = "1818848877"
           keys     = ["1818848877"]
         },
-        {
-          exchange = "sequencerX"
-          target   = "2053862243"
-          keys     = ["2053862243"]
-        },
+        # {
+        #   exchange = "sequencerX"
+        #   target   = "2053862243"
+        #   keys     = ["2053862243"]
+        # },
         {
           exchange = "sequencerX"
           target   = "1887071085"
