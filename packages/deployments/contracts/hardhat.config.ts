@@ -67,6 +67,7 @@ import "./tasks/connector/receiveHubAggregateRoot";
 import "./tasks/connector/wormholeDeliver";
 import "./tasks/connector/claimLinea";
 import "./tasks/connector/setOptimisticMode";
+import "./tasks/connector/claimX1";
 import { hardhatNetworks } from "./src/config";
 
 tdly.setup({
@@ -130,6 +131,7 @@ const config: HardhatUserConfig = {
       xdai: process.env.GNOSISSCAN_API_KEY!,
       linea: process.env.LINEASCAN_API_KEY!,
       snowtrace: "snowtrace", // apiKey is not required, just set a placeholder
+      "x1-testnet": process.env.OKLINK_API_KEY!,
     },
     customChains: [
       {
@@ -162,6 +164,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan",
           browserURL: "https://avalanche.routescan.io",
+        },
+      },
+      {
+        network: "x1-testnet",
+        chainId: 195,
+        urls: {
+          apiURL: "https://www.oklink.com/api/explorer/v1/contract/verify/async/api/x1_test",
+          browserURL: "https://www.oklink.com/x1-test",
         },
       },
     ],

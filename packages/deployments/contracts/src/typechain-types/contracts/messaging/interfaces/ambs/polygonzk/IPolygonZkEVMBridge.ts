@@ -26,30 +26,22 @@ import type {
 
 export interface IPolygonZkEVMBridgeInterface extends utils.Interface {
   functions: {
-    "activateEmergencyState()": FunctionFragment;
     "bridgeAsset(uint32,address,uint256,address,bool,bytes)": FunctionFragment;
     "bridgeMessage(uint32,address,bool,bytes)": FunctionFragment;
-    "claimAsset(bytes32[32],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)": FunctionFragment;
-    "claimMessage(bytes32[32],uint32,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)": FunctionFragment;
-    "deactivateEmergencyState()": FunctionFragment;
+    "claimAsset(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)": FunctionFragment;
+    "claimMessage(bytes32[32],bytes32[32],uint256,bytes32,bytes32,uint32,address,uint32,address,uint256,bytes)": FunctionFragment;
     "updateGlobalExitRoot()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "activateEmergencyState"
       | "bridgeAsset"
       | "bridgeMessage"
       | "claimAsset"
       | "claimMessage"
-      | "deactivateEmergencyState"
       | "updateGlobalExitRoot"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "activateEmergencyState",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "bridgeAsset",
     values: [
@@ -74,6 +66,7 @@ export interface IPolygonZkEVMBridgeInterface extends utils.Interface {
     functionFragment: "claimAsset",
     values: [
       PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
@@ -89,6 +82,7 @@ export interface IPolygonZkEVMBridgeInterface extends utils.Interface {
     functionFragment: "claimMessage",
     values: [
       PromiseOrValue<BytesLike>[],
+      PromiseOrValue<BytesLike>[],
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
@@ -101,18 +95,10 @@ export interface IPolygonZkEVMBridgeInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "deactivateEmergencyState",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "updateGlobalExitRoot",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "activateEmergencyState",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "bridgeAsset",
     data: BytesLike
@@ -124,10 +110,6 @@ export interface IPolygonZkEVMBridgeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "claimAsset", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimMessage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "deactivateEmergencyState",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -165,10 +147,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    activateEmergencyState(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     bridgeAsset(
       destinationNetwork: PromiseOrValue<BigNumberish>,
       destinationAddress: PromiseOrValue<string>,
@@ -188,8 +166,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<ContractTransaction>;
 
     claimAsset(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -202,8 +181,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<ContractTransaction>;
 
     claimMessage(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -215,18 +195,10 @@ export interface IPolygonZkEVMBridge extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    deactivateEmergencyState(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     updateGlobalExitRoot(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  activateEmergencyState(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   bridgeAsset(
     destinationNetwork: PromiseOrValue<BigNumberish>,
@@ -247,8 +219,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
   ): Promise<ContractTransaction>;
 
   claimAsset(
-    smtProof: PromiseOrValue<BytesLike>[],
-    index: PromiseOrValue<BigNumberish>,
+    smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+    smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+    globalIndex: PromiseOrValue<BigNumberish>,
     mainnetExitRoot: PromiseOrValue<BytesLike>,
     rollupExitRoot: PromiseOrValue<BytesLike>,
     originNetwork: PromiseOrValue<BigNumberish>,
@@ -261,8 +234,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
   ): Promise<ContractTransaction>;
 
   claimMessage(
-    smtProof: PromiseOrValue<BytesLike>[],
-    index: PromiseOrValue<BigNumberish>,
+    smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+    smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+    globalIndex: PromiseOrValue<BigNumberish>,
     mainnetExitRoot: PromiseOrValue<BytesLike>,
     rollupExitRoot: PromiseOrValue<BytesLike>,
     originNetwork: PromiseOrValue<BigNumberish>,
@@ -274,17 +248,11 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  deactivateEmergencyState(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   updateGlobalExitRoot(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    activateEmergencyState(overrides?: CallOverrides): Promise<void>;
-
     bridgeAsset(
       destinationNetwork: PromiseOrValue<BigNumberish>,
       destinationAddress: PromiseOrValue<string>,
@@ -304,8 +272,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<void>;
 
     claimAsset(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -318,8 +287,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<void>;
 
     claimMessage(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -330,8 +300,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
       metadata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    deactivateEmergencyState(overrides?: CallOverrides): Promise<void>;
 
     updateGlobalExitRoot(overrides?: CallOverrides): Promise<void>;
   };
@@ -339,10 +307,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
   filters: {};
 
   estimateGas: {
-    activateEmergencyState(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     bridgeAsset(
       destinationNetwork: PromiseOrValue<BigNumberish>,
       destinationAddress: PromiseOrValue<string>,
@@ -362,8 +326,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<BigNumber>;
 
     claimAsset(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -376,8 +341,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<BigNumber>;
 
     claimMessage(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -386,10 +352,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       metadata: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    deactivateEmergencyState(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -399,10 +361,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
   };
 
   populateTransaction: {
-    activateEmergencyState(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     bridgeAsset(
       destinationNetwork: PromiseOrValue<BigNumberish>,
       destinationAddress: PromiseOrValue<string>,
@@ -422,8 +380,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     claimAsset(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -436,8 +395,9 @@ export interface IPolygonZkEVMBridge extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     claimMessage(
-      smtProof: PromiseOrValue<BytesLike>[],
-      index: PromiseOrValue<BigNumberish>,
+      smtProofLocalExitRoot: PromiseOrValue<BytesLike>[],
+      smtProofRollupExitRoot: PromiseOrValue<BytesLike>[],
+      globalIndex: PromiseOrValue<BigNumberish>,
       mainnetExitRoot: PromiseOrValue<BytesLike>,
       rollupExitRoot: PromiseOrValue<BytesLike>,
       originNetwork: PromiseOrValue<BigNumberish>,
@@ -446,10 +406,6 @@ export interface IPolygonZkEVMBridge extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       metadata: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    deactivateEmergencyState(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

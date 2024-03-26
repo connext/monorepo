@@ -8,7 +8,7 @@ export const SUPPORTED_CHAINS = {
   mainnet: [
     1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284, 59144, 8453, 1101, 1088, 324, 5000, 34443, 534352,
   ],
-  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195, 11155111, 11155420, 421614],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -125,6 +125,15 @@ export const hardhatNetworks = {
       "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
+  sepolia: {
+    accounts: { mnemonic },
+    chainId: 11155111,
+    url:
+      urlOverride ||
+      process.env.SEPOLIA_ETH_PROVIDER_URL ||
+      "https://sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
+  },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
@@ -154,6 +163,24 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-goerli-optimistic.etherscan.io/",
+      },
+    },
+  },
+  "optimism-sepolia": {
+    accounts: { mnemonic },
+    chainId: 11155420,
+    url:
+      urlOverride ||
+      process.env.OPTI_SEPOLIA_ETH_PROVIDER_URL ||
+      "https://optimism-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "sepolia",
+    },
+    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
+        apiUrl: "https://api-sepolia-optimistic.etherscan.io/",
       },
     },
   },
@@ -211,6 +238,22 @@ export const hardhatNetworks = {
       },
     },
   },
+  mumbai: {
+    accounts: { mnemonic },
+    chainId: 80001,
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
+    },
+  },
   avalanche: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 43114,
@@ -241,22 +284,6 @@ export const hardhatNetworks = {
       apiUrl: "https://api.arbiscan.io/",
     },
   },
-  mumbai: {
-    accounts: { mnemonic },
-    chainId: 80001,
-    url:
-      urlOverride ||
-      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
-      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    companionNetworks: {
-      hub: "goerli",
-    },
-    verify: {
-      etherscan: {
-        apiKey: process.env.POLYGONSCAN_API_KEY!,
-      },
-    },
-  },
   "arbitrum-goerli": {
     accounts: { mnemonic },
     chainId: 421613,
@@ -271,6 +298,23 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.ARBISCAN_API_KEY!,
         apiUrl: "https://api-goerli.arbiscan.io/",
+      },
+    },
+  },
+  "arbitrum-sepolia": {
+    accounts: { mnemonic },
+    chainId: 421614,
+    url:
+      urlOverride ||
+      process.env.ARBITRUM_SEPOLIA_ETH_PROVIDER_URL ||
+      "https://arbitrum-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "sepolia",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.ARBISCAN_API_KEY!,
+        apiUrl: "https://api-sepolia.arbiscan.io/",
       },
     },
   },
@@ -411,10 +455,16 @@ export const hardhatNetworks = {
   "x1-testnet": {
     accounts: { mnemonic },
     chainId: 195,
-    gasPrice: utils.parseUnits("300", "gwei").toNumber(),
+    gasPrice: utils.parseUnits("200", "gwei").toNumber(),
     url: urlOverride || process.env.X1_TESTNET_PROVIDER_URL || "https://testrpc.x1.tech",
     companionNetworks: {
-      hub: "goerli",
+      hub: "sepolia",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.OKLINK_API_KEY!,
+        apiUrl: "https://www.oklink.com/api/explorer/v1/contract/verify/async/api/x1_test/",
+      },
     },
   },
   metis: {

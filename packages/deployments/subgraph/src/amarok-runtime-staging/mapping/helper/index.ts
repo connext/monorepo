@@ -72,12 +72,18 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(8453);
   } else if (network == "zksync-era") {
     chainId = BigInt.fromI32(324);
-  } else if (network == "xgon") {
+  } else if (network == "xgon" || network == "x1-testnet") {
     chainId = BigInt.fromI32(195);
   } else if (network == "mantle") {
     chainId = BigInt.fromI32(5000);
   } else if (network == "metis") {
     chainId = BigInt.fromI32(1088);
+  } else if (network == "sepolia") {
+    chainId = BigInt.fromI32(11155111);
+  } else if (network == "optimism-sepolia") {
+    chainId = BigInt.fromI32(11155420);
+  } else if (network == "arbitrum-sepolia") {
+    chainId = BigInt.fromI32(421614);
   } else if (network == "mode-mainnet") {
     chainId = BigInt.fromI32(34443);
   } else if (network == "scroll") {
