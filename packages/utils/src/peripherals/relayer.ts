@@ -27,7 +27,7 @@ export const calculateRelayerFee = async (
   chainData: Map<string, ChainData>,
   logger?: Logger,
   _requestContext?: RequestContext,
-  onlyExecute = true,
+  onlyExecute = false,
 ): Promise<BigNumber> => {
   const { requestContext, methodContext } = createLoggingContext(calculateRelayerFee.name, _requestContext);
 

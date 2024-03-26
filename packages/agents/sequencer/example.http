@@ -4,11 +4,16 @@
 @sequencerUrl = https://sequencer.mainnet.connext.ninja
 @adminToken = foobar
 
+@router = 0x048a5ecc705c280b2248aeff88fd581abbeb8587
+
 ### PING
 GET {{sequencerUrl}}/ping
 
 ### QUEUED TRANSFERS
 GET {{sequencerUrl}}/queued
+
+### ROUTER STATUS
+GET {{sequencerUrl}}/router-status/{{router}}
 
 ### EXECUTE SLOW
 

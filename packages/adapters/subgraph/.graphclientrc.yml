@@ -581,6 +581,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v0-base"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
             retry: 5
             timeout: 30000 # 30 seconds
@@ -730,6 +733,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-mode"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mode/gn"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -876,6 +882,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-base/
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-base/gn
             retry: 5
             timeout: 30000 # 30 seconds
@@ -999,7 +1008,7 @@ sources:
   - name: StableSwap_Mode
     handler:
       graphql:
-        endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mode/gn"
+        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-mode"
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
