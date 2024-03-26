@@ -150,10 +150,6 @@ export type xdai_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
-export type xdai_Aggregation_interval =
-  | 'hour'
-  | 'day';
-
 export type xdai_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['xdai_Bytes']>;

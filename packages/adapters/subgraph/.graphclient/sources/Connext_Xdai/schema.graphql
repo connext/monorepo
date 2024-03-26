@@ -142,11 +142,6 @@ enum xdai_AggregateRoot_orderBy {
   blockNumber
 }
 
-enum xdai_Aggregation_interval {
-  hour
-  day
-}
-
 type xdai_Asset {
   id: ID!
   key: xdai_Bytes
