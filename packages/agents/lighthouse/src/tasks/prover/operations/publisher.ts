@@ -13,6 +13,7 @@ import {
   ModeType,
   Snapshot,
   EMPTY_ROOT,
+  SAFE_ROOT,
 } from "@connext/nxtp-utils";
 
 import {
@@ -271,7 +272,7 @@ export const enqueue = async () => {
                     throw new NoDomainInSnapshot(originDomain, snapshot);
                   }
                   targetMessageRoot = snapshot.roots[domainIndex];
-                  if (!targetMessageRoot) {
+                  if (!targetMessageRoot || targetMessageRoot == SAFE_ROOT) {
                     throw new NoTargetMessageRoot(originDomain);
                   }
                   // Count of leafs in aggregate tree at snapshot baseAggregateRoot.
