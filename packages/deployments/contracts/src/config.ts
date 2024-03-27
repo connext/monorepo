@@ -7,6 +7,7 @@ dotenvConfig();
 export const SUPPORTED_CHAINS = {
   mainnet: [
     1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284, 59144, 8453, 1101, 1088, 324, 5000, 34443, 534352,
+    196,
   ],
   testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
@@ -471,6 +472,20 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.SCROLL_API_KEY!,
         apiUrl: "https://api.scrollscan.com/",
+      },
+    },
+  },
+  xlayer: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 196,
+    url: urlOverride || process.env.XLAYER_PROVIDER_URL || "https://rpc.xlayer.tech",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.XLAYER_API_KEY!,
+        apiUrl: "https://www.okx.com/explorer/xlayer",
       },
     },
   },

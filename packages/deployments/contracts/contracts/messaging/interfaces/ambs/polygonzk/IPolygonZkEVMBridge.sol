@@ -3,11 +3,6 @@ pragma solidity 0.8.17;
 
 interface IPolygonZkEVMBridge {
   /**
-   * @dev Thrown when sender is not the PolygonZkEVM address
-   */
-  error OnlyPolygonZkEVM();
-
-  /**
    * @dev Thrown when the destination network is invalid
    */
   error DestinationNetworkInvalid();
@@ -84,8 +79,9 @@ interface IPolygonZkEVMBridge {
   ) external payable;
 
   function claimAsset(
-    bytes32[32] calldata smtProof,
-    uint32 index,
+    bytes32[32] calldata smtProofLocalExitRoot,
+    bytes32[32] calldata smtProofRollupExitRoot,
+    uint256 globalIndex,
     bytes32 mainnetExitRoot,
     bytes32 rollupExitRoot,
     uint32 originNetwork,
@@ -97,8 +93,9 @@ interface IPolygonZkEVMBridge {
   ) external;
 
   function claimMessage(
-    bytes32[32] calldata smtProof,
-    uint32 index,
+    bytes32[32] calldata smtProofLocalExitRoot,
+    bytes32[32] calldata smtProofRollupExitRoot,
+    uint256 globalIndex,
     bytes32 mainnetExitRoot,
     bytes32 rollupExitRoot,
     uint32 originNetwork,
@@ -110,8 +107,4 @@ interface IPolygonZkEVMBridge {
   ) external;
 
   function updateGlobalExitRoot() external;
-
-  function activateEmergencyState() external;
-
-  function deactivateEmergencyState() external;
 }

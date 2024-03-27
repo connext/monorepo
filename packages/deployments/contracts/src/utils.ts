@@ -63,6 +63,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "5000": ProtocolNetwork.MAINNET,
   "34443": ProtocolNetwork.MAINNET,
   "534352": ProtocolNetwork.MAINNET,
+  "196": ProtocolNetwork.MAINNET,
 };
 
 export const isDevnetName = (_name: string): boolean => {
@@ -129,6 +130,8 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
     contractName = contractName.replace(/Optimism/g, networkName!);
   } else if (/^(?=.*OptimismV0)(?=.*Connector)/.test(contractName) && ["Metis", "Mantle"].includes(_networkName!)) {
     contractName = contractName.replace(/OptimismV0/g, networkName!);
+  } else if (/^(?=.*PolygonZk)(?=.*Connector)/.test(contractName)) {
+    contractName = contractName.replace(/PolygonZk/g, networkName!);
   }
 
   if (env !== "staging" || NON_STAGING_CONTRACTS.includes(contractName)) {

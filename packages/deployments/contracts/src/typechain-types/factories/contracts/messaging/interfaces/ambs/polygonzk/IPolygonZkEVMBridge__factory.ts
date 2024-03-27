@@ -71,18 +71,6 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "OnlyPolygonZkEVM",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "activateEmergencyState",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint32",
@@ -152,13 +140,18 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32[32]",
-        name: "smtProof",
+        name: "smtProofLocalExitRoot",
         type: "bytes32[32]",
       },
       {
-        internalType: "uint32",
-        name: "index",
-        type: "uint32",
+        internalType: "bytes32[32]",
+        name: "smtProofRollupExitRoot",
+        type: "bytes32[32]",
+      },
+      {
+        internalType: "uint256",
+        name: "globalIndex",
+        type: "uint256",
       },
       {
         internalType: "bytes32",
@@ -210,13 +203,18 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32[32]",
-        name: "smtProof",
+        name: "smtProofLocalExitRoot",
         type: "bytes32[32]",
       },
       {
-        internalType: "uint32",
-        name: "index",
-        type: "uint32",
+        internalType: "bytes32[32]",
+        name: "smtProofRollupExitRoot",
+        type: "bytes32[32]",
+      },
+      {
+        internalType: "uint256",
+        name: "globalIndex",
+        type: "uint256",
       },
       {
         internalType: "bytes32",
@@ -260,13 +258,6 @@ const _abi = [
       },
     ],
     name: "claimMessage",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "deactivateEmergencyState",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
