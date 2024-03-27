@@ -771,6 +771,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
+      // X Layer mainnet
+      196: {
+        prefix: "PolygonZk",
+        networkName: "XLayer",
+        ambs: {
+          // PolygonZkEVMBridgeV2 on mainnet
+          // https://etherscan.io/address/0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268
+          hub: "0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268",
+          // PolygonZkEVMBridgeV2 on xlayer-mainnet
+          // https://zkevm.polygonscan.com/address/0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5
+          spoke: "0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "1",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
+          },
+        },
+      },
     },
   },
 };

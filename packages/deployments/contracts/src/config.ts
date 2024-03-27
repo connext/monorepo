@@ -475,4 +475,18 @@ export const hardhatNetworks = {
       },
     },
   },
+  xlayer: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 196,
+    url: urlOverride || process.env.XLAYER_PROVIDER_URL || "https://rpc.xlayer.tech",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.XLAYER_API_KEY!,
+        apiUrl: "https://www.okx.com/explorer/xlayer",
+      },
+    },
+  },
 };
