@@ -780,8 +780,8 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           // https://etherscan.io/address/0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268
           hub: "0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268",
           // PolygonZkEVMBridgeV2 on xlayer-mainnet
-          // https://www.okx.com/explorer/xlayer-test/address/0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5
-          spoke: "0x7a4Ee6f9F0aB037fE771FC36D39C1E19bcc0Fdb5",
+          // https://www.okx.com/explorer/xlayer/address/0x1d0f2cbe783e17ec1c266545c8deb535db3e1268
+          spoke: "0x1d0f2cbe783e17ec1c266545c8deb535db3e1268",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
