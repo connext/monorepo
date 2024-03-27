@@ -37,6 +37,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   5000: 200, // mantle network
   34443: 30, // mode network
   534352: 15, // scroll
+  196: 15, // x layer mainnet
 
   // testnets
   5: 4, // goerli
