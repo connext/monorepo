@@ -62,28 +62,32 @@ const claimFromPolygonZk = async (
       continue;
     }
 
+    console.log(deposit, proof);
     console.log("Claiming message", deposit.orig_net, deposit.dest_net, deposit.tx_hash, deposit.metadata);
-
-    const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
-      proof.merkle_proof,
-      proof.rollup_merkle_proof,
-      deposit.global_index,
-      proof.main_exit_root,
-      proof.rollup_exit_root,
-      deposit.orig_net,
-      deposit.orig_addr,
-      deposit.dest_net,
-      deposit.dest_addr,
-      deposit.amount,
-      deposit.metadata,
-    );
-    console.log(tx);
-    const receipt = await tx.wait();
-    console.log("tx mined", receipt);
+    try {
+      const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
+        proof.merkle_proof,
+        proof.rollup_merkle_proof,
+        deposit.global_index,
+        proof.main_exit_root,
+        proof.rollup_exit_root,
+        deposit.orig_net,
+        deposit.orig_addr,
+        deposit.dest_net,
+        deposit.dest_addr,
+        deposit.amount,
+        deposit.metadata,
+      );
+      console.log(tx);
+      const receipt = await tx.wait();
+      console.log("tx mined", receipt);
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 
-export default task("claim-polygonzk", "Claim messages on both of L1 and L2")
+export default task("claim-x1", "Claim messages on both of L1 and L2")
   .addParam("spoke", "The chainId for the spoke")
   .addOptionalParam("env", "Environment of contracts")
   .addOptionalParam("networkType", "Type of network of contracts")
@@ -102,16 +106,16 @@ export default task("claim-polygonzk", "Claim messages on both of L1 and L2")
     const protocolConfig = getMessagingProtocolConfig(networkType);
 
     // Right now this only works on arbitrum, error if that is not the correct network
-    if (spoke !== 1442 && spoke !== 1101) {
-      throw new Error(`Only polygonzk-evm supported, requesting claim for spoke ${spoke}`);
+    if (spoke !== 195) {
+      throw new Error(`Only x1 supported, requesting claim for spoke ${spoke}`);
     }
 
-    const apiUrl = spoke === 1101 ? "https://bridge-api.zkevm-rpc.com" : "https://bridge-api.public.zkevm-test.net";
+    const apiUrl = "https://testrpc.x1.tech/priapi/v1/ob/bridge";
     // get the l2 provider
-    const l2Connector = getContract("PolygonZkSpokeConnector", String(spoke), env == "staging", deployer).contract;
+    const l2Connector = getContract("X1SpokeConnector", String(spoke), env == "staging", deployer).contract;
     // get the l1 provider
     const l1Connector = getContract(
-      "PolygonZkHubConnector",
+      "X1HubConnector",
       String(protocolConfig.hub.chain),
       env == "staging",
       deployer,
