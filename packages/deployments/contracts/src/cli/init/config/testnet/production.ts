@@ -12,6 +12,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     // "1887071092", /// POLYGON-ZKEVM-TEST
     "1650553703", /// BASE-GOERLI
     "2016506996", /// X1-TESTNET
+    "1936027759", // SEPOLIA
   ],
   assets: [
     {
@@ -297,6 +298,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
           adopted: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
         },
+      },
+    },
+    {
+      name: "Ramp",
+      canonical: {
+        domain: "1936027759",
+        address: "0x465E4Fe46692206d8658127e225880d8856dC5d4",
+        decimals: 18,
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x948830486C18AC9679Fd812B3134E68d6bDca511",
+          adopted: "0x948830486C18AC9679Fd812B3134E68d6bDca511",
+        },
+        /// Mumbai
+        "9991": {
+          local: "0x948830486C18AC9679Fd812B3134E68d6bDca511",
+          adopted: "0x948830486C18AC9679Fd812B3134E68d6bDca511",
+        }
       },
     },
     {
