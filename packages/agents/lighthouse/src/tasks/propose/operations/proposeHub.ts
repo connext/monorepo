@@ -24,6 +24,7 @@ import {
   AggregateRootDuplicated,
   AggregateRootChecksFailed,
   WaitTimeNotCompleted,
+  TooManySafeRoots,
 } from "../errors";
 import { getContext } from "../propose";
 import { OptimisticHubDBHelper } from "../adapters";
@@ -94,6 +95,7 @@ export const proposeHub = async () => {
   try {
     const orderedSnapshotRoots: string[] = [];
     const snapshotRoots: Map<string, string> = new Map();
+    let safeRootCount = 0;
 
     await Promise.all(
       rootManagerDomains.map(async (domain) => {
@@ -102,62 +104,12 @@ export const proposeHub = async () => {
         if (snapshotRoot) {
           logger.debug("Found snapshot root in db", requestContext, methodContext, { snapshotRoot, domain });
           domainSnapshotRoot = snapshotRoot.root;
-        } else {
-          const domainOutboundRoot = await getCurrentOutboundRoot(domain, requestContext);
-
-          /* Handle boundary case where snapshot for the outbound root is not yet saved.
-          There is a window between the time LH proposes the outbound root and watcher reads the spoke connector contract,
-          in which if there is a new xcall the outbound root gets updated. We were exposed to false alarm by watcher.
-
-          By introducing, what is effectively a “cooldown” period for the outbound root before including it in a proposal,
-          we make sure, one of these two happens on watcher in all cases:
-          1. Watcher finds the snapshot id on the contract and uses that root,
-              which will be the outboundRroot because LH waited
-              and ensured it was the outboundRoot that will be saved as snapshotRoot if and when there is an xcall
-          2. Watcher does not find the snapshotId of the proposal, as there was no xcall and hence no save,
-              and instead gets the exact same outbound root from the spoke connector contract
-          3. Ensure that the snapshot root is not older than the latest snapshot timestamp
-          4. Handle the case where the outbound root is an empty root
-         */
-          const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, domainOutboundRoot);
-          if (
-            domainOutboundRoot === EMPTY_ROOT ||
-            (outboundRootTimestamp && outboundRootTimestamp < latestSnapshotTimestamp)
-          ) {
-            let messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
-            if (domainOutboundRoot === EMPTY_ROOT) {
-              // Handle intial case where there is no message root count
-              messageRootCount = 0;
-            }
-            if (messageRootCount !== undefined) {
-              logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
-                domain,
-                count: messageRootCount + 1,
-                snapshotId: latestSnapshotId,
-                root: domainOutboundRoot,
-              });
-              await database.saveSnapshotRoots([
-                {
-                  id: latestSnapshotId.toString(),
-                  spokeDomain: +domain,
-                  root: domainOutboundRoot,
-                  count: messageRootCount + 1,
-                  timestamp: latestSnapshotTimestamp,
-                },
-              ]);
-              domainSnapshotRoot = domainOutboundRoot;
-            } else {
-              logger.warn("No message root count found for domain", requestContext, methodContext, {
-                domain,
-                domainOutboundRoot,
-              });
-            }
-          }
         }
         if (domainSnapshotRoot === SAFE_ROOT) {
-          // TODO: Confirm if need to save this in the db with saveSnapshotRoots
+          safeRootCount++;
+          // This in not saved db with saveSnapshotRoots as LH PnP will skip proving against safe roots
           logger.warn(
-            "Using safe root. Likely subgraph or cartographer delay. No qualified outbound root timestamp found for domain.",
+            "Using safe root. Likely subgraph or cartographer delay. No qualified snapshot root found for domain.",
             requestContext,
             methodContext,
             {
@@ -165,6 +117,7 @@ export const proposeHub = async () => {
               domainSnapshotRoot,
               latestSnapshotTimestamp,
               latestSnapshotId,
+              safeRootCount,
             },
           );
         }
@@ -176,6 +129,20 @@ export const proposeHub = async () => {
     rootManagerDomains.forEach((domain) => {
       orderedSnapshotRoots.push(snapshotRoots.get(domain)!);
     });
+
+    if (safeRootCount > config.maxSafeRoots) {
+      logger.error(
+        `Too many safe roots: ${safeRootCount}. Likely system wide issue. Skipping propose.`,
+        requestContext,
+        methodContext,
+      );
+      throw new TooManySafeRoots(orderedSnapshotRoots, requestContext, methodContext, {
+        safeRootCount,
+        configMaxSafeRoots: config.maxSafeRoots,
+        latestSnapshotId,
+        latestSnapshotTimestamp,
+      });
+    }
 
     await proposeSnapshot(latestSnapshotId.toString(), orderedSnapshotRoots, rootManagerDomains, requestContext);
   } catch (err: unknown) {
@@ -446,55 +413,4 @@ export const aggregateRootCheck = async (aggregateRoot: string, _requestContext:
 
   // All checks passed, can propose the aggregate root.
   return true;
-};
-
-export const getCurrentOutboundRoot = async (domain: string, _requestContext: RequestContext): Promise<string> => {
-  const {
-    logger,
-    config,
-    chainData,
-    adapters: { chainreader, contracts },
-  } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(getCurrentOutboundRoot.name, _requestContext);
-  logger.info("Fetching outboundRoot from spoke connector", requestContext, methodContext, { domain });
-
-  const domainChainId = chainData.get(domain)?.chainId;
-  if (!domainChainId) {
-    throw new NoChainIdForDomain(domain, requestContext, methodContext);
-  }
-
-  // Find the latest snapshot ID.
-  const spokeConnector = config.chains[domain]?.deployments.spokeConnector;
-  if (!spokeConnector) {
-    throw new NoSpokeConnector(domain, requestContext, methodContext);
-  }
-
-  let currentOutboundRoot: string;
-  const idEncodedData = contracts.spokeConnector.encodeFunctionData("outboundRoot");
-  try {
-    const idResultData = await chainreader.readTx({
-      domain: +domain,
-      to: spokeConnector,
-      data: idEncodedData,
-    });
-
-    const [_currentOutboundRoot] = contracts.spokeConnector.decodeFunctionResult("outboundRoot", idResultData);
-    currentOutboundRoot = _currentOutboundRoot.toString();
-  } catch (err: unknown) {
-    logger.error(
-      "Failed to read the outbound root from onchain",
-      requestContext,
-      methodContext,
-      jsonifyError(err as NxtpError),
-    );
-    // Cannot proceed without the current outbound root.
-    throw err as NxtpError;
-  }
-
-  logger.info("Got the current outboundRoot from spoke connector", requestContext, methodContext, {
-    currentOutboundRoot,
-    domain,
-  });
-
-  return currentOutboundRoot;
 };

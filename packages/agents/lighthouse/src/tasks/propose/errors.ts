@@ -146,3 +146,18 @@ export class WaitTimeNotCompleted extends NxtpError {
     });
   }
 }
+
+export class TooManySafeRoots extends NxtpError {
+  constructor(
+    public readonly snapshotRoots: string[],
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`Too many safe roots in proposal ${snapshotRoots}`, {
+      ...context,
+      requestContext,
+      methodContext,
+    });
+  }
+}
