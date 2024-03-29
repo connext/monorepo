@@ -1,0 +1,7 @@
+[
+  "function DEFAULT_XDOMAIN_MESSAGE_SENDER() pure returns (address _defaultSender)",
+  "function messageQueue() pure returns (address _messageQueue)",
+  "function relayMessageWithProof(address from, address to, uint256 value, uint256 nonce, bytes message, tuple(uint256 batchIndex, bytes merkleProof) proof)",
+  "function sendMessage(address target, uint256 value, bytes message, uint256 gasLimit, address refundAddress) payable",
+  "function xDomainMessageSender() view returns (address _sender)"
+]

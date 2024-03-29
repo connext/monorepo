@@ -12,6 +12,7 @@ export * as optimism from "./optimism";
 export * as optimismV0 from "./optimism-v0";
 export * as polygon from "./polygon";
 export * as polygonzk from "./polygonzk";
+export * as scroll from "./scroll";
 export * as wormhole from "./wormhole";
 export * as zksync from "./zksync";
 export { Connector__factory } from "./Connector__factory";

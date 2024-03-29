@@ -234,6 +234,12 @@ export type { PolygonZkHubConnector } from "./contracts/messaging/connectors/pol
 export { PolygonZkHubConnector__factory } from "./factories/contracts/messaging/connectors/polygonzk/PolygonZkHubConnector__factory";
 export type { PolygonZkSpokeConnector } from "./contracts/messaging/connectors/polygonzk/PolygonZkSpokeConnector";
 export { PolygonZkSpokeConnector__factory } from "./factories/contracts/messaging/connectors/polygonzk/PolygonZkSpokeConnector__factory";
+export type { BaseScroll } from "./contracts/messaging/connectors/scroll/BaseScroll";
+export { BaseScroll__factory } from "./factories/contracts/messaging/connectors/scroll/BaseScroll__factory";
+export type { ScrollHubConnector } from "./contracts/messaging/connectors/scroll/ScrollHubConnector";
+export { ScrollHubConnector__factory } from "./factories/contracts/messaging/connectors/scroll/ScrollHubConnector__factory";
+export type { ScrollSpokeConnector } from "./contracts/messaging/connectors/scroll/ScrollSpokeConnector";
+export { ScrollSpokeConnector__factory } from "./factories/contracts/messaging/connectors/scroll/ScrollSpokeConnector__factory";
 export type { SpokeConnector } from "./contracts/messaging/connectors/SpokeConnector";
 export { SpokeConnector__factory } from "./factories/contracts/messaging/connectors/SpokeConnector__factory";
 export type { BaseWormhole } from "./contracts/messaging/connectors/wormhole/BaseWormhole";
@@ -270,6 +276,12 @@ export type { IBridgeMessageReceiver } from "./contracts/messaging/interfaces/am
 export { IBridgeMessageReceiver__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IBridgeMessageReceiver__factory";
 export type { IPolygonZkEVMBridge } from "./contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge";
 export { IPolygonZkEVMBridge__factory } from "./factories/contracts/messaging/interfaces/ambs/polygonzk/IPolygonZkEVMBridge__factory";
+export type { IL1ScrollMessenger } from "./contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger";
+export { IL1ScrollMessenger__factory } from "./factories/contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger__factory";
+export type { IL2OracleGasPrice } from "./contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol/IL2OracleGasPrice";
+export { IL2OracleGasPrice__factory } from "./factories/contracts/messaging/interfaces/ambs/scroll/IL2GasPriceOracle.sol/IL2OracleGasPrice__factory";
+export type { IL2ScrollMessenger } from "./contracts/messaging/interfaces/ambs/scroll/IL2ScrollMessenger";
+export { IL2ScrollMessenger__factory } from "./factories/contracts/messaging/interfaces/ambs/scroll/IL2ScrollMessenger__factory";
 export type { IWormholeReceiver } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeReceiver";
 export { IWormholeReceiver__factory } from "./factories/contracts/messaging/interfaces/ambs/wormhole/IWormholeReceiver__factory";
 export type { IWormholeRelayer } from "./contracts/messaging/interfaces/ambs/wormhole/IWormholeRelayer.sol/IWormholeRelayer";

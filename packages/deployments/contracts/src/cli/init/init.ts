@@ -724,7 +724,12 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 desired: true,
                 // router admin submits (can be owner, assume router admin)
                 auth: [
-                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  {
+                    method: "owner",
+                    eval: (ret: string) => {
+                      return ret.toLowerCase() === network.signerAddress.toLowerCase();
+                    },
+                  },
                   { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
                 ],
                 read: { method: "getRouterApproval", args: [router] },
