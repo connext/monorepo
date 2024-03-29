@@ -146,7 +146,7 @@ const defaultContext: { config: SubgraphMap } = {
       "1111": { domain: "1111", prefix: "rinkeby" },
       "3331": { domain: "3331", prefix: "goerli" },
     },
-    supported: { "1111": true, "3331": true, "5555555555555": false },
+    supported: { "1111": false, "3331": false, "5555555555555": false },
     assetId: {
       "1111": {
         [mkAddress("0x11")]: { symbol: "DAI", decimals: 18 },

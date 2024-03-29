@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingoptimism_Bytes: any;
   stagingoptimism_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingoptimism_AggregateRoot = {

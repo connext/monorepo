@@ -1,12 +1,12 @@
 {
   "logLevel": "debug",
-  "hubDomain": "1735353714",
+  "hubDomain": "1936027759",
   "chains": {
     "1735356532": {
       "providers": ["https://goerli.optimism.io"]
     },
-    "1735353714": {
-      "providers": ["https://rpc.ankr.com/eth_goerli"]
+    "1936027759": {
+      "providers": ["https://endpoints.omniatech.io/v1/eth/sepolia/public"]
     },
     "9991": {
       "providers": ["https://rpc.ankr.com/polygon_mumbai"]

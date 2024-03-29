@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   avalanche_Bytes: any;
   avalanche_Int8: any;
+  Timestamp: any;
 };
 
 export type avalanche_AggregateRoot = {

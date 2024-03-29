@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   localarbitrumone_Bytes: any;
   localarbitrumone_Int8: any;
+  Timestamp: any;
 };
 
 export type localarbitrumone_AggregateRoot = {

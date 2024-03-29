@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   avalanche_swap_Bytes: any;
   avalanche_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type avalanche_swap_Aggregation_interval =

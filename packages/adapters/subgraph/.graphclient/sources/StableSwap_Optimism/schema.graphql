@@ -2675,6 +2675,12 @@ enum optimism_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type optimism_swap__Block_ {
   """The hash of the block"""
   hash: optimism_swap_Bytes

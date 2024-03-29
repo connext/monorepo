@@ -3948,6 +3948,12 @@ type Subscription {
   stagingpolygonzkevm__meta(block: stagingpolygonzkevm_Block_height): stagingpolygonzkevm__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum stagingpolygonzkevm_TransferStatus {
   XCalled
   Executed

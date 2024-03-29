@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   polygon_swap_Bytes: any;
   polygon_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type polygon_swap_Aggregation_interval =

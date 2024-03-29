@@ -6,14 +6,14 @@ export const livetest = async () => {
   const chainData = await getChainData();
 
   const reader = await SubgraphReader.create(chainData, "production");
-  const hubDomain = "1735353714"; // 9991 => mumbai, 1735356532 => optimism-goerli
+  const hubDomain = "1936027759"; // 9991 => mumbai, 1735356532 => optimism-goerli
 
-  const res = await reader.getLatestBlockNumber(["9991", "1735353714", "1735356532"]);
+  const res = await reader.getLatestBlockNumber(["9991", "1936027759", "1735356532"]);
   console.log("> latest blocknumber: ");
   console.log(res);
 
   const rootMessageSents = await reader.getSentRootMessagesByDomain([
-    { domain: "1735353714", offset: 0, limit: 10 },
+    { domain: "1936027759", offset: 0, limit: 10 },
     { domain: "9991", offset: 0, limit: 10 },
     { domain: "1735356532", offset: 0, limit: 10 },
   ]);
@@ -21,7 +21,7 @@ export const livetest = async () => {
   console.log(rootMessageSents);
 
   const rootMessages = await reader.getProcessedRootMessagesByDomain([
-    { domain: "1735353714", offset: 0, limit: 10 },
+    { domain: "1936027759", offset: 0, limit: 10 },
     { domain: "9991", offset: 0, limit: 10 },
     { domain: "1735356532", offset: 0, limit: 10 },
   ]);

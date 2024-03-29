@@ -150,10 +150,6 @@ export type polygon_AggregateRoot_orderBy =
   | 'root'
   | 'blockNumber';
 
-export type polygon_Aggregation_interval =
-  | 'hour'
-  | 'day';
-
 export type polygon_Asset = {
   id: Scalars['ID'];
   key?: Maybe<Scalars['polygon_Bytes']>;
@@ -3695,8 +3691,6 @@ export type polygon__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['polygon_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

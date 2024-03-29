@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingpolygon_Bytes: any;
   stagingpolygon_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingpolygon_AggregateRoot = {
