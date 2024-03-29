@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   arbitrumone_swap_Bytes: any;
   arbitrumone_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type arbitrumone_swap_Aggregation_interval =

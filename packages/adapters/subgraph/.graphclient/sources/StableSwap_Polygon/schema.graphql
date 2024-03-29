@@ -2675,6 +2675,12 @@ enum polygon_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type polygon_swap__Block_ {
   """The hash of the block"""
   hash: polygon_swap_Bytes

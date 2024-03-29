@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   optimism_swap_Bytes: any;
   optimism_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type optimism_swap_Aggregation_interval =

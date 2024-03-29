@@ -2675,6 +2675,12 @@ enum xdai_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type xdai_swap__Block_ {
   """The hash of the block"""
   hash: xdai_swap_Bytes
