@@ -52,7 +52,7 @@ describe("SubgraphReader", () => {
   });
 
   describe("#supported", () => {
-    it.only("get supported domains", () => {
+    it("get supported domains", () => {
       console.log("subgraphReader.supported: ", subgraphReader.supported);
       expect(subgraphReader.supported).to.be.deep.eq({ "1111": false, "3331": false, "5555555555555": false });
     });
