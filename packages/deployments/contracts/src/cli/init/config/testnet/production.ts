@@ -7,6 +7,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1735356532", /// OPTIMISM-GOERLI
     // "1734439522", /// ARBITRUM-GOERLI
     "9991", /// MUMBAI
+    "11111",
     // "2053862260", /// ZKSYNC-TEST
     // "1668247156", /// LINGEA-GOERLI
     // "1887071092", /// POLYGON-ZKEVM-TEST
@@ -280,22 +281,143 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "InrETH",
+      name: "TST",
+      canonical: {
+        // Bogus domain
+        domain: "11111",
+        address: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        decimals: 18,
+      },
+      representations: {
+        /// GOERLI
+        "1735353714": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+          adopted: "0x6Bc2F40ee04D45848BcD4A70DF6D3679FA2c2A30",
+        },
+      },
+    },
+    {
+      name: "BOG",
+      canonical: {
+        /// GOERLI
+        domain: "1735353714",
+        address: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+      },
+    },
+    {
+      // Comment out other "BOG" when running init for this
+      // TODO: we currently comment out the home chain setup logic in
+      //       helpers/asset.ts when this is being init'd
+      name: "BOG",
+      canonical: {
+        // Bogus domain
+        domain: "11111",
+        address: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        decimals: 18,
+      },
+      representations: {
+        /// GOERLI
+        "1735353714": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+        /// OPTIMISM-GOERLI
+        "1735356532": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+        /// MUMBAI
+        "9991": {
+          local: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+          adopted: "0x3a3e4974FF0dA424276935d1e0c9587B5314ec31",
+        },
+      },
+    },
+    {
+      name: "ESX",
       canonical: {
         domain: "11111",
+        address: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+        decimals: 9,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+          adopted: "0x07d086Cc91BD3aad22C6ff76AFF6aefe15763258",
+        },
+        /// Goerli
+        "1735353714": {
+          local: "0x5EEee8B304Ad51447736F74A5675c2cB070e52A7",
+          adopted: "0x5EEee8B304Ad51447736F74A5675c2cB070e52A7",
+        },
+      },
+    },
+    {
+      name: "sDAI",
+      canonical: {
+        domain: "11111",
+        address: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
         decimals: 18,
-        address: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
       },
       representations: {
         /// Goerli
         "1735353714": {
-          local: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
-          adopted: "0xa66e9339418c1e85bc957062D8D75036dB97e57B",
+          local: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+          adopted: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
         },
         /// Mumbai
         "9991": {
-          local: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
-          adopted: "0x268734Ce4610c4445b7A9d12100Fc385B97362C6",
+          local: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+          adopted: "0x272DF088C3bDafeDCa5f66D76B1372A6091eFc64",
+        },
+      },
+    },
+    {
+      name: "GovernTest",
+      canonical: {
+        domain: "11111",
+        address: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        decimals: 18,
+      },
+      representations: {
+        /// Goerli
+        "1735353714": {
+          local: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+          adopted: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        },
+        /// Mumbai
+        "9991": {
+          local: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+          adopted: "0xb8F010bC74e4de27d9e69063F3faf5F7317831d3",
+        },
+        /// Linea
+        "1668247156": {
+          local: "0xB91471be67c8F2Ada2Cd36cA5EB439B017B80a37",
+          adopted: "0xB91471be67c8F2Ada2Cd36cA5EB439B017B80a37",
         },
       },
     },

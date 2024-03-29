@@ -20,7 +20,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1635148152", // Avalanche
     "1835101812", // Mantle
     "1836016741", // Mode
-    "1935897199", // Scroll
+    // "1935897199", // Scroll
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -346,28 +346,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      // TODO: This is the old config, to be removed in execution layer upgrade
-      name: "ALCX",
-      canonical: {
-        domain: "6648936",
-        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-        },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-        },
-      },
-    },
-    {
       name: "ALCX",
       canonical: {
         // Pseudo-canonical domain
@@ -395,29 +373,12 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     {
       name: "XOC",
-      // polygon
       canonical: {
-        domain: "1886350457",
+        domain: "11111",
         address: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         decimals: 18,
-        cap: utils.parseUnits("25000", 18).toString(),
       },
       representations: {
-        // mainnet
-        "6648936": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // optimism
-        "1869640809": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // arbitrum one
-        "1634886255": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
         // bsc
         "6450786": {
           local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
@@ -425,6 +386,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
         // gnosis
         "6778479": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // polygon
+        "1886350457": {
           local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
           adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
@@ -443,22 +409,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1886350457": {
           local: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
           adopted: "0x8C92DC2B9D6A8A567c7Bd80C5db7a1eDA4fA9A91",
-        },
-      },
-    },
-    {
-      name: "xRADAR",
-      canonical: {
-        domain: "6648936",
-        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// BSC
-        "6450786": {
-          local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
-          adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
         },
       },
     },
@@ -495,6 +445,87 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6778479": {
           local: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
           adopted: "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        },
+      },
+    },
+
+    {
+      name: "xRADAR",
+      canonical: {
+        domain: "11111",
+        address: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+          adopted: "0x202426c15a18a0e0fE3294415E66421891E2EB7C",
+        },
+        /// BSC
+        "6450786": {
+          local: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+          adopted: "0x489580eB70a50515296eF31E8179fF3e77E24965",
+        },
+        /// Polygon
+        "1886350457": {
+          local: "0xdCb72AE4d5dc6Ae274461d57E65dB8D50d0a33AD",
+          adopted: "0xdCb72AE4d5dc6Ae274461d57E65dB8D50d0a33AD",
+        },
+      },
+    },
+    {
+      name: "xoLIT",
+      canonical: {
+        domain: "11111",
+        address: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
+        },
+      },
+    },
+    {
+      name: "ezETH",
+      canonical: {
+        domain: "11111",
+        address: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// BNB
+        "6450786": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// MODE
+        "1836016741": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// LINEA
+        "1818848877": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
         },
       },
     },
@@ -637,56 +668,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           adopted: "0xBB1B173cdFBe464caaaCeaB2a9c8C44229d62D14",
         },
         // BINANCE
-      },
-    },
-    {
-      name: "xoLIT",
-      canonical: {
-        domain: "11111",
-        address: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
-        decimals: 18,
-      },
-      representations: {
-        /// ETHEREUM
-        "6648936": {
-          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
-          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
-        },
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
-          adopted: "0x24F21b1864d4747a5c99045c96dA11DBFDa378f7",
-        },
-      },
-    },
-    {
-      name: "ezETH",
-      canonical: {
-        domain: "11111",
-        address: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-        decimals: 18,
-      },
-      representations: {
-        /// ETHEREUM
-        "6648936": {
-          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-        },
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-        },
-        /// BNB
-        "6450786": {
-          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-        },
-        /// MODE
-        "1836016741": {
-          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-        },
       },
     },
   ],
