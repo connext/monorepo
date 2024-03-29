@@ -72,7 +72,10 @@ export const TESTNET_STAGING_INIT_CONFIG: InitConfig = {
       ],
     },
     routers: {
-      allowlist: ["0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7"],
+      allowlist: [
+        "0x71dD9fc6Fe5427F0c7cd7d42Bc89eFFe11C6d4B7",
+        "0x4A4a3e5914C6FDfa5971254215236489B72eACB5", // dialectic
+      ],
     },
     sequencers: {
       allowlist: ["0xAFCBcdF90776bCFBcB334a6908fdEDa02A75B983"],

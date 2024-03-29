@@ -7,14 +7,14 @@ locals {
 
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -25,7 +25,7 @@ locals {
   ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
-    ENVIRONMENT       = var.environment,
+    ENVIRONMENT       = "production",
     STAGE             = var.stage,
     DD_LOGS_ENABLED   = true,
     DD_ENV            = "${var.environment}-${var.stage}",
@@ -34,7 +34,7 @@ locals {
   }
   lighthouse_prover_subscriber_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -42,27 +42,27 @@ locals {
   lighthouse_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.lighthouse_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   sequencer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   relayer_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_relayer_config },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -70,21 +70,7 @@ locals {
   relayer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
-  ]
-  watcher_env_vars = [
-    { name = "WATCHER_CONFIG", value = local.local_watcher_config },
-    { name = "ENVIRONMENT", value = var.environment },
-    { name = "STAGE", value = var.stage },
-    { name = "DD_PROFILING_ENABLED", value = "true" },
-    { name = "DD_ENV", value = var.stage }
-  ]
-  watcher_web3signer_env_vars = [
-    { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.watcher_web3_signer_private_key },
-    { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = "production" },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
@@ -103,19 +89,17 @@ locals {
 
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      "1869640549" = {
+        providers = ["https://sepolia.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+      "1936027759" = {
+        providers = ["https://eth-sepolia.public.blastapi.io"]
       }
-      "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+      "1633842021" = {
+        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
-      # "2053862260" = {
-      #   providers = ["https://zksync2-testnet.zksync.dev"]
-      # }
     }
+
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
       {
@@ -129,7 +113,7 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment = var.stage
+    environment = "production"
     database = {
       url = local.default_db_url
     }
@@ -154,29 +138,23 @@ locals {
           subscribe  = true
         },
         {
-          name       = "1735353714"
+          name       = "1936027759"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
         },
         {
-          name       = "1735356532"
+          name       = "1869640549"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
         },
         {
-          name       = "9991"
+          name       = "1633842021"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        },
-        # {
-        #   name       = "2053862260"
-        #  limit      = 1
-        #   queueLimit = 100000
-        #   subscribe  = true
-        # },
+        }
       ]
       bindings = [
         {
@@ -186,24 +164,19 @@ locals {
         },
         {
           exchange = "sequencerX"
-          target   = "1735353714"
-          keys     = ["1735353714"]
+          target   = "1936027759"
+          keys     = ["1936027759"]
         },
         {
           exchange = "sequencerX"
-          target   = "1735356532"
-          keys     = ["1735356532"]
+          target   = "1869640549"
+          keys     = ["1869640549"]
         },
         {
           exchange = "sequencerX"
-          target   = "9991"
-          keys     = ["9991"]
-        },
-        # {
-        #   exchange = "sequencerX"
-        #   target   = "2053862260"
-        #   keys     = ["2053862260"]
-        # },
+          target   = "1633842021"
+          keys     = ["1633842021"]
+        }
       ]
       executerTimeout = 300000
       publisher       = "sequencerX"
@@ -230,22 +203,19 @@ locals {
       }
     }
     chains = {
-      "1735356532" = {
-        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      "1869640549" = {
+        providers = ["https://sepolia.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+      "1936027759" = {
+        providers = ["https://eth-sepolia.public.blastapi.io"]
       }
-      "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+      "1633842021" = {
+        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
-      # "2053862260" = {
-      #   providers = ["https://zksync2-testnet.zksync.dev"]
-      # }
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
-    environment     = var.stage
+    environment     = "production"
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
@@ -258,18 +228,15 @@ locals {
     }
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://opt-goerli.g.alchemy.com/v2/${var.optgoerli_alchemy_key_0}"]
+      "1869640549" = {
+        providers = ["https://sepolia.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://eth-goerli.g.alchemy.com/v2/${var.goerli_alchemy_key_0}"]
+      "1936027759" = {
+        providers = ["https://eth-sepolia.public.blastapi.io"]
       }
-      "9991" = {
-        providers = ["https://polygon-mumbai.g.alchemy.com/v2/${var.mumbai_alchemy_key_0}"]
+      "1633842021" = {
+        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
-      # "2053862260" = {
-      #   providers = ["https://zksync2-testnet.zksync.dev"]
-      # }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     relayers = [
@@ -284,20 +251,18 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment = var.stage
+    environment = "production"
     database = {
       url = local.default_db_url
     }
     databaseWriter = {
       url = local.default_db_url
     }
-    main = "1735353714"
+    main = "1936027759"
     proverBatchSize = {
-      # "1668247156" = 10,
-      "9991"       = 10,
-      "1735353714" = 10,
-      # "2053862260" = 10,
-      "1735356532" = 10
+      "1633842021" = 10,
+      "1936027759" = 10,
+      "1869640549" = 10
     }
     messageQueue = {
       connection = {
@@ -312,7 +277,7 @@ locals {
       }
       prefetchSize = 1
     }
-    web3SignerUrl   = "https://${module.lighthouse_web3signer.service_endpoint}"
+    web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
   })
 
   local_relayer_config = jsonencode({
@@ -325,43 +290,17 @@ locals {
     }
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
+      "1869640549" = {
+        providers = ["https://sepolia.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli"]
+      "1936027759" = {
+        providers = ["https://eth-sepolia.public.blastapi.io"]
       }
-      "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai", "https://polygon-testnet.blastapi.io/${var.blast_key}"]
+      "1633842021" = {
+        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
-      # "2053862260" = {
-      #   providers = ["https://zksync2-testnet.zksync.dev"]
-      # }
     }
-    environment   = var.stage
+    environment   = "production"
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
-  })
-
-  local_watcher_config = jsonencode({
-    server = {
-      adminToken = var.admin_token_watcher
-    }
-    logLevel    = "debug"
-    environment = "staging"
-    chains = {
-      "1735353714" = {
-        providers = ["https://eth-goerli.blastapi.io/${var.blast_key}", "https://rpc.ankr.com/eth_goerli", "https://goerli.blockpi.network/v1/rpc/public"]
-      }
-      "1735356532" = {
-        providers = ["https://optimism-goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf", "https://optimism-goerli.blastapi.io/${var.blast_key}", "https://goerli.optimism.io"]
-      }
-    }
-    web3SignerUrl              = "https://${module.watcher_web3signer.service_endpoint}"
-    environment                = var.stage
-    discordHookUrl             = "https://discord.com/api/webhooks/${var.discord_webhook_key}"
-    telegramApiKey             = "${var.telegram_api_key}"
-    telegramChatId             = "${var.telegram_chat_id}"
-    betterUptimeApiKey         = "${var.betteruptime_api_key}"
-    betterUptimeRequesterEmail = "${var.betteruptime_requester_email}"
   })
 }
