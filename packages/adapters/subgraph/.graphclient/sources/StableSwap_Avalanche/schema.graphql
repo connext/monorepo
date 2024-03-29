@@ -2675,6 +2675,12 @@ enum avalanche_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type avalanche_swap__Block_ {
   """The hash of the block"""
   hash: avalanche_swap_Bytes

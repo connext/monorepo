@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   bnb_swap_Bytes: any;
   bnb_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type bnb_swap_Aggregation_interval =

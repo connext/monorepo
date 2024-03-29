@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   sepolia_Bytes: any;
   sepolia_Int8: any;
+  Timestamp: any;
 };
 
 export type sepolia_AggregateRootSavedSlow = {
@@ -147,6 +148,10 @@ export type sepolia_AggregatedMessageRoot_orderBy =
   | 'receivedRoot'
   | 'domain'
   | 'blockNumber';
+
+export type sepolia_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type sepolia_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
@@ -868,6 +873,84 @@ export type sepolia_MetisConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
+export type sepolia_ModeConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['sepolia_Bytes'];
+  rootManager: Scalars['sepolia_Bytes'];
+  mirrorConnector: Scalars['sepolia_Bytes'];
+};
+
+export type sepolia_ModeConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_ModeConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_ModeConnectorMeta_filter>>>;
+};
+
+export type sepolia_ModeConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
 export type sepolia_OptimismConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];
@@ -1304,8 +1387,14 @@ export type Query = {
   sepolia_baseConnectorMetas: Array<sepolia_BaseConnectorMeta>;
   sepolia_polygonZkConnectorMeta?: Maybe<sepolia_PolygonZkConnectorMeta>;
   sepolia_polygonZkConnectorMetas: Array<sepolia_PolygonZkConnectorMeta>;
+  sepolia_x1ConnectorMeta?: Maybe<sepolia_X1ConnectorMeta>;
+  sepolia_x1ConnectorMetas: Array<sepolia_X1ConnectorMeta>;
   sepolia_zkSyncConnectorMeta?: Maybe<sepolia_ZkSyncConnectorMeta>;
   sepolia_zkSyncConnectorMetas: Array<sepolia_ZkSyncConnectorMeta>;
+  sepolia_modeConnectorMeta?: Maybe<sepolia_ModeConnectorMeta>;
+  sepolia_modeConnectorMetas: Array<sepolia_ModeConnectorMeta>;
+  sepolia_scrollConnectorMeta?: Maybe<sepolia_ScrollConnectorMeta>;
+  sepolia_scrollConnectorMetas: Array<sepolia_ScrollConnectorMeta>;
   sepolia_rootMessageProcessed?: Maybe<sepolia_RootMessageProcessed>;
   sepolia_rootMessageProcesseds: Array<sepolia_RootMessageProcessed>;
   sepolia_aggregateRootSavedSlow?: Maybe<sepolia_AggregateRootSavedSlow>;
@@ -1659,6 +1748,24 @@ export type Querysepolia_polygonZkConnectorMetasArgs = {
 };
 
 
+export type Querysepolia_x1ConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_x1ConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_X1ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_X1ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querysepolia_zkSyncConnectorMetaArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<sepolia_Block_height>;
@@ -1672,6 +1779,42 @@ export type Querysepolia_zkSyncConnectorMetasArgs = {
   orderBy?: InputMaybe<sepolia_ZkSyncConnectorMeta_orderBy>;
   orderDirection?: InputMaybe<sepolia_OrderDirection>;
   where?: InputMaybe<sepolia_ZkSyncConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_modeConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_modeConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_ModeConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ModeConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_scrollConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_scrollConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_ScrollConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ScrollConnectorMeta_filter>;
   block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2055,6 +2198,84 @@ export type sepolia_RootPropagated_orderBy =
   | 'count'
   | 'blockNumber';
 
+export type sepolia_ScrollConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['sepolia_Bytes'];
+  rootManager: Scalars['sepolia_Bytes'];
+  mirrorConnector: Scalars['sepolia_Bytes'];
+};
+
+export type sepolia_ScrollConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_ScrollConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_ScrollConnectorMeta_filter>>>;
+};
+
+export type sepolia_ScrollConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
+
 export type Subscription = {
   sepolia_rootAggregated?: Maybe<sepolia_RootAggregated>;
   sepolia_rootAggregateds: Array<sepolia_RootAggregated>;
@@ -2094,8 +2315,14 @@ export type Subscription = {
   sepolia_baseConnectorMetas: Array<sepolia_BaseConnectorMeta>;
   sepolia_polygonZkConnectorMeta?: Maybe<sepolia_PolygonZkConnectorMeta>;
   sepolia_polygonZkConnectorMetas: Array<sepolia_PolygonZkConnectorMeta>;
+  sepolia_x1ConnectorMeta?: Maybe<sepolia_X1ConnectorMeta>;
+  sepolia_x1ConnectorMetas: Array<sepolia_X1ConnectorMeta>;
   sepolia_zkSyncConnectorMeta?: Maybe<sepolia_ZkSyncConnectorMeta>;
   sepolia_zkSyncConnectorMetas: Array<sepolia_ZkSyncConnectorMeta>;
+  sepolia_modeConnectorMeta?: Maybe<sepolia_ModeConnectorMeta>;
+  sepolia_modeConnectorMetas: Array<sepolia_ModeConnectorMeta>;
+  sepolia_scrollConnectorMeta?: Maybe<sepolia_ScrollConnectorMeta>;
+  sepolia_scrollConnectorMetas: Array<sepolia_ScrollConnectorMeta>;
   sepolia_rootMessageProcessed?: Maybe<sepolia_RootMessageProcessed>;
   sepolia_rootMessageProcesseds: Array<sepolia_RootMessageProcessed>;
   sepolia_aggregateRootSavedSlow?: Maybe<sepolia_AggregateRootSavedSlow>;
@@ -2449,6 +2676,24 @@ export type Subscriptionsepolia_polygonZkConnectorMetasArgs = {
 };
 
 
+export type Subscriptionsepolia_x1ConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_x1ConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_X1ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_X1ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionsepolia_zkSyncConnectorMetaArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<sepolia_Block_height>;
@@ -2462,6 +2707,42 @@ export type Subscriptionsepolia_zkSyncConnectorMetasArgs = {
   orderBy?: InputMaybe<sepolia_ZkSyncConnectorMeta_orderBy>;
   orderDirection?: InputMaybe<sepolia_OrderDirection>;
   where?: InputMaybe<sepolia_ZkSyncConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_modeConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_modeConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_ModeConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ModeConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_scrollConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_scrollConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_ScrollConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_ScrollConnectorMeta_filter>;
   block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2524,6 +2805,84 @@ export type Subscriptionsepolia_hubDomainsArgs = {
 export type Subscriptionsepolia__metaArgs = {
   block?: InputMaybe<sepolia_Block_height>;
 };
+
+export type sepolia_X1ConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['sepolia_Bytes'];
+  rootManager: Scalars['sepolia_Bytes'];
+  mirrorConnector: Scalars['sepolia_Bytes'];
+};
+
+export type sepolia_X1ConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['sepolia_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_X1ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_X1ConnectorMeta_filter>>>;
+};
+
+export type sepolia_X1ConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
 
 export type sepolia_ZkSyncConnectorMeta = {
   id: Scalars['ID'];
@@ -2610,6 +2969,8 @@ export type sepolia__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['sepolia_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
@@ -2712,9 +3073,21 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   sepolia_polygonZkConnectorMetas: InContextSdkMethod<Query['sepolia_polygonZkConnectorMetas'], Querysepolia_polygonZkConnectorMetasArgs, MeshContext>,
   /** null **/
+  sepolia_x1ConnectorMeta: InContextSdkMethod<Query['sepolia_x1ConnectorMeta'], Querysepolia_x1ConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_x1ConnectorMetas: InContextSdkMethod<Query['sepolia_x1ConnectorMetas'], Querysepolia_x1ConnectorMetasArgs, MeshContext>,
+  /** null **/
   sepolia_zkSyncConnectorMeta: InContextSdkMethod<Query['sepolia_zkSyncConnectorMeta'], Querysepolia_zkSyncConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_zkSyncConnectorMetas: InContextSdkMethod<Query['sepolia_zkSyncConnectorMetas'], Querysepolia_zkSyncConnectorMetasArgs, MeshContext>,
+  /** null **/
+  sepolia_modeConnectorMeta: InContextSdkMethod<Query['sepolia_modeConnectorMeta'], Querysepolia_modeConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_modeConnectorMetas: InContextSdkMethod<Query['sepolia_modeConnectorMetas'], Querysepolia_modeConnectorMetasArgs, MeshContext>,
+  /** null **/
+  sepolia_scrollConnectorMeta: InContextSdkMethod<Query['sepolia_scrollConnectorMeta'], Querysepolia_scrollConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_scrollConnectorMetas: InContextSdkMethod<Query['sepolia_scrollConnectorMetas'], Querysepolia_scrollConnectorMetasArgs, MeshContext>,
   /** null **/
   sepolia_rootMessageProcessed: InContextSdkMethod<Query['sepolia_rootMessageProcessed'], Querysepolia_rootMessageProcessedArgs, MeshContext>,
   /** null **/
@@ -2813,9 +3186,21 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   sepolia_polygonZkConnectorMetas: InContextSdkMethod<Subscription['sepolia_polygonZkConnectorMetas'], Subscriptionsepolia_polygonZkConnectorMetasArgs, MeshContext>,
   /** null **/
+  sepolia_x1ConnectorMeta: InContextSdkMethod<Subscription['sepolia_x1ConnectorMeta'], Subscriptionsepolia_x1ConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_x1ConnectorMetas: InContextSdkMethod<Subscription['sepolia_x1ConnectorMetas'], Subscriptionsepolia_x1ConnectorMetasArgs, MeshContext>,
+  /** null **/
   sepolia_zkSyncConnectorMeta: InContextSdkMethod<Subscription['sepolia_zkSyncConnectorMeta'], Subscriptionsepolia_zkSyncConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_zkSyncConnectorMetas: InContextSdkMethod<Subscription['sepolia_zkSyncConnectorMetas'], Subscriptionsepolia_zkSyncConnectorMetasArgs, MeshContext>,
+  /** null **/
+  sepolia_modeConnectorMeta: InContextSdkMethod<Subscription['sepolia_modeConnectorMeta'], Subscriptionsepolia_modeConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_modeConnectorMetas: InContextSdkMethod<Subscription['sepolia_modeConnectorMetas'], Subscriptionsepolia_modeConnectorMetasArgs, MeshContext>,
+  /** null **/
+  sepolia_scrollConnectorMeta: InContextSdkMethod<Subscription['sepolia_scrollConnectorMeta'], Subscriptionsepolia_scrollConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_scrollConnectorMetas: InContextSdkMethod<Subscription['sepolia_scrollConnectorMetas'], Subscriptionsepolia_scrollConnectorMetasArgs, MeshContext>,
   /** null **/
   sepolia_rootMessageProcessed: InContextSdkMethod<Subscription['sepolia_rootMessageProcessed'], Subscriptionsepolia_rootMessageProcessedArgs, MeshContext>,
   /** null **/

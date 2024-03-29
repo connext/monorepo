@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingbnb_Bytes: any;
   stagingbnb_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingbnb_AggregateRoot = {

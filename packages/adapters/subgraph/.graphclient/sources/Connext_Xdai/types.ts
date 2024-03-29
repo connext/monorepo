@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   xdai_Bytes: any;
   xdai_Int8: any;
+  Timestamp: any;
 };
 
 export type xdai_AggregateRoot = {
@@ -149,6 +150,10 @@ export type xdai_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type xdai_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type xdai_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type xdai__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['xdai_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

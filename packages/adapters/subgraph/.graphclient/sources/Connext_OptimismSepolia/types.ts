@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ConnextOptimismGoerliTypes {
+export namespace ConnextOptimismSepoliaTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -16,21 +16,22 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  optimismgoerli_BigDecimal: any;
+  optimismsepolia_BigDecimal: any;
   BigInt: any;
-  optimismgoerli_Bytes: any;
-  optimismgoerli_Int8: any;
+  optimismsepolia_Bytes: any;
+  optimismsepolia_Int8: any;
+  Timestamp: any;
 };
 
-export type optimismgoerli_AggregateRoot = {
+export type optimismsepolia_AggregateRoot = {
   id: Scalars['ID'];
-  root: Scalars['optimismgoerli_Bytes'];
+  root: Scalars['optimismsepolia_Bytes'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type optimismgoerli_AggregateRootProposed = {
+export type optimismsepolia_AggregateRootProposed = {
   id: Scalars['ID'];
-  aggregateRoot: Scalars['optimismgoerli_Bytes'];
+  aggregateRoot: Scalars['optimismsepolia_Bytes'];
   rootTimestamp: Scalars['BigInt'];
   endOfDispute: Scalars['BigInt'];
   domain: Scalars['BigInt'];
@@ -38,7 +39,7 @@ export type optimismgoerli_AggregateRootProposed = {
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type optimismgoerli_AggregateRootProposed_filter = {
+export type optimismsepolia_AggregateRootProposed_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -47,16 +48,16 @@ export type optimismgoerli_AggregateRootProposed_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  aggregateRoot?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  aggregateRoot_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  aggregateRoot_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  aggregateRoot?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   rootTimestamp?: InputMaybe<Scalars['BigInt']>;
   rootTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   rootTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -98,12 +99,12 @@ export type optimismgoerli_AggregateRootProposed_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRootProposed_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRootProposed_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_AggregateRootProposed_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_AggregateRootProposed_filter>>>;
 };
 
-export type optimismgoerli_AggregateRootProposed_orderBy =
+export type optimismsepolia_AggregateRootProposed_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'rootTimestamp'
@@ -112,7 +113,7 @@ export type optimismgoerli_AggregateRootProposed_orderBy =
   | 'timestamp'
   | 'blockNumber';
 
-export type optimismgoerli_AggregateRoot_filter = {
+export type optimismsepolia_AggregateRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -121,16 +122,16 @@ export type optimismgoerli_AggregateRoot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  root?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  root?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -140,45 +141,45 @@ export type optimismgoerli_AggregateRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AggregateRoot_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_AggregateRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_AggregateRoot_filter>>>;
 };
 
-export type optimismgoerli_AggregateRoot_orderBy =
+export type optimismsepolia_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
 
-export type optimismgoerli_Aggregation_interval =
+export type optimismsepolia_Aggregation_interval =
   | 'hour'
   | 'day';
 
-export type optimismgoerli_Asset = {
+export type optimismsepolia_Asset = {
   id: Scalars['ID'];
-  key?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  key?: Maybe<Scalars['optimismsepolia_Bytes']>;
   decimal?: Maybe<Scalars['BigInt']>;
   adoptedDecimal?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  canonicalId?: Maybe<Scalars['optimismsepolia_Bytes']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  adoptedAsset?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  adoptedAsset?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset?: Maybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<optimismgoerli_AssetStatus>;
+  status?: Maybe<optimismsepolia_AssetStatus>;
 };
 
-export type optimismgoerli_AssetBalance = {
+export type optimismsepolia_AssetBalance = {
   id: Scalars['ID'];
   amount: Scalars['BigInt'];
   locked: Scalars['BigInt'];
   supplied: Scalars['BigInt'];
   removed: Scalars['BigInt'];
-  router: optimismgoerli_Router;
-  asset: optimismgoerli_Asset;
+  router: optimismsepolia_Router;
+  asset: optimismsepolia_Asset;
   feesEarned: Scalars['BigInt'];
 };
 
-export type optimismgoerli_AssetBalance_filter = {
+export type optimismsepolia_AssetBalance_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -239,7 +240,7 @@ export type optimismgoerli_AssetBalance_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<optimismgoerli_Router_filter>;
+  router_?: InputMaybe<optimismsepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -260,7 +261,7 @@ export type optimismgoerli_AssetBalance_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
+  asset_?: InputMaybe<optimismsepolia_Asset_filter>;
   feesEarned?: InputMaybe<Scalars['BigInt']>;
   feesEarned_not?: InputMaybe<Scalars['BigInt']>;
   feesEarned_gt?: InputMaybe<Scalars['BigInt']>;
@@ -270,12 +271,12 @@ export type optimismgoerli_AssetBalance_filter = {
   feesEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
   feesEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetBalance_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetBalance_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_AssetBalance_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_AssetBalance_filter>>>;
 };
 
-export type optimismgoerli_AssetBalance_orderBy =
+export type optimismsepolia_AssetBalance_orderBy =
   | 'id'
   | 'amount'
   | 'locked'
@@ -300,12 +301,12 @@ export type optimismgoerli_AssetBalance_orderBy =
   | 'asset__blockNumber'
   | 'feesEarned';
 
-export type optimismgoerli_AssetStatus = {
+export type optimismsepolia_AssetStatus = {
   id: Scalars['ID'];
   status?: Maybe<Scalars['Boolean']>;
 };
 
-export type optimismgoerli_AssetStatus_filter = {
+export type optimismsepolia_AssetStatus_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -319,16 +320,16 @@ export type optimismgoerli_AssetStatus_filter = {
   status_in?: InputMaybe<Array<Scalars['Boolean']>>;
   status_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetStatus_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_AssetStatus_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_AssetStatus_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_AssetStatus_filter>>>;
 };
 
-export type optimismgoerli_AssetStatus_orderBy =
+export type optimismsepolia_AssetStatus_orderBy =
   | 'id'
   | 'status';
 
-export type optimismgoerli_Asset_filter = {
+export type optimismsepolia_Asset_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -337,16 +338,16 @@ export type optimismgoerli_Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  key?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  key_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  key_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  key_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  key?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  key_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  key_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  key_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   decimal?: InputMaybe<Scalars['BigInt']>;
   decimal_not?: InputMaybe<Scalars['BigInt']>;
   decimal_gt?: InputMaybe<Scalars['BigInt']>;
@@ -363,16 +364,16 @@ export type optimismgoerli_Asset_filter = {
   adoptedDecimal_lte?: InputMaybe<Scalars['BigInt']>;
   adoptedDecimal_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adoptedDecimal_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   canonicalDomain?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_not?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -381,26 +382,26 @@ export type optimismgoerli_Asset_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adoptedAsset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  adoptedAsset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  adoptedAsset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  adoptedAsset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  localAsset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  localAsset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  localAsset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  adoptedAsset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  adoptedAsset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  adoptedAsset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  adoptedAsset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  localAsset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  localAsset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  localAsset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -429,14 +430,14 @@ export type optimismgoerli_Asset_filter = {
   status_ends_with_nocase?: InputMaybe<Scalars['String']>;
   status_not_ends_with?: InputMaybe<Scalars['String']>;
   status_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  status_?: InputMaybe<optimismgoerli_AssetStatus_filter>;
+  status_?: InputMaybe<optimismsepolia_AssetStatus_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Asset_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Asset_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_Asset_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_Asset_filter>>>;
 };
 
-export type optimismgoerli_Asset_orderBy =
+export type optimismsepolia_Asset_orderBy =
   | 'id'
   | 'key'
   | 'decimal'
@@ -450,26 +451,26 @@ export type optimismgoerli_Asset_orderBy =
   | 'status__id'
   | 'status__status';
 
-export type optimismgoerli_BlockChangedFilter = {
+export type optimismsepolia_BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
 
-export type optimismgoerli_Block_height = {
-  hash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+export type optimismsepolia_Block_height = {
+  hash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   number?: InputMaybe<Scalars['Int']>;
   number_gte?: InputMaybe<Scalars['Int']>;
 };
 
-export type optimismgoerli_ConnectorMeta = {
+export type optimismsepolia_ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  amb?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  amb?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector?: Maybe<Scalars['optimismsepolia_Bytes']>;
 };
 
-export type optimismgoerli_ConnectorMeta_filter = {
+export type optimismsepolia_ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -494,43 +495,43 @@ export type optimismgoerli_ConnectorMeta_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amb?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  amb_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  amb_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  amb_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  rootManager_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  rootManager_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  rootManager_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  mirrorConnector_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  mirrorConnector_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  mirrorConnector_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  amb?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_ConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_ConnectorMeta_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_ConnectorMeta_filter>>>;
 };
 
-export type optimismgoerli_ConnectorMeta_orderBy =
+export type optimismsepolia_ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -538,57 +539,57 @@ export type optimismgoerli_ConnectorMeta_orderBy =
   | 'rootManager'
   | 'mirrorConnector';
 
-export type optimismgoerli_DestinationTransfer = {
+export type optimismsepolia_DestinationTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: Maybe<Scalars['optimismsepolia_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<optimismgoerli_TransferStatus>;
-  routers?: Maybe<Array<optimismgoerli_Router>>;
+  status?: Maybe<optimismsepolia_TransferStatus>;
+  routers?: Maybe<Array<optimismsepolia_Router>>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  delegate?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  to?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  delegate?: Maybe<Scalars['optimismsepolia_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  callData?: Maybe<Scalars['optimismsepolia_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
   bumpSlippageCount?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  originSender?: Maybe<Scalars['optimismsepolia_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  asset?: Maybe<optimismgoerli_Asset>;
+  canonicalId?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  asset?: Maybe<optimismsepolia_Asset>;
   amount?: Maybe<Scalars['BigInt']>;
   routersFee?: Maybe<Scalars['BigInt']>;
-  executedCaller?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  executedCaller?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   executedTimestamp?: Maybe<Scalars['BigInt']>;
   executedGasPrice?: Maybe<Scalars['BigInt']>;
   executedGasLimit?: Maybe<Scalars['BigInt']>;
   executedBlockNumber?: Maybe<Scalars['BigInt']>;
-  executedTxOrigin?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  executedTxOrigin?: Maybe<Scalars['optimismsepolia_Bytes']>;
   executedTxNonce?: Maybe<Scalars['BigInt']>;
-  reconciledCaller?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  reconciledCaller?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   reconciledTimestamp?: Maybe<Scalars['BigInt']>;
   reconciledGasPrice?: Maybe<Scalars['BigInt']>;
   reconciledGasLimit?: Maybe<Scalars['BigInt']>;
   reconciledBlockNumber?: Maybe<Scalars['BigInt']>;
-  reconciledTxOrigin?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  reconciledTxOrigin?: Maybe<Scalars['optimismsepolia_Bytes']>;
   reconciledTxNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type optimismgoerli_DestinationTransferroutersArgs = {
+export type optimismsepolia_DestinationTransferroutersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Router_filter>;
+  orderBy?: InputMaybe<optimismsepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Router_filter>;
 };
 
-export type optimismgoerli_DestinationTransfer_filter = {
+export type optimismsepolia_DestinationTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -605,16 +606,16 @@ export type optimismgoerli_DestinationTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -623,17 +624,17 @@ export type optimismgoerli_DestinationTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<optimismgoerli_TransferStatus>;
-  status_not?: InputMaybe<optimismgoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<optimismgoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<optimismgoerli_TransferStatus>>;
+  status?: InputMaybe<optimismsepolia_TransferStatus>;
+  status_not?: InputMaybe<optimismsepolia_TransferStatus>;
+  status_in?: InputMaybe<Array<optimismsepolia_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<optimismsepolia_TransferStatus>>;
   routers?: InputMaybe<Array<Scalars['String']>>;
   routers_not?: InputMaybe<Array<Scalars['String']>>;
   routers_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   routers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  routers_?: InputMaybe<optimismgoerli_Router_filter>;
+  routers_?: InputMaybe<optimismsepolia_Router_filter>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -658,40 +659,40 @@ export type optimismgoerli_DestinationTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  to?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -708,16 +709,16 @@ export type optimismgoerli_DestinationTransfer_filter = {
   bumpSlippageCount_lte?: InputMaybe<Scalars['BigInt']>;
   bumpSlippageCount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bumpSlippageCount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  originSender?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -734,16 +735,16 @@ export type optimismgoerli_DestinationTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -764,7 +765,7 @@ export type optimismgoerli_DestinationTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
+  asset_?: InputMaybe<optimismsepolia_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -781,26 +782,26 @@ export type optimismgoerli_DestinationTransfer_filter = {
   routersFee_lte?: InputMaybe<Scalars['BigInt']>;
   routersFee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   routersFee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedCaller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedCaller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedCaller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedCaller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedTransactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTransactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  executedCaller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedCaller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedCaller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedCaller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedTransactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedTransactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTransactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   executedTimestamp?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   executedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -833,16 +834,16 @@ export type optimismgoerli_DestinationTransfer_filter = {
   executedBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   executedBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  executedTxOrigin?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  executedTxOrigin_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  executedTxOrigin_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  executedTxOrigin?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedTxOrigin_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  executedTxOrigin_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  executedTxOrigin_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   executedTxNonce?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -851,26 +852,26 @@ export type optimismgoerli_DestinationTransfer_filter = {
   executedTxNonce_lte?: InputMaybe<Scalars['BigInt']>;
   executedTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   executedTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledCaller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledCaller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledCaller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledCaller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledTransactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  reconciledCaller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledCaller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledCaller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledCaller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledTransactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledTransactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTransactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   reconciledTimestamp?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -903,16 +904,16 @@ export type optimismgoerli_DestinationTransfer_filter = {
   reconciledBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   reconciledBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  reconciledTxOrigin?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  reconciledTxOrigin_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  reconciledTxOrigin?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledTxOrigin_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  reconciledTxOrigin_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  reconciledTxOrigin_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   reconciledTxNonce?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_not?: InputMaybe<Scalars['BigInt']>;
   reconciledTxNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -922,12 +923,12 @@ export type optimismgoerli_DestinationTransfer_filter = {
   reconciledTxNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   reconciledTxNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_DestinationTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_DestinationTransfer_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_DestinationTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_DestinationTransfer_filter>>>;
 };
 
-export type optimismgoerli_DestinationTransfer_orderBy =
+export type optimismsepolia_DestinationTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -976,14 +977,14 @@ export type optimismgoerli_DestinationTransfer_orderBy =
   | 'reconciledTxOrigin'
   | 'reconciledTxNonce';
 
-export type optimismgoerli_OptimisticRootFinalized = {
+export type optimismsepolia_OptimisticRootFinalized = {
   id: Scalars['ID'];
-  aggregateRoot: Scalars['optimismgoerli_Bytes'];
+  aggregateRoot: Scalars['optimismsepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type optimismgoerli_OptimisticRootFinalized_filter = {
+export type optimismsepolia_OptimisticRootFinalized_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -992,16 +993,16 @@ export type optimismgoerli_OptimisticRootFinalized_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  aggregateRoot?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  aggregateRoot_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  aggregateRoot_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  aggregateRoot_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  aggregateRoot?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  aggregateRoot_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  aggregateRoot_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  aggregateRoot_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1019,36 +1020,36 @@ export type optimismgoerli_OptimisticRootFinalized_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_OptimisticRootFinalized_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_OptimisticRootFinalized_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_OptimisticRootFinalized_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_OptimisticRootFinalized_filter>>>;
 };
 
-export type optimismgoerli_OptimisticRootFinalized_orderBy =
+export type optimismsepolia_OptimisticRootFinalized_orderBy =
   | 'id'
   | 'aggregateRoot'
   | 'timestamp'
   | 'blockNumber';
 
 /** Defines the order direction, either ascending or descending */
-export type optimismgoerli_OrderDirection =
+export type optimismsepolia_OrderDirection =
   | 'asc'
   | 'desc';
 
-export type optimismgoerli_OriginMessage = {
+export type optimismsepolia_OriginMessage = {
   id: Scalars['ID'];
-  transferId?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: Maybe<Scalars['optimismsepolia_Bytes']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
-  leaf?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  leaf?: Maybe<Scalars['optimismsepolia_Bytes']>;
   index?: Maybe<Scalars['BigInt']>;
-  message?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  root?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  message?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  root?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  rootCount?: Maybe<optimismgoerli_RootCount>;
+  rootCount?: Maybe<optimismsepolia_RootCount>;
 };
 
-export type optimismgoerli_OriginMessage_filter = {
+export type optimismsepolia_OriginMessage_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1057,16 +1058,16 @@ export type optimismgoerli_OriginMessage_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  transferId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   destinationDomain?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_not?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1075,16 +1076,16 @@ export type optimismgoerli_OriginMessage_filter = {
   destinationDomain_lte?: InputMaybe<Scalars['BigInt']>;
   destinationDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   destinationDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  leaf?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  leaf_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  leaf_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  leaf_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  leaf?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  leaf_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  leaf_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  leaf_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   index?: InputMaybe<Scalars['BigInt']>;
   index_not?: InputMaybe<Scalars['BigInt']>;
   index_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1093,36 +1094,36 @@ export type optimismgoerli_OriginMessage_filter = {
   index_lte?: InputMaybe<Scalars['BigInt']>;
   index_in?: InputMaybe<Array<Scalars['BigInt']>>;
   index_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  message?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  message_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  message_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  message_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  message?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  message_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  message_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  message_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1151,14 +1152,14 @@ export type optimismgoerli_OriginMessage_filter = {
   rootCount_ends_with_nocase?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with?: InputMaybe<Scalars['String']>;
   rootCount_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  rootCount_?: InputMaybe<optimismgoerli_RootCount_filter>;
+  rootCount_?: InputMaybe<optimismsepolia_RootCount_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginMessage_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginMessage_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_OriginMessage_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_OriginMessage_filter>>>;
 };
 
-export type optimismgoerli_OriginMessage_orderBy =
+export type optimismsepolia_OriginMessage_orderBy =
   | 'id'
   | 'transferId'
   | 'destinationDomain'
@@ -1172,51 +1173,51 @@ export type optimismgoerli_OriginMessage_orderBy =
   | 'rootCount__id'
   | 'rootCount__count';
 
-export type optimismgoerli_OriginTransfer = {
+export type optimismsepolia_OriginTransfer = {
   id: Scalars['ID'];
   chainId?: Maybe<Scalars['BigInt']>;
-  transferId?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: Maybe<Scalars['optimismsepolia_Bytes']>;
   nonce?: Maybe<Scalars['BigInt']>;
-  status?: Maybe<optimismgoerli_TransferStatus>;
-  messageHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  status?: Maybe<optimismsepolia_TransferStatus>;
+  messageHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   originDomain?: Maybe<Scalars['BigInt']>;
   destinationDomain?: Maybe<Scalars['BigInt']>;
   canonicalDomain?: Maybe<Scalars['BigInt']>;
-  to?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  delegate?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  to?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  delegate?: Maybe<Scalars['optimismsepolia_Bytes']>;
   receiveLocal?: Maybe<Scalars['Boolean']>;
-  callData?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  callData?: Maybe<Scalars['optimismsepolia_Bytes']>;
   slippage?: Maybe<Scalars['BigInt']>;
-  originSender?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  originSender?: Maybe<Scalars['optimismsepolia_Bytes']>;
   bridgedAmt?: Maybe<Scalars['BigInt']>;
   normalizedIn?: Maybe<Scalars['BigInt']>;
-  canonicalId?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  asset?: Maybe<optimismgoerli_Asset>;
-  transactingAsset?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  message?: Maybe<optimismgoerli_OriginMessage>;
+  canonicalId?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  asset?: Maybe<optimismsepolia_Asset>;
+  transactingAsset?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  message?: Maybe<optimismsepolia_OriginMessage>;
   bumpRelayerFeeCount?: Maybe<Scalars['BigInt']>;
-  relayerFees?: Maybe<Array<optimismgoerli_RelayerFee>>;
-  initialRelayerFeeAsset?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  caller?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  relayerFees?: Maybe<Array<optimismsepolia_RelayerFee>>;
+  initialRelayerFeeAsset?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  caller?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
-  txOrigin?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  txOrigin?: Maybe<Scalars['optimismsepolia_Bytes']>;
   txNonce?: Maybe<Scalars['BigInt']>;
 };
 
 
-export type optimismgoerli_OriginTransferrelayerFeesArgs = {
+export type optimismsepolia_OriginTransferrelayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RelayerFee_filter>;
+  orderBy?: InputMaybe<optimismsepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RelayerFee_filter>;
 };
 
-export type optimismgoerli_OriginTransfer_filter = {
+export type optimismsepolia_OriginTransfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -1233,16 +1234,16 @@ export type optimismgoerli_OriginTransfer_filter = {
   chainId_lte?: InputMaybe<Scalars['BigInt']>;
   chainId_in?: InputMaybe<Array<Scalars['BigInt']>>;
   chainId_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transferId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transferId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transferId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transferId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transferId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transferId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1251,20 +1252,20 @@ export type optimismgoerli_OriginTransfer_filter = {
   nonce_lte?: InputMaybe<Scalars['BigInt']>;
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  status?: InputMaybe<optimismgoerli_TransferStatus>;
-  status_not?: InputMaybe<optimismgoerli_TransferStatus>;
-  status_in?: InputMaybe<Array<optimismgoerli_TransferStatus>>;
-  status_not_in?: InputMaybe<Array<optimismgoerli_TransferStatus>>;
-  messageHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  messageHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  messageHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  messageHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  status?: InputMaybe<optimismsepolia_TransferStatus>;
+  status_not?: InputMaybe<optimismsepolia_TransferStatus>;
+  status_in?: InputMaybe<Array<optimismsepolia_TransferStatus>>;
+  status_not_in?: InputMaybe<Array<optimismsepolia_TransferStatus>>;
+  messageHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  messageHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  messageHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  messageHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   originDomain?: InputMaybe<Scalars['BigInt']>;
   originDomain_not?: InputMaybe<Scalars['BigInt']>;
   originDomain_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1289,40 +1290,40 @@ export type optimismgoerli_OriginTransfer_filter = {
   canonicalDomain_lte?: InputMaybe<Scalars['BigInt']>;
   canonicalDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   canonicalDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  to?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  to_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  to_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  to_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  delegate_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  delegate_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  delegate_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  to?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  to_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  to_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  to_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  delegate_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  delegate_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  delegate_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   receiveLocal?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_not?: InputMaybe<Scalars['Boolean']>;
   receiveLocal_in?: InputMaybe<Array<Scalars['Boolean']>>;
   receiveLocal_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  callData?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  callData_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  callData_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  callData_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  callData?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  callData_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  callData_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  callData_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1331,16 +1332,16 @@ export type optimismgoerli_OriginTransfer_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  originSender?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  originSender_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  originSender_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  originSender_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  originSender?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  originSender_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  originSender_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  originSender_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   bridgedAmt?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_not?: InputMaybe<Scalars['BigInt']>;
   bridgedAmt_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1357,16 +1358,16 @@ export type optimismgoerli_OriginTransfer_filter = {
   normalizedIn_lte?: InputMaybe<Scalars['BigInt']>;
   normalizedIn_in?: InputMaybe<Array<Scalars['BigInt']>>;
   normalizedIn_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  canonicalId?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  canonicalId_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  canonicalId_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  canonicalId?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  canonicalId_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  canonicalId_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -1387,17 +1388,17 @@ export type optimismgoerli_OriginTransfer_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
-  transactingAsset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactingAsset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactingAsset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactingAsset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  asset_?: InputMaybe<optimismsepolia_Asset_filter>;
+  transactingAsset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactingAsset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactingAsset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactingAsset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   message?: InputMaybe<Scalars['String']>;
   message_not?: InputMaybe<Scalars['String']>;
   message_gt?: InputMaybe<Scalars['String']>;
@@ -1418,7 +1419,7 @@ export type optimismgoerli_OriginTransfer_filter = {
   message_ends_with_nocase?: InputMaybe<Scalars['String']>;
   message_not_ends_with?: InputMaybe<Scalars['String']>;
   message_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  message_?: InputMaybe<optimismgoerli_OriginMessage_filter>;
+  message_?: InputMaybe<optimismsepolia_OriginMessage_filter>;
   bumpRelayerFeeCount?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_not?: InputMaybe<Scalars['BigInt']>;
   bumpRelayerFeeCount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1433,37 +1434,37 @@ export type optimismgoerli_OriginTransfer_filter = {
   relayerFees_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains?: InputMaybe<Array<Scalars['String']>>;
   relayerFees_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  relayerFees_?: InputMaybe<optimismgoerli_RelayerFee_filter>;
-  initialRelayerFeeAsset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  relayerFees_?: InputMaybe<optimismsepolia_RelayerFee_filter>;
+  initialRelayerFeeAsset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  initialRelayerFeeAsset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  initialRelayerFeeAsset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  initialRelayerFeeAsset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1496,16 +1497,16 @@ export type optimismgoerli_OriginTransfer_filter = {
   blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  txOrigin?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  txOrigin_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  txOrigin_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  txOrigin_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  txOrigin?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  txOrigin_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  txOrigin_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  txOrigin_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   txNonce?: InputMaybe<Scalars['BigInt']>;
   txNonce_not?: InputMaybe<Scalars['BigInt']>;
   txNonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1515,12 +1516,12 @@ export type optimismgoerli_OriginTransfer_filter = {
   txNonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   txNonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginTransfer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_OriginTransfer_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_OriginTransfer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_OriginTransfer_filter>>>;
 };
 
-export type optimismgoerli_OriginTransfer_orderBy =
+export type optimismsepolia_OriginTransfer_orderBy =
   | 'id'
   | 'chainId'
   | 'transferId'
@@ -1573,489 +1574,489 @@ export type optimismgoerli_OriginTransfer_orderBy =
   | 'txNonce';
 
 export type Query = {
-  optimismgoerli_asset?: Maybe<optimismgoerli_Asset>;
-  optimismgoerli_assets: Array<optimismgoerli_Asset>;
-  optimismgoerli_assetStatus?: Maybe<optimismgoerli_AssetStatus>;
-  optimismgoerli_assetStatuses: Array<optimismgoerli_AssetStatus>;
-  optimismgoerli_assetBalance?: Maybe<optimismgoerli_AssetBalance>;
-  optimismgoerli_assetBalances: Array<optimismgoerli_AssetBalance>;
-  optimismgoerli_router?: Maybe<optimismgoerli_Router>;
-  optimismgoerli_routers: Array<optimismgoerli_Router>;
-  optimismgoerli_routerDailyTVL?: Maybe<optimismgoerli_RouterDailyTVL>;
-  optimismgoerli_routerDailyTVLs: Array<optimismgoerli_RouterDailyTVL>;
-  optimismgoerli_routerLiquidityEvent?: Maybe<optimismgoerli_RouterLiquidityEvent>;
-  optimismgoerli_routerLiquidityEvents: Array<optimismgoerli_RouterLiquidityEvent>;
-  optimismgoerli_setting?: Maybe<optimismgoerli_Setting>;
-  optimismgoerli_settings: Array<optimismgoerli_Setting>;
-  optimismgoerli_relayer?: Maybe<optimismgoerli_Relayer>;
-  optimismgoerli_relayers: Array<optimismgoerli_Relayer>;
-  optimismgoerli_sequencer?: Maybe<optimismgoerli_Sequencer>;
-  optimismgoerli_sequencers: Array<optimismgoerli_Sequencer>;
-  optimismgoerli_relayerFee?: Maybe<optimismgoerli_RelayerFee>;
-  optimismgoerli_relayerFees: Array<optimismgoerli_RelayerFee>;
-  optimismgoerli_originTransfer?: Maybe<optimismgoerli_OriginTransfer>;
-  optimismgoerli_originTransfers: Array<optimismgoerli_OriginTransfer>;
-  optimismgoerli_destinationTransfer?: Maybe<optimismgoerli_DestinationTransfer>;
-  optimismgoerli_destinationTransfers: Array<optimismgoerli_DestinationTransfer>;
-  optimismgoerli_originMessage?: Maybe<optimismgoerli_OriginMessage>;
-  optimismgoerli_originMessages: Array<optimismgoerli_OriginMessage>;
-  optimismgoerli_aggregateRoot?: Maybe<optimismgoerli_AggregateRoot>;
-  optimismgoerli_aggregateRoots: Array<optimismgoerli_AggregateRoot>;
-  optimismgoerli_connectorMeta?: Maybe<optimismgoerli_ConnectorMeta>;
-  optimismgoerli_connectorMetas: Array<optimismgoerli_ConnectorMeta>;
-  optimismgoerli_rootCount?: Maybe<optimismgoerli_RootCount>;
-  optimismgoerli_rootCounts: Array<optimismgoerli_RootCount>;
-  optimismgoerli_rootMessageSent?: Maybe<optimismgoerli_RootMessageSent>;
-  optimismgoerli_rootMessageSents: Array<optimismgoerli_RootMessageSent>;
-  optimismgoerli_relayerFeesIncrease?: Maybe<optimismgoerli_RelayerFeesIncrease>;
-  optimismgoerli_relayerFeesIncreases: Array<optimismgoerli_RelayerFeesIncrease>;
-  optimismgoerli_slippageUpdate?: Maybe<optimismgoerli_SlippageUpdate>;
-  optimismgoerli_slippageUpdates: Array<optimismgoerli_SlippageUpdate>;
-  optimismgoerli_snapshotRoot?: Maybe<optimismgoerli_SnapshotRoot>;
-  optimismgoerli_snapshotRoots: Array<optimismgoerli_SnapshotRoot>;
-  optimismgoerli_spokeConnectorMode?: Maybe<optimismgoerli_SpokeConnectorMode>;
-  optimismgoerli_spokeConnectorModes: Array<optimismgoerli_SpokeConnectorMode>;
-  optimismgoerli_aggregateRootProposed?: Maybe<optimismgoerli_AggregateRootProposed>;
-  optimismgoerli_aggregateRootProposeds: Array<optimismgoerli_AggregateRootProposed>;
-  optimismgoerli_optimisticRootFinalized?: Maybe<optimismgoerli_OptimisticRootFinalized>;
-  optimismgoerli_optimisticRootFinalizeds: Array<optimismgoerli_OptimisticRootFinalized>;
+  optimismsepolia_asset?: Maybe<optimismsepolia_Asset>;
+  optimismsepolia_assets: Array<optimismsepolia_Asset>;
+  optimismsepolia_assetStatus?: Maybe<optimismsepolia_AssetStatus>;
+  optimismsepolia_assetStatuses: Array<optimismsepolia_AssetStatus>;
+  optimismsepolia_assetBalance?: Maybe<optimismsepolia_AssetBalance>;
+  optimismsepolia_assetBalances: Array<optimismsepolia_AssetBalance>;
+  optimismsepolia_router?: Maybe<optimismsepolia_Router>;
+  optimismsepolia_routers: Array<optimismsepolia_Router>;
+  optimismsepolia_routerDailyTVL?: Maybe<optimismsepolia_RouterDailyTVL>;
+  optimismsepolia_routerDailyTVLs: Array<optimismsepolia_RouterDailyTVL>;
+  optimismsepolia_routerLiquidityEvent?: Maybe<optimismsepolia_RouterLiquidityEvent>;
+  optimismsepolia_routerLiquidityEvents: Array<optimismsepolia_RouterLiquidityEvent>;
+  optimismsepolia_setting?: Maybe<optimismsepolia_Setting>;
+  optimismsepolia_settings: Array<optimismsepolia_Setting>;
+  optimismsepolia_relayer?: Maybe<optimismsepolia_Relayer>;
+  optimismsepolia_relayers: Array<optimismsepolia_Relayer>;
+  optimismsepolia_sequencer?: Maybe<optimismsepolia_Sequencer>;
+  optimismsepolia_sequencers: Array<optimismsepolia_Sequencer>;
+  optimismsepolia_relayerFee?: Maybe<optimismsepolia_RelayerFee>;
+  optimismsepolia_relayerFees: Array<optimismsepolia_RelayerFee>;
+  optimismsepolia_originTransfer?: Maybe<optimismsepolia_OriginTransfer>;
+  optimismsepolia_originTransfers: Array<optimismsepolia_OriginTransfer>;
+  optimismsepolia_destinationTransfer?: Maybe<optimismsepolia_DestinationTransfer>;
+  optimismsepolia_destinationTransfers: Array<optimismsepolia_DestinationTransfer>;
+  optimismsepolia_originMessage?: Maybe<optimismsepolia_OriginMessage>;
+  optimismsepolia_originMessages: Array<optimismsepolia_OriginMessage>;
+  optimismsepolia_aggregateRoot?: Maybe<optimismsepolia_AggregateRoot>;
+  optimismsepolia_aggregateRoots: Array<optimismsepolia_AggregateRoot>;
+  optimismsepolia_connectorMeta?: Maybe<optimismsepolia_ConnectorMeta>;
+  optimismsepolia_connectorMetas: Array<optimismsepolia_ConnectorMeta>;
+  optimismsepolia_rootCount?: Maybe<optimismsepolia_RootCount>;
+  optimismsepolia_rootCounts: Array<optimismsepolia_RootCount>;
+  optimismsepolia_rootMessageSent?: Maybe<optimismsepolia_RootMessageSent>;
+  optimismsepolia_rootMessageSents: Array<optimismsepolia_RootMessageSent>;
+  optimismsepolia_relayerFeesIncrease?: Maybe<optimismsepolia_RelayerFeesIncrease>;
+  optimismsepolia_relayerFeesIncreases: Array<optimismsepolia_RelayerFeesIncrease>;
+  optimismsepolia_slippageUpdate?: Maybe<optimismsepolia_SlippageUpdate>;
+  optimismsepolia_slippageUpdates: Array<optimismsepolia_SlippageUpdate>;
+  optimismsepolia_snapshotRoot?: Maybe<optimismsepolia_SnapshotRoot>;
+  optimismsepolia_snapshotRoots: Array<optimismsepolia_SnapshotRoot>;
+  optimismsepolia_spokeConnectorMode?: Maybe<optimismsepolia_SpokeConnectorMode>;
+  optimismsepolia_spokeConnectorModes: Array<optimismsepolia_SpokeConnectorMode>;
+  optimismsepolia_aggregateRootProposed?: Maybe<optimismsepolia_AggregateRootProposed>;
+  optimismsepolia_aggregateRootProposeds: Array<optimismsepolia_AggregateRootProposed>;
+  optimismsepolia_optimisticRootFinalized?: Maybe<optimismsepolia_OptimisticRootFinalized>;
+  optimismsepolia_optimisticRootFinalizeds: Array<optimismsepolia_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
-  optimismgoerli__meta?: Maybe<optimismgoerli__Meta_>;
+  optimismsepolia__meta?: Maybe<optimismsepolia__Meta_>;
 };
 
 
-export type Queryoptimismgoerli_assetArgs = {
+export type Queryoptimismsepolia_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetsArgs = {
+export type Queryoptimismsepolia_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Asset_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Asset_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Asset_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetStatusArgs = {
+export type Queryoptimismsepolia_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetStatusesArgs = {
+export type Queryoptimismsepolia_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetStatus_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AssetStatus_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetBalanceArgs = {
+export type Queryoptimismsepolia_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_assetBalancesArgs = {
+export type Queryoptimismsepolia_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AssetBalance_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerArgs = {
+export type Queryoptimismsepolia_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routersArgs = {
+export type Queryoptimismsepolia_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Router_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Router_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerDailyTVLArgs = {
+export type Queryoptimismsepolia_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerDailyTVLsArgs = {
+export type Queryoptimismsepolia_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RouterDailyTVL_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RouterDailyTVL_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerLiquidityEventArgs = {
+export type Queryoptimismsepolia_routerLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_routerLiquidityEventsArgs = {
+export type Queryoptimismsepolia_routerLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RouterLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RouterLiquidityEvent_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RouterLiquidityEvent_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_settingArgs = {
+export type Queryoptimismsepolia_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_settingsArgs = {
+export type Queryoptimismsepolia_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Setting_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Setting_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Setting_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerArgs = {
+export type Queryoptimismsepolia_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayersArgs = {
+export type Queryoptimismsepolia_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Relayer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Relayer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Relayer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_sequencerArgs = {
+export type Queryoptimismsepolia_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_sequencersArgs = {
+export type Queryoptimismsepolia_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Sequencer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Sequencer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerFeeArgs = {
+export type Queryoptimismsepolia_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerFeesArgs = {
+export type Queryoptimismsepolia_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RelayerFee_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RelayerFee_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originTransferArgs = {
+export type Queryoptimismsepolia_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originTransfersArgs = {
+export type Queryoptimismsepolia_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OriginTransfer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationTransferArgs = {
+export type Queryoptimismsepolia_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_destinationTransfersArgs = {
+export type Queryoptimismsepolia_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_DestinationTransfer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originMessageArgs = {
+export type Queryoptimismsepolia_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_originMessagesArgs = {
+export type Queryoptimismsepolia_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OriginMessage_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootArgs = {
+export type Queryoptimismsepolia_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootsArgs = {
+export type Queryoptimismsepolia_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AggregateRoot_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_connectorMetaArgs = {
+export type Queryoptimismsepolia_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_connectorMetasArgs = {
+export type Queryoptimismsepolia_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_ConnectorMeta_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_ConnectorMeta_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_rootCountArgs = {
+export type Queryoptimismsepolia_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_rootCountsArgs = {
+export type Queryoptimismsepolia_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RootCount_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RootCount_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RootCount_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RootCount_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_rootMessageSentArgs = {
+export type Queryoptimismsepolia_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_rootMessageSentsArgs = {
+export type Queryoptimismsepolia_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RootMessageSent_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RootMessageSent_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerFeesIncreaseArgs = {
+export type Queryoptimismsepolia_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_relayerFeesIncreasesArgs = {
+export type Queryoptimismsepolia_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_slippageUpdateArgs = {
+export type Queryoptimismsepolia_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_slippageUpdatesArgs = {
+export type Queryoptimismsepolia_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SlippageUpdate_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SlippageUpdate_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_snapshotRootArgs = {
+export type Queryoptimismsepolia_snapshotRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_snapshotRootsArgs = {
+export type Queryoptimismsepolia_snapshotRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SnapshotRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SnapshotRoot_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_spokeConnectorModeArgs = {
+export type Queryoptimismsepolia_spokeConnectorModeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_spokeConnectorModesArgs = {
+export type Queryoptimismsepolia_spokeConnectorModesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SpokeConnectorMode_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SpokeConnectorMode_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SpokeConnectorMode_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootProposedArgs = {
+export type Queryoptimismsepolia_aggregateRootProposedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_aggregateRootProposedsArgs = {
+export type Queryoptimismsepolia_aggregateRootProposedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRootProposed_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRootProposed_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AggregateRootProposed_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_optimisticRootFinalizedArgs = {
+export type Queryoptimismsepolia_optimisticRootFinalizedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli_optimisticRootFinalizedsArgs = {
+export type Queryoptimismsepolia_optimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OptimisticRootFinalized_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OptimisticRootFinalized_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Queryoptimismgoerli__metaArgs = {
-  block?: InputMaybe<optimismgoerli_Block_height>;
+export type Queryoptimismsepolia__metaArgs = {
+  block?: InputMaybe<optimismsepolia_Block_height>;
 };
 
-export type optimismgoerli_Relayer = {
+export type optimismsepolia_Relayer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  relayer?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  relayer?: Maybe<Scalars['optimismsepolia_Bytes']>;
 };
 
-export type optimismgoerli_RelayerFee = {
+export type optimismsepolia_RelayerFee = {
   id: Scalars['ID'];
-  transfer: optimismgoerli_OriginTransfer;
+  transfer: optimismsepolia_OriginTransfer;
   fee: Scalars['BigInt'];
-  asset: Scalars['optimismgoerli_Bytes'];
+  asset: Scalars['optimismsepolia_Bytes'];
 };
 
-export type optimismgoerli_RelayerFee_filter = {
+export type optimismsepolia_RelayerFee_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2084,7 +2085,7 @@ export type optimismgoerli_RelayerFee_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
+  transfer_?: InputMaybe<optimismsepolia_OriginTransfer_filter>;
   fee?: InputMaybe<Scalars['BigInt']>;
   fee_not?: InputMaybe<Scalars['BigInt']>;
   fee_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2093,23 +2094,23 @@ export type optimismgoerli_RelayerFee_filter = {
   fee_lte?: InputMaybe<Scalars['BigInt']>;
   fee_in?: InputMaybe<Array<Scalars['BigInt']>>;
   fee_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  asset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RelayerFee_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RelayerFee_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RelayerFee_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RelayerFee_filter>>>;
 };
 
-export type optimismgoerli_RelayerFee_orderBy =
+export type optimismsepolia_RelayerFee_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -2144,20 +2145,20 @@ export type optimismgoerli_RelayerFee_orderBy =
   | 'fee'
   | 'asset';
 
-export type optimismgoerli_RelayerFeesIncrease = {
+export type optimismsepolia_RelayerFeesIncrease = {
   id: Scalars['ID'];
-  transfer: optimismgoerli_OriginTransfer;
+  transfer: optimismsepolia_OriginTransfer;
   increase?: Maybe<Scalars['BigInt']>;
-  asset?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  caller: Scalars['optimismgoerli_Bytes'];
-  transactionHash: Scalars['optimismgoerli_Bytes'];
+  asset?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  caller: Scalars['optimismsepolia_Bytes'];
+  transactionHash: Scalars['optimismsepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type optimismgoerli_RelayerFeesIncrease_filter = {
+export type optimismsepolia_RelayerFeesIncrease_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2186,7 +2187,7 @@ export type optimismgoerli_RelayerFeesIncrease_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
+  transfer_?: InputMaybe<optimismsepolia_OriginTransfer_filter>;
   increase?: InputMaybe<Scalars['BigInt']>;
   increase_not?: InputMaybe<Scalars['BigInt']>;
   increase_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2195,36 +2196,36 @@ export type optimismgoerli_RelayerFeesIncrease_filter = {
   increase_lte?: InputMaybe<Scalars['BigInt']>;
   increase_in?: InputMaybe<Array<Scalars['BigInt']>>;
   increase_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  asset?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  asset_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  asset_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  asset?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  asset_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  asset_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  asset_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2258,12 +2259,12 @@ export type optimismgoerli_RelayerFeesIncrease_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RelayerFeesIncrease_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RelayerFeesIncrease_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RelayerFeesIncrease_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RelayerFeesIncrease_filter>>>;
 };
 
-export type optimismgoerli_RelayerFeesIncrease_orderBy =
+export type optimismsepolia_RelayerFeesIncrease_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -2304,7 +2305,7 @@ export type optimismgoerli_RelayerFeesIncrease_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type optimismgoerli_Relayer_filter = {
+export type optimismsepolia_Relayer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2317,33 +2318,33 @@ export type optimismgoerli_Relayer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  relayer?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  relayer_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  relayer_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  relayer_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  relayer?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  relayer_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  relayer_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  relayer_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Relayer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Relayer_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_Relayer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_Relayer_filter>>>;
 };
 
-export type optimismgoerli_Relayer_orderBy =
+export type optimismsepolia_Relayer_orderBy =
   | 'id'
   | 'isActive'
   | 'relayer';
 
-export type optimismgoerli_RootCount = {
+export type optimismsepolia_RootCount = {
   id: Scalars['ID'];
   count?: Maybe<Scalars['BigInt']>;
 };
 
-export type optimismgoerli_RootCount_filter = {
+export type optimismsepolia_RootCount_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2361,30 +2362,30 @@ export type optimismgoerli_RootCount_filter = {
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RootCount_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RootCount_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RootCount_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RootCount_filter>>>;
 };
 
-export type optimismgoerli_RootCount_orderBy =
+export type optimismsepolia_RootCount_orderBy =
   | 'id'
   | 'count';
 
-export type optimismgoerli_RootMessageSent = {
+export type optimismsepolia_RootMessageSent = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
   hubDomain?: Maybe<Scalars['BigInt']>;
-  root?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  root?: Maybe<Scalars['optimismsepolia_Bytes']>;
   count?: Maybe<Scalars['BigInt']>;
-  caller?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: Maybe<Scalars['BigInt']>;
   gasPrice?: Maybe<Scalars['BigInt']>;
   gasLimit?: Maybe<Scalars['BigInt']>;
   blockNumber?: Maybe<Scalars['BigInt']>;
 };
 
-export type optimismgoerli_RootMessageSent_filter = {
+export type optimismsepolia_RootMessageSent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2409,16 +2410,16 @@ export type optimismgoerli_RootMessageSent_filter = {
   hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
   hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  root?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2427,26 +2428,26 @@ export type optimismgoerli_RootMessageSent_filter = {
   count_lte?: InputMaybe<Scalars['BigInt']>;
   count_in?: InputMaybe<Array<Scalars['BigInt']>>;
   count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2480,12 +2481,12 @@ export type optimismgoerli_RootMessageSent_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RootMessageSent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RootMessageSent_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RootMessageSent_filter>>>;
 };
 
-export type optimismgoerli_RootMessageSent_orderBy =
+export type optimismsepolia_RootMessageSent_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -2498,34 +2499,34 @@ export type optimismgoerli_RootMessageSent_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type optimismgoerli_Router = {
+export type optimismsepolia_Router = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  owner?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  recipient?: Maybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  owner?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  recipient?: Maybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner?: Maybe<Scalars['optimismsepolia_Bytes']>;
   proposedTimestamp?: Maybe<Scalars['BigInt']>;
-  assetBalances: Array<optimismgoerli_AssetBalance>;
+  assetBalances: Array<optimismsepolia_AssetBalance>;
 };
 
 
-export type optimismgoerli_RouterassetBalancesArgs = {
+export type optimismsepolia_RouterassetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
+  orderBy?: InputMaybe<optimismsepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AssetBalance_filter>;
 };
 
-export type optimismgoerli_RouterDailyTVL = {
+export type optimismsepolia_RouterDailyTVL = {
   id: Scalars['ID'];
-  router: optimismgoerli_Router;
-  asset: optimismgoerli_Asset;
+  router: optimismsepolia_Router;
+  asset: optimismsepolia_Asset;
   timestamp: Scalars['BigInt'];
   balance: Scalars['BigInt'];
 };
 
-export type optimismgoerli_RouterDailyTVL_filter = {
+export type optimismsepolia_RouterDailyTVL_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2554,7 +2555,7 @@ export type optimismgoerli_RouterDailyTVL_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<optimismgoerli_Router_filter>;
+  router_?: InputMaybe<optimismsepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2575,7 +2576,7 @@ export type optimismgoerli_RouterDailyTVL_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
+  asset_?: InputMaybe<optimismsepolia_Asset_filter>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2593,12 +2594,12 @@ export type optimismgoerli_RouterDailyTVL_filter = {
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterDailyTVL_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterDailyTVL_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RouterDailyTVL_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RouterDailyTVL_filter>>>;
 };
 
-export type optimismgoerli_RouterDailyTVL_orderBy =
+export type optimismsepolia_RouterDailyTVL_orderBy =
   | 'id'
   | 'router'
   | 'router__id'
@@ -2620,25 +2621,25 @@ export type optimismgoerli_RouterDailyTVL_orderBy =
   | 'timestamp'
   | 'balance';
 
-export type optimismgoerli_RouterLiquidityEvent = {
+export type optimismsepolia_RouterLiquidityEvent = {
   id: Scalars['ID'];
-  type?: Maybe<optimismgoerli_RouterLiquidityEventType>;
-  router: optimismgoerli_Router;
-  asset: optimismgoerli_Asset;
+  type?: Maybe<optimismsepolia_RouterLiquidityEventType>;
+  router: optimismsepolia_Router;
+  asset: optimismsepolia_Asset;
   amount: Scalars['BigInt'];
   balance: Scalars['BigInt'];
-  caller?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: Maybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
-  transactionHash: Scalars['optimismgoerli_Bytes'];
+  transactionHash: Scalars['optimismsepolia_Bytes'];
   nonce: Scalars['BigInt'];
 };
 
-export type optimismgoerli_RouterLiquidityEventType =
+export type optimismsepolia_RouterLiquidityEventType =
   | 'Add'
   | 'Remove';
 
-export type optimismgoerli_RouterLiquidityEvent_filter = {
+export type optimismsepolia_RouterLiquidityEvent_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2647,10 +2648,10 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  type?: InputMaybe<optimismgoerli_RouterLiquidityEventType>;
-  type_not?: InputMaybe<optimismgoerli_RouterLiquidityEventType>;
-  type_in?: InputMaybe<Array<optimismgoerli_RouterLiquidityEventType>>;
-  type_not_in?: InputMaybe<Array<optimismgoerli_RouterLiquidityEventType>>;
+  type?: InputMaybe<optimismsepolia_RouterLiquidityEventType>;
+  type_not?: InputMaybe<optimismsepolia_RouterLiquidityEventType>;
+  type_in?: InputMaybe<Array<optimismsepolia_RouterLiquidityEventType>>;
+  type_not_in?: InputMaybe<Array<optimismsepolia_RouterLiquidityEventType>>;
   router?: InputMaybe<Scalars['String']>;
   router_not?: InputMaybe<Scalars['String']>;
   router_gt?: InputMaybe<Scalars['String']>;
@@ -2671,7 +2672,7 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   router_ends_with_nocase?: InputMaybe<Scalars['String']>;
   router_not_ends_with?: InputMaybe<Scalars['String']>;
   router_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  router_?: InputMaybe<optimismgoerli_Router_filter>;
+  router_?: InputMaybe<optimismsepolia_Router_filter>;
   asset?: InputMaybe<Scalars['String']>;
   asset_not?: InputMaybe<Scalars['String']>;
   asset_gt?: InputMaybe<Scalars['String']>;
@@ -2692,7 +2693,7 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
   asset_not_ends_with?: InputMaybe<Scalars['String']>;
   asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<optimismgoerli_Asset_filter>;
+  asset_?: InputMaybe<optimismsepolia_Asset_filter>;
   amount?: InputMaybe<Scalars['BigInt']>;
   amount_not?: InputMaybe<Scalars['BigInt']>;
   amount_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2709,16 +2710,16 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   balance_lte?: InputMaybe<Scalars['BigInt']>;
   balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   blockNumber?: InputMaybe<Scalars['BigInt']>;
   blockNumber_not?: InputMaybe<Scalars['BigInt']>;
   blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2735,16 +2736,16 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   timestamp_lte?: InputMaybe<Scalars['BigInt']>;
   timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   nonce?: InputMaybe<Scalars['BigInt']>;
   nonce_not?: InputMaybe<Scalars['BigInt']>;
   nonce_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2754,12 +2755,12 @@ export type optimismgoerli_RouterLiquidityEvent_filter = {
   nonce_in?: InputMaybe<Array<Scalars['BigInt']>>;
   nonce_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterLiquidityEvent_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_RouterLiquidityEvent_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_RouterLiquidityEvent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_RouterLiquidityEvent_filter>>>;
 };
 
-export type optimismgoerli_RouterLiquidityEvent_orderBy =
+export type optimismsepolia_RouterLiquidityEvent_orderBy =
   | 'id'
   | 'type'
   | 'router'
@@ -2787,7 +2788,7 @@ export type optimismgoerli_RouterLiquidityEvent_orderBy =
   | 'transactionHash'
   | 'nonce';
 
-export type optimismgoerli_Router_filter = {
+export type optimismsepolia_Router_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2800,36 +2801,36 @@ export type optimismgoerli_Router_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  owner?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  recipient_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  recipient_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  recipient_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  proposedOwner_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  proposedOwner_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  proposedOwner_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  owner?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  owner_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  owner_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  owner_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  recipient_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  recipient_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  recipient_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  proposedOwner_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  proposedOwner_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  proposedOwner_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   proposedTimestamp?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2838,14 +2839,14 @@ export type optimismgoerli_Router_filter = {
   proposedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   proposedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   proposedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  assetBalances_?: InputMaybe<optimismgoerli_AssetBalance_filter>;
+  assetBalances_?: InputMaybe<optimismsepolia_AssetBalance_filter>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Router_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Router_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_Router_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_Router_filter>>>;
 };
 
-export type optimismgoerli_Router_orderBy =
+export type optimismsepolia_Router_orderBy =
   | 'id'
   | 'isActive'
   | 'owner'
@@ -2854,13 +2855,13 @@ export type optimismgoerli_Router_orderBy =
   | 'proposedTimestamp'
   | 'assetBalances';
 
-export type optimismgoerli_Sequencer = {
+export type optimismsepolia_Sequencer = {
   id: Scalars['ID'];
   isActive: Scalars['Boolean'];
-  sequencer?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  sequencer?: Maybe<Scalars['optimismsepolia_Bytes']>;
 };
 
-export type optimismgoerli_Sequencer_filter = {
+export type optimismsepolia_Sequencer_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2873,34 +2874,34 @@ export type optimismgoerli_Sequencer_filter = {
   isActive_not?: InputMaybe<Scalars['Boolean']>;
   isActive_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isActive_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  sequencer?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  sequencer_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  sequencer_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  sequencer_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  sequencer?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  sequencer_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  sequencer_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  sequencer_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Sequencer_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Sequencer_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_Sequencer_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_Sequencer_filter>>>;
 };
 
-export type optimismgoerli_Sequencer_orderBy =
+export type optimismsepolia_Sequencer_orderBy =
   | 'id'
   | 'isActive'
   | 'sequencer';
 
-export type optimismgoerli_Setting = {
+export type optimismsepolia_Setting = {
   id: Scalars['ID'];
   maxRoutersPerTransfer: Scalars['BigInt'];
-  caller: Scalars['optimismgoerli_Bytes'];
+  caller: Scalars['optimismsepolia_Bytes'];
 };
 
-export type optimismgoerli_Setting_filter = {
+export type optimismsepolia_Setting_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2917,40 +2918,40 @@ export type optimismgoerli_Setting_filter = {
   maxRoutersPerTransfer_lte?: InputMaybe<Scalars['BigInt']>;
   maxRoutersPerTransfer_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maxRoutersPerTransfer_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_Setting_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_Setting_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_Setting_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_Setting_filter>>>;
 };
 
-export type optimismgoerli_Setting_orderBy =
+export type optimismsepolia_Setting_orderBy =
   | 'id'
   | 'maxRoutersPerTransfer'
   | 'caller';
 
-export type optimismgoerli_SlippageUpdate = {
+export type optimismsepolia_SlippageUpdate = {
   id: Scalars['ID'];
-  transfer: optimismgoerli_DestinationTransfer;
+  transfer: optimismsepolia_DestinationTransfer;
   slippage: Scalars['BigInt'];
-  caller: Scalars['optimismgoerli_Bytes'];
-  transactionHash: Scalars['optimismgoerli_Bytes'];
+  caller: Scalars['optimismsepolia_Bytes'];
+  transactionHash: Scalars['optimismsepolia_Bytes'];
   timestamp: Scalars['BigInt'];
   gasPrice: Scalars['BigInt'];
   gasLimit: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type optimismgoerli_SlippageUpdate_filter = {
+export type optimismsepolia_SlippageUpdate_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2979,7 +2980,7 @@ export type optimismgoerli_SlippageUpdate_filter = {
   transfer_ends_with_nocase?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with?: InputMaybe<Scalars['String']>;
   transfer_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  transfer_?: InputMaybe<optimismgoerli_DestinationTransfer_filter>;
+  transfer_?: InputMaybe<optimismsepolia_DestinationTransfer_filter>;
   slippage?: InputMaybe<Scalars['BigInt']>;
   slippage_not?: InputMaybe<Scalars['BigInt']>;
   slippage_gt?: InputMaybe<Scalars['BigInt']>;
@@ -2988,26 +2989,26 @@ export type optimismgoerli_SlippageUpdate_filter = {
   slippage_lte?: InputMaybe<Scalars['BigInt']>;
   slippage_in?: InputMaybe<Array<Scalars['BigInt']>>;
   slippage_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  caller?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  caller_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  caller_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  transactionHash_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  transactionHash_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  caller?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   timestamp?: InputMaybe<Scalars['BigInt']>;
   timestamp_not?: InputMaybe<Scalars['BigInt']>;
   timestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3041,12 +3042,12 @@ export type optimismgoerli_SlippageUpdate_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_SlippageUpdate_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_SlippageUpdate_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_SlippageUpdate_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_SlippageUpdate_filter>>>;
 };
 
-export type optimismgoerli_SlippageUpdate_orderBy =
+export type optimismsepolia_SlippageUpdate_orderBy =
   | 'id'
   | 'transfer'
   | 'transfer__id'
@@ -3093,16 +3094,16 @@ export type optimismgoerli_SlippageUpdate_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
-export type optimismgoerli_SnapshotRoot = {
+export type optimismsepolia_SnapshotRoot = {
   id: Scalars['ID'];
   spokeDomain?: Maybe<Scalars['BigInt']>;
-  root: Scalars['optimismgoerli_Bytes'];
+  root: Scalars['optimismsepolia_Bytes'];
   count: Scalars['BigInt'];
   timestamp: Scalars['BigInt'];
   blockNumber: Scalars['BigInt'];
 };
 
-export type optimismgoerli_SnapshotRoot_filter = {
+export type optimismsepolia_SnapshotRoot_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3119,16 +3120,16 @@ export type optimismgoerli_SnapshotRoot_filter = {
   spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
   spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
   spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  root?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lt?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_gte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_lte?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_not_in?: InputMaybe<Array<Scalars['optimismgoerli_Bytes']>>;
-  root_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
-  root_not_contains?: InputMaybe<Scalars['optimismgoerli_Bytes']>;
+  root?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lt?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_gte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_lte?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['optimismsepolia_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['optimismsepolia_Bytes']>;
   count?: InputMaybe<Scalars['BigInt']>;
   count_not?: InputMaybe<Scalars['BigInt']>;
   count_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3154,12 +3155,12 @@ export type optimismgoerli_SnapshotRoot_filter = {
   blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
   blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_SnapshotRoot_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_SnapshotRoot_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_SnapshotRoot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_SnapshotRoot_filter>>>;
 };
 
-export type optimismgoerli_SnapshotRoot_orderBy =
+export type optimismsepolia_SnapshotRoot_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'root'
@@ -3167,12 +3168,12 @@ export type optimismgoerli_SnapshotRoot_orderBy =
   | 'timestamp'
   | 'blockNumber';
 
-export type optimismgoerli_SpokeConnectorMode = {
+export type optimismsepolia_SpokeConnectorMode = {
   id: Scalars['ID'];
   mode: Scalars['String'];
 };
 
-export type optimismgoerli_SpokeConnectorMode_filter = {
+export type optimismsepolia_SpokeConnectorMode_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -3202,505 +3203,505 @@ export type optimismgoerli_SpokeConnectorMode_filter = {
   mode_not_ends_with?: InputMaybe<Scalars['String']>;
   mode_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
-  _change_block?: InputMaybe<optimismgoerli_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<optimismgoerli_SpokeConnectorMode_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<optimismgoerli_SpokeConnectorMode_filter>>>;
+  _change_block?: InputMaybe<optimismsepolia_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<optimismsepolia_SpokeConnectorMode_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<optimismsepolia_SpokeConnectorMode_filter>>>;
 };
 
-export type optimismgoerli_SpokeConnectorMode_orderBy =
+export type optimismsepolia_SpokeConnectorMode_orderBy =
   | 'id'
   | 'mode';
 
 export type Subscription = {
-  optimismgoerli_asset?: Maybe<optimismgoerli_Asset>;
-  optimismgoerli_assets: Array<optimismgoerli_Asset>;
-  optimismgoerli_assetStatus?: Maybe<optimismgoerli_AssetStatus>;
-  optimismgoerli_assetStatuses: Array<optimismgoerli_AssetStatus>;
-  optimismgoerli_assetBalance?: Maybe<optimismgoerli_AssetBalance>;
-  optimismgoerli_assetBalances: Array<optimismgoerli_AssetBalance>;
-  optimismgoerli_router?: Maybe<optimismgoerli_Router>;
-  optimismgoerli_routers: Array<optimismgoerli_Router>;
-  optimismgoerli_routerDailyTVL?: Maybe<optimismgoerli_RouterDailyTVL>;
-  optimismgoerli_routerDailyTVLs: Array<optimismgoerli_RouterDailyTVL>;
-  optimismgoerli_routerLiquidityEvent?: Maybe<optimismgoerli_RouterLiquidityEvent>;
-  optimismgoerli_routerLiquidityEvents: Array<optimismgoerli_RouterLiquidityEvent>;
-  optimismgoerli_setting?: Maybe<optimismgoerli_Setting>;
-  optimismgoerli_settings: Array<optimismgoerli_Setting>;
-  optimismgoerli_relayer?: Maybe<optimismgoerli_Relayer>;
-  optimismgoerli_relayers: Array<optimismgoerli_Relayer>;
-  optimismgoerli_sequencer?: Maybe<optimismgoerli_Sequencer>;
-  optimismgoerli_sequencers: Array<optimismgoerli_Sequencer>;
-  optimismgoerli_relayerFee?: Maybe<optimismgoerli_RelayerFee>;
-  optimismgoerli_relayerFees: Array<optimismgoerli_RelayerFee>;
-  optimismgoerli_originTransfer?: Maybe<optimismgoerli_OriginTransfer>;
-  optimismgoerli_originTransfers: Array<optimismgoerli_OriginTransfer>;
-  optimismgoerli_destinationTransfer?: Maybe<optimismgoerli_DestinationTransfer>;
-  optimismgoerli_destinationTransfers: Array<optimismgoerli_DestinationTransfer>;
-  optimismgoerli_originMessage?: Maybe<optimismgoerli_OriginMessage>;
-  optimismgoerli_originMessages: Array<optimismgoerli_OriginMessage>;
-  optimismgoerli_aggregateRoot?: Maybe<optimismgoerli_AggregateRoot>;
-  optimismgoerli_aggregateRoots: Array<optimismgoerli_AggregateRoot>;
-  optimismgoerli_connectorMeta?: Maybe<optimismgoerli_ConnectorMeta>;
-  optimismgoerli_connectorMetas: Array<optimismgoerli_ConnectorMeta>;
-  optimismgoerli_rootCount?: Maybe<optimismgoerli_RootCount>;
-  optimismgoerli_rootCounts: Array<optimismgoerli_RootCount>;
-  optimismgoerli_rootMessageSent?: Maybe<optimismgoerli_RootMessageSent>;
-  optimismgoerli_rootMessageSents: Array<optimismgoerli_RootMessageSent>;
-  optimismgoerli_relayerFeesIncrease?: Maybe<optimismgoerli_RelayerFeesIncrease>;
-  optimismgoerli_relayerFeesIncreases: Array<optimismgoerli_RelayerFeesIncrease>;
-  optimismgoerli_slippageUpdate?: Maybe<optimismgoerli_SlippageUpdate>;
-  optimismgoerli_slippageUpdates: Array<optimismgoerli_SlippageUpdate>;
-  optimismgoerli_snapshotRoot?: Maybe<optimismgoerli_SnapshotRoot>;
-  optimismgoerli_snapshotRoots: Array<optimismgoerli_SnapshotRoot>;
-  optimismgoerli_spokeConnectorMode?: Maybe<optimismgoerli_SpokeConnectorMode>;
-  optimismgoerli_spokeConnectorModes: Array<optimismgoerli_SpokeConnectorMode>;
-  optimismgoerli_aggregateRootProposed?: Maybe<optimismgoerli_AggregateRootProposed>;
-  optimismgoerli_aggregateRootProposeds: Array<optimismgoerli_AggregateRootProposed>;
-  optimismgoerli_optimisticRootFinalized?: Maybe<optimismgoerli_OptimisticRootFinalized>;
-  optimismgoerli_optimisticRootFinalizeds: Array<optimismgoerli_OptimisticRootFinalized>;
+  optimismsepolia_asset?: Maybe<optimismsepolia_Asset>;
+  optimismsepolia_assets: Array<optimismsepolia_Asset>;
+  optimismsepolia_assetStatus?: Maybe<optimismsepolia_AssetStatus>;
+  optimismsepolia_assetStatuses: Array<optimismsepolia_AssetStatus>;
+  optimismsepolia_assetBalance?: Maybe<optimismsepolia_AssetBalance>;
+  optimismsepolia_assetBalances: Array<optimismsepolia_AssetBalance>;
+  optimismsepolia_router?: Maybe<optimismsepolia_Router>;
+  optimismsepolia_routers: Array<optimismsepolia_Router>;
+  optimismsepolia_routerDailyTVL?: Maybe<optimismsepolia_RouterDailyTVL>;
+  optimismsepolia_routerDailyTVLs: Array<optimismsepolia_RouterDailyTVL>;
+  optimismsepolia_routerLiquidityEvent?: Maybe<optimismsepolia_RouterLiquidityEvent>;
+  optimismsepolia_routerLiquidityEvents: Array<optimismsepolia_RouterLiquidityEvent>;
+  optimismsepolia_setting?: Maybe<optimismsepolia_Setting>;
+  optimismsepolia_settings: Array<optimismsepolia_Setting>;
+  optimismsepolia_relayer?: Maybe<optimismsepolia_Relayer>;
+  optimismsepolia_relayers: Array<optimismsepolia_Relayer>;
+  optimismsepolia_sequencer?: Maybe<optimismsepolia_Sequencer>;
+  optimismsepolia_sequencers: Array<optimismsepolia_Sequencer>;
+  optimismsepolia_relayerFee?: Maybe<optimismsepolia_RelayerFee>;
+  optimismsepolia_relayerFees: Array<optimismsepolia_RelayerFee>;
+  optimismsepolia_originTransfer?: Maybe<optimismsepolia_OriginTransfer>;
+  optimismsepolia_originTransfers: Array<optimismsepolia_OriginTransfer>;
+  optimismsepolia_destinationTransfer?: Maybe<optimismsepolia_DestinationTransfer>;
+  optimismsepolia_destinationTransfers: Array<optimismsepolia_DestinationTransfer>;
+  optimismsepolia_originMessage?: Maybe<optimismsepolia_OriginMessage>;
+  optimismsepolia_originMessages: Array<optimismsepolia_OriginMessage>;
+  optimismsepolia_aggregateRoot?: Maybe<optimismsepolia_AggregateRoot>;
+  optimismsepolia_aggregateRoots: Array<optimismsepolia_AggregateRoot>;
+  optimismsepolia_connectorMeta?: Maybe<optimismsepolia_ConnectorMeta>;
+  optimismsepolia_connectorMetas: Array<optimismsepolia_ConnectorMeta>;
+  optimismsepolia_rootCount?: Maybe<optimismsepolia_RootCount>;
+  optimismsepolia_rootCounts: Array<optimismsepolia_RootCount>;
+  optimismsepolia_rootMessageSent?: Maybe<optimismsepolia_RootMessageSent>;
+  optimismsepolia_rootMessageSents: Array<optimismsepolia_RootMessageSent>;
+  optimismsepolia_relayerFeesIncrease?: Maybe<optimismsepolia_RelayerFeesIncrease>;
+  optimismsepolia_relayerFeesIncreases: Array<optimismsepolia_RelayerFeesIncrease>;
+  optimismsepolia_slippageUpdate?: Maybe<optimismsepolia_SlippageUpdate>;
+  optimismsepolia_slippageUpdates: Array<optimismsepolia_SlippageUpdate>;
+  optimismsepolia_snapshotRoot?: Maybe<optimismsepolia_SnapshotRoot>;
+  optimismsepolia_snapshotRoots: Array<optimismsepolia_SnapshotRoot>;
+  optimismsepolia_spokeConnectorMode?: Maybe<optimismsepolia_SpokeConnectorMode>;
+  optimismsepolia_spokeConnectorModes: Array<optimismsepolia_SpokeConnectorMode>;
+  optimismsepolia_aggregateRootProposed?: Maybe<optimismsepolia_AggregateRootProposed>;
+  optimismsepolia_aggregateRootProposeds: Array<optimismsepolia_AggregateRootProposed>;
+  optimismsepolia_optimisticRootFinalized?: Maybe<optimismsepolia_OptimisticRootFinalized>;
+  optimismsepolia_optimisticRootFinalizeds: Array<optimismsepolia_OptimisticRootFinalized>;
   /** Access to subgraph metadata */
-  optimismgoerli__meta?: Maybe<optimismgoerli__Meta_>;
+  optimismsepolia__meta?: Maybe<optimismsepolia__Meta_>;
 };
 
 
-export type Subscriptionoptimismgoerli_assetArgs = {
+export type Subscriptionoptimismsepolia_assetArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetsArgs = {
+export type Subscriptionoptimismsepolia_assetsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Asset_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Asset_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Asset_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Asset_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetStatusArgs = {
+export type Subscriptionoptimismsepolia_assetStatusArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetStatusesArgs = {
+export type Subscriptionoptimismsepolia_assetStatusesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetStatus_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetStatus_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AssetStatus_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AssetStatus_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetBalanceArgs = {
+export type Subscriptionoptimismsepolia_assetBalanceArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_assetBalancesArgs = {
+export type Subscriptionoptimismsepolia_assetBalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AssetBalance_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AssetBalance_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AssetBalance_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AssetBalance_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerArgs = {
+export type Subscriptionoptimismsepolia_routerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routersArgs = {
+export type Subscriptionoptimismsepolia_routersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Router_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Router_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Router_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Router_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerDailyTVLArgs = {
+export type Subscriptionoptimismsepolia_routerDailyTVLArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerDailyTVLsArgs = {
+export type Subscriptionoptimismsepolia_routerDailyTVLsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RouterDailyTVL_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RouterDailyTVL_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RouterDailyTVL_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RouterDailyTVL_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerLiquidityEventArgs = {
+export type Subscriptionoptimismsepolia_routerLiquidityEventArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_routerLiquidityEventsArgs = {
+export type Subscriptionoptimismsepolia_routerLiquidityEventsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RouterLiquidityEvent_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RouterLiquidityEvent_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RouterLiquidityEvent_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RouterLiquidityEvent_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_settingArgs = {
+export type Subscriptionoptimismsepolia_settingArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_settingsArgs = {
+export type Subscriptionoptimismsepolia_settingsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Setting_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Setting_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Setting_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Setting_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerArgs = {
+export type Subscriptionoptimismsepolia_relayerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayersArgs = {
+export type Subscriptionoptimismsepolia_relayersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Relayer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Relayer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Relayer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Relayer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_sequencerArgs = {
+export type Subscriptionoptimismsepolia_sequencerArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_sequencersArgs = {
+export type Subscriptionoptimismsepolia_sequencersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_Sequencer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_Sequencer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_Sequencer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_Sequencer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerFeeArgs = {
+export type Subscriptionoptimismsepolia_relayerFeeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerFeesArgs = {
+export type Subscriptionoptimismsepolia_relayerFeesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RelayerFee_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RelayerFee_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RelayerFee_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RelayerFee_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originTransferArgs = {
+export type Subscriptionoptimismsepolia_originTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originTransfersArgs = {
+export type Subscriptionoptimismsepolia_originTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OriginTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OriginTransfer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationTransferArgs = {
+export type Subscriptionoptimismsepolia_destinationTransferArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_destinationTransfersArgs = {
+export type Subscriptionoptimismsepolia_destinationTransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_DestinationTransfer_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_DestinationTransfer_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_DestinationTransfer_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_DestinationTransfer_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originMessageArgs = {
+export type Subscriptionoptimismsepolia_originMessageArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_originMessagesArgs = {
+export type Subscriptionoptimismsepolia_originMessagesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OriginMessage_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OriginMessage_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OriginMessage_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OriginMessage_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootArgs = {
+export type Subscriptionoptimismsepolia_aggregateRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootsArgs = {
+export type Subscriptionoptimismsepolia_aggregateRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AggregateRoot_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AggregateRoot_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_connectorMetaArgs = {
+export type Subscriptionoptimismsepolia_connectorMetaArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_connectorMetasArgs = {
+export type Subscriptionoptimismsepolia_connectorMetasArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_ConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_ConnectorMeta_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_ConnectorMeta_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_rootCountArgs = {
+export type Subscriptionoptimismsepolia_rootCountArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_rootCountsArgs = {
+export type Subscriptionoptimismsepolia_rootCountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RootCount_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RootCount_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RootCount_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RootCount_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_rootMessageSentArgs = {
+export type Subscriptionoptimismsepolia_rootMessageSentArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_rootMessageSentsArgs = {
+export type Subscriptionoptimismsepolia_rootMessageSentsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RootMessageSent_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RootMessageSent_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RootMessageSent_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerFeesIncreaseArgs = {
+export type Subscriptionoptimismsepolia_relayerFeesIncreaseArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_relayerFeesIncreasesArgs = {
+export type Subscriptionoptimismsepolia_relayerFeesIncreasesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_RelayerFeesIncrease_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_RelayerFeesIncrease_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_RelayerFeesIncrease_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_RelayerFeesIncrease_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_slippageUpdateArgs = {
+export type Subscriptionoptimismsepolia_slippageUpdateArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_slippageUpdatesArgs = {
+export type Subscriptionoptimismsepolia_slippageUpdatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SlippageUpdate_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SlippageUpdate_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SlippageUpdate_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SlippageUpdate_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_snapshotRootArgs = {
+export type Subscriptionoptimismsepolia_snapshotRootArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_snapshotRootsArgs = {
+export type Subscriptionoptimismsepolia_snapshotRootsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SnapshotRoot_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SnapshotRoot_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SnapshotRoot_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SnapshotRoot_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_spokeConnectorModeArgs = {
+export type Subscriptionoptimismsepolia_spokeConnectorModeArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_spokeConnectorModesArgs = {
+export type Subscriptionoptimismsepolia_spokeConnectorModesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_SpokeConnectorMode_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_SpokeConnectorMode_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_SpokeConnectorMode_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_SpokeConnectorMode_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootProposedArgs = {
+export type Subscriptionoptimismsepolia_aggregateRootProposedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_aggregateRootProposedsArgs = {
+export type Subscriptionoptimismsepolia_aggregateRootProposedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_AggregateRootProposed_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_AggregateRootProposed_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_AggregateRootProposed_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_AggregateRootProposed_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_optimisticRootFinalizedArgs = {
+export type Subscriptionoptimismsepolia_optimisticRootFinalizedArgs = {
   id: Scalars['ID'];
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli_optimisticRootFinalizedsArgs = {
+export type Subscriptionoptimismsepolia_optimisticRootFinalizedsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<optimismgoerli_OptimisticRootFinalized_orderBy>;
-  orderDirection?: InputMaybe<optimismgoerli_OrderDirection>;
-  where?: InputMaybe<optimismgoerli_OptimisticRootFinalized_filter>;
-  block?: InputMaybe<optimismgoerli_Block_height>;
+  orderBy?: InputMaybe<optimismsepolia_OptimisticRootFinalized_orderBy>;
+  orderDirection?: InputMaybe<optimismsepolia_OrderDirection>;
+  where?: InputMaybe<optimismsepolia_OptimisticRootFinalized_filter>;
+  block?: InputMaybe<optimismsepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type Subscriptionoptimismgoerli__metaArgs = {
-  block?: InputMaybe<optimismgoerli_Block_height>;
+export type Subscriptionoptimismsepolia__metaArgs = {
+  block?: InputMaybe<optimismsepolia_Block_height>;
 };
 
-export type optimismgoerli_TransferStatus =
+export type optimismsepolia_TransferStatus =
   | 'XCalled'
   | 'Executed'
   | 'Reconciled'
   | 'CompletedSlow'
   | 'CompletedFast';
 
-export type optimismgoerli__Block_ = {
+export type optimismsepolia__Block_ = {
   /** The hash of the block */
-  hash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  hash?: Maybe<Scalars['optimismsepolia_Bytes']>;
   /** The block number */
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
   /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['optimismgoerli_Bytes']>;
+  parentHash?: Maybe<Scalars['optimismsepolia_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
-export type optimismgoerli__Meta_ = {
+export type optimismsepolia__Meta_ = {
   /**
    * Information about a specific subgraph block. The hash of the block
    * will be null if the _meta field has a block constraint that asks for
@@ -3708,7 +3709,7 @@ export type optimismgoerli__Meta_ = {
    * and therefore asks for the latest  block
    *
    */
-  block: optimismgoerli__Block_;
+  block: optimismsepolia__Block_;
   /** The deployment ID */
   deployment: Scalars['String'];
   /** If `true`, the subgraph encountered indexing errors at some past block */
@@ -3723,99 +3724,99 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  optimismgoerli_asset: InContextSdkMethod<Query['optimismgoerli_asset'], Queryoptimismgoerli_assetArgs, MeshContext>,
+  optimismsepolia_asset: InContextSdkMethod<Query['optimismsepolia_asset'], Queryoptimismsepolia_assetArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assets: InContextSdkMethod<Query['optimismgoerli_assets'], Queryoptimismgoerli_assetsArgs, MeshContext>,
+  optimismsepolia_assets: InContextSdkMethod<Query['optimismsepolia_assets'], Queryoptimismsepolia_assetsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetStatus: InContextSdkMethod<Query['optimismgoerli_assetStatus'], Queryoptimismgoerli_assetStatusArgs, MeshContext>,
+  optimismsepolia_assetStatus: InContextSdkMethod<Query['optimismsepolia_assetStatus'], Queryoptimismsepolia_assetStatusArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetStatuses: InContextSdkMethod<Query['optimismgoerli_assetStatuses'], Queryoptimismgoerli_assetStatusesArgs, MeshContext>,
+  optimismsepolia_assetStatuses: InContextSdkMethod<Query['optimismsepolia_assetStatuses'], Queryoptimismsepolia_assetStatusesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalance: InContextSdkMethod<Query['optimismgoerli_assetBalance'], Queryoptimismgoerli_assetBalanceArgs, MeshContext>,
+  optimismsepolia_assetBalance: InContextSdkMethod<Query['optimismsepolia_assetBalance'], Queryoptimismsepolia_assetBalanceArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalances: InContextSdkMethod<Query['optimismgoerli_assetBalances'], Queryoptimismgoerli_assetBalancesArgs, MeshContext>,
+  optimismsepolia_assetBalances: InContextSdkMethod<Query['optimismsepolia_assetBalances'], Queryoptimismsepolia_assetBalancesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_router: InContextSdkMethod<Query['optimismgoerli_router'], Queryoptimismgoerli_routerArgs, MeshContext>,
+  optimismsepolia_router: InContextSdkMethod<Query['optimismsepolia_router'], Queryoptimismsepolia_routerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routers: InContextSdkMethod<Query['optimismgoerli_routers'], Queryoptimismgoerli_routersArgs, MeshContext>,
+  optimismsepolia_routers: InContextSdkMethod<Query['optimismsepolia_routers'], Queryoptimismsepolia_routersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerDailyTVL: InContextSdkMethod<Query['optimismgoerli_routerDailyTVL'], Queryoptimismgoerli_routerDailyTVLArgs, MeshContext>,
+  optimismsepolia_routerDailyTVL: InContextSdkMethod<Query['optimismsepolia_routerDailyTVL'], Queryoptimismsepolia_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerDailyTVLs: InContextSdkMethod<Query['optimismgoerli_routerDailyTVLs'], Queryoptimismgoerli_routerDailyTVLsArgs, MeshContext>,
+  optimismsepolia_routerDailyTVLs: InContextSdkMethod<Query['optimismsepolia_routerDailyTVLs'], Queryoptimismsepolia_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerLiquidityEvent: InContextSdkMethod<Query['optimismgoerli_routerLiquidityEvent'], Queryoptimismgoerli_routerLiquidityEventArgs, MeshContext>,
+  optimismsepolia_routerLiquidityEvent: InContextSdkMethod<Query['optimismsepolia_routerLiquidityEvent'], Queryoptimismsepolia_routerLiquidityEventArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerLiquidityEvents: InContextSdkMethod<Query['optimismgoerli_routerLiquidityEvents'], Queryoptimismgoerli_routerLiquidityEventsArgs, MeshContext>,
+  optimismsepolia_routerLiquidityEvents: InContextSdkMethod<Query['optimismsepolia_routerLiquidityEvents'], Queryoptimismsepolia_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_setting: InContextSdkMethod<Query['optimismgoerli_setting'], Queryoptimismgoerli_settingArgs, MeshContext>,
+  optimismsepolia_setting: InContextSdkMethod<Query['optimismsepolia_setting'], Queryoptimismsepolia_settingArgs, MeshContext>,
   /** null **/
-  optimismgoerli_settings: InContextSdkMethod<Query['optimismgoerli_settings'], Queryoptimismgoerli_settingsArgs, MeshContext>,
+  optimismsepolia_settings: InContextSdkMethod<Query['optimismsepolia_settings'], Queryoptimismsepolia_settingsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayer: InContextSdkMethod<Query['optimismgoerli_relayer'], Queryoptimismgoerli_relayerArgs, MeshContext>,
+  optimismsepolia_relayer: InContextSdkMethod<Query['optimismsepolia_relayer'], Queryoptimismsepolia_relayerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayers: InContextSdkMethod<Query['optimismgoerli_relayers'], Queryoptimismgoerli_relayersArgs, MeshContext>,
+  optimismsepolia_relayers: InContextSdkMethod<Query['optimismsepolia_relayers'], Queryoptimismsepolia_relayersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencer: InContextSdkMethod<Query['optimismgoerli_sequencer'], Queryoptimismgoerli_sequencerArgs, MeshContext>,
+  optimismsepolia_sequencer: InContextSdkMethod<Query['optimismsepolia_sequencer'], Queryoptimismsepolia_sequencerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencers: InContextSdkMethod<Query['optimismgoerli_sequencers'], Queryoptimismgoerli_sequencersArgs, MeshContext>,
+  optimismsepolia_sequencers: InContextSdkMethod<Query['optimismsepolia_sequencers'], Queryoptimismsepolia_sequencersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFee: InContextSdkMethod<Query['optimismgoerli_relayerFee'], Queryoptimismgoerli_relayerFeeArgs, MeshContext>,
+  optimismsepolia_relayerFee: InContextSdkMethod<Query['optimismsepolia_relayerFee'], Queryoptimismsepolia_relayerFeeArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFees: InContextSdkMethod<Query['optimismgoerli_relayerFees'], Queryoptimismgoerli_relayerFeesArgs, MeshContext>,
+  optimismsepolia_relayerFees: InContextSdkMethod<Query['optimismsepolia_relayerFees'], Queryoptimismsepolia_relayerFeesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfer: InContextSdkMethod<Query['optimismgoerli_originTransfer'], Queryoptimismgoerli_originTransferArgs, MeshContext>,
+  optimismsepolia_originTransfer: InContextSdkMethod<Query['optimismsepolia_originTransfer'], Queryoptimismsepolia_originTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfers: InContextSdkMethod<Query['optimismgoerli_originTransfers'], Queryoptimismgoerli_originTransfersArgs, MeshContext>,
+  optimismsepolia_originTransfers: InContextSdkMethod<Query['optimismsepolia_originTransfers'], Queryoptimismsepolia_originTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfer: InContextSdkMethod<Query['optimismgoerli_destinationTransfer'], Queryoptimismgoerli_destinationTransferArgs, MeshContext>,
+  optimismsepolia_destinationTransfer: InContextSdkMethod<Query['optimismsepolia_destinationTransfer'], Queryoptimismsepolia_destinationTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfers: InContextSdkMethod<Query['optimismgoerli_destinationTransfers'], Queryoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  optimismsepolia_destinationTransfers: InContextSdkMethod<Query['optimismsepolia_destinationTransfers'], Queryoptimismsepolia_destinationTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessage: InContextSdkMethod<Query['optimismgoerli_originMessage'], Queryoptimismgoerli_originMessageArgs, MeshContext>,
+  optimismsepolia_originMessage: InContextSdkMethod<Query['optimismsepolia_originMessage'], Queryoptimismsepolia_originMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessages: InContextSdkMethod<Query['optimismgoerli_originMessages'], Queryoptimismgoerli_originMessagesArgs, MeshContext>,
+  optimismsepolia_originMessages: InContextSdkMethod<Query['optimismsepolia_originMessages'], Queryoptimismsepolia_originMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoot: InContextSdkMethod<Query['optimismgoerli_aggregateRoot'], Queryoptimismgoerli_aggregateRootArgs, MeshContext>,
+  optimismsepolia_aggregateRoot: InContextSdkMethod<Query['optimismsepolia_aggregateRoot'], Queryoptimismsepolia_aggregateRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoots: InContextSdkMethod<Query['optimismgoerli_aggregateRoots'], Queryoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  optimismsepolia_aggregateRoots: InContextSdkMethod<Query['optimismsepolia_aggregateRoots'], Queryoptimismsepolia_aggregateRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMeta: InContextSdkMethod<Query['optimismgoerli_connectorMeta'], Queryoptimismgoerli_connectorMetaArgs, MeshContext>,
+  optimismsepolia_connectorMeta: InContextSdkMethod<Query['optimismsepolia_connectorMeta'], Queryoptimismsepolia_connectorMetaArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMetas: InContextSdkMethod<Query['optimismgoerli_connectorMetas'], Queryoptimismgoerli_connectorMetasArgs, MeshContext>,
+  optimismsepolia_connectorMetas: InContextSdkMethod<Query['optimismsepolia_connectorMetas'], Queryoptimismsepolia_connectorMetasArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCount: InContextSdkMethod<Query['optimismgoerli_rootCount'], Queryoptimismgoerli_rootCountArgs, MeshContext>,
+  optimismsepolia_rootCount: InContextSdkMethod<Query['optimismsepolia_rootCount'], Queryoptimismsepolia_rootCountArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCounts: InContextSdkMethod<Query['optimismgoerli_rootCounts'], Queryoptimismgoerli_rootCountsArgs, MeshContext>,
+  optimismsepolia_rootCounts: InContextSdkMethod<Query['optimismsepolia_rootCounts'], Queryoptimismsepolia_rootCountsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSent: InContextSdkMethod<Query['optimismgoerli_rootMessageSent'], Queryoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  optimismsepolia_rootMessageSent: InContextSdkMethod<Query['optimismsepolia_rootMessageSent'], Queryoptimismsepolia_rootMessageSentArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSents: InContextSdkMethod<Query['optimismgoerli_rootMessageSents'], Queryoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  optimismsepolia_rootMessageSents: InContextSdkMethod<Query['optimismsepolia_rootMessageSents'], Queryoptimismsepolia_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFeesIncrease: InContextSdkMethod<Query['optimismgoerli_relayerFeesIncrease'], Queryoptimismgoerli_relayerFeesIncreaseArgs, MeshContext>,
+  optimismsepolia_relayerFeesIncrease: InContextSdkMethod<Query['optimismsepolia_relayerFeesIncrease'], Queryoptimismsepolia_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFeesIncreases: InContextSdkMethod<Query['optimismgoerli_relayerFeesIncreases'], Queryoptimismgoerli_relayerFeesIncreasesArgs, MeshContext>,
+  optimismsepolia_relayerFeesIncreases: InContextSdkMethod<Query['optimismsepolia_relayerFeesIncreases'], Queryoptimismsepolia_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_slippageUpdate: InContextSdkMethod<Query['optimismgoerli_slippageUpdate'], Queryoptimismgoerli_slippageUpdateArgs, MeshContext>,
+  optimismsepolia_slippageUpdate: InContextSdkMethod<Query['optimismsepolia_slippageUpdate'], Queryoptimismsepolia_slippageUpdateArgs, MeshContext>,
   /** null **/
-  optimismgoerli_slippageUpdates: InContextSdkMethod<Query['optimismgoerli_slippageUpdates'], Queryoptimismgoerli_slippageUpdatesArgs, MeshContext>,
+  optimismsepolia_slippageUpdates: InContextSdkMethod<Query['optimismsepolia_slippageUpdates'], Queryoptimismsepolia_slippageUpdatesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_snapshotRoot: InContextSdkMethod<Query['optimismgoerli_snapshotRoot'], Queryoptimismgoerli_snapshotRootArgs, MeshContext>,
+  optimismsepolia_snapshotRoot: InContextSdkMethod<Query['optimismsepolia_snapshotRoot'], Queryoptimismsepolia_snapshotRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_snapshotRoots: InContextSdkMethod<Query['optimismgoerli_snapshotRoots'], Queryoptimismgoerli_snapshotRootsArgs, MeshContext>,
+  optimismsepolia_snapshotRoots: InContextSdkMethod<Query['optimismsepolia_snapshotRoots'], Queryoptimismsepolia_snapshotRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_spokeConnectorMode: InContextSdkMethod<Query['optimismgoerli_spokeConnectorMode'], Queryoptimismgoerli_spokeConnectorModeArgs, MeshContext>,
+  optimismsepolia_spokeConnectorMode: InContextSdkMethod<Query['optimismsepolia_spokeConnectorMode'], Queryoptimismsepolia_spokeConnectorModeArgs, MeshContext>,
   /** null **/
-  optimismgoerli_spokeConnectorModes: InContextSdkMethod<Query['optimismgoerli_spokeConnectorModes'], Queryoptimismgoerli_spokeConnectorModesArgs, MeshContext>,
+  optimismsepolia_spokeConnectorModes: InContextSdkMethod<Query['optimismsepolia_spokeConnectorModes'], Queryoptimismsepolia_spokeConnectorModesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRootProposed: InContextSdkMethod<Query['optimismgoerli_aggregateRootProposed'], Queryoptimismgoerli_aggregateRootProposedArgs, MeshContext>,
+  optimismsepolia_aggregateRootProposed: InContextSdkMethod<Query['optimismsepolia_aggregateRootProposed'], Queryoptimismsepolia_aggregateRootProposedArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRootProposeds: InContextSdkMethod<Query['optimismgoerli_aggregateRootProposeds'], Queryoptimismgoerli_aggregateRootProposedsArgs, MeshContext>,
+  optimismsepolia_aggregateRootProposeds: InContextSdkMethod<Query['optimismsepolia_aggregateRootProposeds'], Queryoptimismsepolia_aggregateRootProposedsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_optimisticRootFinalized: InContextSdkMethod<Query['optimismgoerli_optimisticRootFinalized'], Queryoptimismgoerli_optimisticRootFinalizedArgs, MeshContext>,
+  optimismsepolia_optimisticRootFinalized: InContextSdkMethod<Query['optimismsepolia_optimisticRootFinalized'], Queryoptimismsepolia_optimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  optimismgoerli_optimisticRootFinalizeds: InContextSdkMethod<Query['optimismgoerli_optimisticRootFinalizeds'], Queryoptimismgoerli_optimisticRootFinalizedsArgs, MeshContext>,
+  optimismsepolia_optimisticRootFinalizeds: InContextSdkMethod<Query['optimismsepolia_optimisticRootFinalizeds'], Queryoptimismsepolia_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  optimismgoerli__meta: InContextSdkMethod<Query['optimismgoerli__meta'], Queryoptimismgoerli__metaArgs, MeshContext>
+  optimismsepolia__meta: InContextSdkMethod<Query['optimismsepolia__meta'], Queryoptimismsepolia__metaArgs, MeshContext>
   };
 
   export type MutationSdk = {
@@ -3824,103 +3825,103 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  optimismgoerli_asset: InContextSdkMethod<Subscription['optimismgoerli_asset'], Subscriptionoptimismgoerli_assetArgs, MeshContext>,
+  optimismsepolia_asset: InContextSdkMethod<Subscription['optimismsepolia_asset'], Subscriptionoptimismsepolia_assetArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assets: InContextSdkMethod<Subscription['optimismgoerli_assets'], Subscriptionoptimismgoerli_assetsArgs, MeshContext>,
+  optimismsepolia_assets: InContextSdkMethod<Subscription['optimismsepolia_assets'], Subscriptionoptimismsepolia_assetsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetStatus: InContextSdkMethod<Subscription['optimismgoerli_assetStatus'], Subscriptionoptimismgoerli_assetStatusArgs, MeshContext>,
+  optimismsepolia_assetStatus: InContextSdkMethod<Subscription['optimismsepolia_assetStatus'], Subscriptionoptimismsepolia_assetStatusArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetStatuses: InContextSdkMethod<Subscription['optimismgoerli_assetStatuses'], Subscriptionoptimismgoerli_assetStatusesArgs, MeshContext>,
+  optimismsepolia_assetStatuses: InContextSdkMethod<Subscription['optimismsepolia_assetStatuses'], Subscriptionoptimismsepolia_assetStatusesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalance: InContextSdkMethod<Subscription['optimismgoerli_assetBalance'], Subscriptionoptimismgoerli_assetBalanceArgs, MeshContext>,
+  optimismsepolia_assetBalance: InContextSdkMethod<Subscription['optimismsepolia_assetBalance'], Subscriptionoptimismsepolia_assetBalanceArgs, MeshContext>,
   /** null **/
-  optimismgoerli_assetBalances: InContextSdkMethod<Subscription['optimismgoerli_assetBalances'], Subscriptionoptimismgoerli_assetBalancesArgs, MeshContext>,
+  optimismsepolia_assetBalances: InContextSdkMethod<Subscription['optimismsepolia_assetBalances'], Subscriptionoptimismsepolia_assetBalancesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_router: InContextSdkMethod<Subscription['optimismgoerli_router'], Subscriptionoptimismgoerli_routerArgs, MeshContext>,
+  optimismsepolia_router: InContextSdkMethod<Subscription['optimismsepolia_router'], Subscriptionoptimismsepolia_routerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routers: InContextSdkMethod<Subscription['optimismgoerli_routers'], Subscriptionoptimismgoerli_routersArgs, MeshContext>,
+  optimismsepolia_routers: InContextSdkMethod<Subscription['optimismsepolia_routers'], Subscriptionoptimismsepolia_routersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerDailyTVL: InContextSdkMethod<Subscription['optimismgoerli_routerDailyTVL'], Subscriptionoptimismgoerli_routerDailyTVLArgs, MeshContext>,
+  optimismsepolia_routerDailyTVL: InContextSdkMethod<Subscription['optimismsepolia_routerDailyTVL'], Subscriptionoptimismsepolia_routerDailyTVLArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerDailyTVLs: InContextSdkMethod<Subscription['optimismgoerli_routerDailyTVLs'], Subscriptionoptimismgoerli_routerDailyTVLsArgs, MeshContext>,
+  optimismsepolia_routerDailyTVLs: InContextSdkMethod<Subscription['optimismsepolia_routerDailyTVLs'], Subscriptionoptimismsepolia_routerDailyTVLsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerLiquidityEvent: InContextSdkMethod<Subscription['optimismgoerli_routerLiquidityEvent'], Subscriptionoptimismgoerli_routerLiquidityEventArgs, MeshContext>,
+  optimismsepolia_routerLiquidityEvent: InContextSdkMethod<Subscription['optimismsepolia_routerLiquidityEvent'], Subscriptionoptimismsepolia_routerLiquidityEventArgs, MeshContext>,
   /** null **/
-  optimismgoerli_routerLiquidityEvents: InContextSdkMethod<Subscription['optimismgoerli_routerLiquidityEvents'], Subscriptionoptimismgoerli_routerLiquidityEventsArgs, MeshContext>,
+  optimismsepolia_routerLiquidityEvents: InContextSdkMethod<Subscription['optimismsepolia_routerLiquidityEvents'], Subscriptionoptimismsepolia_routerLiquidityEventsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_setting: InContextSdkMethod<Subscription['optimismgoerli_setting'], Subscriptionoptimismgoerli_settingArgs, MeshContext>,
+  optimismsepolia_setting: InContextSdkMethod<Subscription['optimismsepolia_setting'], Subscriptionoptimismsepolia_settingArgs, MeshContext>,
   /** null **/
-  optimismgoerli_settings: InContextSdkMethod<Subscription['optimismgoerli_settings'], Subscriptionoptimismgoerli_settingsArgs, MeshContext>,
+  optimismsepolia_settings: InContextSdkMethod<Subscription['optimismsepolia_settings'], Subscriptionoptimismsepolia_settingsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayer: InContextSdkMethod<Subscription['optimismgoerli_relayer'], Subscriptionoptimismgoerli_relayerArgs, MeshContext>,
+  optimismsepolia_relayer: InContextSdkMethod<Subscription['optimismsepolia_relayer'], Subscriptionoptimismsepolia_relayerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayers: InContextSdkMethod<Subscription['optimismgoerli_relayers'], Subscriptionoptimismgoerli_relayersArgs, MeshContext>,
+  optimismsepolia_relayers: InContextSdkMethod<Subscription['optimismsepolia_relayers'], Subscriptionoptimismsepolia_relayersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencer: InContextSdkMethod<Subscription['optimismgoerli_sequencer'], Subscriptionoptimismgoerli_sequencerArgs, MeshContext>,
+  optimismsepolia_sequencer: InContextSdkMethod<Subscription['optimismsepolia_sequencer'], Subscriptionoptimismsepolia_sequencerArgs, MeshContext>,
   /** null **/
-  optimismgoerli_sequencers: InContextSdkMethod<Subscription['optimismgoerli_sequencers'], Subscriptionoptimismgoerli_sequencersArgs, MeshContext>,
+  optimismsepolia_sequencers: InContextSdkMethod<Subscription['optimismsepolia_sequencers'], Subscriptionoptimismsepolia_sequencersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFee: InContextSdkMethod<Subscription['optimismgoerli_relayerFee'], Subscriptionoptimismgoerli_relayerFeeArgs, MeshContext>,
+  optimismsepolia_relayerFee: InContextSdkMethod<Subscription['optimismsepolia_relayerFee'], Subscriptionoptimismsepolia_relayerFeeArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFees: InContextSdkMethod<Subscription['optimismgoerli_relayerFees'], Subscriptionoptimismgoerli_relayerFeesArgs, MeshContext>,
+  optimismsepolia_relayerFees: InContextSdkMethod<Subscription['optimismsepolia_relayerFees'], Subscriptionoptimismsepolia_relayerFeesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfer: InContextSdkMethod<Subscription['optimismgoerli_originTransfer'], Subscriptionoptimismgoerli_originTransferArgs, MeshContext>,
+  optimismsepolia_originTransfer: InContextSdkMethod<Subscription['optimismsepolia_originTransfer'], Subscriptionoptimismsepolia_originTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originTransfers: InContextSdkMethod<Subscription['optimismgoerli_originTransfers'], Subscriptionoptimismgoerli_originTransfersArgs, MeshContext>,
+  optimismsepolia_originTransfers: InContextSdkMethod<Subscription['optimismsepolia_originTransfers'], Subscriptionoptimismsepolia_originTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfer: InContextSdkMethod<Subscription['optimismgoerli_destinationTransfer'], Subscriptionoptimismgoerli_destinationTransferArgs, MeshContext>,
+  optimismsepolia_destinationTransfer: InContextSdkMethod<Subscription['optimismsepolia_destinationTransfer'], Subscriptionoptimismsepolia_destinationTransferArgs, MeshContext>,
   /** null **/
-  optimismgoerli_destinationTransfers: InContextSdkMethod<Subscription['optimismgoerli_destinationTransfers'], Subscriptionoptimismgoerli_destinationTransfersArgs, MeshContext>,
+  optimismsepolia_destinationTransfers: InContextSdkMethod<Subscription['optimismsepolia_destinationTransfers'], Subscriptionoptimismsepolia_destinationTransfersArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessage: InContextSdkMethod<Subscription['optimismgoerli_originMessage'], Subscriptionoptimismgoerli_originMessageArgs, MeshContext>,
+  optimismsepolia_originMessage: InContextSdkMethod<Subscription['optimismsepolia_originMessage'], Subscriptionoptimismsepolia_originMessageArgs, MeshContext>,
   /** null **/
-  optimismgoerli_originMessages: InContextSdkMethod<Subscription['optimismgoerli_originMessages'], Subscriptionoptimismgoerli_originMessagesArgs, MeshContext>,
+  optimismsepolia_originMessages: InContextSdkMethod<Subscription['optimismsepolia_originMessages'], Subscriptionoptimismsepolia_originMessagesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoot: InContextSdkMethod<Subscription['optimismgoerli_aggregateRoot'], Subscriptionoptimismgoerli_aggregateRootArgs, MeshContext>,
+  optimismsepolia_aggregateRoot: InContextSdkMethod<Subscription['optimismsepolia_aggregateRoot'], Subscriptionoptimismsepolia_aggregateRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRoots: InContextSdkMethod<Subscription['optimismgoerli_aggregateRoots'], Subscriptionoptimismgoerli_aggregateRootsArgs, MeshContext>,
+  optimismsepolia_aggregateRoots: InContextSdkMethod<Subscription['optimismsepolia_aggregateRoots'], Subscriptionoptimismsepolia_aggregateRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMeta: InContextSdkMethod<Subscription['optimismgoerli_connectorMeta'], Subscriptionoptimismgoerli_connectorMetaArgs, MeshContext>,
+  optimismsepolia_connectorMeta: InContextSdkMethod<Subscription['optimismsepolia_connectorMeta'], Subscriptionoptimismsepolia_connectorMetaArgs, MeshContext>,
   /** null **/
-  optimismgoerli_connectorMetas: InContextSdkMethod<Subscription['optimismgoerli_connectorMetas'], Subscriptionoptimismgoerli_connectorMetasArgs, MeshContext>,
+  optimismsepolia_connectorMetas: InContextSdkMethod<Subscription['optimismsepolia_connectorMetas'], Subscriptionoptimismsepolia_connectorMetasArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCount: InContextSdkMethod<Subscription['optimismgoerli_rootCount'], Subscriptionoptimismgoerli_rootCountArgs, MeshContext>,
+  optimismsepolia_rootCount: InContextSdkMethod<Subscription['optimismsepolia_rootCount'], Subscriptionoptimismsepolia_rootCountArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootCounts: InContextSdkMethod<Subscription['optimismgoerli_rootCounts'], Subscriptionoptimismgoerli_rootCountsArgs, MeshContext>,
+  optimismsepolia_rootCounts: InContextSdkMethod<Subscription['optimismsepolia_rootCounts'], Subscriptionoptimismsepolia_rootCountsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSent: InContextSdkMethod<Subscription['optimismgoerli_rootMessageSent'], Subscriptionoptimismgoerli_rootMessageSentArgs, MeshContext>,
+  optimismsepolia_rootMessageSent: InContextSdkMethod<Subscription['optimismsepolia_rootMessageSent'], Subscriptionoptimismsepolia_rootMessageSentArgs, MeshContext>,
   /** null **/
-  optimismgoerli_rootMessageSents: InContextSdkMethod<Subscription['optimismgoerli_rootMessageSents'], Subscriptionoptimismgoerli_rootMessageSentsArgs, MeshContext>,
+  optimismsepolia_rootMessageSents: InContextSdkMethod<Subscription['optimismsepolia_rootMessageSents'], Subscriptionoptimismsepolia_rootMessageSentsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFeesIncrease: InContextSdkMethod<Subscription['optimismgoerli_relayerFeesIncrease'], Subscriptionoptimismgoerli_relayerFeesIncreaseArgs, MeshContext>,
+  optimismsepolia_relayerFeesIncrease: InContextSdkMethod<Subscription['optimismsepolia_relayerFeesIncrease'], Subscriptionoptimismsepolia_relayerFeesIncreaseArgs, MeshContext>,
   /** null **/
-  optimismgoerli_relayerFeesIncreases: InContextSdkMethod<Subscription['optimismgoerli_relayerFeesIncreases'], Subscriptionoptimismgoerli_relayerFeesIncreasesArgs, MeshContext>,
+  optimismsepolia_relayerFeesIncreases: InContextSdkMethod<Subscription['optimismsepolia_relayerFeesIncreases'], Subscriptionoptimismsepolia_relayerFeesIncreasesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_slippageUpdate: InContextSdkMethod<Subscription['optimismgoerli_slippageUpdate'], Subscriptionoptimismgoerli_slippageUpdateArgs, MeshContext>,
+  optimismsepolia_slippageUpdate: InContextSdkMethod<Subscription['optimismsepolia_slippageUpdate'], Subscriptionoptimismsepolia_slippageUpdateArgs, MeshContext>,
   /** null **/
-  optimismgoerli_slippageUpdates: InContextSdkMethod<Subscription['optimismgoerli_slippageUpdates'], Subscriptionoptimismgoerli_slippageUpdatesArgs, MeshContext>,
+  optimismsepolia_slippageUpdates: InContextSdkMethod<Subscription['optimismsepolia_slippageUpdates'], Subscriptionoptimismsepolia_slippageUpdatesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_snapshotRoot: InContextSdkMethod<Subscription['optimismgoerli_snapshotRoot'], Subscriptionoptimismgoerli_snapshotRootArgs, MeshContext>,
+  optimismsepolia_snapshotRoot: InContextSdkMethod<Subscription['optimismsepolia_snapshotRoot'], Subscriptionoptimismsepolia_snapshotRootArgs, MeshContext>,
   /** null **/
-  optimismgoerli_snapshotRoots: InContextSdkMethod<Subscription['optimismgoerli_snapshotRoots'], Subscriptionoptimismgoerli_snapshotRootsArgs, MeshContext>,
+  optimismsepolia_snapshotRoots: InContextSdkMethod<Subscription['optimismsepolia_snapshotRoots'], Subscriptionoptimismsepolia_snapshotRootsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_spokeConnectorMode: InContextSdkMethod<Subscription['optimismgoerli_spokeConnectorMode'], Subscriptionoptimismgoerli_spokeConnectorModeArgs, MeshContext>,
+  optimismsepolia_spokeConnectorMode: InContextSdkMethod<Subscription['optimismsepolia_spokeConnectorMode'], Subscriptionoptimismsepolia_spokeConnectorModeArgs, MeshContext>,
   /** null **/
-  optimismgoerli_spokeConnectorModes: InContextSdkMethod<Subscription['optimismgoerli_spokeConnectorModes'], Subscriptionoptimismgoerli_spokeConnectorModesArgs, MeshContext>,
+  optimismsepolia_spokeConnectorModes: InContextSdkMethod<Subscription['optimismsepolia_spokeConnectorModes'], Subscriptionoptimismsepolia_spokeConnectorModesArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRootProposed: InContextSdkMethod<Subscription['optimismgoerli_aggregateRootProposed'], Subscriptionoptimismgoerli_aggregateRootProposedArgs, MeshContext>,
+  optimismsepolia_aggregateRootProposed: InContextSdkMethod<Subscription['optimismsepolia_aggregateRootProposed'], Subscriptionoptimismsepolia_aggregateRootProposedArgs, MeshContext>,
   /** null **/
-  optimismgoerli_aggregateRootProposeds: InContextSdkMethod<Subscription['optimismgoerli_aggregateRootProposeds'], Subscriptionoptimismgoerli_aggregateRootProposedsArgs, MeshContext>,
+  optimismsepolia_aggregateRootProposeds: InContextSdkMethod<Subscription['optimismsepolia_aggregateRootProposeds'], Subscriptionoptimismsepolia_aggregateRootProposedsArgs, MeshContext>,
   /** null **/
-  optimismgoerli_optimisticRootFinalized: InContextSdkMethod<Subscription['optimismgoerli_optimisticRootFinalized'], Subscriptionoptimismgoerli_optimisticRootFinalizedArgs, MeshContext>,
+  optimismsepolia_optimisticRootFinalized: InContextSdkMethod<Subscription['optimismsepolia_optimisticRootFinalized'], Subscriptionoptimismsepolia_optimisticRootFinalizedArgs, MeshContext>,
   /** null **/
-  optimismgoerli_optimisticRootFinalizeds: InContextSdkMethod<Subscription['optimismgoerli_optimisticRootFinalizeds'], Subscriptionoptimismgoerli_optimisticRootFinalizedsArgs, MeshContext>,
+  optimismsepolia_optimisticRootFinalizeds: InContextSdkMethod<Subscription['optimismsepolia_optimisticRootFinalizeds'], Subscriptionoptimismsepolia_optimisticRootFinalizedsArgs, MeshContext>,
   /** Access to subgraph metadata **/
-  optimismgoerli__meta: InContextSdkMethod<Subscription['optimismgoerli__meta'], Subscriptionoptimismgoerli__metaArgs, MeshContext>
+  optimismsepolia__meta: InContextSdkMethod<Subscription['optimismsepolia__meta'], Subscriptionoptimismsepolia__metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["Connext_OptimismGoerli"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["Connext_OptimismSepolia"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
