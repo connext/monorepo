@@ -7,14 +7,14 @@ locals {
 
   sequencer_env_vars = [
     { name = "SEQ_CONFIG", value = local.local_sequencer_config },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_router_config },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -25,7 +25,7 @@ locals {
   ])
   lighthouse_env_vars = {
     NXTP_CONFIG       = local.local_lighthouse_config,
-    ENVIRONMENT       = "production",
+    ENVIRONMENT       = var.stage,
     STAGE             = var.stage,
     DD_LOGS_ENABLED   = true,
     DD_ENV            = "${var.environment}-${var.stage}",
@@ -34,7 +34,7 @@ locals {
   }
   lighthouse_prover_subscriber_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_lighthouse_config },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -42,27 +42,27 @@ locals {
   lighthouse_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.lighthouse_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   router_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.router_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   sequencer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.sequencer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
   relayer_env_vars = [
     { name = "NXTP_CONFIG", value = local.local_relayer_config },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -70,7 +70,7 @@ locals {
   relayer_web3signer_env_vars = [
     { name = "WEB3_SIGNER_PRIVATE_KEY", value = var.relayer_web3_signer_private_key },
     { name = "WEB3SIGNER_HTTP_HOST_ALLOWLIST", value = "*" },
-    { name = "ENVIRONMENT", value = "production" },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
   ]
@@ -113,7 +113,7 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment = "production"
+    environment = var.stage
     database = {
       url = local.default_db_url
     }
@@ -215,7 +215,7 @@ locals {
     }
     cartographerUrl = "https://postgrest.testnet.staging.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
-    environment     = "production"
+    environment     = var.stage
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
@@ -251,7 +251,7 @@ locals {
         url    = "https://${module.relayer.service_endpoint}"
       }
     ]
-    environment = "production"
+    environment = var.stage
     database = {
       url = local.default_db_url
     }
@@ -300,7 +300,7 @@ locals {
         providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
     }
-    environment   = "production"
+    environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
   })
 }

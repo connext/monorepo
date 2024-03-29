@@ -138,7 +138,7 @@ locals {
       }
     ]
     relayerFeeTolerance = 60
-    environment         = "production"
+    environment         = var.stage
     database = {
       url = local.default_db_url
     }
@@ -311,7 +311,7 @@ locals {
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
-    environment     = "production"
+    environment     = var.stage
     messageQueue = {
       uri = "amqps://${var.rmq_mgt_user}:${var.rmq_mgt_password}@${module.centralised_message_queue.aws_mq_amqp_endpoint}"
     }
@@ -351,7 +351,7 @@ locals {
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
-    environment  = "production"
+    environment  = var.stage
     database = {
       url = local.read_replica_db_url
     }
@@ -439,7 +439,7 @@ locals {
         providers = ["https://mainnet.mode.network/", "https://1rpc.io/mode"]
       }
     }
-    environment   = "production"
+    environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"
   })
 }
