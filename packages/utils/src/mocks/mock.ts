@@ -707,4 +707,5 @@ export const mock = {
     },
   },
   snapshotDuration: 1,
+  maxSafeRoots: 0,
 };

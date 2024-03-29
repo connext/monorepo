@@ -173,6 +173,7 @@ export const mock = {
   },
   config: (): NxtpLighthouseConfig => ({
     snapshotDuration: mock.snapshotDuration,
+    maxSafeRoots: mock.maxSafeRoots,
     chains: {
       [mock.domain.A]: {
         providers: ["http://example.com"],

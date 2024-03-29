@@ -15,6 +15,7 @@ export const DEFAULT_RELAYER_WAIT_TIME = 60_000 * 3600; // 1 hour
 export const DEFAULT_PROVER_PUB_MAX = 5000;
 export const DEFAULT_LH_SNAPSHOT_DURATION = 1800; // 30 minutes
 export const DEFAULT_BATCH_WAIT_TIME = 1800; // 30 minutes
+export const DEFAULT_LH_MAX_SAFE_ROOTS = 5; // Max number of safe roots allowed in a proposal
 
 dotenvConfig();
 
@@ -123,6 +124,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   messageQueue: TMQConfig,
   server: TServerConfig,
   snapshotDuration: Type.Integer({ minimum: 1, maximum: 10000 }),
+  maxSafeRoots: Type.Integer({ minimum: 0, maximum: 10 }),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
@@ -264,6 +266,9 @@ export const getEnvConfig = (
     snapshotDuration: process.env.LH_SNAPSHOT_DURATION
       ? +process.env.LH_SNAPSHOT_DURATION
       : configJson.snapshotDuration || configFile.snapshotDuration || DEFAULT_LH_SNAPSHOT_DURATION,
+    maxSafeRoots: process.env.LH_MAX_SAFE_ROOTS
+      ? +process.env.LH_MAX_SAFE_ROOTS
+      : configJson.maxSafeRoots || configFile.maxSafeRoots || DEFAULT_LH_MAX_SAFE_ROOTS,
   };
   nxtpConfig.cartographerUrl =
     nxtpConfig.cartographerUrl ??
