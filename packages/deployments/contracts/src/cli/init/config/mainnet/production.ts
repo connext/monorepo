@@ -372,6 +372,56 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "Alchemix USD",
+      canonical: {
+        domain: "11111",
+        address: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+          adopted: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+      },
+    },
+    {
+      name: "Alchemix ETH",
+      canonical: {
+        domain: "11111",
+        address: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+          adopted: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+          adopted: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0x17573150d67d820542EFb24210371545a4868B03",
+          adopted: "0x17573150d67d820542EFb24210371545a4868B03",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
