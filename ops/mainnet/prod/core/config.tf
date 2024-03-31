@@ -155,7 +155,7 @@ locals {
       }
     ]
     relayerFeeTolerance = 60
-    checkOnlyExecuteFee = true
+    checkOnlyExecuteFee = false
     environment         = var.stage
     database = {
       url = local.default_db_url
