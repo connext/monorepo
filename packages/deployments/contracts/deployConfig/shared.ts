@@ -777,11 +777,11 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         networkName: "XLayer",
         ambs: {
           // PolygonZkEVMBridgeV2 on mainnet
-          // https://etherscan.io/address/0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268
-          hub: "0x1d0F2cbE783e17Ec1c266545c8dEb535DB3e1268",
+          // https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          hub: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
           // PolygonZkEVMBridgeV2 on xlayer-mainnet
-          // https://www.okx.com/explorer/xlayer/address/0x1d0f2cbe783e17ec1c266545c8deb535db3e1268
-          spoke: "0x1d0f2cbe783e17ec1c266545c8deb535db3e1268",
+          // https://www.okx.com/explorer/xlayer/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          spoke: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
