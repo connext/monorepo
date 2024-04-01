@@ -474,4 +474,19 @@ export const hardhatNetworks = {
       },
     },
   },
+  fraxtal: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 252,
+    url: urlOverride || process.env.FRAXTAL_PROVIDER_URL || "https://rpc.frax.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("1.5", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.FRAXTAL_EXPLORER_API_KEY!,
+        apiUrl: "https://fraxscan.com/",
+      },
+    },
+  },
 };

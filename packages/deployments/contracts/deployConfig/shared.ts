@@ -46,6 +46,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   84531: 30, // base-goerli
   195: 60, // x1-testnet
   534351: 14, // scroll sepolia l2
+  252: 30, // Fraxtal
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -764,6 +765,34 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           hub: {
             // https://scrollscan.com/tx/0xb1de68a188d86bcae0c51b684396dd62ce9e95c34edfd2f45ba0acc3e52308b0
             gasCap: BigNumber.from("130000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      252: {
+        prefix: "Optimism",
+        networkName: "Fraxtal",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://docs.frax.com/fraxtal/addresses/fraxtal-contracts#ethereum-mainnet
+          hub: "0x126bcc31Bc076B3d515f60FBC81FddE0B0d542Ed",
+          // L2CrossDomainMessenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[252],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[252],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[252],
+        custom: {
+          hub: {
+            // OptimismPortal
+            // https://docs.frax.com/fraxtal/addresses/fraxtal-contracts#ethereum-mainnet
+            // https://etherscan.io/address/0x36cb65c1967A0Fb0EEE11569C51C2f2aA1Ca6f6D#code
+            optimismPortal: "0x36cb65c1967A0Fb0EEE11569C51C2f2aA1Ca6f6D",
+            gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
