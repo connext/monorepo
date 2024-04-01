@@ -196,6 +196,7 @@ export const domainsToChainNames: Record<string, string> = {
   "1650553709": "base",
   "1836016741": "mode",
   "1935897199": "scroll",
+  "2020368761": "xlayer",
 };
 
 // Need to add more domains here.
@@ -214,6 +215,7 @@ export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
   "1650553709": "0xcc1ce162fb1d70a377d1542873b1db57f5ff14d1", // base
   "1836016741": "0x689cCB572262e0ca66146FE5Ed5D998543d3AA3B", // mode
   "1935897199": "0x397aEEEDd44f40326f9eB583a1DFB8A7A673C40B", // scroll
+  "2020368761": "", // xlayer
 };
 
 // Need to add more domains here.
@@ -232,4 +234,5 @@ export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
   "1650553709": "0x542AaB88B14055e47222791276967Db5f9B840f6", // base
   "1836016741": "0x981A06E33b228299f33a45a892d7AA61d0b95a83", // mode
   "1935897199": "", // scroll (TODO)
+  "2020368761": "", // xlayer (TODO)
 };
