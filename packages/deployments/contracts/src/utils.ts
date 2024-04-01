@@ -66,6 +66,7 @@ export const ProtocolNetworks: Record<string, string> = {
   "5000": ProtocolNetwork.MAINNET,
   "34443": ProtocolNetwork.MAINNET,
   "534352": ProtocolNetwork.MAINNET,
+  "252": ProtocolNetwork.MAINNET,
 };
 
 export const isDevnetName = (_name: string): boolean => {
