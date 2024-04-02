@@ -68,7 +68,6 @@ const specialChainIdToDomainMapping: Map<number, number> = new Map([
   // special pseudo-canonical domain for xERC20s
   [11111, 11111],
 ]);
-
 // Hex domains calculated using `getHexDomainFromString`
 // alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
 export const chainIdToDomainMapping: Map<number, number> = new Map([

@@ -30,10 +30,8 @@ const formatConnectorArgs = (
     watcherManager,
   } = args;
   const config = protocol.configs[connectorChainId];
-  console.log(`using config`, config);
 
   const isHub = deploymentChainId === protocol.hub.chain && connectorChainId != protocol.hub.chain;
-
   const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
   const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
 
