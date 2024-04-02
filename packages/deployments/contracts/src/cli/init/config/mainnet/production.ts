@@ -708,6 +708,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
       "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
       "1935897199": PROTOCOL_ADMINS.mainnet["1935897199"], // Scroll
+      "2020368761": PROTOCOL_ADMINS.mainnet["2020368761"], // XLayer
     },
     watchers: {
       allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],

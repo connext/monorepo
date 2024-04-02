@@ -89,6 +89,10 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
           adopted: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
         },
+        "2020368761": {
+          local: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+          adopted: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+        },
       },
     },
   ],
