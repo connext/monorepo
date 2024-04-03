@@ -478,8 +478,7 @@ export const hardhatNetworks = {
   fraxtal: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 252,
-    url:
-      urlOverride || process.env.FRAXTAL_PROVIDER_URL || "https://fraxtal.gateway.tenderly.co/7KMi0bO4UgD9PAWoDpOZqt",
+    url: urlOverride || process.env.FRAXTAL_PROVIDER_URL || "https://rpc.frax.com",
     companionNetworks: {
       hub: "mainnet",
     },
