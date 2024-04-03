@@ -33,7 +33,7 @@ variable "schedule_expression" {
 
 variable "timeout" {
   description = "timeout for lambda"
-  default     = 500
+  default     = 750
 }
 
 
