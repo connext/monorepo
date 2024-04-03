@@ -5,6 +5,8 @@ import {
   SdkGetTransfersParams,
   SdkCheckRouterLiquidityParamsSchema,
   SdkCheckRouterLiquidityParams,
+  SdkEnoughRouterLiquidityParamsSchema,
+  SdkEnoughRouterLiquidityParams
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
@@ -52,6 +54,20 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
     async (request, reply) => {
       const { domainId, asset, topN } = request.body;
       const res = await sdkUtilsInstance.checkRouterLiquidity(domainId, asset, topN);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post<{ Body: SdkEnoughRouterLiquidityParams }>(
+    "/enoughRouterLiquidity",
+    {
+      schema: {
+        body: SdkEnoughRouterLiquidityParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, asset, minLiquidity, maxN } = request.body;
+      const res = await sdkUtilsInstance.enoughRouterLiquidity(domainId, asset, minLiquidity, maxN);
       reply.status(200).send(res);
     },
   );

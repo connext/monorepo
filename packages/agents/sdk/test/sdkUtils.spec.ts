@@ -80,6 +80,107 @@ describe("SdkUtils", () => {
     });
   });
 
+  describe("#enoughRouterLiquidity", () => {
+    it("should be true when enough liquidity between <N routers", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      restore();
+      stub(SharedFns, 'axiosGetRequest').resolves([
+        {
+          "balance": "100",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        },
+        {
+          "balance": "200",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        }
+      ]);
+      const res = await nxtpUtils.enoughRouterLiquidity(
+        mock.domain.A, 
+        mock.asset.A.address, 
+        "100",
+        2
+      );
+
+      expect(res).to.be.true;
+    });
+
+    it("happy: should be true when enough liquidity between N routers", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      restore();
+      stub(SharedFns, 'axiosGetRequest').resolves([
+        {
+          "balance": "100",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        },
+        {
+          "balance": "200",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        }
+      ]);
+      const res = await nxtpUtils.enoughRouterLiquidity(
+        mock.domain.A, 
+        mock.asset.A.address, 
+        "300",
+        2
+      );
+
+      expect(res).to.be.true;
+    });
+
+    it("happy: should be false when not enough liquidity between <N routers", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      restore();
+      stub(SharedFns, 'axiosGetRequest').resolves([
+        {
+          "balance": "100",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        }
+      ]);
+      const res = await nxtpUtils.enoughRouterLiquidity(
+        mock.domain.A, 
+        mock.asset.A.address, 
+        "200",
+        2
+      );
+
+      expect(res).to.be.false;
+    });
+
+    it("happy: should be false when not enough liquidity between N routers", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      restore();
+      stub(SharedFns, 'axiosGetRequest').resolves([
+        {
+          "balance": "100",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        },
+        {
+          "balance": "200",
+          "local": mock.asset.A.address,
+          "domain": mock.domain.A, 
+        }
+      ]);
+      const res = await nxtpUtils.enoughRouterLiquidity(
+        mock.domain.A, 
+        mock.asset.A.address, 
+        "400",
+        2
+      );
+
+      expect(res).to.be.false;
+    });
+  });
+
   describe("#getAssetsData", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;

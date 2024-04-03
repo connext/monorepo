@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { Logger, ChainData, XTransferStatus, XTransferErrorStatus } from "@connext/nxtp-utils";
 
 import type { SdkConfig, RouterBalance, Transfer } from "./sdk-types";
@@ -55,6 +55,23 @@ export class SdkUtils extends SdkShared {
       topN,
     };
     const response = await axiosPost(`${this.baseUri}/checkRouterLiquidity`, params);
+
+    return BigNumber.from(response.data);
+  }
+
+  async enoughRouterLiquidity(
+    domainId: string, 
+    asset: string, 
+    minLiquidity: BigNumberish, 
+    maxN?: number
+  ): Promise<BigNumber> {
+    const params: { domainId: string; asset: string; minLiquidity: BigNumberish, maxN?: number } = {
+      domainId,
+      asset,
+      minLiquidity,
+      maxN
+    };
+    const response = await axiosPost(`${this.baseUri}/enoughRouterLiquidity`, params);
 
     return BigNumber.from(response.data);
   }

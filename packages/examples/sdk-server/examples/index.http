@@ -772,6 +772,18 @@ Content-Type: application/json
 }
 
 ##############
+### POST enoughRouterLiquidity
+POST {{baseUrl}}/enoughRouterLiquidity
+Content-Type: application/json
+
+{
+  "domainId": "1869640809",
+  "asset": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
+  "minLiquidity": "100000000000000000000000",
+  "maxN": 4
+}
+
+##############
 ### POST addLiquidityForRouter
 POST {{baseUrl}}/addLiquidityForRouter
 Content-Type: application/json

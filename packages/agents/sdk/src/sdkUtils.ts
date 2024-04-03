@@ -1,4 +1,4 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, BigNumberish } from "ethers";
 import {
   Logger,
   ChainData,
@@ -307,5 +307,52 @@ export class SdkUtils extends SdkShared {
     return eligibleRouters
       .slice(0, _topN)
       .reduce((acc, router) => acc.add(BigNumber.from(router.balance.toString())), BigNumber.from(0));
+  }
+
+  /**
+   * Checks if enough router liquidity is available for a specific asset.
+   *
+   * @param domainId - The domain ID where the asset exists.
+   * @param asset - The address of the asset.
+   * @param minLiquidity - The minimum liquidity to check against the sum of max N routers.
+   * @param maxN - (optional) The max N routers, should match the auction round depth (N = 2^(depth-1).
+   * @returns The total router liquidity available for the asset.
+   *
+   */
+  async enoughRouterLiquidity(domainId: string, asset: string, minLiquidity: BigNumberish, maxN?: number): Promise<boolean> {
+    const _asset = utils.getAddress(asset);
+    const _maxN = maxN ?? 4;
+    const _minLiquidityBN = BigNumber.from(this.scientificToBigInt(minLiquidity.toString()));
+  
+    const routersByLargestBalance = await this.getRoutersData({ order: { orderBy: "balance", ascOrDesc: "desc" } });
+  
+    let totalLiquidity = BigNumber.from(0);
+    let processedRouters = 0;
+  
+    for (let routerBalance of routersByLargestBalance) {
+      if (routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset) {
+        const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
+        totalLiquidity = totalLiquidity.add(balanceBN);
+        processedRouters += 1;
+        if (totalLiquidity.gte(_minLiquidityBN)) return true;
+        if (processedRouters == _maxN) break;
+      }
+    }
+  
+    return false;
+  }
+
+  scientificToBigInt(scientificNotationString: string) {
+    const parts = scientificNotationString.split("e");
+    const coeff = parseFloat(parts[0]);
+    const exp = parts.length > 1 ? parseFloat(parts[1]) : 0;
+
+    const decimalParts = coeff.toString().split(".");
+    const numDecimals = decimalParts[1]?.length || 0;
+
+    const bigIntCoeff = BigInt(decimalParts.join(""));
+    const bigIntExp = BigInt(exp - numDecimals);
+
+    return bigIntCoeff * BigInt(10) ** bigIntExp;
   }
 }
