@@ -2,7 +2,7 @@
 name: Analytics request
 about: adhoc analysis, dashboards, data infra etc
 title: ''
-labels: "analytics \U0001F4CF"
+labels: "analytics \U0001F4CF, xERC20 \U0001FA99"
 assignees: par94
 
 ---

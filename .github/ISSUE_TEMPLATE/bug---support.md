@@ -1,5 +1,5 @@
 ---
-name: Support Ticket
+name: Bug / Support
 about: Create a report to help us improve
 title: "[ST] <What is wrong>"
 labels: Bug
