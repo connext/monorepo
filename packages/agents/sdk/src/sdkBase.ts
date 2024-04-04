@@ -639,7 +639,7 @@ export class SdkBase extends SdkShared {
         : this.getConversionRate(destinationChainId),
     ]);
 
-    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
+    let relayerFee = await calculateRelayerFee(
       {
         ...params,
         originChainId,
@@ -654,14 +654,27 @@ export class SdkBase extends SdkShared {
     );
 
     if (this.chainData) {
-      const maxRelayerFee = this.chainData.get(params.destinationDomain.toString())?.maxRelayerFeeInNative;
-      const maxRelayerFeeBN = BigNumber.from(maxRelayerFee ?? relayerFeeInOriginNativeAsset);
-      if (relayerFeeInOriginNativeAsset.gt(maxRelayerFeeBN)) {
-        return maxRelayerFeeBN;
+      const maxRelayerFeeInNative = this.chainData.get(params.destinationDomain.toString())?.maxRelayerFeeInNative;
+      const maxRelayerFeeInNativeBN = BigNumber.from(maxRelayerFeeInNative ?? relayerFee);
+      if (params.priceIn === "usd") {
+        const scaleFactor = 10000; // leave some precision for low value assets
+        const scaledOriginNativeTokenPrice = originNativeTokenPrice * scaleFactor;
+
+        // Truncate remaining decimals and convert back to USD
+        const originNativeTokenPriceUsdBN = BigNumber.from(
+          scaledOriginNativeTokenPrice.toString().split('.')[0]
+        ).div(scaleFactor);
+
+        const maxRelayerFeeInUsdBN = maxRelayerFeeInNativeBN.mul(originNativeTokenPriceUsdBN);
+        if (relayerFee.gt(maxRelayerFeeInUsdBN)) return maxRelayerFeeInUsdBN;
+      } else {
+        if (relayerFee.gt(maxRelayerFeeInNativeBN)) {
+          return maxRelayerFeeInNativeBN;
+        }
       }
     }
 
-    return relayerFeeInOriginNativeAsset;
+    return relayerFee;
   }
 
   /**

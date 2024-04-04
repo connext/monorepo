@@ -594,9 +594,11 @@ describe("SdkBase", () => {
 
   describe("estimateRelayerFee", () => {
     let calculateRelayerFeeStub: SinonStub;
+    let getConversionRateStub: SinonStub;
 
     beforeEach(() => {
       calculateRelayerFeeStub = stub(SharedFns, "calculateRelayerFee");
+      getConversionRateStub = stub(SharedFns, "getConversionRate")
     });
 
     afterEach(() => {
@@ -621,6 +623,18 @@ describe("SdkBase", () => {
         destinationDomain: mock.domain.A,
       });
       expect(relayerFee.toString()).to.be.eq(sdkBase.chainData.get(mock.domain.A)!.maxRelayerFeeInNative);
+    });
+
+    it("should return converted fee from chaindata if estimate is too high and is in usd, ", async () => {
+      calculateRelayerFeeStub.resolves(BigNumber.from(100_000_000_000));
+      const relayerFee = await sdkBase.estimateRelayerFee({
+        originDomain: mock.domain.A,
+        destinationDomain: mock.domain.A,
+        priceIn: "usd",
+        originNativeTokenPrice: 100,
+        destinationNativeTokenPrice: 100,
+      });
+      expect(relayerFee.toString()).to.be.eq(BigNumber.from(100_000_000).toString());
     });
 
     it("should return high estimate if no override in chaindata", async () => {
