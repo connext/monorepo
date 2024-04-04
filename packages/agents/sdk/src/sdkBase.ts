@@ -653,6 +653,14 @@ export class SdkBase extends SdkShared {
       requestContext,
     );
 
+    if (this.chainData) {
+      const maxRelayerFee = this.chainData.get(params.destinationDomain.toString())?.maxRelayerFeeInNative;
+      const maxRelayerFeeBN = BigNumber.from(maxRelayerFee ?? relayerFeeInOriginNativeAsset);
+      if (relayerFeeInOriginNativeAsset.gt(maxRelayerFeeBN)) {
+        return maxRelayerFeeBN;
+      }
+    }
+
     return relayerFeeInOriginNativeAsset;
   }
 
