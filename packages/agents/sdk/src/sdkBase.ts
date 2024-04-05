@@ -639,7 +639,7 @@ export class SdkBase extends SdkShared {
         : this.getConversionRate(destinationChainId),
     ]);
 
-    let relayerFee = await calculateRelayerFee(
+    const relayerFee = await calculateRelayerFee(
       {
         ...params,
         originChainId,
@@ -668,9 +668,7 @@ export class SdkBase extends SdkShared {
         const maxRelayerFeeInUsdBN = maxRelayerFeeInNativeBN.mul(originNativeTokenPriceUsdBN);
         if (relayerFee.gt(maxRelayerFeeInUsdBN)) return maxRelayerFeeInUsdBN;
       } else {
-        if (relayerFee.gt(maxRelayerFeeInNativeBN)) {
-          return maxRelayerFeeInNativeBN;
-        }
+        if (relayerFee.gt(maxRelayerFeeInNativeBN)) return maxRelayerFeeInNativeBN;
       }
     }
 
