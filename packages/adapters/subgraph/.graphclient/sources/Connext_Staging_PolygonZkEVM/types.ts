@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingpolygonzkevm_Bytes: any;
   stagingpolygonzkevm_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingpolygonzkevm_AggregateRoot = {

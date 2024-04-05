@@ -142,11 +142,6 @@ enum polygon_AggregateRoot_orderBy {
   blockNumber
 }
 
-enum polygon_Aggregation_interval {
-  hour
-  day
-}
-
 type polygon_Asset {
   id: ID!
   key: polygon_Bytes
@@ -3963,8 +3958,6 @@ type polygon__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
-  """The hash of the parent block"""
-  parentHash: polygon_Bytes
 }
 
 """The type for the top-level _meta field"""

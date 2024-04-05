@@ -61,14 +61,6 @@ output "relayer-dns" {
   value = module.relayer.dns_name
 }
 
-output "watcher-service-endpoint" {
-  value = module.watcher.service_endpoint
-}
-
-output "watcher-dns" {
-  value = module.watcher.dns_name
-}
-
 output "rmq-management-endpoint" {
   value = module.centralised_message_queue.aws_mq_broker_console
 }

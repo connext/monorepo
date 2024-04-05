@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   xdai_Bytes: any;
   xdai_Int8: any;
+  Timestamp: any;
 };
 
 export type xdai_AggregateRoot = {
@@ -149,6 +150,10 @@ export type xdai_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type xdai_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type xdai_Asset = {
   id: Scalars['ID'];

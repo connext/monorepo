@@ -18,6 +18,7 @@ export const SUPPORTED_DOMAINS = {
   ],
   testnet: [
     1735353714, // goerli
+    1936027759, // sepolia
     1735356532, // optimism goerli
     9991, // mumbai
     1734439522, // arbitrum-goerli
@@ -28,5 +29,5 @@ export const SUPPORTED_DOMAINS = {
 
 export const HUBS = {
   mainnet: 6648936, // mainnet
-  testnet: 1735353714, // goerli
+  testnet: 1936027759, // sepolia
 };

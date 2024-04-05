@@ -3,7 +3,7 @@ locals {
   cartographer_env_vars = {
     CARTOGRAPHER_CONFIG = local.local_cartographer_config,
     DATABASE_URL        = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext",
-    ENVIRONMENT         = var.environment,
+    ENVIRONMENT         = var.stage,
     STAGE               = var.stage,
     DD_ENV              = "${var.environment}-${var.stage}",
     DD_LOGS_ENABLED     = true,
@@ -16,13 +16,13 @@ locals {
     { name = "PGRST_DB_URI", value = "postgres://${var.postgres_user}:${var.postgres_password}@${module.cartographer_db.db_instance_endpoint}/connext" },
     { name = "PGRST_DB_SCHEMA", value = "public" },
     { name = "PGRST_DB_ANON_ROLE", value = "query" },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage }
   ]
 
   sdk_server_env_vars = [
     { name = "SDK_SERVER_CONFIG", value = local.local_sdk_server_config },
-    { name = "ENVIRONMENT", value = var.environment },
+    { name = "ENVIRONMENT", value = var.stage },
     { name = "STAGE", value = var.stage },
     { name = "DD_PROFILING_ENABLED", value = "true" },
     { name = "DD_ENV", value = "${var.environment}-${var.stage}" },
@@ -31,14 +31,14 @@ locals {
   local_sdk_server_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735356532" = {
-        providers = ["https://goerli.optimism.io/"]
+      "1869640549" = {
+        providers = ["https://sepolia.optimism.io/"]
       }
-      "1735353714" = {
-        providers = ["https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"]
+      "1936027759" = {
+        providers = ["https://eth-sepolia.public.blastapi.io"]
       }
-      "9991" = {
-        providers = ["https://rpc.ankr.com/polygon_mumbai"]
+      "1633842021" = {
+        providers = ["https://sepolia-rollup.arbitrum.io/rpc"]
       }
     }
 
@@ -65,9 +65,9 @@ locals {
   local_cartographer_config = jsonencode({
     logLevel = "debug"
     chains = {
-      "1735356532" = { confirmations = 1 }
-      "1735353714" = { confirmations = 10 }
-      "9991"       = { confirmations = 200 }
+      "1633842021" = { confirmations = 1 }
+      "1936027759" = { confirmations = 10 }
+      "1869640549" = { confirmations = 10 }
     }
     environment = var.stage
   })

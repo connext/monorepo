@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   xdai_swap_Bytes: any;
   xdai_swap_Int8: any;
+  Timestamp: any;
 };
 
 export type xdai_swap_Aggregation_interval =
