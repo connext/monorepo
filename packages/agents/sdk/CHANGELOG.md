@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## v2.5.0-alpha.3
+
+- `estimateRelayerFee`: Reverting Capped by hardcoded gas estimates of execute
+
 ## v2.5.0-alpha.2
 
 - `estimateRelayerFee`: Capped by hardcoded gas estimates of execute
