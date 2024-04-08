@@ -128,9 +128,7 @@ export const updateIfNeeded = async <T>(schema: CallSchema<T>): Promise<void> =>
         gasPrice: "150000000000",
       });
     } else {
-      return await contract[write.method](...write.args, {
-        gasLimit: 2500000,
-      });
+      return await contract[write.method](...write.args);
     }
   };
 
