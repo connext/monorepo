@@ -27,7 +27,7 @@ describe("Operations: ProcessFromRoot", () => {
     beforeEach(() => {
       configStub = stub(ProcessFromRootFns, "processorConfigs").value({
         [mock.entity.rootMessage().spokeDomain]: {
-          getArgs: () => Promise.resolve([]),
+          getArgs: () => Promise.resolve(["tx", 123, [], []]),
           hubConnectorPrefix: "Optimism",
         },
       });
