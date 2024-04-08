@@ -65,7 +65,7 @@ const claimFromPolygonZk = async (
     console.log(deposit, proof);
     console.log("Claiming message", deposit.orig_net, deposit.dest_net, deposit.tx_hash, deposit.metadata);
     try {
-      const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
+      const tx = await (deposit.orig_net == 0 ? l2BridgeContract : l1BridgeContract).claimMessage(
         proof.merkle_proof,
         proof.rollup_merkle_proof,
         deposit.global_index,
@@ -106,16 +106,17 @@ export default task("claim-x1", "Claim messages on both of L1 and L2")
     const protocolConfig = getMessagingProtocolConfig(networkType);
 
     // Right now this only works on arbitrum, error if that is not the correct network
-    if (spoke !== 195) {
+    if (![195, 196].includes(spoke)) {
       throw new Error(`Only x1 supported, requesting claim for spoke ${spoke}`);
     }
 
-    const apiUrl = "https://testrpc.x1.tech/priapi/v1/ob/bridge";
+    const apiUrl =
+      spoke === 195 ? "https://testrpc.x1.tech/priapi/v1/ob/bridge" : "https://rpc.xlayer.tech/priapi/v1/ob/bridge/";
     // get the l2 provider
-    const l2Connector = getContract("X1SpokeConnector", String(spoke), env == "staging", deployer).contract;
+    const l2Connector = getContract("XlayerSpokeConnector", String(spoke), env == "staging", deployer).contract;
     // get the l1 provider
     const l1Connector = getContract(
-      "X1HubConnector",
+      "XlayerHubConnector",
       String(protocolConfig.hub.chain),
       env == "staging",
       deployer,
