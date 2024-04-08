@@ -486,7 +486,7 @@ export const hardhatNetworks = {
     verify: {
       etherscan: {
         apiKey: process.env.FRAXTAL_EXPLORER_API_KEY!,
-        apiUrl: "https://fraxscan.com/",
+        apiUrl: "https://api.fraxscan.com/api",
       },
     },
   },
