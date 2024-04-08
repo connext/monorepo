@@ -653,25 +653,6 @@ export class SdkBase extends SdkShared {
       requestContext,
     );
 
-    if (this.chainData) {
-      const maxRelayerFeeInNative = this.chainData.get(params.destinationDomain.toString())?.maxRelayerFeeInNative;
-      const maxRelayerFeeInNativeBN = BigNumber.from(maxRelayerFeeInNative ?? relayerFee);
-      if (params.priceIn === "usd") {
-        const scaleFactor = 10000; // leave some precision for low value assets
-        const scaledOriginNativeTokenPrice = originNativeTokenPrice * scaleFactor;
-
-        // Truncate remaining decimals and convert back to USD
-        const originNativeTokenPriceUsdBN = BigNumber.from(
-          scaledOriginNativeTokenPrice.toString().split('.')[0]
-        ).div(scaleFactor);
-
-        const maxRelayerFeeInUsdBN = maxRelayerFeeInNativeBN.mul(originNativeTokenPriceUsdBN);
-        if (relayerFee.gt(maxRelayerFeeInUsdBN)) return maxRelayerFeeInUsdBN;
-      } else {
-        if (relayerFee.gt(maxRelayerFeeInNativeBN)) return maxRelayerFeeInNativeBN;
-      }
-    }
-
     return relayerFee;
   }
 

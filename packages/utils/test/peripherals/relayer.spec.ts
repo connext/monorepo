@@ -46,6 +46,36 @@ describe("Peripherals:Relayer", () => {
       expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("18000"));
     });
 
+    it("should return correct capped value", async () => {
+      getConversionRateStub.onFirstCall().resolves(1);
+      getConversionRateStub.onSecondCall().resolves(150);
+      getConversionRateStub.onThirdCall().resolves(1);
+      getGelatoEstimatedFeeStub.resolves(BigNumber.from(10000));
+      const estimatedRelayerFee = await calculateRelayerFee(
+        { originDomain: "13337", destinationDomain: "13338" },
+        mock.chainData(),
+        logger,
+      );
+      // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
+      // ==> (10000 + 10000 x 20 / 100) x ( 150 / 1 ) = 1800000 > 1000000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("1000000"));
+    });
+
+    it("should return correct capped value in native", async () => {
+      getConversionRateStub.onFirstCall().resolves(1);
+      getConversionRateStub.onSecondCall().resolves(150);
+      getConversionRateStub.onThirdCall().resolves(1);
+      getGelatoEstimatedFeeStub.resolves(BigNumber.from(10000));
+      const estimatedRelayerFee = await calculateRelayerFee(
+        { originDomain: "13337", destinationDomain: "13338", priceIn: "native" },
+        mock.chainData(),
+        logger,
+      );
+      // estimatedRelayerFee = (estimatedGelatoFee + estimatedGelatoFee x buffer_percentage / 100) x ( destinationTokenPrice / originTokenPrice )
+      // ==> (10000 + 10000 x 20 / 100) x ( 150 / 1 ) = 1800000 > 1000000
+      expect(estimatedRelayerFee).to.be.deep.eq(BigNumber.from("1000000"));
+    });
+
     it("should return correct value when provided token prices", async () => {
       getGelatoEstimatedFeeStub.resolves(BigNumber.from(10000));
       const estimatedRelayerFee = await calculateRelayerFee(
