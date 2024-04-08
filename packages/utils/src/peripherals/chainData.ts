@@ -72,7 +72,7 @@ export type ChainData = {
     messaging: string;
     gasPriceFactor?: string;
   };
-  maxRelayerFeeInNative: string;
+  maxRelayerFeeInEth: string;
 };
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
