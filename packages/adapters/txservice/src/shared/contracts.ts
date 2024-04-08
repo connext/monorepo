@@ -107,7 +107,7 @@ export const getDeployedRelayerProxyContract = (
   postfix: ContractPostfix = "",
   network?: Network,
 ): { address: string; abi: any } | undefined => {
-  if (chainId === 5 || chainId === 1) {
+  if (chainId === 5 || chainId === 1 || chainId === 11155111) {
     return _getDeployedRelayerProxyHubContract(chainId, postfix, network);
   }
 

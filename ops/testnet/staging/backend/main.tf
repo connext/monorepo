@@ -74,7 +74,7 @@ module "postgrest" {
   cluster_id               = module.ecs.ecs_cluster_id
   vpc_id                   = module.network.vpc_id
   lb_subnets               = module.network.public_subnets
-  docker_image             = "postgrest/postgrest:v10.0.0.20221011"
+  docker_image             = "postgrest/postgrest:v12.0.2"
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80

@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingarbitrumone_Bytes: any;
   stagingarbitrumone_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingarbitrumone_AggregateRoot = {

@@ -1,12 +1,12 @@
 {
-  "hub": "1735353714",
-  "supportedDomains": ["1735353714", "1734439522"],
+  "hub": "1936027759",
+  "supportedDomains": ["1936027759", "1734439522"],
   "environment": "production",
   "assets": [
     {
       "name": "TEST",
       "canonical": {
-        "domain": "1735353714",
+        "domain": "1936027759",
         "address": "0x7ea6eA49B0b0Ae9c5db7907d139D9Cd3439862a1"
       },
       "representations": {	
@@ -23,7 +23,7 @@
     {
       "name": "WETH",
       "canonical": {
-        "domain": "1735353714",
+        "domain": "1936027759",
         "address": "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
       },
       "representations": {

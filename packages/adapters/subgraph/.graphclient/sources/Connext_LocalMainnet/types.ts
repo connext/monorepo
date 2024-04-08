@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   localmainnet_Bytes: any;
   localmainnet_Int8: any;
+  Timestamp: any;
 };
 
 export type localmainnet_AggregateRoot = {

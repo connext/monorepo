@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingbase_Bytes: any;
   stagingbase_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingbase_AggregateRoot = {

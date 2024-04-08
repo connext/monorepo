@@ -2675,6 +2675,12 @@ enum bnb_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type bnb_swap__Block_ {
   """The hash of the block"""
   hash: bnb_swap_Bytes

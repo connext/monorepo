@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingxdai_Bytes: any;
   stagingxdai_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingxdai_AggregateRoot = {

@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   stagingzksync_Bytes: any;
   stagingzksync_Int8: any;
+  Timestamp: any;
 };
 
 export type stagingzksync_AggregateRoot = {

@@ -94,6 +94,7 @@ export const mock = {
           analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
+        maxRelayerFeeInNative: "1000000"
       },
       {
         name: "Unit Test Chain 2",

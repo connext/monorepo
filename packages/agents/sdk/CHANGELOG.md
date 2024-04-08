@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## v2.5.0-alpha.2
+
+- `estimateRelayerFee`: Capped by hardcoded gas estimates of execute
+
+## v2.5.0-alpha.0
+
+- Sepolia moved to testnet prod
+
 ## v2.3.0-alpha.2
 
 - Mainnet support for mode

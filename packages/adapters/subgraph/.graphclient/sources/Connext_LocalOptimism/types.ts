@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   localoptimism_Bytes: any;
   localoptimism_Int8: any;
+  Timestamp: any;
 };
 
 export type localoptimism_AggregateRoot = {

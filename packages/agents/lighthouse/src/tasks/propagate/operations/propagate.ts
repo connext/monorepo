@@ -39,6 +39,7 @@ export const getParamsForDomainFn: Record<
   "1935897199": getPropagateParamsScroll,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
+  "1633842021": getPropagateParamsArbitrum,
   "1668247156": getPropagateParamsLinea,
   "2053862260": getPropagateParamsZkSync,
 };

@@ -44,12 +44,22 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     hubConnectorPrefix: "Optimism",
     processorFunctionName: "processMessageFromRoot",
   },
+  "1869640549": {
+    getArgs: getProcessFromOptimismRootArgs,
+    hubConnectorPrefix: "Optimism",
+    processorFunctionName: "processMessageFromRoot",
+  },
   "9991": {
     getArgs: getProcessFromPolygonRootArgs,
     hubConnectorPrefix: "Polygon",
     processorFunctionName: "receiveMessage",
   },
   "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1633842021": {
     getArgs: getProcessFromArbitrumRootArgs,
     hubConnectorPrefix: "Arbitrum",
     processorFunctionName: "processMessageFromRoot",

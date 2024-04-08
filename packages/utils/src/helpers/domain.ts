@@ -48,6 +48,9 @@ const testnetChainIdToDomainMapping: Map<number, number> = new Map([
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
   [195, 0x78317474], // X1 Testnet ('x1tt' interpreted as int) 2016506996
+  [11155111, 0x7365706f], // Sepolia ('sepo' interpreted as int) 1936027759
+  [11155420, 0x6f707365], // Optimism sepolia ('opse' interpreted as int) 1869640549
+  [421614, 0x61627365], // Arbitrum sepolia ('abse' interpreted as int) 1633842021
 ]);
 
 const devnetChainIdToDomainMapping: Map<number, number> = new Map([
