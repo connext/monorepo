@@ -2,6 +2,11 @@
 
 ## Next Release
 
+## Bacco 2.5.0-alpha.3
+
+- [sdk] Removes use of relayer fee in native fetched from chaindata
+- [utils] Use max relayer fee in ETH
+
 ## Amarok 2.0.0-alpha.4
 
 - [all] Workflow changes
