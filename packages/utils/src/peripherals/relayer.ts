@@ -145,23 +145,24 @@ export const calculateRelayerFee = async (
   }
 
   // converstion rate is float-point number. we multiply by 1000 to be more precise
-  const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);
-  const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
+  const scale = 1000;
+  const impactedOriginTokenPrice = Math.floor(originTokenPrice * scale);
+  const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * scale);
 
   // convert to usd value
   // fee in USDC
   // fee native destination * (USDC/destination native) = fee in USDC
-  const relayerFeeUsd = bumpedFee.mul(impactedDestinationTokenPrice).div(1000);
+  const relayerFeeUsd = bumpedFee.mul(impactedDestinationTokenPrice).div(scale);
 
   // assert the cap
   // get the max fee by destination chain
   const maxFeeEth = BigNumber.from(chainData.get(destinationDomain)?.maxRelayerFeeInEth ?? "0");
   // convert to USDC if cap and price available
   const maxFeeUsd =
-    ethPrice === 0 || maxFeeEth.isZero() ? relayerFeeUsd : maxFeeEth.mul(Math.floor(ethPrice * 1000)).div(1000);
+    !ethPrice || maxFeeEth.isZero() ? relayerFeeUsd : maxFeeEth.mul(Math.floor(ethPrice * scale)).div(scale);
 
   const cappedFeeUsd = relayerFeeUsd.gt(maxFeeUsd) ? maxFeeUsd : relayerFeeUsd;
-  const final = priceIn === "usd" ? cappedFeeUsd : cappedFeeUsd.div(impactedOriginTokenPrice);
+  const final = priceIn !== "native" ? cappedFeeUsd : cappedFeeUsd.mul(scale).div(impactedOriginTokenPrice);
 
   if (logger) {
     logger.info("Fee estimation completed!", requestContext, methodContext, {
