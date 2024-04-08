@@ -790,7 +790,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196] / 2,
         custom: {
           hub: {
-            mirrorNetworkId: "1",
+            mirrorNetworkId: "3",
           },
           spoke: {
             mirrorNetworkId: "0",
