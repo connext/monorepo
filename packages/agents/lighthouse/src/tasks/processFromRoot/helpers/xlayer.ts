@@ -73,7 +73,7 @@ const PolygonZkEVMBridgeV2ABI = [
   },
 ];
 
-type Depoist = {
+type Deposit = {
   leaf_type: number;
   orig_net: number;
   orig_addr: string;
@@ -90,7 +90,7 @@ type Depoist = {
   global_index: string;
 };
 
-const getDeposits = async (apiUrl: string, address: string, limit = 100, offset = 0): Promise<Depoist[]> => {
+const getDeposits = async (apiUrl: string, address: string, limit = 100, offset = 0): Promise<Deposit[]> => {
   try {
     const res = await axiosGet(`${apiUrl}/bridges/${address}?limit=${limit}&offset=${offset}`);
     return res.data.deposits !== undefined ? res.data.deposits : [];
