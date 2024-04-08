@@ -130,7 +130,7 @@ export const getProcessFromXlayerRootArgs = async ({
   logger.info("Method start", requestContext, methodContext);
 
   const xlayerBridgeApiEndpoint =
-    hubChainId === 1 ? "https://testrpc.x1.tech/priapi/v1/ob/bridge" : "https://testrpc.x1.tech/priapi/v1/ob/bridge";
+    hubChainId === 1 ? "https://rpc.xlayer.tech/priapi/v1/ob/bridge/" : "https://testrpc.x1.tech/priapi/v1/ob/bridge";
 
   const spokeConnector = contracts.spokeConnector(
     spokeChainId ?? 0,
@@ -169,9 +169,6 @@ export const getProcessFromXlayerRootArgs = async ({
       continue;
     }
 
-    console.log(deposit, proof);
-    console.log("Claiming message", deposit.orig_net, deposit.dest_net, deposit.tx_hash, deposit.metadata);
-
     const args = [
       proof.merkle_proof,
       proof.rollup_merkle_proof,
@@ -194,7 +191,7 @@ export const getProcessFromXlayerRootArgs = async ({
       hubChain: hubChainId,
     });
 
-    const isClaimOnL2 = deposit.dest_net === 1;
+    const isClaimOnL2 = deposit.orig_net === 0;
     const { taskId } = await sendWithRelayerWithBackup(
       isClaimOnL2 ? spokeChainId : hubChainId,
       isClaimOnL2 ? spokeDomainId : hubDomainId,
