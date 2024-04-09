@@ -253,3 +253,20 @@ type HubDomain @entity {
   id: ID! # "HUB_DOMAIN_ID"
   domain: BigInt
 }
+
+type RootMessageSent @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
+  count: BigInt
+
+  # MessageSent Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}
