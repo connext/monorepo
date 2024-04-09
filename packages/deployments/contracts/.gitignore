@@ -10,3 +10,4 @@ cache-zk
 deployments/*_fork
 deployments/devnet-*
 broadcast
+safes.json
