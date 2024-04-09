@@ -44,6 +44,9 @@ const getWriteTransactionFromArgsWithPrefix = async (
   getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
 ): Promise<WriteTransaction | undefined> => {
   const args = await getArgs(params);
+  if (!args.length) {
+    return undefined;
+  }
   const {
     adapters: { contracts },
     config,
@@ -75,6 +78,9 @@ const getWriteTransactionFromArgsWithContract = async (
   getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
 ) => {
   const args = await getArgs(params);
+  if (!args.length) {
+    return undefined;
+  }
   const data = encodeProcessMessageFromRoot(abi, args, processorFunctionName);
   return {
     to: contract,
