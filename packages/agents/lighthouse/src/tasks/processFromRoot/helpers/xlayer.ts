@@ -1,11 +1,13 @@
 import { createLoggingContext } from "@connext/nxtp-utils";
-import { ethers } from "ethers";
 
-import { axiosGet, getContract, sendWithRelayerWithBackup } from "../../../mockable";
-import { NoRootAvailable } from "../errors";
+import { axiosGet } from "../../../mockable";
+import { MultipleHashesDetected, NoProofForMessage, NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 
 import { GetProcessArgsParams } from ".";
+import { WriteTransaction } from "@connext/nxtp-txservice";
+import { NoHubConnector, NoSpokeConnector } from "../../propagate/errors";
+import { Interface } from "ethers/lib/utils";
 
 const PolygonZkEVMBridgeV2ABI = [
   {
@@ -110,23 +112,23 @@ const getMerkleProof = async (apiUrl: string, depositCount: string, networkId: n
   }
 };
 
-export const getProcessFromXlayerRootArgs = async ({
+export const getProcessFromXlayerRootWriteTransaction = async ({
   spokeChainId,
   hubChainId,
   spokeDomainId,
   hubDomainId,
-  spokeProvider,
-  hubProvider,
-  message: _message,
-  sendHash: _sendHash,
+  sendHash,
   _requestContext,
-}: GetProcessArgsParams): Promise<[]> => {
+}: GetProcessArgsParams): Promise<WriteTransaction> => {
   const {
     logger,
     config,
-    adapters: { contracts, relayers, chainreader },
+    adapters: { contracts, chainreader },
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext(getProcessFromXlayerRootArgs.name, _requestContext);
+  const { requestContext, methodContext } = createLoggingContext(
+    getProcessFromXlayerRootWriteTransaction.name,
+    _requestContext,
+  );
   logger.info("Method start", requestContext, methodContext);
 
   const xlayerBridgeApiEndpoint =
@@ -144,67 +146,72 @@ export const getProcessFromXlayerRootArgs = async ({
     config.environment === "staging" ? "Staging" : "",
   );
 
+  if (!hubConnector) {
+    throw new NoHubConnector(hubChainId, requestContext, methodContext);
+  }
+
+  if (!spokeConnector) {
+    throw new NoSpokeConnector(spokeChainId, requestContext, methodContext);
+  }
+
+  // TODO: add chain of message to params instead of concatenating
   const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector!.address);
   const hubDeposits = await getDeposits(xlayerBridgeApiEndpoint, hubConnector!.address);
-  const claimableDeposits = spokeDeposits
+  const claimableMessage = spokeDeposits
     .concat(hubDeposits)
-    .filter((d: any) => d.ready_for_claim && d.claim_tx_hash === "");
+    .filter((d: any) => d.ready_for_claim && d.tx_hash.toLowerCase() === sendHash.toLowerCase());
 
-  if (!claimableDeposits.length) {
+  if (!claimableMessage.length) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `Claimable desposits don't exist!`,
+      sendHash,
     });
   }
 
-  const hubRpcProvider = new ethers.providers.JsonRpcProvider(hubProvider);
-  const hubConnectorContract = getContract(hubConnector!.address, hubConnector!.abi as any[], hubRpcProvider);
-  const hubAMBAddress: string = await hubConnectorContract.AMB();
-  const spokeRpcProvider = new ethers.providers.JsonRpcProvider(spokeProvider);
-  const spokeConnectorContract = getContract(spokeConnector!.address, spokeConnector!.abi as any[], spokeRpcProvider);
-  const spokeAMBAddress: string = await spokeConnectorContract.AMB();
-
-  for (const deposit of claimableDeposits) {
-    const proof = await getMerkleProof(xlayerBridgeApiEndpoint, deposit.deposit_cnt, deposit.network_id);
-    if (!proof) {
-      continue;
-    }
-
-    const args = [
-      proof.merkle_proof,
-      proof.rollup_merkle_proof,
-      deposit.global_index,
-      proof.main_exit_root,
-      proof.rollup_exit_root,
-      deposit.orig_net,
-      deposit.orig_addr,
-      deposit.dest_net,
-      deposit.dest_addr,
-      deposit.amount,
-      deposit.metadata,
-    ];
-    const encodedData = new ethers.utils.Interface(PolygonZkEVMBridgeV2ABI).encodeFunctionData("claimMessage", args);
-
-    logger.info("Sending process message from root tx", requestContext, methodContext, {
-      args,
-      encodedData,
-      spokeChain: spokeChainId,
-      hubChain: hubChainId,
+  if (claimableMessage.length > 1) {
+    throw new MultipleHashesDetected(spokeChainId, hubChainId, requestContext, methodContext, {
+      messages: claimableMessage,
+      sendHash,
     });
-
-    const isClaimOnL2 = deposit.orig_net === 0;
-    const { taskId } = await sendWithRelayerWithBackup(
-      isClaimOnL2 ? spokeChainId : hubChainId,
-      isClaimOnL2 ? spokeDomainId : hubDomainId,
-      isClaimOnL2 ? spokeAMBAddress : hubAMBAddress,
-      encodedData,
-      relayers,
-      chainreader,
-      logger,
-      requestContext,
-    );
-
-    logger.info("Sent X Layer claim tx to relayer", requestContext, methodContext, { taskId });
   }
 
-  return [];
+  const [claimable] = claimableMessage;
+  const proof = await getMerkleProof(xlayerBridgeApiEndpoint, claimable.deposit_cnt, claimable.network_id);
+  if (!proof) {
+    throw new NoProofForMessage(spokeChainId, hubChainId, requestContext, methodContext, {
+      claimable,
+    });
+  }
+
+  const args = [
+    proof.merkle_proof,
+    proof.rollup_merkle_proof,
+    claimable.global_index,
+    proof.main_exit_root,
+    proof.rollup_exit_root,
+    claimable.orig_net,
+    claimable.orig_addr,
+    claimable.dest_net,
+    claimable.dest_addr,
+    claimable.amount,
+    claimable.metadata,
+  ];
+
+  const isSpokeClaim = claimable.orig_net === 0;
+  const domain = isSpokeClaim ? +spokeDomainId : +hubDomainId;
+  const connector = isSpokeClaim ? hubConnector : spokeConnector;
+  const iface = new Interface(connector.abi);
+  const ret = await chainreader.readTx({
+    domain,
+    to: connector.address,
+    data: iface.encodeFunctionData("AMB", []),
+  });
+  const [amb] = iface.decodeFunctionResult("AMB", ret);
+
+  return {
+    to: amb,
+    data: new Interface(PolygonZkEVMBridgeV2ABI).encodeFunctionData("claimMessage", args),
+    value: "0",
+    domain,
+  };
 };

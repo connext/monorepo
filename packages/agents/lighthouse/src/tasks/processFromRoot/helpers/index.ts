@@ -11,7 +11,7 @@ export { getProcessFromMantleRootArgs } from "./mantle";
 export { getProcessFromMetisRootArgs } from "./metis";
 export { getProcessFromModeRootArgs } from "./mode";
 export { getProcessFromScrollRootArgs } from "./scroll";
-export { getProcessFromXlayerRootArgs } from "./xlayer";
+export { getProcessFromXlayerRootWriteTransaction } from "./xlayer";
 
 export type GetProcessArgsParams = {
   spokeChainId: number;

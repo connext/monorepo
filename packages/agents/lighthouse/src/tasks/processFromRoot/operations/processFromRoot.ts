@@ -2,6 +2,7 @@ import {
   createLoggingContext,
   createMethodContext,
   createRequestContext,
+  domainToChainId,
   getNtpTimeSeconds,
   jsonifyError,
   NxtpError,
@@ -26,122 +27,180 @@ import {
   getProcessFromMetisRootArgs,
   getProcessFromModeRootArgs,
   getProcessFromScrollRootArgs,
-  getProcessFromXlayerRootArgs,
+  getProcessFromXlayerRootWriteTransaction,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
+import { WriteTransaction } from "@connext/nxtp-txservice";
+import { constants } from "ethers";
 
 export type ProcessConfig = {
-  getArgs: (params: GetProcessArgsParams) => Promise<any[]>;
-  hubConnectorPrefix: string;
-  processorFunctionName: string;
-  contractAddress?: string;
-  contractAbi?: string[];
+  getWriteTransaction: (params: GetProcessArgsParams) => Promise<WriteTransaction | undefined>;
+};
+
+const getWriteTransactionFromArgsWithPrefix = async (
+  params: GetProcessArgsParams,
+  hubConnectorPrefix: string,
+  processorFunctionName: string,
+  getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
+): Promise<WriteTransaction | undefined> => {
+  const args = await getArgs(params);
+  const {
+    adapters: { contracts },
+    config,
+  } = getContext();
+  const hubConnector = contracts.hubConnector(
+    params.hubChainId ?? 0,
+    hubConnectorPrefix,
+    config.environment === "staging" ? "Staging" : "",
+  );
+  if (!hubConnector) {
+    throw new ProcessConfigNotAvailable(params.spokeDomainId, params.hubDomainId, params._requestContext, {} as any, {
+      ...params,
+    });
+  }
+  const data = encodeProcessMessageFromRoot(hubConnector.abi, args, processorFunctionName);
+  return {
+    to: hubConnector.address,
+    data,
+    domain: +params.hubDomainId,
+    value: constants.Zero,
+  };
+};
+
+const getWriteTransactionFromArgsWithContract = async (
+  params: GetProcessArgsParams,
+  processorFunctionName: string,
+  contract: string,
+  abi: any[],
+  getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
+) => {
+  const args = await getArgs(params);
+  const data = encodeProcessMessageFromRoot(abi, args, processorFunctionName);
+  return {
+    to: contract,
+    data,
+    domain: +params.hubDomainId,
+    value: constants.Zero,
+  };
 };
 
 export const processorConfigs: Record<string, ProcessConfig> = {
   "1735356532": {
-    getArgs: getProcessFromOptimismRootArgs,
-    hubConnectorPrefix: "Optimism",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Optimism",
+        "processMessageFromRoot",
+        getProcessFromOptimismRootArgs,
+      ),
   },
   "1869640549": {
-    getArgs: getProcessFromOptimismRootArgs,
-    hubConnectorPrefix: "Optimism",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Optimism",
+        "processMessageFromRoot",
+        getProcessFromOptimismRootArgs,
+      ),
   },
   "9991": {
-    getArgs: getProcessFromPolygonRootArgs,
-    hubConnectorPrefix: "Polygon",
-    processorFunctionName: "receiveMessage",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
   },
   "1734439522": {
-    getArgs: getProcessFromArbitrumRootArgs,
-    hubConnectorPrefix: "Arbitrum",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Arbitrum",
+        "processMessageFromRoot",
+        getProcessFromArbitrumRootArgs,
+      ),
   },
   "1633842021": {
-    getArgs: getProcessFromArbitrumRootArgs,
-    hubConnectorPrefix: "Arbitrum",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Arbitrum",
+        "processMessageFromRoot",
+        getProcessFromArbitrumRootArgs,
+      ),
   },
   "1869640809": {
-    getArgs: getProcessFromOptimismRootArgs,
-    hubConnectorPrefix: "Optimism",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Optimism",
+        "processMessageFromRoot",
+        getProcessFromOptimismRootArgs,
+      ),
   },
   "1886350457": {
-    getArgs: getProcessFromPolygonRootArgs,
-    hubConnectorPrefix: "Polygon",
-    processorFunctionName: "receiveMessage",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
   },
   "6778479": {
-    getArgs: getProcessFromGnosisRootArgs,
-    hubConnectorPrefix: "Gnosis",
-    processorFunctionName: "executeSignatures",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Gnosis", "executeSignatures", getProcessFromGnosisRootArgs),
   },
   "1634886255": {
-    getArgs: getProcessFromArbitrumRootArgs,
-    hubConnectorPrefix: "Arbitrum",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
+        params,
+        "Arbitrum",
+        "processMessageFromRoot",
+        getProcessFromArbitrumRootArgs,
+      ),
   },
   "2053862260": {
-    getArgs: getProcessFromZkSyncRootArgs,
-    hubConnectorPrefix: "ZkSync",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
   },
   "2053862243": {
-    getArgs: getProcessFromZkSyncRootArgs,
-    hubConnectorPrefix: "ZkSync",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
   },
   "1818848877": {
-    getArgs: getProcessFromLineaRootArgs,
-    hubConnectorPrefix: "Linea",
-    processorFunctionName: "claimMessage",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
   },
   "1668247156": {
-    getArgs: getProcessFromLineaRootArgs,
-    hubConnectorPrefix: "Linea",
-    processorFunctionName: "claimMessage",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
   },
   "1650553709": {
-    getArgs: getProcessFromBaseRootArgs,
-    hubConnectorPrefix: "Base",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
   },
   "1650553703": {
-    getArgs: getProcessFromBaseRootArgs,
-    hubConnectorPrefix: "Base",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
   },
   "1835101812": {
-    getArgs: getProcessFromMantleRootArgs,
-    hubConnectorPrefix: "Mantle",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Mantle", "processMessageFromRoot", getProcessFromMantleRootArgs),
   },
   "1835365481": {
-    getArgs: getProcessFromMetisRootArgs,
-    hubConnectorPrefix: "Metis",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Metis", "processMessageFromRoot", getProcessFromMetisRootArgs),
   },
   "1836016741": {
-    getArgs: getProcessFromModeRootArgs,
-    hubConnectorPrefix: "Mode",
-    processorFunctionName: "processMessageFromRoot",
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Mode", "processMessageFromRoot", getProcessFromModeRootArgs),
   },
   "1935897199": {
-    getArgs: getProcessFromScrollRootArgs,
-    hubConnectorPrefix: "Scroll",
-    processorFunctionName: "relayMessageWithProof",
-    contractAddress: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367", // Scroll L1 Messenger Proxy
-    contractAbi: [
-      "function relayMessageWithProof(address _from, address _to, uint256 _value, uint256 _nonce, bytes _message, tuple(uint256 batchIndex, bytes merkleProof) _proof)",
-    ],
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithContract(
+        params,
+        "relayMessageWithProof",
+        "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+        [
+          "function relayMessageWithProof(address _from, address _to, uint256 _value, uint256 _nonce, bytes _message, tuple(uint256 batchIndex, bytes merkleProof) _proof)",
+        ],
+        getProcessFromScrollRootArgs,
+      ),
   },
   "2020368761": {
-    getArgs: getProcessFromXlayerRootArgs,
-    hubConnectorPrefix: "Xlayer",
-    processorFunctionName: "",
+    getWriteTransaction: getProcessFromXlayerRootWriteTransaction,
   },
 };
 
@@ -191,7 +250,7 @@ export const processSingleRootMessage = async (
   requestContext: RequestContext,
 ): Promise<string | undefined> => {
   const {
-    adapters: { relayers, contracts, chainreader, database },
+    adapters: { relayers, chainreader, database },
     logger,
     chainData,
     config,
@@ -204,21 +263,12 @@ export const processSingleRootMessage = async (
   const spokeProvider = config.chains[rootMessage.spokeDomain]?.providers?.[0];
   const hubProvider = config.chains[rootMessage.hubDomain]?.providers?.[0];
 
-  const hubConnector = processorConfig
-    ? contracts.hubConnector(
-        hubChainId ?? 0,
-        processorConfig.hubConnectorPrefix,
-        config.environment === "staging" ? "Staging" : "",
-      )
-    : undefined;
-
-  if (!spokeChainId || !hubChainId || !processorConfig || !spokeProvider || !hubProvider || !hubConnector) {
+  if (!spokeChainId || !hubChainId || !processorConfig || !spokeProvider || !hubProvider) {
     throw new ProcessConfigNotAvailable(rootMessage.spokeDomain, rootMessage.hubDomain, requestContext, methodContext, {
       spokeChain: spokeChainId,
       hubChain: hubChainId,
       spokeProvider,
       hubProvider,
-      hubConnector: hubConnector?.address,
     });
   }
 
@@ -254,7 +304,7 @@ export const processSingleRootMessage = async (
     return undefined;
   }
 
-  const args = await processorConfig.getArgs({
+  const transaction = await processorConfig.getWriteTransaction({
     spokeChainId,
     hubChainId,
     spokeProvider,
@@ -267,28 +317,21 @@ export const processSingleRootMessage = async (
     _requestContext: requestContext,
   });
 
-  if (!args.length) {
+  if (!transaction) {
     return undefined;
   }
 
-  const encodedData = encodeProcessMessageFromRoot(
-    processorConfig.contractAbi ?? (hubConnector.abi as string[]),
-    args,
-    processorConfig.processorFunctionName,
-  );
-
   logger.info("Sending process message from root tx", requestContext, methodContext, {
-    args,
-    encodedData,
+    transaction,
     spokeChain: spokeChainId,
     hubChain: hubChainId,
   });
 
   const { taskId, relayerType } = await sendWithRelayerWithBackup(
-    hubChainId,
-    rootMessage.hubDomain,
-    processorConfig.contractAddress ?? hubConnector.address,
-    encodedData,
+    domainToChainId(transaction.domain),
+    transaction.domain.toString(),
+    transaction.to,
+    transaction.data,
     relayers,
     chainreader,
     logger,
