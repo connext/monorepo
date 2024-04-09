@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.5.0-alpha.1",
+  "version": "2.5.0-alpha.4",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/{fork,integration}/**.sol'",
