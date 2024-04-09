@@ -7,6 +7,7 @@ dotenvConfig();
 export const SUPPORTED_CHAINS = {
   mainnet: [
     1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284, 59144, 8453, 1101, 1088, 324, 5000, 34443, 534352,
+    252,
   ],
   testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
@@ -471,6 +472,21 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.SCROLL_API_KEY!,
         apiUrl: "https://api.scrollscan.com/",
+      },
+    },
+  },
+  fraxtal: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 252,
+    url: urlOverride || process.env.FRAXTAL_PROVIDER_URL || "https://rpc.frax.com",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("1.5", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.FRAXTAL_EXPLORER_API_KEY!,
+        apiUrl: "https://api.fraxscan.com/api",
       },
     },
   },

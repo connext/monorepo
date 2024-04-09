@@ -30,10 +30,8 @@ const formatConnectorArgs = (
     watcherManager,
   } = args;
   const config = protocol.configs[connectorChainId];
-  console.log(`using config`, config);
 
   const isHub = deploymentChainId === protocol.hub.chain && connectorChainId != protocol.hub.chain;
-
   const deploymentDomain = chainIdToDomain(deploymentChainId).toString();
   const mirrorDomain = chainIdToDomain(mirrorChainId).toString();
 
@@ -165,13 +163,6 @@ const handleDeployHub = async (
     log: true,
   });
   console.log(`${connectorName} deployed to ${deployment.address}`);
-
-  // setArborist for Spoke to Merkle
-  const merkleForSpokeContract = await hre.ethers.getContractAt(
-    "MerkleTreeManager",
-    merkleTreeManagerForSpoke.address,
-    deployer,
-  );
 
   /// HUBCONNECTOR DEPLOYMENT
   // Loop through every HubConnector configuration (except for the actual hub's) and deploy.

@@ -482,7 +482,6 @@ contract BridgeFacet is BaseConnextFacet {
    * @param _transferId - The unique identifier of the crosschain transaction
    */
   function bumpTransfer(bytes32 _transferId) external payable nonReentrant whenNotPaused {
-    if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
     _bumpTransfer(_transferId, address(0), msg.value);
   }
 
@@ -720,6 +719,7 @@ contract BridgeFacet is BaseConnextFacet {
     address relayerVault = s.relayerFeeVault;
     if (relayerVault == address(0)) revert BridgeFacet__bumpTransfer_noRelayerVault();
     if (_relayerFeeAsset == address(0)) {
+      if (msg.value == 0) revert BridgeFacet__bumpTransfer_valueIsZero();
       Address.sendValue(payable(relayerVault), _relayerFee);
     } else {
       // Pull funds from user to this contract
