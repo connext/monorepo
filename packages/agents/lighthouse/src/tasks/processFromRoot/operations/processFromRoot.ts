@@ -26,6 +26,7 @@ import {
   getProcessFromMetisRootArgs,
   getProcessFromModeRootArgs,
   getProcessFromScrollRootArgs,
+  getProcessFromXlayerRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -136,6 +137,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     contractAbi: [
       "function relayMessageWithProof(address _from, address _to, uint256 _value, uint256 _nonce, bytes _message, tuple(uint256 batchIndex, bytes merkleProof) _proof)",
     ],
+  },
+  "2020368761": {
+    getArgs: getProcessFromXlayerRootArgs,
+    hubConnectorPrefix: "Xlayer",
+    processorFunctionName: "",
   },
 };
 
@@ -260,6 +266,10 @@ export const processSingleRootMessage = async (
     blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
   });
+
+  if (!args.length) {
+    return undefined;
+  }
 
   const encodedData = encodeProcessMessageFromRoot(
     processorConfig.contractAbi ?? (hubConnector.abi as string[]),

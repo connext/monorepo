@@ -18,6 +18,7 @@ export const ROUTER_ADMINS: AddressBook = {
     2053862243: "0xE11Bd4D60EEcbbFF8494E6b274e87cB71dcdb978", // zksync-era
     1836016741: "0x3C45f010512405BDEf283A32102A68114Dfc1e47", // mode
     1935897199: "0x3C45f010512405BDEf283A32102A68114Dfc1e47", // scroll
+    2020368761: "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // xlayer
   },
   testnet: {},
 };
@@ -39,6 +40,7 @@ export const PROTOCOL_ADMINS: AddressBook = {
     2053862243: "0x92290ba80ac3a6d6fd0a23e74de692d684435572", // zksync-era
     1836016741: "0x739eea65c622bfa4a9e664ae37334a4e14c4b2dd", // mode
     1935897199: "0x739eea65c622bfa4a9e664ae37334a4e14c4b2dd", // scroll
+    2020368761: "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // xlayer
   },
   testnet: {
     1735353714: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // goerli
@@ -67,6 +69,7 @@ export const DAO_CONTRACTS: AddressBook = {
     2053862243: "0x22058f32cd71d08e6bb6430815ec075cb890af41", // zksync-era
     1836016741: "0xa40a871b9bc7def6b0eb215513ae0b6491b18012", // mode
     1935897199: "0xa40a871b9bc7def6b0eb215513ae0b6491b18012", // scroll
+    2020368761: "0xade09131C6f43fe22C2CbABb759636C43cFc181e", // xlayer
   },
   testnet: {
     1735353714: "0xC4E604b3F1Ab77bc8bF62989ccC0670bc575C124", // goerli

@@ -37,6 +37,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   5000: 200, // mantle network
   34443: 30, // mode network
   534352: 15, // scroll
+  196: 15, // x layer mainnet
 
   // testnets
   5: 4, // goerli
@@ -767,6 +768,32 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
           spoke: {
             gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // X Layer mainnet
+      196: {
+        prefix: "PolygonZk",
+        networkName: "XLayer",
+        ambs: {
+          // PolygonZkEVMBridgeV2 on mainnet
+          // https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          hub: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+          // PolygonZkEVMBridgeV2 on xlayer-mainnet
+          // https://www.okx.com/explorer/xlayer/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          spoke: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "3",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
           },
         },
       },
