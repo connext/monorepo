@@ -270,3 +270,20 @@ type RootMessageSent @entity {
   gasLimit: BigInt
   blockNumber: BigInt
 }
+
+type L1RootMessageSent @entity {
+  id: ID!
+
+  spokeDomain: BigInt
+  hubDomain: BigInt
+  root: Bytes
+  count: BigInt
+
+  # MessageSent Transaction
+  caller: Bytes
+  transactionHash: Bytes
+  timestamp: BigInt
+  gasPrice: BigInt
+  gasLimit: BigInt
+  blockNumber: BigInt
+}

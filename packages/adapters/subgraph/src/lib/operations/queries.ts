@@ -1044,6 +1044,16 @@ export const getSentRootMessagesByDomainAndBlockQuery = (
       orderDirection: asc
     ) {
       ${ROOT_MESSAGE_SENT_ENTITY}
+    }
+    ${prefix}_l1RootMessageSents ( 
+      first: ${param.limit}, 
+      where: { 
+        blockNumber_gt: ${param.offset} 
+      }
+      orderBy: blockNumber
+      orderDirection: asc
+    ) {
+      ${ROOT_MESSAGE_SENT_ENTITY}
     }`;
   }
 
