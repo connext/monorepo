@@ -154,7 +154,7 @@ locals {
         url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
-    relayerFeeTolerance = 99
+    relayerFeeTolerance = 85
     checkOnlyExecuteFee = false
     environment         = var.stage
     database = {
