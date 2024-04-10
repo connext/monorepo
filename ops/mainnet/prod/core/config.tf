@@ -176,7 +176,7 @@ locals {
       queues = [
         {
           name       = "http"
-          limit      = 100
+          limit      = 10
           queueLimit = 1000000
           subscribe  = true
         },
