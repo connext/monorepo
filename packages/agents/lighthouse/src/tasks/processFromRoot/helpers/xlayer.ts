@@ -159,7 +159,7 @@ export const getProcessFromXlayerRootWriteTransaction = async ({
   const hubDeposits = await getDeposits(xlayerBridgeApiEndpoint, hubConnector!.address);
   const claimableMessage = spokeDeposits
     .concat(hubDeposits)
-    .filter((d: any) => d.ready_for_claim && d.tx_hash.toLowerCase() === sendHash.toLowerCase());
+    .filter((d: any) => d.ready_for_claim && d.tx_hash.toLowerCase() === sendHash.toLowerCase() && !d.claim_tx_hash);
 
   if (!claimableMessage.length) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
@@ -199,7 +199,7 @@ export const getProcessFromXlayerRootWriteTransaction = async ({
 
   const isSpokeClaim = claimable.orig_net === 0;
   const domain = isSpokeClaim ? +spokeDomainId : +hubDomainId;
-  const connector = isSpokeClaim ? hubConnector : spokeConnector;
+  const connector = isSpokeClaim ? spokeConnector : hubConnector;
   const iface = new Interface(connector.abi);
   const ret = await chainreader.readTx({
     domain,
