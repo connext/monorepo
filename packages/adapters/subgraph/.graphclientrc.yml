@@ -278,9 +278,9 @@ sources:
           - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
             retry: 2
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_
@@ -341,9 +341,9 @@ sources:
           - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/amarok-runtime-v1-linea"
             retry: 2
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-linea"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-linea"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: linea_
@@ -369,14 +369,14 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v0-base"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
-          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
-            retry: 5
-            timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
             retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v0-base"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
+            retry: 5
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
@@ -467,9 +467,9 @@ sources:
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v0-mantle/gn"
             retry: 3
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-mantle"
-          #   retry: 2
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-mantle"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mantle_
@@ -494,9 +494,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-metis"
-          #   retry: 3
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-metis"
+            retry: 3
+            timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-metis/gn"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -524,9 +524,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-mode"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-mode"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mode/gn"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -673,13 +673,13 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          # - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-base/
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
-          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-base/gn
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
             retry: 5
             timeout: 30000 # 30 seconds
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-base/
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-base/gn
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -769,9 +769,9 @@ sources:
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mantle/gn
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mantle_swap_
@@ -799,9 +799,9 @@ sources:
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-metis/gn
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-metis"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-metis"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: metis_swap_
@@ -829,9 +829,9 @@ sources:
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mode/gn
             retry: 5
             timeout: 30000 # 30 seconds
-          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-mode"
-          #   retry: 5
-          #   timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-mode"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mode_swap_
@@ -1155,61 +1155,61 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  # - name: Connext_Staging_Mantle
-  #   handler:
-  #     graphql:
-  #       strategy: highestValue
-  #       strategyConfig:
-  #         selectionSet: |
-  #           {
-  #             _meta {
-  #               block {
-  #                 number
-  #               }
-  #             }
-  #           }
-  #         value: "_meta.block.number"
-  #       sources:
-  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mantle
-  #           retry: 5
-  #           timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: stagingmantle_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
+  - name: Connext_Staging_Mantle
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mantle
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingmantle_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
-  # - name: Connext_Staging_Metis
-  #   handler:
-  #     graphql:
-  #       strategy: highestValue
-  #       strategyConfig:
-  #         selectionSet: |
-  #           {
-  #             _meta {
-  #               block {
-  #                 number
-  #               }
-  #             }
-  #           }
-  #         value: "_meta.block.number"
-  #       sources:
-  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-metis
-  #           retry: 5
-  #           timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: stagingmetis_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
+  - name: Connext_Staging_Metis
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-metis
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingmetis_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
 
   - name: Connext_Staging_Avalanche
     handler:
@@ -1257,9 +1257,9 @@ sources:
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-mode/gn
             retry: 2
             timeout: 30000 # 30 seconds
-          # - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mode
-          #   retry: 2
-          #   timeout: 30000 # 30 seconds
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mode
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: stagingmode_
