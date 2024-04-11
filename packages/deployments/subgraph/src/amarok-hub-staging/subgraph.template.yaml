@@ -485,6 +485,4 @@ dataSources:
           handler: handleXlayerMessageProcessed
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleXlayerNewConnector
-        - event: MessageSent(bytes,bytes,address)
-          handler: handleXlayerMessageSent
       file: ./src/amarok-hub-staging/mapping/xlayer.ts
