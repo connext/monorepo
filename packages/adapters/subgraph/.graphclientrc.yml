@@ -766,7 +766,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-mantle/gn
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mantle/gn
             retry: 5
             timeout: 30000 # 30 seconds
           # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
