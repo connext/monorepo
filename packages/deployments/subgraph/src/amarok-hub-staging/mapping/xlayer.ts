@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { NewConnector, MessageProcessed, MessageSent } from "../../../generated/XlayerHubConnector/XlayerHubConnector";
-import { XlayerConnectorMeta, RootMessageProcessed, L1RootMessageSent } from "../../../generated/schema";
+import { XlayerConnectorMeta, RootMessageProcessed, RootMessageSent } from "../../../generated/schema";
 
 const DEFAULT_XLAYER_HUB_CONNECTOR_META_ID = "XLAYER_HUB_CONNECTOR_META_ID";
 
@@ -49,9 +49,9 @@ export function handleXlayerMessageSent(event: MessageSent): void {
   if (meta == null) {
     meta = new XlayerConnectorMeta(DEFAULT_XLAYER_HUB_CONNECTOR_META_ID);
   }
-  let message = L1RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
+  let message = RootMessageSent.load(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   if (message == null) {
-    message = new L1RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
+    message = new RootMessageSent(`${event.params.data.toHexString()}-${meta.spokeDomain.toString()}`);
   }
 
   message.spokeDomain = meta.spokeDomain;
