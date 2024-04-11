@@ -20,7 +20,6 @@ export type Scalars = {
   BigInt: any;
   mainnet_Bytes: any;
   mainnet_Int8: any;
-  Timestamp: any;
 };
 
 export type mainnet_AggregateRootSavedSlow = {
@@ -148,10 +147,6 @@ export type mainnet_AggregatedMessageRoot_orderBy =
   | 'receivedRoot'
   | 'domain'
   | 'blockNumber';
-
-export type mainnet_Aggregation_interval =
-  | 'hour'
-  | 'day';
 
 export type mainnet_ArbitrumConnectorMeta = {
   id: Scalars['ID'];
@@ -2733,8 +2728,6 @@ export type mainnet__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['mainnet_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
