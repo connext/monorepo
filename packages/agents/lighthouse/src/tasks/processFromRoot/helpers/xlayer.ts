@@ -140,7 +140,7 @@ export const getLatestXLayerSpokeMessage = async (
   }
 
   const hubConnector = contracts.hubConnector(
-    domainToChainId(spokeDomainId),
+    domainToChainId(hubDomainId),
     "Xlayer",
     config.environment === "staging" ? "Staging" : "",
   );
@@ -162,7 +162,7 @@ export const getLatestXLayerSpokeMessage = async (
   // get the transaction on L1
   const tx = await chainreader.getTransactionReceipt(hubDomainId, latest.tx_hash);
   // get the block on L1
-  const block = await chainreader.getBlock(hubDomainId, tx.blockNumber.toString());
+  const block = await chainreader.getBlock(hubDomainId, Number(tx.blockNumber));
   if (!block || !tx) {
     logger.warn("Failed to get block or tx for spoke message", requestContext, methodContext, {
       hubDomainId,

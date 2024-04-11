@@ -218,7 +218,7 @@ export const getSpokeMessages = async (_requestContext: RequestContext): Promise
   const { config } = getContext();
 
   const message = await getLatestXLayerSpokeMessage(
-    config.network === "mainnet" ? 1 : 1936027759,
+    config.network === "mainnet" ? 6648936 : 1936027759,
     config.network === "mainnet" ? 2020368761 : 2016506996,
     _requestContext,
   );
