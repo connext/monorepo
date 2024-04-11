@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
-import { NewConnector, MessageProcessed, MessageSent } from "../../../generated/XlayerHubConnector/XlayerHubConnector";
-import { XlayerConnectorMeta, RootMessageProcessed, RootMessageSent } from "../../../generated/schema";
+import { NewConnector, MessageProcessed } from "../../../generated/XlayerHubConnector/XlayerHubConnector";
+import { XlayerConnectorMeta, RootMessageProcessed } from "../../../generated/schema";
 
 const DEFAULT_XLAYER_HUB_CONNECTOR_META_ID = "XLAYER_HUB_CONNECTOR_META_ID";
 
