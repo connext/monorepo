@@ -1,19 +1,13 @@
-import {
-  RequestContext,
-  RootMessage,
-  chainIdToDomain,
-  createLoggingContext,
-  domainToChainId,
-} from "@connext/nxtp-utils";
+import { RequestContext, RootMessage, createLoggingContext, domainToChainId } from "@connext/nxtp-utils";
+import { WriteTransaction } from "@connext/nxtp-txservice";
+import { Interface } from "ethers/lib/utils";
 
 import { axiosGet } from "../../../mockable";
 import { NoProofForMessage, NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
+import { NoHubConnector, NoSpokeConnector } from "../../propagate/errors";
 
 import { GetProcessArgsParams } from ".";
-import { WriteTransaction } from "@connext/nxtp-txservice";
-import { NoHubConnector, NoSpokeConnector } from "../../propagate/errors";
-import { Interface } from "ethers/lib/utils";
 
 const PolygonZkEVMBridgeV2ABI = [
   {
@@ -154,7 +148,7 @@ export const getLatestXLayerSpokeMessage = async (
     throw new NoHubConnector(hubDomainId, requestContext, methodContext);
   }
 
-  const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector!.address);
+  const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector.address);
   const [latest] = spokeDeposits.filter((d) => d.ready_for_claim).sort((a, b) => +b.block_num - +a.block_num);
   if (!latest) {
     return undefined;
@@ -180,10 +174,10 @@ export const getLatestXLayerSpokeMessage = async (
     return undefined;
   }
   // get the root
-  const iface = new Interface(hubConnector.abi);
+  const iface = new Interface(hubConnector.abi as string[]);
   const [parsed] = tx.logs
     .filter((log) => log.address.toLowerCase() === hubConnector.address.toLowerCase())
-    .map(iface.parseLog);
+    .map((log) => iface.parseLog(log));
 
   // return latest message
   return {
@@ -275,7 +269,7 @@ export const getProcessFromXlayerRootWriteTransaction = async ({
     });
   }
 
-  const iface = new Interface(spokeConnector.abi);
+  const iface = new Interface(spokeConnector.abi as string[]);
   const ambEncoded = await chainreader.readTx({
     domain: isSpokeClaim ? +spokeDomainId : +hubDomainId,
     to: isSpokeClaim ? spokeConnector.address : hubConnector.address,

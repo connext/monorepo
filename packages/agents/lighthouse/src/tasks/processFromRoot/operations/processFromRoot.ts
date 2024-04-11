@@ -11,6 +11,8 @@ import {
   RequestContext,
   RootMessage,
 } from "@connext/nxtp-utils";
+import { WriteTransaction } from "@connext/nxtp-txservice";
+import { constants } from "ethers";
 
 import { encodeProcessMessageFromRoot, sendWithRelayerWithBackup } from "../../../mockable";
 import { CouldNotFindRelayer, ProcessConfigNotAvailable } from "../errors";
@@ -31,8 +33,6 @@ import {
   getLatestXLayerSpokeMessage,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
-import { WriteTransaction } from "@connext/nxtp-txservice";
-import { constants } from "ethers";
 export type ProcessConfig = {
   getWriteTransaction: (params: GetProcessArgsParams) => Promise<WriteTransaction | undefined>;
 };
@@ -43,6 +43,10 @@ const getWriteTransactionFromArgsWithPrefix = async (
   processorFunctionName: string,
   getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
 ): Promise<WriteTransaction | undefined> => {
+  const { requestContext, methodContext } = createLoggingContext(
+    "getWriteTransactionFromArgsWithPrefix",
+    params._requestContext,
+  );
   const args = await getArgs(params);
   if (!args.length) {
     return undefined;
@@ -57,11 +61,11 @@ const getWriteTransactionFromArgsWithPrefix = async (
     config.environment === "staging" ? "Staging" : "",
   );
   if (!hubConnector) {
-    throw new ProcessConfigNotAvailable(params.spokeDomainId, params.hubDomainId, params._requestContext, {} as any, {
+    throw new ProcessConfigNotAvailable(params.spokeDomainId, params.hubDomainId, requestContext, methodContext, {
       ...params,
     });
   }
-  const data = encodeProcessMessageFromRoot(hubConnector.abi, args, processorFunctionName);
+  const data = encodeProcessMessageFromRoot(hubConnector.abi as string[], args, processorFunctionName);
   return {
     to: hubConnector.address,
     data,
