@@ -1,4 +1,10 @@
-import { createLoggingContext } from "@connext/nxtp-utils";
+import {
+  RequestContext,
+  RootMessage,
+  chainIdToDomain,
+  createLoggingContext,
+  domainToChainId,
+} from "@connext/nxtp-utils";
 
 import { axiosGet } from "../../../mockable";
 import { NoProofForMessage, NoRootAvailable } from "../errors";
@@ -112,13 +118,104 @@ const getMerkleProof = async (apiUrl: string, depositCount: string, networkId: n
   }
 };
 
+export const getLatestXLayerSpokeMessage = async (
+  hubDomainId: number,
+  spokeDomainId: number,
+  _requestContext: RequestContext,
+): Promise<(RootMessage & Deposit) | undefined> => {
+  const {
+    logger,
+    config,
+    adapters: { contracts, chainreader },
+  } = getContext();
+  const { requestContext, methodContext } = createLoggingContext(getLatestXLayerSpokeMessage.name, _requestContext);
+  logger.info("Method start", requestContext, methodContext);
+
+  const xlayerBridgeApiEndpoint =
+    domainToChainId(hubDomainId) === 1
+      ? "https://rpc.xlayer.tech/priapi/v1/ob/bridge/"
+      : "https://testrpc.x1.tech/priapi/v1/ob/bridge";
+
+  const spokeConnector = contracts.spokeConnector(
+    domainToChainId(spokeDomainId),
+    "Xlayer",
+    config.environment === "staging" ? "Staging" : "",
+  );
+  if (!spokeConnector) {
+    throw new NoSpokeConnector(spokeDomainId, requestContext, methodContext);
+  }
+
+  const hubConnector = contracts.hubConnector(
+    domainToChainId(spokeDomainId),
+    "Xlayer",
+    config.environment === "staging" ? "Staging" : "",
+  );
+  if (!hubConnector) {
+    throw new NoHubConnector(hubDomainId, requestContext, methodContext);
+  }
+
+  const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector!.address);
+  const [latest] = spokeDeposits.filter((d) => d.ready_for_claim).sort((a, b) => +b.block_num - +a.block_num);
+  if (!latest) {
+    return undefined;
+  }
+
+  // if the latest deposit is proven, return undefined
+  if (latest.claim_tx_hash) {
+    return undefined;
+  }
+
+  // get the transaction on L1
+  const tx = await chainreader.getTransactionReceipt(hubDomainId, latest.tx_hash);
+  // get the block on L1
+  const block = await chainreader.getBlock(hubDomainId, tx.blockNumber.toString());
+  if (!block || !tx) {
+    logger.warn("Failed to get block or tx for spoke message", requestContext, methodContext, {
+      hubDomainId,
+      block,
+      tx,
+      blockNumber: latest.block_num,
+      hash: latest.tx_hash,
+    });
+    return undefined;
+  }
+  // get the root
+  const iface = new Interface(hubConnector.abi);
+  const [parsed] = tx.logs
+    .filter((log) => log.address.toLowerCase() === hubConnector.address.toLowerCase())
+    .map(iface.parseLog);
+
+  // return latest message
+  return {
+    ...latest,
+    id: `${parsed.args.data}-${spokeDomainId}`, // TODO: will this override existing carto entries?
+    spokeDomain: spokeDomainId.toString(),
+    hubDomain: hubDomainId.toString(),
+    root: parsed.args.data,
+    caller: tx.from.toLowerCase(),
+    transactionHash: latest.tx_hash.toLowerCase(),
+    timestamp: block.timestamp,
+    gasPrice: tx.effectiveGasPrice.toString(),
+    gasLimit: tx.cumulativeGasUsed.toString(),
+    blockNumber: block.number,
+    processed: false,
+    count: 0, // TODO: make more accurate
+    // only defined if claim tx hash is defined
+    sentTaskId: undefined,
+    sentTimestamp: undefined,
+    relayerType: undefined,
+  };
+};
+
 export const getProcessFromXlayerRootWriteTransaction = async ({
   spokeChainId,
   hubChainId,
   spokeDomainId,
   hubDomainId,
+  sendHash,
+  isSpokeClaim,
   _requestContext,
-}: GetProcessArgsParams): Promise<WriteTransaction[]> => {
+}: GetProcessArgsParams): Promise<WriteTransaction | undefined> => {
   const {
     logger,
     config,
@@ -153,94 +250,58 @@ export const getProcessFromXlayerRootWriteTransaction = async ({
     throw new NoSpokeConnector(spokeChainId, requestContext, methodContext);
   }
 
-  // TODO: add chain of message to params instead of concatenating
-  const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector!.address);
-  const hubDeposits = await getDeposits(xlayerBridgeApiEndpoint, hubConnector!.address);
-  const [claimableHub] = hubDeposits
-    .filter((d) => d.ready_for_claim && !d.claim_tx_hash)
-    .sort((a, b) => +b.block_num - +a.block_num);
-  const [claimableSpoke] = spokeDeposits
-    .filter((d) => d.ready_for_claim && !d.claim_tx_hash)
-    .sort((a, b) => +b.block_num - +a.block_num);
-
-  if (!claimableHub && !claimableSpoke) {
+  // get matching xlayer deposit record
+  const [claimable] = (
+    await getDeposits(xlayerBridgeApiEndpoint, isSpokeClaim ? spokeConnector.address : hubConnector.address)
+  ).filter((x) => x.tx_hash.toLowerCase() === sendHash.toLowerCase());
+  if (!claimable || !claimable.ready_for_claim) {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `Claimable desposits don't exist!`,
     });
   }
 
-  // get proofs
-  const [hubProof, spokeProof] = await Promise.all([
-    claimableHub
-      ? getMerkleProof(xlayerBridgeApiEndpoint, claimableHub.deposit_cnt, claimableHub.network_id)
-      : Promise.resolve(),
-    claimableSpoke
-      ? getMerkleProof(xlayerBridgeApiEndpoint, claimableSpoke.deposit_cnt, claimableSpoke.network_id)
-      : Promise.resolve(),
-  ]);
+  if (claimable.claim_tx_hash) {
+    // already claimed
+    return undefined;
+  }
+
+  // get proof
+  const proof = await getMerkleProof(xlayerBridgeApiEndpoint, claimable.deposit_cnt, claimable.network_id);
 
   // throw if unavailable
-  if (!hubProof && claimableHub) {
+  if (!proof) {
     throw new NoProofForMessage(spokeChainId, hubChainId, requestContext, methodContext, {
-      claimable: claimableHub,
+      claimable,
     });
   }
 
-  if (!spokeProof && claimableSpoke) {
-    throw new NoProofForMessage(spokeChainId, hubChainId, requestContext, methodContext, {
-      claimable: claimableSpoke,
-    });
-  }
+  const iface = new Interface(spokeConnector.abi);
+  const ambEncoded = await chainreader.readTx({
+    domain: isSpokeClaim ? +spokeDomainId : +hubDomainId,
+    to: isSpokeClaim ? spokeConnector.address : hubConnector.address,
+    // NOTE: both abis have this property
+    data: iface.encodeFunctionData("AMB", []),
+  });
+  const [amb] = iface.decodeFunctionResult("AMB", ambEncoded);
 
-  // get AMBs
-  const [hubAmbRet, spokeAmbRet] = await Promise.all([
-    hubProof
-      ? chainreader.readTx({
-          domain: +hubDomainId,
-          to: hubConnector.address,
-          data: new Interface(hubConnector.abi).encodeFunctionData("AMB", []),
-        })
-      : Promise.resolve(),
-    spokeProof
-      ? chainreader.readTx({
-          domain: +spokeDomainId,
-          to: spokeConnector.address,
-          data: new Interface(spokeConnector.abi).encodeFunctionData("AMB", []),
-        })
-      : Promise.resolve(),
-  ]);
+  const args = [
+    proof.merkle_proof,
+    proof.rollup_merkle_proof,
+    claimable.global_index,
+    proof.main_exit_root,
+    proof.rollup_exit_root,
+    claimable.orig_net,
+    claimable.orig_addr,
+    claimable.dest_net,
+    claimable.dest_addr,
+    claimable.amount,
+    claimable.metadata,
+  ];
 
-  const txs = [
-    [claimableHub, hubProof, hubAmbRet],
-    [claimableSpoke, spokeProof, spokeAmbRet],
-  ]
-    .map(([claimable, proof, ambRet]) => {
-      if (!proof) {
-        return undefined;
-      }
-      const args = [
-        proof.merkle_proof,
-        proof.rollup_merkle_proof,
-        claimable.global_index,
-        proof.main_exit_root,
-        proof.rollup_exit_root,
-        claimable.orig_net,
-        claimable.orig_addr,
-        claimable.dest_net,
-        claimable.dest_addr,
-        claimable.amount,
-        claimable.metadata,
-      ];
-      const isSpokeClaim = claimable.orig_net === 0;
-      const connector = isSpokeClaim ? spokeConnector : hubConnector;
-      return {
-        to: new Interface(connector.abi).decodeFunctionResult("AMB", ambRet)[0],
-        value: "0",
-        domain: +(isSpokeClaim ? spokeDomainId : hubDomainId),
-        data: new Interface(PolygonZkEVMBridgeV2ABI).encodeFunctionData("claimMessage", args),
-      };
-    })
-    .filter((x) => !!x);
-
-  return txs as WriteTransaction[];
+  return {
+    to: amb,
+    value: "0",
+    domain: isSpokeClaim ? +spokeDomainId : +hubDomainId,
+    data: new Interface(PolygonZkEVMBridgeV2ABI).encodeFunctionData("claimMessage", args),
+  };
 };

@@ -28,24 +28,24 @@ import {
   getProcessFromModeRootArgs,
   getProcessFromScrollRootArgs,
   getProcessFromXlayerRootWriteTransaction,
+  getLatestXLayerSpokeMessage,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 import { WriteTransaction } from "@connext/nxtp-txservice";
 import { constants } from "ethers";
-
 export type ProcessConfig = {
-  getWriteTransactions: (params: GetProcessArgsParams) => Promise<WriteTransaction[]>;
+  getWriteTransaction: (params: GetProcessArgsParams) => Promise<WriteTransaction | undefined>;
 };
 
-const getWriteTransactionsFromArgsWithPrefix = async (
+const getWriteTransactionFromArgsWithPrefix = async (
   params: GetProcessArgsParams,
   hubConnectorPrefix: string,
   processorFunctionName: string,
   getArgs: (params: GetProcessArgsParams) => Promise<any[]>,
-): Promise<WriteTransaction[]> => {
+): Promise<WriteTransaction | undefined> => {
   const args = await getArgs(params);
   if (!args.length) {
-    return [];
+    return undefined;
   }
   const {
     adapters: { contracts },
@@ -62,17 +62,15 @@ const getWriteTransactionsFromArgsWithPrefix = async (
     });
   }
   const data = encodeProcessMessageFromRoot(hubConnector.abi, args, processorFunctionName);
-  return [
-    {
-      to: hubConnector.address,
-      data,
-      domain: +params.hubDomainId,
-      value: constants.Zero,
-    },
-  ];
+  return {
+    to: hubConnector.address,
+    data,
+    domain: +params.hubDomainId,
+    value: constants.Zero,
+  };
 };
 
-const getWriteTransactionsFromArgsWithContract = async (
+const getWriteTransactionFromArgsWithContract = async (
   params: GetProcessArgsParams,
   processorFunctionName: string,
   contract: string,
@@ -81,23 +79,21 @@ const getWriteTransactionsFromArgsWithContract = async (
 ) => {
   const args = await getArgs(params);
   if (!args.length) {
-    return [];
+    return undefined;
   }
   const data = encodeProcessMessageFromRoot(abi, args, processorFunctionName);
-  return [
-    {
-      to: contract,
-      data,
-      domain: +params.hubDomainId,
-      value: constants.Zero,
-    },
-  ];
+  return {
+    to: contract,
+    data,
+    domain: +params.hubDomainId,
+    value: constants.Zero,
+  };
 };
 
 export const processorConfigs: Record<string, ProcessConfig> = {
   "1735356532": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Optimism",
         "processMessageFromRoot",
@@ -105,8 +101,8 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "1869640549": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Optimism",
         "processMessageFromRoot",
@@ -114,12 +110,12 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "9991": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
   },
   "1734439522": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Arbitrum",
         "processMessageFromRoot",
@@ -127,8 +123,8 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "1633842021": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Arbitrum",
         "processMessageFromRoot",
@@ -136,8 +132,8 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "1869640809": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Optimism",
         "processMessageFromRoot",
@@ -145,16 +141,16 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "1886350457": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Polygon", "receiveMessage", getProcessFromPolygonRootArgs),
   },
   "6778479": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Gnosis", "executeSignatures", getProcessFromGnosisRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Gnosis", "executeSignatures", getProcessFromGnosisRootArgs),
   },
   "1634886255": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(
         params,
         "Arbitrum",
         "processMessageFromRoot",
@@ -162,44 +158,44 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "2053862260": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
   },
   "2053862243": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "ZkSync", "processMessageFromRoot", getProcessFromZkSyncRootArgs),
   },
   "1818848877": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
   },
   "1668247156": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Linea", "claimMessage", getProcessFromLineaRootArgs),
   },
   "1650553709": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
   },
   "1650553703": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Base", "processMessageFromRoot", getProcessFromBaseRootArgs),
   },
   "1835101812": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Mantle", "processMessageFromRoot", getProcessFromMantleRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Mantle", "processMessageFromRoot", getProcessFromMantleRootArgs),
   },
   "1835365481": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Metis", "processMessageFromRoot", getProcessFromMetisRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Metis", "processMessageFromRoot", getProcessFromMetisRootArgs),
   },
   "1836016741": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithPrefix(params, "Mode", "processMessageFromRoot", getProcessFromModeRootArgs),
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithPrefix(params, "Mode", "processMessageFromRoot", getProcessFromModeRootArgs),
   },
   "1935897199": {
-    getWriteTransactions: async (params) =>
-      getWriteTransactionsFromArgsWithContract(
+    getWriteTransaction: async (params) =>
+      getWriteTransactionFromArgsWithContract(
         params,
         "relayMessageWithProof",
         "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
@@ -210,8 +206,19 @@ export const processorConfigs: Record<string, ProcessConfig> = {
       ),
   },
   "2020368761": {
-    getWriteTransactions: getProcessFromXlayerRootWriteTransaction,
+    getWriteTransaction: getProcessFromXlayerRootWriteTransaction,
   },
+};
+
+export const getSpokeMessages = async (_requestContext: RequestContext): Promise<RootMessage[]> => {
+  const { config } = getContext();
+
+  const message = await getLatestXLayerSpokeMessage(
+    config.network === "mainnet" ? 1 : 1936027759,
+    config.network === "mainnet" ? 2020368761 : 2016506996,
+    _requestContext,
+  );
+  return message ? [message] : [];
 };
 
 export const processFromRoot = async () => {
@@ -223,13 +230,21 @@ export const processFromRoot = async () => {
   const { requestContext: _requestContext, methodContext } = createLoggingContext("processFromRoot");
   logger.info("processFromRoot method start", _requestContext, methodContext);
 
-  const unprocessed = await database.getRootMessages(false);
+  const unprocessedHubClaims = await database.getRootMessages(false);
+  // NOTE: only xlayer requires L1 -> L2 claiming, it is not stored in carto.
+  const unprocessedSpokeClaims = await getSpokeMessages(_requestContext);
+  const unprocessed = unprocessedHubClaims
+    .map((m) => ({ ...m, isSpokeClaim: false }))
+    .concat(unprocessedSpokeClaims.map((m) => ({ ...m, isSpokeClaim: true })));
   if (unprocessed.length > 0) {
-    logger.info("Got unprocessed root messages", _requestContext, methodContext, { unprocessed });
+    logger.info("Got unprocessed root messages", _requestContext, methodContext, {
+      unprocessedHubClaims,
+      unprocessedSpokeClaims,
+    });
   }
 
   // get latest unprocessed for each spoke
-  const byDomain: Record<string, RootMessage[]> = {};
+  const byDomain: Record<string, (RootMessage & { isSpokeClaim: boolean })[]> = {};
   unprocessed.forEach((msg) => {
     if (!byDomain[msg.spokeDomain]) {
       byDomain[msg.spokeDomain] = [];
@@ -242,12 +257,6 @@ export const processFromRoot = async () => {
   });
 
   for (const domain of Object.keys(byDomain)) {
-    if (domain === "") {
-      // Xlayer messages can be processed from hub or spoke. the write transaction will
-      // potentially return 2 transactions, one for the hub and one for the spoke
-
-      continue;
-    }
     for (const msg of byDomain[domain]) {
       const requestContext = createRequestContext("processFromRoot", msg.transactionHash);
       logger.info("Processing root message", requestContext, methodContext, { msg });
@@ -262,10 +271,8 @@ export const processFromRoot = async () => {
   }
 };
 
-export const processXLayerDomainMessages = async (): Promise<string | undefined> => {};
-
 export const processSingleDomainRootMessage = async (
-  rootMessage: RootMessage,
+  rootMessage: RootMessage & { isSpokeClaim: boolean },
   requestContext: RequestContext,
 ): Promise<string | undefined> => {
   const {
@@ -323,7 +330,7 @@ export const processSingleDomainRootMessage = async (
     return undefined;
   }
 
-  const transactions = await processorConfig.getWriteTransactions({
+  const transaction = await processorConfig.getWriteTransaction({
     spokeChainId,
     hubChainId,
     spokeProvider,
@@ -334,39 +341,39 @@ export const processSingleDomainRootMessage = async (
     sendHash: rootMessage.transactionHash,
     blockNumber: rootMessage.blockNumber,
     _requestContext: requestContext,
+    // NOTE: looking for presence of fields only included in `
+    isSpokeClaim: rootMessage.isSpokeClaim,
   });
 
-  if (!transactions.length) {
+  if (!transaction) {
     return undefined;
   }
 
-  for (const transaction of transactions) {
-    logger.info("Sending process message from root tx", requestContext, methodContext, {
-      transaction,
-      spokeChain: spokeChainId,
-      hubChain: hubChainId,
-    });
+  logger.info("Sending process message from root tx", requestContext, methodContext, {
+    transaction,
+    spokeChain: spokeChainId,
+    hubChain: hubChainId,
+  });
 
-    const { taskId, relayerType } = await sendWithRelayerWithBackup(
-      domainToChainId(transaction.domain),
-      transaction.domain.toString(),
-      transaction.to,
-      transaction.data,
-      relayers,
-      chainreader,
-      logger,
-      requestContext,
-    );
+  const { taskId, relayerType } = await sendWithRelayerWithBackup(
+    domainToChainId(transaction.domain),
+    transaction.domain.toString(),
+    transaction.to,
+    transaction.data,
+    relayers,
+    chainreader,
+    logger,
+    requestContext,
+  );
 
-    // Upsert with latest task meta data
-    rootMessage.sentTaskId = taskId;
-    rootMessage.relayerType = relayerType;
-    rootMessage.sentTimestamp = getNtpTimeSeconds();
+  // Upsert with latest task meta data
+  rootMessage.sentTaskId = taskId;
+  rootMessage.relayerType = relayerType;
+  rootMessage.sentTimestamp = getNtpTimeSeconds();
 
-    await database.saveSentRootMessages([rootMessage]);
+  await database.saveSentRootMessages([rootMessage]);
 
-    logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
-  }
+  logger.info("Sent meta tx to relayer", requestContext, methodContext, { taskId });
 
   return taskId;
 };

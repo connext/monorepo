@@ -11,7 +11,7 @@ export { getProcessFromMantleRootArgs } from "./mantle";
 export { getProcessFromMetisRootArgs } from "./metis";
 export { getProcessFromModeRootArgs } from "./mode";
 export { getProcessFromScrollRootArgs } from "./scroll";
-export { getProcessFromXlayerRootWriteTransaction } from "./xlayer";
+export { getProcessFromXlayerRootWriteTransaction, getLatestXLayerSpokeMessage } from "./xlayer";
 
 export type GetProcessArgsParams = {
   spokeChainId: number;
@@ -23,5 +23,6 @@ export type GetProcessArgsParams = {
   message: string;
   sendHash: string;
   blockNumber: number;
+  isSpokeClaim: boolean;
   _requestContext: RequestContext;
 };
