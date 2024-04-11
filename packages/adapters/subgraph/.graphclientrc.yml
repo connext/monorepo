@@ -449,33 +449,36 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  # - name: Connext_Mantle
-  #   handler:
-  #     graphql:
-  #       strategy: highestValue
-  #       strategyConfig:
-  #         selectionSet: |
-  #           {
-  #             _meta {
-  #               block {
-  #                 number
-  #               }
-  #             }
-  #           }
-  #         value: "_meta.block.number"
-  #       sources:
-  #         - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-mantle"
-  #           retry: 2
-  #           timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: mantle_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
+  - name: Connext_Mantle
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v0-mantle/gn"
+            retry: 3
+            timeout: 30000 # 30 seconds
+          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-mantle"
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mantle_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
   - name: Connext_Metis
     handler:
       graphql:
@@ -748,21 +751,36 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
-  # - name: StableSwap_Mantle
-  #   handler:
-  #     graphql:
-  #       endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
-  #       retry: 5
-  #       timeout: 30000 # 30 seconds
-  #   transforms:
-  #     - prefix:
-  #         value: mantle_swap_
-  #         includeRootOperations: true
-  #         ignore:
-  #           - _SubgraphErrorPolicy_
-  #     - autoPagination:
-  #         validateSchema: true
-  #         limitOfRecords: 250
+  - name: StableSwap_Mantle
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-mantle/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          # - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: mantle_swap_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
   - name: StableSwap_Metis
     handler:
       graphql:
