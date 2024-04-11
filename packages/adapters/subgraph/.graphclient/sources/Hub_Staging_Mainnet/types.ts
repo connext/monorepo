@@ -1393,12 +1393,16 @@ export type Query = {
   stagingmainnet_modeConnectorMetas: Array<stagingmainnet_ModeConnectorMeta>;
   stagingmainnet_scrollConnectorMeta?: Maybe<stagingmainnet_ScrollConnectorMeta>;
   stagingmainnet_scrollConnectorMetas: Array<stagingmainnet_ScrollConnectorMeta>;
+  stagingmainnet_xlayerConnectorMeta?: Maybe<stagingmainnet_XlayerConnectorMeta>;
+  stagingmainnet_xlayerConnectorMetas: Array<stagingmainnet_XlayerConnectorMeta>;
   stagingmainnet_rootMessageProcessed?: Maybe<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_rootMessageProcesseds: Array<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_aggregateRootSavedSlow?: Maybe<stagingmainnet_AggregateRootSavedSlow>;
   stagingmainnet_aggregateRootSavedSlows: Array<stagingmainnet_AggregateRootSavedSlow>;
   stagingmainnet_hubDomain?: Maybe<stagingmainnet_HubDomain>;
   stagingmainnet_hubDomains: Array<stagingmainnet_HubDomain>;
+  stagingmainnet_rootMessageSent?: Maybe<stagingmainnet_RootMessageSent>;
+  stagingmainnet_rootMessageSents: Array<stagingmainnet_RootMessageSent>;
   /** Access to subgraph metadata */
   stagingmainnet__meta?: Maybe<stagingmainnet__Meta_>;
 };
@@ -1800,6 +1804,24 @@ export type Querystagingmainnet_scrollConnectorMetasArgs = {
 };
 
 
+export type Querystagingmainnet_xlayerConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmainnet_xlayerConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_XlayerConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_XlayerConnectorMeta_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querystagingmainnet_rootMessageProcessedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmainnet_Block_height>;
@@ -1849,6 +1871,24 @@ export type Querystagingmainnet_hubDomainsArgs = {
   orderBy?: InputMaybe<stagingmainnet_HubDomain_orderBy>;
   orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
   where?: InputMaybe<stagingmainnet_HubDomain_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmainnet_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querystagingmainnet_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_RootMessageSent_filter>;
   block?: InputMaybe<stagingmainnet_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2112,6 +2152,134 @@ export type stagingmainnet_RootMessageProcessed_orderBy =
   | 'gasLimit'
   | 'blockNumber';
 
+export type stagingmainnet_RootMessageSent = {
+  id: Scalars['ID'];
+  spokeDomain?: Maybe<Scalars['BigInt']>;
+  hubDomain?: Maybe<Scalars['BigInt']>;
+  root?: Maybe<Scalars['stagingmainnet_Bytes']>;
+  count?: Maybe<Scalars['BigInt']>;
+  caller?: Maybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash?: Maybe<Scalars['stagingmainnet_Bytes']>;
+  timestamp?: Maybe<Scalars['BigInt']>;
+  gasPrice?: Maybe<Scalars['BigInt']>;
+  gasLimit?: Maybe<Scalars['BigInt']>;
+  blockNumber?: Maybe<Scalars['BigInt']>;
+};
+
+export type stagingmainnet_RootMessageSent_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  root?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  root_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  root_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  root_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  count?: InputMaybe<Scalars['BigInt']>;
+  count_not?: InputMaybe<Scalars['BigInt']>;
+  count_gt?: InputMaybe<Scalars['BigInt']>;
+  count_lt?: InputMaybe<Scalars['BigInt']>;
+  count_gte?: InputMaybe<Scalars['BigInt']>;
+  count_lte?: InputMaybe<Scalars['BigInt']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  caller?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  caller_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  caller_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  caller_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_not?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  gasPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_not?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lt?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_gte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_lte?: InputMaybe<Scalars['BigInt']>;
+  gasLimit_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  gasLimit_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmainnet_RootMessageSent_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmainnet_RootMessageSent_filter>>>;
+};
+
+export type stagingmainnet_RootMessageSent_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'root'
+  | 'count'
+  | 'caller'
+  | 'transactionHash'
+  | 'timestamp'
+  | 'gasPrice'
+  | 'gasLimit'
+  | 'blockNumber';
+
 export type stagingmainnet_RootPropagated = {
   id: Scalars['ID'];
   aggregate: Scalars['stagingmainnet_Bytes'];
@@ -2301,12 +2469,16 @@ export type Subscription = {
   stagingmainnet_modeConnectorMetas: Array<stagingmainnet_ModeConnectorMeta>;
   stagingmainnet_scrollConnectorMeta?: Maybe<stagingmainnet_ScrollConnectorMeta>;
   stagingmainnet_scrollConnectorMetas: Array<stagingmainnet_ScrollConnectorMeta>;
+  stagingmainnet_xlayerConnectorMeta?: Maybe<stagingmainnet_XlayerConnectorMeta>;
+  stagingmainnet_xlayerConnectorMetas: Array<stagingmainnet_XlayerConnectorMeta>;
   stagingmainnet_rootMessageProcessed?: Maybe<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_rootMessageProcesseds: Array<stagingmainnet_RootMessageProcessed>;
   stagingmainnet_aggregateRootSavedSlow?: Maybe<stagingmainnet_AggregateRootSavedSlow>;
   stagingmainnet_aggregateRootSavedSlows: Array<stagingmainnet_AggregateRootSavedSlow>;
   stagingmainnet_hubDomain?: Maybe<stagingmainnet_HubDomain>;
   stagingmainnet_hubDomains: Array<stagingmainnet_HubDomain>;
+  stagingmainnet_rootMessageSent?: Maybe<stagingmainnet_RootMessageSent>;
+  stagingmainnet_rootMessageSents: Array<stagingmainnet_RootMessageSent>;
   /** Access to subgraph metadata */
   stagingmainnet__meta?: Maybe<stagingmainnet__Meta_>;
 };
@@ -2708,6 +2880,24 @@ export type Subscriptionstagingmainnet_scrollConnectorMetasArgs = {
 };
 
 
+export type Subscriptionstagingmainnet_xlayerConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmainnet_xlayerConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_XlayerConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_XlayerConnectorMeta_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmainnet_rootMessageProcessedArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<stagingmainnet_Block_height>;
@@ -2762,9 +2952,105 @@ export type Subscriptionstagingmainnet_hubDomainsArgs = {
 };
 
 
+export type Subscriptionstagingmainnet_rootMessageSentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionstagingmainnet_rootMessageSentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<stagingmainnet_RootMessageSent_orderBy>;
+  orderDirection?: InputMaybe<stagingmainnet_OrderDirection>;
+  where?: InputMaybe<stagingmainnet_RootMessageSent_filter>;
+  block?: InputMaybe<stagingmainnet_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionstagingmainnet__metaArgs = {
   block?: InputMaybe<stagingmainnet_Block_height>;
 };
+
+export type stagingmainnet_XlayerConnectorMeta = {
+  id: Scalars['ID'];
+  spokeDomain: Scalars['BigInt'];
+  hubDomain: Scalars['BigInt'];
+  amb: Scalars['stagingmainnet_Bytes'];
+  rootManager: Scalars['stagingmainnet_Bytes'];
+  mirrorConnector: Scalars['stagingmainnet_Bytes'];
+};
+
+export type stagingmainnet_XlayerConnectorMeta_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  spokeDomain?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_not?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  spokeDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spokeDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_not?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lt?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_gte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_lte?: InputMaybe<Scalars['BigInt']>;
+  hubDomain_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hubDomain_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amb?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  amb_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  amb_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  amb_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  rootManager_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  rootManager_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  rootManager_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_not?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_gt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_lt?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_gte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_lte?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  mirrorConnector_not_in?: InputMaybe<Array<Scalars['stagingmainnet_Bytes']>>;
+  mirrorConnector_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  mirrorConnector_not_contains?: InputMaybe<Scalars['stagingmainnet_Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<stagingmainnet_BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<stagingmainnet_XlayerConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<stagingmainnet_XlayerConnectorMeta_filter>>>;
+};
+
+export type stagingmainnet_XlayerConnectorMeta_orderBy =
+  | 'id'
+  | 'spokeDomain'
+  | 'hubDomain'
+  | 'amb'
+  | 'rootManager'
+  | 'mirrorConnector';
 
 export type stagingmainnet_ZkSyncConnectorMeta = {
   id: Scalars['ID'];
@@ -2967,6 +3253,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmainnet_scrollConnectorMetas: InContextSdkMethod<Query['stagingmainnet_scrollConnectorMetas'], Querystagingmainnet_scrollConnectorMetasArgs, MeshContext>,
   /** null **/
+  stagingmainnet_xlayerConnectorMeta: InContextSdkMethod<Query['stagingmainnet_xlayerConnectorMeta'], Querystagingmainnet_xlayerConnectorMetaArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_xlayerConnectorMetas: InContextSdkMethod<Query['stagingmainnet_xlayerConnectorMetas'], Querystagingmainnet_xlayerConnectorMetasArgs, MeshContext>,
+  /** null **/
   stagingmainnet_rootMessageProcessed: InContextSdkMethod<Query['stagingmainnet_rootMessageProcessed'], Querystagingmainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   stagingmainnet_rootMessageProcesseds: InContextSdkMethod<Query['stagingmainnet_rootMessageProcesseds'], Querystagingmainnet_rootMessageProcessedsArgs, MeshContext>,
@@ -2978,6 +3268,10 @@ export type _SubgraphErrorPolicy_ =
   stagingmainnet_hubDomain: InContextSdkMethod<Query['stagingmainnet_hubDomain'], Querystagingmainnet_hubDomainArgs, MeshContext>,
   /** null **/
   stagingmainnet_hubDomains: InContextSdkMethod<Query['stagingmainnet_hubDomains'], Querystagingmainnet_hubDomainsArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_rootMessageSent: InContextSdkMethod<Query['stagingmainnet_rootMessageSent'], Querystagingmainnet_rootMessageSentArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_rootMessageSents: InContextSdkMethod<Query['stagingmainnet_rootMessageSents'], Querystagingmainnet_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmainnet__meta: InContextSdkMethod<Query['stagingmainnet__meta'], Querystagingmainnet__metaArgs, MeshContext>
   };
@@ -3076,6 +3370,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stagingmainnet_scrollConnectorMetas: InContextSdkMethod<Subscription['stagingmainnet_scrollConnectorMetas'], Subscriptionstagingmainnet_scrollConnectorMetasArgs, MeshContext>,
   /** null **/
+  stagingmainnet_xlayerConnectorMeta: InContextSdkMethod<Subscription['stagingmainnet_xlayerConnectorMeta'], Subscriptionstagingmainnet_xlayerConnectorMetaArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_xlayerConnectorMetas: InContextSdkMethod<Subscription['stagingmainnet_xlayerConnectorMetas'], Subscriptionstagingmainnet_xlayerConnectorMetasArgs, MeshContext>,
+  /** null **/
   stagingmainnet_rootMessageProcessed: InContextSdkMethod<Subscription['stagingmainnet_rootMessageProcessed'], Subscriptionstagingmainnet_rootMessageProcessedArgs, MeshContext>,
   /** null **/
   stagingmainnet_rootMessageProcesseds: InContextSdkMethod<Subscription['stagingmainnet_rootMessageProcesseds'], Subscriptionstagingmainnet_rootMessageProcessedsArgs, MeshContext>,
@@ -3087,6 +3385,10 @@ export type _SubgraphErrorPolicy_ =
   stagingmainnet_hubDomain: InContextSdkMethod<Subscription['stagingmainnet_hubDomain'], Subscriptionstagingmainnet_hubDomainArgs, MeshContext>,
   /** null **/
   stagingmainnet_hubDomains: InContextSdkMethod<Subscription['stagingmainnet_hubDomains'], Subscriptionstagingmainnet_hubDomainsArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_rootMessageSent: InContextSdkMethod<Subscription['stagingmainnet_rootMessageSent'], Subscriptionstagingmainnet_rootMessageSentArgs, MeshContext>,
+  /** null **/
+  stagingmainnet_rootMessageSents: InContextSdkMethod<Subscription['stagingmainnet_rootMessageSents'], Subscriptionstagingmainnet_rootMessageSentsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   stagingmainnet__meta: InContextSdkMethod<Subscription['stagingmainnet__meta'], Subscriptionstagingmainnet__metaArgs, MeshContext>
   };
