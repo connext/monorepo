@@ -59,7 +59,7 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
   );
 
   s.post<{ Body: SdkGetLatestAssetPriceParams }>(
-    "/checkRouterLiquidity",
+    "/getLatestAssetPrice",
     {
       schema: {
         body: SdkGetLatestAssetPriceParamsSchema,
@@ -67,7 +67,7 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
     },
     async (request, reply) => {
       const { domainId, asset } = request.body;
-      const res = await sdkUtilsInstance.checkRouterLiquidity(domainId, asset);
+      const res = await sdkUtilsInstance.getLatestAssetPrice(domainId, asset);
       reply.status(200).send(res);
     },
   );
