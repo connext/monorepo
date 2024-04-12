@@ -319,7 +319,7 @@ export class SdkUtils extends SdkShared {
    */
   async getLatestAssetPrice(domainId: string, asset: string): Promise<BigNumber> {
     const canonicalId = await this.getCanonicalTokenId(domainId, asset);
-    const canonicalIdIdentifier = canonicalId[0] !== "0" ? `canonical_id=eq.${canonicalId[0]}&` : "";
+    const canonicalIdIdentifier = canonicalId[0] !== "0" ? `canonical_id=eq.${canonicalId[1]}&` : "";
 
     const searchIdentifier = canonicalIdIdentifier;
     const orderIdentifier = `order=timestamp.desc`;
