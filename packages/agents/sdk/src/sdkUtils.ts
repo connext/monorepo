@@ -6,7 +6,6 @@ import {
   XTransferStatus,
   transfersCastForUrl,
   XTransferErrorStatus,
-  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
