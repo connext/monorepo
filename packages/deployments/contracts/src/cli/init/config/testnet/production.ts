@@ -68,6 +68,31 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xVCX",
+      canonical: {
+        domain: "11111",
+        address: "0x18445923592be303fbd3BC164ee685C7457051b4",
+        decimals: 18
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x18445923592be303fbd3BC164ee685C7457051b4",
+          adopted: "0x18445923592be303fbd3BC164ee685C7457051b4",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0x1b36CDCd11c17D47390CC3cC04F24c121deD4009",
+          adopted: "0x1b36CDCd11c17D47390CC3cC04F24c121deD4009",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x1fa00Efd6Fe975E2D587016d863896FF0012e16c",
+          adopted: "0x1fa00Efd6Fe975E2D587016d863896FF0012e16c",
+        },
+      },
+    }
   ],
   agents: {
     relayerFeeVaults: {
