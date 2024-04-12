@@ -6,6 +6,7 @@ import {
   XTransferStatus,
   transfersCastForUrl,
   XTransferErrorStatus,
+  getAssetEntryFromChaindata,
 } from "@connext/nxtp-utils";
 import { contractDeployments } from "@connext/nxtp-txservice";
 
@@ -307,5 +308,30 @@ export class SdkUtils extends SdkShared {
     return eligibleRouters
       .slice(0, _topN)
       .reduce((acc, router) => acc.add(BigNumber.from(router.balance.toString())), BigNumber.from(0));
+  }
+
+  /**
+   * Fetches asset prices that match filter criteria from Cartographer.
+   *
+   * @param domainId - The domain ID for the asset.
+   * @param assetAddress - The address of the asset.
+   * @returns The last updated price for the asset.
+   * ```
+   */
+  async getLatestAssetPrice(domainId: string, assetAddress: string): Promise<BigNumber> {
+    const canonicalId = await this.getCanonicalTokenId(domainId, assetAddress);
+    const canonicalIdIdentifier = canonicalId[0] !== "0" ? `canonical_id=eq.${canonicalId[0]}&` : "";
+
+    const searchIdentifier = canonicalIdIdentifier;
+    const orderIdentifier = `order=timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "asset_prices?",
+      searchIdentifier + orderIdentifier + `&limit=1`,
+    );
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
   }
 }
