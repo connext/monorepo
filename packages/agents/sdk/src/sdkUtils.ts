@@ -313,12 +313,12 @@ export class SdkUtils extends SdkShared {
    * Fetches asset prices that match filter criteria from Cartographer.
    *
    * @param domainId - The domain ID for the asset.
-   * @param assetAddress - The address of the asset.
+   * @param asset - The address of the asset.
    * @returns The last updated price for the asset.
    * ```
    */
-  async getLatestAssetPrice(domainId: string, assetAddress: string): Promise<BigNumber> {
-    const canonicalId = await this.getCanonicalTokenId(domainId, assetAddress);
+  async getLatestAssetPrice(domainId: string, asset: string): Promise<BigNumber> {
+    const canonicalId = await this.getCanonicalTokenId(domainId, asset);
     const canonicalIdIdentifier = canonicalId[0] !== "0" ? `canonical_id=eq.${canonicalId[0]}&` : "";
 
     const searchIdentifier = canonicalIdIdentifier;
