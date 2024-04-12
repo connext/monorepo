@@ -180,7 +180,7 @@ describe("SdkUtils", () => {
     
   });
 
-  describe.only("getLatestAssetPrice", () => {
+  describe("getLatestAssetPrice", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       stub(nxtpUtils, "getCanonicalTokenId").resolves(["123", "0xabc"]);
