@@ -2,7 +2,7 @@ import { RequestContext, RootMessage, createLoggingContext, domainToChainId } fr
 import { WriteTransaction } from "@connext/nxtp-txservice";
 import { Interface } from "ethers/lib/utils";
 
-import { axiosGet } from "../../../mockable";
+import { axiosGet, getInterface } from "../../../mockable";
 import { NoProofForMessage, NoRootAvailable } from "../errors";
 import { getContext } from "../processFromRoot";
 import { NoHubConnector, NoSpokeConnector } from "../../propagate/errors";
@@ -179,7 +179,7 @@ export const getLatestXLayerSpokeMessage = async (
     return undefined;
   }
   // get the root
-  const iface = new Interface(hubConnector.abi as string[]);
+  const iface = getInterface(hubConnector.abi);
   const [parsed] = tx.logs
     .filter((log) => log.address.toLowerCase() === hubConnector.address.toLowerCase())
     .map((log) => iface.parseLog(log));
