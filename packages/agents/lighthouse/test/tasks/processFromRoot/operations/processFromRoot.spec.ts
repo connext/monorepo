@@ -2,7 +2,6 @@ import {
   BaseRequestContext,
   createRequestContext,
   expect,
-  Logger,
   mock,
   RelayerType,
   RootMessage,
@@ -11,6 +10,8 @@ import {
   getNtpTimeSeconds,
   mkAddress,
   RequestContext,
+  chainIdToDomain,
+  mkHash,
 } from "@connext/nxtp-utils";
 import { SinonStub, stub } from "sinon";
 
@@ -22,9 +23,106 @@ import { processFromRootCtxMock, sendWithRelayerWithBackupStub } from "../../../
 import { ProcessConfigNotAvailable } from "../../../../src/tasks/processFromRoot/errors";
 import { DEFAULT_RELAYER_WAIT_TIME } from "../../../../src/config";
 import { WriteTransaction } from "@connext/nxtp-txservice";
+import { MessageStatus } from "@eth-optimism/sdk";
+import { constants } from "ethers";
 
 const requestContext = createRequestContext("test");
+let getMessageStatusStub: SinonStub;
+let toCrosschainMessageStub: SinonStub;
+let toLowLevelMessageStub: SinonStub;
+let getBedrockMessageProofStub: SinonStub;
+
+class MockCrossChainMessenger {
+  public getMessageStatus = getMessageStatusStub;
+  public toCrossChainMessage = toCrosschainMessageStub;
+  public getBedrockMessageProof = getBedrockMessageProofStub;
+  public toLowLevelMessage = toLowLevelMessageStub;
+}
+
 describe("Operations: ProcessFromRoot", () => {
+  describe("#processorConfigs", () => {
+    const params = {
+      spokeChainId: 10,
+      hubChainId: 1,
+      spokeDomainId: chainIdToDomain(10).toString(),
+      hubDomainId: chainIdToDomain(1).toString(),
+      spokeProvider: "http://rpc.org",
+      hubProvider: "http://rpc.org",
+      message: "0x123",
+      sendHash: mkHash("0x123"),
+      blockNumber: 1,
+      isSpokeClaim: false,
+      _requestContext: requestContext,
+    } as ProcessFromHelperRootFns.GetProcessArgsParams;
+
+    it("getWriteTransactionFromArgsWithPrefix should work", async () => {
+      // messenger stubs for opt
+      stub(MockableFns, "OptimismCrossChainMessenger").value(MockCrossChainMessenger);
+      getMessageStatusStub = stub().resolves(MessageStatus.READY_TO_PROVE);
+      toCrosschainMessageStub = stub().resolves({} as any);
+      toLowLevelMessageStub = stub().resolves({
+        messageNonce: 1,
+        sender: mkAddress("0xdead"),
+        target: mkAddress("0xbeef"),
+        value: constants.Zero,
+        message: "0x123",
+        minGasLimit: constants.Zero,
+      });
+      getBedrockMessageProofStub = stub().resolves({
+        l2OutputIndex: 1235,
+        outputRootProof: [mkBytes32("0xdeaf")],
+        withdrawalProof: [mkBytes32("0xddbeef")],
+      });
+
+      // contract stubs
+      processFromRootCtxMock.adapters.contracts.hubConnector = stub().returns({
+        address: mkAddress("0xdeadbeef"),
+      });
+
+      // encode stubs
+      stub(MockableFns, "encodeProcessMessageFromRoot").returns("0xfaded");
+      const ret = await ProcessFromRootFns.processorConfigs[params.spokeDomainId].getWriteTransaction(params);
+      expect(ret).to.contain({
+        data: "0xfaded",
+        domain: +params.hubDomainId,
+        value: constants.Zero,
+      });
+      expect(processFromRootCtxMock.adapters.contracts.hubConnector).to.be.calledWithExactly(
+        params.hubChainId,
+        "Optimism",
+        "Staging",
+      );
+      expect(getMessageStatusStub).to.be.calledOnceWithExactly(params.sendHash);
+    });
+
+    it("getWriteTransactionFromArgsWithPrefix should throw if no hub connector", async () => {
+      // messenger stubs for opt
+      stub(MockableFns, "OptimismCrossChainMessenger").value(MockCrossChainMessenger);
+      getMessageStatusStub = stub().resolves(MessageStatus.READY_TO_PROVE);
+      toCrosschainMessageStub = stub().resolves({} as any);
+      toLowLevelMessageStub = stub().resolves({
+        messageNonce: 1,
+        sender: mkAddress("0xdead"),
+        target: mkAddress("0xbeef"),
+        value: constants.Zero,
+        message: "0x123",
+        minGasLimit: constants.Zero,
+      });
+      getBedrockMessageProofStub = stub().resolves({
+        l2OutputIndex: 1235,
+        outputRootProof: [mkBytes32("0xdeaf")],
+        withdrawalProof: [mkBytes32("0xddbeef")],
+      });
+
+      // contract stubs
+      processFromRootCtxMock.adapters.contracts.hubConnector = stub().returns(undefined);
+
+      await expect(
+        ProcessFromRootFns.processorConfigs[params.spokeDomainId].getWriteTransaction(params),
+      ).to.be.rejectedWith(ProcessConfigNotAvailable);
+    });
+  });
+
   describe("#processSingleRootMessage", () => {
     let configStub: SinonStub<any[], any>;
 
@@ -197,7 +295,9 @@ describe("Operations: ProcessFromRoot", () => {
   describe("#getSpokeMessages", () => {
     let getLatestXLayerSpokeMessage: SinonStub<[number, number, RequestContext], [Promise<any | undefined>]>;
     beforeEach(() => {
-      getLatestXLayerSpokeMessage = stub(ProcessFromHelperRootFns, "getLatestXLayerSpokeMessage").resolves([]) as any;
+      getLatestXLayerSpokeMessage = stub(ProcessFromHelperRootFns, "getLatestXLayerSpokeMessage").resolves(
+        [] as any,
+      ) as any;
     });
 
     it("should work", async () => {
