@@ -266,7 +266,7 @@ export const processFromRoot = async () => {
       logger.info("Processing root message", requestContext, methodContext, { msg });
 
       try {
-        const taskId = await processSingleDomainRootMessage(msg, requestContext);
+        const taskId = await processSingleRootMessage(msg, requestContext);
         if (taskId) break;
       } catch (err: unknown) {
         logger.error("Error processing from root", requestContext, methodContext, jsonifyError(err as NxtpError));
@@ -275,7 +275,7 @@ export const processFromRoot = async () => {
   }
 };
 
-export const processSingleDomainRootMessage = async (
+export const processSingleRootMessage = async (
   rootMessage: RootMessage & { isSpokeClaim: boolean },
   requestContext: RequestContext,
 ): Promise<string | undefined> => {
@@ -285,7 +285,7 @@ export const processSingleDomainRootMessage = async (
     chainData,
     config,
   } = getContext();
-  const methodContext = createMethodContext("processSingleDomainRootMessage");
+  const methodContext = createMethodContext("processSingleRootMessage");
 
   const spokeChainId = chainData.get(rootMessage.spokeDomain)?.chainId;
   const hubChainId = chainData.get(rootMessage.hubDomain)?.chainId;
