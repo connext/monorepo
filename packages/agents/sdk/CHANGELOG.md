@@ -2,6 +2,14 @@
 
 ## Next Release
 
+## 2.5.0-alpha.4
+
+- `getLatestAssetPrice`: Added to fetch prices from Cartographer
+
+## 2.5.0-alpha.3
+
+- Removes use of relayer fee in native fetched from chaindata
+
 ## v2.5.0-alpha.2
 
 - `estimateRelayerFee`: Capped by hardcoded gas estimates of execute
