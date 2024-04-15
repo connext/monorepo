@@ -127,7 +127,7 @@ export const getLatestXLayerSpokeMessage = async (
 
   const xlayerBridgeApiEndpoint =
     domainToChainId(hubDomainId) === 1
-      ? "https://rpc.xlayer.tech/priapi/v1/ob/bridge/"
+      ? "https://rpc.xlayer.tech/priapi/v1/ob/bridge"
       : "https://testrpc.x1.tech/priapi/v1/ob/bridge";
 
   const spokeConnector = contracts.spokeConnector(
@@ -148,8 +148,12 @@ export const getLatestXLayerSpokeMessage = async (
     throw new NoHubConnector(hubDomainId, requestContext, methodContext);
   }
 
+  // spoke deposits go from L1 -> L2. On all chains but xlayer this happens automatically
+  // from chain operator
   const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector.address);
-  const [latest] = spokeDeposits.filter((d) => d.ready_for_claim).sort((a, b) => +b.block_num - +a.block_num);
+  const [latest] = spokeDeposits
+    .filter((d) => d.ready_for_claim && d.dest_net === 3) // claim to spoke
+    .sort((a, b) => +b.block_num - +a.block_num);
   if (!latest) {
     return undefined;
   }
@@ -162,10 +166,11 @@ export const getLatestXLayerSpokeMessage = async (
   // get the transaction on L1
   const tx = await chainreader.getTransactionReceipt(hubDomainId, latest.tx_hash);
   // get the block on L1
-  const block = await chainreader.getBlock(hubDomainId, Number(tx.blockNumber));
+  const block = await chainreader.getBlock(hubDomainId, tx.blockNumber ?? 1);
   if (!block || !tx) {
     logger.warn("Failed to get block or tx for spoke message", requestContext, methodContext, {
       hubDomainId,
+      spokeDomainId,
       block,
       tx,
       blockNumber: latest.block_num,
@@ -182,7 +187,7 @@ export const getLatestXLayerSpokeMessage = async (
   // return latest message
   return {
     ...latest,
-    id: `${parsed.args.data}-${spokeDomainId}`, // TODO: will this override existing carto entries?
+    id: `${parsed.args.data}-${spokeDomainId}-spoke-claim`, // NOTE: suffix indicates not from subgraph
     spokeDomain: spokeDomainId.toString(),
     hubDomain: hubDomainId.toString(),
     root: parsed.args.data,
