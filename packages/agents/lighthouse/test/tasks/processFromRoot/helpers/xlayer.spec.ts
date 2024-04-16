@@ -12,6 +12,7 @@ import {
 } from "../../../../src/tasks/processFromRoot/helpers";
 import { NoHubConnector, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 import { Interface, LogDescription } from "ethers/lib/utils";
+import { NoRootAvailable } from "../../../../src/tasks/processFromRoot/errors";
 
 const requestContext = createRequestContext("test");
 const SAMPLE_L1_TO_L2_DEPOSIT = {
@@ -193,6 +194,46 @@ describe("Helpers: XLayer ", () => {
           isSpokeClaim: true,
         } as unknown as GetProcessArgsParams),
       ).to.eventually.be.rejectedWith(NoHubConnector);
+    });
+
+    it("should fail if no claimable deposits", async () => {
+      const latest = {
+        ...SAMPLE_L1_TO_L2_DEPOSIT,
+        ready_for_claim: false,
+        claim_tx_hash: "",
+      };
+      stub(Mockable, "axiosGet").resolves({ data: { deposits: [latest] } });
+      await expect(
+        getProcessFromXlayerRootWriteTransaction({
+          spokeChainId: domainToChainId(spokeDomain),
+          hubChainId: domainToChainId(hubDomain),
+          hubDomainId: hubDomain.toString(),
+          spokeDomainId: spokeDomain.toString(),
+          _requestContext: requestContext,
+          sendHash: SAMPLE_L1_TO_L2_DEPOSIT.tx_hash.toLowerCase(),
+          isSpokeClaim: true,
+        } as unknown as GetProcessArgsParams),
+      ).to.eventually.be.rejectedWith(NoRootAvailable);
+    });
+
+    it("should return undefined if latest is already claimed", async () => {
+      const latest = {
+        ...SAMPLE_L1_TO_L2_DEPOSIT,
+        ready_for_claim: true,
+        claim_tx_hash: mkHash("0xded"),
+      };
+      stub(Mockable, "axiosGet").resolves({ data: { deposits: [latest] } });
+      await expect(
+        getProcessFromXlayerRootWriteTransaction({
+          spokeChainId: domainToChainId(spokeDomain),
+          hubChainId: domainToChainId(hubDomain),
+          hubDomainId: hubDomain.toString(),
+          spokeDomainId: spokeDomain.toString(),
+          _requestContext: requestContext,
+          sendHash: SAMPLE_L1_TO_L2_DEPOSIT.tx_hash.toLowerCase(),
+          isSpokeClaim: true,
+        } as unknown as GetProcessArgsParams),
+      ).to.eventually.be.undefined;
     });
   });
 });
