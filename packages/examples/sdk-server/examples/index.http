@@ -152,7 +152,7 @@ GET {{baseUrl}}/calculateCanonicalKey/1735353714/0x0000000000000000000000007ea6e
 
 ##############
 ### GET getCanonicalTokenId
-GET {{baseUrl}}/getCanonicalTokenId/9991/0xeDb95D8037f769B72AAab41deeC92903A98C9E16
+GET {{baseUrl}}/getCanonicalTokenId/1869640809/0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1
 
 ##############
 ### POST sendTransaction 
@@ -769,6 +769,16 @@ Content-Type: application/json
   "domainId": "1869640809",
   "asset": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
   "topN": 4
+}
+
+##############
+### POST getLatestAssetPrice
+POST {{baseUrl}}/getLatestAssetPrice
+Content-Type: application/json
+
+{
+  "domainId": "1869640809",
+  "asset": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
 }
 
 ##############
