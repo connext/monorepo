@@ -22,7 +22,6 @@ describe("SdkUtils", () => {
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "domainToChainId").returns(chainId);
-    stub(SharedFns, "axiosGetRequest").resolves({});
 
     nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
@@ -181,15 +180,6 @@ describe("SdkUtils", () => {
     });
   });
 
-  describe("#getAssetsData", () => {
-    it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getAssetsData();
-
-      expect(res).to.not.be.undefined;
-    });
-  });
-
   describe("#getTransfers", () => {
     it("happy: should work with userAddress", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
@@ -285,6 +275,19 @@ describe("SdkUtils", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       const res = await nxtpUtils.getRouterLiquidity();
+
+      expect(res).to.not.be.undefined;
+    });
+    
+  });
+
+  describe("getLatestAssetPrice", () => {
+    it("happy: should work", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+      stub(nxtpUtils, "getCanonicalTokenId").resolves(["123", "0xabc"]);
+      stub(SharedFns, "axiosGetRequest").resolves({});
+
+      const res = await nxtpUtils.getLatestAssetPrice(mock.domain.A, mock.asset.A.address);
 
       expect(res).to.not.be.undefined;
     });

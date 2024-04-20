@@ -594,13 +594,18 @@ describe("SdkBase", () => {
 
   describe("estimateRelayerFee", () => {
     let calculateRelayerFeeStub: SinonStub;
+    let getConversionRateStub: SinonStub;
+
     beforeEach(() => {
       calculateRelayerFeeStub = stub(SharedFns, "calculateRelayerFee");
+      getConversionRateStub = stub(SharedFns, "getConversionRate");
     });
+
     afterEach(() => {
       restore();
       reset();
     });
+
     it("should return 0 if origin/destination native asset price is 0", async () => {
       calculateRelayerFeeStub.resolves(BigNumber.from(100));
       const relayerFee = await sdkBase.estimateRelayerFee({

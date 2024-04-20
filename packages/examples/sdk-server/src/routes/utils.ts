@@ -6,7 +6,9 @@ import {
   SdkCheckRouterLiquidityParamsSchema,
   SdkCheckRouterLiquidityParams,
   SdkEnoughRouterLiquidityParamsSchema,
-  SdkEnoughRouterLiquidityParams
+  SdkEnoughRouterLiquidityParams,
+  SdkGetLatestAssetPriceParamsSchema,
+  SdkGetLatestAssetPriceParams,
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { FastifyInstance } from "fastify";
@@ -68,6 +70,20 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
     async (request, reply) => {
       const { domainId, asset, minLiquidity, maxN } = request.body;
       const res = await sdkUtilsInstance.enoughRouterLiquidity(domainId, asset, minLiquidity, maxN);
+      reply.status(200).send(res);
+    },
+  );
+
+  s.post<{ Body: SdkGetLatestAssetPriceParams }>(
+    "/getLatestAssetPrice",
+    {
+      schema: {
+        body: SdkGetLatestAssetPriceParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      const { domainId, asset } = request.body;
+      const res = await sdkUtilsInstance.getLatestAssetPrice(domainId, asset);
       reply.status(200).send(res);
     },
   );

@@ -853,6 +853,13 @@ export const SdkEnoughRouterLiquidityParamsSchema = Type.Object({
 });
 export type SdkEnoughRouterLiquidityParams = Static<typeof SdkEnoughRouterLiquidityParamsSchema>;
 
+// getLatestAssetPrice
+export const SdkGetLatestAssetPriceParamsSchema = Type.Object({
+  domainId: Type.String(),
+  asset: Type.String(),
+});
+export type SdkGetLatestAssetPriceParams = Static<typeof SdkGetLatestAssetPriceParamsSchema>;
+
 /************************************
 SDK Router Types
 *************************************/

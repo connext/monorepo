@@ -355,4 +355,29 @@ export class SdkUtils extends SdkShared {
 
     return bigIntCoeff * BigInt(10) ** bigIntExp;
   }
+
+  /**
+   * Fetches asset prices that match filter criteria from Cartographer.
+   *
+   * @param domainId - The domain ID for the asset.
+   * @param asset - The address of the asset.
+   * @returns The last updated price for the asset.
+   * ```
+   */
+  async getLatestAssetPrice(domainId: string, asset: string): Promise<BigNumber> {
+    const canonicalId = await this.getCanonicalTokenId(domainId, asset);
+    const canonicalIdIdentifier = canonicalId[0] !== "0" ? `canonical_id=eq.${canonicalId[1]}&` : "";
+
+    const searchIdentifier = canonicalIdIdentifier;
+    const orderIdentifier = `order=timestamp.desc`;
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "asset_prices?",
+      searchIdentifier + orderIdentifier + `&limit=1`,
+    );
+    validateUri(uri);
+
+    return await axiosGetRequest(uri);
+  }
 }

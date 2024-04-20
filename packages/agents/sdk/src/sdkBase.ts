@@ -639,7 +639,7 @@ export class SdkBase extends SdkShared {
         : this.getConversionRate(destinationChainId),
     ]);
 
-    const relayerFeeInOriginNativeAsset = await calculateRelayerFee(
+    const relayerFee = await calculateRelayerFee(
       {
         ...params,
         originChainId,
@@ -653,7 +653,7 @@ export class SdkBase extends SdkShared {
       requestContext,
     );
 
-    return relayerFeeInOriginNativeAsset;
+    return relayerFee;
   }
 
   /**

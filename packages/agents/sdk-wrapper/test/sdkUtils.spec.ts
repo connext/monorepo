@@ -11,6 +11,7 @@ import {
   SdkGetRouterLiquidityParams,
   SdkGetRoutersDataParams,
   SdkGetTransfersParams,
+  SdkGetLatestAssetPriceParams,
 } from "../src/sdk-types";
 
 const mockConfig = mock.config();
@@ -206,6 +207,31 @@ describe("#SDKUtils", () => {
       });
 
       const res = await sdkUtils.checkRouterLiquidity(expectedArgs.domainId, expectedArgs.asset);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+  });
+
+  describe("#getLatestAssetPrice", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/getLatestAssetPrice";
+      const expectedArgs: SdkGetLatestAssetPriceParams = {
+        domainId: mock.domain.A,
+        asset: mock.asset.A.address,
+      };
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
+
+      axiosPostStub.resolves({
+        data: mockServerRes,
+        status: 200,
+      });
+
+      const res = await sdkUtils.getLatestAssetPrice(expectedArgs.domainId, expectedArgs.asset);
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);

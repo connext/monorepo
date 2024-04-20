@@ -75,4 +75,14 @@ export class SdkUtils extends SdkShared {
 
     return BigNumber.from(response.data);
   }
+
+  async getLatestAssetPrice(domainId: string, asset: string): Promise<BigNumber> {
+    const params: { domainId: string; asset: string } = {
+      domainId,
+      asset,
+    };
+    const response = await axiosPost(`${this.baseUri}/getLatestAssetPrice`, params);
+
+    return BigNumber.from(response.data);
+  }
 }
