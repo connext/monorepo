@@ -399,7 +399,7 @@ export const executeFastPathData = async (
         // Update the last bid time for a given router.
         await Promise.all(
           randomCombination.map((bid) =>
-            cache.routers.setLastBidTime(bid.router, {
+            cache.routers.setLastBidTime(bid.router.toLowerCase(), {
               originDomain: transfer!.xparams.originDomain,
               destinationDomain: transfer!.xparams.destinationDomain,
               asset: transfer!.origin.assets.transacting.asset,
