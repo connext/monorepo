@@ -274,78 +274,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
-      name: "nextAlUSD",
-      canonical: {
-        domain: "6648936",
-        address: "0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x49000f5e208349D2fA678263418e21365208E498",
-          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
-        },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0x49000f5e208349D2fA678263418e21365208E498",
-          adopted: "0x49000f5e208349D2fA678263418e21365208E498",
-        },
-        // polygon
-        "1886350457": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // bnb
-        "6450786": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // gnosis
-        "6778479": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-      },
-    },
-    {
-      name: "nextAlETH",
-      canonical: {
-        domain: "6648936",
-        address: "0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
-          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
-        },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
-          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
-        },
-        // polygon
-        "1886350457": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // bnb
-        "6450786": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-        // gnosis
-        "6778479": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
-        },
-      },
-    },
-    {
       // TODO: This is the old config, to be removed in execution layer upgrade
       name: "ALCX",
       canonical: {
@@ -686,6 +614,56 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1836016741": {
           local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
           adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+      },
+    },
+    {
+      name: "Alchemix USD",
+      canonical: {
+        domain: "11111",
+        address: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+          adopted: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+      },
+    },
+    {
+      name: "Alchemix ETH",
+      canonical: {
+        domain: "11111",
+        address: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+          adopted: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+          adopted: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0x17573150d67d820542EFb24210371545a4868B03",
+          adopted: "0x17573150d67d820542EFb24210371545a4868B03",
         },
       },
     },
