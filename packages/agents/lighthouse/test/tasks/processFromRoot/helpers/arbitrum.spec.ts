@@ -10,6 +10,7 @@ import {
   NoRootAvailable,
   RollUpNodeStaked,
 } from "../../../../src/tasks/processFromRoot/errors";
+import { ArbitrumNodeCreatedEventsNotFound } from "../../../../src/errors/processor";
 import { BigNumber, constants } from "ethers";
 
 class MockJsonRpcProvider {
@@ -23,9 +24,17 @@ class MockL2TransactionReceipt {
   public isDataAvailable = isDataAvailableStub;
   public getL2ToL1Messages = stub().resolves([l2ToL1MessageReader]);
 }
+class MockL2TransactionReceiptTemp {
+  public isDataAvailable = isDataAvailableStub;
+  public getL2ToL1Messages = stub().resolves([{}]);
+}
 
 class MockEventFetcher {
   public getEvents = stub().resolves([{ event: { nodeNum: constants.One } }]);
+}
+
+class MockEventFetcherError {
+  public getEvents = stub().resolves([]);
 }
 
 const mockOutboxFactory = {
@@ -171,6 +180,24 @@ describe("Helpers: Arbitrum", () => {
     ).to.be.rejectedWith(RollUpNodeStaked);
   });
 
+  it("should throw error in case msg event is not present", async () => {
+    stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceiptTemp);
+    await expect(
+      getProcessFromArbitrumRootArgs({
+        spokeChainId: 42161,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 1,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
+        blockNumber: 1,
+        _requestContext: createRequestContext("foo"),
+      }),
+    ).to.be.rejectedWith(`Could not find event for message in ${mkHash("0xbaa")}`);
+  });
+
   it("should work", async () => {
     const args = await getProcessFromArbitrumRootArgs({
       spokeChainId: 42161,
@@ -185,5 +212,23 @@ describe("Helpers: Arbitrum", () => {
       _requestContext: createRequestContext("foo"),
     });
     expect(args).to.be.ok;
+  });
+
+  it("should throw error if Event Fetcher fails to retrieve events", async () => {
+    stub(MockableFns, "EventFetcher").value(MockEventFetcherError);
+    await expect(
+      getProcessFromArbitrumRootArgs({
+        spokeChainId: 42161,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 1,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        message: mkHash("0xaa"),
+        blockNumber: 1,
+        _requestContext: createRequestContext("foo"),
+      }),
+    ).to.be.rejectedWith(ArbitrumNodeCreatedEventsNotFound);
   });
 });
