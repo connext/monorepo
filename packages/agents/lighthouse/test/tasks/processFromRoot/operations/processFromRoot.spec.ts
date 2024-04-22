@@ -31,6 +31,7 @@ let getMessageStatusStub: SinonStub;
 let toCrosschainMessageStub: SinonStub;
 let toLowLevelMessageStub: SinonStub;
 let getBedrockMessageProofStub: SinonStub;
+let getArgs: SinonStub;
 
 class MockCrossChainMessenger {
   public getMessageStatus = getMessageStatusStub;
@@ -291,6 +292,20 @@ describe("Operations: ProcessFromRoot", () => {
         ProcessFromRootFns.processSingleRootMessage({ ...rootMsg, isSpokeClaim: false }, requestContext),
       ).to.be.rejectedWith(ProcessConfigNotAvailable);
     });
+    it("should return undefined", async () => {
+      const rootMsg = mock.entity.rootMessage();
+      stub(ProcessFromRootFns, "processorConfigs").value({
+        [mock.entity.rootMessage().spokeDomain]: {
+          getWriteTransaction: () => Promise.resolve(undefined),
+          hubConnectorPrefix: "Optimism",
+        },
+      });
+      const args = await ProcessFromRootFns.processSingleRootMessage(
+        { ...rootMsg, isSpokeClaim: false },
+        requestContext,
+      );
+      expect(args).to.be.undefined;
+    });
   });
 
   describe("#processFromRoot", () => {
@@ -357,6 +372,13 @@ describe("Operations: ProcessFromRoot", () => {
     it("should work", async () => {
       const messages = await ProcessFromRootFns.getSpokeMessages(requestContext);
       expect(messages).to.be.deep.eq([]);
+    });
+    it("should work with not empty array", async () => {
+      getLatestXLayerSpokeMessage = stub(ProcessFromHelperRootFns, "getLatestXLayerSpokeMessage").resolves([
+        {},
+      ] as any) as any;
+      const message = await ProcessFromRootFns.getSpokeMessages(requestContext);
+      expect(message).to.not.be.undefined;
     });
   });
 });

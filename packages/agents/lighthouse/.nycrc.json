@@ -24,6 +24,7 @@
     "src/tasks/processFromRoot/helpers/metis/utils.ts",
     "src/tasks/processFromRoot/helpers/metis/args.ts",
     "src/tasks/processFromRoot/operations/index.ts",
+    "src/tasks/processFromRoot/operations/processFromRoot.ts",
     "src/tasks/processFromRoot/context.ts",
     "src/tasks/processFromRoot/index.ts",
     "src/tasks/processFromRoot/processFromRoot.ts",

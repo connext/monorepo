@@ -1,5 +1,5 @@
-import { createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
-import { stub, SinonStub, createStubInstance, SinonStubbedInstance } from "sinon";
+import { Logger, createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
+import { stub, SinonStub, createStubInstance, SinonStubbedInstance, spy } from "sinon";
 import { L2ToL1MessageReader } from "@arbitrum/sdk";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
@@ -12,6 +12,7 @@ import {
 } from "../../../../src/tasks/processFromRoot/errors";
 import { ArbitrumNodeCreatedEventsNotFound } from "../../../../src/errors/processor";
 import { BigNumber, constants } from "ethers";
+import { getContext } from "../../../../src/tasks/processFromRoot/processFromRoot";
 
 class MockJsonRpcProvider {
   public getTransactionReceipt = stub().resolves({ hello: "world" });
@@ -230,5 +231,44 @@ describe("Helpers: Arbitrum", () => {
         _requestContext: createRequestContext("foo"),
       }),
     ).to.be.rejectedWith(ArbitrumNodeCreatedEventsNotFound);
+  });
+
+  it("should have warning in getBlockFromNodeLog fails", async () => {
+    (l2ToL1MessageReader as any).nitroReader = {
+      getBlockFromNodeNum: (...args: any) =>
+        Promise.resolve({
+          blockNumber: constants.One,
+          nodeNum: constants.One,
+          sendRoot: mkHash("0x123"),
+          sendCount: constants.One,
+          hash: mkHash("0x456"),
+        } as any),
+      getBlockFromNodeLog: (...args: any) =>
+        Promise.reject({
+          blockNumber: constants.One,
+          nodeNum: constants.One,
+          sendRoot: mkHash("0x123"),
+          sendCount: constants.One,
+          hash: mkHash("0x456"),
+        } as any),
+      event: { position: constants.One, ethBlockNum: constants.One },
+    };
+    const loggerSpy = spy(getContext().logger, "warn");
+
+    const args = await getProcessFromArbitrumRootArgs({
+      spokeChainId: 42161,
+      spokeDomainId: "1",
+      spokeProvider: "world",
+      hubChainId: 1,
+      hubDomainId: "2",
+      hubProvider: "hello",
+      sendHash: mkHash("0xbaa"),
+      message: mkHash("0xaa"),
+      blockNumber: 1,
+      _requestContext: createRequestContext("foo"),
+    });
+
+    expect(loggerSpy.calledOnce).to.be.true;
+    expect(loggerSpy.firstCall.args[0]).to.include("Failed to get block from node log");
   });
 });
