@@ -179,7 +179,7 @@ export const getLatestXLayerSpokeMessage = async (
     return undefined;
   }
   // get the root
-  const iface = getInterface(hubConnector.abi);
+  const iface = getInterface(hubConnector.abi as any[]);
   const [parsed] = tx.logs
     .filter((log) => log.address.toLowerCase() === hubConnector.address.toLowerCase())
     .map((log) => iface.parseLog(log));
