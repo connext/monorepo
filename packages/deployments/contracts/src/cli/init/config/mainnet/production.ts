@@ -640,6 +640,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
           adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
         },
+        /// Metis Andromeda
+        "1835365481": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        },
       },
     },
     {
@@ -664,6 +669,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1634886255": {
           local: "0x17573150d67d820542EFb24210371545a4868B03",
           adopted: "0x17573150d67d820542EFb24210371545a4868B03",
+        },
+        /// Metis Andromeda
+        "1835365481": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
         },
       },
     },
