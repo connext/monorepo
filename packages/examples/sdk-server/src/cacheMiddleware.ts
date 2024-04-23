@@ -21,7 +21,7 @@ export async function cacheMiddleware(
       const cacheExpiration = getCacheExpirationTimeForRoute(routeName, options);
       const cachedResult = await server.redis.get(cacheKey);
 
-      if (cachedResult) {
+      if (cachedResult !== null) {
         reply.status(200).send(JSON.parse(cachedResult));
         return;
       }
