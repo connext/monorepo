@@ -1,5 +1,5 @@
 import { reset, restore, stub } from "sinon";
-import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus } from "@connext/nxtp-utils";
+import { expect, XTransferStatus, getRandomBytes32, XTransferErrorStatus, mkAddress } from "@connext/nxtp-utils";
 import { mock } from "./mock";
 import { SdkUtils } from "../src/sdkUtils";
 import { getEnvConfig } from "../src/config";
@@ -16,12 +16,16 @@ const chainId = 1337;
 describe("SdkUtils", () => {
   let nxtpUtils: SdkUtils;
   let config: ConfigFns.SdkConfig;
+  let stubAxiosGetRequest;
 
   beforeEach(async () => {
     config = getEnvConfig(mockConfig, mockChainData, mockDeployments);
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "domainToChainId").returns(chainId);
+    stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest').resolves([
+      { "address": mkAddress("0x1") }
+    ]);
 
     nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
@@ -46,21 +50,55 @@ describe("SdkUtils", () => {
   describe("#getRoutersData", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getRoutersData();
 
-      expect(res).to.not.be.undefined;
+      await nxtpUtils.getRoutersData();
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?`
+      )).to.be.true;
     });
 
     it("happy: should work with order", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-      const res = await nxtpUtils.getRoutersData({
+
+      await nxtpUtils.getRoutersData({
         order: {
           orderBy: "balance",
           ascOrDesc: "desc",
         },
       });
 
-      expect(res).to.not.be.undefined;
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?order=balance.desc&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with limit", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        limit: 1
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?limit=1`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with order and limit", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+        limit: 1
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?order=balance.desc&limit=1`)
+      ).to.be.true;
     });
 
     it("should error if validateUri fails", async () => {
@@ -285,7 +323,7 @@ describe("SdkUtils", () => {
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       stub(nxtpUtils, "getCanonicalTokenId").resolves(["123", "0xabc"]);
-      stub(SharedFns, "axiosGetRequest").resolves({});
+      // stub(SharedFns, "axiosGetRequest").resolves({});
 
       const res = await nxtpUtils.getLatestAssetPrice(mock.domain.A, mock.asset.A.address);
 
