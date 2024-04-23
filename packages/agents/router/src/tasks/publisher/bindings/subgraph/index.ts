@@ -4,7 +4,6 @@ import interval from "interval-promise";
 import { retryXCalls, sendStatusToSequencer } from "../../operations";
 import { getMissingXCalls, getXCalls } from "../../operations/getXCalls";
 import { getContext } from "../../publisher";
-import { log } from "foo-foo-mq";
 
 export const bindSubgraph = async (_pollInterval?: number) => {
   const { config, logger } = getContext();
