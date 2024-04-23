@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
+import fastify, { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { createLoggingContext, Logger, getBestProvider, jsonifyError } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
 import cors from "@fastify/cors";
@@ -20,7 +20,7 @@ export interface RoutesOptions {
   logger?: Logger;
   cacheConfig?: {
     enabled?: boolean;
-    expirationTime?: number;
+    cacheExpirationTimes?: Record<string, number>; // route-specific expiration times, in seconds
   };
 }
 
@@ -48,7 +48,6 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       const provider = new ethers.providers.JsonRpcProvider(url);
       configuredProviders[key] = provider;
     }
-
     const nxtpConfig: SdkConfig = {
       chains: chains,
       logLevel: context.config.logLevel,
@@ -56,21 +55,21 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       environment: context.config.environment,
     };
 
-    const { sdkBase, sdkPool, sdkUtils, sdkRouter, sdkShared } = await create(nxtpConfig);
-
     // Server configuration - setup redis plugin if enabled, CORS, register routes
     const server = fastify();
 
     if (context.config.redis?.enabled) {
-      server.register(fastifyRedis, {
+      await server.register(fastifyRedis, {
         host: context.config.redis?.host,
         port: context.config.redis?.port,
       });
     }
 
-    server.register(cors, {
+    await server.register(cors, {
       origin: "*",
     });
+
+    await setupRoutes(server, nxtpConfig);
 
     server.setErrorHandler(function (error, request, reply) {
       context.logger.error(`Error: ${error.message}`, requestContext, methodContext);
@@ -81,27 +80,12 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
       return reply.status(200).send("pong\n");
     });
 
-    server.register(baseRoutes, {
-      sdkBaseInstance: sdkBase,
-      logger: context.logger,
-      cacheConfig: context.config.redis,
-    });
-    server.register(poolRoutes, { sdkPoolInstance: sdkPool, logger: context.logger });
-    server.register(utilsRoutes, { sdkUtilsInstance: sdkUtils, logger: context.logger });
-    server.register(routerRoutes, { sdkRouterInstance: sdkRouter, logger: context.logger });
-    server.register(sharedRoutes, { sdkSharedInstance: sdkShared, logger: context.logger });
-
-    server.listen({ host: context.config.server.http.host, port: context.config.server.http.port }, (err, address) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-      context.logger.info(`Server listening at ${address}`);
-    });
+    await server.listen({ host: context.config.server.http.host, port: context.config.server.http.port });
 
     context.logger.info("SDK Server boot complete!", requestContext, methodContext, {
       config: { ...context.config },
     });
+    context.logger.info(`Server listening at ${context.config.server.http.host}:${context.config.server.http.port}`);
 
     return server;
   } catch (err: unknown) {
@@ -109,3 +93,32 @@ export const makeSdkServer = async (_configOverride?: SdkServerConfig): Promise<
     process.exit(1);
   }
 };
+
+async function setupRoutes(server: FastifyInstance, nxtpConfig: SdkConfig) {
+  const { sdkBase, sdkPool, sdkUtils, sdkRouter, sdkShared } = await create(nxtpConfig);
+  await server.register(baseRoutes, {
+    sdkBaseInstance: sdkBase,
+    logger: context.logger,
+    cacheConfig: context.config.redis,
+  });
+  await server.register(poolRoutes, { 
+    sdkPoolInstance: sdkPool,
+    logger: context.logger,
+    cacheConfig: context.config.redis,
+  });
+  await server.register(utilsRoutes, { 
+    sdkUtilsInstance: sdkUtils,
+    logger: context.logger,
+    cacheConfig: context.config.redis,
+  });
+  await server.register(routerRoutes, { 
+    sdkRouterInstance: sdkRouter,
+    logger: context.logger,
+    cacheConfig: context.config.redis,
+  });
+  await server.register(sharedRoutes, { 
+    sdkSharedInstance: sdkShared,
+    logger: context.logger,
+    cacheConfig: context.config.redis,
+  });
+}

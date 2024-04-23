@@ -24,6 +24,7 @@ export class SdkUtils extends SdkShared {
 
   async getRoutersData(params?: {
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+    limit?: number;
   }): Promise<RouterBalance[]> {
     const response = await axiosPost(`${this.baseUri}/getRoutersData`, params ?? {});
     return response.data;
