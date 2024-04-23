@@ -73,6 +73,7 @@ export class SdkUtils extends SdkShared {
    * @param params.order - (optional) The object with orderBy and ascOrDesc options.
    * @param params.order.orderBy - (optional) Field to order by.
    * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
+   * @param params.limit - (optional) The number of results to get.
    * @returns Array of objects containing the router address and liquidity information, in the form of:
    *
    * ```ts
@@ -93,17 +94,22 @@ export class SdkUtils extends SdkShared {
    *}
    * ```
    */
-  async getRoutersData(params?: {
+   async getRoutersData(params?: {
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+    limit?: number;
   }): Promise<RouterBalance[]> {
-    const { order } = params ?? {};
+    const { order, limit } = params ?? {};
 
-    const orderBy = order?.orderBy ? order.orderBy : "";
-    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
-    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+    const orderBy = order?.orderBy || "";
+    const ascOrDesc = order?.ascOrDesc ? `.${order.ascOrDesc}` : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}&` : "";
+    const limitIdentifier = limit ? `limit=${limit}` : "";
 
-    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
-    // Validate uri
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "routers_with_balances?",
+      orderIdentifier + limitIdentifier
+    );
     validateUri(uri);
 
     return await axiosGetRequest(uri);

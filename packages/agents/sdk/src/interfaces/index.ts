@@ -807,6 +807,7 @@ export const TRange = Type.Object({
 export const SdkGetRoutersDataParamsSchema = Type.Optional(
   Type.Object({
     order: Type.Optional(TOrderBy),
+    limit: Type.Optional(Type.Number()),
   }),
 );
 export type SdkGetRoutersDataParams = Static<typeof SdkGetRoutersDataParamsSchema>;
