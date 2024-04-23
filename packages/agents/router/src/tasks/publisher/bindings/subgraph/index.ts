@@ -84,7 +84,7 @@ export const bindSubgraph = async (_pollInterval?: number) => {
     if (config.mode.cleanup) {
       stop();
     } else {
-      const now = await getNtpTimeSeconds();
+      const now = getNtpTimeSeconds();
       const threshold = pollInterval * 5;
       if (now - getXCallsTimestamp > threshold) {
         throw new Error("getXCalls interval did not complete");
