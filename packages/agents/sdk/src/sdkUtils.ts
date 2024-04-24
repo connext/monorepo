@@ -94,11 +94,26 @@ export class SdkUtils extends SdkShared {
    *}
    * ```
    */
-   async getRoutersData(params?: {
+  async getRoutersData(params?: {
+    domain?: string;
+    localAsset?: string;
+    adoptedAsset?: string;
+    canonicalId?: string;
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
     limit?: number;
   }): Promise<RouterBalance[]> {
-    const { order, limit } = params ?? {};
+    const { domain, localAsset, adoptedAsset, canonicalId, order, limit } = params ?? {};
+
+    const domainIdentifier = domain ? `domain=eq.${domain}&` : "";
+    const localAssetIdentifier = localAsset ? `local=eq.${localAsset}&` : "";
+    const adoptedAssetIdentifier = adoptedAsset ? `adopted=eq.${adoptedAsset}&` : "";
+    const canonicalIdIdentifier = canonicalId ? `canonical_id=eq.${canonicalId}&` : "";
+
+    const searchIdentifier =
+      domainIdentifier +
+      localAssetIdentifier +
+      adoptedAssetIdentifier +
+      canonicalIdIdentifier;
 
     const orderBy = order?.orderBy || "";
     const ascOrDesc = order?.ascOrDesc ? `.${order.ascOrDesc}` : "";
@@ -108,7 +123,7 @@ export class SdkUtils extends SdkShared {
     const uri = formatUrl(
       this.config.cartographerUrl!,
       "routers_with_balances?",
-      orderIdentifier + limitIdentifier
+      searchIdentifier + orderIdentifier + limitIdentifier
     );
     validateUri(uri);
 
@@ -319,29 +334,35 @@ export class SdkUtils extends SdkShared {
    * Checks if enough router liquidity is available for a specific asset.
    *
    * @param domainId - The domain ID where the asset exists.
-   * @param asset - The address of the asset.
+   * @param asset - The address of the local asset.
    * @param minLiquidity - The minimum liquidity to check against the sum of max N routers.
    * @param maxN - (optional) The max N routers, should match the auction round depth (N = 2^(depth-1).
    * @returns The total router liquidity available for the asset.
    *
    */
-  async enoughRouterLiquidity(domainId: string, asset: string, minLiquidity: BigNumberish, maxN?: number): Promise<boolean> {
-    const _asset = utils.getAddress(asset);
+  async enoughRouterLiquidity(
+    domainId: string,
+    asset: string,
+    minLiquidity: BigNumberish,
+    maxN?: number
+  ): Promise<boolean> {
+    const _asset = asset.toLowerCase();
     const _maxN = maxN ?? 4;
     const _minLiquidityBN = BigNumber.from(this.scientificToBigInt(minLiquidity.toString()));
   
-    const routersByLargestBalance = await this.getRoutersData({ order: { orderBy: "balance", ascOrDesc: "desc" } });
+    const routersByLargestBalance = await this.getRoutersData({
+      domain: domainId,
+      localAsset: _asset,
+      order: { orderBy: "balance", ascOrDesc: "desc" },
+      limit: _maxN
+    });
   
     let totalLiquidity = BigNumber.from(0);
-    let processedRouters = 0;
-  
     for (let routerBalance of routersByLargestBalance) {
-      if (routerBalance.domain == domainId && utils.getAddress(routerBalance.local) == _asset) {
+      if (routerBalance.domain == domainId && routerBalance.local == _asset) {
         const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
         totalLiquidity = totalLiquidity.add(balanceBN);
-        processedRouters += 1;
         if (totalLiquidity.gte(_minLiquidityBN)) return true;
-        if (processedRouters == _maxN) break;
       }
     }
   

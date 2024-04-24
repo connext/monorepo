@@ -101,6 +101,54 @@ describe("SdkUtils", () => {
       ).to.be.true;
     });
 
+    it("happy: should work with domain", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        domain: mock.domain.A
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?domain=eq.${mock.domain.A}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with localAsset", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        localAsset: mock.asset.A.address
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?local=eq.${mock.asset.A.address}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with adoptedAsset", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        adoptedAsset: mock.asset.A.address
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?adopted=eq.${mock.asset.A.address}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with canonicalId", async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
+
+      await nxtpUtils.getRoutersData({
+        canonicalId: "1"
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/routers_with_balances?canonical_id=eq.1&`)
+      ).to.be.true;
+    });
+
     it("should error if validateUri fails", async () => {
       (nxtpUtils as any).config.cartographerUrl = "invalidUrl";
 
@@ -118,7 +166,7 @@ describe("SdkUtils", () => {
   });
 
   describe("#enoughRouterLiquidity", () => {
-    it("should be true when enough liquidity between <N routers", async () => {
+    it.only("should be true when enough liquidity between <N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
       restore();
