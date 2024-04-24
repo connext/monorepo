@@ -1,4 +1,4 @@
-import { reset, restore, stub, spy, match } from "sinon";
+import { reset, restore, stub, spy, match, createStubInstance } from "sinon";
 import { expect, getCanonicalHash, getRandomBytes32, DEFAULT_ROUTER_FEE, mkAddress } from "@connext/nxtp-utils";
 import { getConnextInterface } from "@connext/nxtp-txservice";
 import { providers, utils, BigNumber, constants } from "ethers";
@@ -10,6 +10,7 @@ import { getEnvConfig } from "../src/config";
 import * as ConfigFns from "../src/config";
 import * as SharedFns from "../src/lib/helpers/shared";
 import { UriInvalid, ParamsInvalid } from "../src/lib/errors";
+import { SdkUtils } from "../src/sdkUtils";
 
 const mockConfig = mock.config();
 const mockChainData = mock.chainData();
@@ -17,6 +18,7 @@ const mockDeployments = mock.contracts.deployments();
 
 describe("SdkPool", () => {
   let sdkPool: SdkPool;
+  let sdkUtilsStub: SdkUtils;
   let config: ConfigFns.SdkConfig;
 
   const localAsset: PoolAsset = {
@@ -93,6 +95,7 @@ describe("SdkPool", () => {
     stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkPool = await SdkPool.create(config, undefined, mockChainData);
+    sdkUtilsStub = createStubInstance(SdkUtils);
   });
 
   afterEach(() => {
@@ -420,6 +423,8 @@ describe("SdkPool", () => {
 
     it("happy: should work with local origin asset and adopted destination asset", async () => {
       stub(sdkPool, "getPool").onCall(0).resolves(undefined).onCall(1).resolves(mockPool);
+      (sdkUtilsStub.enoughRouterLiquidity as any).returns(Promise.resolve(true));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
 
       const originAmount = BigNumber.from(100_000);
       const originSlippage = "0"; // 0% in BPS
@@ -439,14 +444,19 @@ describe("SdkPool", () => {
         mockPool.domainId,
         mockPool.local.address,
         originAmount,
+        false,
+        true
       );
 
       expect(res.originSlippage.toString()).to.equal(originSlippage);
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+      expect(res.isFastPath).to.be.true;
     });
 
     it("happy: should work with adopted origin asset and adopted destination asset", async () => {
       stub(sdkPool, "getPool").onCall(0).resolves(mockPool).onCall(1).resolves(mockPool);
+      (sdkUtilsStub.enoughRouterLiquidity as any).returns(Promise.resolve(true));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
 
       const originAmount = BigNumber.from(100_000);
       const originAmountAfterSwap = originAmount.mul(9).div(10); // assume swap ate 10%
@@ -469,10 +479,13 @@ describe("SdkPool", () => {
         mockPool.domainId,
         mockPool.adopted.address,
         originAmount,
+        false,
+        true
       );
 
       expect(res.originSlippage.toString()).to.equal(originSlippage);
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+      expect(res.isFastPath).to.be.true;
     });
 
     it("happy: should work with adopted origin asset and local destination asset", async () => {
@@ -524,6 +537,9 @@ describe("SdkPool", () => {
     });
 
     it("happy: should work with local origin asset and adopted destination asset, 6 and 18 decimals respectively", async () => {
+      (sdkUtilsStub.enoughRouterLiquidity as any).returns(Promise.resolve(true));
+      stub(SdkUtils, "create").resolves(sdkUtilsStub);
+
       const localAsset6Decimals = { ...localAsset, decimals: 6 };
       const adoptedAsset18Decimals = { ...adoptedAsset, decimals: 18 };
       const mockPoolDifferentDecimals = {
@@ -555,10 +571,13 @@ describe("SdkPool", () => {
         mockPoolDifferentDecimals.domainId,
         mockPoolDifferentDecimals.local.address,
         originAmount,
+        false,
+        true
       );
 
       expect(res.originSlippage.toString()).to.equal(originSlippage);
       expect(res.destinationSlippage.toString()).to.equal(destinationSlippage);
+      expect(res.isFastPath).to.be.true;
     });
 
     it("happy: should work with adopted origin asset and local destination asset, 18 and 6 decimals respectively", async () => {
