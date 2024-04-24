@@ -356,10 +356,10 @@ export class SdkUtils extends SdkShared {
       order: { orderBy: "balance", ascOrDesc: "desc" },
       limit: _maxN
     });
-  
+
     let totalLiquidity = BigNumber.from(0);
     for (let routerBalance of routersByLargestBalance) {
-      if (routerBalance.domain == domainId && routerBalance.local == _asset) {
+      if (routerBalance.domain == domainId && routerBalance.local.toLowerCase() == _asset) {
         const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
         totalLiquidity = totalLiquidity.add(balanceBN);
         if (totalLiquidity.gte(_minLiquidityBN)) return true;
