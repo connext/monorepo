@@ -73,8 +73,8 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
         request,
         reply,
         async () => {
-          const { domainId, asset, minLiquidity, maxN } = request.body;
-          return sdkUtilsInstance.enoughRouterLiquidity(domainId, asset, minLiquidity, maxN);
+          const { domainId, asset, minLiquidity, maxN, bufferPercentage } = request.body;
+          return sdkUtilsInstance.enoughRouterLiquidity(domainId, asset, minLiquidity, maxN, bufferPercentage);
         },
         "enoughRouterLiquidity",
         options

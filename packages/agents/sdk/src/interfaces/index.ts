@@ -851,6 +851,7 @@ export const SdkEnoughRouterLiquidityParamsSchema = Type.Object({
   asset: Type.String(),
   minLiquidity: Type.Number(),
   maxN: Type.Optional(Type.Number()),
+  bufferPercentage: Type.Optional(Type.Number()),
 });
 export type SdkEnoughRouterLiquidityParams = Static<typeof SdkEnoughRouterLiquidityParamsSchema>;
 

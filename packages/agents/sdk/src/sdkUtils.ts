@@ -341,6 +341,7 @@ export class SdkUtils extends SdkShared {
    * @param asset - The address of the local asset.
    * @param minLiquidity - The minimum liquidity to check against the sum of max N routers.
    * @param maxN - (optional) The max N routers, should match the auction round depth (N = 2^(depth-1).
+   * @param bufferPercentage - (optional) The buffer percentage to apply on top of the minimum liquidity.
    * @returns The total router liquidity available for the asset.
    *
    */
@@ -348,11 +349,13 @@ export class SdkUtils extends SdkShared {
     domainId: string,
     asset: string,
     minLiquidity: BigNumberish,
-    maxN?: number
+    maxN?: number,
+    bufferPercentage?: number
   ): Promise<boolean> {
     const _asset = asset.toLowerCase();
     const _maxN = maxN ?? 4;
     const _minLiquidityBN = BigNumber.from(this.scientificToBigInt(minLiquidity.toString()));
+    const _bufferPercentage = bufferPercentage ?? 0;
   
     const routersByLargestBalance = await this.getRoutersData({
       domain: domainId,
@@ -366,11 +369,11 @@ export class SdkUtils extends SdkShared {
       if (routerBalance.domain == domainId && routerBalance.local.toLowerCase() == _asset) {
         const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
         totalLiquidity = totalLiquidity.add(balanceBN);
-        if (totalLiquidity.gte(_minLiquidityBN)) return true;
       }
     }
   
-    return false;
+    const totalLiquidityWithBuffer = _minLiquidityBN.mul(BigNumber.from(100 + _bufferPercentage)).div(100);
+    return totalLiquidity.gte(totalLiquidityWithBuffer);
   }
 
   scientificToBigInt(scientificNotationString: string) {

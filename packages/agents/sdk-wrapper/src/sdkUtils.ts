@@ -64,13 +64,22 @@ export class SdkUtils extends SdkShared {
     domainId: string, 
     asset: string, 
     minLiquidity: BigNumberish, 
-    maxN?: number
+    maxN?: number,
+    bufferPercentage?: number
   ): Promise<BigNumber> {
-    const params: { domainId: string; asset: string; minLiquidity: BigNumberish, maxN?: number } = {
+    const params: { 
+      domainId: string;
+      asset: string;
+      minLiquidity: BigNumberish,
+      maxN?: number,
+      bufferPercentage?: number
+    } = 
+    {
       domainId,
       asset,
       minLiquidity,
-      maxN
+      maxN,
+      bufferPercentage
     };
     const response = await axiosPost(`${this.baseUri}/enoughRouterLiquidity`, params);
 

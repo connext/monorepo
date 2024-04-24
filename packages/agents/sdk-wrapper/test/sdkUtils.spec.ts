@@ -206,7 +206,11 @@ describe("#SDKUtils", () => {
         status: 200,
       });
 
-      const res = await sdkUtils.checkRouterLiquidity(expectedArgs.domainId, expectedArgs.asset);
+      const res = await sdkUtils.enoughRouterLiquidity(
+        expectedArgs.domainId,
+        expectedArgs.asset,
+        expectedArgs.minLiquidity
+      );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
