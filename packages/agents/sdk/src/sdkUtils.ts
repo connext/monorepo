@@ -70,6 +70,10 @@ export class SdkUtils extends SdkShared {
    * Fetches a list of router liquidity data.
    *
    * @param params - (optional) Parameters object.
+   * @param params.domain - (optional) The domain to filter against.
+   * @param params.localAsset - (optional) The local asset address to filter against.
+   * @param params.adoptedAsset - (optional) The adopted asset address to filter against.
+   * @param params.canonicalId - (optional) The canonical ID to filter against.
    * @param params.order - (optional) The object with orderBy and ascOrDesc options.
    * @param params.order.orderBy - (optional) Field to order by.
    * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
