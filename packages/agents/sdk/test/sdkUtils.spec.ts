@@ -23,10 +23,6 @@ describe("SdkUtils", () => {
 
     stub(ConfigFns, "getConfig").resolves({ nxtpConfig: config, chainData: mockChainData });
     stub(SharedFns, "domainToChainId").returns(chainId);
-    stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest').resolves([
-      { "address": mkAddress("0x1") }
-    ]);
-
     nxtpUtils = await SdkUtils.create(mockConfig, undefined, mockChainData);
   });
 
@@ -48,6 +44,12 @@ describe("SdkUtils", () => {
   });
 
   describe("#getRoutersData", () => {
+    beforeEach(async () => {
+      stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest').resolves([
+        { "address": mkAddress("0x1") }
+      ]);
+    });
+
     it("happy: should work", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
@@ -166,11 +168,14 @@ describe("SdkUtils", () => {
   });
 
   describe("#enoughRouterLiquidity", () => {
+    beforeEach(async () => {
+      stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest');
+    });
+
     it("should be true when enough liquidity between <N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
-      restore();
-      stub(SharedFns, 'axiosGetRequest').resolves([
+      stubAxiosGetRequest.resolves([
         {
           "balance": "100",
           "local": mock.asset.A.address,
@@ -182,6 +187,7 @@ describe("SdkUtils", () => {
           "domain": mock.domain.A, 
         }
       ]);
+
       const res = await nxtpUtils.enoughRouterLiquidity(
         mock.domain.A, 
         mock.asset.A.address, 
@@ -195,19 +201,21 @@ describe("SdkUtils", () => {
     it("happy: should be true when enough liquidity between N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
-      restore();
-      stub(SharedFns, 'axiosGetRequest').resolves([
-        {
-          "balance": "100",
-          "local": mock.asset.A.address,
-          "domain": mock.domain.A, 
-        },
-        {
-          "balance": "200",
-          "local": mock.asset.A.address,
-          "domain": mock.domain.A, 
-        }
-      ]);
+      stubAxiosGetRequest.resolves(
+        [
+          {
+            "balance": "100",
+            "local": mock.asset.A.address,
+            "domain": mock.domain.A, 
+          },
+          {
+            "balance": "200",
+            "local": mock.asset.A.address,
+            "domain": mock.domain.A, 
+          }
+        ]
+      );
+
       const res = await nxtpUtils.enoughRouterLiquidity(
         mock.domain.A, 
         mock.asset.A.address, 
@@ -221,8 +229,7 @@ describe("SdkUtils", () => {
     it("happy: should be false when not enough liquidity between <N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
-      restore();
-      stub(SharedFns, 'axiosGetRequest').resolves([
+      stubAxiosGetRequest.resolves([
         {
           "balance": "100",
           "local": mock.asset.A.address,
@@ -242,8 +249,7 @@ describe("SdkUtils", () => {
     it("happy: should be false when not enough liquidity between N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
-      restore();
-      stub(SharedFns, 'axiosGetRequest').resolves([
+      stubAxiosGetRequest.resolves([
         {
           "balance": "100",
           "local": mock.asset.A.address,
