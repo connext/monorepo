@@ -166,7 +166,7 @@ describe("SdkUtils", () => {
   });
 
   describe("#enoughRouterLiquidity", () => {
-    it.only("should be true when enough liquidity between <N routers", async () => {
+    it("should be true when enough liquidity between <N routers", async () => {
       (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
 
       restore();
