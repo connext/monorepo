@@ -150,7 +150,7 @@ export const makePublisher = async (_configOverride?: NxtpRouterConfig) => {
       `,
     );
   } catch (e: unknown) {
-    console.error("Error starting router publisher. Sad! :(", e);
+    console.error("Error in router publisher. Sad! :(", e);
     process.exit();
   }
 };
