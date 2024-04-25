@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   mantle_Bytes: any;
   mantle_Int8: any;
+  Timestamp: any;
 };
 
 export type mantle_AggregateRoot = {
@@ -149,6 +150,10 @@ export type mantle_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type mantle_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type mantle_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type mantle__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['mantle_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
