@@ -35,8 +35,8 @@ export const getParamsForDomainFn: Record<
   "6778479": getPropagateParamsGnosis,
   "1818848877": getPropagateParamsLinea,
   "1635148152": getPropagateParamsAvalanche,
-  "2053862243": getPropagateParamsZkSync,
-  "1935897199": getPropagateParamsScroll,
+  // "2053862243": getPropagateParamsZkSync,
+  // "1935897199": getPropagateParamsScroll,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
   "1633842021": getPropagateParamsArbitrum,
@@ -57,6 +57,7 @@ export const propagate = async () => {
   logger.info("Starting propagate operation", requestContext, methodContext);
   const rootManagerMeta: RootManagerMeta = await subgraph.getRootManagerMeta(config.hubDomain);
   const domains = rootManagerMeta.domains;
+  console.log(domains, "all domains");
   const hubChainId = chainData.get(config.hubDomain)?.chainId;
   if (!hubChainId) {
     throw new NoChainIdForDomain(config.hubDomain, requestContext, methodContext);
@@ -69,6 +70,10 @@ export const propagate = async () => {
   let _totalFee = constants.Zero;
 
   for (const domain of domains) {
+    // removing zksync
+    // if (domain === "2053862243" || domain === "1935897199") {
+    //   continue;
+    // }
     const connector = rootManagerMeta.connectors[domains.indexOf(domain)];
     _connectors.push(connector);
 

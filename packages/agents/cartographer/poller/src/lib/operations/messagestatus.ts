@@ -59,6 +59,7 @@ export const getMessageStatus = async (transfer: XTransfer): Promise<XTransferMe
     transfer.xparams.originDomain,
     message.origin.index,
   );
+  console.log(rootMessageStatus, transfer.xparams.originDomain, message.transferId);
   if (rootMessageStatus.processedCount + rootMessageStatus.unprocessedCount == 0) {
     // there are 2 possible reasons
     // 1. sendOutboundRoot didn't happen on the spoke domain

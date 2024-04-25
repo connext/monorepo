@@ -89,8 +89,11 @@ export const getReconciledTransactions = async (param: {
     statusIdentifier + timeIdentifierFallback + rangeIdentifier,
   );
   try {
+    console.log("response from carto check 1");
     logger.debug("Getting transactions from URI", requestContext, methodContext, { uri });
     const response = await axiosGet(uri);
+    console.log("response from carto check 2");
+    console.log(response.data, "response from carto check");
     if (response.data.length > 0) {
       data = [...data, ...response.data];
     } else {
@@ -98,14 +101,17 @@ export const getReconciledTransactions = async (param: {
     }
   } catch (error: any) {
     try {
+      console.log("response from carto check 3");
       logger.debug("Getting transactions from URI", requestContext, methodContext, { uriFallback });
       const response = await axiosGet(uriFallback);
+      console.log(response, "final check pass");
       if (response.data.length > 0) {
         data = [...data, ...response.data];
       } else {
         nextPage = false;
       }
     } catch (error: any) {
+      console.log("all fail");
       nextPage = false;
       throw new CartoApiRequestFailed({ uriFallback, error: jsonifyError(error as NxtpError) });
     }

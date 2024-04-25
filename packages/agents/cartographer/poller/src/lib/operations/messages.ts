@@ -179,6 +179,7 @@ export const retrieveSentRootMessages = async () => {
     }
     const maxBlockNumber = latestBlockNumber - confirmations;
     const offset = await database.getCheckPoint("sent_root_message_" + domain);
+    console.log("offset from db", offset, "sent_root_message_" + domain);
     const limit = 100;
     logger.debug("Retrieving sent root messages", requestContext, methodContext, {
       domain: domain,
@@ -196,6 +197,9 @@ export const retrieveSentRootMessages = async () => {
     }
 
     const _sentRootMessages: RootMessage[] = await subgraph.getSentRootMessagesByDomain([{ domain, offset, limit }]);
+    if (domain === "2020368761") {
+      console.log(_sentRootMessages, "send message roots from domain", offset);
+    }
 
     // Reset offset at the end of the cycle.
     const newOffset =
@@ -240,7 +244,10 @@ export const retrieveProcessedRootMessages = async () => {
       { domain, offset, limit },
     ]);
 
+    console.log(processedRootMessages, "processedRootMessages console", offset, "processed_root_message_" + domain);
+
     // Reset offset at the end of the cycle.
+    console.log(offset, "hub offset");
     const newOffset =
       processedRootMessages.length == 0
         ? 0
@@ -249,6 +256,7 @@ export const retrieveProcessedRootMessages = async () => {
     await database.saveProcessedRootMessages(processedRootMessages);
 
     if (processedRootMessages.length > 0 && newOffset > offset) {
+      console.log("entering here?");
       await database.saveCheckPoint("processed_root_message_" + domain, newOffset);
     }
 

@@ -5,7 +5,7 @@
   "author": "Connext",
   "license": "MIT",
   "scripts": {
-    "start:all": "concurrently -i -k -c 'green,cyan' npm:start:publisher npm:start:subscriber",
+    "start:all": "concurrently -i -k -c 'green,cyan' npm:start:publisher npm:start:subscriber npm:start:server",
     "docker:redis:up": "docker run -it --rm --name redis -p 6379:6379 redis",
     "docker:rabbitmq:up": "docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.10-management",
     "start": "node dist/index.js",

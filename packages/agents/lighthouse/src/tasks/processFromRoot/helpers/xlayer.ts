@@ -135,6 +135,7 @@ export const getLatestXLayerSpokeMessage = async (
     "Xlayer",
     config.environment === "staging" ? "Staging" : "",
   );
+
   if (!spokeConnector) {
     throw new NoSpokeConnector(spokeDomainId, requestContext, methodContext);
   }
@@ -151,9 +152,13 @@ export const getLatestXLayerSpokeMessage = async (
   // spoke deposits go from L1 -> L2. On all chains but xlayer this happens automatically
   // from chain operator
   const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector.address);
+
+  console.log(spokeDeposits, "spoke depsits");
   const [latest] = spokeDeposits
     .filter((d) => d.ready_for_claim && d.dest_net === 3) // claim to spoke
     .sort((a, b) => +b.block_num - +a.block_num);
+
+  console.log(latest, "latest");
   if (!latest) {
     return undefined;
   }
@@ -162,6 +167,8 @@ export const getLatestXLayerSpokeMessage = async (
   if (latest.claim_tx_hash) {
     return undefined;
   }
+
+  console.log("global check");
 
   // get the transaction on L1
   const tx = await chainreader.getTransactionReceipt(hubDomainId, latest.tx_hash);
