@@ -245,13 +245,14 @@ export class SdkPool extends SdkShared {
       amount,
       signerAddress,
     });
-    const [originPool, [canonicalDomain, canonicalId]] = await Promise.all([
-      this.getPool(originDomain, _originTokenAddress),
-      this.getCanonicalTokenId(originDomain, _originTokenAddress),
-    ]);
+
+    const originPool = await this.getPool(originDomain, _originTokenAddress);
     const isNextAsset = originPool ? utils.getAddress(originPool.local.address) === _originTokenAddress : undefined;
-    const key = this.calculateCanonicalKey(canonicalDomain, canonicalId);
-    const destinationAssetData = await this.getAssetsDataByDomainAndKey(destinationDomain, key);
+    const destinationAssetData = (await this.getAssetsData({
+      domain: originDomain,
+      localAsset: _originTokenAddress,
+      limit: 1
+    }))[0];
     if (!destinationAssetData) {
       throw new Error("Origin token cannot be bridged to any token on this destination domain");
     }
