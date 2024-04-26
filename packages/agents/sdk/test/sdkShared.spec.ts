@@ -52,9 +52,6 @@ describe("SdkShared", () => {
     stub(SharedFns, "axiosGetRequest").resolves([]);
 
     sdkShared = new SdkShared(mockConfig, logger, mockChainData);
-    // console.log(sdkShared.config.chains);
-    // console.log(sdkShared.config.chains[13337]);
-    // console.log(sdkShared.config.chains[13338]);
   });
 
   afterEach(() => {
@@ -364,12 +361,95 @@ describe("SdkShared", () => {
   });
 
   describe("#getAssetsData", () => {
-    it("happy: should work", async () => {
+    let stubAxiosGetRequest;
+
+    beforeEach(async () => {
       sdkShared.config.cartographerUrl = config.cartographerUrl;
       restore();
-      stub(SharedFns, "axiosGetRequest").resolves([mockAssetData]);
+      stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest').resolves([mockAssetData]);
+    });
+
+    it("happy: should work", async () => {
       const res = await sdkShared.getAssetsData();
+
       expect(res).to.be.deep.equal([mockAssetData]);
+    });
+    
+    it("happy: should work with order", async () => {
+      await sdkShared.getAssetsData({
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?order=balance.desc&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with limit", async () => {
+      await sdkShared.getAssetsData({
+        limit: 1
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?limit=1`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with order and limit", async () => {
+      await sdkShared.getAssetsData({
+        order: {
+          orderBy: "balance",
+          ascOrDesc: "desc",
+        },
+        limit: 1
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?order=balance.desc&limit=1`)
+      ).to.be.true;
+    });
+
+        it("happy: should work with domain", async () => {
+      await sdkShared.getAssetsData({
+        domain: mock.domain.A
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?domain=eq.${mock.domain.A}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with localAsset", async () => {
+      await sdkShared.getAssetsData({
+        localAsset: mock.asset.A.address
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?local=eq.${mock.asset.A.address.toLowerCase()}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with adoptedAsset", async () => {
+      await sdkShared.getAssetsData({
+        adoptedAsset: mock.asset.A.address
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?adopted=eq.${mock.asset.A.address.toLowerCase()}&`)
+      ).to.be.true;
+    });
+
+    it("happy: should work with canonicalId", async () => {
+      await sdkShared.getAssetsData({
+        canonicalId: "1"
+      });
+
+      expect(stubAxiosGetRequest.calledWith(
+        config.cartographerUrl + `/assets?canonical_id=eq.1&`)
+      ).to.be.true;
     });
   });
 

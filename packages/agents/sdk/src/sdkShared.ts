@@ -403,14 +403,47 @@ export class SdkShared {
    * ```
    */
   getAssetsData = memoize(
-    async (): Promise<AssetData[]> => {
-      const uri = formatUrl(this.config.cartographerUrl!, "assets");
-      // Validate uri
+    async (params?: {
+      domain?: string;
+      localAsset?: string;
+      adoptedAsset?: string;
+      canonicalId?: string;
+      order?: { orderBy: string; ascOrDesc: "asc" | "desc" };
+      limit?: number;
+    }): Promise<AssetData[]> => {
+      const { domain, localAsset, adoptedAsset, canonicalId, order, limit } = params ?? {};
+
+      const domainIdentifier = domain ? `domain=eq.${domain.toString()}&` : "";
+      const localAssetIdentifier = localAsset ? `local=eq.${localAsset.toLowerCase()}&` : "";
+      const adoptedAssetIdentifier = adoptedAsset ? `adopted=eq.${adoptedAsset.toLowerCase()}&` : "";
+      const canonicalIdIdentifier = canonicalId ? `canonical_id=eq.${canonicalId.toLowerCase()}&` : "";
+
+      const searchIdentifier =
+        domainIdentifier +
+        localAssetIdentifier +
+        adoptedAssetIdentifier +
+        canonicalIdIdentifier;
+
+      const orderBy = order?.orderBy || "";
+      const ascOrDesc = order?.ascOrDesc ? `.${order.ascOrDesc}` : "";
+      const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}&` : "";
+      const limitIdentifier = limit ? `limit=${limit}` : "";
+
+      const uri = formatUrl(
+        this.config.cartographerUrl!,
+        "assets?",
+        searchIdentifier + orderIdentifier + limitIdentifier
+      );
       validateUri(uri);
 
       return await axiosGetRequest(uri);
-    },
-    { promise: true, maxAge: 5 * 60 * 1000 }, // 5 min
+    }, {
+      promise: true,
+      maxAge: 5 * 60 * 1000, // 5 minutes
+      normalizer: function(args) {
+        return JSON.stringify(args[0]);
+      }
+    }
   );
 
   getActiveLiquidity = memoize(
