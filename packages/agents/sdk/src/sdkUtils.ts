@@ -108,10 +108,10 @@ export class SdkUtils extends SdkShared {
   }): Promise<RouterBalance[]> {
     const { domain, localAsset, adoptedAsset, canonicalId, order, limit } = params ?? {};
 
-    const domainIdentifier = domain ? `domain=eq.${domain}&` : "";
-    const localAssetIdentifier = localAsset ? `local=eq.${localAsset}&` : "";
-    const adoptedAssetIdentifier = adoptedAsset ? `adopted=eq.${adoptedAsset}&` : "";
-    const canonicalIdIdentifier = canonicalId ? `canonical_id=eq.${canonicalId}&` : "";
+    const domainIdentifier = domain ? `domain=eq.${domain.toString()}&` : "";
+    const localAssetIdentifier = localAsset ? `local=eq.${localAsset.toLowerCase()}&` : "";
+    const adoptedAssetIdentifier = adoptedAsset ? `adopted=eq.${adoptedAsset.toLowerCase()}&` : "";
+    const canonicalIdIdentifier = canonicalId ? `canonical_id=eq.${canonicalId.toLowerCase()}&` : "";
 
     const searchIdentifier =
       domainIdentifier +

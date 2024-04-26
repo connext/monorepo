@@ -45,14 +45,13 @@ describe("SdkUtils", () => {
 
   describe("#getRoutersData", () => {
     beforeEach(async () => {
+      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
       stubAxiosGetRequest = stub(SharedFns, 'axiosGetRequest').resolves([
         { "address": mkAddress("0x1") }
       ]);
     });
 
     it("happy: should work", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData();
 
       expect(stubAxiosGetRequest.calledWith(
@@ -61,8 +60,6 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with order", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         order: {
           orderBy: "balance",
@@ -76,8 +73,6 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with limit", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         limit: 1
       });
@@ -88,8 +83,6 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with order and limit", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         order: {
           orderBy: "balance",
@@ -104,8 +97,6 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with domain", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         domain: mock.domain.A
       });
@@ -116,32 +107,26 @@ describe("SdkUtils", () => {
     });
 
     it("happy: should work with localAsset", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         localAsset: mock.asset.A.address
       });
 
       expect(stubAxiosGetRequest.calledWith(
-        config.cartographerUrl + `/routers_with_balances?local=eq.${mock.asset.A.address}&`)
+        config.cartographerUrl + `/routers_with_balances?local=eq.${mock.asset.A.address.toLowerCase()}&`)
       ).to.be.true;
     });
 
     it("happy: should work with adoptedAsset", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         adoptedAsset: mock.asset.A.address
       });
 
       expect(stubAxiosGetRequest.calledWith(
-        config.cartographerUrl + `/routers_with_balances?adopted=eq.${mock.asset.A.address}&`)
+        config.cartographerUrl + `/routers_with_balances?adopted=eq.${mock.asset.A.address.toLowerCase()}&`)
       ).to.be.true;
     });
 
     it("happy: should work with canonicalId", async () => {
-      (nxtpUtils as any).config.cartographerUrl = config.cartographerUrl;
-
       await nxtpUtils.getRoutersData({
         canonicalId: "1"
       });
