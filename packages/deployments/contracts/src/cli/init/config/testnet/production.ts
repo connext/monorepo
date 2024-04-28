@@ -68,6 +68,21 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ETHIX",
+      canonical: {
+        domain: "1936027759",
+        address: "0xF63eeAb5ce6C49654708442EA1Afb7B56693b734",
+        decimals: 18,
+      },
+      representations: {
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0xFd09911130e6930Bf87F2B0554c44F400bD80D3e",
+          adopted: "0xFd09911130e6930Bf87F2B0554c44F400bD80D3e",
+        }
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
