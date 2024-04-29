@@ -142,6 +142,11 @@ enum stagingoptimism_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingoptimism_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingoptimism_Asset {
   id: ID!
   key: stagingoptimism_Bytes
@@ -3943,6 +3948,12 @@ type Subscription {
   stagingoptimism__meta(block: stagingoptimism_Block_height): stagingoptimism__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum stagingoptimism_TransferStatus {
   XCalled
   Executed
@@ -3958,6 +3969,8 @@ type stagingoptimism__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: stagingoptimism_Bytes
 }
 
 """The type for the top-level _meta field"""

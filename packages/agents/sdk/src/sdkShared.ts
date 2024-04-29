@@ -589,7 +589,7 @@ export class SdkShared {
   /**
    * Returns the canonical ID and canonical domain of a token.
    *
-   * @param domainId The canonical domain ID of the token.
+   * @param domainId The domain ID of the token.
    * @param tokenAddress The address of the token.
    */
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {

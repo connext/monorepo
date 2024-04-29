@@ -20,6 +20,7 @@ export const mock = {
   publisherContext: (): PublisherAppContext => {
     return {
       adapters: {
+        wallet: mock.adapters.wallet(),
         subgraph: mock.adapters.subgraph(),
         cache: mock.adapters.cache(),
         mqClient: mock.adapters.mqClient() as any,
@@ -48,6 +49,7 @@ export const mock = {
   executorContext: (): ExecutorAppContext => {
     return {
       adapters: {
+        wallet: mock.adapters.wallet(),
         chainreader: mock.adapters.chainreader(),
         contracts: mock.contracts.interfaces(),
       },

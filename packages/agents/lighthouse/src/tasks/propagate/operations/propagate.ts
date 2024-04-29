@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -10,6 +10,7 @@ import {
   getPropagateParamsGnosis,
   getPropagateParamsZkSync,
   getPropagateParamsAvalanche,
+  getPropagateParamsScroll,
 } from "../helpers";
 import { getContext } from "../propagate";
 
@@ -35,6 +36,7 @@ export const getParamsForDomainFn: Record<
   "1818848877": getPropagateParamsLinea,
   "1635148152": getPropagateParamsAvalanche,
   "2053862243": getPropagateParamsZkSync,
+  "1935897199": getPropagateParamsScroll,
   // testnet
   "1734439522": getPropagateParamsArbitrum,
   "1633842021": getPropagateParamsArbitrum,
@@ -72,12 +74,7 @@ export const propagate = async () => {
 
     if (Object.keys(getParamsForDomainFn).includes(domain)) {
       const getParamsForDomain = getParamsForDomainFn[domain];
-      const propagateParam = await getParamsForDomain(
-        domain,
-        chainData.get(domain)!.chainId,
-        hubChainId,
-        requestContext,
-      );
+      const propagateParam = await getParamsForDomain(domain, domainToChainId(+domain), hubChainId, requestContext);
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
       _totalFee = _totalFee.add(BigNumber.from(propagateParam._fee));

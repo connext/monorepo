@@ -58,9 +58,11 @@ import "./tasks/addSender";
 import "./tasks/connector/processFromRoot";
 import "./tasks/connector/redeem";
 import "./tasks/connector/claimPolygonZk";
+import "./tasks/connector/claimXLayer";
 import "./tasks/pause";
 import "./tasks/unpause";
 import "./tasks/bumpTransfer";
+import "./tasks/createDomain";
 import "./tasks/rootmanager/enrollAdminConnector";
 import "./tasks/connector/addSpokeRootToAggregate";
 import "./tasks/connector/receiveHubAggregateRoot";
@@ -175,6 +177,7 @@ const config: HardhatUserConfig = {
     // (optional) An array of strings, matched against fully qualified contract names, to
     // determine which contracts are included in your Diamond ABI.
     include: [
+      "InboxFacet",
       "TokenFacet",
       "BaseConnextFacet",
       "BridgeFacet",

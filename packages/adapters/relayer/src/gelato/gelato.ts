@@ -36,9 +36,6 @@ const GAS_LIMIT_FOR_RELAYER = (chainId: number): string | undefined => {
     case 421613: {
       return "50000000";
     }
-    case 421614: {
-      return "50000000";
-    }
     default: {
       return "6000000";
     }
@@ -193,8 +190,6 @@ export const gelatoSDKSend = async (
     });
   }
 };
-
-export const GAS_LIMIT_BUFFER = 140; // 140%(1.4x)
 
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {
   return Promise.resolve(getGelatoRelayerAddress(chainIdToDomain(_chainId).toString()));

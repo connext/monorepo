@@ -119,6 +119,11 @@ export const getEnvConfig = (
       : configFile.relayerFeeTolerance
       ? configFile.relayerFeeTolerance
       : DEFAULT_RELAYER_FEE_TOLERANCE,
+    checkOnlyExecuteFee: configJson.checkOnlyExecuteFee
+      ? configJson.checkOnlyExecuteFee
+      : configFile.checkOnlyExecuteFee
+      ? configFile.checkOnlyExecuteFee
+      : true,
   };
 
   const defaultConfirmations = chainData && (chainData.get("1")?.confirmations ?? 1 + 3);

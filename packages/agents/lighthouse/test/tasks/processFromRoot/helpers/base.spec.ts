@@ -54,6 +54,24 @@ describe("Helpers: Base", () => {
     getBedrockMessageProofStub = stub().resolves(mockCrossChainMessageProof);
   });
 
+  it("should throw error if status is in changing period", async () => {
+    getMessageStatusStub.resolves(MessageStatus.IN_CHALLENGE_PERIOD);
+    await expect(
+      getProcessFromBaseRootArgs({
+        spokeChainId: 1,
+        spokeDomainId: "1",
+        spokeProvider: "world",
+        hubChainId: 2,
+        hubDomainId: "2",
+        hubProvider: "hello",
+        sendHash: mkHash("0xbaa"),
+        _requestContext: createRequestContext("foo"),
+        message: "0xbabababababa",
+        blockNumber: 1,
+      }),
+    ).to.be.rejectedWith(`Optimism message status is not ready to prove: ${MessageStatus.IN_CHALLENGE_PERIOD}`);
+  });
+
   it("should throw error if status is not ready to prove", async () => {
     getMessageStatusStub.resolves(MessageStatus.STATE_ROOT_NOT_PUBLISHED);
     await expect(

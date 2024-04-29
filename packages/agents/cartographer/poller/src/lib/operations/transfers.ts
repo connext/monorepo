@@ -52,7 +52,6 @@ export const updateTransfers = async () => {
       if (latestBlockNumbers.has(domain)) {
         latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
-
       if (!latestBlockNumber) {
         logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
           domain,
@@ -219,7 +218,7 @@ export const updateBackoffs = async (): Promise<void> => {
     logger,
     domains,
   } = getContext();
-  const { requestContext, methodContext } = createLoggingContext("updateTransfers");
+  const { requestContext, methodContext } = createLoggingContext("updateBackoffs");
   const subgraphRelayerFeeQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   const subgraphSlippageUpdatesQueryMetaParams: Map<string, SubgraphQueryByTimestampMetaParams> = new Map();
   await Promise.all(

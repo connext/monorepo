@@ -24,6 +24,14 @@ export type AdminRequest = Static<typeof AdminSchema>;
 export const ClearCacheRequestSchema = AdminSchema;
 export type ClearCacheRequest = Static<typeof ClearCacheRequestSchema>;
 
+export const RouterPingMessage = "ROUTER_PING";
+export const RouterPingRequestSchema = Type.Object({
+  router: Type.String(),
+  timestamp: Type.String(),
+  signed: Type.String(),
+});
+export type RouterPingRequest = Static<typeof RouterPingRequestSchema>;
+
 /// MARK - Sequencer API ----------------------------------------------------------------------------
 
 export const SequencerApiErrorResponseSchema = Type.Object({
@@ -56,6 +64,12 @@ export const ExecuteFastApiGetAuctionsStatusResponseSchema = Type.Object({
 });
 
 export type ExecuteFastApiGetExecStatusResponse = Static<typeof ExecuteFastApiGetAuctionsStatusResponseSchema>;
+
+export const RouterStatusApiResponseSchema = Type.Object({
+  lastActiveTimestamp: Type.Number(),
+  lastBidTimestamp: Type.Record(Type.String(), Type.String()),
+});
+export type RouterStatusApiResponse = Static<typeof RouterStatusApiResponseSchema>;
 
 export const ExecuteFastApiGetQueuedResponseSchema = Type.Object({
   queued: Type.Array(Type.String()),

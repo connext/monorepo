@@ -35,6 +35,9 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   1101: 8, //polygon-zkevm
   324: 10, // zksync-era
   5000: 200, // mantle network
+  34443: 30, // mode network
+  534352: 15, // scroll
+  196: 15, // x layer mainnet
 
   // testnets
   5: 4, // goerli
@@ -43,9 +46,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   59140: 30, // linea-goerli
   84531: 30, // base-goerli
   195: 60, // x1-testnet
-  11155111: 4, // sepolia
-  11155420: 20, // optimism-sepolia
-  421614: 60, // arbitrum-sepolia
+  534351: 14, // scroll sepolia l2
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -202,30 +203,30 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
   },
   testnet: {
     hub: {
-      chain: 11155111,
-      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111] / 2, // for root manager
-      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111], // for root manager
-    }, // Sepolia hub.
+      chain: 5,
+      minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5] / 2, // for root manager
+      disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5], // for root manager
+    }, // Goerli hub.
     configs: {
-      // Optimism Sepolia:
-      11155420: {
+      // Optimism goerli:
+      // https://community.optimism.io/docs/useful-tools/networks/#op-goerli
+      420: {
         prefix: "Optimism",
         ambs: {
           // L1CrossDomainMessenger
-          // https://sepolia.etherscan.io/address/0x58Cc85b8D04EA49cC6DBd3CbFFd00B4B8D6cb3ef
-          // https://github.com/ethereum-optimism/optimism/blob/9cca805d5e46746c60070d12bec94e1d93c4dcf3/packages/sdk/src/utils/chain-constants.ts#L33
-          hub: "0x58Cc85b8D04EA49cC6DBd3CbFFd00B4B8D6cb3ef", // L1 cross domain messenger
+          // https://goerli.etherscan.io/address/0x5086d1eEF304eb5284A0f6720f79403b4e9bE294
+          hub: "0x5086d1eEF304eb5284A0f6720f79403b4e9bE294", // L1 cross domain messenger
           spoke: "0x4200000000000000000000000000000000000007",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[11155420],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155420],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155420] / 2,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[420],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[420],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[420] / 2,
         custom: {
           hub: {
-            // https://sepolia.etherscan.io/address/0x16Fc5058F25648194471939df75CF27A2fdC48BC#code
-            optimismPortal: "0x16Fc5058F25648194471939df75CF27A2fdC48BC",
+            // https://goerli.etherscan.io/address/0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383#code
+            optimismPortal: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383",
             gasCap: DEFAULT_PROCESS_GAS,
           },
           spoke: {
@@ -233,53 +234,28 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
           },
         },
       },
-      // Arbitrum Sepolia
-      // https://docs.arbitrum.io/for-devs/useful-addresses
-      421614: {
-        prefix: "Arbitrum",
+      80001: {
+        prefix: "Polygon",
         ambs: {
-          // https://sepolia.etherscan.io/address/0xaAe29B0366299461418F5324a79Afc425BE5ae21
-          hub: "0xaAe29B0366299461418F5324a79Afc425BE5ae21",
-          // https://sepolia.arbiscan.io/address/0x0000000000000000000000000000000000000064
-          spoke: "0x0000000000000000000000000000000000000064",
+          // FxRoot on goerli
+          // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
+          hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
+          // FxChild on mumbai
+          // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
+          spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[421614],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[421614],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[421614] / 2,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[80001],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[80001],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[80001] / 2,
         custom: {
           hub: {
-            // https://sepolia.etherscan.io/address/0x65f07C7D521164a4d5DaC6eB8Fac8DA067A3B78F
-            outbox: "0x65f07C7D521164a4d5DaC6eB8Fac8DA067A3B78F",
-            maxSubmissionCostCap: utils.parseUnits("100000", "gwei"),
-            maxGasCap: DEFAULT_PROCESS_GAS,
-            gasPriceCap: utils.parseUnits("20", "gwei"), // minimum on arbitrum is 0.01 gwei
+            // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
+            checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
           },
         },
       },
-      // 80001: {
-      //   prefix: "Polygon",
-      //   ambs: {
-      //     // FxRoot on goerli
-      //     // https://goerli.etherscan.io/address/0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA
-      //     hub: "0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA",
-      //     // FxChild on mumbai
-      //     // https://mumbai.polygonscan.com/address/0xCf73231F28B7331BBe3124B907840A94851f9f11
-      //     spoke: "0xCf73231F28B7331BBe3124B907840A94851f9f11",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[80001],
-      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[80001],
-      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[80001] / 2,
-      //   custom: {
-      //     hub: {
-      //       // https://goerli.etherscan.io/address/0x2890ba17efe978480615e330ecb65333b880928e
-      //       checkpointManager: "0x2890bA17EfE978480615e330ecB65333b880928e",
-      //     },
-      //   },
-      // },
       // FIXME: not added in op-roots, sepolia?
       // 280: {
       //   prefix: "ZkSync",
@@ -303,62 +279,62 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
-      // 59140: {
-      //   prefix: "Linea",
-      //   ambs: {
-      //     // ZkEvmV202 on goerli
-      //     // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2
-      //     hub: "0x70BaD09280FD342D02fe64119779BC1f0791BAC2",
-      //     // L2Bridge on zkEvm
-      //     // https://explorer.goerli.linea.build/address/0xC499a572640B64eA1C8c194c43Bc3E19940719dC/transactions#address-tabs
-      //     spoke: "0xC499a572640B64eA1C8c194c43Bc3E19940719dC",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
-      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
-      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140] / 2,
-      // },
+      59140: {
+        prefix: "Linea",
+        ambs: {
+          // ZkEvmV202 on goerli
+          // https://goerli.etherscan.io/address/0x70BaD09280FD342D02fe64119779BC1f0791BAC2
+          hub: "0x70BaD09280FD342D02fe64119779BC1f0791BAC2",
+          // L2Bridge on zkEvm
+          // https://explorer.goerli.linea.build/address/0xC499a572640B64eA1C8c194c43Bc3E19940719dC/transactions#address-tabs
+          spoke: "0xC499a572640B64eA1C8c194c43Bc3E19940719dC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[59140] / 2,
+      },
       // Base goerli:
       // https://community.optimism.io/docs/useful-tools/networks/#op-goerli
-      // 84531: {
-      //   prefix: "Optimism",
-      //   networkName: "Base",
-      //   ambs: {
-      //     // L1CrossDomainMessenger
-      //     // https://goerli.etherscan.io/address/0x8e5693140eA606bcEB98761d9beB1BC87383706D
-      //     hub: "0x8e5693140eA606bcEB98761d9beB1BC87383706D", // L1 cross domain messenger
-      //     spoke: "0x4200000000000000000000000000000000000007",
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
-      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
-      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531] / 2,
-      //   custom: {
-      //     hub: {
-      //       // https://goerli.etherscan.io/address/0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA#code
-      //       optimismPortal: "0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA",
-      //       gasCap: DEFAULT_PROCESS_GAS,
-      //     },
-      //     spoke: {
-      //       gasCap: DEFAULT_PROCESS_GAS,
-      //     },
-      //   },
-      // },
-      // 195: {
-      //   prefix: "Admin",
-      //   networkName: "X1",
-      //   ambs: {
-      //     hub: constants.AddressZero,
-      //     spoke: constants.AddressZero,
-      //   },
-      //   processGas: DEFAULT_PROCESS_GAS,
-      //   reserveGas: DEFAULT_RESERVE_GAS,
-      //   delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
-      //   disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
-      //   minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
-      // },
+      84531: {
+        prefix: "Optimism",
+        networkName: "Base",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://goerli.etherscan.io/address/0x8e5693140eA606bcEB98761d9beB1BC87383706D
+          hub: "0x8e5693140eA606bcEB98761d9beB1BC87383706D", // L1 cross domain messenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[84531] / 2,
+        custom: {
+          hub: {
+            // https://goerli.etherscan.io/address/0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA#code
+            optimismPortal: "0xe93c8cD0D409341205A592f8c4Ac1A5fe5585cfA",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      195: {
+        prefix: "Admin",
+        networkName: "X1",
+        ambs: {
+          hub: constants.AddressZero,
+          spoke: constants.AddressZero,
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[195] / 2,
+      },
       // // FIXME: wormhole relayer deployment not listed in docs for goerli
       // // address used is core bridge; different from mainnet so this testnet is skipped
       // 97: {
@@ -411,7 +387,7 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
       //     },
       //   },
       // },
-      11155111: {
+      5: {
         prefix: "Mainnet",
         ambs: {
           hub: constants.AddressZero,
@@ -419,9 +395,9 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         },
         processGas: DEFAULT_PROCESS_GAS,
         reserveGas: DEFAULT_RESERVE_GAS,
-        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111],
-        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111],
-        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[11155111] / 2,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[5],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[5] / 2,
       },
     },
   },
@@ -736,6 +712,88 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             gasCap: ZKSYNC_DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Mode chain
+      34443: {
+        prefix: "Optimism",
+        networkName: "Mode",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://github.com/mode-network/chain-deployments/blob/main/mainnet/addresses.json
+          hub: "0x95bDCA6c8EdEB69C98Bd5bd17660BaCef1298A6f",
+          // L2CrossDomainMessenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443] / 2,
+        custom: {
+          hub: {
+            // OptimismPortal
+            // https://docs.mode.network/mode-mainnet/mainnet-contract-addresses/l1-l2-contracts
+            // https://etherscan.io/address/0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07#code
+            optimismPortal: "0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // Scroll L2ScrollMessenger
+          // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        custom: {
+          hub: {
+            // https://scrollscan.com/tx/0xb1de68a188d86bcae0c51b684396dd62ce9e95c34edfd2f45ba0acc3e52308b0
+            gasCap: BigNumber.from("130000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // X Layer mainnet
+      196: {
+        prefix: "PolygonZk",
+        networkName: "XLayer",
+        ambs: {
+          // PolygonZkEVMBridgeV2 on mainnet
+          // https://etherscan.io/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          hub: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+          // PolygonZkEVMBridgeV2 on xlayer-mainnet
+          // https://www.okx.com/explorer/xlayer/address/0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe
+          spoke: "0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[196] / 2,
+        custom: {
+          hub: {
+            mirrorNetworkId: "3",
+          },
+          spoke: {
+            mirrorNetworkId: "0",
           },
         },
       },

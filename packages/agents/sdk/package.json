@@ -1,6 +1,6 @@
 {
   "name": "@connext/sdk-core",
-  "version": "2.3.0-alpha.10",
+  "version": "2.5.0-alpha.4",
   "description": "Client-side package for interacting with the Connext protocol",
   "author": "Connext",
   "license": "MIT",

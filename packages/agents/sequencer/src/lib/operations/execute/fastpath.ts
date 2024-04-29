@@ -313,7 +313,7 @@ export const executeFastPathData = async (
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
             if (!routerLiquidity.eq(constants.Zero)) {
               await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
-            } else {
+            } else if (routerLiquidity.lt(assignedAmount)) {
               // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
               // have added liquidity for the asset on the corresponding domain.
               logger.warn("Skipped bid from router; liquidity not found in subgraph", requestContext, methodContext, {
@@ -364,6 +364,7 @@ export const executeFastPathData = async (
             }),
           },
         });
+
         // Send the relayer request based on chosen bids.
         const { taskId: _taskId } = await sendExecuteFastToRelayer(
           roundIdInNum,
@@ -380,6 +381,17 @@ export const executeFastPathData = async (
           origin,
           destination,
         });
+
+        // Update the last bid time for a given router.
+        await Promise.all(
+          randomCombination.map((bid) =>
+            cache.routers.setLastBidTime(bid.router, {
+              originDomain: transfer!.xparams.originDomain,
+              destinationDomain: transfer!.xparams.destinationDomain,
+              asset: transfer!.origin.assets.transacting.asset,
+            }),
+          ),
+        );
 
         // Update router liquidity record to reflect spending.
         for (const router of routerLiquidityMap.keys()) {

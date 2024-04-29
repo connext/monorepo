@@ -5,7 +5,7 @@ import { chainIdToDomain, domainToChainId } from "@connext/nxtp-utils";
 
 import { Env, getProviderFromHardhatConfig } from "../../utils";
 import { hardhatNetworks } from "../../config";
-import { HUBS, SUPPORTED_DOMAINS, Deployment } from "../helpers";
+import { HUBS, SUPPORTED_DOMAINS, Deployment, updateIfNeeded } from "../helpers";
 
 import {
   DAO_CONTRACTS,
@@ -13,6 +13,7 @@ import {
   HubMessagingOwnableDeployments,
   OwnableDeployment,
   PROTOCOL_ADMINS,
+  ROUTER_ADMINS,
   TO_LOCAL_ADMINS,
 } from "./helpers";
 
@@ -183,13 +184,13 @@ export const transferOwnership = async () => {
     console.log(`- proposing: ${desired}`);
     if (canApply) {
       const tx = await contract.connect(wallet.connect(provider)).proposeNewOwner(desired);
-      console.log(`- tx      : ${tx.hash}`);
+      console.log(`- tx       : ${tx.hash}`);
       await tx.wait();
       console.log(`- tx mined`);
     } else {
       const data = contract.interface.encodeFunctionData("proposeNewOwner", [desired]);
       const tx = { to: contract.address, data, chain: domainToChainId(domain) };
-      console.log(`- tx     :`, tx);
+      console.log(`- tx       :`, tx);
       console.log(``);
     }
   };
@@ -211,6 +212,25 @@ export const transferOwnership = async () => {
     if (!localAdmin || localAdmin === constants.AddressZero || !isAddress(localAdmin)) {
       throw new Error(`Local Admin must be a valid address: ${localAdmin}`);
     }
+
+    const localRouter = ROUTER_ADMINS[network][domain];
+    if (!localRouter || localRouter === constants.AddressZero || !isAddress(localRouter)) {
+      throw new Error(`Local router admin must be a valid address: ${localRouter}`);
+    }
+
+    console.log(`\n========== Handling router admin on ${chain} ==========`);
+    const { Connext } = allDeployments[+chain].execution;
+    await updateIfNeeded({
+      apply,
+      deployment: Connext,
+      desired: 1,
+      read: { method: "queryRole", args: [localRouter] },
+      write: { method: "assignRoleRouterAdmin", args: [localRouter] },
+      auth: [
+        { method: "owner", eval: (ret: string) => ret.toLowerCase() === wallet.address.toLowerCase() },
+        { method: "queryRole", args: [wallet.address], eval: (ret: number) => ret === 3 },
+      ],
+    });
 
     console.log(`\n========== Handling execution layer ownership on ${chain} ==========`);
     for (const deployment of Object.values(allDeployments[+chain].execution)) {

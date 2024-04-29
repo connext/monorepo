@@ -142,6 +142,11 @@ enum arbitrumsepolia_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum arbitrumsepolia_Aggregation_interval {
+  hour
+  day
+}
+
 type arbitrumsepolia_Asset {
   id: ID!
   key: arbitrumsepolia_Bytes
@@ -3943,6 +3948,12 @@ type Subscription {
   arbitrumsepolia__meta(block: arbitrumsepolia_Block_height): arbitrumsepolia__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum arbitrumsepolia_TransferStatus {
   XCalled
   Executed
@@ -3958,6 +3969,8 @@ type arbitrumsepolia__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: arbitrumsepolia_Bytes
 }
 
 """The type for the top-level _meta field"""

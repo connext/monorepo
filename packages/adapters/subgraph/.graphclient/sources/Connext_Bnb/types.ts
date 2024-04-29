@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   bnb_Bytes: any;
   bnb_Int8: any;
+  Timestamp: any;
 };
 
 export type bnb_AggregateRoot = {
@@ -149,6 +150,10 @@ export type bnb_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type bnb_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type bnb_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type bnb__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['bnb_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

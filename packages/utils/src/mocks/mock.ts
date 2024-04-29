@@ -94,6 +94,7 @@ export const mock = {
           analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
+        maxRelayerFeeInEth: "1000000",
       },
       {
         name: "Unit Test Chain 2",
@@ -106,6 +107,7 @@ export const mock = {
           analytics: [{ query: "http://example.com", health: "http://example.com" }],
           maxLag: 10,
         },
+        maxRelayerFeeInEth: "1000000",
       },
     ]),
   signature: mkSig("0xabcdef1c"),

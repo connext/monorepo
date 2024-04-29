@@ -142,6 +142,11 @@ enum stagingavalanche_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingavalanche_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingavalanche_Asset {
   id: ID!
   key: stagingavalanche_Bytes
@@ -3943,6 +3948,12 @@ type Subscription {
   stagingavalanche__meta(block: stagingavalanche_Block_height): stagingavalanche__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum stagingavalanche_TransferStatus {
   XCalled
   Executed
@@ -3958,6 +3969,8 @@ type stagingavalanche__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: stagingavalanche_Bytes
 }
 
 """The type for the top-level _meta field"""

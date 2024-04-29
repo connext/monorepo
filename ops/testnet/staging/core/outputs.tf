@@ -54,7 +54,7 @@ output "router-executor-service-endpoint" {
 }
 
 output "relayer-service-endpoint" {
-  value = module.relayer_server.service_endpoint
+  value = module.relayer.service_endpoint
 }
 
 output "relayer-dns" {

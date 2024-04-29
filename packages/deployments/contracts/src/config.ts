@@ -5,8 +5,11 @@ import { NetworkUserConfig } from "hardhat/types";
 dotenvConfig();
 
 export const SUPPORTED_CHAINS = {
-  mainnet: [1, 10, 56, 100, 137, 42161, 8453, 43114, 1088],
-  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195, 11155111, 11155420, 421614],
+  mainnet: [
+    1, 10, 56, 250, 137, 100, 122, 1285, 9001, 42161, 43114, 1284, 59144, 8453, 1101, 1088, 324, 5000, 34443, 534352,
+    196,
+  ],
+  testnet: [5, 280, 420, 59140, 80001, 421613, 84531, 195],
 };
 
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -123,15 +126,6 @@ export const hardhatNetworks = {
       "https://goerli.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
     // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
   },
-  sepolia: {
-    accounts: { mnemonic },
-    chainId: 11155111,
-    url:
-      urlOverride ||
-      process.env.SEPOLIA_ETH_PROVIDER_URL ||
-      "https://sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    // gasPrice: utils.parseUnits("50", "gwei").toNumber(),
-  },
   optimism: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 10,
@@ -161,24 +155,6 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
         apiUrl: "https://api-goerli-optimistic.etherscan.io/",
-      },
-    },
-  },
-  "optimism-sepolia": {
-    accounts: { mnemonic },
-    chainId: 11155420,
-    url:
-      urlOverride ||
-      process.env.OPTI_SEPOLIA_ETH_PROVIDER_URL ||
-      "https://optimism-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    companionNetworks: {
-      hub: "sepolia",
-    },
-    gasPrice: utils.parseUnits("2", "gwei").toNumber(),
-    verify: {
-      etherscan: {
-        apiKey: process.env.OPTIMISM_ETHERSCAN_API_KEY!,
-        apiUrl: "https://api-sepolia-optimistic.etherscan.io/",
       },
     },
   },
@@ -236,22 +212,6 @@ export const hardhatNetworks = {
       },
     },
   },
-  mumbai: {
-    accounts: { mnemonic },
-    chainId: 80001,
-    url:
-      urlOverride ||
-      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
-      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    companionNetworks: {
-      hub: "goerli",
-    },
-    verify: {
-      etherscan: {
-        apiKey: process.env.POLYGONSCAN_API_KEY!,
-      },
-    },
-  },
   avalanche: {
     accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
     chainId: 43114,
@@ -282,6 +242,22 @@ export const hardhatNetworks = {
       apiUrl: "https://api.arbiscan.io/",
     },
   },
+  mumbai: {
+    accounts: { mnemonic },
+    chainId: 80001,
+    url:
+      urlOverride ||
+      process.env.POLYGON_MUMBAI_PROVIDER_URL ||
+      "https://polygon-mumbai.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
+    companionNetworks: {
+      hub: "goerli",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY!,
+      },
+    },
+  },
   "arbitrum-goerli": {
     accounts: { mnemonic },
     chainId: 421613,
@@ -296,23 +272,6 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.ARBISCAN_API_KEY!,
         apiUrl: "https://api-goerli.arbiscan.io/",
-      },
-    },
-  },
-  "arbitrum-sepolia": {
-    accounts: { mnemonic },
-    chainId: 421614,
-    url:
-      urlOverride ||
-      process.env.ARBITRUM_SEPOLIA_ETH_PROVIDER_URL ||
-      "https://arbitrum-sepolia.infura.io/v3/7672e2bf7cbe427e8cd25b0f1dde65cf",
-    companionNetworks: {
-      hub: "sepolia",
-    },
-    verify: {
-      etherscan: {
-        apiKey: process.env.ARBISCAN_API_KEY!,
-        apiUrl: "https://api-sepolia.arbiscan.io/",
       },
     },
   },
@@ -484,6 +443,49 @@ export const hardhatNetworks = {
       etherscan: {
         apiKey: process.env.MANTLE_EXPLORER_API_KEY!,
         apiUrl: "https://explorer.mantle.xyz/api",
+      },
+    },
+  },
+  mode: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 34443,
+    url: urlOverride || process.env.MODE_PROVIDER_URL || "https://mainnet.mode.network/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    gasPrice: utils.parseUnits("1.5", "gwei").toNumber(),
+    verify: {
+      etherscan: {
+        apiKey: process.env.MODE_EXPLORER_API_KEY!,
+        apiUrl: "https://explorer.mode.network/",
+      },
+    },
+  },
+  scroll: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 534352,
+    url: urlOverride || process.env.SCROLL_PROVIDER_URL || "https://rpc.scroll.io/",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.SCROLL_API_KEY!,
+        apiUrl: "https://api.scrollscan.com/",
+      },
+    },
+  },
+  xlayer: {
+    accounts: { mnemonic: mainnetMnemonic ?? mnemonic },
+    chainId: 196,
+    url: urlOverride || process.env.XLAYER_PROVIDER_URL || "https://rpc.xlayer.tech",
+    companionNetworks: {
+      hub: "mainnet",
+    },
+    verify: {
+      etherscan: {
+        apiKey: process.env.XLAYER_API_KEY!,
+        apiUrl: "https://www.okx.com/explorer/xlayer",
       },
     },
   },

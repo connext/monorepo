@@ -55,6 +55,8 @@ export const canSubmitToRelayer = async (transfer: XTransfer): Promise<{ canSubm
     },
     chainData,
     logger,
+    requestContext,
+    config.checkOnlyExecuteFee,
   );
 
   let relayerFeePaidUsd = constants.Zero;

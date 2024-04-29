@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   localmainnet_Bytes: any;
   localmainnet_Int8: any;
+  Timestamp: any;
 };
 
 export type localmainnet_AggregateRoot = {
@@ -149,6 +150,10 @@ export type localmainnet_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type localmainnet_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type localmainnet_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type localmainnet__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['localmainnet_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

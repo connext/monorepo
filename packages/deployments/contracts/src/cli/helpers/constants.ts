@@ -13,6 +13,9 @@ export const SUPPORTED_DOMAINS = {
     1650553709, // Base
     1635148152, // Avalanche
     1835101812, // Mantle
+    1836016741, // Mode
+    1935897199, // Scroll
+    2020368761, // XLayer
   ],
   testnet: [
     1735353714, // goerli

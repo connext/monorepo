@@ -68,6 +68,7 @@ const EquivalentChainsForTestnetEstimate: Record<number, number> = {
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
   59140: 42161, // linea
+  34443: 42161, // mode
 
   // LOCALNETS
   1337: 1, // local chain
@@ -92,6 +93,7 @@ const EquivalentChainsForGelato: Record<number, number> = {
   31337: 1,
   31338: 1,
   31339: 1,
+  196: 1,
 };
 
 /**

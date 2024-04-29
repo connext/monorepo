@@ -137,6 +137,9 @@ locals {
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -152,6 +155,7 @@ locals {
       }
     ]
     relayerFeeTolerance = 60
+    checkOnlyExecuteFee = true
     environment         = var.stage
     database = {
       url = local.default_db_url
@@ -253,7 +257,13 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }                                                
+        },   
+        {
+          name       = "1836016741"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }, 
       ]
       bindings = [
         {
@@ -325,7 +335,12 @@ locals {
           exchange = "sequencerX"
           target   = "1835101812"
           keys     = ["1835101812"]
-        }                                                
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1836016741"
+          keys     = ["1836016741"]
+        },
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -391,7 +406,10 @@ locals {
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
-      }  
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -447,7 +465,10 @@ locals {
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
-      }      
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -490,7 +511,8 @@ locals {
       "1650553709" = 10,
       "1635148152" = 10,
       "1835365481" = 10,
-      "1835101812" = 10
+      "1835101812" = 10,
+      "1836016741" = 10
     }
     proverBatchWaitTime = {
       "6648936" = 43200,
@@ -506,7 +528,8 @@ locals {
       "1650553709" = 14400,
       "1635148152" = 14400,
       "1835365481" = 14400,
-      "1835101812" = 14400         
+      "1835101812" = 14400,         
+      "1836016741" = 14400       
     }
     messageQueue = {
       connection = {
@@ -575,6 +598,9 @@ locals {
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
     }
     environment   = var.stage

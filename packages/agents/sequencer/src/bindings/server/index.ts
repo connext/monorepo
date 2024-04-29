@@ -23,7 +23,13 @@ import {
   ExecStatusRequest,
   ExecStatusResponse,
   ExecStatusResponseSchema,
+  RouterPingRequest,
+  RouterPingRequestSchema,
+  RouterPingMessage,
+  RouterStatusApiResponseSchema,
+  RouterStatusApiResponse,
 } from "@connext/nxtp-utils";
+import { verifyMessage } from "ethers/lib/utils";
 
 import { getContext } from "../../sequencer";
 import { MessageType, HTTPMessage } from "../../lib/entities";
@@ -39,6 +45,40 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
   server.get("/ping", (_, res) => api.get.ping(res));
 
   server.get("/supportedBidVersion", (_, res) => api.get.supportedBidVersion(res));
+
+  server.get<{
+    Params: { router: string };
+    Reply: RouterStatusApiResponse | SequencerApiErrorResponse;
+  }>(
+    "/router-status",
+    {
+      schema: {
+        response: {
+          200: RouterStatusApiResponseSchema,
+          500: SequencerApiErrorResponseSchema,
+        },
+      },
+    },
+    async (request, response) => {
+      const { requestContext, methodContext } = createLoggingContext("GET /router-status/:router endpoint");
+
+      try {
+        const { router } = request.params;
+        const lastActiveTimestamp = await cache.routers.getLastActive(router);
+        const lastBidTimestamp = await cache.routers.getLastBidTime(router);
+
+        return response.status(200).send({
+          lastActiveTimestamp,
+          lastBidTimestamp: lastBidTimestamp ?? ({} as any),
+        });
+      } catch (error: unknown) {
+        logger.debug(`Router Status by Router Get Error`, requestContext, methodContext, jsonifyError(error as Error));
+        return response
+          .code(500)
+          .send({ message: `Router Status by Router Get Error`, error: jsonifyError(error as Error) });
+      }
+    },
+  );
 
   server.get<{
     Params: { transferId: string };
@@ -186,6 +226,21 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
     "/clear-cache",
     { schema: { body: ClearCacheRequestSchema } },
     async (req, res) => api.auth.admin(req.body, res, api.post.clearCache),
+  );
+
+  server.post<{ Body: RouterPingRequest }>(
+    "/router-ping",
+    { schema: { body: RouterPingRequestSchema } },
+    async (req, res) => {
+      const { router, timestamp, signed } = req.body;
+      const signerAddress = verifyMessage(`${RouterPingMessage}-${timestamp}`, signed);
+      if (router.toLowerCase() == signerAddress.toLowerCase()) {
+        await cache.routers.setLastActive(router);
+        return res.status(200).send({ message: "OK" });
+      } else {
+        return res.code(500).send({ message: "Invalid signature" });
+      }
+    },
   );
 
   const address = await server.listen({ port: config.server.http.port, host: config.server.http.host });

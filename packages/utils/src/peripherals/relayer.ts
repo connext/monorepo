@@ -27,6 +27,7 @@ export const calculateRelayerFee = async (
   chainData: Map<string, ChainData>,
   logger?: Logger,
   _requestContext?: RequestContext,
+  onlyExecute = false,
 ): Promise<BigNumber> => {
   const { requestContext, methodContext } = createLoggingContext(calculateRelayerFee.name, _requestContext);
 
@@ -57,33 +58,52 @@ export const calculateRelayerFee = async (
   const {
     execute: executeGasAmount,
     executeL1: executeL1GasAmount,
+    proveAndProcess: proveAndProcessGasAmount,
+    proveAndProcessL1: proveAndProcessL1GasAmount,
+    messaging: messagingGasAmount,
     gasPriceFactor,
   } = await getHardcodedGasLimits(destinationDomain, chainData);
   if (logger) {
     logger.debug("Hardcoded gasLimits", requestContext, methodContext, {
       execute: executeGasAmount,
       executeL1: executeL1GasAmount,
+      proveAndProcess: proveAndProcessGasAmount,
+      proveAndProcessL1: proveAndProcessL1GasAmount,
+      messaging: messagingGasAmount,
       gasPriceFactor,
     });
   }
 
-  const totalGasAmount = callDataGasAmount
-    ? Number(executeGasAmount) + Number(callDataGasAmount)
-    : Number(executeGasAmount);
-  const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice] = await Promise.all([
+  const baseGasFees =
+    Number(executeGasAmount) +
+    Number(onlyExecute ? 0 : proveAndProcessGasAmount) +
+    Number(onlyExecute ? 0 : messagingGasAmount);
+
+  const l1GasLimit =
+    destinationChainId == 10
+      ? Number(executeL1GasAmount) + Number(onlyExecute ? 0 : proveAndProcessL1GasAmount)
+      : undefined;
+
+  const totalGasAmount = callDataGasAmount ? Number(baseGasFees) + Number(callDataGasAmount) : Number(executeGasAmount);
+  const [estimatedRelayerFee, originTokenPrice, destinationTokenPrice, ethPrice] = await Promise.all([
+    // destination native asset fee
     getGelatoEstimatedFee(
       destinationChainId,
       constants.AddressZero,
       Number(totalGasAmount),
       isHighPriority,
-      destinationChainId == 10 ? Number(executeL1GasAmount) : undefined,
+      l1GasLimit,
     ),
+    // USDC per origin native
     originNativeTokenPrice
       ? Promise.resolve(originNativeTokenPrice)
       : safeGetConversionRate(originChainId, undefined, logger),
+    // USDC per destination native
     destinationNativeTokenPrice
       ? Promise.resolve(destinationNativeTokenPrice)
       : safeGetConversionRate(destinationChainId, undefined, logger),
+    // USDC per ETH
+    safeGetConversionRate(1, undefined, logger),
   ]);
 
   // fallback with passed-in gas price or with callback
@@ -113,6 +133,7 @@ export const calculateRelayerFee = async (
       destinationChainId,
       executeGasAmount,
       callDataGasAmount,
+      baseGasFees,
     });
   }
 
@@ -124,23 +145,38 @@ export const calculateRelayerFee = async (
   }
 
   // converstion rate is float-point number. we multiply by 1000 to be more precise
-  const impactedOriginTokenPrice = Math.floor(originTokenPrice * 1000);
-  const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * 1000);
+  const scale = 1000;
+  const impactedOriginTokenPrice = Math.floor(originTokenPrice * scale);
+  const impactedDestinationTokenPrice = Math.floor(destinationTokenPrice * scale);
 
-  let relayerFeeFinal;
-  if (priceIn === "native") {
-    relayerFeeFinal = bumpedFee.mul(impactedDestinationTokenPrice).div(impactedOriginTokenPrice);
-  } else {
-    relayerFeeFinal = bumpedFee.mul(impactedDestinationTokenPrice).div(1000);
-  }
+  // convert to usd value
+  // fee in USDC
+  // fee native destination * (USDC/destination native) = fee in USDC
+  const relayerFeeUsd = bumpedFee.mul(impactedDestinationTokenPrice).div(scale);
+
+  // assert the cap
+  // get the max fee by destination chain
+  const maxFeeEth = BigNumber.from(chainData.get(destinationDomain)?.maxRelayerFeeInEth ?? "0");
+  // convert to USDC if cap and price available
+  const maxFeeUsd =
+    !ethPrice || maxFeeEth.isZero() ? relayerFeeUsd : maxFeeEth.mul(Math.floor(ethPrice * scale)).div(scale);
+
+  const cappedFeeUsd = relayerFeeUsd.gt(maxFeeUsd) ? maxFeeUsd : relayerFeeUsd;
+  const final = priceIn !== "native" ? cappedFeeUsd : cappedFeeUsd.mul(scale).div(impactedOriginTokenPrice);
 
   if (logger) {
     logger.info("Fee estimation completed!", requestContext, methodContext, {
       bumpedFee: bumpedFee.toString(),
       originTokenPrice,
       destinationTokenPrice,
-      relayerFeeInOriginNativeAsset: relayerFeeFinal.toString(),
+      ethPrice,
+      maxFeeEth,
+      priceIn,
+      relayerFeeUsd: relayerFeeUsd.toString(),
+      cappedFeeUsd: cappedFeeUsd.toString(),
+      final: final.toString(),
     });
   }
-  return relayerFeeFinal;
+
+  return final;
 };
