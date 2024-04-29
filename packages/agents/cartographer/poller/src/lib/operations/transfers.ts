@@ -46,15 +46,12 @@ export const updateTransfers = async () => {
   const subgraphReconcileQueryMetaParams: Map<string, SubgraphQueryMetaParams> = new Map();
   const latestBlockNumbers: Map<string, number> = await subgraph.getLatestBlockNumber(domains);
 
-  console.log("check 1");
-
   await Promise.all(
     domains.map(async (domain) => {
       let latestBlockNumber: number | undefined = undefined;
       if (latestBlockNumbers.has(domain)) {
         latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
-      console.log("check 2", latestBlockNumbers);
       if (!latestBlockNumber) {
         logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
           domain,
@@ -95,7 +92,6 @@ export const updateTransfers = async () => {
   if (subgraphOriginQueryMetaParams.size > 0) {
     // Get origin transfers for all domains in the mapping.
     const transfers = await subgraph.getOriginTransfersByNonce(subgraphOriginQueryMetaParams);
-    console.log(transfers);
     logger.info("Retrieved origin transfers", requestContext, methodContext, { count: transfers.length });
     const checkpoints = domains
       .map((domain) => {

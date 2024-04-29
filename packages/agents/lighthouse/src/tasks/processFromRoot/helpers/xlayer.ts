@@ -153,12 +153,10 @@ export const getLatestXLayerSpokeMessage = async (
   // from chain operator
   const spokeDeposits = await getDeposits(xlayerBridgeApiEndpoint, spokeConnector.address);
 
-  console.log(spokeDeposits, "spoke depsits");
   const [latest] = spokeDeposits
     .filter((d) => d.ready_for_claim && d.dest_net === 3) // claim to spoke
     .sort((a, b) => +b.block_num - +a.block_num);
 
-  console.log(latest, "latest");
   if (!latest) {
     return undefined;
   }
@@ -167,8 +165,6 @@ export const getLatestXLayerSpokeMessage = async (
   if (latest.claim_tx_hash) {
     return undefined;
   }
-
-  console.log("global check");
 
   // get the transaction on L1
   const tx = await chainreader.getTransactionReceipt(hubDomainId, latest.tx_hash);

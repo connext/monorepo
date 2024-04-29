@@ -235,10 +235,8 @@ export const processFromRoot = async () => {
   logger.info("processFromRoot method start", _requestContext, methodContext);
 
   const unprocessedHubClaims = await database.getRootMessages(false);
-  console.log(unprocessedHubClaims, "heyheyheyhey");
   // NOTE: only xlayer requires L1 -> L2 claiming, it is not stored in carto.
   const unprocessedSpokeClaims = await getSpokeMessages(_requestContext);
-  console.log(unprocessedSpokeClaims, "heyhey 2");
   const unprocessed = unprocessedHubClaims
     .map((m) => ({ ...m, isSpokeClaim: false }))
     .concat(unprocessedSpokeClaims.map((m) => ({ ...m, isSpokeClaim: true })));
