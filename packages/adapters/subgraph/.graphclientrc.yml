@@ -1064,6 +1064,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: Connext_Staging_Base
     handler:
       graphql:
@@ -1091,6 +1092,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: Connext_Staging_zkSync
     handler:
       graphql:
@@ -1118,6 +1120,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: Connext_Staging_PolygonZkEVM
     handler:
       graphql:
@@ -1145,6 +1148,7 @@ sources:
       - autoPagination:
           validateSchema: true
           limitOfRecords: 250
+
   - name: Connext_Staging_Mantle
     handler:
       graphql:
@@ -1280,6 +1284,34 @@ sources:
     transforms:
       - prefix:
           value: stagingscroll_
+          includeRootOperations: true
+          ignore:
+            - _SubgraphErrorPolicy_
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 250
+
+  - name: Connext_Staging_Xlayer
+    handler:
+      graphql:
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-xlayer
+            retry: 5
+            timeout: 30000 # 30 seconds
+    transforms:
+      - prefix:
+          value: stagingxlayer_
           includeRootOperations: true
           ignore:
             - _SubgraphErrorPolicy_

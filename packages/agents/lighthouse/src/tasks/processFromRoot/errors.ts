@@ -18,6 +18,42 @@ export class NoRootAvailable extends NxtpError {
   }
 }
 
+// export class MultipleHashesDetected extends NxtpError {
+//   constructor(
+//     public readonly spokeChain: number,
+//     public readonly hubChain: number,
+//     public readonly requestContext: RequestContext,
+//     public readonly methodContext: MethodContext,
+//     public readonly context: any = {},
+//   ) {
+//     super(`Multiple messages detected for the same hash`, {
+//       ...context,
+//       spokeChain,
+//       hubChain,
+//       requestContext,
+//       methodContext,
+//     });
+//   }
+// }
+
+export class NoProofForMessage extends NxtpError {
+  constructor(
+    public readonly spokeChain: number,
+    public readonly hubChain: number,
+    public readonly requestContext: RequestContext,
+    public readonly methodContext: MethodContext,
+    public readonly context: any = {},
+  ) {
+    super(`No proof available for message`, {
+      ...context,
+      spokeChain,
+      hubChain,
+      requestContext,
+      methodContext,
+    });
+  }
+}
+
 export class ProcessConfigNotAvailable extends NxtpError {
   constructor(
     public readonly spokeDomain: string,
