@@ -3,25 +3,25 @@ import * as fs from "fs";
 import { providers, Wallet, utils, constants } from "ethers";
 import * as zk from "zksync-ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, domainToChainId, GELATO_RELAYER_ADDRESS, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, getGelatoRelayerAddress, getChainData } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId } from "../../domain";
 import { hardhatNetworks } from "../../config";
+import { updateIfNeeded } from "../helpers";
 
 import {
   ProtocolStack,
   getDeployments,
-  updateIfNeeded,
   NetworkStack,
   HubMessagingDeployments,
   InitConfig,
   InitConfigSchema,
   AssetStack,
   SpokeMessagingDeployments,
+  setupAsset,
+  setupMessaging,
 } from "./helpers";
-import { setupAsset } from "./helpers/assets";
-import { setupMessaging } from "./helpers/messaging";
 import { DEFAULT_INIT_CONFIG } from "./config";
 
 // defines which stages of the init script should be executed
@@ -548,47 +548,77 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
 
       /// MARK - Relayers
       if (protocol.agents.relayers) {
+        console.log("\n\nWHITELIST RELAYERS");
+
+        console.log("\tVerifying RelayerProxy setup.");
+        for (const network of protocol.networks) {
+          // whitelist relayer proxy as relayer on connext
+          const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.Connext,
+            desired: true,
+            read: { method: "approvedRelayers", args: [relayerProxyAddress] },
+            write: { method: "addRelayer", args: [relayerProxyAddress] },
+            auth: [
+              { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+            ],
+            chainData,
+          });
+
+          // set gelato relayer address on relayer proxy
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: getGelatoRelayerAddress(network.domain),
+            read: { method: "gelatoRelayer" },
+            write: { method: "setGelatoRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // set fee collector on relayer proxy
+          const feeCollector = network.relayerFeeVault;
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: feeCollector,
+            read: { method: "feeCollector" },
+            write: { method: "setFeeCollector", args: [feeCollector] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // Whitelist gelato relayer on the Relayer Proxy + Connext
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.messaging.RelayerProxy,
+            desired: true,
+            read: { method: "allowedRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            write: { method: "addRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            chainData,
+            auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+          });
+
+          // also add gelato to the base connext contract
+          await updateIfNeeded({
+            apply,
+            deployment: network.deployments.Connext,
+            desired: true,
+            read: { method: "approvedRelayers", args: [getGelatoRelayerAddress(network.domain)] },
+            write: { method: "addRelayer", args: [getGelatoRelayerAddress(network.domain)] },
+            auth: [
+              { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+            ],
+            chainData,
+          });
+        }
+
         if (protocol.agents.relayers.allowlist) {
-          console.log("\n\nWHITELIST RELAYERS");
-
-          for (const network of protocol.networks) {
-            const relayerProxyAddress = network.deployments.messaging.RelayerProxy.address;
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.Connext,
-              desired: true,
-              read: { method: "approvedRelayers", args: [relayerProxyAddress] },
-              write: { method: "addRelayer", args: [relayerProxyAddress] },
-              auth: [
-                { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-                { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
-              ],
-              chainData,
-            });
-
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.messaging.RelayerProxy,
-              desired: GELATO_RELAYER_ADDRESS,
-              read: { method: "gelatoRelayer" },
-              write: { method: "setGelatoRelayer", args: [GELATO_RELAYER_ADDRESS] },
-              chainData,
-              auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-            });
-
-            const feeCollector = network.relayerFeeVault;
-            await updateIfNeeded({
-              apply,
-              deployment: network.deployments.messaging.RelayerProxy,
-              desired: feeCollector,
-              read: { method: "feeCollector" },
-              write: { method: "setFeeCollector", args: [feeCollector] },
-              chainData,
-              auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
-            });
-          }
-
           // Whitelist named relayers for the Relayer Proxy, in order to call `execute`.
+          console.log("\tWhitelisting named relayers on RelayerProxy + Connext");
           for (const relayer of protocol.agents.relayers.allowlist) {
             for (const network of protocol.networks) {
               await updateIfNeeded({
@@ -616,9 +646,39 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
               });
             }
           }
-          // Additionally, approve relayers as callers for connectors and root manager.
         }
-        // TODO: Blacklist/remove relayers.
+
+        if (protocol.agents.relayers.blacklist) {
+          // Blacklist named relayers for the relayer proxy / connext
+          console.log("\tBlacklisting named relayers on RelayerProxy + Connext");
+          for (const relayer of protocol.agents.relayers.blacklist) {
+            for (const network of protocol.networks) {
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.messaging.RelayerProxy,
+                desired: false,
+                read: { method: "allowedRelayer", args: [relayer] },
+                write: { method: "removeRelayer", args: [relayer] },
+                chainData,
+                auth: { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+              });
+
+              // also add relayers to the base connext contract
+              await updateIfNeeded({
+                apply,
+                deployment: network.deployments.Connext,
+                desired: false,
+                read: { method: "approvedRelayers", args: [relayer] },
+                write: { method: "removeRelayer", args: [relayer] },
+                auth: [
+                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 3 },
+                ],
+                chainData,
+              });
+            }
+          }
+        }
       }
 
       /// MARK - Sequencers
@@ -659,7 +719,12 @@ export const initProtocol = async (protocol: ProtocolStack, apply: boolean, stag
                 desired: true,
                 // router admin submits (can be owner, assume router admin)
                 auth: [
-                  { method: "owner", eval: (ret: string) => ret.toLowerCase() === network.signerAddress },
+                  {
+                    method: "owner",
+                    eval: (ret: string) => {
+                      return ret.toLowerCase() === network.signerAddress.toLowerCase();
+                    },
+                  },
                   { method: "queryRole", args: [network.signerAddress], eval: (ret) => ret === 1 },
                 ],
                 read: { method: "getRouterApproval", args: [router] },

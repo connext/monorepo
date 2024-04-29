@@ -10,6 +10,12 @@ export class NoDestinationDomainForProof extends NxtpError {
   }
 }
 
+export class NoOriginDomainConnext extends NxtpError {
+  constructor(originDomain: string, context: any = {}) {
+    super(`No origin domain Connext available for domain ${originDomain}`, context, NoOriginDomainConnext.name);
+  }
+}
+
 export class NoDestinationDomainConnext extends NxtpError {
   constructor(destinationDomain: string, context: any = {}) {
     super(`No connext found on destination domain ${destinationDomain}`, context, NoDestinationDomainConnext.name);

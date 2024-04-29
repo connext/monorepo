@@ -238,10 +238,15 @@ export class SdkShared {
       // Checking if given asset is erc20 and have a xERC20 representation
       const xerc20Registry = await this.getXERC20Registry(domainId, options);
       const [isXERC20] = await xerc20Registry.functions.isXERC20(tokenAddress);
+
       if (!isXERC20) {
-        const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
-        if (xerc20) {
-          isLockboxAsset = true;
+        try {
+          const [xerc20] = await xerc20Registry.functions.getXERC20(tokenAddress);
+          if (xerc20) {
+            isLockboxAsset = true;
+          }
+        } catch (err: any) {
+          this.logger.info("Asset not registered");
         }
       }
       return isLockboxAsset;
@@ -584,7 +589,7 @@ export class SdkShared {
   /**
    * Returns the canonical ID and canonical domain of a token.
    *
-   * @param domainId The canonical domain ID of the token.
+   * @param domainId The domain ID of the token.
    * @param tokenAddress The address of the token.
    */
   async getCanonicalTokenId(domainId: string, tokenAddress: string): Promise<[string, string]> {

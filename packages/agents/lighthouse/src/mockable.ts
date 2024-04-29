@@ -1,6 +1,10 @@
 import * as fs from "fs";
 
-import { generateExitPayload as _generateExitPayload, getBestProvider as _getBestProvider } from "@connext/nxtp-utils";
+import {
+  axiosGet as _axiosGet,
+  generateExitPayload as _generateExitPayload,
+  getBestProvider as _getBestProvider,
+} from "@connext/nxtp-utils";
 import { getDeployedRootManagerContract as _getDeployedRootManagerContract } from "@connext/nxtp-txservice";
 import { CrossChainMessenger as _OptimismCrossChainMessenger } from "@eth-optimism/sdk";
 import { CrossChainMessenger as _MantleCrossChainMessenger } from "@mantleio/sdk";
@@ -16,7 +20,7 @@ import {
 import { Contract, ContractInterface, ethers, providers, utils } from "ethers";
 import * as zk from "zksync-web3";
 
-import { getProcessFromMetisRootArgs as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/args";
+import { getMessagesByTransaction as _getMessagesByTransaction } from "./tasks/processFromRoot/helpers/metis/utils";
 
 export const getDeployedRootManagerContract = _getDeployedRootManagerContract;
 
@@ -82,3 +86,5 @@ export const getBaseFee = _getBaseFee;
 export const getBestProvider = _getBestProvider;
 
 export const getMessagesByTransaction = _getMessagesByTransaction;
+
+export const axiosGet = _axiosGet;

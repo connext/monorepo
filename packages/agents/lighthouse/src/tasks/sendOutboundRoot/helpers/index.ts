@@ -7,3 +7,4 @@ export { getSendOutboundRootParams as getSendOutboundRootParamsBase } from "./ba
 export { getSendOutboundRootParams as getSendOutboundRootParamsAvalanche } from "./avalanche";
 export { getSendOutboundRootParams as getSendOutboundRootParamsMetis } from "./metis";
 export { getSendOutboundRootParams as getSendOutboundRootParamsMantle } from "./mantle";
+export { getSendOutboundRootParams as getSendOutboundRootParamsMode } from "./mode";

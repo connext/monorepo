@@ -78,6 +78,10 @@ export function getChainId(): BigInt {
     chainId = BigInt.fromI32(5000);
   } else if (network == "metis") {
     chainId = BigInt.fromI32(1088);
+  } else if (network == "mode-mainnet") {
+    chainId = BigInt.fromI32(34443);
+  } else if (network == "scroll") {
+    chainId = BigInt.fromI32(534352);
   } else {
     throw new Error(`No chainName for network ${network}`);
   }

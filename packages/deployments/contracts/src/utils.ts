@@ -46,6 +46,9 @@ export const ProtocolNetworks: Record<string, string> = {
   "59140": ProtocolNetwork.TESTNET,
   "84531": ProtocolNetwork.TESTNET,
   "195": ProtocolNetwork.TESTNET,
+  "11155111": ProtocolNetwork.TESTNET,
+  "11155420": ProtocolNetwork.TESTNET,
+  "421614": ProtocolNetwork.TESTNET,
 
   // mainnets
   "1": ProtocolNetwork.MAINNET,
@@ -61,6 +64,8 @@ export const ProtocolNetworks: Record<string, string> = {
   "1101": ProtocolNetwork.MAINNET,
   "324": ProtocolNetwork.MAINNET,
   "5000": ProtocolNetwork.MAINNET,
+  "34443": ProtocolNetwork.MAINNET,
+  "534352": ProtocolNetwork.MAINNET,
 };
 
 export const isDevnetName = (_name: string): boolean => {
@@ -123,7 +128,7 @@ export const getDeploymentName = (_contractName: string, _env?: string, _network
     contractName = contractName.replace(/AdminMainnet/g, networkName!);
   } else if (/^(?=.*Admin)(?=.*Connector)/.test(contractName)) {
     contractName = contractName.replace(/Admin/g, networkName!);
-  } else if (/^(?=.*Optimism)(?=.*Connector)/.test(contractName) && _networkName == "Base") {
+  } else if (/^(?=.*Optimism)(?=.*Connector)/.test(contractName) && ["Base", "Mode"].includes(_networkName!)) {
     contractName = contractName.replace(/Optimism/g, networkName!);
   } else if (/^(?=.*OptimismV0)(?=.*Connector)/.test(contractName) && ["Metis", "Mantle"].includes(_networkName!)) {
     contractName = contractName.replace(/OptimismV0/g, networkName!);

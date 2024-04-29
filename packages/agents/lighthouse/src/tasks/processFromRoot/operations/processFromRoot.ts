@@ -24,6 +24,8 @@ import {
   getProcessFromBaseRootArgs,
   getProcessFromMantleRootArgs,
   getProcessFromMetisRootArgs,
+  getProcessFromModeRootArgs,
+  getProcessFromScrollRootArgs,
 } from "../helpers";
 import { getContext } from "../processFromRoot";
 
@@ -31,10 +33,17 @@ export type ProcessConfig = {
   getArgs: (params: GetProcessArgsParams) => Promise<any[]>;
   hubConnectorPrefix: string;
   processorFunctionName: string;
+  contractAddress?: string;
+  contractAbi?: string[];
 };
 
 export const processorConfigs: Record<string, ProcessConfig> = {
   "1735356532": {
+    getArgs: getProcessFromOptimismRootArgs,
+    hubConnectorPrefix: "Optimism",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1869640549": {
     getArgs: getProcessFromOptimismRootArgs,
     hubConnectorPrefix: "Optimism",
     processorFunctionName: "processMessageFromRoot",
@@ -45,6 +54,11 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     processorFunctionName: "receiveMessage",
   },
   "1734439522": {
+    getArgs: getProcessFromArbitrumRootArgs,
+    hubConnectorPrefix: "Arbitrum",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1633842021": {
     getArgs: getProcessFromArbitrumRootArgs,
     hubConnectorPrefix: "Arbitrum",
     processorFunctionName: "processMessageFromRoot",
@@ -108,6 +122,20 @@ export const processorConfigs: Record<string, ProcessConfig> = {
     getArgs: getProcessFromMetisRootArgs,
     hubConnectorPrefix: "Metis",
     processorFunctionName: "processMessageFromRoot",
+  },
+  "1836016741": {
+    getArgs: getProcessFromModeRootArgs,
+    hubConnectorPrefix: "Mode",
+    processorFunctionName: "processMessageFromRoot",
+  },
+  "1935897199": {
+    getArgs: getProcessFromScrollRootArgs,
+    hubConnectorPrefix: "Scroll",
+    processorFunctionName: "relayMessageWithProof",
+    contractAddress: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367", // Scroll L1 Messenger Proxy
+    contractAbi: [
+      "function relayMessageWithProof(address _from, address _to, uint256 _value, uint256 _nonce, bytes _message, tuple(uint256 batchIndex, bytes merkleProof) _proof)",
+    ],
   },
 };
 
@@ -234,7 +262,7 @@ export const processSingleRootMessage = async (
   });
 
   const encodedData = encodeProcessMessageFromRoot(
-    hubConnector.abi as string[],
+    processorConfig.contractAbi ?? (hubConnector.abi as string[]),
     args,
     processorConfig.processorFunctionName,
   );
@@ -249,7 +277,7 @@ export const processSingleRootMessage = async (
   const { taskId, relayerType } = await sendWithRelayerWithBackup(
     hubChainId,
     rootMessage.hubDomain,
-    hubConnector.address,
+    processorConfig.contractAddress ?? hubConnector.address,
     encodedData,
     relayers,
     chainreader,

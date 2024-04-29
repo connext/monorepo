@@ -1,11 +1,11 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.3.0-alpha.0",
+  "version": "2.5.0-alpha.1",
   "description": "",
   "scripts": {
-    "test": "yarn forge test --no-match-path '*/fork/**.sol'",
+    "test": "yarn forge test --no-match-path '*/{fork,integration}/**.sol'",
     "test:upgrade": "ts-node ./src/cli/upgrade/main.ts",
-    "test:fork": "yarn forge test --match-path '*/fork/**.sol'",
+    "test:fork": "yarn forge test --match-path '*/{fork,integration}/**.sol'",
     "forge": "forge",
     "forge:install": "forge install",
     "build": "hardhat compile && tsc --build ./tsconfig.build.json",
@@ -25,6 +25,7 @@
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
+    "switch": "ts-node ./src/cli/op-mode/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",
     "devnet:deploy": "ts-node ./src/devnet/devnetDeploy.ts",
@@ -49,7 +50,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@eth-optimism/sdk": "2.1.0"
+    "@eth-optimism/sdk": "3.2.0"
   },
   "devDependencies": {
     "@arbitrum/sdk": "3.1.11",

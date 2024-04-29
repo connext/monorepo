@@ -1,30 +1,26 @@
-export const SUPPORTED_DOMAINS = {
-  mainnet: [
-    6648936, // mainnet
-    1869640809, // optimism
-    6450786, // bnb
-    6778479, // gnosis
-    1886350457, // polygon
-    1634886255, // arbitrum one
-    1818848877, // linea mainnet
-    1835365481, // metis mainnet
-    2053862243, // ZkSync-Era
-    1887071085, // PolygonZk
-    1650553709, // Base
-    1635148152, // Avalanche
-    1835101812, // Mantle
-  ],
-  testnet: [
-    1735353714, // goerli
-    1735356532, // optimism goerli
-    9991, // mumbai
-    1734439522, // arbitrum-goerli
-    1668247156, // linea-goerli
-    // 2053862260, // zksync2 testnet
-  ],
-};
-
 type AddressBook = Record<"mainnet" | "testnet", Record<number, string>>;
+import { constants } from "ethers";
+
+export const ROUTER_ADMINS: AddressBook = {
+  mainnet: {
+    6648936: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // mainnet
+    1869640809: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // optimism
+    6450786: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // bnb
+    6778479: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // gnosis
+    1886350457: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // polygon
+    1634886255: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // arbitrum one
+    1818848877: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // linea x
+    1835365481: "", //TBD: "0x2f6e0e9212450c8d6Cd2a3BbD478855bfb464Dc0", // metis
+    1835101812: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // mantle
+    1887071085: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // polygonzk
+    1635148152: "0x3C9B7B1Ab56e7922c6749B420cD4210f51F3d31F", // avalanche
+    1650553709: "0x7bE978Cc84612E08f7844672B0E6A6F367FE2b6A", // base
+    2053862243: "0xE11Bd4D60EEcbbFF8494E6b274e87cB71dcdb978", // zksync-era
+    1836016741: "0x3C45f010512405BDEf283A32102A68114Dfc1e47", // mode
+    1935897199: "0x3C45f010512405BDEf283A32102A68114Dfc1e47", // scroll
+  },
+  testnet: {},
+};
 
 export const PROTOCOL_ADMINS: AddressBook = {
   mainnet: {
@@ -41,9 +37,12 @@ export const PROTOCOL_ADMINS: AddressBook = {
     1635148152: "0x63aFBf69628F09a2f7a44c0546b03e933ED86C01", // avalanche
     1650553709: "0x5470aBdf216E557948aCaE671b29D3BCdE0D6F3c", // base
     2053862243: "0xc0e2a1249c12f3d1B33bb3D319eBa0197dFB0641", // zksync-era
+    1836016741: "0x1222165e4087304c60fC76Ed47Ab2887eD238108", // mode
+    1935897199: "0xdD247760618092f0F769E10Ad9f5c3e5B67E545e", // scroll
   },
   testnet: {
     1735353714: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // goerli
+    1936027759: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // sepolia
     1735356532: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // optimism goerli
     9991: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // mumbai
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
@@ -66,20 +65,18 @@ export const DAO_CONTRACTS: AddressBook = {
     1635148152: "0x63aFBf69628F09a2f7a44c0546b03e933ED86C01", // avalanche
     1650553709: "0x5470aBdf216E557948aCaE671b29D3BCdE0D6F3c", // base
     2053862243: "0xc0e2a1249c12f3d1B33bb3D319eBa0197dFB0641", // zksync-era
+    1836016741: "0x1222165e4087304c60fC76Ed47Ab2887eD238108", // mode
+    1935897199: "0xdD247760618092f0F769E10Ad9f5c3e5B67E545e", // scroll
   },
   testnet: {
     1735353714: "0xC4E604b3F1Ab77bc8bF62989ccC0670bc575C124", // goerli
+    1936027759: "0xC4E604b3F1Ab77bc8bF62989ccC0670bc575C124", // sepolia
     1735356532: "0x52F3ca3554336d9B36c74DF8F4C0887b00C3498E", // optimism goerli
     9991: "0x52F3ca3554336d9B36c74DF8F4C0887b00C3498E", // mumbai
     1734439522: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // arbitrum-goerli
     1668247156: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // linea-goerli
     2053862260: "0xa2Ee8DCd2A8A3A54Cf37F6590E5108BbE502B006", // zksync2 testnet
   },
-};
-
-export const HUBS = {
-  mainnet: 6648936, // mainnet
-  testnet: 1735353714, // goerli
 };
 
 export const TO_LOCAL_ADMINS: string[] = ["Unwrapper", "RelayerProxy"];

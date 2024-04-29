@@ -7,6 +7,7 @@ import {
   jsonifyError,
   domainToChainId,
   EMPTY_ROOT,
+  SAFE_ROOT,
   getNtpTimeSeconds,
   sign,
 } from "@connext/nxtp-utils";
@@ -18,7 +19,6 @@ import { sendWithRelayerWithBackup } from "../../../mockable";
 import {
   NoChainIdForDomain,
   MissingRequiredDomain,
-  NoSnapshotRoot,
   NoSpokeConnector,
   NoMerkleTreeAddress,
   AggregateRootDuplicated,
@@ -97,7 +97,7 @@ export const proposeHub = async () => {
 
     await Promise.all(
       rootManagerDomains.map(async (domain) => {
-        let domainSnapshotRoot;
+        let domainSnapshotRoot: string = SAFE_ROOT;
         const snapshotRoot = await database.getLatestPendingSnapshotRootByDomain(+domain, latestSnapshotId.toString());
         if (snapshotRoot) {
           logger.debug("Found snapshot root in db", requestContext, methodContext, { snapshotRoot, domain });
@@ -117,15 +117,24 @@ export const proposeHub = async () => {
           2. Watcher does not find the snapshotId of the proposal, as there was no xcall and hence no save,
               and instead gets the exact same outbound root from the spoke connector contract
           3. Ensure that the snapshot root is not older than the latest snapshot timestamp
+          4. Handle the case where the outbound root is an empty root
          */
           const outboundRootTimestamp = await database.getOutboundRootTimestamp(domain, domainOutboundRoot);
-          if (outboundRootTimestamp && outboundRootTimestamp < latestSnapshotTimestamp) {
-            const messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
-            if (messageRootCount) {
+          if (
+            domainOutboundRoot === EMPTY_ROOT ||
+            (outboundRootTimestamp && outboundRootTimestamp < latestSnapshotTimestamp)
+          ) {
+            let messageRootCount = await database.getMessageRootCount(domain, domainOutboundRoot);
+            if (domainOutboundRoot === EMPTY_ROOT) {
+              // Handle intial case where there is no message root count
+              messageRootCount = 0;
+            }
+            if (messageRootCount !== undefined) {
               logger.debug("Storing the virtual snapshot root in the db", requestContext, methodContext, {
                 domain,
                 count: messageRootCount + 1,
                 snapshotId: latestSnapshotId,
+                root: domainOutboundRoot,
               });
               await database.saveSnapshotRoots([
                 {
@@ -143,31 +152,23 @@ export const proposeHub = async () => {
                 domainOutboundRoot,
               });
             }
-          } else {
-            logger.warn(
-              "Likely subgraph or cartographer delay. No qualified outbound root timestamp found for domain.",
-              requestContext,
-              methodContext,
-              {
-                domain,
-                domainOutboundRoot,
-                outboundRootTimestamp,
-                cooledDown: outboundRootTimestamp ? outboundRootTimestamp < latestSnapshotTimestamp : false,
-              },
-            );
           }
         }
-        if (domainSnapshotRoot) {
-          snapshotRoots.set(domain, domainSnapshotRoot);
-        } else {
-          logger.warn("No snapshot root found for domain", requestContext, methodContext, {
-            domain,
-          });
-          throw new NoSnapshotRoot(domain, requestContext, methodContext, {
-            latestSnapshotId,
-            latestSnapshotTimestamp,
-          });
+        if (domainSnapshotRoot === SAFE_ROOT) {
+          // TODO: Confirm if need to save this in the db with saveSnapshotRoots
+          logger.warn(
+            "Using safe root. Likely subgraph or cartographer delay. No qualified outbound root timestamp found for domain.",
+            requestContext,
+            methodContext,
+            {
+              domain,
+              domainSnapshotRoot,
+              latestSnapshotTimestamp,
+              latestSnapshotId,
+            },
+          );
         }
+        snapshotRoots.set(domain, domainSnapshotRoot);
       }),
     );
 

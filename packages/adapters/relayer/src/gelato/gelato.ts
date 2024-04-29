@@ -10,7 +10,8 @@ import {
   RelayRequestOptions,
   NATIVE_TOKEN,
   RelayerRequest,
-  GELATO_RELAYER_ADDRESS,
+  getGelatoRelayerAddress,
+  chainIdToDomain,
 } from "@connext/nxtp-utils";
 import interval from "interval-promise";
 
@@ -27,6 +28,19 @@ import { gelatoRelay } from ".";
 
 /// MARK - Gelato Relay API
 /// Docs: https://relay.gelato.digital/api-docs/
+const GAS_LIMIT_FOR_RELAYER = (chainId: number): string | undefined => {
+  switch (chainId) {
+    case 42161: {
+      return "100000000";
+    }
+    case 421613: {
+      return "50000000";
+    }
+    default: {
+      return "6000000";
+    }
+  }
+};
 
 export const isChainSupportedByGelato = async (chainId: number): Promise<boolean> => {
   try {
@@ -177,22 +191,8 @@ export const gelatoSDKSend = async (
   }
 };
 
-const GAS_LIMIT_FOR_RELAYER = (chainId: number): string => {
-  switch (chainId) {
-    case 42161: {
-      return "100000000";
-    }
-    case 421613: {
-      return "50000000";
-    }
-    default: {
-      return "6000000";
-    }
-  }
-};
-
 export const getRelayerAddress = async (_chainId: number): Promise<string> => {
-  return Promise.resolve(GELATO_RELAYER_ADDRESS);
+  return Promise.resolve(getGelatoRelayerAddress(chainIdToDomain(_chainId).toString()));
 };
 
 export const send = async (
@@ -206,12 +206,6 @@ export const send = async (
   _requestContext?: RequestContext,
 ): Promise<string> => {
   const { requestContext, methodContext } = createLoggingContext(send.name, _requestContext);
-
-  // remove this check for now since its failing in some cases
-  // const isSupportedByGelato = await isChainSupportedByGelato(chainId);
-  // if (!isSupportedByGelato) {
-  //   throw new Error("Chain not supported by gelato.");
-  // }
 
   // Validate the call will succeed on chain.
   const relayerAddress = await getRelayerAddress(chainId);

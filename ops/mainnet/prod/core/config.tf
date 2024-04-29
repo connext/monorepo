@@ -119,6 +119,27 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1887071085" = {
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1650553709" = {
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1635148152" = {
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1835101812" = {
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }  
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -130,10 +151,11 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer.service_endpoint}"
+        url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
     relayerFeeTolerance = 60
+    checkOnlyExecuteFee = true
     environment         = var.stage
     database = {
       url = local.default_db_url
@@ -199,7 +221,49 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }
+        },
+        {
+          name       = "2053862243"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1887071085"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1650553709"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1635148152"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1835365481"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },
+        {
+          name       = "1835101812"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        },   
+        {
+          name       = "1836016741"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }                                                
       ]
       bindings = [
         {
@@ -242,6 +306,41 @@ locals {
           target   = "1818848877"
           keys     = ["1818848877"]
         },
+        {
+          exchange = "sequencerX"
+          target   = "2053862243"
+          keys     = ["2053862243"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1887071085"
+          keys     = ["1887071085"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1650553709"
+          keys     = ["1650553709"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1635148152"
+          keys     = ["1635148152"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1835365481"
+          keys     = ["1835365481"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1835101812"
+          keys     = ["1835101812"]
+        },
+        {
+          exchange = "sequencerX"
+          target   = "1836016741"
+          keys     = ["1836016741"]
+        }                                                  
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -290,6 +389,27 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1887071085" = {
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1650553709" = {
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1635148152" = {
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1835101812" = {
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }   
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -328,6 +448,27 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1887071085" = {
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1650553709" = {
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1635148152" = {
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1835101812" = {
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }       
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -346,7 +487,7 @@ locals {
       {
         type   = "Connext",
         apiKey = "${var.admin_token_relayer}",
-        url    = "https://${module.relayer.service_endpoint}"
+        url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
     healthUrls = {
@@ -364,7 +505,14 @@ locals {
       "1634886255" = 10,
       "6450786"    = 10,
       "6778479"    = 10,
-      "1818848877" = 10
+      "1818848877" = 10,
+      "2053862243" = 10,
+      "1887071085" = 10,
+      "1650553709" = 10,
+      "1635148152" = 10,
+      "1835365481" = 10,
+      "1835101812" = 10,
+      "1836016741" = 10
     }
     proverBatchWaitTime = {
       "6648936" = 43200,
@@ -374,7 +522,14 @@ locals {
       "1634886255" = 14400,
       "6450786"    = 14400,
       "6778479"    = 14400,
-      "1818848877" = 14400      
+      "1818848877" = 14400,
+      "2053862243" = 14400,
+      "1887071085" = 14400,
+      "1650553709" = 14400,
+      "1635148152" = 14400,
+      "1835365481" = 14400,
+      "1835101812" = 14400,         
+      "1836016741" = 14400         
     }
     messageQueue = {
       connection = {
@@ -426,6 +581,27 @@ locals {
       "1818848877" = {
         providers = ["https://linea-mainnet.infura.io/v3/${var.infura_key}", "https://rpc.linea.build"]
       }
+      "2053862243" = {
+        providers = ["https://zksync-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1887071085" = {
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1650553709" = {
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1635148152" = {
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1835101812" = {
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }  
     }
     environment   = var.stage
     web3SignerUrl = "https://${module.relayer_web3signer.service_endpoint}"

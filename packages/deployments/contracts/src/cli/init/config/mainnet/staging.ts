@@ -17,6 +17,8 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "1650553709", // Base
     "1635148152", // Avalanche
     "1835101812", // Mantle
+    "1836016741", // Mode
+    "1935897199", // Scroll
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -78,6 +80,14 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
           adopted: "0x9963a1E4fD60ba4a89E92930c8D8686514705BB6",
         },
+        "1836016741": {
+          local: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+          adopted: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+        },
+        "1935897199": {
+          local: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+          adopted: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+        },
       },
     },
   ],
@@ -96,9 +106,12 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       "1650553709": PROTOCOL_ADMINS.mainnet["1650553709"], // Base
       "1635148152": PROTOCOL_ADMINS.mainnet["1635148152"], // Avalanche
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
+      "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
+      "1935897199": PROTOCOL_ADMINS.mainnet["1935897199"], // Scroll
     },
     watchers: {
-      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
+      allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],
+      blacklist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
@@ -110,9 +123,8 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato 1balance
+        // NOTE: gelato whitelisted in `init` script
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
-        //"0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato 1balance zksync era
       ],
     },
     proposers: {

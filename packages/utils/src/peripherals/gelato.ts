@@ -8,10 +8,16 @@ import { GelatoEstimatedFeeRequestError, GelatoConversionRateRequestError } from
 
 export const GELATO_SERVER = "https://api.gelato.digital";
 
-// FIXME: this is not the mainnet zksync era gelato address:
-// https://docs.gelato.network/developer-services/relay/networks-and-rate-limits#zksync-era-mainnet-testnet
+// Testnet addresses (2/5)
+// - On all networks except zkSync: 0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0
+// - On zkSync: 0x0c1B63765Be752F07147ACb80a7817A8b74d9831
+// So, for testnets you can already update the whitelist to these new addresses.
 
-export const GELATO_RELAYER_ADDRESS = "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99";
+export const getGelatoRelayerAddress = (domain: string): string =>
+  domain === "2053862260" || // zksync testnet
+  domain === "2053862243" // zksync mainnet
+    ? "0x0c1B63765Be752F07147ACb80a7817A8b74d9831"
+    : "0xF9D64d54D32EE2BDceAAbFA60C4C438E224427d0"; // all other networks
 
 /**
  * Get the fee estimate
@@ -62,6 +68,7 @@ const EquivalentChainsForTestnetEstimate: Record<number, number> = {
 const EquivalentChainsForGelato: Record<number, number> = {
   // MAINNETS
   59140: 42161, // linea
+  34443: 42161, // mode
 
   // LOCALNETS
   1337: 1, // local chain
@@ -78,6 +85,9 @@ const EquivalentChainsForGelato: Record<number, number> = {
   10200: 100, // chiado (gnosis testnet)
   97: 56, // chapel (bnb testnet)
   195: 1, // x1 testnet
+  11155111: 1, // Sepolia
+  11155420: 10, // Op-Sepolia
+  421614: 42161, // Arb-Sepolia
 
   // LOCAL NETWORKS
   31337: 1,

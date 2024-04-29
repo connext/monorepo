@@ -2,6 +2,30 @@
 
 ## Next Release
 
+## 2.5.0-alpha.4
+
+- `getLatestAssetPrice`: Added to fetch prices from Cartographer
+
+## 2.5.0-alpha.3
+
+- Removes use of relayer fee in native fetched from chaindata
+
+## v2.5.0-alpha.2
+
+- `estimateRelayerFee`: Capped by hardcoded gas estimates of execute
+
+## v2.5.0-alpha.0
+
+- Sepolia moved to testnet prod
+
+## v2.3.0-alpha.2
+
+- Mainnet support for mode
+
+## v2.3.0-alpha.1
+
+- Environment-specific Unwrapper contracts deployed
+
 ## v2.3.0-alpha.0
 
 - Mainnet support for: Avalanche, Base, Mantle, Metis, Polygon zkEVM, zkSync

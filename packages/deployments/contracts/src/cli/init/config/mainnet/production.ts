@@ -19,6 +19,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     "1650553709", // Base
     "1635148152", // Avalanche
     "1835101812", // Mantle
+    "1836016741", // Mode
+    "1935897199", // Scroll
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -190,6 +192,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1650553709": {
           // base
           local: "0xE08D4907b2C7aa5458aC86596b6D17B1feA03F7E",
+          adopted: "0x4200000000000000000000000000000000000006",
+        },
+        "1836016741": {
+          // mode
+          local: "0x609aEfb9FB2Ee8f2FDAd5dc48efb8fA4EE0e80fB",
           adopted: "0x4200000000000000000000000000000000000006",
         },
       },
@@ -652,6 +659,36 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ezETH",
+      canonical: {
+        domain: "11111",
+        address: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// BNB
+        "6450786": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+        /// MODE
+        "1836016741": {
+          local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+          adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
@@ -668,9 +705,12 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       "1650553709": PROTOCOL_ADMINS.mainnet["1650553709"], // Base
       "1635148152": PROTOCOL_ADMINS.mainnet["1635148152"], // Avalanche
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
+      "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
+      "1935897199": PROTOCOL_ADMINS.mainnet["1935897199"], // Scroll
     },
     watchers: {
-      allowlist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
+      allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],
+      blacklist: ["0x9c77788d761ee0347Ab550883237CeD274a0F248", "0x917133b1dE100E9fF8F03E24c43F9272dD6A8E99"],
     },
     routers: {
       allowlist: [
@@ -696,6 +736,9 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "0x6892d4D1f73A65B03063B7d78174dC6350Fcc406", // Unagii
         "0x32d63da9f776891843c90787cec54ada23abd4c2", // Ingag
         "0xFaAB88015477493cFAa5DFAA533099C590876F21", // Paradox
+        "0x6fd84ba95525c4ccd218f2f16f646a08b4b0a598", // Dokia
+        "0x5f4E31F4F402E368743bF29954f80f7C4655EA68", // Amber
+        "0xc770eC66052fe77ff2eF9edF9558236e2D1C41Ef", // Dialectic
       ],
     },
     sequencers: {
@@ -703,9 +746,8 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     },
     relayers: {
       allowlist: [
-        "0x75bA5Af8EFFDCFca32E1e288806d54277D1fde99", // gelato 1balance
+        // NOTE: gelato whitelisted in `init` script
         "0x935AaAe0f5b02007c08512F0629a9d37Af2E1A47", // connext relayer
-        // "0x99a039d4F0e734aA8CcBE74C0FF9780BccD79f1d", // gelato 1balance zksync era
       ],
     },
     proposers: {

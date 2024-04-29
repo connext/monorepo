@@ -21,7 +21,7 @@
     <br />
     <a href="https://bridge.connext.network/">View Mainnet Bridge</a>
     <br />
-    <a href="https://testnet.bridge.connext.network/">View Testnet Bridge (Connext Amarok)</a>
+    <a href="https://testnet.bridge.connext.network/">View Testnet Bridge (Connext Bacco)</a>
     <br />
     <br />
     <a href="https://github.com/connext/monorepo/issues">Report Bug</a>

@@ -1,0 +1,189 @@
+[
+  {
+    "subgraphName": "connext/stableswap-v1-polygon",
+    "network": "matic",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x11984dc4465481512eb5b777E44061C158CF2259",
+        "startBlock": 37100616
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-optimism",
+    "network": "optimism",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x8f7492DE823025b4CfaAB1D34c58963F2af5DEDA",
+        "startBlock": 53024543
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-arbitrum-one",
+    "network": "arbitrum-one",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xEE9deC2712cCE65174B561151701Bf54b99C24C8",
+        "startBlock": 47824793
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-bnb",
+    "network": "bsc",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xCd401c10afa37d641d2F594852DA94C700e4F2CE",
+        "startBlock": 24097172
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-gnosis",
+    "network": "gnosis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x5bB83e95f63217CDa6aE3D181BA580Ef377D2109",
+        "startBlock": 25562301
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-linea",
+    "network": "linea-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xa05eF29e9aC8C75c530c2795Fa6A800e188dE0a9",
+        "startBlock": 754343
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-metis",
+    "network": "metis",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x6B142227A277CE62808E0Df93202483547Ec0188",
+        "startBlock": 12940172
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-polygon-zk",
+    "network": "polygon-zkevm",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xBA72D06783896B1AAbe7A83F92e62FA12860Ab20",
+        "startBlock": 9554161
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-base",
+    "network": "base",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xB8448C6f7f7887D36DcA487370778e419e9ebE3F",
+        "startBlock": 7866926
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-zksync",
+    "network": "zksync-era",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x05e42245388A0CCC8576eC953Fec241455Bb6E23",
+        "startBlock": 25275845
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-avalanche",
+    "network": "avalanche",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x137072F68708eb7c82edceEceCcf64D6c29C171b",
+        "startBlock": 40990035
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-mantle",
+    "network": "mantle",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xA93C4a6e19BeE415cAb341D19046c799a80A1496",
+        "startBlock": 51229385
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-mode",
+    "network": "mode-mainnet",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x7380511493DD4c2f1dD75E9CCe5bD52C787D4B51",
+        "startBlock": 4243833
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-goerli",
+    "network": "goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xFCa08024A6D4bCc87275b1E4A1E22B71fAD7f649",
+        "startBlock": 8173349
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-opt-goerli",
+    "network": "optimism-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x5Ea1bb242326044699C3d81341c5f535d5Af1504",
+        "startBlock": 3613102
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-mumbai",
+    "network": "mumbai",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x2334937846Ab2A3FCE747b32587e1A1A2f6EEC5a",
+        "startBlock": 29956478
+      }
+    ]
+  },
+  {
+    "subgraphName": "connext/stableswap-v1-arb-goerli",
+    "network": "arbitrum-goerli",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x2075c9E31f973bb53CAE5BAC36a8eeB4B082ADC2",
+        "startBlock": 3268972
+      }
+    ]
+  }
+]

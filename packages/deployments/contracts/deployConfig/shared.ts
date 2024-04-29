@@ -35,6 +35,8 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   1101: 8, //polygon-zkevm
   324: 10, // zksync-era
   5000: 200, // mantle network
+  34443: 30, // mode network
+  534352: 15, // scroll
 
   // testnets
   5: 4, // goerli
@@ -43,6 +45,7 @@ const BLOCKS_PER_MINUTE: Record<number, number> = {
   59140: 30, // linea-goerli
   84531: 30, // base-goerli
   195: 60, // x1-testnet
+  534351: 14, // scroll sepolia l2
 };
 
 const THIRTY_MINUTES_IN_BLOCKS = Object.fromEntries(
@@ -708,6 +711,62 @@ export const MESSAGING_PROTOCOL_CONFIGS: Record<string, MessagingProtocolConfig>
         custom: {
           hub: {
             gasCap: ZKSYNC_DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Mode chain
+      34443: {
+        prefix: "Optimism",
+        networkName: "Mode",
+        ambs: {
+          // L1CrossDomainMessenger
+          // https://github.com/mode-network/chain-deployments/blob/main/mainnet/addresses.json
+          hub: "0x95bDCA6c8EdEB69C98Bd5bd17660BaCef1298A6f",
+          // L2CrossDomainMessenger
+          spoke: "0x4200000000000000000000000000000000000007",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[34443] / 2,
+        custom: {
+          hub: {
+            // OptimismPortal
+            // https://docs.mode.network/mode-mainnet/mainnet-contract-addresses/l1-l2-contracts
+            // https://etherscan.io/address/0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07#code
+            optimismPortal: "0x8B34b14c7c7123459Cf3076b8Cb929BE097d0C07",
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
+          },
+        },
+      },
+      // Scroll
+      534352: {
+        prefix: "Scroll",
+        networkName: "Scroll",
+        ambs: {
+          // Ethreum L1ScrollMessenger
+          // https://etherscan.io/address/0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+          hub: "0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367",
+          // Scroll L2ScrollMessenger
+          // https://scrollscan.com/address/0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC
+          spoke: "0x781e90f1c8Fc4611c9b7497C3B47F99Ef6969CbC",
+        },
+        processGas: DEFAULT_PROCESS_GAS,
+        reserveGas: DEFAULT_RESERVE_GAS,
+        delayBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        disputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        minDisputeBlocks: THIRTY_MINUTES_IN_BLOCKS[534352],
+        custom: {
+          hub: {
+            // https://scrollscan.com/tx/0xb1de68a188d86bcae0c51b684396dd62ce9e95c34edfd2f45ba0acc3e52308b0
+            gasCap: BigNumber.from("130000"),
+          },
+          spoke: {
+            gasCap: DEFAULT_PROCESS_GAS,
           },
         },
       },

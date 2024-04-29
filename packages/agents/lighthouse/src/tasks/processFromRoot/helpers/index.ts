@@ -9,6 +9,8 @@ export { getProcessFromLineaRootArgs } from "./linea";
 export { getProcessFromBaseRootArgs } from "./base";
 export { getProcessFromMantleRootArgs } from "./mantle";
 export { getProcessFromMetisRootArgs } from "./metis";
+export { getProcessFromModeRootArgs } from "./mode";
+export { getProcessFromScrollRootArgs } from "./scroll";
 
 export type GetProcessArgsParams = {
   spokeChainId: number;

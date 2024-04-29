@@ -55,6 +55,24 @@ locals {
         providers      = ["https://rpc.linea.build"]
         disabledAssets = ["0xA219439258ca9da29E9Cc4cE5596924745e12B93", "0x4AF15ec2A0BD43Db75dd04E62FAA3B8EF36b00d5"]
       }
+      "1887071085" = {
+        providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1650553709" = {
+        providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1635148152" = {
+        providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
+      }
+      "1835365481" = {
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1835101812" = {
+        providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
+      }
+      "1836016741" = {
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }      
     }
 
     # The following are defined in variables.tf and don't map to the
@@ -87,6 +105,12 @@ locals {
       "6450786"    = { confirmations = 50 }
       "6778479"    = { confirmations = 100 }
       "1818848877" = { confirmations = 10 }
+      "1887071085" = { confirmations = 10 }
+      "1650553709" = { confirmations = 1 }
+      "1635148152" = { confirmations = 10 }
+      "1835365481" = { confirmations = 1 }
+      "1835101812" = { confirmations = 1 }
+      "1836016741" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {

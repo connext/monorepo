@@ -2,9 +2,7 @@ import { BigNumber } from "ethers";
 
 import { getChainData } from "..";
 
-// Hex domains calculated using `getHexDomainFromString`
-// alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
-export const chainIdToDomainMapping: Map<number, number> = new Map([
+const mainnetChainIdToDomainMapping: Map<number, number> = new Map([
   // mainnets
   [1, 0x657468], // Ethereum ('eth interpreted as int) 6648936
   [10, 0x6f707469], // Optimism (opti interpreted as int) 1869640809
@@ -30,6 +28,11 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1285, 0x6d6f6f6e], // Moonriver Mainnet (moon interpreted as int)
   [1088, 0x6d657469], // Metis Andromeda (metis interpreted as int) 1835365481
   [5000, 0x6d616e74], // Mantle (mantle interpreted as int) 1835101812
+  [34443, 0x6d6f6465], // Mode (mode interpreted as int) 1836016741
+  [534352, 0x7363726f], // Scroll (scroll interpreted as int) 1935897199
+]);
+
+const testnetChainIdToDomainMapping: Map<number, number> = new Map([
   // testnets
   [42, 0x6b6f7661], // Kovan (kovan interpreted as int) 1802466913
   [5, 0x676f6572], // Goerli (goerli interpreted as int) 1735353714
@@ -44,6 +47,12 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [1442, 0x707a6b74], // Polygon zkEvm test (pzkt interpreted as int) 1887071092
   [84531, 0x62617367], // Base Goerli ('basg' interpreted as int) 1650553703
   [195, 0x78317474], // X1 Testnet ('x1tt' interpreted as int) 2016506996
+  [11155111, 0x7365706f], // Sepolia ('sepo' interpreted as int) 1936027759
+  [11155420, 0x6f707365], // Optimism sepolia ('opse' interpreted as int) 1869640549
+  [421614, 0x61627365], // Arbitrum sepolia ('abse' interpreted as int) 1633842021
+]);
+
+const devnetChainIdToDomainMapping: Map<number, number> = new Map([
   // local
   [1337, 133712],
   [1338, 133812],
@@ -52,6 +61,20 @@ export const chainIdToDomainMapping: Map<number, number> = new Map([
   [31337, 31337],
   [31338, 31338],
   [31339, 31339],
+]);
+
+const specialChainIdToDomainMapping: Map<number, number> = new Map([
+  // special pseudo-canonical domain for xERC20s
+  [11111, 11111],
+]);
+
+// Hex domains calculated using `getHexDomainFromString`
+// alternative: ethers.BigNumber.from(ethers.utils.toUtf8Bytes("some string")).toNumber()
+export const chainIdToDomainMapping: Map<number, number> = new Map([
+  ...mainnetChainIdToDomainMapping.entries(),
+  ...testnetChainIdToDomainMapping.entries(),
+  ...devnetChainIdToDomainMapping.entries(),
+  ...specialChainIdToDomainMapping.entries(),
 ]);
 
 /**
@@ -103,4 +126,12 @@ export function domainToChainId(domainId: number): number {
   }
 
   return chainId;
+}
+
+export function isMainnetDomain(domainId: number): boolean {
+  return mainnetChainIdToDomainMapping.has(domainToChainId(domainId));
+}
+
+export function isTestnetDomain(domainId: number): boolean {
+  return testnetChainIdToDomainMapping.has(domainToChainId(domainId));
 }

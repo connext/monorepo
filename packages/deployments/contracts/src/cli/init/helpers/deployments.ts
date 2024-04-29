@@ -1,8 +1,7 @@
 import * as zk from "zksync-ethers";
 import { ethers, Wallet } from "ethers";
 
-import { getContract, getHubConnectors, getSpokeConnector } from "../../helpers";
-import { Deployment } from "../../types";
+import { getContract, getHubConnectors, getSpokeConnector, Deployment } from "../../helpers";
 
 import { DomainDeployments } from "./types";
 

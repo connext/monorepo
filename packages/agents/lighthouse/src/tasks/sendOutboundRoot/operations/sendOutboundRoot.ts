@@ -11,6 +11,7 @@ import {
   getSendOutboundRootParamsAvalanche,
   getSendOutboundRootParamsMetis,
   getSendOutboundRootParamsMantle,
+  getSendOutboundRootParamsMode,
 } from "../helpers";
 import { getContext } from "../sendOutboundRoot";
 
@@ -30,10 +31,12 @@ export const getParamsForDomainFn: Record<string, (l2domain: string) => Promise<
   "1835365481": getSendOutboundRootParamsMetis,
   "1835101812": getSendOutboundRootParamsMantle,
   "2053862243": getSendOutboundRootParamsZkSync,
+  "1836016741": getSendOutboundRootParamsMode,
   // testnet
   "1668247156": getSendOutboundRootParamsLinea,
   "2053862260": getSendOutboundRootParamsZkSync,
   "1735356532": getSendOutboundRootParamsOptimism,
+  "1869640549": getSendOutboundRootParamsOptimism,
   "1650553703": getSendOutboundRootParamsBase,
 };
 

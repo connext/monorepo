@@ -29,6 +29,7 @@ import GnosisAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/inter
 import MultichainAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/Multichain.sol/Multichain.json";
 import OptimismAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/optimism/OptimismAmb.sol/OptimismAmb.json";
 import ArbitrumAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/arbitrum/ArbitrumL2Amb.sol/ArbitrumL2Amb.json";
+import ScrollAmbAbi from "@connext/smart-contracts/abi/contracts/messaging/interfaces/ambs/scroll/IL1ScrollMessenger.sol/IL1ScrollMessenger.json";
 import { ERC20Abi } from "@connext/nxtp-utils";
 
 export type ContractPostfix = "Staging" | "";
@@ -106,7 +107,7 @@ export const getDeployedRelayerProxyContract = (
   postfix: ContractPostfix = "",
   network?: Network,
 ): { address: string; abi: any } | undefined => {
-  if (chainId === 5 || chainId === 1) {
+  if (chainId === 5 || chainId === 1 || chainId === 11155111) {
     return _getDeployedRelayerProxyHubContract(chainId, postfix, network);
   }
 
@@ -166,9 +167,10 @@ export const getDeployedMultisendContract = (
 
 export const getDeployedUnwrapperContract = (
   chainId: number,
+  postfix: ContractPostfix = "",
   network?: Network,
 ): { address: string; abi: any } | undefined => {
-  const contract = _getDeployedContract(chainId, `Unwrapper`, network);
+  const contract = _getDeployedContract(chainId, `Unwrapper${postfix}`, network);
   return contract ? { address: contract.address, abi: contract.abi } : undefined;
 };
 
@@ -267,8 +269,10 @@ export type MultisendContractDeploymentGetter = (
   chainId: number,
   network?: Network,
 ) => { address: string; abi: any } | undefined;
+
 export type UnwrapperContractDeploymentGetter = (
   chainId: number,
+  postfix?: ContractPostfix,
   network?: Network,
 ) => { address: string; abi: any } | undefined;
 
@@ -365,6 +369,7 @@ export type AmbContractABIs = {
   gnosis: any[];
   arbitrum: any[];
   bnb: any[];
+  scroll: any[];
 };
 
 export const getAmbABIs = (): AmbContractABIs => ({
@@ -372,4 +377,5 @@ export const getAmbABIs = (): AmbContractABIs => ({
   gnosis: GnosisAmbAbi,
   arbitrum: ArbitrumAmbAbi,
   bnb: MultichainAmbAbi,
+  scroll: ScrollAmbAbi,
 });

@@ -74,46 +74,5 @@
         "startBlock": 19113185
       }
     ]
-  },
-  {
-    "subgraphName": "connext/nxtp-amarok-hub-v0-goerli",
-    "network": "goerli",
-    "source": [
-      {
-        "name": "RootManager",
-        "address": "0xA63DF6af82091BdB11402800B56c9440BD97f1bB",
-        "startBlock": 10168630
-      },
-      {
-        "name": "MerkleTreeManager",
-        "address": "0x2A2A9a4B612678E081b74a0bBcfD51DE726a9bd7",
-        "startBlock": 8173338
-      },
-      {
-        "name": "PolygonHubConnector",
-        "address": "0x5C9d14CCfC6481EC6bDAaA9f0D7663f1e7349eE4",
-        "startBlock": 10168636
-      },
-      {
-        "name": "OptimismHubConnector",
-        "address": "0x4e1A541A3217799C58AEECDE3bbe00D6f2aA7Afb",
-        "startBlock": 10168634
-      },
-      {
-        "name": "LineaHubConnector",
-        "address": "0x7cF93aDe5C9E84b1875987d976805D0A3b87B4eb",
-        "startBlock": 10168635
-      },
-      {
-        "name": "BaseHubConnector",
-        "address": "0x5CF82cB512A3CDCDb117c09D3bFFF34709900647",
-        "startBlock": 10209383
-      },
-      {
-        "name": "X1HubConnector",
-        "address": "0x4e1312Ecb1f7f3211C49139b0524D54bF98D9538",
-        "startBlock": 10242705
-      }
-    ]
   }
 ]

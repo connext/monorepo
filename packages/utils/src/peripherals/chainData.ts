@@ -67,8 +67,12 @@ export type ChainData = {
     execute: string;
     xcallL1: string;
     executeL1: string;
+    proveAndProcess: string;
+    proveAndProcessL1: string;
+    messaging: string;
     gasPriceFactor?: string;
   };
+  maxRelayerFeeInEth: string;
 };
 
 // Helper method to reorganize this list into a mapping by chain ID for quicker lookup.
