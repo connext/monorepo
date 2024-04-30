@@ -72,7 +72,7 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
-      }      
+      }    
     }
 
     # The following are defined in variables.tf and don't map to the

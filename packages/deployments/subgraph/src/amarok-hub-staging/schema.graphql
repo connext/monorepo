@@ -213,6 +213,17 @@ type ScrollConnectorMeta @entity {
   mirrorConnector: Bytes!
 }
 
+# XLAYER
+type XlayerConnectorMeta @entity {
+  id: ID! # "XlayerConnectorMeta"
+  spokeDomain: BigInt!
+  hubDomain: BigInt!
+
+  amb: Bytes!
+  rootManager: Bytes!
+  mirrorConnector: Bytes!
+}
+
 # HUB CONNECTOR
 type RootMessageProcessed @entity {
   id: ID!
