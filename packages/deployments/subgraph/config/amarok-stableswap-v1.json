@@ -143,6 +143,17 @@
     ]
   },
   {
+    "subgraphName": "connext/stableswap-v1-xlayer",
+    "network": "xlayer",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0x63A4fdD5184c6cCDF9c8e550c02bC815b687d7aC",
+        "startBlock": 258536
+      }
+    ]
+  },
+  {
     "subgraphName": "connext/stableswap-v1-goerli",
     "network": "goerli",
     "source": [

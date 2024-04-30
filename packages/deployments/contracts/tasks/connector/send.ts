@@ -33,7 +33,11 @@ export default task("connector-send", "Call `Connector.send()` to distribute out
     const network = await ethers.provider.getNetwork();
     const protocolConfig = getMessagingProtocolConfig(networkType as ProtocolNetwork);
 
-    const deploymentName = getDeploymentName(getConnectorName(protocolConfig, +network.chainId), env);
+    const deploymentName = getDeploymentName(
+      getConnectorName(protocolConfig, +network.chainId),
+      env,
+      protocolConfig.configs[network.chainId].networkName,
+    );
     const deployment = await deployments.get(deploymentName);
     const address = deployment.address;
     console.log(deploymentName, "connector:", address);

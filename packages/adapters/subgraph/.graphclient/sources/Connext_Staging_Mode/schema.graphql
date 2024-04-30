@@ -142,6 +142,11 @@ enum stagingmode_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum stagingmode_Aggregation_interval {
+  hour
+  day
+}
+
 type stagingmode_Asset {
   id: ID!
   key: stagingmode_Bytes
@@ -3943,6 +3948,12 @@ type Subscription {
   stagingmode__meta(block: stagingmode_Block_height): stagingmode__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum stagingmode_TransferStatus {
   XCalled
   Executed
@@ -3958,6 +3969,8 @@ type stagingmode__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: stagingmode_Bytes
 }
 
 """The type for the top-level _meta field"""

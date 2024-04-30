@@ -8,7 +8,8 @@ import { DomainInvalid } from "../errors";
  */
 export const getPrefixForDomain = (domain: string): string => {
   const { config } = getContext();
-  if (Object.keys(config.sources).includes(domain)) return config.sources[domain].prefix;
+  if (Object.keys(config.sources).includes(domain) && config.sources[domain].prefix)
+    return config.sources[domain].prefix;
   else throw new DomainInvalid(domain);
 };
 
