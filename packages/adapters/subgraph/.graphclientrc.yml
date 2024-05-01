@@ -372,7 +372,7 @@ sources:
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v0-base"
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-base"
             retry: 5
             timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
