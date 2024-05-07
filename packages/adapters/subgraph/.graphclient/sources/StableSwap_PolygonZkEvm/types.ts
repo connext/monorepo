@@ -20,7 +20,6 @@ export type Scalars = {
   BigInt: any;
   polygonzkevm_swap_Bytes: any;
   polygonzkevm_swap_Int8: any;
-  Timestamp: any;
 };
 
 export type polygonzkevm_swap_AggregateRoot = {
@@ -150,10 +149,6 @@ export type polygonzkevm_swap_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
-
-export type polygonzkevm_swap_Aggregation_interval =
-  | 'hour'
-  | 'day';
 
 export type polygonzkevm_swap_Asset = {
   id: Scalars['ID'];
@@ -3696,8 +3691,6 @@ export type polygonzkevm_swap__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['polygonzkevm_swap_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
