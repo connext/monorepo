@@ -20,7 +20,6 @@ export type Scalars = {
   BigInt: any;
   stagingmode_Bytes: any;
   stagingmode_Int8: any;
-  Timestamp: any;
 };
 
 export type stagingmode_AggregateRoot = {
@@ -150,10 +149,6 @@ export type stagingmode_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
-
-export type stagingmode_Aggregation_interval =
-  | 'hour'
-  | 'day';
 
 export type stagingmode_Asset = {
   id: Scalars['ID'];
@@ -3696,8 +3691,6 @@ export type stagingmode__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['stagingmode_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
