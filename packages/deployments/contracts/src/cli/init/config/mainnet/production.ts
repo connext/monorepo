@@ -719,16 +719,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       canonical: {
         domain: "6648936",
         address: "0x900dB999074d9277c5DA2A43F252D74366230DA0",
-        decimals: 6,
-        cap: utils.parseUnits("10000000", 6).toString(),
+        decimals: 18,
+        cap: utils.parseUnits("10000000", 18).toString(),
       },
       representations: {
         "6778479": {
-          local: "0xa1013f9f45621147e82e6f193bb77174ed948769",
+          local: "0xB71D06f2e73918386B75c24dD26c95DD938f7912",
           adopted: "0x4f4F9b8D5B4d0Dc10506e5551B0513B61fD59e75",
         },
         "1869640809": {
-          local: "0x3008c5ea3280e556fb6741f2ce1f2ddac57f280c",
+          local: "0x209EF834761b4A272ef60e82FfE1f494B7Ef76F7",
           adopted: "0x528CDc92eAB044E1E39FE43B9514bfdAB4412B98",
         },
       },
