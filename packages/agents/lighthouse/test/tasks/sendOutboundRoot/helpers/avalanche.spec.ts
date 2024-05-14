@@ -4,6 +4,8 @@ import { BigNumber, constants, utils } from "ethers";
 
 import * as Mockable from "../../../../src/mockable";
 import { getSendOutboundRootParams } from "../../../../src/tasks/sendOutboundRoot/helpers/avalanche";
+import { getBestProviderMock, sendOutboundRootCtxMock } from "../../../globalTestHook";
+import { NoProviderForDomain, NoSpokeConnector } from "../../../../src/tasks/propagate/errors";
 
 describe("Helpers: Avalanche", () => {
   describe("#getSendOutboundRootParams", () => {
@@ -12,6 +14,17 @@ describe("Helpers: Avalanche", () => {
         AMB: stub().resolves(mkAddress("0x123")),
         quoteEVMDeliveryPrice: stub().resolves(constants.One),
       } as any);
+    });
+
+    it("should throw an error if no provider for spoke domain", async () => {
+      delete sendOutboundRootCtxMock.config.chains[mock.domain.B];
+      getBestProviderMock.resolves(undefined);
+      await expect(getSendOutboundRootParams(mock.domain.B)).to.eventually.be.rejectedWith(NoProviderForDomain);
+    });
+
+    it("should throw an error if no spoke connector", async () => {
+      (sendOutboundRootCtxMock.adapters.deployments.spokeConnector as SinonStub).returns(undefined);
+      await expect(getSendOutboundRootParams(mock.domain.B)).to.eventually.be.rejectedWith(NoSpokeConnector);
     });
 
     it("should get params", async () => {

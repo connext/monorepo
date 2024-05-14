@@ -1,0 +1,68 @@
+{
+  "address": "0x3Da402D5cD4bf0A7C6003c0b9c3c19fdf1e90fd0",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "transactions",
+          "type": "bytes"
+        }
+      ],
+      "name": "multiSend",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd58bb4fc1ecb960f8cbaae424ee6188e2d5fcdd744c5699590e1f801472ebfcf",
+  "receipt": {
+    "to": null,
+    "from": "0xade09131C6f43fe22C2CbABb759636C43cFc181e",
+    "contractAddress": "0x3Da402D5cD4bf0A7C6003c0b9c3c19fdf1e90fd0",
+    "transactionIndex": 0,
+    "gasUsed": "170978",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x9efd60e5ca08060d0a4174a1ee328dced4399f17ec2fcf90f74d8adfbde0e7ac",
+    "transactionHash": "0xd58bb4fc1ecb960f8cbaae424ee6188e2d5fcdd744c5699590e1f801472ebfcf",
+    "logs": [],
+    "blockNumber": 52094,
+    "cumulativeGasUsed": "170978",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "ed4aacf150aa8b2abbaf06a5521b44f5",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"transactions\",\"type\":\"bytes\"}],\"name\":\"multiSend\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Modification was to ensure this is called from an EOA, rather than enforcing the `delegatecall` usage as in the original contract.\",\"kind\":\"dev\",\"methods\":{\"multiSend(bytes)\":{\"details\":\"Sends multiple transactions and reverts all if one fails.\",\"params\":{\"transactions\":\"Encoded transactions. Each transaction is encoded as a packed bytes of                     operation as a uint8 with 0 for a call or 1 for a delegatecall (=> 1 byte),                     to as a address (=> 20 bytes),                     value as a uint256 (=> 32 bytes),                     data length as a uint256 (=> 32 bytes),                     data as bytes.                     see abi.encodePacked for more information on packed encoding\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Modified from https://github.com/safe-global/safe-contracts/blob/main/contracts/libraries/MultiSend.sol\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/shared/libraries/Multisend.sol\":\"MultiSend\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/shared/libraries/Multisend.sol\":{\"content\":\"// SPDX-License-Identifier: LGPL-3.0-only\\npragma solidity ^0.8.0;\\n\\n/**\\n * @notice Modified from https://github.com/safe-global/safe-contracts/blob/main/contracts/libraries/MultiSend.sol\\n *\\n * @dev Modification was to ensure this is called from an EOA, rather than enforcing the\\n * `delegatecall` usage as in the original contract.\\n */\\ncontract MultiSend {\\n  address private immutable multisendSingleton;\\n\\n  constructor() {\\n    multisendSingleton = address(this);\\n  }\\n\\n  /**\\n   * @dev Sends multiple transactions and reverts all if one fails.\\n   * @param transactions Encoded transactions. Each transaction is encoded as a packed bytes of\\n   *                     operation as a uint8 with 0 for a call or 1 for a delegatecall (=> 1 byte),\\n   *                     to as a address (=> 20 bytes),\\n   *                     value as a uint256 (=> 32 bytes),\\n   *                     data length as a uint256 (=> 32 bytes),\\n   *                     data as bytes.\\n   *                     see abi.encodePacked for more information on packed encoding\\n   */\\n  function multiSend(bytes memory transactions) public payable {\\n    require(msg.sender.code.length == 0, \\\"MultiSend should only be called via EOA\\\");\\n    // solhint-disable-next-line no-inline-assembly\\n    assembly {\\n      let length := mload(transactions)\\n      let i := 0x20\\n      for {\\n        // Pre block is not used in \\\"while mode\\\"\\n      } lt(i, length) {\\n        // Post block is not used in \\\"while mode\\\"\\n      } {\\n        // First byte of the data is the operation.\\n        // We shift by 248 bits (256 - 8 [operation byte]) it right since mload will always load 32 bytes (a word).\\n        // This will also zero out unused data.\\n        let operation := shr(0xf8, mload(add(transactions, i)))\\n        // We offset the load address by 1 byte (operation byte)\\n        // We shift it right by 96 bits (256 - 160 [20 address bytes]) to right-align the data and zero out unused data.\\n        let to := shr(0x60, mload(add(transactions, add(i, 0x01))))\\n        // We offset the load address by 21 byte (operation byte + 20 address bytes)\\n        let value := mload(add(transactions, add(i, 0x15)))\\n        // We offset the load address by 53 byte (operation byte + 20 address bytes + 32 value bytes)\\n        let dataLength := mload(add(transactions, add(i, 0x35)))\\n        // We offset the load address by 85 byte (operation byte + 20 address bytes + 32 value bytes + 32 data length bytes)\\n        let data := add(transactions, add(i, 0x55))\\n        let success := 0\\n        switch operation\\n        case 0 {\\n          success := call(gas(), to, value, data, dataLength, 0, 0)\\n        }\\n        case 1 {\\n          success := delegatecall(gas(), to, data, dataLength, 0, 0)\\n        }\\n        if eq(success, 0) {\\n          revert(0, 0)\\n        }\\n        // Next entry starts at 85 byte + data length\\n        i := add(i, add(0x55, dataLength))\\n      }\\n    }\\n  }\\n}\\n\",\"keccak256\":\"0x435057ec07548343ef163f526262589221507a2e152386dc74ef7d917b0bd143\",\"license\":\"LGPL-3.0-only\"}},\"version\":1}",
+  "bytecode": "0x60a060405234801561001057600080fd5b503060805260805161022061002d600039600050506102206000f3fe60806040526004361061001e5760003560e01c80638d80ff0a14610023575b600080fd5b610036610031366004610139565b610038565b005b333b1561009b5760405162461bcd60e51b815260206004820152602760248201527f4d756c746953656e642073686f756c64206f6e6c792062652063616c6c65642060448201526676696120454f4160c81b606482015260840160405180910390fd5b805160205b8181101561011e578083015160f81c6001820184015160601c6015830185015160358401860151605585018701600085600081146100e557600181146100f557610100565b6000808585888a5af19150610100565b6000808585895af491505b508061010b57600080fd5b50508060550185019450505050506100a0565b505050565b634e487b7160e01b600052604160045260246000fd5b60006020828403121561014b57600080fd5b813567ffffffffffffffff8082111561016357600080fd5b818401915084601f83011261017757600080fd5b81358181111561018957610189610123565b604051601f8201601f19908116603f011681019083821181831017156101b1576101b1610123565b816040528281528760208487010111156101ca57600080fd5b82602086016020830137600092810160200192909252509594505050505056fea26469706673582212203a98476913f6497f1e14c2a098f4f736f686478bc4777a4604ca864cd23dae8d64736f6c63430008110033",
+  "deployedBytecode": "0x60806040526004361061001e5760003560e01c80638d80ff0a14610023575b600080fd5b610036610031366004610139565b610038565b005b333b1561009b5760405162461bcd60e51b815260206004820152602760248201527f4d756c746953656e642073686f756c64206f6e6c792062652063616c6c65642060448201526676696120454f4160c81b606482015260840160405180910390fd5b805160205b8181101561011e578083015160f81c6001820184015160601c6015830185015160358401860151605585018701600085600081146100e557600181146100f557610100565b6000808585888a5af19150610100565b6000808585895af491505b508061010b57600080fd5b50508060550185019450505050506100a0565b505050565b634e487b7160e01b600052604160045260246000fd5b60006020828403121561014b57600080fd5b813567ffffffffffffffff8082111561016357600080fd5b818401915084601f83011261017757600080fd5b81358181111561018957610189610123565b604051601f8201601f19908116603f011681019083821181831017156101b1576101b1610123565b816040528281528760208487010111156101ca57600080fd5b82602086016020830137600092810160200192909252509594505050505056fea26469706673582212203a98476913f6497f1e14c2a098f4f736f686478bc4777a4604ca864cd23dae8d64736f6c63430008110033",
+  "devdoc": {
+    "details": "Modification was to ensure this is called from an EOA, rather than enforcing the `delegatecall` usage as in the original contract.",
+    "kind": "dev",
+    "methods": {
+      "multiSend(bytes)": {
+        "details": "Sends multiple transactions and reverts all if one fails.",
+        "params": {
+          "transactions": "Encoded transactions. Each transaction is encoded as a packed bytes of                     operation as a uint8 with 0 for a call or 1 for a delegatecall (=> 1 byte),                     to as a address (=> 20 bytes),                     value as a uint256 (=> 32 bytes),                     data length as a uint256 (=> 32 bytes),                     data as bytes.                     see abi.encodePacked for more information on packed encoding"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Modified from https://github.com/safe-global/safe-contracts/blob/main/contracts/libraries/MultiSend.sol",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

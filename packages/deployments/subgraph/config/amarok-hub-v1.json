@@ -77,6 +77,11 @@
         "name": "ModeHubConnector",
         "address": "0x7b2bE683266909A6a4068e743083dd40621d663E",
         "startBlock": 19287458
+      },
+      {
+        "name": "XlayerHubConnector",
+        "address": "0x279fDA9AdDB854541f0bb86733d924e28c24c625",
+        "startBlock": 19612628
       }
     ]
   },
