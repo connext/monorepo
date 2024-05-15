@@ -140,6 +140,9 @@ locals {
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
+      "2020368761" = {
+        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+      }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
     relayers = [
@@ -257,13 +260,19 @@ locals {
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        },   
+        },
         {
           name       = "1836016741"
           limit      = 1
           queueLimit = 1000000
           subscribe  = true
-        }, 
+        },
+        {
+          name       = "2020368761"
+          limit      = 1
+          queueLimit = 1000000
+          subscribe  = true
+        }
       ]
       bindings = [
         {
@@ -341,6 +350,11 @@ locals {
           target   = "1836016741"
           keys     = ["1836016741"]
         },
+        {
+          exchange = "sequencerX"
+          target   = "2020368761"
+          keys     = ["2020368761"]
+        }
       ]
       executerTimeout = 300000
       prefetch        = 1
@@ -410,6 +424,9 @@ locals {
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
+      "2020368761" = {
+        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+      }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
     web3SignerUrl   = "https://${module.router_web3signer.service_endpoint}"
@@ -469,6 +486,9 @@ locals {
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
+      "2020368761" = {
+        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+      }
     }
     gelatoApiKey = "${var.gelato_api_key}"
     environment  = var.stage
@@ -512,10 +532,11 @@ locals {
       "1635148152" = 10,
       "1835365481" = 10,
       "1835101812" = 10,
-      "1836016741" = 10
+      "1836016741" = 10,
+      "2020368761" = 10
     }
     proverBatchWaitTime = {
-      "6648936" = 43200,
+      "6648936"    = 43200,
       "1634886255" = 14400,
       "1869640809" = 14400,
       "1886350457" = 14400,
@@ -528,8 +549,9 @@ locals {
       "1650553709" = 14400,
       "1635148152" = 14400,
       "1835365481" = 14400,
-      "1835101812" = 14400,         
-      "1836016741" = 14400       
+      "1835101812" = 14400,
+      "1836016741" = 14400,
+      "2020368761" = 14400
     }
     messageQueue = {
       connection = {
@@ -546,7 +568,7 @@ locals {
     }
     web3SignerUrl = "https://${module.lighthouse_web3signer.service_endpoint}"
     server = {
-      adminToken  = var.admin_token_lighthouse_prover_subscriber
+      adminToken = var.admin_token_lighthouse_prover_subscriber
     }
   })
 
@@ -601,6 +623,9 @@ locals {
       }
       "1836016741" = {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }
+      "2020368761" = {
+        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
       }
     }
     environment   = var.stage
