@@ -74,7 +74,7 @@ locals {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
       "2020368761" = {
-        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+        providers = ["https://rpc.xlayer.tech/${var.xlayer_key}", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
       }
     }
 
