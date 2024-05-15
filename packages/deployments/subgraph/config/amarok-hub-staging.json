@@ -113,6 +113,11 @@
         "name": "ScrollHubConnector",
         "address": "0x3B1edF344F03489b86DE923f288514De80aa929A",
         "startBlock": 19333465
+      },
+      {
+        "name": "XlayerHubConnector",
+        "address": "0xd3b338fce3238c7353ef44a628f96cb48b2fa0b5",
+        "startBlock": 19610004
       }
     ]
   }

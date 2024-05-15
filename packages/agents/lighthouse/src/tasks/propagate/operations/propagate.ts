@@ -1,4 +1,4 @@
-import { createLoggingContext, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
+import { createLoggingContext, domainToChainId, NxtpError, RequestContext, RootManagerMeta } from "@connext/nxtp-utils";
 import { BigNumber, constants } from "ethers";
 
 import { sendWithRelayerWithBackup } from "../../../mockable";
@@ -74,12 +74,7 @@ export const propagate = async () => {
 
     if (Object.keys(getParamsForDomainFn).includes(domain)) {
       const getParamsForDomain = getParamsForDomainFn[domain];
-      const propagateParam = await getParamsForDomain(
-        domain,
-        chainData.get(domain)!.chainId,
-        hubChainId,
-        requestContext,
-      );
+      const propagateParam = await getParamsForDomain(domain, domainToChainId(+domain), hubChainId, requestContext);
       _encodedData.push(propagateParam._encodedData);
       _fees.push(propagateParam._fee);
       _totalFee = _totalFee.add(BigNumber.from(propagateParam._fee));

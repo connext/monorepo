@@ -58,7 +58,6 @@ const claimFromPolygonZk = async (
   for (const deposit of claimableDeposits) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const proof = await getMerkleProof(apiUrl, deposit.deposit_cnt, deposit.network_id);
-    console.log(deposit, proof);
     if (!proof) {
       continue;
     }
@@ -67,7 +66,8 @@ const claimFromPolygonZk = async (
 
     const tx = await (deposit.dest_net == 1 ? l2BridgeContract : l1BridgeContract).claimMessage(
       proof.merkle_proof,
-      deposit.deposit_cnt,
+      proof.rollup_merkle_proof,
+      deposit.global_index,
       proof.main_exit_root,
       proof.rollup_exit_root,
       deposit.orig_net,
