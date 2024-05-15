@@ -2737,8 +2737,8 @@ __metadata:
   resolution: "@connext/nxtp-subgraph@workspace:packages/deployments/subgraph"
   dependencies:
     "@connext/nxtp-utils": "workspace:*"
-    "@graphprotocol/graph-cli": 0.68.0
-    "@graphprotocol/graph-ts": 0.33.0
+    "@graphprotocol/graph-cli": 0.69.2
+    "@graphprotocol/graph-ts": 0.34.0
     "@protofire/subgraph-toolkit": 0.1.2
     "@types/js-yaml": 4.0.5
     "@types/mustache": 4.2.2
@@ -4325,9 +4325,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:0.68.0":
-  version: 0.68.0
-  resolution: "@graphprotocol/graph-cli@npm:0.68.0"
+"@graphprotocol/graph-cli@npm:0.69.2":
+  version: 0.69.2
+  resolution: "@graphprotocol/graph-cli@npm:0.69.2"
   dependencies:
     "@float-capital/float-subgraph-uncrashable": ^0.0.0-alpha.4
     "@oclif/core": 2.8.6
@@ -4358,16 +4358,16 @@ __metadata:
     yaml: 1.10.2
   bin:
     graph: bin/run
-  checksum: 3ba2bc43cec157bc1462da94d36fe878c9818890c55b149d238e949e30379909de453e76cbf8df040d2cf71ccb2dba7dd2c92955cda62f80cf95c8bd47cc0943
+  checksum: 431611bf2216a4f9c13790dc1dfafcc8618ca39ff6cba66eff31addc9f1bc1e0bc75c68a285160d89ee9e47d35d4b2d67fa827ec2aba36edfffb7d252b1f20f8
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-ts@npm:0.33.0":
-  version: 0.33.0
-  resolution: "@graphprotocol/graph-ts@npm:0.33.0"
+"@graphprotocol/graph-ts@npm:0.34.0":
+  version: 0.34.0
+  resolution: "@graphprotocol/graph-ts@npm:0.34.0"
   dependencies:
     assemblyscript: 0.19.10
-  checksum: 083400dbf82cad7af6e2f059ced514a84776a708f6083b41048641c3ff53c7ab2e06d49c709dff67fc941ae0a00b2fe99a7fcb8da7f14718e2bb6f5556aac835
+  checksum: ab50e4e5bf3bea9ed3348b96973b392b4c67f7455fa36f5b5e66a19ffe3da2eced82c8a16fa3d14ebb8e81ccadbf34b4e1c07931a863722bb9464209b855a103
   languageName: node
   linkType: hard
 

@@ -1,6 +1,6 @@
 {
   "name": "@connext/smart-contracts",
-  "version": "2.5.0-alpha.1",
+  "version": "2.5.0-alpha.5",
   "description": "",
   "scripts": {
     "test": "yarn forge test --no-match-path '*/{fork,integration}/**.sol'",
@@ -25,6 +25,7 @@
     "size": "hardhat size-contracts",
     "initialize": "ts-node ./src/cli/init/main.ts",
     "ownership": "ts-node ./src/cli/ownership/main.ts",
+    "safe": "ts-node ./src/cli/safes/main.ts",
     "switch": "ts-node ./src/cli/op-mode/main.ts",
     "firedrill": "ts-node ./src/cli/watcher/main.ts",
     "devnet:spawn": "ts-node ./src/devnet/spawnDevnet.ts",

@@ -52,7 +52,6 @@ export const updateTransfers = async () => {
       if (latestBlockNumbers.has(domain)) {
         latestBlockNumber = latestBlockNumbers.get(domain)!;
       }
-
       if (!latestBlockNumber) {
         logger.error("Error getting the latestBlockNumber for domain.", requestContext, methodContext, undefined, {
           domain,

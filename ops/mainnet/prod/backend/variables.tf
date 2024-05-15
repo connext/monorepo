@@ -81,3 +81,8 @@ variable "blast_key" {
   type      = string
   sensitive = true
 }
+
+variable "xlayer_key" {
+  type      = string
+  sensitive = true
+}

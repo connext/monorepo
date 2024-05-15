@@ -90,8 +90,8 @@
     "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "0.68.0",
-    "@graphprotocol/graph-ts": "0.33.0",
+    "@graphprotocol/graph-cli": "0.69.2",
+    "@graphprotocol/graph-ts": "0.34.0",
     "@protofire/subgraph-toolkit": "0.1.2",
     "@types/js-yaml": "4.0.5",
     "@types/mustache": "4.2.2",

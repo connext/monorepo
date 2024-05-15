@@ -397,5 +397,26 @@
         "startBlock": 3692845
       }
     ]
+  },
+  {
+    "subgraphName": "connext/runtime-staging-xlayer",
+    "network": "xlayer",
+    "source": [
+      {
+        "name": "Connext",
+        "address": "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
+        "startBlock": 52084
+      },
+      {
+        "name": "SpokeConnector",
+        "address": "0xaFb88881e53589f5E6eb1cc27E9207cC7f03023F",
+        "startBlock": 51966
+      },
+      {
+        "name": "MerkleTreeManager",
+        "address": "0xA3E91AeFAdEcb8919180F581f5Be897c763be593",
+        "startBlock": 51961
+      }
+    ]
   }
 ]
