@@ -10,6 +10,9 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Where did the user initiate this transfer?**
+Connext UI, Jumper, Metamask, dApp, etc
+
 **Link to ticket in discord**
 
 **To Reproduce**
