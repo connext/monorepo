@@ -68,6 +68,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "Axis",
+      canonical: {
+        domain: "11111",
+        address: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        decimals: 18,
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+          adopted: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        },
+        /// Optimism-Sepolia
+        "1869640549": {
+          local: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+          adopted: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
