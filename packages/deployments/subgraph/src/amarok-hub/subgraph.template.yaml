@@ -482,3 +482,30 @@ dataSources:
         - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
           handler: handleScrollNewConnector
       file: ./src/amarok-hub/mapping/scroll.ts
+  # XlayerHubConnector.sol events
+  - kind: ethereum/contract
+    name: XlayerHubConnector
+    network: "{{network}}"
+    source:
+      address: "{{address}}"
+      abi: XlayerHubConnector
+      # prettier-ignore
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Asset
+        - AssetBalance
+        - Router
+        - Transfer
+      abis:
+        - name: XlayerHubConnector
+          file: ./src/amarok-hub/abis/PolygonZkHubConnector.json
+      eventHandlers:
+        - event: MessageProcessed(bytes,address)
+          handler: handleXlayerMessageProcessed
+        - event: NewConnector(indexed uint32,indexed uint32,address,address,address)
+          handler: handleXlayerNewConnector
+      file: ./src/amarok-hub/mapping/xlayer.ts

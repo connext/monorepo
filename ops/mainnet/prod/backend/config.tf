@@ -71,8 +71,11 @@ locals {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1836016741" = {
-        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}"]
-      }      
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+      }
+      "2020368761" = {
+        providers = ["https://rpc.xlayer.tech/${var.xlayer_key}", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+      }
     }
 
     # The following are defined in variables.tf and don't map to the
@@ -111,6 +114,7 @@ locals {
       "1835365481" = { confirmations = 1 }
       "1835101812" = { confirmations = 1 }
       "1836016741" = { confirmations = 10 }
+      "2020368761" = { confirmations = 10 }
     }
     environment = var.stage
     healthUrls = {

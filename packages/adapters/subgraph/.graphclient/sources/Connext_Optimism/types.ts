@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   optimism_Bytes: any;
   optimism_Int8: any;
+  Timestamp: any;
 };
 
 export type optimism_AggregateRoot = {
@@ -149,6 +150,10 @@ export type optimism_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type optimism_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type optimism_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type optimism__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['optimism_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

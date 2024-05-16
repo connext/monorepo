@@ -1,4 +1,4 @@
-# @postgrestUrl = http://localhost:3000
+@postgrestUrl = http://localhost:3000
 
 @postgrestUrl = https://postgrest.mainnet.connext.ninja
 # @postgrestUrl = https://postgrest.testnet.connext.ninja
@@ -44,7 +44,7 @@ Prefer: count=planned
 GET {{postgrestUrl}}/transfers?and=(origin_domain.in.("1111","2221"),destination_domain.in.("1111","2221"))
 
 ### GET TRANSFER BY ID
-GET {{postgrestUrl}}/transfers?transfer_id=eq.0x6f694ac07017afb9951ecd67e24611cc16a4333c8b6792a475d3e0163c2b2459
+GET {{postgrestUrl}}/transfers?transfer_id=eq.0x82d52aae60e15e0dd1b41ed5335936b3e42ecb61c81204d2f4ce74d38b897481
 
 ### GET TRANSFERS BY STATUS
 GET {{postgrestUrl}}/transfers?status=eq.XCalled&limit=1&order=xcall_timestamp.desc
