@@ -113,7 +113,7 @@ locals {
         providers = ["https://bsc-mainnet.blastapi.io/${var.blast_key}", "https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://rpc.ankr.com/bsc"]
       }
       "6778479" = {
-        providers                 = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com", "https://rpc.ankr.com/gnosis"],
+        providers                 = ["https://gnosis-mainnet.blastapi.io/${var.blast_key}", "https://rpc.gnosischain.com"],
         excludeListFromRelayerFee = ["0x6D4D82aE73DC9059Ac83B085b2505e00b5eF8511"]
       }
       "1818848877" = {
@@ -157,7 +157,7 @@ locals {
         url    = "https://${module.relayer_server.service_endpoint}"
       }
     ]
-    relayerFeeTolerance = 60
+    relayerFeeTolerance = 85
     checkOnlyExecuteFee = false
     environment         = var.stage
     database = {
@@ -179,7 +179,7 @@ locals {
       queues = [
         {
           name       = "http"
-          limit      = 100
+          limit      = 10
           queueLimit = 1000000
           subscribe  = true
         },

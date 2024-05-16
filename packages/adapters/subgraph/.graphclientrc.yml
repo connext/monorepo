@@ -369,14 +369,14 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v0-base"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
+            retry: 2
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-base"
             retry: 5
             timeout: 30000 # 30 seconds
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/runtime-v1-base/gn"
             retry: 5
-            timeout: 30000 # 30 seconds
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4YtEYNhpX6x1G21wra23DQF871yNs62D6H2E98EY3uCd"
-            retry: 2
             timeout: 30000 # 30 seconds
     transforms:
       - prefix:
@@ -464,6 +464,9 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v0-mantle/gn"
+            retry: 3
+            timeout: 30000 # 30 seconds
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v0-mantle"
             retry: 2
             timeout: 30000 # 30 seconds
@@ -521,10 +524,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/runtime-v1-mode"
-            retry: 5
-            timeout: 30000 # 30 seconds
-          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mode/gn"
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-mode"
             retry: 2
             timeout: 30000 # 30 seconds
     transforms:
@@ -696,13 +696,13 @@ sources:
             }
           value: "_meta.block.number"
         sources:
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
+            retry: 5
+            timeout: 30000 # 30 seconds
           - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-base/
             retry: 5
             timeout: 30000 # 30 seconds
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/proxima/stableswap-v1-base/gn
-            retry: 5
-            timeout: 30000 # 30 seconds
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/CN95pNYUyxcQn4NVMFA5qLXdiFRVV5WnfFEfgFPExUz"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -777,9 +777,24 @@ sources:
   - name: StableSwap_Mantle
     handler:
       graphql:
-        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mantle/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v0-mantle"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mantle_swap_
@@ -822,9 +837,24 @@ sources:
   - name: StableSwap_Mode
     handler:
       graphql:
-        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-mode"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-mode/gn
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-mode"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mode_swap_
