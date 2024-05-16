@@ -132,7 +132,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
+        providers = ["https://metis.drpc.org"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -141,7 +141,7 @@ locals {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
       "2020368761" = {
-        providers = ["https://rpc.xlayer.tech/${var.xlayer_key}", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+        providers = ["https://rpc.xlayer.tech/${var.xlayer_key}"]
       }
     }
     web3SignerUrl = "https://${module.sequencer_web3signer.service_endpoint}"
@@ -416,7 +416,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
+        providers = ["https://metis.drpc.org"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -425,7 +425,7 @@ locals {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
       "2020368761" = {
-        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+        providers = ["https://rpc.xlayer.tech/unlimited"]
       }
     }
     cartographerUrl = "https://postgrest.mainnet.connext.ninja"
@@ -478,7 +478,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
+        providers = ["https://metis.drpc.org"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -487,7 +487,7 @@ locals {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
       "2020368761" = {
-        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+        providers = ["https://rpc.xlayer.tech/unlimited"]
       }
     }
     gelatoApiKey = "${var.gelato_api_key}"
@@ -617,7 +617,7 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis.drpc.org", "https://andromeda.metis.io/?owner=1088"]
+        providers = ["https://metis.drpc.org"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
@@ -626,7 +626,7 @@ locals {
         providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
       }
       "2020368761" = {
-        providers = ["https://rpc.xlayer.tech/unlimited", "https://rpc.xlayer.tech", "https://xlayerrpc.okx.com"]
+        providers = ["https://rpc.xlayer.tech/unlimited"]
       }
     }
     environment   = var.stage
