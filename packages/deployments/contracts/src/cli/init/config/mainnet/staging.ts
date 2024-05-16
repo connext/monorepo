@@ -19,6 +19,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
     "1835101812", // Mantle
     "1836016741", // Mode
     "1935897199", // Scroll
+    "2020368761", // XLayer
   ],
   // NOTE: ENSURE LPTOKEN AND BRIDGETOKEN NAMES ARE GENERATED CORRECTLY BASED
   // ON THE NAME GIVEN IN EACH ASSET ENTRY
@@ -88,6 +89,10 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
           local: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
           adopted: "0xfD9B8B1B7e44b39DFA04D66159Ac21B68141eD38",
         },
+        "2020368761": {
+          local: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+          adopted: "0x9E40a8A535D4875848e1821e3C59AB5C5dd86135",
+        },
       },
     },
   ],
@@ -108,6 +113,7 @@ export const MAINNET_STAGING_INIT_CONFIG: InitConfig = {
       "1835101812": PROTOCOL_ADMINS.mainnet["1835101812"], // Mantle
       "1836016741": PROTOCOL_ADMINS.mainnet["1836016741"], // Mode
       "1935897199": PROTOCOL_ADMINS.mainnet["1935897199"], // Scroll
+      "2020368761": PROTOCOL_ADMINS.mainnet["2020368761"], // XLayer
     },
     watchers: {
       allowlist: ["0x56dD71fffD089EdAdbA8eCdaaDb94269713f8f4d", "0x151Ea574C62b505aEe2F89f33D8c152E28A956b0"],
