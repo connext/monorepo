@@ -1,7 +1,7 @@
 ---
 name: Bug / Support
 about: Create a report to help us improve
-title: "[ST] <What is wrong>"
+title: "[ICE: ] <What is wrong>"
 labels: Bug
 assignees: ''
 
@@ -13,7 +13,7 @@ A clear and concise description of what the bug is.
 **Where did the user initiate this transfer?**
 Connext UI, Jumper, Metamask, dApp, etc
 
-**Link to ticket in discord**
+**Link to ticket in Intercom**
 
 **To Reproduce**
 Steps to reproduce the behavior:
