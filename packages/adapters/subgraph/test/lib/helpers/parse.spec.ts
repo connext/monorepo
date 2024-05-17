@@ -554,6 +554,32 @@ describe("Helpers:parse", () => {
       }).to.throw("Subgraph `StableSwapPool` entity parser: Message entity missing required field");
     });
 
+    it("should not throw if a required boolean field is false", () => {
+      const entity = {
+        key: mkBytes32("0xa"),
+        domain: "1111",
+        isActive: false,
+        lpToken: mkAddress("0xa"),
+        initialA: 200,
+        futureA: 200,
+        initialATime: 0,
+        futureATime: 0,
+        swapFee: "400000",
+        adminFee: "0",
+        pooledTokens: [mkAddress("0xa"), mkAddress("0xb")],
+        tokenPrecisionMultipliers: ["1", "1"],
+        poolTokenDecimals: [18, 18],
+        balances: ["200000", "200000"],
+        virtualPrice: "400000",
+        invariant: "0",
+        lpTokenSupply: "0",
+      };
+
+      expect(() => {
+        stableSwapPool(entity);
+      }).not.to.throw("Subgraph `StableSwapPool` entity parser: Message entity missing required field");
+    });
+
     it("should parse valid swap pool", () => {
       const entity = {
         key: mkBytes32("0xa"),
