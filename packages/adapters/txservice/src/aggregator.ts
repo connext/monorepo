@@ -304,8 +304,6 @@ export class RpcProviderAggregator {
             synced: provider.synced,
             metrics: {
               reliability: provider.reliability,
-              latency: provider.latency,
-              cps: provider.cps,
               priority: provider.priority,
             },
           },
