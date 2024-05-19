@@ -66,7 +66,7 @@ export const originTransfer = (entity: any, asset: Record<string, AssetId>): Ori
     "to",
     "callData",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `OriginTransfer` entity parser: Transfer entity missing required field", {
         missingField: field,
         entity,
@@ -174,7 +174,7 @@ export const destinationTransfer = (entity: any): DestinationTransfer => {
     "status",
     "routers",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `DestinationTransfer` entity parser: Transfer entity missing required field", {
         missingField: field,
         entity,
@@ -271,7 +271,7 @@ export const originMessage = (entity: any): OriginMessage => {
     throw new NxtpError("Subgraph `OriginMessage` entity parser: OriginMessage entity is `undefined`.");
   }
   for (const field of ["index", "leaf", "root", "domain", "destinationDomain", "transferId", "message"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `OriginMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -324,7 +324,7 @@ export const rootMessage = (entity: any): RootMessage => {
     throw new NxtpError("Subgraph `RootMessage` entity parser: RootMessage, entity is `undefined`.");
   }
   for (const field of ["id", "spokeDomain", "hubDomain", "root", "timestamp", "gasPrice", "gasLimit", "blockNumber"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `RootMessage` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -355,7 +355,7 @@ export const aggregatedRoot = (entity: any): AggregatedRoot => {
     throw new NxtpError("Subgraph `AggregatedRoot` entity parser: AggregatedRoot, entity is `undefined`.");
   }
   for (const field of ["id", "domain", "receivedRoot", "index"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `AggregatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -377,7 +377,7 @@ export const propagatedRoot = (entity: any): PropagatedRoot => {
     throw new NxtpError("Subgraph `PropagatedRoot` entity parser: PropagatedRoot, entity is `undefined`.");
   }
   for (const field of ["id", "aggregate", "domainsHash", "count"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `PropagatedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -407,7 +407,7 @@ export const proposedRoot = (entity: any): Snapshot => {
     "baseAggregateRoot",
     "timestamp",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `proposedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -431,7 +431,7 @@ export const proposedSpokeOptimisticRoot = (entity: any): SpokeOptimisticRoot =>
     throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: SpokeOptimisticRoot, entity is `undefined`.");
   }
   for (const field of ["id", "aggregateRoot", "rootTimestamp", "endOfDispute", "domain", "timestamp"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `SpokeOptimisticRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -454,7 +454,7 @@ export const snapshotRoot = (entity: any): SnapshotRoot => {
     throw new NxtpError("Subgraph `snapshotRoot` entity parser: snapshotRoot, entity is `undefined`.");
   }
   for (const field of ["id", "spokeDomain", "root", "count", "timestamp", "blockNumber"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `snapshotRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -478,7 +478,7 @@ export const finalizedRoot = (entity: any): OptimisticRootFinalized => {
     throw new NxtpError("Subgraph `finalizedRoot` entity parser: finalizedRoot, entity is `undefined`.");
   }
   for (const field of ["id", "aggregateRoot", "timestamp"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `finalizedRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -501,7 +501,7 @@ export const propagatedOptimisticRoot = (entity: any): OptimisticRootPropagated 
     );
   }
   for (const field of ["id", "aggregateRoot", "domainsHash", "timestamp"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `propagatedOptimisticRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -523,7 +523,7 @@ export const connectorMeta = (entity: any): ConnectorMeta => {
     throw new NxtpError("Subgraph `ConnectorMeta` entity parser: ConnectorMeta, entity is `undefined`.");
   }
   for (const field of ["id", "spokeDomain", "hubDomain", "rootManager", "mirrorConnector", "amb"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `ConnectorMeta` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -547,7 +547,7 @@ export const rootManagerMeta = (entity: any): RootManagerMeta => {
     throw new NxtpError("Subgraph `RootManagerMeta` entity parser: RootManagerMeta, entity is `undefined`.");
   }
   for (const field of ["id", "connectors", "domains"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `RootManagerMeta` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -568,7 +568,7 @@ export const rootManagerMode = (entity: any): RootManagerMode => {
     throw new NxtpError("Subgraph `RootManagerMode` entity parser: RootManagerMode, entity is `undefined`.");
   }
   for (const field of ["id", "mode"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `RootManagerMode` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -588,7 +588,7 @@ export const spokeConnectorMode = (entity: any): SpokeConnectorMode => {
     throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: SpokeConnectorMode, entity is `undefined`.");
   }
   for (const field of ["id", "mode"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `SpokeConnectorMode` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -610,7 +610,7 @@ export const receivedAggregateRoot = (entity: any): ReceivedAggregateRoot => {
     );
   }
   for (const field of ["id", "root", "domain", "blockNumber"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `ReceivedAggregateRoot` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -646,7 +646,7 @@ export const stableSwapPool = (entity: any): StableSwapPool => {
     "invariant",
     "lpTokenSupply",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `StableSwapPool` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -696,7 +696,7 @@ export const stableSwapExchange = (entity: any): StableSwapExchange => {
     "timestamp",
     "nonce",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `stableSwapExchange` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -751,7 +751,7 @@ export const stableSwapPoolEvent = (entity: any): StableSwapPoolEvent => {
     "timestamp",
     "nonce",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `stableSwapPoolEvent` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -808,7 +808,7 @@ export const stableSwapLpTransfer = (entity: any): StableSwapTransfer => {
     "timestamp",
     "nonce",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `stableSwapLpTransfer` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -841,7 +841,7 @@ export const relayerFeesIncrease = (entity: any): RelayerFeesIncrease => {
     throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: RelayerFeesIncrease, entity is `undefined`.");
   }
   for (const field of ["id", "increase"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `RelayerFeesIncrease` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -865,7 +865,7 @@ export const slippageUpdate = (entity: any): SlippageUpdate => {
     throw new NxtpError("Subgraph `SlippageUpdate` entity parser: SlippageUpdate, entity is `undefined`.");
   }
   for (const field of ["id", "slippage"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `SlippageUpdate` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -888,7 +888,7 @@ export const routerDailyTvl = (entity: any): RouterDailyTVL => {
     throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: RouterDailyTVL, entity is `undefined`.");
   }
   for (const field of ["id", "asset", "router", "timestamp", "balance"]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `RouterDailyTVL` entity parser: Message entity missing required field", {
         missingField: field,
         entity,
@@ -926,7 +926,7 @@ export const routerLiquidityEvent = (entity: any): RouterLiquidityEvent => {
     "timestamp",
     "nonce",
   ]) {
-    if (!entity[field]) {
+    if (entity[field] === undefined || entity[field] === null) {
       throw new NxtpError("Subgraph `routerLiquidityEvent` entity parser: Message entity missing required field", {
         missingField: field,
         entity,

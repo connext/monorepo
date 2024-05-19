@@ -295,7 +295,19 @@ export class RpcProviderAggregator {
           return await provider.call(formatted, blockTag);
         }
       } catch (error: unknown) {
-        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, { error });
+        throw new TransactionReadError(TransactionReadError.reasons.ContractReadError, {
+          error,
+          provider: {
+            url: provider.name,
+            blockNumber: provider.syncedBlockNumber,
+            lag: provider.lag,
+            synced: provider.synced,
+            metrics: {
+              reliability: provider.reliability,
+              priority: provider.priority,
+            },
+          },
+        });
       }
     });
   }
