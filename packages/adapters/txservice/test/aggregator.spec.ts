@@ -82,6 +82,10 @@ describe("RpcProviderAggregator", () => {
     coreSyncProvider = Sinon.createStubInstance(SyncProvider);
     (coreSyncProvider as any)._syncedBlockNumber = 123;
     (coreSyncProvider as any).synced = true;
+    (coreSyncProvider as any).name = "-------fakeProvider------";
+    (coreSyncProvider as any).lag = 1;
+    (coreSyncProvider as any).reliability = 1.0;
+    (coreSyncProvider as any).priority = 0;
     (coreSyncProvider as any).url = "https://-------fakeProvider------";
     Sinon.stub(coreSyncProvider, "syncedBlockNumber").get(() => (coreSyncProvider as any)._syncedBlockNumber);
     (chainProvider as any).providers = [coreSyncProvider];
@@ -290,9 +294,24 @@ describe("RpcProviderAggregator", () => {
     it("should return error result if the signer readContract call throws", async () => {
       const testError = new Error("test error");
       signer.call.rejects(testError);
-
       // The error.context.error is the "test error" thrown by the signer.call.
-      await expect(chainProvider.readContract(TEST_READ_TX)).to.be.rejectedWith(TransactionReadError);
+      await expect(chainProvider.readContract(TEST_READ_TX)).to.rejected.then((error) => {
+        if (error instanceof TransactionReadError) {
+          expect(error.context.error).to.eq(testError);
+          expect(error.context.provider).to.deep.eq({
+            url: coreSyncProvider.name,
+            blockNumber: coreSyncProvider.syncedBlockNumber,
+            lag: coreSyncProvider.lag,
+            synced: coreSyncProvider.synced,
+            metrics: {
+              reliability: coreSyncProvider.reliability,
+              priority: coreSyncProvider.priority,
+            },
+          });
+        } else {
+          expect.fail("Error should be a TransactionReadError");
+        }
+      });
     });
 
     it("should execute with provider if no signer available", async () => {
