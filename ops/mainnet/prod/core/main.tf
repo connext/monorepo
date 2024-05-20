@@ -452,8 +452,8 @@ module "relayer" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 4096
+  cpu                      = 4096
+  memory                   = 8192
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false
