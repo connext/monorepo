@@ -24,6 +24,7 @@ variable "stage" {
 
 variable "container_env_vars" {
   description = "env vars for running container"
+  sensitive   = true
 }
 
 variable "schedule_expression" {

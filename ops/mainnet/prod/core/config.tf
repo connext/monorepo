@@ -478,13 +478,13 @@ locals {
         providers = ["https://ava-mainnet.blastapi.io/${var.blast_key}/ext/bc/C/rpc"]
       }
       "1835365481" = {
-        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}", "https://metis-mainnet.public.blastapi.io", "https://andromeda.metis.io/?owner=1088"]
+        providers = ["https://metis-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1835101812" = {
         providers = ["https://mantle-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1836016741" = {
-        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}", "https://mainnet.mode.network/"]
+        providers = ["https://mode-mainnet.blastapi.io/${var.blast_key}"]
       }
       "2020368761" = {
         providers = ["https://rpc.xlayer.tech/unlimited"]
