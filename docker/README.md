@@ -1,6 +1,6 @@
 Docker directories named according to NXTP packages.
 
-Config.json located in the root of each project's docker ie (repo-root)/docker/<nxtp project name> controlls how the packages will be configured. for examples see (repo-root)/packages/examples.config.json
+Config.json located in the root of each project's docker ie (repo-root)/docker/<nxtp project name> controls how the packages will be configured. For examples see (repo-root)/packages/examples.config.json
 
 - router (pretty much just runs the router as configured).
 
