@@ -6,6 +6,7 @@ import * as MockableFns from "../src/mockable";
 
 import { expect } from "@connext/nxtp-utils";
 import {
+  SdkEnoughRouterLiquidityParams,
   SdkCheckRouterLiquidityParams,
   SdkGetRouterLiquidityParams,
   SdkGetRoutersDataParams,
@@ -179,6 +180,37 @@ describe("#SDKUtils", () => {
       });
 
       const res = await sdkUtils.checkRouterLiquidity(expectedArgs.domainId, expectedArgs.asset);
+
+      expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
+      expect(res).to.be.deep.eq(expectedRes);
+    });
+  });
+
+  describe("#enoughRouterLiquidity", async () => {
+    it("happy: should send request with correct params", async () => {
+      const expectedEndpoint = "/enoughRouterLiquidity";
+      const expectedArgs: SdkEnoughRouterLiquidityParams = {
+        domainId: mock.domain.A,
+        asset: mock.asset.A.address,
+        minLiquidity: 100,
+        maxN: undefined,
+      };
+      const mockServerRes = {
+        type: "BigNumber",
+        hex: "0x1",
+      };
+      const expectedRes = BigNumber.from(mockServerRes);
+
+      axiosPostStub.resolves({
+        data: mockServerRes,
+        status: 200,
+      });
+
+      const res = await sdkUtils.enoughRouterLiquidity(
+        expectedArgs.domainId,
+        expectedArgs.asset,
+        expectedArgs.minLiquidity
+      );
 
       expect(axiosPostStub).to.have.been.calledWithExactly(expectedBaseUri + expectedEndpoint, expectedArgs);
       expect(res).to.be.deep.eq(expectedRes);
