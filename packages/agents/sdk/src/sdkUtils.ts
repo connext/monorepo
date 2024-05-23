@@ -366,10 +366,8 @@ export class SdkUtils extends SdkShared {
 
     let totalLiquidity = BigNumber.from(0);
     for (let routerBalance of routersByLargestBalance) {
-      if (routerBalance.domain == domainId && routerBalance.local.toLowerCase() == _asset) {
-        const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
-        totalLiquidity = totalLiquidity.add(balanceBN);
-      }
+      const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
+      totalLiquidity = totalLiquidity.add(balanceBN);
     }
   
     const totalLiquidityWithBuffer = _minLiquidityBN.mul(BigNumber.from(100 + _bufferPercentage)).div(100);
