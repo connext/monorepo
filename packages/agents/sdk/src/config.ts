@@ -198,7 +198,7 @@ export const domainsToChainNames: Record<string, string> = {
   "1935897199": "scroll",
   "1936027759": "sepolia",
   "1869640549": "optimism-sepolia",
-  "1633842021": "arbitrum-sepolia"
+  "1633842021": "arbitrum-sepolia",
 };
 
 // Need to add more domains here.
@@ -216,7 +216,7 @@ export const XERC20REGISTRY_DOMAIN_ADDRESS: Record<string, string> = {
   "1935897199": "0x397aEEEDd44f40326f9eB583a1DFB8A7A673C40B", // scroll
   "1936027759": "0x2a3fe9a49fb50536f1ed099192c2ae2404de7bb5", // sepolia
   "1869640549": "0x18b5b08b10a2e351180f07e31f4fef94d14e28f6", // op-sepolia
-  "1633842021": "0x343d827d5109e8038bbb71e9ba4f3fd0d546b9ff" // arb-sepolia
+  "1633842021": "0x343d827d5109e8038bbb71e9ba4f3fd0d546b9ff", // arb-sepolia
 };
 
 // Need to add more domains here.
@@ -234,5 +234,5 @@ export const LOCKBOX_ADAPTER_DOMAIN_ADDRESS: Record<string, string> = {
   "1935897199": "", // scroll (TODO)
   "1936027759": "0xcF021fCFB9bd72E5aA7ab390cFA4fCfDF895c7Cf", // sepolia
   "1869640549": "0x20b4789065DE09c71848b9A4FcAABB2c10006FA2", // op-sepolia
-  "1633842021": "0x0f4Fe4903d01E0deb067A7297453fBEFdC36D189" // arb-sepolia
+  "1633842021": "0x0f4Fe4903d01E0deb067A7297453fBEFdC36D189", // arb-sepolia
 };

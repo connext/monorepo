@@ -361,11 +361,11 @@ export class SdkUtils extends SdkShared {
       domain: domainId,
       localAsset: _asset,
       order: { orderBy: "balance", ascOrDesc: "desc" },
-      limit: _maxN
+      limit: _maxN,
     });
 
     let totalLiquidity = BigNumber.from(0);
-    for (let routerBalance of routersByLargestBalance) {
+    for (const routerBalance of routersByLargestBalance) {
       const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
       totalLiquidity = totalLiquidity.add(balanceBN);
     }

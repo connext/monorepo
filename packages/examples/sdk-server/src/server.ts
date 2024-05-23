@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import fastify, { FastifyInstance } from "fastify";
 import { createLoggingContext, Logger, getBestProvider, jsonifyError } from "@connext/nxtp-utils";
 import { fastifyRedis } from "@fastify/redis";
 import cors from "@fastify/cors";

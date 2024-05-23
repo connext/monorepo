@@ -1,9 +1,9 @@
 
-   
-# @baseUrl = http://127.0.0.1:8080
+  #  
+@baseUrl = http://127.0.0.1:8080
 # @baseUrl = https://sdk-server.testnet.staging.connext.ninja
 # @baseUrl = https://sdk-server.testnet.connext.ninja
-@baseUrl = https://sdk-server.mainnet.connext.ninja
+# @baseUrl = https://sdk-server.mainnet.connext.ninja
 @yourAddress = 0x6d2A06543D23Cc6523AE5046adD8bb60817E0a94
 
 ##############
@@ -221,10 +221,10 @@ POST {{baseUrl}}/calculateAmountReceived
 Content-Type: application/json
 
 {
-  "originDomain": "9991",
-  "destinationDomain": "1735356532",
-  "originTokenAddress": "0xeDb95D8037f769B72AAab41deeC92903A98C9E16",
-  "amount": "100000",
+  "originDomain": "6648936",
+  "destinationDomain": "1869640809",
+  "originTokenAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+  "amount": "100000000000",
   "receiveLocal": false,
   "checkFastLiquidity": true
 }
@@ -779,7 +779,7 @@ Content-Type: application/json
 {
   "domainId": "1869640809",
   "asset": "0x67E51f46e8e14D4E4cab9dF48c59ad8F512486DD",
-  "minLiquidity": "100000000000000000000000",
+  "minLiquidity": "100000000000",
   "maxN": 4
 }
 
