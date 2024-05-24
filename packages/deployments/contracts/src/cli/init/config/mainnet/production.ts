@@ -200,11 +200,6 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x609aEfb9FB2Ee8f2FDAd5dc48efb8fA4EE0e80fB",
           adopted: "0x4200000000000000000000000000000000000006",
         },
-        "2020368761": {
-          // xlayer
-          local: "0x705c53246a116b4b10dac9ea429041ef2610a783",
-          adopted: "0x5a77f1443d16ee5761d310e38b62f77f726bc71c",
-        },
       },
     },
     {
