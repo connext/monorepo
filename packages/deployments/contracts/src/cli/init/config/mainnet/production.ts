@@ -695,6 +695,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "CHOKE",
+      canonical: {
+        domain: "11111",
+        address: "0x6Fc2680D8ad8e8312191441B4ECa9EfF8D06b45a",
+        decimals: 18,
+      },
+      representations: {
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x6Fc2680D8ad8e8312191441B4ECa9EfF8D06b45a",
+          adopted: "0x6Fc2680D8ad8e8312191441B4ECa9EfF8D06b45a",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0xc2093B1CaFD659F77D11299EE4ba91889898992C",
+          adopted: "0xc2093B1CaFD659F77D11299EE4ba91889898992C",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
