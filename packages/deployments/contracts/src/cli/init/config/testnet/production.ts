@@ -68,6 +68,31 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "PufETH",
+      canonical: {
+        domain: "11111",
+        address: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+          adopted: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x3dC898c2db965851e64e3621579c53019C70338C",
+          adopted: "0x3dC898c2db965851e64e3621579c53019C70338C",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0xcDe9bC6e1e2647357Ad61b6b0dFF005F549D6Ba3",
+          adopted: "0xcDe9bC6e1e2647357Ad61b6b0dFF005F549D6Ba3",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
