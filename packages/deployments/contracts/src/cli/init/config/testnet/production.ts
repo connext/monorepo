@@ -68,6 +68,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "swapr",
+      canonical: {
+        domain: "11111",
+        address: "0x535c70c9Bac2631CbFD769D3Ac07338233c5Df66",
+        decimals: 18,
+      },
+      representations: {
+        /// sepolia
+        "1936027759": {
+          local: "0x535c70c9Bac2631CbFD769D3Ac07338233c5Df66",
+          adopted: "0x535c70c9Bac2631CbFD769D3Ac07338233c5Df66",
+        },
+        /// arb-sepolia
+        "1633842021": {
+          local: "0x535c70c9Bac2631CbFD769D3Ac07338233c5Df66",
+          adopted: "0x535c70c9Bac2631CbFD769D3Ac07338233c5Df66",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
