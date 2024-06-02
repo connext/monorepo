@@ -158,12 +158,12 @@ sources:
           - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mainnet/gn"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FfTxiY98LJG6zoiAjCXdT34pAmCKDEP8vZRVuC8D5Gf"
-            retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-mainnet
-            retry: 5
-            timeout: 30000 # 30 seconds
+          # - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FfTxiY98LJG6zoiAjCXdT34pAmCKDEP8vZRVuC8D5Gf"
+          #   retry: 2
+          #   timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-mainnet
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mainnet_
