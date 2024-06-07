@@ -142,6 +142,11 @@ enum mantle_AggregateRoot_orderBy {
   blockNumber
 }
 
+enum mantle_Aggregation_interval {
+  hour
+  day
+}
+
 type mantle_Asset {
   id: ID!
   key: mantle_Bytes
@@ -3943,6 +3948,12 @@ type Subscription {
   mantle__meta(block: mantle_Block_height): mantle__Meta_
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 enum mantle_TransferStatus {
   XCalled
   Executed
@@ -3958,6 +3969,8 @@ type mantle__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: mantle_Bytes
 }
 
 """The type for the top-level _meta field"""
