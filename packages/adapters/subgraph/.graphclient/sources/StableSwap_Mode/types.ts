@@ -20,7 +20,12 @@ export type Scalars = {
   BigInt: any;
   mode_swap_Bytes: any;
   mode_swap_Int8: any;
+  Timestamp: any;
 };
+
+export type mode_swap_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type mode_swap_BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -2539,6 +2544,8 @@ export type mode_swap__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['mode_swap_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
