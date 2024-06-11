@@ -346,6 +346,95 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+
+
+
+        {
+      name: "ALCX",
+      canonical: {
+        // Pseudo-canonical domain
+        domain: "11111",
+        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+          adopted: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        },
+      },
+    },
+    {
+      name: "xalUSD",
+      canonical: {
+        domain: "11111",
+        address: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+          adopted: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        // METIS
+        "1835365481": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        },
+      },
+    },
+    {
+      name: "xalETH",
+      canonical: {
+        domain: "11111",
+        address: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        decimals: 18,
+      },
+      representations: {
+        /// MAINNET
+        "6648936": {
+          local: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+          adopted: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x17573150d67d820542EFb24210371545a4868B03",
+          adopted: "0x17573150d67d820542EFb24210371545a4868B03",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+          adopted: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+        },
+        // METIS
+        "1835365481": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+        },
+      },
+    },
     {
       // TODO: This is the old config, to be removed in execution layer upgrade
       name: "ALCX",
