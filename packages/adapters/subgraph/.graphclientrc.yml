@@ -131,9 +131,9 @@ sources:
           - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-hub-v1-mainnet/gn
             retry: 5
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-hub-v1-mainnet
-            retry: 5
-            timeout: 30000 # 30 seconds
+          # - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-hub-v1-mainnet
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mainnet_
