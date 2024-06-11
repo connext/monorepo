@@ -142,11 +142,6 @@ enum xdai_AggregateRoot_orderBy {
   blockNumber
 }
 
-enum xdai_Aggregation_interval {
-  hour
-  day
-}
-
 type xdai_Asset {
   id: ID!
   key: xdai_Bytes
@@ -3948,12 +3943,6 @@ type Subscription {
   xdai__meta(block: xdai_Block_height): xdai__Meta_
 }
 
-"""
-A string representation of microseconds UNIX timestamp (16 digits)
-
-"""
-scalar Timestamp
-
 enum xdai_TransferStatus {
   XCalled
   Executed
@@ -3969,8 +3958,6 @@ type xdai__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
-  """The hash of the parent block"""
-  parentHash: xdai_Bytes
 }
 
 """The type for the top-level _meta field"""
