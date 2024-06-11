@@ -296,6 +296,9 @@ sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
             retry: 5
             timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v0-bnb/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: bnb_
@@ -326,7 +329,7 @@ sources:
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6oJrPk9YJEU9rWU4DAizjZdALSccxe5ZahBsTtFaGksU"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-gnosis"
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-gnosis/gn"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -357,6 +360,9 @@ sources:
             retry: 2
             timeout: 30000 # 30 seconds
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-linea"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-linea/gn"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -542,6 +548,9 @@ sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-mode"
             retry: 2
             timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-mode/gn"
+            retry: 2
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: mode_
@@ -598,6 +607,9 @@ sources:
           value: "_meta.block.number"
         sources:
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-xlayer"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-xlayer/gn"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -732,9 +744,24 @@ sources:
   - name: StableSwap_Xdai
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v0-gnosis/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: xdai_swap_
@@ -747,9 +774,24 @@ sources:
   - name: StableSwap_Linea
     handler:
       graphql:
-        endpoint: https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-linea
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/stableswap-v0-linea"
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v0-linea/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: linea_swap_
@@ -945,9 +987,24 @@ sources:
   - name: StableSwap_Avalanche
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-avalanche
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-avalanche
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v0-avalanche/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: avalanche_swap_
@@ -960,9 +1017,24 @@ sources:
   - name: StableSwap_Xlayer
     handler:
       graphql:
-        endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-xlayer"
-        retry: 5
-        timeout: 30000 # 30 seconds
+        strategy: highestValue
+        strategyConfig:
+          selectionSet: |
+            {
+              _meta {
+                block {
+                  number
+                }
+              }
+            }
+          value: "_meta.block.number"
+        sources:
+          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/stableswap-v1-xlayer
+            retry: 5
+            timeout: 30000 # 30 seconds
+          - endpoint: "https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/stableswap-v1-xlayer/gn"
+            retry: 5
+            timeout: 30000 # 30 seconds
     transforms:
       - prefix:
           value: xlayer_swap_
