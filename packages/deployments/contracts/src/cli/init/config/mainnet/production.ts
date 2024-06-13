@@ -397,6 +397,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
           adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
         },
+        /// Base
+        "1650553709": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
       },
     },
     {
@@ -692,6 +697,86 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "1836016741": {
           local: "0x2416092f143378750bb29b79eD961ab195CcEea5",
           adopted: "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        },
+      },
+    },
+    {
+      name: "Alchemix USD",
+      canonical: {
+        domain: "11111",
+        address: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+          adopted: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+          adopted: "0xCB8FA9a76b8e203D8C3797bF438d8FB81Ea3326A",
+        },
+        /// Metis Andromeda
+        "1835365481": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+        },
+        /// Base
+        "1650553709": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3"
+        },
+        /// Linea
+        "1818848877": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06"
+        },
+      },
+    },
+    {
+      name: "Alchemix ETH",
+      canonical: {
+        domain: "11111",
+        address: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+          adopted: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+          adopted: "0x3E29D3A9316dAB217754d13b28646B76607c5f04",
+        },
+        /// Arb One
+        "1634886255": {
+          local: "0x17573150d67d820542EFb24210371545a4868B03",
+          adopted: "0x17573150d67d820542EFb24210371545a4868B03",
+        },
+        /// Metis Andromeda
+        "1835365481": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+        },
+        /// Base
+        "1650553709": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06"
+        },
+        /// Linea
+        "1818848877": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3"
         },
       },
     },
