@@ -823,6 +823,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "PufETH",
+      canonical: {
+        domain: "11111",
+        address: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+          adopted: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x23dA5F2d509cb43A59d43C108a43eDf34510eff1",
+          adopted: "0x23dA5F2d509cb43A59d43C108a43eDf34510eff1",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
