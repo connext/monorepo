@@ -843,6 +843,31 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "ION",
+      canonical: {
+        domain: "11111",
+        address: "0x18470019bF0E94611f15852F7e93cf5D65BC34CA",
+        decimals: 18,
+      },
+      representations: {
+        /// MODE
+        "1836016741": {
+          local: "0x18470019bF0E94611f15852F7e93cf5D65BC34CA",
+          adopted: "0x18470019bF0E94611f15852F7e93cf5D65BC34CA",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0x887d1c6A4f3548279c2a8A9D0FA61B5D458d14fC",
+          adopted: "0x887d1c6A4f3548279c2a8A9D0FA61B5D458d14fC",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x3eE5e23eEE121094f1cFc0Ccc79d6C809Ebd22e5",
+          adopted: "0x3eE5e23eEE121094f1cFc0Ccc79d6C809Ebd22e5",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
