@@ -68,6 +68,46 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "Axis",
+      canonical: {
+        domain: "11111",
+        address: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        decimals: 18,
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+          adopted: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        },
+        /// Optimism-Sepolia
+        "1869640549": {
+          local: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+          adopted: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+        },
+      },
+    },
+    {
+      name: "PufETH",
+      canonical: {
+        domain: "11111",
+        address: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+          adopted: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x3dC898c2db965851e64e3621579c53019C70338C",
+          adopted: "0x3dC898c2db965851e64e3621579c53019C70338C",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
