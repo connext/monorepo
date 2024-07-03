@@ -402,6 +402,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
           adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
         },
+        /// Linea
+        "1818848877": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
+        /// Metis
+        "1835365481": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
       },
     },
     {
