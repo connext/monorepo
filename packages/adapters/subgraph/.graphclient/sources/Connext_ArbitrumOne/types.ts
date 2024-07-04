@@ -20,7 +20,6 @@ export type Scalars = {
   BigInt: any;
   arbitrumone_Bytes: any;
   arbitrumone_Int8: any;
-  Timestamp: any;
 };
 
 export type arbitrumone_AggregateRoot = {
@@ -150,10 +149,6 @@ export type arbitrumone_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
-
-export type arbitrumone_Aggregation_interval =
-  | 'hour'
-  | 'day';
 
 export type arbitrumone_Asset = {
   id: Scalars['ID'];
@@ -3696,8 +3691,6 @@ export type arbitrumone__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
-  /** The hash of the parent block */
-  parentHash?: Maybe<Scalars['arbitrumone_Bytes']>;
 };
 
 /** The type for the top-level _meta field */

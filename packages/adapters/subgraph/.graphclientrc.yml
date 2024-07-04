@@ -4,7 +4,7 @@ sources:
   - name: Connext_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EyVDzPp6mHAZpu2T5uDHYc6ThM4DcrRQFiC4Ecv8gzwX
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -19,7 +19,7 @@ sources:
   - name: Hub_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/8ayCViZnpSRKnDefakqVyPD8YB2nax9QpbgVKHoVt7JH
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -49,7 +49,7 @@ sources:
   - name: Connext_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/UHkcp9QNhzbYZgNiZb8PiQNJTfEjgf7z4QKCn2Ky5py
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -65,7 +65,7 @@ sources:
   - name: StableSwap_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/66PVrHjcb8hT54J264xKrhHNvbzA9st71SJ8fBPZH8gE
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -95,7 +95,7 @@ sources:
   - name: StableSwap_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/3252LvxQqBeo5bnkBUwWUYMMRseFwLHq9Ek5RcZy8KqM
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -269,9 +269,9 @@ sources:
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/F325dMRiLVCJpX8EUFHg3SX8LE3kXBUmrsLRASisPEQ3"
             retry: 2
             timeout: 30000 # 30 seconds
-          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-arbitrum-one/gn
-            retry: 5
-            timeout: 30000 # 30 seconds
+          # - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/amarok-runtime-v1-arbitrum-one/gn
+          #   retry: 5
+          #   timeout: 30000 # 30 seconds
           - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-arbitrum-one
             retry: 5
             timeout: 30000 # 30 seconds
@@ -1076,7 +1076,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-staging-mainnet
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/2bqknY3yF434Ros4d8aLzvSVF5oR4Q7jXKpoWorsmLm7
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1103,7 +1103,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-mainnet
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9PkXTufBdpxycgMd2F2sTEx48b152hgWJTzqgdtfmSgB
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1130,7 +1130,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-optimism
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/DB97Cy4LUiC2hvJ2Hss5gE5kPK97rkzm1S7fc2RnaqHd
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1157,7 +1157,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-polygon
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9LM5Hnna3fcJNWMSY4fukFgJQnLtF7SuTf5ApkCRJZNu
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1184,7 +1184,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-staging-arb1
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9FmfWGqfSd8t2w9CkrKhRrRXLPvUcU2mHsmfqHuCoKt6
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1211,7 +1211,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-bnb
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/GZM2oWTkyAQqA78tv5Y4TMBoJyqjgVZUoogyvc1VHj6S
             retry: 2
             timeout: 30000 # 30 seconds
     transforms:
@@ -1238,7 +1238,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-gnosis"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/5eDjCCMbokd356QJWhHEfA2oJvJFa5MXEMnEXyi7HEzz"
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1433,7 +1433,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-avalanche
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/4JPyeDLHduNtrtLzUNYU1V6KFJGsJePkKA2cPVYmCdcZ
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -1684,64 +1684,64 @@ sources:
   #         limitOfRecords: 250
 
   #####################################################
-  # LOCAL
-  - name: Hub_LocalMainnet
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalMainnet
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalOptimism
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localoptimism_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalArbitrumOne
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localarbitrumone_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # # LOCAL
+  # - name: Hub_LocalMainnet
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalMainnet
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalOptimism
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localoptimism_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalArbitrumOne
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localarbitrumone_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
