@@ -445,7 +445,7 @@ locals {
     logLevel = "debug"
     chains = {
       "6648936" = {
-        providers = ["https://eth-mainnet.blastapi.io/${var.blast_key}"]
+        providers = ["https://eth-mainnet.g.alchemy.com/v2/${var.mainnet_alchemy_key_0}"]
       },
       "1869640809" = {
         providers = ["https://optimism-mainnet.blastapi.io/${var.blast_key}"]
