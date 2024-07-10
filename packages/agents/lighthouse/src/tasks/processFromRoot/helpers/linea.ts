@@ -50,7 +50,7 @@ export const getProcessFromLineaRootArgs = async ({
       messageStatus,
     });
   } else if (messageStatus === "CLAIMABLE") {
-    return [messages[0].calldata, messages[0].messageNonce];
+    return [messages[0].calldata, BigNumber.from(messages[0].messageNonce)];
   } else {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `Linea Unknown message status`,
