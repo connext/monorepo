@@ -54,6 +54,7 @@ export const getProcessFromLineaRootArgs = async ({
   } else {
     throw new NoRootAvailable(spokeChainId, hubChainId, requestContext, methodContext, {
       error: `Linea Unknown message status`,
+      hash: sendHash,
     });
   }
 };
