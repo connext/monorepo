@@ -59,6 +59,7 @@ locals {
         providers = ["https://polygon-zkevm-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1650553709" = {
+        disabled  = true
         providers = ["https://base-mainnet.blastapi.io/${var.blast_key}"]
       }
       "1635148152" = {
