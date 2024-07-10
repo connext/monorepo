@@ -2797,7 +2797,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@connext/nxtp-utils@workspace:packages/utils"
   dependencies:
-    "@maticnetwork/maticjs": 3.6.6
+    "@maticnetwork/maticjs": 3.8.2
     "@maticnetwork/maticjs-web3": 1.0.4
     "@sinclair/typebox": 0.25.21
     "@types/chai": 4.3.4
@@ -6349,15 +6349,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maticnetwork/maticjs@npm:3.6.6":
-  version: 3.6.6
-  resolution: "@maticnetwork/maticjs@npm:3.6.6"
+"@maticnetwork/maticjs@npm:3.8.2":
+  version: 3.8.2
+  resolution: "@maticnetwork/maticjs@npm:3.8.2"
   dependencies:
     "@ethereumjs/block": ^3.6.2
     ethereumjs-util: ^7.1.4
     merkle-patricia-tree: ^4.2.4
     node-fetch: ^2.6.1
-  checksum: 8f672ba26f0f69e4270f470b072b87b56e2a41d1e9c9d3c295bdba02afbcc9a271b4874362dc5b0f4e9b441bbb0c6e2756b30c6567494fbc590341cdccd91263
+  checksum: 67962bb37ae8939838d634d7dc5e362c615e21e8b46b72fa27008497d097746adf7a796a4338add11fb80852214632bda23edcf3ff7de00e41fd694703c3385d
   languageName: node
   linkType: hard
 
