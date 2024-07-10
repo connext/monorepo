@@ -57,7 +57,7 @@
     "@arbitrum/sdk": "3.1.11",
     "@certusone/wormhole-sdk": "0.9.21",
     "@connext/nxtp-utils": "workspace:*",
-    "@consensys/linea-sdk": "0.1.6",
+    "@consensys/linea-sdk": "0.3.0",
     "@gelatonetwork/relay-context": "2.1.0",
     "@mantleio/sdk": "1.0.0",
     "@matterlabs/hardhat-zksync-deploy": "0.6.3",

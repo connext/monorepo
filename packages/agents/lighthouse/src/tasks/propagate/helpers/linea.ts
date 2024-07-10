@@ -45,7 +45,7 @@ export const getPropagateParams = async (
   const gasLimit = BigNumber.from("120000");
   const margin = BigNumber.from(1);
 
-  const _fee = gasPrice.mul(gasLimit).mul(margin).toString();
+  const _fee = BigNumber.from(gasPrice).mul(gasLimit).mul(margin).toString();
 
   logger.info("Got propagate params for Linea", requestContext, methodContext, {
     gasPrice: gasPrice.toString(),
