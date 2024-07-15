@@ -810,7 +810,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         domain: "6648936",
         address: "0x900dB999074d9277c5DA2A43F252D74366230DA0",
         decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
+        cap: utils.parseUnits("1000000000", 18).toString(),
       },
       representations: {
         "6778479": {
