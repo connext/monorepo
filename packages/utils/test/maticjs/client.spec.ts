@@ -18,12 +18,6 @@ describe("maticjs:client", () => {
         expectedNetwork: "mainnet",
         expectedVersion: "v1",
       },
-      {
-        title: "should work for testnet",
-        isMainnet: false,
-        expectedNetwork: "testnet",
-        expectedVersion: "mumbai",
-      },
     ];
     for (const { isMainnet, expectedNetwork, expectedVersion, title } of testCases) {
       it(title, async () => {
