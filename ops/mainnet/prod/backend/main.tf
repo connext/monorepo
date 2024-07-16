@@ -74,7 +74,7 @@ module "cartographer_db_replica" {
   depends_on          = [module.cartographer_db]
   replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}"
   instance_class      = "db.t4g.2xlarge"
-  allocated_storage   = 150
+  allocated_storage   = 250
 
   name     = module.cartographer_db.db_instance_name
   username = module.cartographer_db.db_instance_username
