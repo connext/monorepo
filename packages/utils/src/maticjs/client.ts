@@ -7,8 +7,11 @@ use(Web3ClientPlugin);
 
 // get matic and maticPoS clients from maticjs
 export const initMatic = async (isMainnet: boolean, maticRPC: string, ethereumRPC: string): Promise<POSClient> => {
-  const _network = isMainnet ? "mainnet" : "testnet";
-  const _version = isMainnet ? "v1" : "mumbai";
+  // const _network = isMainnet ? "mainnet" : "testnet";
+  // const _version = isMainnet ? "v1" : "mumbai";
+
+  const _network = "mainnet";
+  const _version = "v1";
 
   const maticConfig = {
     network: _network,
