@@ -22,7 +22,7 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
-
+# Disable DAO router from bidding
 # module "router_subscriber" {
 #   source                   = "../../../modules/service"
 #   stage                    = var.stage

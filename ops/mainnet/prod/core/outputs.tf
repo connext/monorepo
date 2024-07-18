@@ -9,12 +9,13 @@ output "sequencer-server-dns" {
   value = module.sequencer_server.dns_name
 }
 
-output "router-subscriber-dns" {
-  value = module.router_subscriber.dns_name
-}
-output "router-publisher-dns" {
-  value = module.router_publisher.dns_name
-}
+// Disable DAO router from bidding
+# output "router-subscriber-dns" {
+#   value = module.router_subscriber.dns_name
+# }
+# output "router-publisher-dns" {
+#   value = module.router_publisher.dns_name
+# }
 
 output "sequencer-server-service-endpoint" {
   value = module.sequencer_server.service_endpoint
@@ -28,13 +29,14 @@ output "sequencer-subscriber-service-endpoint" {
   value = module.sequencer_subscriber.service_endpoint
 }
 
-output "router-publisher-service-endpoint" {
-  value = module.router_publisher.service_endpoint
-}
+# Disable DAO router from bidding
+# output "router-publisher-service-endpoint" {
+#   value = module.router_publisher.service_endpoint
+# }
 
-output "router-subscriber-service-endpoint" {
-  value = module.router_subscriber.service_endpoint
-}
+# output "router-subscriber-service-endpoint" {
+#   value = module.router_subscriber.service_endpoint
+# }
 
 output "router-executor-service-endpoint" {
   value = module.router_executor.service_endpoint
