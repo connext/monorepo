@@ -346,10 +346,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
-
-
-
-        {
+    {
       name: "ALCX",
       canonical: {
         // Pseudo-canonical domain
@@ -373,10 +370,25 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
           adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
         },
+        /// Base
+        "1650553709": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
+        /// Linea
+        "1818848877": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
+        /// Metis
+        "1835365481": {
+          local: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95",
+          adopted: "0x303c4F39EA359155C698807168e9Dc3aA1dF2b95"
+        },
       },
     },
     {
-      name: "xalUSD",
+      name: "Alchemix USD",
       canonical: {
         domain: "11111",
         address: "0xe9D672f89493c7286A9BAfC6b763364EC0BFe4Fe",
@@ -403,10 +415,20 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
           adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
         },
+        /// Base
+        "1650553709": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3"
+        },
+        /// Linea
+        "1818848877": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06"
+        },
       },
     },
     {
-      name: "xalETH",
+      name: "Alchemix ETH",
       canonical: {
         domain: "11111",
         address: "0xab2e847b6bA3F772d385038e5b4fF131c161AB4B",
@@ -433,53 +455,15 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
           adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
         },
-      },
-    },
-    {
-      // TODO: This is the old config, to be removed in execution layer upgrade
-      name: "ALCX",
-      canonical: {
-        domain: "6648936",
-        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-        decimals: 18,
-        cap: utils.parseUnits("10000000", 18).toString(),
-      },
-      representations: {
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
+        /// Base
+        "1650553709": {
+          local: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06",
+          adopted: "0x0E17934B9735D479B2388347fAeF0F4e58b9cc06"
         },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-        },
-      },
-    },
-    {
-      name: "ALCX",
-      canonical: {
-        // Pseudo-canonical domain
-        domain: "11111",
-        address: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-        decimals: 18,
-      },
-      representations: {
-        /// MAINNET
-        "6648936": {
-          local: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-          adopted: "0xbd18f9be5675a9658335e6b7e79d9d9b394ac043",
-        },
-        /// ARBITRUM
-        "1634886255": {
-          local: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-          adopted: "0x27b58D226fe8f792730a795764945Cf146815AA7",
-        },
-        /// OPTIMISM
-        "1869640809": {
-          local: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
-          adopted: "0xE974B9b31dBFf4369b94a1bAB5e228f35ed44125",
+        /// Linea
+        "1818848877": {
+          local: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3",
+          adopted: "0x303241e2B3b4aeD0bb0F8623e7442368FED8Faf3"
         },
       },
     },
@@ -487,26 +471,30 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "XOC",
       // polygon
       canonical: {
-        domain: "1886350457",
+        domain: "11111",
         address: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         decimals: 18,
-        cap: utils.parseUnits("25000", 18).toString(),
       },
       representations: {
         // mainnet
         "6648936": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // polygon
+        "1886350457": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
         // optimism
         "1869640809": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
         // arbitrum one
         "1634886255": {
-          local: "0x0000000000000000000000000000000000000000",
-          adopted: "0x0000000000000000000000000000000000000000",
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
         // bsc
         "6450786": {
@@ -515,6 +503,16 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
         // gnosis
         "6778479": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // base
+        "1650553709": {
+          local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+          adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
+        },
+        // linea
+        "1818848877": {
           local: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
           adopted: "0xa411c9Aa00E020e4f88Bc19996d29c5B7ADB4ACf",
         },
