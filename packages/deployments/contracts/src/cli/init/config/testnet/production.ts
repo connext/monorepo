@@ -72,14 +72,14 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "PufETH",
       canonical: {
         domain: "11111",
-        address: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
+        address: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
         decimals: 18,
       },
       representations: {
         /// SEPOLIA
         "1936027759": {
-          local: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
-          adopted: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
+          local: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
+          adopted: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
         },
         /// ARBITRUM-SEPOLIA
         "1633842021": {
