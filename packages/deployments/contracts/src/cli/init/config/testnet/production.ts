@@ -72,24 +72,24 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "PufETH",
       canonical: {
         domain: "11111",
-        address: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        address: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
         decimals: 18,
       },
       representations: {
         /// SEPOLIA
         "1936027759": {
-          local: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
-          adopted: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+          local: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
+          adopted: "0xABc5693897B4FF97F11722138fe2E364c4EF1C81",
         },
         /// ARBITRUM-SEPOLIA
         "1633842021": {
-          local: "0x3dC898c2db965851e64e3621579c53019C70338C",
-          adopted: "0x3dC898c2db965851e64e3621579c53019C70338C",
+          local: "0x4D596B38ddF82d8625ab05A656982abd2533ceA3",
+          adopted: "0x4D596B38ddF82d8625ab05A656982abd2533ceA3",
         },
         /// OPTIMISM-SEPOLIA
         "1869640549": {
-          local: "0xcDe9bC6e1e2647357Ad61b6b0dFF005F549D6Ba3",
-          adopted: "0xcDe9bC6e1e2647357Ad61b6b0dFF005F549D6Ba3",
+          local: "0xbDcC4A8C824391F30F3ac7222bdbe094E65DF7Cc",
+          adopted: "0xbDcC4A8C824391F30F3ac7222bdbe094E65DF7Cc",
         },
       },
     },
