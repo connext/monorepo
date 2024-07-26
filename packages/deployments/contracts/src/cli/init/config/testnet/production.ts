@@ -88,8 +88,8 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
         /// OPTIMISM-SEPOLIA
         "1869640549": {
-          local: "0xbDcC4A8C824391F30F3ac7222bdbe094E65DF7Cc",
-          adopted: "0xbDcC4A8C824391F30F3ac7222bdbe094E65DF7Cc",
+          local: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
+          adopted: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
         },
       },
     },
