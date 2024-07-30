@@ -113,6 +113,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "EURe",
+      canonical: {
+        domain: "11111",
+        address: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+          adopted: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0x4C26b8296536C9d9eD08a3f196B8a42d841b3912",
+          adopted: "0x4C26b8296536C9d9eD08a3f196B8a42d841b3912",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
