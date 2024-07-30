@@ -92,19 +92,24 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "PufETH",
       canonical: {
         domain: "11111",
-        address: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+        address: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
         decimals: 18,
       },
       representations: {
         /// SEPOLIA
         "1936027759": {
-          local: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
-          adopted: "0x2B4aaFe533149f9269296868c2178b3c323B7F01",
+          local: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
+          adopted: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
         },
         /// ARBITRUM-SEPOLIA
         "1633842021": {
-          local: "0x3dC898c2db965851e64e3621579c53019C70338C",
-          adopted: "0x3dC898c2db965851e64e3621579c53019C70338C",
+          local: "0xBb30e1813E20e5210c8C4E09910F0BDE5c2944B3",
+          adopted: "0xBb30e1813E20e5210c8C4E09910F0BDE5c2944B3",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
+          adopted: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
         },
       },
     },
