@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   zksync_Bytes: any;
   zksync_Int8: any;
+  Timestamp: any;
 };
 
 export type zksync_AggregateRoot = {
@@ -149,6 +150,10 @@ export type zksync_AggregateRoot_orderBy =
   | 'id'
   | 'root'
   | 'blockNumber';
+
+export type zksync_Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 export type zksync_Asset = {
   id: Scalars['ID'];
@@ -3691,6 +3696,8 @@ export type zksync__Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['zksync_Bytes']>;
 };
 
 /** The type for the top-level _meta field */
