@@ -72,7 +72,7 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "ZAI Stablecoin",
       canonical: {
         domain: "11111",
-        address: "0xd26e3540A0A368845B234736A0700E0a5A821bBA",
+        address: "0xdd2F41340A1fFcf1c22C7a8Be4E525D7A2De642b",
         decimals: 18,
       },
       representations: {
