@@ -4,7 +4,7 @@ sources:
   - name: Connext_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EyVDzPp6mHAZpu2T5uDHYc6ThM4DcrRQFiC4Ecv8gzwX
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -19,7 +19,7 @@ sources:
   - name: Hub_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/8ayCViZnpSRKnDefakqVyPD8YB2nax9QpbgVKHoVt7JH
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -49,7 +49,7 @@ sources:
   - name: Connext_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/UHkcp9QNhzbYZgNiZb8PiQNJTfEjgf7z4QKCn2Ky5py
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -65,7 +65,7 @@ sources:
   - name: StableSwap_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/66PVrHjcb8hT54J264xKrhHNvbzA9st71SJ8fBPZH8gE
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -95,7 +95,7 @@ sources:
   - name: StableSwap_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/3252LvxQqBeo5bnkBUwWUYMMRseFwLHq9Ek5RcZy8KqM
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
