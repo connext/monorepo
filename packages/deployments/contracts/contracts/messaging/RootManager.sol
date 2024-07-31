@@ -69,7 +69,7 @@ contract RootManager is ProposedOwnable, IRootManager, WatcherClient, DomainInde
 
   /**
    * @notice Emitted when a root is propagated
-   * @dev It doesnt matter if the root was generated optimistically or on-chain.
+   * @dev It doesn't matter if the root was generated optimistically or on-chain.
    * @param aggregateRoot The aggregate root propagated
    * @param domainsHash The current domain hash
    */
