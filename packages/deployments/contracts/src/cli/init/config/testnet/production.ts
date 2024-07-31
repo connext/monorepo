@@ -133,6 +133,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xTRSY",
+      canonical: {
+        domain: "11111",
+        address: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+          adopted: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+          adopted: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
