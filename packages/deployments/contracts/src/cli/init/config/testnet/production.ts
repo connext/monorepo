@@ -68,6 +68,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+{
+      name: "ZAI Stablecoin",
+      canonical: {
+        domain: "11111",
+        address: "0xd26e3540A0A368845B234736A0700E0a5A821bBA",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0xdd2F41340A1fFcf1c22C7a8Be4E525D7A2De642b",
+          adopted: "0xdd2F41340A1fFcf1c22C7a8Be4E525D7A2De642b",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x6A661312938D22A2A0e27F585073E4406903990a",
+          adopted: "0x6A661312938D22A2A0e27F585073E4406903990a",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
