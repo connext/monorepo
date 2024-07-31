@@ -14,6 +14,7 @@ import {
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 
 import { RoutesOptions } from "../server";
+import { cacheMiddleware } from "../cacheMiddleware";
 
 interface BaseRoutesOptions extends RoutesOptions {
   sdkBaseInstance: SdkBase;
@@ -21,10 +22,8 @@ interface BaseRoutesOptions extends RoutesOptions {
 
 export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOptions): Promise<void> => {
   const s = server.withTypeProvider<TypeBoxTypeProvider>();
-  const { sdkBaseInstance, logger, cacheConfig } = options;
+  const { sdkBaseInstance, logger } = options;
   const { requestContext, methodContext } = createLoggingContext(baseRoutes.name);
-
-  const CACHE_EXPIRATION_SECS = cacheConfig?.expirationTime || 300;
 
   server.setErrorHandler(function (error, request, reply) {
     logger?.error(`Error: ${error.message} ${request.body}`, requestContext, methodContext);
@@ -52,47 +51,16 @@ export const baseRoutes = async (server: FastifyInstance, options: BaseRoutesOpt
       },
     },
     async (request, reply) => {
-      const {
-        originDomain,
-        destinationDomain,
-        callDataGasAmount,
-        priceIn,
-        isHighPriority,
-        originNativeTokenPrice,
-        destinationNativeTokenPrice,
-        destinationGasPrice,
-      } = request.body;
-
-      const handleEstimateRelayerFee = async () => {
-        return sdkBaseInstance.estimateRelayerFee({
-          originDomain,
-          destinationDomain,
-          callDataGasAmount,
-          priceIn,
-          isHighPriority,
-          originNativeTokenPrice,
-          destinationNativeTokenPrice,
-          destinationGasPrice,
-        });
-      };
-
-      if (cacheConfig?.enabled) {
-        const cacheKey = JSON.stringify(request.body);
-        const cachedFee = await server.redis.get(cacheKey);
-
-        if (cachedFee) {
-          reply.status(200).send(JSON.parse(cachedFee));
-        } else {
-          const txReq = await handleEstimateRelayerFee();
-          await server.redis.set(cacheKey, JSON.stringify(txReq), "EX", CACHE_EXPIRATION_SECS);
-          reply.status(200).send(txReq);
-        }
-      } else {
-        const txReq = await handleEstimateRelayerFee();
-        reply.status(200).send(txReq);
-      }
+      await cacheMiddleware(
+        server,
+        request,
+        reply,
+        async () => sdkBaseInstance.estimateRelayerFee(request.body),
+        "estimateRelayerFee",
+        options
+      );
     },
-  );
+);
 
   s.post(
     "/bumpTransfer",

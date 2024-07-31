@@ -1,6 +1,7 @@
 {
   "extends": "../../../.nycrc.json",
   "exclude": [
+    "src/cacheMiddleware.ts",
     "src/config.ts",
     "src/context.ts",
     "src/server.ts",
