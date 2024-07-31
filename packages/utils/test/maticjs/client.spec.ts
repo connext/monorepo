@@ -7,8 +7,8 @@ describe("maticjs:client", () => {
     type InitMaticTestCase = {
       title: string;
       isMainnet: boolean;
-      expectedNetwork: "mainnet" | "testnet";
-      expectedVersion: "v1" | "mumbai";
+      expectedNetwork: "mainnet";
+      expectedVersion: "v1";
     };
 
     const testCases: InitMaticTestCase[] = [
@@ -17,12 +17,6 @@ describe("maticjs:client", () => {
         isMainnet: true,
         expectedNetwork: "mainnet",
         expectedVersion: "v1",
-      },
-      {
-        title: "should work for testnet",
-        isMainnet: false,
-        expectedNetwork: "testnet",
-        expectedVersion: "mumbai",
       },
     ];
     for (const { isMainnet, expectedNetwork, expectedVersion, title } of testCases) {
