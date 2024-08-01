@@ -68,6 +68,21 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xGEL",
+      canonical: {
+        domain: "1735353714",
+        address: "0x8Dbd552a0Bd1a67c1154BF0DfCc8c1346C4d5E9E",
+        decimals: 18,
+      },
+      representations: {
+        /// MUMBAI
+        "9991": {
+          local: "0x9Db152644eE5597D183CBF54cA66e6a5f83C7272",
+          adopted: "0x9Db152644eE5597D183CBF54cA66e6a5f83C7272",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
