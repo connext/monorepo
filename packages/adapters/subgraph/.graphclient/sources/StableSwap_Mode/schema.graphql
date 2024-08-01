@@ -12,6 +12,11 @@ directive @subgraphId(id: String!) on OBJECT
 "creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
 directive @derivedFrom(field: String!) on FIELD_DEFINITION
 
+enum mode_swap_Aggregation_interval {
+  hour
+  day
+}
+
 scalar mode_swap_BigDecimal
 
 scalar BigInt
@@ -2670,6 +2675,12 @@ enum mode_swap_SystemInfo_orderBy {
   swapCount
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type mode_swap__Block_ {
   """The hash of the block"""
   hash: mode_swap_Bytes
@@ -2677,6 +2688,8 @@ type mode_swap__Block_ {
   number: Int!
   """Integer representation of the timestamp stored in blocks for the chain"""
   timestamp: Int
+  """The hash of the parent block"""
+  parentHash: mode_swap_Bytes
 }
 
 """The type for the top-level _meta field"""
