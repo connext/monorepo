@@ -2,7 +2,7 @@ FROM node:18-alpine as node
 
 # ----------------------------------------
 # Builds Docker container for nxtp-router package.
-# @dev configuraion located ./config.json (relative to this file)
+# @dev configuration located ./config.json (relative to this file)
 
 
 # ----------------------------------------
