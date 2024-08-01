@@ -1387,14 +1387,14 @@ export type Query = {
   sepolia_baseConnectorMetas: Array<sepolia_BaseConnectorMeta>;
   sepolia_polygonZkConnectorMeta?: Maybe<sepolia_PolygonZkConnectorMeta>;
   sepolia_polygonZkConnectorMetas: Array<sepolia_PolygonZkConnectorMeta>;
+  sepolia_x1ConnectorMeta?: Maybe<sepolia_X1ConnectorMeta>;
+  sepolia_x1ConnectorMetas: Array<sepolia_X1ConnectorMeta>;
   sepolia_zkSyncConnectorMeta?: Maybe<sepolia_ZkSyncConnectorMeta>;
   sepolia_zkSyncConnectorMetas: Array<sepolia_ZkSyncConnectorMeta>;
   sepolia_modeConnectorMeta?: Maybe<sepolia_ModeConnectorMeta>;
   sepolia_modeConnectorMetas: Array<sepolia_ModeConnectorMeta>;
   sepolia_scrollConnectorMeta?: Maybe<sepolia_ScrollConnectorMeta>;
   sepolia_scrollConnectorMetas: Array<sepolia_ScrollConnectorMeta>;
-  sepolia_xlayerConnectorMeta?: Maybe<sepolia_XlayerConnectorMeta>;
-  sepolia_xlayerConnectorMetas: Array<sepolia_XlayerConnectorMeta>;
   sepolia_rootMessageProcessed?: Maybe<sepolia_RootMessageProcessed>;
   sepolia_rootMessageProcesseds: Array<sepolia_RootMessageProcessed>;
   sepolia_aggregateRootSavedSlow?: Maybe<sepolia_AggregateRootSavedSlow>;
@@ -1748,6 +1748,24 @@ export type Querysepolia_polygonZkConnectorMetasArgs = {
 };
 
 
+export type Querysepolia_x1ConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Querysepolia_x1ConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_X1ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_X1ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Querysepolia_zkSyncConnectorMetaArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<sepolia_Block_height>;
@@ -1797,24 +1815,6 @@ export type Querysepolia_scrollConnectorMetasArgs = {
   orderBy?: InputMaybe<sepolia_ScrollConnectorMeta_orderBy>;
   orderDirection?: InputMaybe<sepolia_OrderDirection>;
   where?: InputMaybe<sepolia_ScrollConnectorMeta_filter>;
-  block?: InputMaybe<sepolia_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querysepolia_xlayerConnectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<sepolia_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Querysepolia_xlayerConnectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<sepolia_XlayerConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<sepolia_OrderDirection>;
-  where?: InputMaybe<sepolia_XlayerConnectorMeta_filter>;
   block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2315,14 +2315,14 @@ export type Subscription = {
   sepolia_baseConnectorMetas: Array<sepolia_BaseConnectorMeta>;
   sepolia_polygonZkConnectorMeta?: Maybe<sepolia_PolygonZkConnectorMeta>;
   sepolia_polygonZkConnectorMetas: Array<sepolia_PolygonZkConnectorMeta>;
+  sepolia_x1ConnectorMeta?: Maybe<sepolia_X1ConnectorMeta>;
+  sepolia_x1ConnectorMetas: Array<sepolia_X1ConnectorMeta>;
   sepolia_zkSyncConnectorMeta?: Maybe<sepolia_ZkSyncConnectorMeta>;
   sepolia_zkSyncConnectorMetas: Array<sepolia_ZkSyncConnectorMeta>;
   sepolia_modeConnectorMeta?: Maybe<sepolia_ModeConnectorMeta>;
   sepolia_modeConnectorMetas: Array<sepolia_ModeConnectorMeta>;
   sepolia_scrollConnectorMeta?: Maybe<sepolia_ScrollConnectorMeta>;
   sepolia_scrollConnectorMetas: Array<sepolia_ScrollConnectorMeta>;
-  sepolia_xlayerConnectorMeta?: Maybe<sepolia_XlayerConnectorMeta>;
-  sepolia_xlayerConnectorMetas: Array<sepolia_XlayerConnectorMeta>;
   sepolia_rootMessageProcessed?: Maybe<sepolia_RootMessageProcessed>;
   sepolia_rootMessageProcesseds: Array<sepolia_RootMessageProcessed>;
   sepolia_aggregateRootSavedSlow?: Maybe<sepolia_AggregateRootSavedSlow>;
@@ -2676,6 +2676,24 @@ export type Subscriptionsepolia_polygonZkConnectorMetasArgs = {
 };
 
 
+export type Subscriptionsepolia_x1ConnectorMetaArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscriptionsepolia_x1ConnectorMetasArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<sepolia_X1ConnectorMeta_orderBy>;
+  orderDirection?: InputMaybe<sepolia_OrderDirection>;
+  where?: InputMaybe<sepolia_X1ConnectorMeta_filter>;
+  block?: InputMaybe<sepolia_Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscriptionsepolia_zkSyncConnectorMetaArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<sepolia_Block_height>;
@@ -2725,24 +2743,6 @@ export type Subscriptionsepolia_scrollConnectorMetasArgs = {
   orderBy?: InputMaybe<sepolia_ScrollConnectorMeta_orderBy>;
   orderDirection?: InputMaybe<sepolia_OrderDirection>;
   where?: InputMaybe<sepolia_ScrollConnectorMeta_filter>;
-  block?: InputMaybe<sepolia_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionsepolia_xlayerConnectorMetaArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<sepolia_Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscriptionsepolia_xlayerConnectorMetasArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<sepolia_XlayerConnectorMeta_orderBy>;
-  orderDirection?: InputMaybe<sepolia_OrderDirection>;
-  where?: InputMaybe<sepolia_XlayerConnectorMeta_filter>;
   block?: InputMaybe<sepolia_Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2806,7 +2806,7 @@ export type Subscriptionsepolia__metaArgs = {
   block?: InputMaybe<sepolia_Block_height>;
 };
 
-export type sepolia_XlayerConnectorMeta = {
+export type sepolia_X1ConnectorMeta = {
   id: Scalars['ID'];
   spokeDomain: Scalars['BigInt'];
   hubDomain: Scalars['BigInt'];
@@ -2815,7 +2815,7 @@ export type sepolia_XlayerConnectorMeta = {
   mirrorConnector: Scalars['sepolia_Bytes'];
 };
 
-export type sepolia_XlayerConnectorMeta_filter = {
+export type sepolia_X1ConnectorMeta_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -2872,11 +2872,11 @@ export type sepolia_XlayerConnectorMeta_filter = {
   mirrorConnector_not_contains?: InputMaybe<Scalars['sepolia_Bytes']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<sepolia_BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<sepolia_XlayerConnectorMeta_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<sepolia_XlayerConnectorMeta_filter>>>;
+  and?: InputMaybe<Array<InputMaybe<sepolia_X1ConnectorMeta_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<sepolia_X1ConnectorMeta_filter>>>;
 };
 
-export type sepolia_XlayerConnectorMeta_orderBy =
+export type sepolia_X1ConnectorMeta_orderBy =
   | 'id'
   | 'spokeDomain'
   | 'hubDomain'
@@ -3073,6 +3073,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   sepolia_polygonZkConnectorMetas: InContextSdkMethod<Query['sepolia_polygonZkConnectorMetas'], Querysepolia_polygonZkConnectorMetasArgs, MeshContext>,
   /** null **/
+  sepolia_x1ConnectorMeta: InContextSdkMethod<Query['sepolia_x1ConnectorMeta'], Querysepolia_x1ConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_x1ConnectorMetas: InContextSdkMethod<Query['sepolia_x1ConnectorMetas'], Querysepolia_x1ConnectorMetasArgs, MeshContext>,
+  /** null **/
   sepolia_zkSyncConnectorMeta: InContextSdkMethod<Query['sepolia_zkSyncConnectorMeta'], Querysepolia_zkSyncConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_zkSyncConnectorMetas: InContextSdkMethod<Query['sepolia_zkSyncConnectorMetas'], Querysepolia_zkSyncConnectorMetasArgs, MeshContext>,
@@ -3084,10 +3088,6 @@ export type _SubgraphErrorPolicy_ =
   sepolia_scrollConnectorMeta: InContextSdkMethod<Query['sepolia_scrollConnectorMeta'], Querysepolia_scrollConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_scrollConnectorMetas: InContextSdkMethod<Query['sepolia_scrollConnectorMetas'], Querysepolia_scrollConnectorMetasArgs, MeshContext>,
-  /** null **/
-  sepolia_xlayerConnectorMeta: InContextSdkMethod<Query['sepolia_xlayerConnectorMeta'], Querysepolia_xlayerConnectorMetaArgs, MeshContext>,
-  /** null **/
-  sepolia_xlayerConnectorMetas: InContextSdkMethod<Query['sepolia_xlayerConnectorMetas'], Querysepolia_xlayerConnectorMetasArgs, MeshContext>,
   /** null **/
   sepolia_rootMessageProcessed: InContextSdkMethod<Query['sepolia_rootMessageProcessed'], Querysepolia_rootMessageProcessedArgs, MeshContext>,
   /** null **/
@@ -3186,6 +3186,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   sepolia_polygonZkConnectorMetas: InContextSdkMethod<Subscription['sepolia_polygonZkConnectorMetas'], Subscriptionsepolia_polygonZkConnectorMetasArgs, MeshContext>,
   /** null **/
+  sepolia_x1ConnectorMeta: InContextSdkMethod<Subscription['sepolia_x1ConnectorMeta'], Subscriptionsepolia_x1ConnectorMetaArgs, MeshContext>,
+  /** null **/
+  sepolia_x1ConnectorMetas: InContextSdkMethod<Subscription['sepolia_x1ConnectorMetas'], Subscriptionsepolia_x1ConnectorMetasArgs, MeshContext>,
+  /** null **/
   sepolia_zkSyncConnectorMeta: InContextSdkMethod<Subscription['sepolia_zkSyncConnectorMeta'], Subscriptionsepolia_zkSyncConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_zkSyncConnectorMetas: InContextSdkMethod<Subscription['sepolia_zkSyncConnectorMetas'], Subscriptionsepolia_zkSyncConnectorMetasArgs, MeshContext>,
@@ -3197,10 +3201,6 @@ export type _SubgraphErrorPolicy_ =
   sepolia_scrollConnectorMeta: InContextSdkMethod<Subscription['sepolia_scrollConnectorMeta'], Subscriptionsepolia_scrollConnectorMetaArgs, MeshContext>,
   /** null **/
   sepolia_scrollConnectorMetas: InContextSdkMethod<Subscription['sepolia_scrollConnectorMetas'], Subscriptionsepolia_scrollConnectorMetasArgs, MeshContext>,
-  /** null **/
-  sepolia_xlayerConnectorMeta: InContextSdkMethod<Subscription['sepolia_xlayerConnectorMeta'], Subscriptionsepolia_xlayerConnectorMetaArgs, MeshContext>,
-  /** null **/
-  sepolia_xlayerConnectorMetas: InContextSdkMethod<Subscription['sepolia_xlayerConnectorMetas'], Subscriptionsepolia_xlayerConnectorMetasArgs, MeshContext>,
   /** null **/
   sepolia_rootMessageProcessed: InContextSdkMethod<Subscription['sepolia_rootMessageProcessed'], Subscriptionsepolia_rootMessageProcessedArgs, MeshContext>,
   /** null **/
