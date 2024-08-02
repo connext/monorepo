@@ -4,7 +4,7 @@ sources:
   - name: Connext_Sepolia
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/60851/runtime-v1-sepolia/version/latest
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/EyVDzPp6mHAZpu2T5uDHYc6ThM4DcrRQFiC4Ecv8gzwX
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -19,7 +19,7 @@ sources:
   - name: Hub_Sepolia
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/60851/hub-v1-sepolia/version/latest
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/8ayCViZnpSRKnDefakqVyPD8YB2nax9QpbgVKHoVt7JH
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
