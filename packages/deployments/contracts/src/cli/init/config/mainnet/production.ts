@@ -695,6 +695,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xPufETH",
+      canonical: {
+        domain: "6648936",
+        address: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+          adopted: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
+        },
+        // Binance
+        "6450786": {
+          local: "0x64274835D88F5c0215da8AADd9A5f2D2A2569381",
+          adopted: "0x64274835D88F5c0215da8AADd9A5f2D2A2569381",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
