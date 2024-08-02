@@ -49,6 +49,26 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "txwUSDM",
+      canonical: {
+        domain: "11111",
+        decimals: 18,
+        address: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+          adopted: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+        },
+        /// Arb Sepolia
+        "1633842021": {
+          local: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+          adopted: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+        },
+      },
+    },
+    {
       name: "xezETH",
       canonical: {
         domain: "11111",
