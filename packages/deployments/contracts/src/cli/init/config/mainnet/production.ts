@@ -839,6 +839,11 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
           local: "0x23dA5F2d509cb43A59d43C108a43eDf34510eff1",
           adopted: "0x23dA5F2d509cb43A59d43C108a43eDf34510eff1",
         },
+        // Binance
+        "6450786": {
+          local: "0x64274835D88F5c0215da8AADd9A5f2D2A2569381",
+          adopted: "0x64274835D88F5c0215da8AADd9A5f2D2A2569381",
+        },
       },
     },
     {
