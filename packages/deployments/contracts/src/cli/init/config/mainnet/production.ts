@@ -698,7 +698,7 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
     {
       name: "xPufETH",
       canonical: {
-        domain: "6648936",
+        domain: "11111",
         address: "0xD7D2802f6b19843ac4DfE25022771FD83b5A7464",
         decimals: 18,
       },
