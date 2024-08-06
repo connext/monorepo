@@ -695,6 +695,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xTRSY",
+      canonical: {
+        domain: "11111",
+        address: "0xA305F2136C4a68d97Ca7BCf7835bfA3b91077661",
+        decimals: 18,
+      },
+      representations: {
+        // mainnet
+        "6648936": {
+          local: "0xA305F2136C4a68d97Ca7BCf7835bfA3b91077661",
+          adopted: "0xA305F2136C4a68d97Ca7BCf7835bfA3b91077661",
+        },
+        // Base
+        "1650553709": {
+          local: "0xA305F2136C4a68d97Ca7BCf7835bfA3b91077661",
+          adopted: "0xA305F2136C4a68d97Ca7BCf7835bfA3b91077661",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
