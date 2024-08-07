@@ -61,28 +61,31 @@ export const setupAsset = async (args: {
     throw new Error(`Unable to find canonical decimals in config for ${asset.name}`);
   }
 
-  await updateIfNeeded({
-    apply,
-    deployment: home.deployments.Connext,
-    desired: asset.canonical.address,
-    read: { method: "canonicalToAdopted(bytes32)", args: [key] },
-    auth: [
-      { method: "owner", eval: (ret: string) => ret.toLowerCase() === home.signerAddress },
-      { method: "queryRole", args: [home.signerAddress], eval: (ret) => ret === 3 },
-    ],
-    write: {
-      method: "setupAsset",
-      args: [
-        [canonical.domain, canonical.id],
-        canonicalDecimals,
-        tokenName,
-        tokenSymbol,
-        asset.canonical.address,
-        constants.AddressZero,
-        asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
+  // Note: bypassing in case of pseudo canonical domain
+  if (home.domain !== "11111") {
+    await updateIfNeeded({
+      apply,
+      deployment: home.deployments.Connext,
+      desired: asset.canonical.address,
+      read: { method: "canonicalToAdopted(bytes32)", args: [key] },
+      auth: [
+        { method: "owner", eval: (ret: string) => ret.toLowerCase() === home.signerAddress },
+        { method: "queryRole", args: [home.signerAddress], eval: (ret) => ret === 3 },
       ],
-    },
-  });
+      write: {
+        method: "setupAsset",
+        args: [
+          [canonical.domain, canonical.id],
+          canonicalDecimals,
+          tokenName,
+          tokenSymbol,
+          asset.canonical.address,
+          constants.AddressZero,
+          asset.canonical.cap ?? "0", // 0-cap allowed on testnet only
+        ],
+      },
+    });
+  }
 
   // Set up all the representational assets on their respective domains.
   for (const [domain, representation] of Object.entries(asset.representations)) {
