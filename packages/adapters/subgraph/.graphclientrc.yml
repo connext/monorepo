@@ -4,7 +4,7 @@ sources:
   - name: Connext_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-sepolia
+        endpoint: https://api.studio.thegraph.com/query/60851/runtime-v1-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -19,7 +19,7 @@ sources:
   - name: Hub_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-sepolia
+        endpoint: https://api.studio.thegraph.com/query/60851/hub-v1-sepolia/version/latest
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -49,7 +49,7 @@ sources:
   - name: Connext_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/UHkcp9QNhzbYZgNiZb8PiQNJTfEjgf7z4QKCn2Ky5py
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -65,7 +65,7 @@ sources:
   - name: StableSwap_Sepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/66PVrHjcb8hT54J264xKrhHNvbzA9st71SJ8fBPZH8gE
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -95,7 +95,7 @@ sources:
   - name: StableSwap_ArbitrumSepolia
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v1-arb-sepolia
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/3252LvxQqBeo5bnkBUwWUYMMRseFwLHq9Ek5RcZy8KqM
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -275,7 +275,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-bnb
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/5gDUidCg5NPWRYTDXDBsBhcZSknkCYazL5A1pfzC4V9P
             retry: 2
             timeout: 30000 # 30 seconds
           - endpoint: "https://connext.bwarelabs.com/subgraphs/name/connext/amarok-runtime-v1-bnb"
@@ -305,7 +305,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-gnosis"
+          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/9x4MRNJV62ZVJC8GtH75FaAydBW4du8K21p1AfpyxsDs"
             retry: 5
             timeout: 30000 # 30 seconds
           - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/6oJrPk9YJEU9rWU4DAizjZdALSccxe5ZahBsTtFaGksU"
@@ -549,7 +549,7 @@ sources:
             }
           value: "_meta.block.number"
         sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v0-avalanche
+          - endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/AtM2ncdWccxuhU5zXn6LvZAWgaEZZVQZWJxT4KM59g8U
             retry: 5
             timeout: 30000 # 30 seconds
     transforms:
@@ -591,7 +591,7 @@ sources:
   - name: StableSwap_Optimism
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-optimism
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/AkVy4QjZnvVq7Ztxs8AQZb83qEg6dLYBCffZqJmsExLc
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -606,7 +606,7 @@ sources:
   - name: StableSwap_Polygon
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-polygon
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/3bABQh49Ti2VxezZoCR4r9QRbZ77DyJzAXJnqZuZ1APQ
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -621,7 +621,7 @@ sources:
   - name: StableSwap_ArbitrumOne
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-arbitrum-one
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/8kjwPTSByaiyYVU3jbUzJzwbysKRGbRks4qVYxCnhyer
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -636,7 +636,7 @@ sources:
   - name: StableSwap_Bnb
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-bnb
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/HudNz9YyXe33RrXEoDmrcA5hGponswGBsMCtUa5Pv9Ve
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -651,7 +651,7 @@ sources:
   - name: StableSwap_Xdai
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-gnosis
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/5nosm5n9B1SQ5RxwsrNEiQJeWJR5S69X1H13m7jE5Tex
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -819,7 +819,7 @@ sources:
   - name: StableSwap_Avalanche
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/connext/stableswap-v0-avalanche
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/8uqYTF59Ty1xFGeQqBkFW3Z2r33WBXkB9AjUN5hXyJa9
         retry: 5
         timeout: 30000 # 30 seconds
     transforms:
@@ -848,476 +848,476 @@ sources:
           limitOfRecords: 250
 
   # STAGING MAINNETS
-  - name: Hub_Staging_Mainnet
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-staging-mainnet
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Mainnet
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-mainnet
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Optimism
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-optimism
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingoptimism_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Polygon
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-polygon
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingpolygon_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_ArbitrumOne
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-staging-arb1
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingarbitrumone_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Bnb
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-bnb
-            retry: 2
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingbnb_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Xdai
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-gnosis"
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingxdai_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Linea
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/runtime-v1-staging-linea"
-            retry: 2
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: staginglinea_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Hub_Staging_Mainnet
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/hub-v1-staging-mainnet
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Mainnet
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-mainnet
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Optimism
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-optimism
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingoptimism_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Polygon
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-polygon
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingpolygon_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_ArbitrumOne
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/amarok-runtime-v1-staging-arb1
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingarbitrumone_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Bnb
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-bnb
+  #           retry: 2
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingbnb_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Xdai
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: "https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-gnosis"
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingxdai_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Linea
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: "https://graph-query.linea.build/subgraphs/name/connext/runtime-v1-staging-linea"
+  #           retry: 2
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: staginglinea_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Base
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/C6v86fi3KkJoNgeETLyB2rbXVpfiMjs8GgKL2iQfRR2T"
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingbase_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Base
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/C6v86fi3KkJoNgeETLyB2rbXVpfiMjs8GgKL2iQfRR2T"
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingbase_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_zkSync
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/2xYBBuGeEkALo5GUvyZzV6jR2MQQbTcgDVBxpLjVjEDG"
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingzksync_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_zkSync
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/2xYBBuGeEkALo5GUvyZzV6jR2MQQbTcgDVBxpLjVjEDG"
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingzksync_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_PolygonZkEVM
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FyYv48LNGAH2Th2ti4Qvg8RzjZFENWUkETRPKsRQXpWP"
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingpolygonzkevm_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_PolygonZkEVM
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: "https://gateway-arbitrum.network.thegraph.com/api/{env.GRAPH_API_KEY}/subgraphs/id/FyYv48LNGAH2Th2ti4Qvg8RzjZFENWUkETRPKsRQXpWP"
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingpolygonzkevm_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Mantle
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mantle
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmantle_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Mantle
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mantle
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmantle_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Metis
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-metis
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmetis_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Metis
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-metis
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmetis_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Avalanche
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-avalanche
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingavalanche_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Avalanche
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.thegraph.com/subgraphs/name/connext/runtime-v1-staging-avalanche
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingavalanche_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Mode
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-mode/gn
-            retry: 2
-            timeout: 30000 # 30 seconds
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mode
-            retry: 2
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingmode_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_Staging_Scroll
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-scroll/gn
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingscroll_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Mode
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-mode/gn
+  #           retry: 2
+  #           timeout: 30000 # 30 seconds
+  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-mode
+  #           retry: 2
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingmode_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_Staging_Scroll
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://api.goldsky.com/api/public/project_clssc64y57n5r010yeoly05up/subgraphs/connext/runtime-staging-scroll/gn
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingscroll_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
-  - name: Connext_Staging_Xlayer
-    handler:
-      graphql:
-        strategy: highestValue
-        strategyConfig:
-          selectionSet: |
-            {
-              _meta {
-                block {
-                  number
-                }
-              }
-            }
-          value: "_meta.block.number"
-        sources:
-          - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-xlayer
-            retry: 5
-            timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: stagingxlayer_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Connext_Staging_Xlayer
+  #   handler:
+  #     graphql:
+  #       strategy: highestValue
+  #       strategyConfig:
+  #         selectionSet: |
+  #           {
+  #             _meta {
+  #               block {
+  #                 number
+  #               }
+  #             }
+  #           }
+  #         value: "_meta.block.number"
+  #       sources:
+  #         - endpoint: https://connext.bwarelabs.com/subgraphs/name/connext/runtime-staging-xlayer
+  #           retry: 5
+  #           timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: stagingxlayer_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
 
   # - name: StableSwap_Staging_Optimism
   #   handler:
@@ -1472,63 +1472,63 @@ sources:
 
   #####################################################
   # LOCAL
-  - name: Hub_LocalMainnet
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalMainnet
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localmainnet_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalOptimism
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localoptimism_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
-  - name: Connext_LocalArbitrumOne
-    handler:
-      graphql:
-        endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
-        retry: 5
-        timeout: 30000 # 30 seconds
-    transforms:
-      - prefix:
-          value: localarbitrumone_
-          includeRootOperations: true
-          ignore:
-            - _SubgraphErrorPolicy_
-      - autoPagination:
-          validateSchema: true
-          limitOfRecords: 250
+  # - name: Hub_LocalMainnet
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_HUB_MAINNET}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalMainnet
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_MAINNET}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localmainnet_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalOptimism
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_OPTIMISM}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localoptimism_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
+  # - name: Connext_LocalArbitrumOne
+  #   handler:
+  #     graphql:
+  #       endpoint: "{env.GRAPH_LOCAL_SPOKE_ARBITRUM}"
+  #       retry: 5
+  #       timeout: 30000 # 30 seconds
+  #   transforms:
+  #     - prefix:
+  #         value: localarbitrumone_
+  #         includeRootOperations: true
+  #         ignore:
+  #           - _SubgraphErrorPolicy_
+  #     - autoPagination:
+  #         validateSchema: true
+  #         limitOfRecords: 250
