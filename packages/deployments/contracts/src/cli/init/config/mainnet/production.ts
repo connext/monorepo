@@ -699,14 +699,14 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       name: "USDz",
       canonical: {
         domain: "11111",
-        address: "0xb4F40e14Cb88C7e17b5227d5657A4e3b8350770a",
+        address: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
         decimals: 18,
       },
       representations: {
         /// ETHEREUM
         "6648936": {
-          local: "0xb4F40e14Cb88C7e17b5227d5657A4e3b8350770a",
-          adopted: "0xb4F40e14Cb88C7e17b5227d5657A4e3b8350770a",
+          local: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
+          adopted: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
         },
         /// BASE
         "1650553709": {
