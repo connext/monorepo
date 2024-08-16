@@ -891,6 +891,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "USDz",
+      canonical: {
+        domain: "11111",
+        address: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
+          adopted: "0x6900070DE14ffFAf3A129Dc3880e0153444167Fa",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x69000cc63be9b4322f3f62c233dd1a7f509ae080",
+          adopted: "0x69000cc63be9b4322f3f62c233dd1a7f509ae080",
+        }
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
