@@ -822,6 +822,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "xPuf",
+      canonical: {
+        domain: "11111",
+        address: "0xd4A670c5983134C05Edb8caC5EE2e450c4eD94FA",
+        decimals: 18,
+      },
+      representations: {
+        // BNB
+        "6450786": {
+          local: "0xd4A670c5983134C05Edb8caC5EE2e450c4eD94FA",
+          adopted: "0xd4A670c5983134C05Edb8caC5EE2e450c4eD94FA",
+        },
+        /// Base
+        "1650553709": {
+          local: "0xD0ad3Ad4e9F38d17c556295cB1C23f8922BD9E3b",
+          adopted: "0xD0ad3Ad4e9F38d17c556295cB1C23f8922BD9E3b",
+        },
+      },
+    },
+    {
       name: "PufETH",
       canonical: {
         domain: "11111",
