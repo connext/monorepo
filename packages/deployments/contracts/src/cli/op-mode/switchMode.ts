@@ -1,6 +1,6 @@
 import commandLineArgs from "command-line-args";
 
-import { Wallet } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { Env, getProviderFromHardhatConfig } from "../..";
 import { SUPPORTED_DOMAINS, HUBS, updateIfNeeded } from "../helpers";
 import {
@@ -107,6 +107,17 @@ export const switchMode = async () => {
 
     // Update SpokeConnector
     console.log(`\tUpdating SpokeConnector (${deployments.SpokeConnector.address})...`);
+    const owner = await deployments.SpokeConnector.contract.owner();
+    const contract = new Contract(
+      owner,
+      ["function getThreshold() view returns (uint256)"],
+      deployments.SpokeConnector.contract.provider,
+    );
+    let threshold = "N/A";
+    try {
+      threshold = await contract.getThreshold();
+    } catch (e) {}
+    console.log(`\t\tOwner: ${owner}, threshold: ${threshold}`);
     await updateIfNeeded(
       optimistic
         ? {
