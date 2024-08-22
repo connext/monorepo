@@ -1,0 +1,10 @@
+@lighthouseUrl = https://lighthouse-prover-subscriber.mainnet.connext.ninja
+
+@adminToken = foo
+
+POST {{lighthouseUrl}}/clear-cache
+Content-Type: application/json
+
+{
+    "adminToken": "{{adminToken}}"
+}
