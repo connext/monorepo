@@ -1,11 +1,11 @@
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
 import { BigNumber, BigNumberish, utils } from "ethers";
-import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
+import { getChildrenForNetwork } from "@arbitrum/sdk";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import { getContext } from "../processFromRoot";
 import { ConfirmDataDoesNotMatch, NoRootAvailable, RollUpNodeStaked } from "../errors";
-import { EventFetcher, JsonRpcProvider, L2TransactionReceipt, RollupUserLogic__factory } from "../../../mockable";
+import { EventFetcher, JsonRpcProvider, ChildTransactionReceipt, RollupUserLogic__factory } from "../../../mockable";
 import { ArbitrumNodeCreatedEventsNotFound } from "../../../errors";
 
 import { GetProcessArgsParams } from ".";
@@ -37,7 +37,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // // get the tx
   const spokeJsonProvider = new JsonRpcProvider(spokeProvider);
   const tx = await spokeJsonProvider.getTransactionReceipt(sendHash);
-  const l2TxnReceipt = new L2TransactionReceipt(tx);
+  const l2TxnReceipt = new ChildTransactionReceipt(tx);
   // @ts-ignore
   const dataIsOnL1 = await l2TxnReceipt.isDataAvailable(spokeJsonProvider);
   if (!dataIsOnL1) {
@@ -45,7 +45,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   }
   // get the proof
   const hubJsonProvider = new JsonRpcProvider(hubProvider);
-  const [reader] = await l2TxnReceipt.getL2ToL1Messages(hubJsonProvider);
+  const [reader] = await l2TxnReceipt.getChildToParentMessages(hubJsonProvider);
   const msg = (reader as any).nitroReader;
   if (!msg?.event) {
     throw new Error(`Could not find event for message in ${sendHash}`);
@@ -78,7 +78,7 @@ export const getProcessFromArbitrumRootArgs = async ({
   // 2. (not used) Calculate the send root and the item hash using the `Outbox.sol` interface, then
   //    find the event emitted after the `ethBlockNum` of the message containing a matching
   //    sendRoot. Find the nodeNum from this event, and submit to chain (seen below)
-  const arbNetwork = l2Networks[spokeChainId];
+  const arbNetwork = getChildrenForNetwork(hubChainId).find((n) => n.chainId === spokeChainId)!;
   const latest = await hubJsonProvider.getBlockNumber();
   const fetcher = new EventFetcher(hubJsonProvider);
   logger.info("Fetching events", requestContext, methodContext, {
@@ -105,7 +105,7 @@ export const getProcessFromArbitrumRootArgs = async ({
     const log = logs[mid];
     let sendCount = BigNumber.from(msg.event.position as BigNumberish);
     try {
-      const block = await msg.getBlockFromNodeLog(spokeJsonProvider, log);
+      const block = await msg.getBlockFromAssertionLog(spokeJsonProvider, log);
       sendCount = BigNumber.from(block.sendCount);
     } catch (e: unknown) {
       logger.warn("Failed to get block from node log", requestContext, methodContext, {
@@ -116,6 +116,7 @@ export const getProcessFromArbitrumRootArgs = async ({
     if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;
+      left = right + 1;
     } else {
       left = mid + 1;
     }
@@ -123,7 +124,7 @@ export const getProcessFromArbitrumRootArgs = async ({
 
   const earliestNodeWithExit = foundLog.event.nodeNum;
   const rollup = RollupUserLogic__factory.getContract(arbNetwork.ethBridge.rollup, RollupUserLogic__factory.abi);
-  const foundBlock = await msg.getBlockFromNodeNum(
+  const foundBlock = await msg.getBlockFromAssertionId(
     rollup.connect(hubJsonProvider),
     earliestNodeWithExit,
     spokeJsonProvider,
