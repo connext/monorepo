@@ -64,7 +64,7 @@ export const generateExitPayload = async (
       try {
         exitHash = await maticClient.exitUtil.getExitHash(burnTxHash, 0, eventSignature);
       } catch (error: any) {
-        throw new InfoError(MaticJsErrorType.TxNotCheckpointed, "Burn transaction has not been checkpointed yet");
+        throw new InfoError(MaticJsErrorType.NoExitHash, "Could not retrieve the exit hash");
       }
 
       // build payload for exit
