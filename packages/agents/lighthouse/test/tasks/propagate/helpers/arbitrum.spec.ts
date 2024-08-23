@@ -7,19 +7,22 @@ import * as Mockable from "../../../../src/mockable";
 import { getPropagateParams } from "../../../../src/tasks/propagate/helpers/arbitrum";
 import { getInterfaceMock, propagateCtxMock, getBestProviderMock } from "../../../globalTestHook";
 import { mock } from "../../../mock";
-import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk";
+import { ParentToChildMessageGasEstimator } from "@arbitrum/sdk";
 
 const requestContext = createRequestContext("test");
 
 const estimateSubmissionFee = Promise.resolve(constants.One);
 const estimateRetryableTicketGasLimit = Promise.resolve(constants.Two);
-let l1ToL2: SinonStubbedInstance<L1ToL2MessageGasEstimator>;
+let l1ToL2: SinonStubbedInstance<ParentToChildMessageGasEstimator>;
 
 describe("Helpers: Arbitrum ", () => {
   beforeEach(() => {
-    l1ToL2 = createStubInstance(L1ToL2MessageGasEstimator, { estimateSubmissionFee, estimateRetryableTicketGasLimit });
+    l1ToL2 = createStubInstance(ParentToChildMessageGasEstimator, {
+      estimateSubmissionFee,
+      estimateRetryableTicketGasLimit,
+    });
     stub(Mockable, "getJsonRpcProvider").returns(createStubInstance(providers.JsonRpcProvider));
-    stub(Mockable, "getL1ToL2MessageGasEstimator").returns(l1ToL2);
+    stub(Mockable, "getParentToChildMessageGasEstimator").returns(l1ToL2);
     stub(Mockable, "getBaseFee").resolves(BigNumber.from(1));
     getInterfaceMock.returns({ encodeFunctionData: stub().resolves(mkBytes32("0xcalldadta")) });
   });
