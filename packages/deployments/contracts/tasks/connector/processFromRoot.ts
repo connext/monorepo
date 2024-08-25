@@ -134,8 +134,15 @@ const processFromArbitrumRoot = async (
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await msg.getBlockFromAssertionLog(spokeProvider, log);
-    if (BigNumber.from(block.sendCount).gt(msg.event.position as BigNumberish)) {
+    let sendCount = BigNumber.from(0);
+    try {
+      const block = await msg.getBlockFromAssertionLog(spokeProvider, log);
+      sendCount = BigNumber.from(block.sendCount);
+    } catch (e) {
+      console.warn("failed to get block:", e);
+    }
+    console.log("- sendCount", sendCount.toString());
+    if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;
       left = right + 1;
