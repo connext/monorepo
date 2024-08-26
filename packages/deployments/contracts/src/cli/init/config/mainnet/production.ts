@@ -153,6 +153,24 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "wUSDM",
+      canonical: {
+        domain: "11111",
+        address: "0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812",
+        decimals: 18,
+      },
+      representations: {
+        "6648936": {
+          local: "0x40c562a794608FCd81Cdfc032592328ebFa1927c",
+          adopted: "0x40c562a794608FCd81Cdfc032592328ebFa1927c",
+      },
+        "1836016741": {
+          local: "0x90993Ac1734b023dEEc548b87B11F5d2dcD3818E",
+          adopted: "0x90993Ac1734b023dEEc548b87B11F5d2dcD3818E",
+        },
+      },
+    },
+    {
       name: "WETH",
       canonical: {
         domain: "6648936",
