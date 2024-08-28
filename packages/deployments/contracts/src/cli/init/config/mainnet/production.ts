@@ -932,6 +932,26 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "BDR",
+      canonical: {
+        domain: "11111",
+        address: "0x3AD6cD333Dc2597fdE3EAf2B772A38a7be0F56fb",
+        decimals: 18,
+      },
+      representations: {
+        /// METIS
+        "1835365481": {
+          local: "0x3AD6cD333Dc2597fdE3EAf2B772A38a7be0F56fb",
+          adopted: "0x3AD6cD333Dc2597fdE3EAf2B772A38a7be0F56fb",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x9A2Af0AbB12bee5369B180976Be01E8c80D0e7B6",
+          adopted: "0x9A2Af0AbB12bee5369B180976Be01E8c80D0e7B6",
+        },
+      },
+    },
+    {
       name: "wUSDM.e",
       canonical: {
         domain: "11111",
