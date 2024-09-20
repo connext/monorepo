@@ -27,7 +27,7 @@
   "author": "Connext",
   "license": "ISC",
   "dependencies": {
-    "@arbitrum/sdk": "3.1.11",
+    "@arbitrum/sdk": "4.0.1",
     "@connext/nxtp-adapters-database": "workspace:*",
     "@connext/nxtp-adapters-relayer": "workspace:*",
     "@connext/nxtp-adapters-subgraph": "workspace:*",
@@ -35,7 +35,7 @@
     "@connext/nxtp-utils": "workspace:*",
     "@connext/smart-contracts": "workspace:*",
     "@consensys/linea-sdk": "0.1.6",
-    "@eth-optimism/sdk": "3.2.0",
+    "@eth-optimism/sdk": "3.3.2",
     "@mantleio/sdk": "1.0.0",
     "@sinclair/typebox": "0.25.21",
     "@types/aws-lambda": "8.10.110",

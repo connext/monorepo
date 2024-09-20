@@ -6,7 +6,7 @@ import { NoSpokeConnector, NoHubConnector, NoProviderForDomain } from "../errors
 import { ExtraPropagateParam } from "../operations/propagate";
 import {
   getJsonRpcProvider,
-  getL1ToL2MessageGasEstimator,
+  getParentToChildMessageGasEstimator,
   getBaseFee,
   getInterface,
   getBestProvider,
@@ -62,7 +62,7 @@ export const getPropagateParams = async (
 
   try {
     const l2Provider = getJsonRpcProvider(l2RpcUrl);
-    const l1ToL2MessageGasEstimate = getL1ToL2MessageGasEstimator(l2Provider);
+    const l1ToL2MessageGasEstimate = getParentToChildMessageGasEstimator(l2Provider);
 
     // example encoded payload: 0x4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000207465737400000000000000000000000000000000000000000000000000000000
     // length = 200 not including 0x = 100 bytes

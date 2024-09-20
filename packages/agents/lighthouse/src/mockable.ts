@@ -9,8 +9,8 @@ import { getDeployedRootManagerContract as _getDeployedRootManagerContract } fro
 import { CrossChainMessenger as _OptimismCrossChainMessenger } from "@eth-optimism/sdk";
 import { CrossChainMessenger as _MantleCrossChainMessenger } from "@mantleio/sdk";
 import { sendWithRelayerWithBackup as _sendWithRelayerWithBackup } from "@connext/nxtp-adapters-relayer";
-import { EventFetcher as _EventFetcher, L2TransactionReceipt as _L2TransactionReceipt } from "@arbitrum/sdk";
-import { L1ToL2MessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator";
+import { EventFetcher as _EventFetcher, ChildTransactionReceipt as _ChildTransactionReceipt } from "@arbitrum/sdk";
+import { ParentToChildMessageGasEstimator } from "@arbitrum/sdk/dist/lib/message/ParentToChildMessageGasEstimator";
 import { getBaseFee as _getBaseFee } from "@arbitrum/sdk/dist/lib/utils/lib";
 import { LineaSDK as _LineaSDK } from "@consensys/linea-sdk";
 import {
@@ -42,7 +42,7 @@ export const sendWithRelayerWithBackup = _sendWithRelayerWithBackup;
 
 export const EventFetcher = _EventFetcher;
 
-export const L2TransactionReceipt = _L2TransactionReceipt;
+export const ChildTransactionReceipt = _ChildTransactionReceipt;
 
 export const RollupUserLogic__factory = _RollupUserLogic__factory;
 
@@ -72,8 +72,10 @@ export const getZkSyncWeb3Provider = (url: string): zk.Provider => {
   return new zk.Provider(url);
 };
 
-export const getL1ToL2MessageGasEstimator = (l2Provider: providers.JsonRpcProvider): L1ToL2MessageGasEstimator => {
-  return new L1ToL2MessageGasEstimator(l2Provider);
+export const getParentToChildMessageGasEstimator = (
+  l2Provider: providers.JsonRpcProvider,
+): ParentToChildMessageGasEstimator => {
+  return new ParentToChildMessageGasEstimator(l2Provider);
 };
 
 export const getContract = (address: string, abi: ContractInterface, provider?: providers.JsonRpcProvider) =>

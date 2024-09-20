@@ -1,6 +1,6 @@
 import { Logger, createRequestContext, expect, mkHash } from "@connext/nxtp-utils";
 import { stub, SinonStub, createStubInstance, SinonStubbedInstance, spy } from "sinon";
-import { L2ToL1MessageReader } from "@arbitrum/sdk";
+import { ChildToParentMessageReader } from "@arbitrum/sdk";
 import { NodeInterface__factory } from "@arbitrum/sdk/dist/lib/abi/factories/NodeInterface__factory";
 
 import * as MockableFns from "../../../../src/mockable";
@@ -20,14 +20,14 @@ class MockJsonRpcProvider {
 }
 
 let isDataAvailableStub: SinonStub<any[], any>;
-let l2ToL1MessageReader: SinonStubbedInstance<L2ToL1MessageReader>;
+let l2ToL1MessageReader: SinonStubbedInstance<ChildToParentMessageReader>;
 class MockL2TransactionReceipt {
   public isDataAvailable = isDataAvailableStub;
-  public getL2ToL1Messages = stub().resolves([l2ToL1MessageReader]);
+  public getChildToParentMessages = stub().resolves([l2ToL1MessageReader]);
 }
 class MockL2TransactionReceiptTemp {
   public isDataAvailable = isDataAvailableStub;
-  public getL2ToL1Messages = stub().resolves([{}]);
+  public getChildToParentMessages = stub().resolves([{}]);
 }
 
 class MockEventFetcher {
@@ -49,11 +49,11 @@ describe("Helpers: Arbitrum", () => {
   let confirmData: SinonStub<any[], any>;
   beforeEach(() => {
     isDataAvailableStub = stub().resolves(true);
-    l2ToL1MessageReader = createStubInstance(L2ToL1MessageReader, {
+    l2ToL1MessageReader = createStubInstance(ChildToParentMessageReader, {
       getOutboxProof: Promise.resolve(["hello", "world"]),
     } as any);
     (l2ToL1MessageReader as any).nitroReader = {
-      getBlockFromNodeNum: (...args: any) =>
+      getBlockFromAssertionId: (...args: any) =>
         Promise.resolve({
           blockNumber: constants.One,
           nodeNum: constants.One,
@@ -61,7 +61,7 @@ describe("Helpers: Arbitrum", () => {
           sendCount: constants.One,
           hash: mkHash("0x456"),
         } as any),
-      getBlockFromNodeLog: (...args: any) =>
+      getBlockFromAssertionLog: (...args: any) =>
         Promise.resolve({
           blockNumber: constants.One,
           nodeNum: constants.One,
@@ -71,7 +71,7 @@ describe("Helpers: Arbitrum", () => {
         } as any),
       event: { position: constants.One, ethBlockNum: constants.One },
     };
-    stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceipt);
+    stub(MockableFns, "ChildTransactionReceipt").value(MockL2TransactionReceipt);
     stub(MockableFns, "JsonRpcProvider").value(MockJsonRpcProvider);
     stub(MockableFns, "EventFetcher").value(MockEventFetcher);
     stub(MockableFns, "Outbox__factory").value(mockOutboxFactory);
@@ -101,6 +101,7 @@ describe("Helpers: Arbitrum", () => {
     isDataAvailableStub.resolves(false);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -119,6 +120,7 @@ describe("Helpers: Arbitrum", () => {
     confirmData.returns([{ confirmData: "0xfoo" }]);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -143,6 +145,7 @@ describe("Helpers: Arbitrum", () => {
     ]);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -167,6 +170,7 @@ describe("Helpers: Arbitrum", () => {
     ]);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -182,9 +186,10 @@ describe("Helpers: Arbitrum", () => {
   });
 
   it("should throw error in case msg event is not present", async () => {
-    stub(MockableFns, "L2TransactionReceipt").value(MockL2TransactionReceiptTemp);
+    stub(MockableFns, "ChildTransactionReceipt").value(MockL2TransactionReceiptTemp);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -201,6 +206,7 @@ describe("Helpers: Arbitrum", () => {
 
   it("should work", async () => {
     const args = await getProcessFromArbitrumRootArgs({
+      isSpokeClaim: false,
       spokeChainId: 42161,
       spokeDomainId: "1",
       spokeProvider: "world",
@@ -219,6 +225,7 @@ describe("Helpers: Arbitrum", () => {
     stub(MockableFns, "EventFetcher").value(MockEventFetcherError);
     await expect(
       getProcessFromArbitrumRootArgs({
+        isSpokeClaim: false,
         spokeChainId: 42161,
         spokeDomainId: "1",
         spokeProvider: "world",
@@ -235,7 +242,7 @@ describe("Helpers: Arbitrum", () => {
 
   it("should have warning in getBlockFromNodeLog fails", async () => {
     (l2ToL1MessageReader as any).nitroReader = {
-      getBlockFromNodeNum: (...args: any) =>
+      getBlockFromAssertionId: (...args: any) =>
         Promise.resolve({
           blockNumber: constants.One,
           nodeNum: constants.One,
@@ -243,7 +250,7 @@ describe("Helpers: Arbitrum", () => {
           sendCount: constants.One,
           hash: mkHash("0x456"),
         } as any),
-      getBlockFromNodeLog: (...args: any) =>
+      getBlockFromAssertionLog: (...args: any) =>
         Promise.reject({
           blockNumber: constants.One,
           nodeNum: constants.One,
@@ -256,6 +263,7 @@ describe("Helpers: Arbitrum", () => {
     const loggerSpy = spy(getContext().logger, "warn");
 
     const args = await getProcessFromArbitrumRootArgs({
+      isSpokeClaim: false,
       spokeChainId: 42161,
       spokeDomainId: "1",
       spokeProvider: "world",

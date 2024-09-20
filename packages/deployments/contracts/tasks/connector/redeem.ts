@@ -1,4 +1,4 @@
-import { L1ToL2MessageStatus, L1TransactionReceipt } from "@arbitrum/sdk";
+import { ParentToChildMessageStatus, ParentTransactionReceipt } from "@arbitrum/sdk";
 import { providers, Wallet } from "ethers";
 import { task } from "hardhat/config";
 
@@ -26,16 +26,16 @@ const redeemFromArbitrum = async (
   spokeProvider: providers.JsonRpcProvider,
 ) => {
   // Get the message receipt from arbitrum sdk
-  const receipt = new L1TransactionReceipt(await hubProvider.getTransactionReceipt(hash));
+  const receipt = new ParentTransactionReceipt(await hubProvider.getTransactionReceipt(hash));
   console.log("got l1 -> l2 message receipt on l1", receipt.transactionHash);
 
   // get the mesesage (assume only one arb message in receipt)
-  const [message] = await receipt.getL1ToL2Messages(signer.connect(spokeProvider));
+  const [message] = await receipt.getParentToChildMessages(signer.connect(spokeProvider));
   const { status } = await message.waitForStatus();
   console.log("got l1 -> l2 message", message);
 
   // check to see if it needs redemption
-  if (status != L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2) {
+  if (status != ParentToChildMessageStatus.FUNDS_DEPOSITED_ON_CHILD) {
     throw new Error(`Not ready to redeem, or was auto-redeemed. Status: ${status}`);
   }
 

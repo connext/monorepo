@@ -1,8 +1,8 @@
 import { task } from "hardhat/config";
-import { EventFetcher, L2TransactionReceipt } from "@arbitrum/sdk";
+import { EventFetcher, ChildTransactionReceipt, getChildrenForNetwork } from "@arbitrum/sdk";
+
 import { BigNumber, BigNumberish, constants, Contract, providers, Wallet } from "ethers";
 import { defaultAbiCoder, keccak256 } from "ethers/lib/utils";
-import { l2Networks } from "@arbitrum/sdk/dist/lib/dataEntities/networks";
 import {
   DEFAULT_L2_CONTRACT_ADDRESSES,
   CrossChainMessenger as OptimismCrossChainMessenger,
@@ -53,7 +53,7 @@ const processFromPolygonRoot = async (spoke: number, sendHash: string, hubProvid
     SEND_MESSAGE_EVENT_SIG,
     providerMapping,
   );
-  if (!hash || !payload) {
+  if (!payload) {
     throw new Error(`no hash or payload. already or not yet ready to be processed`);
   }
   console.log("hash: ", hash);
@@ -75,16 +75,16 @@ const processFromArbitrumRoot = async (
   // // uint256 _index, x
   // // L2Message calldata _message x
   // // get the tx
-  const l2TxnReceipt = new L2TransactionReceipt(await spokeProvider.getTransactionReceipt(sendHash));
+  const l2TxnReceipt = new ChildTransactionReceipt(await spokeProvider.getTransactionReceipt(sendHash));
   // @ts-ignore
   const dataIsOnL1 = await l2TxnReceipt.isDataAvailable(spokeProvider);
   if (!dataIsOnL1) {
     throw new Error(`tx data not yet posted to l1`);
   }
   // get the proof
-  const [reader] = await l2TxnReceipt.getL2ToL1Messages(hubProvider);
+  const [reader] = await l2TxnReceipt.getChildToParentMessages(hubProvider);
   console.log("msg:", (reader as any).nitroReader.event);
-  const msg = (reader as any).nitroReader;
+  const msg = (reader as any).nitroReader; //as nitro.ChildToParentMessageReaderNitro;
   if (!msg?.event) {
     throw new Error(`Could not find event for message in ${sendHash}`);
   }
@@ -115,13 +115,17 @@ const processFromArbitrumRoot = async (
   // 2. Calculate the send root and the item hash using the `Outbox.sol` interface, then
   //    find the event emitted after the `ethBlockNum` of the message containing a matching
   //    sendRoot. Find the nodeNum from this event, and submit to chain. Not used.
-  const arbNetwork = l2Networks[spoke];
+  const arbNetwork = getChildrenForNetwork(1).find((n) => n.chainId === spoke);
+  if (!arbNetwork) {
+    throw new Error(`could not find arbitrum child network for spoke ${spoke}`);
+  }
   const fetcher = new EventFetcher(hubProvider);
   console.log("searching for node created events at", arbNetwork.ethBridge.rollup);
   const logs = await fetcher.getEvents(RollupUserLogic__factory, (t) => t.filters.NodeCreated(), {
     fromBlock: msg.event.ethBlockNum.toNumber(),
     toBlock: "latest",
   });
+  console.log("found", logs.length, "logs to sort through. searching for send count >", msg.event.position.toString());
   // use binary search to find the first node with sendCount > this.event.position
   // default to the last node since we already checked above
   let foundLog: FetchedEvent<NodeCreatedEvent> = logs[logs.length - 1];
@@ -130,11 +134,18 @@ const processFromArbitrumRoot = async (
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     const log = logs[mid];
-    const block = await msg.getBlockFromNodeLog(spokeProvider, log);
-    const sendCount = BigNumber.from(block.sendCount);
+    let sendCount = BigNumber.from(0);
+    try {
+      const block = await msg.getBlockFromAssertionLog(spokeProvider, log);
+      sendCount = BigNumber.from(block.sendCount);
+    } catch (e) {
+      console.warn("failed to get block:", e);
+    }
+    console.log("- sendCount", sendCount.toString());
     if (sendCount.gt(msg.event.position as BigNumberish)) {
       foundLog = log;
       right = mid - 1;
+      left = right + 1;
     } else {
       left = mid + 1;
     }
@@ -146,7 +157,7 @@ const processFromArbitrumRoot = async (
     RollupUserLogic__factory.abi,
     deployer.connect(hubProvider),
   );
-  const foundBlock = await msg.getBlockFromNodeNum(rollup, earliestNodeWithExit, spokeProvider);
+  const foundBlock = await msg.getBlockFromAssertionId(rollup, earliestNodeWithExit, spokeProvider);
   console.log("node:", earliestNodeWithExit.toString());
   console.log("msg.position", msg.event.position.toString());
   console.log("foundLog:", foundLog);
@@ -324,7 +335,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
   .addOptionalParam("networkType", "Type of network of contracts")
   .setAction(
     async ({ env: _env, tx: sendHash, spoke: _spoke, networkType: _networkType }: TaskArgs, { deployments }) => {
-      const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC!);
+      const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC ?? process.env.MNEMONIC!);
 
       const env = mustGetEnv(_env);
       const spoke = +_spoke;
@@ -354,6 +365,7 @@ export default task("process-from-root", "Call `Connector.processFromRoot()` to 
           args = await processFromOptimismRoot(spoke, sendHash, protocolConfig, l2Provider, l1Provider);
           break;
         case "Arbitrum":
+          method = "processMessageFromRoot";
           args = await processFromArbitrumRoot(spoke, sendHash, l2Provider, l1Provider, deployer);
           break;
         case "Polygon":

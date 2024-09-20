@@ -4,6 +4,7 @@ export enum MaticJsErrorType {
   BlockNotIncluded = "no_block_found",
   IncorrectTx = "incorrect_transaction",
   TxNotCheckpointed = "transaction_not_checkpointed",
+  NoExitHash = "no_exit_hash",
 }
 
 // custom errors for better error handling
