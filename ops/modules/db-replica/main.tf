@@ -3,7 +3,7 @@ resource "aws_db_instance" "db_read_replica" {
   replicate_source_db = var.replicate_source_db
 
   engine         = "postgres"
-  engine_version = "14.10"
+  engine_version = "14.12"
 
   instance_class = var.instance_class
 
@@ -20,7 +20,8 @@ resource "aws_db_instance" "db_read_replica" {
   maintenance_window           = var.maintenance_window
   backup_retention_period      = var.backup_retention_period
   backup_window                = var.backup_window
-  auto_minor_version_upgrade   = true
+  auto_minor_version_upgrade   = false
+  allow_major_version_upgrade  = false
 
   tags = merge(
     var.tags,

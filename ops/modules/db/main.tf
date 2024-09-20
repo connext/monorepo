@@ -4,7 +4,7 @@ resource "aws_db_instance" "db" {
   identifier = var.identifier
 
   engine            = "postgres"
-  engine_version    = "14.10"
+  engine_version    = "14.12"
   instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
 
@@ -21,8 +21,8 @@ resource "aws_db_instance" "db" {
 
   availability_zone = var.availability_zone
 
-  allow_major_version_upgrade = true
-  auto_minor_version_upgrade  = true
+  allow_major_version_upgrade = false
+  auto_minor_version_upgrade  = false
   apply_immediately           = true
   max_allocated_storage       = var.max_allocated_storage
 
