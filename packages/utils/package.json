@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "@maticnetwork/maticjs": "3.6.6",
+    "@maticnetwork/maticjs": "3.8.2",
     "@maticnetwork/maticjs-web3": "1.0.4",
     "@sinclair/typebox": "0.25.21",
     "ajv": "8.12.0",

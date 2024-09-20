@@ -22,64 +22,64 @@ data "aws_route53_zone" "primary" {
   zone_id = "Z03634792TWUEHHQ5L0YX"
 }
 
+# Disable DAO router from bidding
+# module "router_subscriber" {
+#   source                   = "../../../modules/service"
+#   stage                    = var.stage
+#   environment              = var.environment
+#   domain                   = var.domain
+#   region                   = var.region
+#   dd_api_key               = var.dd_api_key
+#   zone_id                  = data.aws_route53_zone.primary.zone_id
+#   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+#   cluster_id               = module.ecs.ecs_cluster_id
+#   vpc_id                   = module.network.vpc_id
+#   lb_subnets               = module.network.public_subnets
+#   internal_lb              = false
+#   docker_image             = var.full_image_name_router_subscriber
+#   container_family         = "router-subscriber"
+#   health_check_path        = "/ping"
+#   container_port           = 8080
+#   loadbalancer_port        = 80
+#   cpu                      = 512
+#   memory                   = 1024
+#   instance_count           = 3
+#   timeout                  = 180
+#   ingress_cdir_blocks      = ["0.0.0.0/0"]
+#   ingress_ipv6_cdir_blocks = []
+#   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+#   cert_arn                 = var.certificate_arn
+#   container_env_vars       = local.router_env_vars
+# }
 
-module "router_subscriber" {
-  source                   = "../../../modules/service"
-  stage                    = var.stage
-  environment              = var.environment
-  domain                   = var.domain
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  zone_id                  = data.aws_route53_zone.primary.zone_id
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  lb_subnets               = module.network.public_subnets
-  internal_lb              = false
-  docker_image             = var.full_image_name_router_subscriber
-  container_family         = "router-subscriber"
-  health_check_path        = "/ping"
-  container_port           = 8080
-  loadbalancer_port        = 80
-  cpu                      = 512
-  memory                   = 1024
-  instance_count           = 3
-  timeout                  = 180
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
-  ingress_ipv6_cdir_blocks = []
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn
-  container_env_vars       = local.router_env_vars
-}
-
-module "router_publisher" {
-  source                   = "../../../modules/service"
-  stage                    = var.stage
-  environment              = var.environment
-  domain                   = var.domain
-  region                   = var.region
-  dd_api_key               = var.dd_api_key
-  zone_id                  = data.aws_route53_zone.primary.zone_id
-  execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
-  cluster_id               = module.ecs.ecs_cluster_id
-  vpc_id                   = module.network.vpc_id
-  lb_subnets               = module.network.public_subnets
-  internal_lb              = false
-  docker_image             = var.full_image_name_router_publisher
-  container_family         = "router-publisher"
-  health_check_path        = "/ping"
-  container_port           = 8080
-  loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 2048
-  instance_count           = 1
-  timeout                  = 180
-  ingress_cdir_blocks      = ["0.0.0.0/0"]
-  ingress_ipv6_cdir_blocks = []
-  service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
-  cert_arn                 = var.certificate_arn
-  container_env_vars       = local.router_publisher_env_vars
-}
+# module "router_publisher" {
+#   source                   = "../../../modules/service"
+#   stage                    = var.stage
+#   environment              = var.environment
+#   domain                   = var.domain
+#   region                   = var.region
+#   dd_api_key               = var.dd_api_key
+#   zone_id                  = data.aws_route53_zone.primary.zone_id
+#   execution_role_arn       = data.aws_iam_role.ecr_admin_role.arn
+#   cluster_id               = module.ecs.ecs_cluster_id
+#   vpc_id                   = module.network.vpc_id
+#   lb_subnets               = module.network.public_subnets
+#   internal_lb              = false
+#   docker_image             = var.full_image_name_router_publisher
+#   container_family         = "router-publisher"
+#   health_check_path        = "/ping"
+#   container_port           = 8080
+#   loadbalancer_port        = 80
+#   cpu                      = 1024
+#   memory                   = 2048
+#   instance_count           = 1
+#   timeout                  = 180
+#   ingress_cdir_blocks      = ["0.0.0.0/0"]
+#   ingress_ipv6_cdir_blocks = []
+#   service_security_groups  = flatten([module.network.allow_all_sg, module.network.ecs_task_sg])
+#   cert_arn                 = var.certificate_arn
+#   container_env_vars       = local.router_publisher_env_vars
+# }
 
 module "router_executor" {
   source                   = "../../../modules/service"
@@ -303,7 +303,7 @@ module "lighthouse_prover_cron" {
   container_env_vars = merge(local.lighthouse_env_vars, {
     LIGHTHOUSE_SERVICE = "prover-pub"
   })
-  schedule_expression    = "rate(60 minutes)"
+  schedule_expression    = "rate(10 minutes)"
   timeout                = 300
   memory_size            = 10240
   lambda_in_vpc          = true
@@ -452,8 +452,8 @@ module "relayer" {
   health_check_path        = "/ping"
   container_port           = 8080
   loadbalancer_port        = 80
-  cpu                      = 1024
-  memory                   = 4096
+  cpu                      = 4096
+  memory                   = 8192
   instance_count           = 1
   timeout                  = 180
   internal_lb              = false

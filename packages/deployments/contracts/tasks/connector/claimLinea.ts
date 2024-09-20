@@ -20,7 +20,7 @@ export default task("claim-linea", "Claim messages on both of L1 and L2")
     const deployer = Wallet.fromMnemonic(process.env.MAINNET_MNEMONIC ?? process.env.MNEMONIC!);
 
     const env = mustGetEnv(_env);
-    const networkType = _networkType ?? ProtocolNetwork.TESTNET;
+    const networkType = _networkType ?? ProtocolNetwork.MAINNET;
     console.log("networkType: ", networkType);
     console.log("env:", env);
     console.log("transaction hash", hash);
@@ -47,17 +47,18 @@ export default task("claim-linea", "Claim messages on both of L1 and L2")
     });
 
     // get L1/L2 contract
-    const originContract = chainId == hub.chain ? sdk.getL1Contract() : sdk.getL2Contract();
+    const originContract = chainId == hub.chain ? sdk.getL2Contract() : sdk.getL1Contract();
 
     // get Message Status
     const messages = await originContract.getMessagesByTransactionHash(hash);
+    console.log("messages: ", messages);
 
     if (!messages?.length) {
       throw new Error(`${hash} has no message sent`);
     }
     console.log("message: ", messages[0]);
 
-    const destContract = chainId == hub.chain ? sdk.getL2Contract() : sdk.getL1Contract();
+    const destContract = chainId == hub.chain ? sdk.getL1Contract() : sdk.getL2Contract();
 
     //  returns on-chain message status by message hash
     const messageStatus = await destContract.getMessageStatus(messages[0].messageHash);
@@ -67,17 +68,14 @@ export default task("claim-linea", "Claim messages on both of L1 and L2")
       console.log("message already claimed!! skipping...");
     } else if (messageStatus === "CLAIMABLE") {
       console.log("Claimable message status. ");
-      let claimMessage = await destContract.claim(
-        {
-          // claims message by message
-          ...messages[0],
-          feeRecipient: deployer.address, // address that will receive fees. by default it is the message sender
-        },
-        {
-          gasPrice: utils.parseUnits("3", "gwei"),
-        },
-      );
-      console.log(claimMessage);
+      let claimMessage = await destContract.claim({
+        // claims message by message
+        ...messages[0],
+        feeRecipient: deployer.address, // address that will receive fees. by default it is the message sender
+      });
+      console.log("claim:", claimMessage.hash);
+      const ret = await claimMessage.wait();
+      console.log("claim receipt:", ret);
     } else {
       console.log("unknown message status. skipping...");
     }

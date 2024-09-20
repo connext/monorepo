@@ -965,14 +965,15 @@ jobs:
               cp "$file_path" "$file_target_path"
           done
 
-      - name: run smoke tests
-        run: |
-          docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
-          bash docker/bin/wait-for-services.sh router-publisher
-          bash docker/bin/wait-for-services.sh router-subscriber
-          bash docker/bin/wait-for-services.sh sequencer-server
-          bash docker/bin/wait-for-services.sh sequencer-publisher
-          bash docker/bin/wait-for-services.sh sequencer-subscriber
+      # Disable smoke tests till we need staging again
+      # - name: run smoke tests
+      #   run: |
+      #     docker-compose -f docker-compose.services.yaml -f docker-compose.chains.yaml up -d
+      #     bash docker/bin/wait-for-services.sh router-publisher
+      #     bash docker/bin/wait-for-services.sh router-subscriber
+      #     bash docker/bin/wait-for-services.sh sequencer-server
+      #     bash docker/bin/wait-for-services.sh sequencer-publisher
+      #     bash docker/bin/wait-for-services.sh sequencer-subscriber
 
     outputs:
       router-publisher-tags: ${{ needs.build-and-push-router-publisher-image.outputs.json }}
@@ -1088,7 +1089,7 @@ jobs:
         id: apply
         working-directory: ./ops/infra
         run: |
-          terraform apply -auto-approve
+          terraform apply -auto-approve > /dev/null 2>&1
 
   terraform-services-backend-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -1144,7 +1145,7 @@ jobs:
         id: apply
         working-directory: ./ops/testnet/staging/backend
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1
 
   terraform-services-core-staging-testnet:
     needs: [smoke-tests, terraform-infra]
@@ -1208,7 +1209,7 @@ jobs:
         id: apply
         working-directory: ./ops/testnet/staging/core
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1
 
     outputs:
       sequencer-server-tags: ${{ needs.smoke-tests.outputs.sequencer-server-tags }}
@@ -1281,7 +1282,7 @@ jobs:
         id: apply
         working-directory: ./ops/testnet/prod/core
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1
 
     outputs:
       sequencer-server-tags: ${{ needs.e2e-tests.outputs.sequencer-server-tags }}
@@ -1349,7 +1350,7 @@ jobs:
         id: apply
         working-directory: ./ops/testnet/prod/backend
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1
 
     outputs:
       sequencer-server-tags: ${{ needs.e2e-tests.outputs.sequencer-server-tags }}
@@ -1417,7 +1418,7 @@ jobs:
         id: apply
         working-directory: ./ops/mainnet/prod/backend
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1
 
   terraform-services-core-prod-mainnet:
     if: github.ref == 'refs/heads/prod'
@@ -1480,4 +1481,4 @@ jobs:
         id: apply
         working-directory: ./ops/mainnet/prod/core
         run: |
-          terraform apply -var-file=tfvars.json -auto-approve
+          terraform apply -var-file=tfvars.json -auto-approve > /dev/null 2>&1

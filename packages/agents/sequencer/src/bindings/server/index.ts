@@ -50,7 +50,7 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
     Params: { router: string };
     Reply: RouterStatusApiResponse | SequencerApiErrorResponse;
   }>(
-    "/router-status",
+    "/router-status/:router",
     {
       schema: {
         response: {
@@ -64,8 +64,8 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
 
       try {
         const { router } = request.params;
-        const lastActiveTimestamp = await cache.routers.getLastActive(router);
-        const lastBidTimestamp = await cache.routers.getLastBidTime(router);
+        const lastActiveTimestamp = await cache.routers.getLastActive(router.toLowerCase());
+        const lastBidTimestamp = await cache.routers.getLastBidTime(router.toLowerCase());
 
         return response.status(200).send({
           lastActiveTimestamp,
@@ -235,7 +235,7 @@ export const bindServer = async (queueName: string, channel: Broker.Channel): Pr
       const { router, timestamp, signed } = req.body;
       const signerAddress = verifyMessage(`${RouterPingMessage}-${timestamp}`, signed);
       if (router.toLowerCase() == signerAddress.toLowerCase()) {
-        await cache.routers.setLastActive(router);
+        await cache.routers.setLastActive(router.toLowerCase());
         return res.status(200).send({ message: "OK" });
       } else {
         return res.code(500).send({ message: "Invalid signature" });

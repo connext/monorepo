@@ -74,7 +74,7 @@ module "cartographer_db_replica" {
   depends_on          = [module.cartographer_db]
   replica_identifier  = "rds-postgres-cartographer-replica-${var.environment}"
   instance_class      = "db.t4g.2xlarge"
-  allocated_storage   = 150
+  allocated_storage   = 250
 
   name     = module.cartographer_db.db_instance_name
   username = module.cartographer_db.db_instance_username
@@ -123,7 +123,7 @@ module "postgrest" {
   vpc_id                   = module.network.vpc_id
   lb_subnets               = module.network.public_subnets
   internal_lb              = false
-  docker_image             = "postgrest/postgrest:v10.0.0.20221011"
+  docker_image             = "postgrest/postgrest:v12.0.2"
   container_family         = "postgrest"
   container_port           = 3000
   loadbalancer_port        = 80

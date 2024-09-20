@@ -41,13 +41,14 @@ resource "aws_iam_role" "lambda" {
   }
 }
 resource "aws_lambda_function" "executable" {
-  function_name = "${var.container_family}-${var.environment}-${var.stage}"
-  image_uri     = "${local.repository_url}:${var.docker_image_tag}"
-  package_type  = "Image"
-  role          = aws_iam_role.lambda.arn
-  architectures = ["x86_64"]
-  timeout       = var.timeout
-  memory_size   = var.memory_size
+  function_name                  = "${var.container_family}-${var.environment}-${var.stage}"
+  image_uri                      = "${local.repository_url}:${var.docker_image_tag}"
+  package_type                   = "Image"
+  role                           = aws_iam_role.lambda.arn
+  architectures                  = ["x86_64"]
+  timeout                        = var.timeout
+  memory_size                    = var.memory_size
+  reserved_concurrent_executions = 1
   environment {
     variables = merge(var.container_env_vars, { DD_SERVICE = var.container_family })
   }

@@ -275,10 +275,24 @@ export const executeFastPathData = async (
     const totalBids = bidsRoundMap[roundIdInNum];
     const _combinedBidsForRound = getAllSubsets(totalBids, getMinimumBidsCountForRound(roundIdInNum)) as Bid[][];
     // shuffle the bids
-    const combinedBidsForRound = _combinedBidsForRound
+    const _shuffledCombinedBidsForRound = _combinedBidsForRound
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
+
+    /**
+     * The number of combinations of `n` objects taken `r` at a time is determined by the following formula
+     *      C(n,r)=n!(n-r)!
+     * If n=10 and r=3, C(10,3) = 120 -- this means it should iterate 120 times regardless of calldata execution errors.
+     * It might result in timeout error in consumer and requeue the message infinitely.
+     *
+     * Limiting the iteration count can help prevent infinite loops
+     */
+
+    const combinedBidsForRound =
+      _shuffledCombinedBidsForRound.length > 3
+        ? _shuffledCombinedBidsForRound.slice(0, 2)
+        : _shuffledCombinedBidsForRound;
 
     logger.debug(`Selecting the round ${roundIdx}`, requestContext, methodContext, {
       availableRoundIds,
@@ -385,7 +399,7 @@ export const executeFastPathData = async (
         // Update the last bid time for a given router.
         await Promise.all(
           randomCombination.map((bid) =>
-            cache.routers.setLastBidTime(bid.router, {
+            cache.routers.setLastBidTime(bid.router.toLowerCase(), {
               originDomain: transfer!.xparams.originDomain,
               destinationDomain: transfer!.xparams.destinationDomain,
               asset: transfer!.origin.assets.transacting.asset,
@@ -412,7 +426,6 @@ export const executeFastPathData = async (
           {
             transferId,
             round: roundIdInNum,
-            combinations: combinedBidsForRound,
             bidsCount: randomCombination.length,
           },
         );

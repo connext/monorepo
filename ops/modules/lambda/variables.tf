@@ -24,6 +24,7 @@ variable "stage" {
 
 variable "container_env_vars" {
   description = "env vars for running container"
+  sensitive   = true
 }
 
 variable "schedule_expression" {
@@ -33,7 +34,7 @@ variable "schedule_expression" {
 
 variable "timeout" {
   description = "timeout for lambda"
-  default     = 500
+  default     = 750
 }
 
 
