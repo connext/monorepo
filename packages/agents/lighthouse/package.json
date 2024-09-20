@@ -40,7 +40,7 @@
     "@sinclair/typebox": "0.25.21",
     "@types/aws-lambda": "8.10.110",
     "amqplib": "0.10.3",
-    "datadog-lambda-js": "6.86.0",
+    "datadog-lambda-js": "9.115.0",
     "dd-trace": "3.13.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",

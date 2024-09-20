@@ -148,6 +148,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aws-crypto/sha256-js@npm:5.2.0":
+  version: 5.2.0
+  resolution: "@aws-crypto/sha256-js@npm:5.2.0"
+  dependencies:
+    "@aws-crypto/util": ^5.2.0
+    "@aws-sdk/types": ^3.222.0
+    tslib: ^2.6.2
+  checksum: 007fbe0436d714d0d0d282e2b61c90e45adcb9ad75eac9ac7ba03d32b56624afd09b2a9ceb4d659661cf17c51d74d1900ab6b00eacafc002da1101664955ca53
+  languageName: node
+  linkType: hard
+
+"@aws-crypto/util@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@aws-crypto/util@npm:5.2.0"
+  dependencies:
+    "@aws-sdk/types": ^3.222.0
+    "@smithy/util-utf8": ^2.0.0
+    tslib: ^2.6.2
+  checksum: f0f81d9d2771c59946cfec48b86cb23d39f78a966c4a1f89d4753abdc3cb38de06f907d1e6450059b121d48ac65d612ab88bdb70014553a077fc3dabddfbf8d6
+  languageName: node
+  linkType: hard
+
+"@aws-sdk/types@npm:^3.222.0":
+  version: 3.654.0
+  resolution: "@aws-sdk/types@npm:3.654.0"
+  dependencies:
+    "@smithy/types": ^3.4.2
+    tslib: ^2.6.2
+  checksum: 2b26f08a1b57437b051afa3820b4deaa52dcee1534972b4a61c66ae409b59dc81dbf7ca226c845564e1e021a51e1c9a667ce0c471fe9e6bda9d29ab95ec92c7b
+  languageName: node
+  linkType: hard
+
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.23.5":
   version: 7.23.5
   resolution: "@babel/code-frame@npm:7.23.5"
@@ -2379,7 +2411,7 @@ __metadata:
     "@types/aws-lambda": 8.10.110
     "@types/pg": 8.6.6
     concurrently: 7.6.0
-    datadog-lambda-js: 6.86.0
+    datadog-lambda-js: 9.115.0
     dd-trace: 3.13.2
     dotenv: 16.0.3
     eslint: 8.34.0
@@ -2454,7 +2486,7 @@ __metadata:
     "@types/sinon": 10.0.13
     amqplib: 0.10.3
     concurrently: 7.6.0
-    datadog-lambda-js: 6.86.0
+    datadog-lambda-js: 9.115.0
     dd-trace: 3.13.2
     dotenv: 16.0.3
     eslint: 8.34.0
@@ -7683,6 +7715,44 @@ __metadata:
   version: 0.7.2
   resolution: "@sinonjs/text-encoding@npm:0.7.2"
   checksum: fe690002a32ba06906cf87e2e8fe84d1590294586f2a7fd180a65355b53660c155c3273d8011a5f2b77209b819aa7306678ae6e4aea0df014bd7ffd4bbbcf1ab
+  languageName: node
+  linkType: hard
+
+"@smithy/is-array-buffer@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@smithy/is-array-buffer@npm:2.2.0"
+  dependencies:
+    tslib: ^2.6.2
+  checksum: cd12c2e27884fec89ca8966d33c9dc34d3234efe89b33a9b309c61ebcde463e6f15f6a02d31d4fddbfd6e5904743524ca5b95021b517b98fe10957c2da0cd5fc
+  languageName: node
+  linkType: hard
+
+"@smithy/types@npm:^3.4.2":
+  version: 3.4.2
+  resolution: "@smithy/types@npm:3.4.2"
+  dependencies:
+    tslib: ^2.6.2
+  checksum: 84daaa72d890a977185fa34566879ba3ee6cab6d32986dfa773c540b6dee81701128067ed0fe876d9f2dd197e4079d66ec32bdd0b52c18e9a9b0c493bc1a7478
+  languageName: node
+  linkType: hard
+
+"@smithy/util-buffer-from@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@smithy/util-buffer-from@npm:2.2.0"
+  dependencies:
+    "@smithy/is-array-buffer": ^2.2.0
+    tslib: ^2.6.2
+  checksum: 424c5b7368ae5880a8f2732e298d17879a19ca925f24ca45e1c6c005f717bb15b76eb28174d308d81631ad457ea0088aab0fd3255dd42f45a535c81944ad64d3
+  languageName: node
+  linkType: hard
+
+"@smithy/util-utf8@npm:^2.0.0":
+  version: 2.3.0
+  resolution: "@smithy/util-utf8@npm:2.3.0"
+  dependencies:
+    "@smithy/util-buffer-from": ^2.2.0
+    tslib: ^2.6.2
+  checksum: 00e55d4b4e37d48be0eef3599082402b933c52a1407fed7e8e8ad76d94d81a0b30b8bfaf2047c59d9c3af31e5f20e7a8c959cb7ae270f894255e05a2229964f0
   languageName: node
   linkType: hard
 
@@ -14381,17 +14451,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"datadog-lambda-js@npm:6.86.0":
-  version: 6.86.0
-  resolution: "datadog-lambda-js@npm:6.86.0"
+"datadog-lambda-js@npm:9.115.0":
+  version: 9.115.0
+  resolution: "datadog-lambda-js@npm:9.115.0"
   dependencies:
-    bignumber.js: ^9.0.1
+    "@aws-crypto/sha256-js": 5.2.0
+    dc-polyfill: ^0.1.3
     hot-shots: 8.5.0
     promise-retry: ^2.0.1
     serialize-error: ^8.1.0
-    shimmer: ^1.2.1
-    ts-md5: 1.3.1
-  checksum: 669cd77d9b9cc1a64284ae838bd59e0a2f10803b0e8b9576ac8bdfe108aa87bc5854585c1c387661615e6127f1551fc1b18f119ed58a3ea26454d350de3a961e
+    shimmer: 1.2.1
+  checksum: af7ed73e73f646b946bd25a87fef269764b1b6b7caf2f298c84ff491f19ed111ff299d71c24df1998bbd174b5f2753e2020977c1fcb57e07eb6dfa972c4fd5cb
   languageName: node
   linkType: hard
 
@@ -14438,6 +14508,13 @@ __metadata:
   bin:
     dbmate: dist/cli.js
   checksum: fec7ec4baf6cfff203155c207eae7422e68a85f61357ebe374a2718e634cb19db49c1ee17af899391b913e18a618e30f86181ea7000b34f71b29a525afc9c589
+  languageName: node
+  linkType: hard
+
+"dc-polyfill@npm:^0.1.3":
+  version: 0.1.6
+  resolution: "dc-polyfill@npm:0.1.6"
+  checksum: 10ef2cc568d27b2f51d3efed4ce045ff906c0934767f50d7bbb7a5b322c4ea9f096216bfa4ba8b328711342e05e7c765d5fa7503fab34eba997c783ffcfcb2bf
   languageName: node
   linkType: hard
 
@@ -28504,7 +28581,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shimmer@npm:^1.2.1":
+"shimmer@npm:1.2.1":
   version: 1.2.1
   resolution: "shimmer@npm:1.2.1"
   checksum: aa0d6252ad1c682a4fdfda69e541be987f7a265ac7b00b1208e5e48cc68dc55f293955346ea4c71a169b7324b82c70f8400b3d3d2d60b2a7519f0a3522423250
@@ -30518,13 +30595,6 @@ __metadata:
   version: 2.2.5
   resolution: "ts-log@npm:2.2.5"
   checksum: 28f78ab15b8555d56c089dbc243327d8ce4331219956242a29fc4cb3bad6bb0cb8234dd17a292381a1b1dba99a7e4849a2181b2e1a303e8247e9f4ca4e284f2d
-  languageName: node
-  linkType: hard
-
-"ts-md5@npm:1.3.1":
-  version: 1.3.1
-  resolution: "ts-md5@npm:1.3.1"
-  checksum: 88fc4df837e17949fef92a8e71a0691b20e2f8b02a002876a162a102e7c9d364f1eb00cbd217f9578fec5fa07bb66ffa14ed054cdfe164486fab2173c8e9ea23
   languageName: node
   linkType: hard
 

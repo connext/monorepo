@@ -33,7 +33,7 @@
     "@connext/nxtp-adapters-subgraph": "workspace:*",
     "@connext/nxtp-utils": "workspace:*",
     "@sinclair/typebox": "0.25.21",
-    "datadog-lambda-js": "6.86.0",
+    "datadog-lambda-js": "9.115.0",
     "dd-trace": "3.13.2",
     "dotenv": "16.0.3",
     "ethers": "5.7.2",
