@@ -77,7 +77,7 @@ ENV COMMIT_HASH ${COMMIT_HASH:-unknown}
 # ----- Copy files required at runtime by the app -----
 WORKDIR ${LAMBDA_TASK_ROOT}
 COPY --from=build /tmp/build ${LAMBDA_TASK_ROOT}
-COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/extensions/ /opt/extensions
+COPY --from=public.ecr.aws/datadog/lambda-extension:latest /opt/. /opt/
 
 # This user is created in the base image with uid and gid = 1000.
 
