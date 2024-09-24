@@ -695,6 +695,31 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "x-LAY3R",
+      canonical: {
+        domain: "11111",
+        address: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+          adopted: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+          adopted: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+        },
+        /// BNB
+        "6450786": {
+          local: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+          adopted: "0x646DE46Efe5A27b78E5f6f3E1E44939501Ba43Eb",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
