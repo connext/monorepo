@@ -962,10 +962,32 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         "6648936": {
           local: "0x40c562a794608FCd81Cdfc032592328ebFa1927c",
           adopted: "0x40c562a794608FCd81Cdfc032592328ebFa1927c",
-      },
+        },
         "1836016741": {
           local: "0x90993Ac1734b023dEEc548b87B11F5d2dcD3818E",
           adopted: "0x90993Ac1734b023dEEc548b87B11F5d2dcD3818E",
+        },
+      },
+    },
+    {
+      name: "x-LAY3R",
+      canonical: {
+        domain: "11111",
+        address: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+        decimals: 18,
+      },
+      representations: {
+        "6648936": {
+          local: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+          adopted: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+        },
+        "1634886255": {
+          local: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+          adopted: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+        },
+        "6450786": {
+          local: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
+          adopted: "0x6EEFf5dadD79a3945E40D321Cb5a1853ae389088",
         },
       },
     },
