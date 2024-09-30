@@ -14,7 +14,7 @@ describe("Operations:validateAndPause", () => {
       validateAndPauseStub = stub(ValidateAndPauseFns, "pauseAndAlert").resolves();
     });
 
-    it("should not call pauseAndAlert if it doesnt need pause", async () => {
+    it("should not call pauseAndAlert if it doesn't need pause", async () => {
       (ctxMock.adapters.watcher.checkInvariants as SinonStub).resolves({ needsPause: false });
       await ValidateAndPauseFns.validateAndPause();
       expect(validateAndPauseStub.callCount).to.be.eq(0);
