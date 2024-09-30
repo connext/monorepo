@@ -1,4 +1,4 @@
-import { utils, BigNumber } from "ethers";
+import { utils, BigNumber, BigNumberish } from "ethers";
 import {
   Logger,
   ChainData,
@@ -70,9 +70,14 @@ export class SdkUtils extends SdkShared {
    * Fetches a list of router liquidity data.
    *
    * @param params - (optional) Parameters object.
+   * @param params.domain - (optional) The domain to filter against.
+   * @param params.localAsset - (optional) The local asset address to filter against.
+   * @param params.adoptedAsset - (optional) The adopted asset address to filter against.
+   * @param params.canonicalId - (optional) The canonical ID to filter against.
    * @param params.order - (optional) The object with orderBy and ascOrDesc options.
    * @param params.order.orderBy - (optional) Field to order by.
    * @param params.order.ascOrDesc - (optional) Sort order, either "asc" or "desc".
+   * @param params.limit - (optional) The number of results to get.
    * @returns Array of objects containing the router address and liquidity information, in the form of:
    *
    * ```ts
@@ -94,16 +99,36 @@ export class SdkUtils extends SdkShared {
    * ```
    */
   async getRoutersData(params?: {
+    domain?: string;
+    localAsset?: string;
+    adoptedAsset?: string;
+    canonicalId?: string;
     order?: { orderBy?: string; ascOrDesc?: "asc" | "desc" };
+    limit?: number;
   }): Promise<RouterBalance[]> {
-    const { order } = params ?? {};
+    const { domain, localAsset, adoptedAsset, canonicalId, order, limit } = params ?? {};
 
-    const orderBy = order?.orderBy ? order.orderBy : "";
-    const ascOrDesc = order?.ascOrDesc ? "." + order.ascOrDesc : "";
-    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}` : "";
+    const domainIdentifier = domain ? `domain=eq.${domain.toString()}&` : "";
+    const localAssetIdentifier = localAsset ? `local=eq.${localAsset.toLowerCase()}&` : "";
+    const adoptedAssetIdentifier = adoptedAsset ? `adopted=eq.${adoptedAsset.toLowerCase()}&` : "";
+    const canonicalIdIdentifier = canonicalId ? `canonical_id=eq.${canonicalId.toLowerCase()}&` : "";
 
-    const uri = formatUrl(this.config.cartographerUrl!, "routers_with_balances?", orderIdentifier);
-    // Validate uri
+    const searchIdentifier =
+      domainIdentifier +
+      localAssetIdentifier +
+      adoptedAssetIdentifier +
+      canonicalIdIdentifier;
+
+    const orderBy = order?.orderBy || "";
+    const ascOrDesc = order?.ascOrDesc ? `.${order.ascOrDesc}` : "";
+    const orderIdentifier = orderBy ? `order=${orderBy}${ascOrDesc}&` : "";
+    const limitIdentifier = limit ? `limit=${limit}` : "";
+
+    const uri = formatUrl(
+      this.config.cartographerUrl!,
+      "routers_with_balances?",
+      searchIdentifier + orderIdentifier + limitIdentifier
+    );
     validateUri(uri);
 
     return await axiosGetRequest(uri);
@@ -307,6 +332,60 @@ export class SdkUtils extends SdkShared {
     return eligibleRouters
       .slice(0, _topN)
       .reduce((acc, router) => acc.add(BigNumber.from(router.balance.toString())), BigNumber.from(0));
+  }
+
+  /**
+   * Checks if enough router liquidity is available for a specific asset.
+   *
+   * @param domainId - The domain ID where the asset exists.
+   * @param asset - The address of the local asset.
+   * @param minLiquidity - The minimum liquidity to check against the sum of max N routers.
+   * @param maxN - (optional) The max N routers, should match the auction round depth (N = 2^(depth-1).
+   * @param bufferPercentage - (optional) The buffer percentage to apply on top of the minimum liquidity.
+   * @returns The total router liquidity available for the asset.
+   *
+   */
+  async enoughRouterLiquidity(
+    domainId: string,
+    asset: string,
+    minLiquidity: BigNumberish,
+    maxN?: number,
+    bufferPercentage?: number
+  ): Promise<boolean> {
+    const _asset = asset.toLowerCase();
+    const _maxN = maxN ?? 4;
+    const _minLiquidityBN = BigNumber.from(this.scientificToBigInt(minLiquidity.toString()));
+    const _bufferPercentage = bufferPercentage ?? 0;
+  
+    const routersByLargestBalance = await this.getRoutersData({
+      domain: domainId,
+      localAsset: _asset,
+      order: { orderBy: "balance", ascOrDesc: "desc" },
+      limit: _maxN,
+    });
+
+    let totalLiquidity = BigNumber.from(0);
+    for (const routerBalance of routersByLargestBalance) {
+      const balanceBN = BigNumber.from(this.scientificToBigInt(routerBalance.balance.toString()));
+      totalLiquidity = totalLiquidity.add(balanceBN);
+    }
+  
+    const totalLiquidityWithBuffer = _minLiquidityBN.mul(BigNumber.from(100 + _bufferPercentage)).div(100);
+    return totalLiquidity.gte(totalLiquidityWithBuffer);
+  }
+
+  scientificToBigInt(scientificNotationString: string) {
+    const parts = scientificNotationString.split("e");
+    const coeff = parseFloat(parts[0]);
+    const exp = parts.length > 1 ? parseFloat(parts[1]) : 0;
+
+    const decimalParts = coeff.toString().split(".");
+    const numDecimals = decimalParts[1]?.length || 0;
+
+    const bigIntCoeff = BigInt(decimalParts.join(""));
+    const bigIntExp = BigInt(exp - numDecimals);
+
+    return bigIntCoeff * BigInt(10) ** bigIntExp;
   }
 
   /**

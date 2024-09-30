@@ -807,6 +807,7 @@ export const TRange = Type.Object({
 export const SdkGetRoutersDataParamsSchema = Type.Optional(
   Type.Object({
     order: Type.Optional(TOrderBy),
+    limit: Type.Optional(Type.Number()),
   }),
 );
 export type SdkGetRoutersDataParams = Static<typeof SdkGetRoutersDataParamsSchema>;
@@ -843,6 +844,16 @@ export const SdkCheckRouterLiquidityParamsSchema = Type.Object({
   topN: Type.Optional(Type.Number()),
 });
 export type SdkCheckRouterLiquidityParams = Static<typeof SdkCheckRouterLiquidityParamsSchema>;
+
+// enoughRouterLiquidity
+export const SdkEnoughRouterLiquidityParamsSchema = Type.Object({
+  domainId: Type.String(),
+  asset: Type.String(),
+  minLiquidity: Type.Number(),
+  maxN: Type.Optional(Type.Number()),
+  bufferPercentage: Type.Optional(Type.Number()),
+});
+export type SdkEnoughRouterLiquidityParams = Static<typeof SdkEnoughRouterLiquidityParamsSchema>;
 
 // getLatestAssetPrice
 export const SdkGetLatestAssetPriceParamsSchema = Type.Object({
