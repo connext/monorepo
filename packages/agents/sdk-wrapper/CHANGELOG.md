@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 2.5.0-alpha.8
+
+- Fix estimates for Metis
+
 ## 2.5.0-alpha.4
 
 - `getLatestAssetPrice`: Added to fetch prices from Cartographer
