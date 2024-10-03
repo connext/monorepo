@@ -1,9 +1,9 @@
 import * as fs from "fs";
 
-import { providers, Wallet, utils, constants } from "ethers";
+import { providers, Wallet, utils, constants, ethers } from "ethers";
 import * as zk from "zksync-ethers";
 import commandLineArgs from "command-line-args";
-import { ajv, domainToChainId, getGelatoRelayerAddress, getChainData } from "@connext/nxtp-utils";
+import { ajv, domainToChainId, getGelatoRelayerAddress, getChainData, mkAddress } from "@connext/nxtp-utils";
 import { HttpNetworkUserConfig } from "hardhat/types";
 
 import { canonizeId } from "../../domain";
@@ -21,6 +21,7 @@ import {
   SpokeMessagingDeployments,
   setupAsset,
   setupMessaging,
+  DomainDeployments,
 } from "./helpers";
 import { DEFAULT_INIT_CONFIG } from "./config";
 
@@ -164,6 +165,7 @@ export const sanitizeAndInit = async () => {
     }
   }
 
+  let deployer;
   // Get deployments for each domain if not specified in the config.
   for (const domain of domains) {
     const chainId = domainToChainId(Number(domain));
@@ -177,7 +179,7 @@ export const sanitizeAndInit = async () => {
     }
 
     // Convert deployer from mnemonic to Wallet.
-    let deployer;
+
     if (privateKey) {
       deployer = chainConfig.zksync ? new zk.Wallet(privateKey) : new Wallet(privateKey);
     } else {
@@ -209,6 +211,17 @@ export const sanitizeAndInit = async () => {
       relayerFeeVault: initConfig.agents.relayerFeeVaults[domain],
     });
   }
+
+  // adding pseudo domain config in networks
+
+  networks.push({
+    signerAddress: mkAddress("pseudo"),
+    chain: "11111",
+    domain: "11111",
+    rpc: new providers.JsonRpcProvider("https://dummmy.com"),
+    deployments: {} as DomainDeployments,
+    relayerFeeVault: mkAddress("pseudo"),
+  });
 
   const sanitized = {
     hub: hubDomain,

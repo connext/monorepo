@@ -68,6 +68,111 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "Axis",
+      canonical: {
+        domain: "11111",
+        address: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        decimals: 18,
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+          adopted: "0x758E86566D1A6eBE81e9Db46839C38994A404347",
+        },
+        /// Optimism-Sepolia
+        "1869640549": {
+          local: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+          adopted: "0xCaA3e435028E7d505b2D6D26aE62282c6417Be7A",
+        },
+      },
+    },
+    {
+      name: "PufETH",
+      canonical: {
+        domain: "11111",
+        address: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
+          adopted: "0xc63b3a075269F67Dd0C4B21dedBed23E39A01aff",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0xBb30e1813E20e5210c8C4E09910F0BDE5c2944B3",
+          adopted: "0xBb30e1813E20e5210c8C4E09910F0BDE5c2944B3",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
+          adopted: "0xCcCA977cC71a8c97518b9A9b134263e83389B338",
+        },
+      },
+    },
+    {
+      name: "EURe",
+      canonical: {
+        domain: "11111",
+        address: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+          adopted: "0x25cd53732C4f781261cc4B2604dcB962083028e0",
+        },
+        /// OPTIMISM-SEPOLIA
+        "1869640549": {
+          local: "0x4C26b8296536C9d9eD08a3f196B8a42d841b3912",
+          adopted: "0x4C26b8296536C9d9eD08a3f196B8a42d841b3912",
+        },
+      },
+    },
+    {
+      name: "xTRSY",
+      canonical: {
+        domain: "11111",
+        address: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        decimals: 18,
+      },
+      representations: {
+        /// SEPOLIA
+        "1936027759": {
+          local: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+          adopted: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        },
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+          adopted: "0x57DB569694D1f4960477987D6D547661fcC70f4a",
+        },
+      },
+    },
+    {
+      name: "txwUSDM",
+      canonical: {
+        domain: "11111",
+        decimals: 18,
+        address: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+      },
+      representations: {
+        /// Sepolia
+        "1936027759": {
+          local: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+          adopted: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+        },
+        /// Arb Sepolia
+        "1633842021": {
+          local: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+          adopted: "0x553668Ba188941ecbB9C18bDE089fcB679FC6a64",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
