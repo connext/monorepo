@@ -167,8 +167,14 @@ describe("Libs:quote", () => {
       });
       axiosGetStub.resolves({ data: { toAmount: "990000000000000" } });
       let initCoreSDKStub: SinonStub;
-      initCoreSDKStub = stub(MockableFns, "initCoreSDK");
-      initCoreSDKStub.resolves({ sdkBase: { calculateAmountReceived: { amountReceived: "100" } } });
+      initCoreSDKStub = stub(HelperFns, "initCoreSDK");
+      initCoreSDKStub.resolves({
+        sdkBase: {
+          calculateAmountReceived: () => {
+            return { amountReceived: "100" };
+          },
+        },
+      });
       stub(HelperFns, "DestinationSwapperPerDomain").value({
         "1886350457": {
           type: Swapper.UniV3,

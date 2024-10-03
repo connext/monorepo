@@ -12,7 +12,7 @@ const mockChainData = [
     domainId: "1337",
     confirmations: 1,
     assetId: {},
-    rpc: ["https://mock.mumbai.rpc"],
+    rpc: ["https://polygon-mumbai.gateway.tenderly.co	"],
   },
   {
     name: "Unit Test Chain 2",
@@ -44,7 +44,7 @@ describe("maticjs:proof", () => {
       fetchJsonStub = stub(SharedFns, "fetchJson");
       fetchJsonStub.resolves(mockChainData);
 
-      posClient = await initMatic(false, mockChainData[0].rpc[0], mockChainData[1].rpc[0]);
+      posClient = await initMatic(true, mockChainData[0].rpc[0], mockChainData[1].rpc[0]);
       posClientStub = stub(ClientFuncs, "initMatic").resolves(posClient);
       exitBuildStub = stub(posClient.exitUtil, "buildPayloadForExit");
       exitHashStub = stub(posClient.exitUtil, "getExitHash");

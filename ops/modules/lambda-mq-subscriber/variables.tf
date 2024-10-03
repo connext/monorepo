@@ -17,6 +17,7 @@ variable "container_family" {
 
 variable "container_env_vars" {
   description = "env vars for running container"
+  sensitive   = true
 }
 
 variable "timeout" {
@@ -39,6 +40,7 @@ variable "environment" {}
 variable "rmq_mgt_password" {
   type        = string
   description = "RabbitMQ management password"
+  sensitive   = true
 }
 
 variable "rmq_mgt_user" {
