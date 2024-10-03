@@ -991,6 +991,36 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xE2EBN",
+      canonical: {
+        domain: "11111",
+        address: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+        decimals: 18,
+      },
+      representations: {
+        // ETHEREUM
+        "6648936": {
+          local: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+          adopted: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+        },
+        // OPTIMISM
+        "1869640809": {
+          local: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+          adopted: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+        },
+        // ARBITRUM
+        "1634886255": {
+          local: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+          adopted: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+        },
+        // BASE
+        "1650553709": {
+          local: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+          adopted: "0xb9b3f06ff4fd20834380c11c715db10b0ec87319",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
