@@ -570,7 +570,7 @@ locals {
     server = {
       adminToken = var.admin_token_lighthouse_prover_subscriber
     }
-    maxSafeRoots = 12
+    maxSafeRoots = 13
   })
 
   local_relayer_config = jsonencode({
