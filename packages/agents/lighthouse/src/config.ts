@@ -124,7 +124,7 @@ export const NxtpLighthouseConfigSchema = Type.Object({
   messageQueue: TMQConfig,
   server: TServerConfig,
   snapshotDuration: Type.Integer({ minimum: 1, maximum: 10000 }),
-  maxSafeRoots: Type.Integer({ minimum: 0, maximum: 10 }),
+  maxSafeRoots: Type.Integer({ minimum: 0, maximum: 13 }),
 });
 
 export type NxtpLighthouseConfig = Static<typeof NxtpLighthouseConfigSchema>;
