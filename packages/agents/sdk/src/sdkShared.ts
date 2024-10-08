@@ -452,6 +452,12 @@ export class SdkShared {
 
     for (const asset of data) {
       const chainConfig = this.config.chains[asset.domain];
+
+      // Skip assets when chain config is not configured
+      if (!chainConfig) {
+        continue;
+      }
+
       if (!chainConfig.disabled && !chainConfig.disabledAssets?.includes(utils.getAddress(asset.adopted))) {
         const support = supported.get(asset.domain);
         if (support) {
