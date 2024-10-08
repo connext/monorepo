@@ -2,6 +2,10 @@
 
 ## Next Release
 
+## 2.5.0-alpha.9
+
+- Fix excluded chains
+
 ## 2.5.0-alpha.8
 
 - Fix estimates for Metis
