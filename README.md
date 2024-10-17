@@ -81,7 +81,7 @@ Connext is a modular stack for trust-minimized, generalized communication betwee
 
   - [Cache](https://github.com/connext/monorepo/tree/main/packages/adapters/cache) is a wrapper around all the Redis-based caches that are used.
   - [Database](https://github.com/connext/monorepo/tree/main/packages/adapters/database) is implementation of schema and client for the database.
-  - [Subrgaph](https://github.com/connext/monorepo/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
+  - [Subgraph](https://github.com/connext/monorepo/tree/main/packages/adapters/subgraph) includes graphclient implementation and reader functions for subgraph.
   - [TxService](https://github.com/connext/monorepo/tree/main/packages/adapters/txservice) resiliently attempts to send transactions to chain (with retries, etc.) and is used to read and write to RPC providers, and has fallback providers if needed. Fallbacks can be defined as arrays and this way we can provide resiliency in case of failure
   - [Web3Signer](https://github.com/connext/monorepo/tree/main/packages/adapters/web3signer) is a wrapper around Web3Signer, which is a secure way of signing which does not require to include mnemonics in the app itself.
 

@@ -16,7 +16,7 @@ A test script to validate the end-to-end cross-chain transfer process.
 
 ### 2. Environment Variables
 
-In your local environment, relpace `sha-0c08528` to the latest sha build tag from CI you want to use, run the following commands to export env variables which will be used in the local e2e runtime environment:
+In your local environment, replace `sha-0c08528` to the latest sha build tag from CI you want to use, run the following commands to export env variables which will be used in the local e2e runtime environment:
 
 ```sh
 export ROUTER_PUBLISHER_IMAGE='ghcr.io/connext/router-publisher:sha-0c08528'
