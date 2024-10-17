@@ -1,3 +1,5 @@
+import { FastifyInstance } from "fastify";
+import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import {
   SdkUtils,
   SdkGetRoutersDataParams,
@@ -5,14 +7,15 @@ import {
   SdkGetTransfersParams,
   SdkCheckRouterLiquidityParamsSchema,
   SdkCheckRouterLiquidityParams,
+  SdkEnoughRouterLiquidityParamsSchema,
+  SdkEnoughRouterLiquidityParams,
   SdkGetLatestAssetPriceParamsSchema,
   SdkGetLatestAssetPriceParams,
 } from "@connext/sdk-core";
 import { createLoggingContext, jsonifyError } from "@connext/nxtp-utils";
-import { FastifyInstance } from "fastify";
-import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 
 import { RoutesOptions } from "../server";
+import { cacheMiddleware } from "../cacheMiddleware";
 
 interface UtilsRoutesOptions extends RoutesOptions {
   sdkUtilsInstance: SdkUtils;
@@ -29,7 +32,6 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
   });
 
   s.post<{ Body: SdkGetRoutersDataParams }>("/getRoutersData", async (request, reply) => {
-    console.log(request.body); // Log the request body
     const res = await sdkUtilsInstance.getRoutersData(request.body);
     reply.status(200).send(res);
   });
@@ -56,6 +58,28 @@ export const utilsRoutes = async (server: FastifyInstance, options: UtilsRoutesO
       const res = await sdkUtilsInstance.checkRouterLiquidity(domainId, asset, topN);
       reply.status(200).send(res);
     },
+  );
+
+  s.post<{ Body: SdkEnoughRouterLiquidityParams }>(
+    "/enoughRouterLiquidity",
+    {
+      schema: {
+        body: SdkEnoughRouterLiquidityParamsSchema,
+      },
+    },
+    async (request, reply) => {
+      await cacheMiddleware(
+        server,
+        request,
+        reply,
+        async () => {
+          const { domainId, asset, minLiquidity, maxN, bufferPercentage } = request.body;
+          return sdkUtilsInstance.enoughRouterLiquidity(domainId, asset, minLiquidity, maxN, bufferPercentage);
+        },
+        "enoughRouterLiquidity",
+        options
+      );
+    }
   );
 
   s.post<{ Body: SdkGetLatestAssetPriceParams }>(

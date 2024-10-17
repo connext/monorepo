@@ -4,7 +4,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { config as dotenvConfig } from "dotenv";
 import { ajv } from "@connext/nxtp-utils";
 
-const CACHE_EXPIRATION_SECS = 300;
+export const DEFAULT_CACHE_EXPIRATION_SECS = 300;
 
 dotenvConfig();
 
@@ -21,9 +21,9 @@ export const TServerConfig = Type.Object({
 
 export const TRedisConfig = Type.Object({
   enabled: Type.Optional(Type.Boolean()),
-  expirationTime: Type.Optional(Type.Integer()),
   host: Type.Optional(Type.String()),
   port: Type.Optional(Type.Integer({ minimum: 1, maximum: 65535 })),
+  cacheExpirationTimes: Type.Optional(Type.Record(Type.String(), Type.Integer())),
 });
 
 export const SdkServerConfigSchema = Type.Object({
@@ -84,11 +84,10 @@ export const getEnvConfig = (): SdkServerConfig => {
     mnemonic: process.env.SDK_SERVER_MNEMONIC || configJson.mnemonic || configFile.mnemonic,
     redis: {
       enabled: process.env.SDK_SERVER_REDIS_ENABLED || configJson.redis?.enabled || configFile.redis?.enabled || false,
-      expirationTime:
-        process.env.SDK_SERVER_REDIS_EXPIRATION_TIME ||
-        configJson.redis?.expirationTime ||
-        configFile.redis?.expirationTime ||
-        CACHE_EXPIRATION_SECS,
+      cacheExpirationTimes:
+        process.env.SDK_SERVER_REDIS_EXPIRATION_TIMES ||
+        configJson.redis?.cacheExpirationTimes ||
+        configFile.redis?.cacheExpirationTimes,
       host: process.env.SDK_SERVER_REDIS_HOST || configJson.redis?.host || configFile.redis?.host || "localhost",
       port: process.env.SDK_SERVER_REDIS_PORT || configJson.redis?.port || configFile.redis?.port || 6379,
     },
