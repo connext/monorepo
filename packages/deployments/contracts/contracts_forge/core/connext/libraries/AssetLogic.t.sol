@@ -310,7 +310,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // ============ swapToLocalAssetIfNeeded ============
 
-  // doesnt swap
+  // doesn't swap
   function test_AssetLogic__swapToLocalAssetIfNeeded_worksIfZero() public {
     utils_swapToLocalAndAssertViaExternal(_adopted, 0, 10000, 1_000);
   }
@@ -327,7 +327,7 @@ contract AssetLogicTest is BaseConnextFacet, FacetHelper {
 
   // ============ swapFromLocalAssetIfNeeded ============
 
-  // doesnt swap
+  // doesn't swap
   function test_AssetLogic__swapFromLocalAssetIfNeeded_worksIfZero() public {
     utils_swapFromLocalAndAssertViaExternal(_local, 0, 0.1 ether, 1_000, 0 ether);
   }

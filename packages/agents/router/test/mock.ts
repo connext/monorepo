@@ -124,7 +124,7 @@ export const mock = {
   adapters: {
     wallet: (): SinonStubbedInstance<Wallet> => {
       const wallet = createStubInstance(Wallet);
-      // need to do this differently bc the function doesnt exist on the interface
+      // need to do this differently bc the function doesn't exist on the interface
       (wallet as any).address = mock.address.router;
       wallet.getAddress.resolves(mock.address.router);
       wallet.signMessage.resolves(mock.signature);

@@ -16,7 +16,7 @@ describe("Operations:validateAndSwitch", () => {
       validateAndSwitchStub = stub(validateAndSwitchFns, "switchAndAlert").resolves();
     });
 
-    it("should not call switchAndAlert if it doesnt need pause", async () => {
+    it("should not call switchAndAlert if it doesn't need pause", async () => {
       (ctxMock.adapters.monitor.validateProposal as SinonStub).resolves({ needsSwitch: false });
       await validateAndSwitchFns.validateAndSwitch();
       expect(validateAndSwitchStub.callCount).to.be.eq(0);

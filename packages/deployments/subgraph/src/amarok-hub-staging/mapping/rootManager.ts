@@ -17,7 +17,7 @@ import {
 
 import {
   OptimisticRootPropagated,
-  RootAggregated, //TOOD: V1.1 Remove
+  RootAggregated, //TODO: V1.1 Remove
   RootManagerMeta,
   RootManagerMode,
   OptimisticRootProposed,
