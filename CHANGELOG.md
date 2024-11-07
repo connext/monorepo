@@ -53,7 +53,7 @@
 
 ## Amarok 1.0.0
 
-- [sdk] Maintain `calculateAmountReceived` backwards caompatibility, accessible in both SdkPool and SdkBase
+- [sdk] Maintain `calculateAmountReceived` backwards compatibility, accessible in both SdkPool and SdkBase
 
 ## Amarok 1.0.0-alpha.0
 
