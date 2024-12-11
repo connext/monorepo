@@ -11,6 +11,6 @@ type TaskArgs = {
 export default task("create-domain", "Create domain hex string from chain name")
   .addParam("name", "Chain Name")
   .setAction(async ({ name }: TaskArgs, {}) => {
-    console.log("doamin hex string:", getHexDomainFromString(name));
-    console.log("doamin:", getDomainFromString(name));
+    console.log("domain hex string:", getHexDomainFromString(name));
+    console.log("domain:", getDomainFromString(name));
   });

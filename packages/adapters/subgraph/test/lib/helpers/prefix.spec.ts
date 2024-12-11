@@ -22,7 +22,7 @@ describe("Helpers:prefix", () => {
     });
   });
   describe("#getDomainFromPrefix", () => {
-    it("happy: get the doamin from the prefix", () => {
+    it("happy: get the domain from the prefix", () => {
       expect(getDomainFromPrefix("rinkeby")).to.be.eq("1111");
       expect(getDomainFromPrefix("goerli")).to.be.eq("3331");
     });
