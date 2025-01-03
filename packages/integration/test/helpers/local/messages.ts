@@ -11,7 +11,7 @@ import { PARAMETERS } from "../../constants/local";
 /**
  * Sends the spoke root via AMB.
  *
- * Even though we don't have the AMB configured in local test, we need to create an transaction for an event
+ * Even though we don't have the AMB configured in local test, we need to create a transaction for an event
  */
 export const sendSpokeRootToHub = async (
   spokeRootData: { domain: string; to: string },

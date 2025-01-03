@@ -166,7 +166,7 @@ describe("Bindings:Server", () => {
       expect(response.statusCode).to.be.eq(400);
     });
 
-    it("happy: should succeed to post a execute-slow data", async () => {
+    it("happy: should succeed to post an execute-slow data", async () => {
       (channel.publish as SinonStub).resolves();
       const mockExecutorData: ExecutorPostDataRequest = {
         transferId: mkBytes32(),

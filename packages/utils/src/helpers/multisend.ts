@@ -24,7 +24,7 @@ export const encodeMultisendCall = (txs: MultisendTransaction[]): string => {
           .solidityPack(
             [
               "uint8", // operation as a uint8 with 0 for a call or 1 for a delegatecall)
-              "address", // to as a address
+              "address", // to as an address
               "uint256", // value as a uint256 (must always be 0 in our txs as not payable)
               "uint256", // data length as a uint256
               "bytes", // data as bytes

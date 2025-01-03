@@ -219,7 +219,7 @@ library RLPReader {
   }
 
   /**
-   * Reads an RLP address value into a address.
+   * Reads an RLP address value into an address.
    * @param _in RLP address value.
    * @return Decoded address.
    */
@@ -234,7 +234,7 @@ library RLPReader {
   }
 
   /**
-   * Reads an RLP address value into a address.
+   * Reads an RLP address value into an address.
    * @param _in RLP address value.
    * @return Decoded address.
    */
