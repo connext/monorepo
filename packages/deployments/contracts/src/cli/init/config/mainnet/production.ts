@@ -695,6 +695,31 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "xVCX",
+      canonical: {
+        domain: "11111",
+        address: "0x18445923592be303fbd3BC164ee685C7457051b4",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x18445923592be303fbd3BC164ee685C7457051b4",
+          adopted: "0x18445923592be303fbd3BC164ee685C7457051b4",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0x18445923592be303fbd3BC164ee685C7457051b4",
+          adopted: "0x18445923592be303fbd3BC164ee685C7457051b4",
+        },
+        /// OPTIMISM
+        "1869640809": {
+          local: "0xfe7950eC9AfE82538CEAC95735f1daf31829d066",
+          adopted: "0xfe7950eC9AfE82538CEAC95735f1daf31829d066",
+        }
+      },
+    }
   ],
   agents: {
     relayerFeeVaults: {
