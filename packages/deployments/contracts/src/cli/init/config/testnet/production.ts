@@ -68,6 +68,22 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "CZKC",
+      canonical: {
+        domain: "1936027759",
+        address: "0x07a2a7CCffD19e114c5309A90F63a43189cC3671",
+        decimals: 6,
+      },
+      representations: {
+        /// ARBITRUM-SEPOLIA
+        "1633842021": {
+          local: "0x07a2a7CCffD19e114c5309A90F63a43189cC3671",
+          adopted: "0x07a2a7CCffD19e114c5309A90F63a43189cC3671",
+        },
+      },
+    },
+
   ],
   agents: {
     relayerFeeVaults: {
