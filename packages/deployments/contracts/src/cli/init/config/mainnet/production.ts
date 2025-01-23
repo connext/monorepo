@@ -695,6 +695,36 @@ export const MAINNET_PRODUCTION_INIT_CONFIG: InitConfig = {
         },
       },
     },
+    {
+      name: "zgETH",
+      canonical: {
+        domain: "11111",
+        address: "0x0e2504dB1ffb0C3f692128f3919CbCAa11c10e8f",
+        decimals: 18,
+      },
+      representations: {
+        /// ETHEREUM
+        "6648936": {
+          local: "0x0e2504dB1ffb0C3f692128f3919CbCAa11c10e8f",
+          adopted: "0x0e2504dB1ffb0C3f692128f3919CbCAa11c10e8f",
+        },
+        /// ARBITRUM
+        "1634886255": {
+          local: "0xA5E5A6724E99EaBd4CA236633AAb882B7658F287",
+          adopted: "0xA5E5A6724E99EaBd4CA236633AAb882B7658F287",
+        },
+        /// BASE
+        "1650553709": {
+          local: "0x4B9D5F4e95f6Fe93B4607BFdB43CB6b32cE47aa0",
+          adopted: "0x4B9D5F4e95f6Fe93B4607BFdB43CB6b32cE47aa0",
+        },
+        /// Optimism
+        "1869640809": {
+          local: "0x4B9D5F4e95f6Fe93B4607BFdB43CB6b32cE47aa0",
+          adopted: "0x4B9D5F4e95f6Fe93B4607BFdB43CB6b32cE47aa0",
+        },
+      },
+    },
   ],
   agents: {
     relayerFeeVaults: {
