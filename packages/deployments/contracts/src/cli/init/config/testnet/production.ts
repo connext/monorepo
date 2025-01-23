@@ -49,6 +49,25 @@ export const TESTNET_PRODUCTION_INIT_CONFIG: InitConfig = {
       },
     },
     {
+      name: "XXArtyfactX",
+      canonical: {
+        domain: "11111",
+        address: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+        decimals: 18,
+    },
+      representations: {
+      /// Sepolia
+        "1936027759": {
+          local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+          adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+        },
+      /// Optimism-sepolia
+        "1869640549": {
+          local: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+          adopted: "0xCd14ACD477263FE23486Ac2c156604aa5B077a61",
+        },
+      },
+  },
       name: "xezETH",
       canonical: {
         domain: "11111",
