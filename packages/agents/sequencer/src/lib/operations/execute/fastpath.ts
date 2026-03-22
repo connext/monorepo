@@ -321,12 +321,12 @@ export const executeFastPathData = async (
         let insufficientRouterExist = false;
         for (const randomBid of randomCombination) {
           const { router } = randomBid;
-          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(router, destination, asset);
+          let routerLiquidity: BigNumber | undefined = await cache.routers.getLiquidity(destination, router, asset);
           if (!routerLiquidity) {
             // Either we haven't cached the liquidity yet, or the value cached has become expired.
             routerLiquidity = await subgraph.getAssetBalance(destination, router, asset);
             if (!routerLiquidity.eq(constants.Zero)) {
-              await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+              await cache.routers.setLiquidity(destination, router, asset, routerLiquidity);
             } else if (routerLiquidity.lt(assignedAmount)) {
               // NOTE: Using WARN level here as this is unexpected behavior... routers who are bidding on a transfer should
               // have added liquidity for the asset on the corresponding domain.
@@ -410,7 +410,7 @@ export const executeFastPathData = async (
         // Update router liquidity record to reflect spending.
         for (const router of routerLiquidityMap.keys()) {
           const routerLiquidity = routerLiquidityMap.get(router)!.sub(assignedAmount);
-          await cache.routers.setLiquidity(router, destination, asset, routerLiquidity);
+          await cache.routers.setLiquidity(destination, router, asset, routerLiquidity);
         }
 
         // Break out from the bid selection loop.
